@@ -1,0 +1,72 @@
+{% extends "dataportal/base.html" %}
+
+{% block ready %}
+  <script>
+$(document).ready(function() {
+  $('#psrs').DataTable( {
+    "paging": false,
+    "order": [[1, "desc" ]]
+  });
+} );
+</script>
+{% endblock %}
+
+
+{% block content %}
+<div class="form-group">
+    <form action="" method="get">
+      <select name="project_id" onchange="this.form.submit()">
+        <option value="">Project:</option>
+        <option value="">All</option>
+        {% for project in projects %}
+          {% if project_id == project.id|stringformat:"s" %}
+            <option value={{ project.id }} selected>{{ project.proposal_short }}</option>
+          {% else %}
+          <option value={{ project.id }}>{{ project.proposal_short }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </form>
+</div>
+{% if per_pulsar_list %}
+
+    <div style="clear:both">
+    <table id="psrs" class="table table-striped table-bordered table-sm">
+    <thead class = "thead-dark">
+    <tr>
+    <th>JNAME</th>
+    <th>Last obs</th>
+    <th>First obs</th>
+    <th>Timespan [days]</th>
+    <th>No. of obs</th>
+    <th>Total integration [h]</th>
+    <th>Avg S/N (5 min)</th>
+    <th>Max S/N (5 min)</th>
+    <th>Last S/N</th>
+    <th>Last integration [m]</th>
+    </tr>
+    </thead>
+    <tbody>
+
+    {% for psr in per_pulsar_list %}
+    <tr>
+      <td><a href="{% url 'dataportal-home' %}{{ psr.Jname }}">{{ psr.Jname }}</a></td>
+      <td>{{ psr.last|date:'Y-m-d H:i:s e' }}</td>
+      <td>{{ psr.first|date:'Y-m-d H:i:s e' }}</td>
+      <td>{{ psr.timespan }}</td>
+      <td>{{ psr.nobs }}</td>
+      <td>{{ psr.total_tint_h|floatformat }}</td>
+      <td>{{ psr.avg_snr_5min|default_if_none:"-1"|floatformat }}</td>
+      <td>{{ psr.max_snr_5min|default_if_none:"-1"|floatformat  }}</td>
+      <td>{{ psr.latest_snr|floatformat }}</td>
+      <td>{{ psr.latest_tint_m|floatformat }}</td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+    </table>
+    </div>
+{% else %}
+    <p>No observations are available.</p>
+{% endif %}
+{% endblock content %}
