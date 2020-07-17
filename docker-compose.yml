@@ -3,7 +3,7 @@ version: '3'
 services:
   mysql:
     image: mysql:5.7.20
-    container_name: test-mysql
+    container_name: meertime-mysql
     environment:
       MYSQL_ROOT_PASSWORD: mypassword
       MYSQL_DATABASE: meertime
@@ -14,27 +14,27 @@ services:
   web:
     build:
       context: .
-      dockerfile: docker/web.Dockerfile
-    container_name: test-MT
+      dockerfile: docker/meertime_django.Dockerfile
+    container_name: meertime_django
     depends_on:
       - mysql
     volumes:
-      - ./static:/static
+      - ./src/static:/static
     command: >
       ash -c "python manage.py collectstatic --noinput
       && gunicorn --bind=0.0.0.0:8000 meertime.wsgi:application"
   nginx:
     build:
       context: .
-      dockerfile: docker/nginx.Dockerfile
+      dockerfile: docker/meertime_nginx.Dockerfile
     ports:
       - "32771:80"
-    container_name: ng_meertime
+    container_name: meertime_nginx
     depends_on:
       - web
     volumes:
-      - ./nginx:/etc/nginx/conf.d
-      - ./static:/static
+      - ./src/nginx:/etc/nginx/conf.d
+      - ./src/static:/static
 
 volumes:
   mysql-persistent-storage:
