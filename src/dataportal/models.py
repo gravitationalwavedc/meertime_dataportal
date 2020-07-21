@@ -27,7 +27,6 @@ class Observations(models.Model):
     nant = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Observations'
         unique_together = (('pulsar', 'utc', 'beam'),)
 
@@ -37,7 +36,6 @@ class Proposals(models.Model):
     proposal_short = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Proposals'
 
 
@@ -51,7 +49,6 @@ class Pulsars(models.Model):
     comment = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Pulsars'
 
 
@@ -74,7 +71,6 @@ class Searchmode(models.Model):
     dec = models.TextField(db_column='DEC', blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'Searchmode'
         unique_together = (('pulsar', 'utc', 'beam'),)
 
@@ -85,5 +81,4 @@ class Utcs(models.Model):
     annotation = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
         db_table = 'UTCs'

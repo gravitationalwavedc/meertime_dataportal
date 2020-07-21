@@ -45,9 +45,9 @@ Go <a href="{% url 'dataportal-home' %}">back</a>
             <td>{{ obs.nchan }}</td>
             <td>{{ obs.nbin }}</td>
             <td>{{ obs.nant }}</td>
-            <td>{{ obs.dm_fold|floatformat:-6 }}</td>
-            <td>{{ obs.dm_pipe|default_if_none:"0"|floatformat:-6 }}</td>
-            <td>{{ obs.rm_pipe|default_if_none:"0"|floatformat:-3 }}</td>
+            <td>{{ obs.dm_fold.normalize|floatformat:-4 }}</td>
+            <td>{{ obs.dm_pipe|default_if_none:"0"|floatformat:-5 }}</td>
+            <td>{{ obs.rm_pipe|default_if_none:"0"|floatformat:-2 }}</td>
             <td>{{ obs.snr_spip|floatformat }}</td>
             <td>{{ obs.snr_pipe|default_if_none:"0"|floatformat }}</td>
           </tr>
