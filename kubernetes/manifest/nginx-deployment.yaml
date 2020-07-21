@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: meertime
+  name: nginx
+  labels:
+    app: nginx
+    tier: nginx
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: mysql
+    tier: database
+  clusterIP: None
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: meertime
+  name: ng-meertime
+  labels:
+    app: nginx
+    tier: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dataportal
+      tier: nginx
+  template:
+    metadata:
+      labels:
+        app: dataportal
+        tier: nginx
+    spec:
+      initContainers:
+        - name: collectstatic
+          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.1
+          imagePullPolicy: Always
+          command: ["python", "manage.py", "collectstatic", "--noinput"]
+          volumeMounts:
+            - name: static-volume-django
+              mountPath: /static
+      containers:
+        - name: ng-meertime
+          image: nexus.gw-cloud.org/meertime-dev/meertime_nginx:0.1
+          imagePullPolicy: Always
+          resources: {}
+          volumeMounts:
+            - mountPath: /static
+              name: static-volume-django
+      volumes:
+        - name: static-volume-django
+          emptydir: {}

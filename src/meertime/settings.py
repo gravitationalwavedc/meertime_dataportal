@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import environ
+
+env = environ.Env(DEBUG=(bool, False),)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -21,9 +24,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '7-0w1bqo76#=hebhn@!1@t+#3p!p3#ti_138+dn=9y1&6ipno3'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -77,9 +77,11 @@ WSGI_APPLICATION = 'meertime.wsgi.application'
 DATABASES = {
      'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/code/sql.cfn',
-            },
+        'NAME': env("DB_NAME", default="meertime="),
+        'USER': env("DB_USER", default="bWVlcnRpbWU="),
+        'PASSWORD': env("DB_PASS"),
+        'HOST': env("DB_HOST", default="mysql"),
+        'PORT': env("DB_PORT", default="3306"),
      }
 }
 

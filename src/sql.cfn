@@ -1,5 +1,0 @@
-[client]
-host=mysql
-user=meertime
-password=passwordgoeshere
-database=meertime

@@ -8,3 +8,6 @@ RUN pip install -r requirements.txt
 RUN apk del libc-dev gcc
 
 EXPOSE 8000
+
+ENTRYPOINT [ "gunicorn" ]
+CMD [ "meertime.wsgi:application" ]
