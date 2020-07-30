@@ -1,0 +1,16 @@
+# MeerTime Production Packages. 
+
+# Django 
+Django<3                      # Use LTS version of Django.
+
+# Django Addons
+django-environ
+
+# Python Libraries 
+pip-tools                     # Better package management.
+
+# Database 
+mysql-connector-python        # mysqlclient is very buggy and fails compilation.
+
+# WSGI Server
+gunicorn

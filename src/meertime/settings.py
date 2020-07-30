@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'meertime.wsgi.application'
 
 DATABASES = {
      'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'mysql.connector.django',
         'NAME': env("DB_NAME", default="meertime="),
         'USER': env("DB_USER", default="bWVlcnRpbWU="),
         'PASSWORD': env("DB_PASS"),

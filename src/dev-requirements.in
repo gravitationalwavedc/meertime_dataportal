@@ -1,0 +1,12 @@
+# MeerTime Development Packages
+
+# ! These packages are only to be installed to assist with development activites.
+# ! For production packages please use requirements.in
+
+-c requirements.txt
+
+
+# Testing tools
+pytest
+pytest-django
+
