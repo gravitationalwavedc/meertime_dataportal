@@ -12,7 +12,8 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import environ
-env = environ.Env(DEBUG=(bool, False),)
+env = environ.Env()
+DEBUG = env("DEBUG", default=False)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -76,7 +77,7 @@ WSGI_APPLICATION = 'meertime.wsgi.application'
 DATABASES = {
      'default': {
         'ENGINE': 'mysql.connector.django',
-        'NAME': env("DB_NAME", default="meertime="),
+        'NAME': env("DB_NAME", default="meertime"),
         'USER': env("DB_USER", default="bWVlcnRpbWU="),
         'PASSWORD': env("DB_PASS"),
         'HOST': env("DB_HOST", default="mysql"),
