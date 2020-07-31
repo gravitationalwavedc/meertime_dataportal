@@ -21,7 +21,7 @@ This application provides a ReactJS frontend for access to the MeerTime project 
 ### To run on your local machine
 
 1. Clone the repository.
-2. Install python packges using [python poetry][https://python-poetry.org/]:
+2. Install python packges using [python poetry](https://python-poetry.org/):
 Run `poetry install --no-dev` for minimum install. This only installs required production packages.  
 Run `poetry install` to also install development packages such as testing tools.
 
@@ -31,7 +31,9 @@ Run `poetry install` to also install development packages such as testing tools.
 ### To run the application using docker-compose
 
 1. Clone the repository.
-2. Start docker-compose.
+2. Run `docker-compose up`.
+
+Currently, manual initialisation of the DB and migration are required.
 
 ## Contributing
 
@@ -46,15 +48,14 @@ Contributions can be made to the code base on Phabricator via arcanist. All diff
 
 ### Adding requirements
 
-Requirements are managed using [pip-tools](https://github.com/jazzband/pip-tools).
+Requirements are managed using [python poetry](https://python-poetry.org/).
 
 #### Add a production package
-1. Add the required package to requirements.in
-2. Run `pip-compile`
-3. Run `pip-sync`
+1. Run `poetry add hello` to add package `hello`
+2. Run `poetry install`
+3. Update requirements.txt with `poetry export -f requirements.txt --without-hashes > src/requirements.txt`. We may move to using poetry in docker too but while we use alpine images, we will stick with this method.
 
 #### Add a development package
-1. Add the required package to dev-requirements.in
-2. Run `pip-compile dev-requirements.in`.
-3. Run `pip-sync requirements.txt dev-requirements.txt`
+1. Run `poetry add --dev hello` to add development package `hello`
+2. Follow the steps for production package aside from the 1st step
 

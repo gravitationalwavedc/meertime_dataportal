@@ -1,23 +1,29 @@
-version: '3'
+version: "3"
 
 services:
   mysql:
     image: mysql:5.7.20
     container_name: meertime-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: mypassword
-      MYSQL_DATABASE: meertime
-      MYSQL_USER: meertime
-      MYSQL_PASSWORD: passwordgoeshere
+      - MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$DB_NAME
+      - MYSQL_USER=$DB_USERNAME
+      - MYSQL_PASSWORD=$DB_PASSWORD
     volumes:
       - mysql-persistent-storage:/var/lib/mysql
-  web:
+  django:
     build:
       context: .
       dockerfile: docker/meertime_django.Dockerfile
     container_name: meertime_django
     depends_on:
       - mysql
+    environment:
+      - DB_NAME
+      - DB_USERNAME
+      - DB_PASSWORD
+      - DB_HOST=mysql
+      - DB_PORT
     volumes:
       - ./src/static:/static
     command: >
@@ -28,13 +34,12 @@ services:
       context: .
       dockerfile: docker/meertime_nginx.Dockerfile
     ports:
-      - "32771:80"
+      - "8000:80"
     container_name: meertime_nginx
     depends_on:
-      - web
+      - django
     volumes:
       - ./src/nginx:/etc/nginx/conf.d
       - ./src/static:/static
-
 volumes:
   mysql-persistent-storage:

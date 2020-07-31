@@ -80,11 +80,11 @@ WSGI_APPLICATION = "meertime.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "mysql.connector.django",
-        "NAME": env("DB_NAME", default="meertime"),
-        "USER": env("DB_USER", default="bWVlcnRpbWU="),
-        "PASSWORD": env("DB_PASS"),
-        "HOST": env("DB_HOST", default="mysql"),
-        "PORT": env("DB_PORT", default="3306"),
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USERNAME"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT", default=3306),
     }
 }
 
@@ -93,9 +93,7 @@ DATABASES = {
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",},
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
         "OPTIONS": {"min_length": 7,},

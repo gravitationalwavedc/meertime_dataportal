@@ -9,5 +9,4 @@ RUN apk del libc-dev gcc
 
 EXPOSE 8000
 
-ENTRYPOINT [ "gunicorn" ]
-CMD [ "meertime.wsgi:application" ]
+CMD [ "gunicorn", "-b 0.0.0.0:8000", "meertime.wsgi:application", ]
