@@ -17,8 +17,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
-    path('meertime/', include('dataportal.urls')),
-    path('MeerTime/', include('dataportal.urls')),
-    path('admin/', admin.site.urls),
-    path('accounts/', include('django.contrib.auth.urls')),
+    path("meertime/", include("dataportal.urls")),
+    path("MeerTime/", include("dataportal.urls")),
+    path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
 ]

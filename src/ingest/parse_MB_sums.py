@@ -11,6 +11,7 @@ import os
 
 import log_sentry
 
+
 def parse_line(line, cur):
     inputs = line.split()
     if len(inputs) < 19:

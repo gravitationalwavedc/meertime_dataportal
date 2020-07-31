@@ -21,13 +21,12 @@ This application provides a ReactJS frontend for access to the MeerTime project 
 ### To run on your local machine
 
 1. Clone the repository.
-3. Create a python virtual environment.
-4. Install python packages:   
-Run `pip-sync` for minimum install. This only installs required production packages.  
-Run `pip-sync requirements.txt dev-requirements.txt` to also install development packages such as testing tools.
+2. Install python packges using [python poetry][https://python-poetry.org/]:
+Run `poetry install --no-dev` for minimum install. This only installs required production packages.  
+Run `poetry install` to also install development packages such as testing tools.
 
-5. Start the development server.
-  Run `python manage.py runserver` and open the [development server](http://localhost:8000/).
+3. Start the development server.
+  Run `poetry run python manage.py runserver` and open the [development server](http://localhost:8000/meertime).
 
 ### To run the application using docker-compose
 

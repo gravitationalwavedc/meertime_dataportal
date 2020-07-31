@@ -10,6 +10,7 @@ import os
 
 import log_sentry
 
+
 def parse_kronos_line(line, cur):
     inputs = line.split()
     if len(inputs) == 14 and inputs[13] == "0":
