@@ -38,7 +38,7 @@ spec:
       serviceAccountName: meertime
       initContainers:
         - name: migrate
-          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.4
+          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.5
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -69,7 +69,7 @@ spec:
           command: ["python", "manage.py", "migrate"]
       containers:
         - name: django
-          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.4
+          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.5
           resources: {}
           imagePullPolicy: Always
           env:
@@ -99,6 +99,6 @@ spec:
                   name: django-secret
                   key: secret_key
             - name: DEBUG
-              value: False
+              value: "False"
           command:
             ["gunicorn", "--bind=0.0.0.0:8000", "meertime.wsgi:application"]
