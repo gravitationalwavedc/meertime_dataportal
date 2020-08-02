@@ -1,9 +1,9 @@
 resources:
-  - meertime_namespace.yaml
+  - meertime-namespace.yaml
   - meertime-serviceaccount.yaml
   - meertime-secrets-integrator.yaml
-  - db-configmap.yaml
-  - mysql-pv.yaml
-  - mysql-deployment.yaml
-  - django-deployment.yaml
-  - nginx-deployment.yaml
+  - db-configmap.yaml
+  - mysql-pv.yaml
+  - mysql-deployment.yaml
+  - django-deployment.yaml
+  - nginx-deployment.yaml
