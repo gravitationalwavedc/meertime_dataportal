@@ -9,3 +9,4 @@ resources:
   - mysql-deployment.yaml
   - django-deployment.yaml
   - nginx-deployment.yaml
+  - meertime-ingress.yaml
