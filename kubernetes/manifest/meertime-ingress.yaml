@@ -1,0 +1,19 @@
+# Source: grafana/templates/ingress.yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: meertime-ingress
+  namespace: meertime
+  labels:
+    app: nginx
+    app.kubernetes.io/instance: meertime
+    tier: nginx
+spec:
+  rules:
+    - host: meertime.gw-cloud.org
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: nginx
+              servicePort: 80
