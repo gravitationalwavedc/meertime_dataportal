@@ -25,7 +25,7 @@ metadata:
     tier: database
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 1Gi
@@ -86,3 +86,5 @@ spec:
               mountPath: /var/lib/mysql
       volumes:
         - name: mysql-persistent-storage
+          persistentVolumeClaim:
+            claimName: mysql-pv-claim
