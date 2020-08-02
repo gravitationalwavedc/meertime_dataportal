@@ -42,6 +42,12 @@ spec:
           image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.4
           imagePullPolicy: Always
           command: ["python", "manage.py", "collectstatic", "--noinput"]
+          env:
+            - name: DJANGO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: django-secret
+                  key: secret_key
           volumeMounts:
             - name: static-volume-django
               mountPath: /static
