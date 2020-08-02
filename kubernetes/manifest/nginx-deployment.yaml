@@ -9,9 +9,11 @@ metadata:
 spec:
   ports:
     - port: 80
+      protocol: TCP
+      targetPort: 80
   selector:
-    app: mysql
-    tier: database
+    app: dataportal
+    tier: nginx
   type: ClusterIP
 ---
 apiVersion: apps/v1
