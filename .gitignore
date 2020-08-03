@@ -1,3 +1,4 @@
+# linters used by arc
 .pinterest-linters
 
 # django static
@@ -5,6 +6,9 @@ src/static
 
 # VS code:
 .vscode
+
+# Vim
+.vim
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -145,3 +149,6 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# pyenv environments
+.python-version

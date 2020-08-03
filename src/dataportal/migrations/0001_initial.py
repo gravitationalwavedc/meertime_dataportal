@@ -14,15 +14,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Proposals",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID",),),
                 ("proposal", models.TextField(blank=True, null=True)),
                 ("proposal_short", models.TextField(blank=True, null=True)),
             ],
@@ -31,22 +23,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Pulsars",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID",),),
                 ("jname", models.TextField(blank=True, db_column="Jname", null=True)),
                 ("state", models.TextField(blank=True, null=True)),
                 ("gc", models.IntegerField(blank=True, db_column="GC", null=True)),
-                (
-                    "relbin",
-                    models.IntegerField(blank=True, db_column="RelBin", null=True),
-                ),
+                ("relbin", models.IntegerField(blank=True, db_column="RelBin", null=True),),
                 ("tpa", models.IntegerField(blank=True, db_column="TPA", null=True)),
                 ("pta", models.IntegerField(blank=True, db_column="PTA", null=True)),
                 ("comment", models.TextField(blank=True, null=True)),
@@ -56,15 +37,7 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name="Utcs",
             fields=[
-                (
-                    "id",
-                    models.AutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID",),),
                 ("utc", models.TextField(blank=True, null=True)),
                 ("utc_ts", models.DateTimeField()),
                 ("annotation", models.TextField(blank=True, null=True)),
@@ -105,18 +78,9 @@ class Migration(migrations.Migration):
                         to="dataportal.Proposals",
                     ),
                 ),
-                (
-                    "utc",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.DO_NOTHING,
-                        to="dataportal.Utcs",
-                    ),
-                ),
+                ("utc", models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to="dataportal.Utcs",),),
             ],
-            options={
-                "db_table": "Searchmode",
-                "unique_together": {("pulsar", "utc", "beam")},
-            },
+            options={"db_table": "Searchmode", "unique_together": {("pulsar", "utc", "beam")},},
         ),
         migrations.CreateModel(
             name="Observations",
@@ -135,41 +99,20 @@ class Migration(migrations.Migration):
                 ("length", models.FloatField(blank=True, null=True)),
                 ("bw", models.FloatField(blank=True, null=True)),
                 ("frequency", models.FloatField(blank=True, null=True)),
-                (
-                    "rm_pipe",
-                    models.FloatField(blank=True, db_column="RM_pipe", null=True),
-                ),
-                (
-                    "dm_pipe",
-                    models.FloatField(blank=True, db_column="DM_pipe", null=True),
-                ),
-                (
-                    "dm_fold",
-                    models.FloatField(blank=True, db_column="DM_fold", null=True),
-                ),
+                ("rm_pipe", models.FloatField(blank=True, db_column="RM_pipe", null=True),),
+                ("dm_pipe", models.FloatField(blank=True, db_column="DM_pipe", null=True),),
+                ("dm_fold", models.FloatField(blank=True, db_column="DM_fold", null=True),),
                 ("nchan", models.IntegerField(blank=True, null=True)),
                 ("nbin", models.IntegerField(blank=True, null=True)),
                 ("mjd", models.TextField(blank=True, db_column="MJD", null=True)),
-                (
-                    "mjd_int",
-                    models.IntegerField(blank=True, db_column="MJD_INT", null=True),
-                ),
-                (
-                    "mjd_frac",
-                    models.TextField(blank=True, db_column="MJD_frac", null=True),
-                ),
+                ("mjd_int", models.IntegerField(blank=True, db_column="MJD_INT", null=True),),
+                ("mjd_frac", models.TextField(blank=True, db_column="MJD_frac", null=True),),
                 ("pa", models.FloatField(blank=True, db_column="PA", null=True)),
                 ("ra", models.TextField(blank=True, db_column="RA", null=True)),
                 ("dec", models.TextField(blank=True, db_column="DEC", null=True)),
                 ("observer", models.TextField(blank=True, null=True)),
-                (
-                    "snr_pipe",
-                    models.FloatField(blank=True, db_column="SNR_pipe", null=True),
-                ),
-                (
-                    "snr_spip",
-                    models.FloatField(blank=True, db_column="SNR_spip", null=True),
-                ),
+                ("snr_pipe", models.FloatField(blank=True, db_column="SNR_pipe", null=True),),
+                ("snr_spip", models.FloatField(blank=True, db_column="SNR_spip", null=True),),
                 ("nant", models.IntegerField(blank=True, null=True)),
                 (
                     "proposal",
@@ -180,17 +123,8 @@ class Migration(migrations.Migration):
                         to="dataportal.Proposals",
                     ),
                 ),
-                (
-                    "utc",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.DO_NOTHING,
-                        to="dataportal.Utcs",
-                    ),
-                ),
+                ("utc", models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to="dataportal.Utcs",),),
             ],
-            options={
-                "db_table": "Observations",
-                "unique_together": {("pulsar", "utc", "beam")},
-            },
+            options={"db_table": "Observations", "unique_together": {("pulsar", "utc", "beam")},},
         ),
     ]
