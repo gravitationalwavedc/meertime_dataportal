@@ -81,6 +81,19 @@ spec:
           volumeMounts:
             - mountPath: /static
               name: static-volume-django
+          livenessProbe:
+            httpGet:
+              path: /meertime
+              port: 80
+              httpHeaders:
+            initialDelaySeconds: 3
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /meertime
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
       volumes:
         - name: static-volume-django
           emptyDir: {}
