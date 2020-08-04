@@ -8,9 +8,7 @@ insert_utc_q = "INSERT INTO UTCs (`utc`, `utc_ts`) VALUES (%s, TIMESTAMP(%s))"
 
 # Proposals
 get_proposal_id_q = "SELECT id FROM Proposals WHERE proposal = %s"
-insert_proposal_q = (
-    "INSERT INTO Proposals (`proposal`, `proposal_short`) VALUES (%s, %s)"
-)
+insert_proposal_q = "INSERT INTO Proposals (`proposal`, `proposal_short`) VALUES (%s, %s)"
 
 # Observations
 # ignores SNR_spip and DM_fold

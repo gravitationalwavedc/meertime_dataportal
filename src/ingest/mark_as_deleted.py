@@ -22,9 +22,7 @@ def parse_delete_line(line, cur):
         result = cur.execute(q.update_proposal, [proposal_id, psr_id, utc_id, beam,])
         if cur.rowcount == 0:
             print("Line:", line.rstrip(), "had no counterpart in Observations table")
-            result = cur.execute(
-                q.update_proposal, [proposal_id, psr_id, utc_id, beam,]
-            )
+            result = cur.execute(q.update_proposal, [proposal_id, psr_id, utc_id, beam,])
             if cur.rowcount == 0:
                 print("Line:", line.rstrip(), "had no counterpart in Searchmode table")
             else:
@@ -36,12 +34,7 @@ def parse_delete_line(line, cur):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
-        "-c",
-        "--config-dir",
-        dest="configDir",
-        nargs="?",
-        help="Path to mysql config file",
-        default="./",
+        "-c", "--config-dir", dest="configDir", nargs="?", help="Path to mysql config file", default="./",
     )
     parser.add_argument("-i", "--input", nargs="+", help="Input kronos file to parse")
     args = parser.parse_args()

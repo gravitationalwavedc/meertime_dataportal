@@ -91,12 +91,7 @@ def parse_line(line, cur):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
-        "-c",
-        "--config-dir",
-        dest="configDir",
-        nargs="?",
-        help="Path to mysql config file",
-        default="./",
+        "-c", "--config-dir", dest="configDir", nargs="?", help="Path to mysql config file", default="./",
     )
     parser.add_argument("-i", "--input", nargs="+", help="Input file to parse")
     args = parser.parse_args()

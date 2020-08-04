@@ -19,9 +19,7 @@ def delete_obs(line, cur):
     """
     inputs = line.strip().split("/")
     if len(inputs) != 3:
-        raise ValueError(
-            "malformed input, expected beam/UTC/PSR per line of input file"
-        )
+        raise ValueError("malformed input, expected beam/UTC/PSR per line of input file")
     else:
         beam = inputs[0]
         utc = inputs[1]
@@ -31,11 +29,7 @@ def delete_obs(line, cur):
     deleted_count = cur.execute(q.delete_from_obs_q, [beam, utc_id, psr_id,],)
     if deleted_count != 1:
         print(
-            "Warning: observation corresponding to ",
-            line,
-            "resulted in",
-            deleted_count,
-            "deletions",
+            "Warning: observation corresponding to ", line, "resulted in", deleted_count, "deletions",
         )
     return deleted_count
 
@@ -43,12 +37,7 @@ def delete_obs(line, cur):
 if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument(
-        "-c",
-        "--config-dir",
-        dest="configDir",
-        nargs="?",
-        help="Path to mysql config file",
-        default="./",
+        "-c", "--config-dir", dest="configDir", nargs="?", help="Path to mysql config file", default="./",
     )
     parser.add_argument("-i", "--input", nargs="+", help="Input kronos file to parse")
     args = parser.parse_args()
