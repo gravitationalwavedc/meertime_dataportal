@@ -1,13 +1,14 @@
 {% extends "dataportal/base.html" %}
+{% load mathfilters %}
 
 {% block ready %}
-  <script>
-$(document).ready(function() {
-  $('#utcs').DataTable( {
-    "paging": false,
-    "order": [[0, "desc" ]]
-  });
-} );
+<script>
+    $(document).ready(function () {
+        $('#utcs').DataTable({
+            "paging": false,
+            "order": [[0, "desc"]]
+        });
+    });
 </script>
 {% endblock %}
 
@@ -15,45 +16,49 @@ $(document).ready(function() {
 {% if obs_list %}
 Go <a href="{% url 'dataportal-home' %}">back</a>
 <h2>{{ psr }}</h2>
-<a href="http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname={{ psr }}">Meerwatch link</a>
+<a href="http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname={{ psr|urlencode }}">Meerwatch link</a>
 <div style="clear:both">
-  <table id="utcs" class="table table-striped table-bordered table-sm">
-    <thead class = "thead-dark">
-      <tr>
-        <th>UTC</th>
-        <th>Project</th>
-        <th>Length</th>
-        <th>beam</th>
-        <th>Nchan</th>
-        <th>Nbin</th>
-        <th>Nant</th>
-        <th>DM fold</th>
-        <th>DM meerpipe</th>
-        <th>RM meerpipe</th>
-        <th>S/N backend</th>
-        <th>S/N meerpipe</th>
-      </tr>
-    </thead>
+    <table id="utcs" class="table table-striped table-bordered table-sm text-right">
+        <thead class="thead-dark">
+            <tr>
+                <th>UTC</th>
+                <th>Project</th>
+                <th>Length [m]</th>
+                <th>Beam</th>
+                <th>BW [MHz]</th>
+                <th>Nchan</th>
+                <th>Nbin</th>
+                <th>Nant</th>
+                <th>DM fold</th>
+                <th>DM meerpipe</th>
+                <th>RM meerpipe</th>
+                <th>S/N backend</th>
+                <th>S/N meerpipe</th>
+            </tr>
+        </thead>
 
-    <tbody>
-{% for obs in obs_list %}
-          <tr>
-            <td><a href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc__utc }}&jname={{ psr }}">{{ obs.utc__utc }}</a></td>
-            <td>{{ obs.proposal__proposal_short }}</td>
-            <td>{% widthratio obs.length 60 1 %}</td>
-            <td>{{ obs.beam }}</td>
-            <td>{{ obs.nchan }}</td>
-            <td>{{ obs.nbin }}</td>
-            <td>{{ obs.nant }}</td>
-            <td>{{ obs.dm_fold.normalize|floatformat:-4 }}</td>
-            <td>{{ obs.dm_pipe|default_if_none:"0"|floatformat:-5 }}</td>
-            <td>{{ obs.rm_pipe|default_if_none:"0"|floatformat:-2 }}</td>
-            <td>{{ obs.snr_spip|floatformat }}</td>
-            <td>{{ obs.snr_pipe|default_if_none:"0"|floatformat }}</td>
-          </tr>
-{% endfor %}
-    </tbody>
-  </table>
+        <tbody>
+            {% for obs in obs_list %}
+            <tr>
+                <td><a
+                        href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc__utc }}&jname={{ psr|urlencode }}">{{ obs.utc__utc }}</a>
+                </td>
+                <td>{{ obs.proposal__proposal_short }}</td>
+                <td>{{ obs.length|div:60|floatformat:1 }}</td>
+                <td>{{ obs.beam }}</td>
+                <td>{{ obs.bw|floatformat:2 }}</td>
+                <td>{{ obs.nchan }}</td>
+                <td>{{ obs.nbin }}</td>
+                <td>{{ obs.nant }}</td>
+                <td>{{ obs.dm_fold|floatformat:-4 }}</td>
+                <td>{{ obs.dm_pipe|default_if_none:"0"|floatformat:5 }}</td>
+                <td>{{ obs.rm_pipe|default_if_none:"0"|floatformat:2 }}</td>
+                <td>{{ obs.snr_spip|floatformat:1 }}</td>
+                <td>{{ obs.snr_pipe|default_if_none:"0"|floatformat:1 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 {% else %}

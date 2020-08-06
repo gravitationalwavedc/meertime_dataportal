@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Observations(models.Model):
-    pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING, primary_key=True)
+    pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
     utc = models.ForeignKey("Utcs", models.DO_NOTHING)
     proposal = models.ForeignKey("Proposals", models.DO_NOTHING, blank=True, null=True)
     beam = models.IntegerField()
@@ -25,6 +25,7 @@ class Observations(models.Model):
     snr_pipe = models.FloatField(db_column="SNR_pipe", blank=True, null=True)
     snr_spip = models.FloatField(db_column="SNR_spip", blank=True, null=True)
     nant = models.IntegerField(blank=True, null=True)
+    nant_eff = models.IntegerField(blank=True, null=True)
 
     class Meta:
         db_table = "Observations"
@@ -66,6 +67,7 @@ class Searchmode(models.Model):
     nbit = models.IntegerField(blank=True, null=True)
     npol = models.IntegerField(blank=True, null=True)
     nant = models.IntegerField(blank=True, null=True)
+    nant_eff = models.IntegerField(blank=True, null=True)
     dm = models.FloatField(db_column="DM", blank=True, null=True)
     ra = models.TextField(db_column="RA", blank=True, null=True)
     dec = models.TextField(db_column="DEC", blank=True, null=True)

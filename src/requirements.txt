@@ -1,5 +1,6 @@
-django==2.2.14
+django==2.2.15
 django-environ==0.4.5
+django-mathfilters==1.0.0
 gunicorn==20.0.4
 mysql-connector-python==8.0.21
 protobuf==3.12.4
