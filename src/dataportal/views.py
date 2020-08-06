@@ -10,15 +10,6 @@ from .models import Observations, Pulsars
 from django.template.defaulttags import register
 
 
-@register.filter
-def get_snr(dictionary, key):
-    return dictionary.get("SNR")
-
-
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
-
-
 class IndexView(generic.ListView):
     """
     This view uses a raw query as I didn't find an acceptable way to do a
@@ -89,6 +80,7 @@ class DetailView(generic.ListView):
 
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
+            print(self.request.path)
             return redirect("%s?next=%s" % (settings.LOGIN_URL, self.request.path))
         return super(DetailView, self).get(*args, **kwargs)
 
