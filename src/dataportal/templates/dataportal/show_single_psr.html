@@ -27,6 +27,7 @@ Go <a href="{% url 'dataportal-home' %}">back</a>
                 <th>Beam</th>
                 <th>BW [MHz]</th>
                 <th>Nchan</th>
+                <th>Band</th>
                 <th>Nbin</th>
                 <th>Nant</th>
                 <th>DM fold</th>
@@ -40,14 +41,16 @@ Go <a href="{% url 'dataportal-home' %}">back</a>
         <tbody>
             {% for obs in obs_list %}
             <tr>
-                <td><a
-                        href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc__utc }}&jname={{ psr|urlencode }}">{{ obs.utc__utc }}</a>
+                <td>
+                        <a
+                        href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc__utc }}&jname={{ psr|urlencode }}">{{ obs.utc.utc }}</a>
                 </td>
-                <td>{{ obs.proposal__proposal_short }}</td>
+                <td>{{ obs.proposal.proposal_short }}</td>
                 <td>{{ obs.length|div:60|floatformat:1 }}</td>
                 <td>{{ obs.beam }}</td>
                 <td>{{ obs.bw|floatformat:2 }}</td>
                 <td>{{ obs.nchan }}</td>
+                <td>{{ obs.band }}</td>
                 <td>{{ obs.nbin }}</td>
                 <td>{{ obs.nant }}</td>
                 <td>{{ obs.dm_fold|floatformat:-4 }}</td>

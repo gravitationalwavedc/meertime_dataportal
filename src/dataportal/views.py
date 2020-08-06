@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 from django.views import generic
 
-from .models import Observations, Pulsars
+from .models import Observations, Pulsars, Proposals
 
 from django.template.defaulttags import register
 
@@ -81,8 +81,6 @@ class IndexView(generic.ListView):
         return psr_list
 
     def get_context_data(self, **kwargs):
-        from .models import Proposals
-
         context = super().get_context_data(**kwargs)
         context["projects"] = Proposals.objects.filter(proposal__contains="SCI")
         context["project_id"] = self.request.GET.get("project_id")
@@ -96,34 +94,12 @@ class DetailView(generic.ListView):
 
     def get(self, *args, **kwargs):
         if not self.request.user.is_authenticated:
-            print(self.request.path)
             return redirect("%s?next=%s" % (settings.LOGIN_URL, self.request.path))
         return super(DetailView, self).get(*args, **kwargs)
 
     def get_queryset(self):
-        from .models import Pulsars
-
         pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
-        return (
-            Observations.objects.filter(pulsar=pulsar)
-            .values(
-                "utc__utc",
-                "proposal__proposal_short",
-                "length",
-                "beam",
-                "bw",
-                "frequency",
-                "nchan",
-                "nbin",
-                "nant",
-                "dm_fold",
-                "dm_pipe",
-                "rm_pipe",
-                "snr_spip",
-                "snr_pipe",
-            )
-            .order_by("-utc__utc_ts")
-        )
+        return Observations.objects.filter(pulsar=pulsar).order_by("-utc__utc_ts")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
