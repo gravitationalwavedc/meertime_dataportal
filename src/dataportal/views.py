@@ -12,10 +12,6 @@ from django.template.defaulttags import register
 from importlib import import_module
 
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
-
-
 def get_raw_query(table, proposal_filter):
     raw_query = (
         "SELECT o.id, o.pulsar_id, o.beam, "

@@ -1,4 +1,5 @@
 from django.db import models
+from .logic import get_band
 
 
 class Observations(models.Model):
@@ -26,6 +27,10 @@ class Observations(models.Model):
     snr_spip = models.FloatField(db_column="SNR_spip", blank=True, null=True)
     nant = models.IntegerField(blank=True, null=True)
     nant_eff = models.IntegerField(blank=True, null=True)
+
+    @property
+    def band(self):
+        return get_band(self.frequency)
 
     class Meta:
         db_table = "Observations"
@@ -71,6 +76,10 @@ class Searchmode(models.Model):
     dm = models.FloatField(db_column="DM", blank=True, null=True)
     ra = models.TextField(db_column="RA", blank=True, null=True)
     dec = models.TextField(db_column="DEC", blank=True, null=True)
+
+    @property
+    def band(self):
+        return get_band(self.frequency)
 
     class Meta:
         db_table = "Searchmode"
