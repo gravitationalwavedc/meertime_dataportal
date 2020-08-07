@@ -1,5 +1,4 @@
 import pytest
-from .views import IndexView
 from .models import Proposals, Pulsars
 
 
@@ -25,7 +24,7 @@ def test_inddex_view_authenticated(client, django_user_model):
     login_buffy(client, django_user_model)
     response = client.get("/meertime/")
     assert response.status_code == 200
-    assert response.template_name == ["dataportal/index.html", "dataportal/observations_list.html"]
+    assert response.template_name == ["dataportal/index.html", "dataportal/pulsars_list.html"]
 
 
 @pytest.mark.django_db
@@ -35,7 +34,7 @@ def test_inddex_view_authenticated_with_project_id(client, django_user_model):
     proposal_id = Proposals.objects.create().id
     response = client.get("/meertime/", {'project_id': proposal_id})
     assert response.status_code == 200
-    assert response.template_name == ["dataportal/index.html", "dataportal/observations_list.html"]
+    assert response.template_name == ["dataportal/index.html", "dataportal/pulsars_list.html"]
 
 
 # Test DetailView
@@ -67,4 +66,6 @@ def test_detail_view_accepts_correct_regex(client, django_user_model):
     response_1 = client.get("/meertime/J111-2222")
     response_2 = client.get("/meertime/J111+2222")
     assert response_1.status_code == 200
+    assert response_1.template_name == ['dataportal/show_single_psr.html', 'dataportal/observations_list.html']
     assert response_2.status_code == 200
+    assert response_2.template_name == ['dataportal/show_single_psr.html', 'dataportal/observations_list.html']

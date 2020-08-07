@@ -14,7 +14,7 @@
 
 {% block content %}
 {% if obs_list %}
-Go <a href="{% url 'dataportal-home' %}">back</a>
+Go <a href="{% url 'fold' %}">back</a>
 <h2>{{ psr }}</h2>
 <a href="http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname={{ psr|urlencode }}">Meerwatch link</a>
 <div style="clear:both">
@@ -30,6 +30,7 @@ Go <a href="{% url 'dataportal-home' %}">back</a>
                 <th>Band</th>
                 <th>Nbin</th>
                 <th>Nant</th>
+                <th>Nant EFF</th>
                 <th>DM fold</th>
                 <th>DM meerpipe</th>
                 <th>RM meerpipe</th>
@@ -42,8 +43,8 @@ Go <a href="{% url 'dataportal-home' %}">back</a>
             {% for obs in obs_list %}
             <tr>
                 <td>
-                        <a
-                        href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc__utc }}&jname={{ psr|urlencode }}">{{ obs.utc.utc }}</a>
+                   <a
+                        href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc.utc_ts }}&jname={{ psr|urlencode }}">{{ obs.utc.utc_ts }}</a>
                 </td>
                 <td>{{ obs.proposal.proposal_short }}</td>
                 <td>{{ obs.length|div:60|floatformat:1 }}</td>
@@ -53,6 +54,7 @@ Go <a href="{% url 'dataportal-home' %}">back</a>
                 <td>{{ obs.band }}</td>
                 <td>{{ obs.nbin }}</td>
                 <td>{{ obs.nant }}</td>
+                <td>{{ obs.nant_eff }}</td>
                 <td>{{ obs.dm_fold|floatformat:-4 }}</td>
                 <td>{{ obs.dm_pipe|default_if_none:"0"|floatformat:5 }}</td>
                 <td>{{ obs.rm_pipe|default_if_none:"0"|floatformat:2 }}</td>

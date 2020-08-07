@@ -1,74 +1,84 @@
 {% extends "dataportal/base.html" %}
 
 {% block ready %}
-  <script>
-$(document).ready(function() {
-  $('#psrs').DataTable( {
-    "paging": false,
-    "order": [[1, "desc" ]]
-  });
-} );
+<script>
+  $(document).ready(function() {
+    $('#psrs').DataTable( {
+      "paging": false,
+      "order": [[1, "desc" ]]
+    });
+  } );
 </script>
 {% endblock %}
 
 
 {% block content %}
+<div class="row">
 <div class="form-group">
-    <form action="" method="get">
-      <select name="project_id" onchange="this.form.submit()">
-        <option value="">Project:</option>
-        <option value="">All</option>
-        {% for project in projects %}
-          {% if project_id == project.id|stringformat:"s" %}
-            <option value={{ project.id }} selected>{{ project.proposal_short }}</option>
-          {% else %}
-          <option value={{ project.id }}>{{ project.proposal_short }}</option>
-          {% endif %}
-        {% endfor %}
-      </select>
-    </form>
+  <form action="" method="get">
+    <div class="form-group">
+    <label for="project_id">Select project</lablel>
+    <select class="form-control" id="project_id" name="project_id" onchange="this.form.submit()">
+      <option value="">All</option>
+      {% for project in projects %}
+      {% if project_id == project.id|stringformat:"s" %}
+      <option value={{ project.id }} selected>{{ project.proposal_short }}</option>
+      {% else %}
+      <option value={{ project.id }}>{{ project.proposal_short }}</option>
+      {% endif %}
+      {% endfor %}
+    </select>
+    </div>
+  </form>
 </div>
-{% if per_pulsar_list %}
+</div>
 
-    <div style="clear:both">
-    <table id="psrs" class="table table-striped table-bordered table-sm">
+{% block table %}
+{% if per_pulsar_list %}
+<div style="clear:both">
+  <div class="row">
+  <table id="psrs" class="table table-striped table-bordered table-sm">
     <thead class = "thead-dark">
-    <tr>
-    {% with hide_on_small='class="d-none d-sm-table-cell"' hide_on_medium='class="d-none d-lg-table-cell"' %}
-    <th>JNAME</th>
-    <th>Last obs</th>
-    <th {{hide_on_medium}}>First obs</th>
-    <th {{hide_on_small}}>Timespan [days]</th>
-    <th {{hide_on_small}}>No. of obs</th>
-    <th {{hide_on_small}}>Total int. [h]</th>
-    <th {{hide_on_small}}>Avg S/N (5 min)</th>
-    <th {{hide_on_small}}>Max S/N (5 min)</th>
-    <th>Last S/N</th>
-    <th>Last int. [m]</th>
-    </tr>
+      <tr>
+        {% with hide_on_small='class="d-none d-sm-table-cell"' hide_on_medium='class="d-none d-lg-table-cell"' %}
+        <th>JNAME</th>
+        <th>Last obs</th>
+        <th>Project</th>
+        <th {{hide_on_medium}}>First obs</th>
+        <th {{hide_on_small}}>Timespan [days]</th>
+        <th {{hide_on_small}}>No. of obs</th>
+        <th {{hide_on_small}}>Total int. [h]</th>
+        <th {{hide_on_small}}>Avg S/N (5 min)</th>
+        <th {{hide_on_small}}>Max S/N (5 min)</th>
+        <th>Last S/N</th>
+        <th>Last int. [m]</th>
+      </tr>
     </thead>
     <tbody>
 
-    {% for psr in per_pulsar_list %}
-    <tr>
-      <td><a href="{% url 'dataportal-home' %}{{ psr.Jname }}">{{ psr.Jname }}</a></td>
-      <td>{{ psr.last|date:'Y-m-d H:i:s e' }}</td>
-      <td {{hide_on_medium}}>{{ psr.first|date:'Y-m-d H:i:s e' }}</td>
-      <td {{hide_on_small}}>{{ psr.timespan }}</td>
-      <td {{hide_on_small}}>{{ psr.nobs }}</td>
-      <td {{hide_on_small}}>{{ psr.total_tint_h|floatformat }}</td>
-      <td {{hide_on_small}}>{{ psr.avg_snr_5min|default_if_none:"-1"|floatformat }}</td>
-      <td {{hide_on_small}}>{{ psr.max_snr_5min|default_if_none:"-1"|floatformat  }}</td>
-      <td>{{ psr.latest_snr|floatformat }}</td>
-      <td>{{ psr.latest_tint_m|floatformat }}</td>
-    </tr>
-    {% endfor %}
-    {% endwith %}
+      {% for psr in per_pulsar_list %}
+      <tr>
+        <td><a href="{% url 'pulsar_detail' psr.jname %}">{{ psr.jname }}</a></td>
+        <td>{{ psr.last|date:'Y-m-d H:i:s' }}</td>
+        <td>{{ psr.proposal_short}}</td>
+        <td {{hide_on_medium}}>{{ psr.first|date:'Y-m-d H:i:s' }}</td>
+        <td {{hide_on_small}}>{{ psr.timespan.days }}</td>
+        <td {{hide_on_small}}>{{ psr.nobs }}</td>
+        <td {{hide_on_small}}>{{ psr.total_tint_h|floatformat }}</td>
+        <td {{hide_on_small}}>{{ psr.avg_snr_5min|default_if_none:"-1"|floatformat }}</td>
+        <td {{hide_on_small}}>{{ psr.max_snr_5min|default_if_none:"-1"|floatformat  }}</td>
+        <td>{{ psr.latest_snr|floatformat }}</td>
+        <td>{{ psr.latest_tint_m|floatformat }}</td>
+      </tr>
+      {% endfor %}
+      {% endwith %}
 
     </tbody>
-    </table>
-    </div>
+  </table>
+  </div>
+</div>
 {% else %}
-    <p>No observations are available.</p>
+<p>No observations are available.</p>
 {% endif %}
+{% endblock %}
 {% endblock content %}
