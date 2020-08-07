@@ -42,7 +42,12 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "mathfilters",
+    "graphene_django",
 ]
+
+GRAPHENE = {
+    "SCHEMA": "src.schema.schema",
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

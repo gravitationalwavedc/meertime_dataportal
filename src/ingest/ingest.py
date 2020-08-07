@@ -21,6 +21,40 @@ __setup_django(os.environ.get("PWD", "."), "meertime.settings")
 from dataportal.models import Observations, Searchmode, Utcs, Pulsars, Proposals
 
 
+def create_fold_mode(utc, psr, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq):
+    # get the foreign keys:
+    utc_dt = datetime.strptime(utc, "%Y-%m-%d-%H:%M:%S")  # WARNING: naive dt
+    utc, created = Utcs.objects.get_or_create(utc=utc, utc_ts=utc_dt)
+    psr, created = Pulsars.objects.get_or_create(jname=psr)
+    proposal, created = Proposals.objects.get_or_create(proposal=proposal)
+
+    obs_qs = Observations.objects.filter(utc=utc, pulsar=psr, beam=beam)
+    if obs_qs.count() == 0:
+        new_obs = Observations(
+            utc=utc,
+            pulsar=psr,
+            beam=beam,
+            dm_fold=DM,
+            snr_spip=snr,
+            length=length,
+            nchan=nchan,
+            nbin=nbin,
+            nant=nant,
+            nant_eff=nant_eff,
+            proposal=proposal,
+            bw=bw,
+            frequency=freq,
+        )
+        new_obs.save()
+        msg = f"Observation with UTC: {utc} psr: {psr} beam: {beam} saved"
+        logging.info(msg)
+        return new_obs
+    else:
+        msg = f"Observation with UTC: {utc} psr: {psr} beam: {beam} already existed"
+        logging.warning(msg)
+        return None
+
+
 def parse_input(line):
     input_data = line.split()
     if len(input_data) == 14 and input_data[13] == "0":
@@ -39,35 +73,7 @@ def parse_input(line):
         bw = input_data[11]
         freq = input_data[12]
 
-        # get the foreign keys:
-        utc_dt = datetime.strptime(input_data[0], "%Y-%m-%d-%H:%M:%S")  # WARNING: naive dt
-        utc, created = Utcs.objects.get_or_create(utc=input_data[0], utc_ts=utc_dt)
-        psr, created = Pulsars.objects.get_or_create(jname=psr)
-        proposal, created = Proposals.objects.get_or_create(proposal=proposal)
-
-        obs_qs = Observations.objects.filter(utc=utc, pulsar=psr, beam=beam)
-        if obs_qs.count() == 0:
-            new_obs = Observations(
-                utc=utc,
-                pulsar=psr,
-                beam=beam,
-                dm_fold=DM,
-                snr_spip=snr,
-                length=length,
-                nchan=nchan,
-                nbin=nbin,
-                nant=nant,
-                nant_eff=nant_eff,
-                proposal=proposal,
-                bw=bw,
-                frequency=freq,
-            )
-            new_obs.save()
-            msg = f"Observation with UTC: {utc} psr: {psr} beam: {beam} saved"
-            logging.info(msg)
-        else:
-            msg = f"Observation with UTC: {utc} psr: {psr} beam: {beam} already existed"
-            logging.warning(msg)
+        create_fold_mode(utc, psr, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq)
 
     elif len(input_data) == 17 and input_data[16] == "1":
         # searchmode
