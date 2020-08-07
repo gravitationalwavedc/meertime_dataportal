@@ -25,8 +25,13 @@ This application provides a ReactJS frontend for access to the MeerTime project 
 Run `poetry install --no-dev` for minimum install. This only installs required production packages.  
 Run `poetry install` to also install development packages such as testing tools.
 
-3. Start the development server.
+3. `cd src`
+4. Start the development server.
   Run `poetry run python manage.py runserver` and open the [development server](http://localhost:8000/meertime).
+
+(Optional):
+
+5. Insert some data into the DB by running `poetry run python ingest/ingest.py`
 
 ### To run the application using docker-compose
 
@@ -59,8 +64,7 @@ Requirements are managed using [python poetry](https://python-poetry.org/).
 1. Run `poetry add --dev hello` to add development package `hello`
 2. Follow the steps for production package aside from the 1st step
 
-####
-Installing black linter for use with arcanist:
+#### Installing black linter for use with arcanist:
 1. Go to the top directory of where you have install arcanist `cd arcanist_top_dir`
 2. `git clone https://github.com/pinterest/arcanist-linters.git pinterest-linters`
 3. Go to your repo `cd repo_dir`
