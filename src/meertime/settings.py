@@ -45,9 +45,7 @@ INSTALLED_APPS = [
     "graphene_django",
 ]
 
-GRAPHENE = {
-    "SCHEMA": "src.schema.schema",
-}
+GRAPHENE = {"SCHEMA": "src.schema.schema", "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"]}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -104,6 +102,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
+AUTHENTICATION_BACKENDS = ["graphql_jwt.backends.JSONWebTokenBackend", "django.contrib.auth.backends.ModelBackend"]
 
 
 # Internationalization

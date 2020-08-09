@@ -1,5 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
+from graphql_jwt.decorators import permission_required
 
 from .models import Observations, Pulsars, Utcs
 from ingest.ingest import create_fold_mode
@@ -53,7 +54,11 @@ class CreateObservation(graphene.Mutation):
 
     observations = graphene.Field(ObservationsType)
 
-    def mutate(self, info, utc, jname, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, frequency):
+    @classmethod
+    @permission_required("dataportal.add_observations")
+    def mutate(
+        cls, self, info, utc, jname, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, frequency
+    ):
         obs = create_fold_mode(utc, jname, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, frequency)
         return CreateObservation(observations=obs)
 
