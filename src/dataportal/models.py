@@ -59,7 +59,7 @@ class Pulsars(models.Model):
 
 
 class Searchmode(models.Model):
-    pulsar = models.ForeignKey(Pulsars, models.DO_NOTHING, primary_key=True)
+    pulsar = models.ForeignKey(Pulsars, models.DO_NOTHING)
     utc = models.ForeignKey("Utcs", models.DO_NOTHING)
     proposal = models.ForeignKey(Proposals, models.DO_NOTHING, blank=True, null=True)
     beam = models.IntegerField()
@@ -83,6 +83,30 @@ class Searchmode(models.Model):
 
     class Meta:
         db_table = "Searchmode"
+        unique_together = (("pulsar", "utc", "beam"),)
+
+
+class Fluxcal(models.Model):
+    pulsar = models.ForeignKey(Pulsars, models.DO_NOTHING)
+    utc = models.ForeignKey("Utcs", models.DO_NOTHING)
+    proposal = models.ForeignKey(Proposals, models.DO_NOTHING, blank=True, null=True)
+    beam = models.IntegerField()
+    comment = models.TextField(blank=True, null=True, default=None)
+    length = models.FloatField(blank=True, null=True)
+    bw = models.FloatField()
+    frequency = models.FloatField()
+    nchan = models.IntegerField()
+    nbin = models.IntegerField()
+    nant = models.IntegerField()
+    nant_eff = models.IntegerField()
+    snr_spip = models.FloatField(blank=True, null=True)
+
+    @property
+    def band(self):
+        return get_band(self.frequency)
+
+    class Meta:
+        db_table = "Fluxcal"
         unique_together = (("pulsar", "utc", "beam"),)
 
 
