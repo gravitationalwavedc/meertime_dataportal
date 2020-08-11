@@ -23,7 +23,7 @@ from dataportal.models import Observations, Searchmode, Utcs, Pulsars, Proposals
 
 def create_fold_mode(utc, psr, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq):
     # get the foreign keys:
-    utc_dt = datetime.strptime(utc, "%Y-%m-%d-%H:%M:%S")  # WARNING: naive dt
+    utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
     utc, created = Utcs.objects.get_or_create(utc=utc, utc_ts=utc_dt)
     psr, created = Pulsars.objects.get_or_create(jname=psr)
     proposal, created = Proposals.objects.get_or_create(proposal=proposal)
@@ -51,6 +51,44 @@ def create_fold_mode(utc, psr, beam, DM, snr, length, nchan, nbin, nant, nant_ef
         return new_obs
     else:
         msg = f"Observation with UTC: {utc} psr: {psr} beam: {beam} already existed"
+        logging.warning(msg)
+        return None
+
+
+def create_search_mode(
+    utc, psr, beam, ra, dec, DM, nbit, nchan, npol, tsamp, nant, nant_eff, proposal, length, bw, freq
+):
+    utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
+    utc, created = Utcs.objects.get_or_create(utc=utc, utc_ts=utc_dt)
+    psr, created = Pulsars.objects.get_or_create(jname=psr)
+    proposal, created = Proposals.objects.get_or_create(proposal=proposal)
+
+    sm_qs = Searchmode.objects.filter(utc=utc, pulsar=psr, beam=beam)
+    if sm_qs.count() == 0:
+        new_sm = Searchmode(
+            utc=utc,
+            pulsar=psr,
+            beam=beam,
+            ra=ra,
+            dec=dec,
+            dm=DM,
+            nbit=nbit,
+            nchan=nchan,
+            npol=npol,
+            tsamp=tsamp,
+            nant=nant,
+            nant_eff=nant_eff,
+            proposal=proposal,
+            length=length,
+            bw=bw,
+            frequency=freq,
+        )
+        new_sm.save()
+        msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} saved"
+        logging.info(msg)
+        return new_sm
+    else:
+        msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} already existed"
         logging.warning(msg)
         return None
 
@@ -100,39 +138,12 @@ def parse_input(line):
         except ValueError:
             length = "-1"
 
-        utc_dt = datetime.strptime(input_data[0], "%Y-%m-%d-%H:%M:%S")  # WARNING: naive dt
-        utc, created = Utcs.objects.get_or_create(utc=input_data[0], utc_ts=utc_dt)
-        psr, created = Pulsars.objects.get_or_create(jname=psr)
-        proposal, created = Proposals.objects.get_or_create(proposal=proposal)
+        create_search_mode(
+            utc, psr, beam, ra, dec, DM, nbit, nchan, npol, tsamp, nant, nant_eff, proposal, length, bw, freq
+        )
 
-        sm_qs = Searchmode.objects.filter(utc=utc, pulsar=psr, beam=beam)
-        if sm_qs.count() == 0:
-            new_sm = Searchmode(
-                utc=utc,
-                pulsar=psr,
-                beam=beam,
-                ra=ra,
-                dec=dec,
-                dm=DM,
-                nbit=nbit,
-                nchan=nchan,
-                npol=npol,
-                tsamp=tsamp,
-                nant=nant,
-                nant_eff=nant_eff,
-                proposal=proposal,
-                length=length,
-                bw=bw,
-                frequency=freq,
-            )
-            new_sm.save()
-            msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} saved"
-            logging.info(msg)
-        else:
-            msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} already existed"
-            logging.warning(msg)
     else:
-        msg = "Currently only fold mode input is accepted. You either tried to insert different type or malformed the fold mode input."
+        msg = "Currently only fold and search mode input is accepted. You either tried to insert different type or malformed the fold mode input."
         logging.warning(msg)
 
 
