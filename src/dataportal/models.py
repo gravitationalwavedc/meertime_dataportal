@@ -57,101 +57,104 @@ class Pulsars(models.Model):
     comment = models.TextField(blank=True, null=True)
 
     @classmethod
-    def get_table_data(cls, mode='fold', proposal_id=None):
-        if mode == 'search':
+    def get_table_data(cls, mode="fold", proposal_id=None):
+        if mode == "search":
             return cls.project_searchmode(proposal_id) if proposal_id else cls.all_searchmode()
         return cls.project_observations(proposal_id) if proposal_id else cls.all_observations()
 
     @classmethod
     def all_observations(cls):
-        latest_observation = Observations.objects.filter(pulsar=OuterRef('pk')).order_by('-utc__utc_ts')
+        latest_observation = Observations.objects.filter(pulsar=OuterRef("pk")).order_by("-utc__utc_ts")
         return (
             cls.objects.filter(observations__isnull=False)
-            .values('jname', 'pk')
+            .values("jname", "pk")
             .annotate(
-                last=Max('observations__utc__utc_ts'),
-                first=Min('observations__utc__utc_ts'),
-                proposal_short=Subquery(latest_observation.values('proposal__proposal_short')[:1]),
+                last=Max("observations__utc__utc_ts"),
+                first=Min("observations__utc__utc_ts"),
+                proposal_short=Subquery(latest_observation.values("proposal__proposal_short")[:1]),
                 timespan=ExpressionWrapper(
-                    Max('observations__utc__utc_ts') - Min('observations__utc__utc_ts'), output_field=DurationField()
+                    Max("observations__utc__utc_ts") - Min("observations__utc__utc_ts"), output_field=DurationField()
                 ),
-                nobs=Count('observations'),
-                total_tint_h=Sum('observations__length') / 60 / 60,
-                avg_snr_5min=Avg(F('observations__snr_pipe') / Sqrt(F('observations__length')) * Sqrt(300)),
-                max_snr_5min=Max(F('observations__snr_pipe') / Sqrt(F('observations__length')) * Sqrt(300)),
-                latest_snr=Subquery(latest_observation.values('snr_spip')[:1]),
-                latest_tint_m=Subquery(latest_observation.values('length')[:1]) / 60,
+                nobs=Count("observations"),
+                total_tint_h=Sum("observations__length") / 60 / 60,
+                avg_snr_5min=Avg(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
+                max_snr_5min=Max(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
+                latest_snr=Subquery(latest_observation.values("snr_spip")[:1]),
+                latest_tint_m=Subquery(latest_observation.values("length")[:1]) / 60,
             )
         )
 
     @classmethod
     def project_observations(cls, proposal_id):
-        latest_observation = Observations.objects.filter(pulsar=OuterRef('pk'), proposal_id=proposal_id).order_by(
-            '-utc__utc_ts'
+        latest_observation = Observations.objects.filter(pulsar=OuterRef("pk"), proposal_id=proposal_id).order_by(
+            "-utc__utc_ts"
         )
         return (
             cls.objects.filter(observations__isnull=False, observations__proposal__id=proposal_id)
-            .values('jname', 'pk')
+            .values("jname", "pk")
             .annotate(
-                last=Max('observations__utc__utc_ts'),
-                first=Min('observations__utc__utc_ts'),
-                proposal_short=Subquery(latest_observation.values('proposal__proposal_short')[:1]),
+                last=Max("observations__utc__utc_ts"),
+                first=Min("observations__utc__utc_ts"),
+                proposal_short=Subquery(latest_observation.values("proposal__proposal_short")[:1]),
                 timespan=ExpressionWrapper(
-                    Max('observations__utc__utc_ts') - Min('observations__utc__utc_ts'), output_field=DurationField(),
+                    Max("observations__utc__utc_ts") - Min("observations__utc__utc_ts"), output_field=DurationField(),
                 ),
-                nobs=Count('observations'),
-                total_tint_h=Sum('observations__length') / 60 / 60,
-                avg_snr_5min=Avg(F('observations__snr_pipe') / Sqrt(F('observations__length')) * Sqrt(300)),
-                max_snr_5min=Max(F('observations__snr_pipe') / Sqrt(F('observations__length')) * Sqrt(300)),
-                latest_snr=Subquery(latest_observation.values('snr_spip')[:1]),
-                latest_tint_m=Subquery(latest_observation.values('length')[:1]) / 60,
+                nobs=Count("observations"),
+                total_tint_h=Sum("observations__length") / 60 / 60,
+                avg_snr_5min=Avg(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
+                max_snr_5min=Max(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
+                latest_snr=Subquery(latest_observation.values("snr_spip")[:1]),
+                latest_tint_m=Subquery(latest_observation.values("length")[:1]) / 60,
             )
         )
 
     @classmethod
     def all_searchmode(cls):
-        latest_searchmode = Searchmode.objects.filter(pulsar=OuterRef('pk')).order_by('-utc__utc_ts')
+        latest_searchmode = Searchmode.objects.filter(pulsar=OuterRef("pk")).order_by("-utc__utc_ts")
         return (
             cls.objects.filter(searchmode__isnull=False)
-            .values('jname', 'pk')
+            .values("jname", "pk")
             .annotate(
-                last=Max('searchmode__utc__utc_ts'),
-                first=Min('searchmode__utc__utc_ts'),
-                proposal_short=Subquery(latest_searchmode.values('proposal__proposal_short')[:1]),
+                last=Max("searchmode__utc__utc_ts"),
+                first=Min("searchmode__utc__utc_ts"),
+                proposal_short=Subquery(latest_searchmode.values("proposal__proposal_short")[:1]),
                 timespan=ExpressionWrapper(
-                    Max('searchmode__utc__utc_ts') - Min('observations__utc__utc_ts'), output_field=DurationField()
+                    Max("searchmode__utc__utc_ts") - Min("observations__utc__utc_ts"), output_field=DurationField()
                 ),
-                nobs=Count('searchmode'),
-                total_tint_h=Sum('searchmode__length') / 60 / 60,
+                nobs=Count("searchmode"),
+                total_tint_h=Sum("searchmode__length") / 60 / 60,
             )
         )
 
     @classmethod
     def project_searchmode(cls, proposal_id):
-        latest_searchmode = Observations.objects.filter(pulsar=OuterRef('pk'), proposal_id=proposal_id).order_by(
-            '-utc__utc_ts'
+        latest_searchmode = Observations.objects.filter(pulsar=OuterRef("pk"), proposal_id=proposal_id).order_by(
+            "-utc__utc_ts"
         )
         return (
             cls.objects.filter(observations__proposal__id=proposal_id)
-            .values('jname', 'pk')
+            .values("jname", "pk")
             .annotate(
-                last=Max('observations__utc__utc_ts'),
-                first=Min('observations__utc__utc_ts'),
-                proposal_short=Subquery(latest_observation.values('proposal__proposal_short')[:1]),
+                last=Max("observations__utc__utc_ts"),
+                first=Min("observations__utc__utc_ts"),
+                proposal_short=Subquery(latest_searchmode.values("proposal__proposal_short")[:1]),
                 timespan=ExpressionWrapper(
-                    Max('observations__utc__utc_ts') - Min('observations__utc__utc_ts'), output_field=DurationField(),
+                    Max("observations__utc__utc_ts") - Min("observations__utc__utc_ts"), output_field=DurationField(),
                 ),
-                nobs=Count('observations'),
-                total_tint_h=Sum('observations__length') / 60 / 60,
-                avg_snr_5min=Avg(F('observations__snr_pipe') / Sqrt(F('observations__length')) * Sqrt(300)),
-                max_snr_5min=Max(F('observations__snr_pipe') / Sqrt(F('observations__length')) * Sqrt(300)),
-                latest_snr=Subquery(latest_observation.values('snr_spip')[:1]),
-                latest_tint_m=Subquery(latest_observation.values('length')[:1]) / 60,
+                nobs=Count("observations"),
+                total_tint_h=Sum("observations__length") / 60 / 60,
+                avg_snr_5min=Avg(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
+                max_snr_5min=Max(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
+                latest_snr=Subquery(latest_searchmode.values("snr_spip")[:1]),
+                latest_tint_m=Subquery(latest_searchmode.values("length")[:1]) / 60,
             )
         )
 
     def observations_detail_data(self):
         return self.observations_set.all().order_by("-utc__utc_ts")
+
+    def searchmode_detail_data(self):
+        return self.searchmode_set.all().order_by("-utc__utc_ts")
 
     class Meta:
         db_table = "Pulsars"

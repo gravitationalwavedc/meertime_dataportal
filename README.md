@@ -44,6 +44,10 @@ Currently, manual initialisation of the DB and migration are required.
 
 Contributions can be made to the code base on Phabricator via arcanist. All diffs should include sosl as a reviewer.
 
+### Testing
+
+To manually run tests, execute `poetry run pytest` (or simply `pytest` if running in a shell spawned by `poetry shell`) while in the `src` directory. 
+
 ### Arcanist workflow
 
 1. On master branch run `arc work {branch-name}` with your chosen branch name.
