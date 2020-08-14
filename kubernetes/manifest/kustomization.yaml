@@ -5,6 +5,7 @@ resources:
   - meertime-clusterrole-binding.yaml
   - meertime-secrets-integrator.yaml
   - db-configmap.yaml
+  - mysql-control-configmap.yaml
   - mysql-pv.yaml
   - mysql-deployment.yaml
   - django-deployment.yaml

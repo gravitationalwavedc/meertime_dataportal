@@ -55,8 +55,9 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "querycount.middleware.QueryCountMiddleware",
 ]
+if DEBUG:
+    MIDDLEWARE.append("querycount.middleware.QueryCountMiddleware")
 
 ROOT_URLCONF = "meertime.urls"
 
