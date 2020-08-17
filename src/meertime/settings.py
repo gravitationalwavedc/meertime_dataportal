@@ -13,10 +13,11 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 import os
 import environ
 
-env = environ.Env(DEBUG=(bool, False),)
+env = environ.Env(DEBUG=(bool, False), ADMIN_ENABLED=(bool, False))
 environ.Env.read_env(".env")
 
 DEBUG = env("DEBUG")
+ADMIN_ENABLED = env("ADMIN_ENABLED")
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
