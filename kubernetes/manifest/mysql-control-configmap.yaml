@@ -57,6 +57,8 @@ data:
         echo "Expected ${CHECKSUM} got ${md5sum_check}"
         ls ${CONTROL_DIR}/${DESIRED_STATE}
         ls ${CONTROL_DIR}/${DESIRED_STATE_UNPACKED}
+        echo "Contents"
+        cat ${CONTROL_DIR}/${DESIRED_STATE}
         exit 1
       fi
     fi
