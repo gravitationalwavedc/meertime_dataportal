@@ -1,6 +1,6 @@
 import graphene
 from graphene_django import DjangoObjectType
-from graphql_jwt.decorators import permission_required
+from graphql_jwt.decorators import permission_required, login_required
 
 from .models import Observations, Pulsars, Utcs
 from ingest.ingest import create_fold_mode
@@ -26,12 +26,15 @@ class Query(graphene.ObjectType):
     utcs = graphene.List(UtcsType)
     pulsars = graphene.List(PulsarType)
 
+    @login_required
     def resolve_observations(self, info, **kwargs):
         return Observations.objects.all()
 
+    @login_required
     def resolve_pulsars(self, info, **kwargs):
         return Pulsars.objects.all()
 
+    @login_required
     def resolve_utcs(self, info, **kwargs):
         return Utcs.objects.all()
 

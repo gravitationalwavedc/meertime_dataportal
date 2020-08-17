@@ -8,11 +8,30 @@ from datetime import datetime
 
 
 # Auxiliary functions
+jwt_mutation = """
+    mutation TokenAuth($username: String!, $password: String!) {
+        tokenAuth(username: $username, password: $password) {
+            token
+            payload
+            refreshExpiresIn
+        }
+    }
+"""
+
+
 def __create_viewer(client, django_user_model):
     username = "viewer"
     password = "reweiv"
     viewer = django_user_model.objects.create_user(username=username, password=password)
     return viewer
+
+
+jwt_vars_viewer = """
+    {
+        "username": "viewer",
+        "password":  "reweiv"
+    }
+"""
 
 
 def __create_creator(client, django_user_model):
@@ -26,6 +45,14 @@ def __create_creator(client, django_user_model):
     return creator
 
 
+jwt_vars_creator = """
+    {
+        "username": "creator",
+        "password":  "rotaerc"
+    }
+"""
+
+
 def __create_psr_utc_obs():
     psr = Pulsars.objects.create(jname="J1234-5678")
     utc_str = "2000-01-01-12:59:12"
@@ -35,65 +62,116 @@ def __create_psr_utc_obs():
     return psr, utc
 
 
+def __obtain_jwt_token(client, mutation, vars):
+    # obtain the token
+    payload = {"query": mutation, "variables": vars}
+    response = client.post("/graphql/", payload)
+    data = json.loads(response.content)["data"]
+    jwt_token = data["tokenAuth"]["token"]
+    return jwt_token
+
+
 # Test querying
+
 # pulsars query
-def test_graphql_pulsars_query_no_login(client, django_user_model):
-    psr, _ = __create_psr_utc_obs()
-    query = """
-        query {
-            pulsars {
-                jname
-            }
+query_psr = """
+    query {
+        pulsars {
+            jname
         }
-    """
-    expected = b'{"data":{"pulsars":[{"jname":"J1234-5678"}]}}'
-    response = client.post("/graphql/", {"query": query})
-    assert response.status_code == 200
-    assert "pulsars" in json.loads(response.content)["data"]
-    assert json.loads(response.content)["data"]["pulsars"][0]["jname"] == psr.jname
+    }
+"""
+
+
+def test_graphql_pulsars_query_no_token(client, django_user_model):
+    psr, _ = __create_psr_utc_obs()
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":3,"column":9}],"path":["pulsars"]}],"data":{"pulsars":null}}'
+    response = client.post("/graphql/", {"query": query_psr})
     assert response.content == expected
+    assert response.status_code == 200
+
+
+def test_graphql_pulsars_query_with_token(client, django_user_model):
+    user = __create_viewer(client, django_user_model)
+    psr, _ = __create_psr_utc_obs()
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_viewer)
+    # try mutation with the token
+    payload = {"query": query_psr}
+    header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
+    response = client.post("/graphql/", payload, **header)
+
+    expected = b'{"data":{"pulsars":[{"jname":"J1234-5678"}]}}'
+    assert response.content == expected
+    assert response.status_code == 200
 
 
 # utcs query
-def test_graphql_utcs_query_no_login(client, django_user_model):
-    _, utc = __create_psr_utc_obs()
-    query = """
-        query {
-            utcs {
-                utc
-            }
+query_utcs = """
+    query {
+        utcs {
+            utc
         }
-    """
-    expected = b'{"data":{"utcs":[{"utc":"2000-01-01-12:59:12"}]}}'
-    response = client.post("/graphql/", {"query": query})
+    }
+"""
+
+
+def test_graphql_utcs_query_no_token(client, django_user_model):
+    _, utc = __create_psr_utc_obs()
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":3,"column":9}],"path":["utcs"]}],"data":{"utcs":null}}'
+    response = client.post("/graphql/", {"query": query_utcs})
     assert response.status_code == 200
-    assert "utcs" in json.loads(response.content)["data"]
-    assert json.loads(response.content)["data"]["utcs"][0]["utc"] == utc.utc
     assert response.content == expected
+
+
+def test_graphql_utcs_query_with_token(client, django_user_model):
+    user = __create_viewer(client, django_user_model)
+    psr, _ = __create_psr_utc_obs()
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_viewer)
+    # try mutation with the token
+    payload = {"query": query_utcs}
+    header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
+    response = client.post("/graphql/", payload, **header)
+
+    expected = b'{"data":{"utcs":[{"utc":"2000-01-01-12:59:12"}]}}'
+    assert response.content == expected
+    assert response.status_code == 200
 
 
 # observations query:
-def test_graphql_observations_query_no_login(client, django_user_model):
-    psr, utc = __create_psr_utc_obs()
-    query = """
-       query {
-           observations {
-               pulsar {
-                   jname
-               }
-               utc {
-                   utc
-               }
+query_obs = """
+   query {
+        observations {
+           pulsar {
+               jname
+           }
+           utc {
+               utc
            }
        }
-    """
-    expected = b'{"data":{"observations":[{"pulsar":{"jname":"J1234-5678"},"utc":{"utc":"2000-01-01-12:59:12"}}]}}'
-    response = client.post("/graphql/", {"query": query})
+   }
+"""
+
+
+def test_graphql_observations_query_no_token(client, django_user_model):
+    psr, utc = __create_psr_utc_obs()
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":3,"column":9}],"path":["observations"]}],"data":{"observations":null}}'
+    response = client.post("/graphql/", {"query": query_obs})
     assert response.status_code == 200
-    assert "observations" in json.loads(response.content)["data"]
-    assert json.loads(response.content)["data"]["observations"][0]["pulsar"]["jname"] == psr.jname
-    assert json.loads(response.content)["data"]["observations"][0]["utc"]["utc"] == utc.utc
     assert response.content == expected
+
+
+def test_graphql_observations_query_with_token(client, django_user_model):
+    user = __create_viewer(client, django_user_model)
+    psr, _ = __create_psr_utc_obs()
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_viewer)
+    # try mutation with the token
+    payload = {"query": query_obs}
+    header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
+    response = client.post("/graphql/", payload, **header)
+
+    expected = b'{"data":{"observations":[{"pulsar":{"jname":"J1234-5678"},"utc":{"utc":"2000-01-01-12:59:12"}}]}}'
+    assert response.content == expected
+    assert response.status_code == 200
 
 
 # Test mutations
@@ -156,18 +234,8 @@ def test_graphql_mutation_without_token(client, django_user_model):
 def test_graphql_mutation_with_token_without_permission(client, django_user_model):
     user = __create_viewer(client, django_user_model)
     assert not user.has_perm("dataportal.add_observations")
-    jwt_vars = """
-        {
-            "username": "viewer",
-            "password":  "reweiv"
-        }
-    """
-    # obtain the token
-    payload = {"query": jwt_mutation, "variables": jwt_vars}
-    response = client.post("/graphql/", payload)
-    data = json.loads(response.content)["data"]
-    jwt_token = data["tokenAuth"]["token"]
 
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_viewer)
     # try mutation with the token
     payload = {"query": mutation, "variables": mutation_variables}
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
@@ -187,19 +255,7 @@ def test_graphql_mutation_with_token_with_permission(client, django_user_model):
     user = __create_creator(client, django_user_model)
     assert user.has_perm("dataportal.add_observations")
 
-    # create_creator(client, django_user_model)
-    jwt_vars = """
-        {
-            "username": "creator",
-            "password":  "rotaerc"
-        }
-    """
-    # obtain the token
-    payload = {"query": jwt_mutation, "variables": jwt_vars}
-    response = client.post("/graphql/", payload)
-    data = json.loads(response.content)["data"]
-    jwt_token = data["tokenAuth"]["token"]
-
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_creator)
     # try mutation with the token
     payload = {"query": mutation, "variables": mutation_variables}
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}

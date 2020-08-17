@@ -11,9 +11,9 @@
         <tr>
           {% with hide_on_small='class="d-none d-sm-table-cell"' hide_on_medium='class="d-none d-lg-table-cell"' %}
           <th>JNAME</th>
-          <th>Project</th>
           <th>Last obs</th>
           <th {{hide_on_medium}}>First obs</th>
+          <th>Project</th>
           <th {{hide_on_small}}>Timespan [days]</th>
           <th {{hide_on_small}}>No. of obs</th>
           <th {{hide_on_small}}>Total int. [h]</th>
@@ -23,10 +23,10 @@
 
         {% for psr in per_pulsar_list %}
         <tr>
-          <td><a href="{% url 'pulsar_detail_search' psr.jname %}">{{ psr.jname }}</a></td>
+          <td class="text-nowrap"><a href="{% url 'pulsar_detail_search' psr.jname %}">{{ psr.jname }}</a></td>
+          <td class="text-nowrap">{{ psr.last|date:'Y-m-d H:i:s' }}</td>
+          <td class="text-nowrap" {{hide_on_medium}}>{{ psr.first|date:'Y-m-d H:i:s' }}</td>
           <td>{{ psr.proposal_short}}</td>
-          <td>{{ psr.last|date:'Y-m-d H:i:s' }}</td>
-          <td {{hide_on_medium}}>{{ psr.first|date:'Y-m-d H:i:s' }}</td>
           <td {{hide_on_small}}>{{ psr.timespan.days }}</td>
           <td {{hide_on_small}}>{{ psr.nobs }}</td>
           <td {{hide_on_small}}>{{ psr.total_tint_h|floatformat }}</td>
