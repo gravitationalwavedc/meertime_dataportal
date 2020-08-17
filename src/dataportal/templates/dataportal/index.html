@@ -1,17 +1,5 @@
 {% extends "dataportal/base.html" %}
 
-{% block ready %}
-<script>
-  $(document).ready(function () {
-    $('#psrs').DataTable({
-      "paging": false,
-      "order": [[1, "desc"]]
-    });
-  });
-</script>
-{% endblock %}
-
-
 {% block content %}
 <div class="row">
   <div class="form-group">

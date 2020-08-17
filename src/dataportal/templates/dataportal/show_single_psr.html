@@ -1,17 +1,6 @@
 {% extends "dataportal/base.html" %}
 {% load mathfilters %}
 
-{% block ready %}
-<script>
-  $(document).ready(function () {
-    $('#utcs').DataTable({
-      "paging": false,
-      "order": [[0, "desc"]]
-    });
-  });
-</script>
-{% endblock %}
-
 {% block content %}
 {% if obs_list %}
 Go <a href="{% url 'fold' %}">back</a>
