@@ -85,7 +85,7 @@ spec:
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
         - name: migrate
-          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.7.1
+          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.7.2
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -108,15 +108,13 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: password
-            - name: DJANGO_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: django-secret
-                  key: secret_key
+          envFrom:
+            - secretRef:
+                name: django-multi
           command: ["python", "manage.py", "migrate"]
       containers:
         - name: django
-          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.7.1
+          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.7.2
           resources: {}
           imagePullPolicy: Always
           env:
@@ -140,13 +138,9 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: password
-            - name: DJANGO_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: django-secret
-                  key: secret_key
-            - name: DEBUG
-              value: "False"
+          envFrom: # defines DJANGO_SECRET_KEY and SENTRY_DSN
+            - secretRef:
+                name: django-multi
           command:
             ["gunicorn", "--bind=0.0.0.0:8000", "meertime.wsgi:application"]
       volumes:

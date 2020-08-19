@@ -1,7 +1,16 @@
 from django.shortcuts import get_object_or_404
 from django.views import generic
+from meertime.settings import SENTRY_DSN
+
 
 from .models import Pulsars, Proposals
+
+from sentry_sdk import last_event_id
+from django.shortcuts import render
+
+
+def handler500(request):
+    return render(request, "500.html", {"sentry_event_id": last_event_id(), "sentry_dsn": SENTRY_DSN,})
 
 
 class IndexBaseView(generic.ListView):

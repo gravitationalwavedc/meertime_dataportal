@@ -7,6 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from .settings import DEBUG, ADMIN_ENABLED
 from .schema import schema
 
+handler500 = "dataportal.views.handler500"
 
 urlpatterns = [
     path("meertime/", include("dataportal.urls")),

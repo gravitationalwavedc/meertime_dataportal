@@ -1,0 +1,10 @@
+{% if sentry_event_id %}
+<script src="https://browser.sentry-cdn.com/5.21.1/bundle.min.js"
+  integrity="sha384-uFON5MXfE3NkWO60hM8JaXAYAV0fqTCQbdy282z8YfelqBoXx+F7JFzX6+WfFIML" crossorigin="anonymous"></script>
+<script>
+  Sentry.init({ dsn: '{{ sentry_dsn }}' });
+  Sentry.showReportDialog({ eventId: '{{ sentry_event_id }}', })
+</script>
+{% else %}
+<h3>Internal Server Error</h3>
+{% endif %}
