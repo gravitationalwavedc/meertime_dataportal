@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Max, Min, F, ExpressionWrapper, DurationField, Count, Sum, Avg, OuterRef, Subquery
 from django.db.models.functions import Sqrt
 from django.apps import apps
-from .logic import get_band
+from .logic import get_band, get_meertime_filters
 
 import logging
 
@@ -71,7 +71,7 @@ class Pulsars(models.Model):
             logging.error(f"Mode {mode} does not correspond to any existing model in get_observation")
             return None
 
-        proposal_filter = {}
+        proposal_filter = get_meertime_filters()
         if proposal_id:
             proposal_filter["proposal_id"] = proposal_id
 
@@ -99,10 +99,7 @@ class Pulsars(models.Model):
 
         obstype_filter = {f"{mode}__isnull": False}
 
-        pulsar_proposal_filter = {
-            f"{mode}__proposal__proposal__startswith": "SCI",
-            f"{mode}__proposal__proposal__contains": "MB",
-        }
+        pulsar_proposal_filter = get_meertime_filters(prefix=mode)
         if proposal_id:
             pulsar_proposal_filter[f"{mode}__proposal__id"] = proposal_id
 
@@ -110,13 +107,16 @@ class Pulsars(models.Model):
             cls.objects.filter(**obstype_filter, **pulsar_proposal_filter)
             .values("jname", "pk")
             .annotate(**annotations)
+            .order_by("-last")
         )
 
     def observations_detail_data(self):
-        return self.observations_set.all().order_by("-utc__utc_ts")
+        proposal_filter = get_meertime_filters()
+        return self.observations_set.all().filter(**proposal_filter).order_by("-utc__utc_ts")
 
     def searchmode_detail_data(self):
-        return self.searchmode_set.all().order_by("-utc__utc_ts")
+        proposal_filter = get_meertime_filters()
+        return self.searchmode_set.all().filter(**proposal_filter).order_by("-utc__utc_ts")
 
     class Meta:
         db_table = "Pulsars"

@@ -22,9 +22,9 @@
     </div>
   </div>
   <div class="col-4 justify-content-end">
-    <span class="float-right"></span> In total, we have performed {{ totals.global_nobs }} observations of
-    {{ totals.global_npsr }}
-    pulsars, for a total time of {{ totals.global_tint_h|floatformat }} hours.</span>
+    <span class="float-right"></span>{% block summary %} In total, we have performed {{ totals.global_nobs }}
+    observations of {{ totals.global_npsr }}
+    pulsars, for a total time of {{ totals.global_tint_h|floatformat }} hours.{% endblock %}</span>
   </div>
 </div>
 

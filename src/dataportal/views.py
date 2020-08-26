@@ -20,12 +20,14 @@ class IndexBaseView(generic.ListView):
     """
 
     context_object_name = "per_pulsar_list"
-    order_by = "last"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["projects"] = Proposals.objects.filter(proposal__startswith="SCI", proposal__contains="MB")
         context["project_id"] = self.request.GET.get("project_id")
+        qs = context["per_pulsar_list"]
+        context["totals"] = qs.aggregate(global_tint_h=Sum("total_tint_h"), global_nobs=Sum("nobs"))
+        context["totals"]["global_npsr"] = qs.count()
         return context
 
 
@@ -38,13 +40,6 @@ class FoldView(IndexBaseView):
 
     def get_queryset(self):
         return Pulsars.get_observations(mode="observations", proposal_id=self.request.GET.get("project_id"))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        qs = context["per_pulsar_list"]
-        context["totals"] = qs.aggregate(global_tint_h=Sum("total_tint_h"), global_nobs=Sum("nobs"))
-        context["totals"]["global_npsr"] = qs.count()
-        return context
 
 
 class SearchmodeView(IndexBaseView):

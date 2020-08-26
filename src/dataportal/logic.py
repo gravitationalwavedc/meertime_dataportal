@@ -14,3 +14,17 @@ def get_band(frequency):
         return str(frequency)
     except TypeError:
         return None
+
+
+def get_meertime_filters(prefix=""):
+    """
+    Creates a filter dictionary which can be passed on to django ORM filter method.
+    prefix: (optional) if the proposal model is not directly accessible, provide the model via which it can be accessed
+    """
+    if prefix:
+        prefix = prefix + "__"
+    proposal_filter = {
+        f"{prefix}proposal__proposal__startswith": "SCI",
+        f"{prefix}proposal__proposal__contains": "MB",
+    }
+    return proposal_filter

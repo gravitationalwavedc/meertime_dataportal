@@ -2,6 +2,10 @@
 
 {% block title %}Searchmode{% endblock %}
 
+{% block summary %}
+In total, we have performed {{ totals.global_nobs }} observations of {{ totals.global_npsr }} pulsars.
+{% endblock %}
+
 {% block table %}
 {% if per_pulsar_list %}
 <div style="clear:both">
@@ -16,7 +20,7 @@
           <th>Project</th>
           <th {{hide_on_small}}>Timespan [days]</th>
           <th {{hide_on_small}}>No. of obs</th>
-          <th {{hide_on_small}}>Total int. [h]</th>
+          <!--<th {{hide_on_small}}>Total int. [h]</th>-->
         </tr>
       </thead>
       <tbody>
@@ -29,7 +33,7 @@
           <td>{{ psr.proposal_short}}</td>
           <td {{hide_on_small}}>{{ psr.timespan.days }}</td>
           <td {{hide_on_small}}>{{ psr.nobs }}</td>
-          <td {{hide_on_small}}>{{ psr.total_tint_h|floatformat }}</td>
+          <!--<td {{hide_on_small}}>{{ psr.total_tint_h|floatformat }}</td>-->
         </tr>
         {% endfor %}
         {% endwith %}
