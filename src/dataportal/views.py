@@ -36,7 +36,7 @@ class FoldView(IndexBaseView):
     template_name = "dataportal/index.html"
 
     def get_queryset(self):
-        return Pulsars.get_table_data(mode="fold", proposal_id=self.request.GET.get("project_id"))
+        return Pulsars.get_observations(mode="observations", proposal_id=self.request.GET.get("project_id"))
 
 
 class SearchmodeView(IndexBaseView):
@@ -47,7 +47,7 @@ class SearchmodeView(IndexBaseView):
     template_name = "dataportal/searchmode.html"
 
     def get_queryset(self):
-        return Pulsars.get_table_data(mode="search", proposal_id=self.request.GET.get("project_id"))
+        return Pulsars.get_observations(mode="searchmode", proposal_id=self.request.GET.get("project_id"))
 
 
 class DetailView(generic.ListView):

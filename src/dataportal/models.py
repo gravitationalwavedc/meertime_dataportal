@@ -1,7 +1,15 @@
 from django.db import models
 from django.db.models import Max, Min, F, ExpressionWrapper, DurationField, Count, Sum, Avg, OuterRef, Subquery
 from django.db.models.functions import Sqrt
+from django.apps import apps
+
 from .logic import get_band
+
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger.propagate = False
 
 
 class Observations(models.Model):
@@ -57,97 +65,49 @@ class Pulsars(models.Model):
     comment = models.TextField(blank=True, null=True)
 
     @classmethod
-    def get_table_data(cls, mode="fold", proposal_id=None):
-        if mode == "search":
-            return cls.project_searchmode(proposal_id) if proposal_id else cls.all_searchmode()
-        return cls.project_observations(proposal_id) if proposal_id else cls.all_observations()
+    def get_observations(cls, mode, proposal_id=None):
+        try:
+            __class = apps.get_model("dataportal", mode.capitalize())
+        except LookupError:
+            logging.error(f"Mode {mode} does not correspond to any existing model in get_observation")
+            return None
 
-    @classmethod
-    def all_observations(cls):
-        latest_observation = Observations.objects.filter(pulsar=OuterRef("pk")).order_by("-utc__utc_ts")
-        return (
-            cls.objects.filter(observations__isnull=False)
-            .values("jname", "pk")
-            .annotate(
-                last=Max("observations__utc__utc_ts"),
-                first=Min("observations__utc__utc_ts"),
-                proposal_short=Subquery(latest_observation.values("proposal__proposal_short")[:1]),
-                timespan=ExpressionWrapper(
-                    Max("observations__utc__utc_ts") - Min("observations__utc__utc_ts"), output_field=DurationField()
-                ),
-                nobs=Count("observations"),
-                total_tint_h=Sum("observations__length") / 60 / 60,
-                avg_snr_5min=Avg(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
-                max_snr_5min=Max(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
-                latest_snr=Subquery(latest_observation.values("snr_spip")[:1]),
-                latest_tint_m=Subquery(latest_observation.values("length")[:1]) / 60,
-            )
-        )
+        proposal_filter = {}
+        if proposal_id:
+            proposal_filter["proposal_id"] = proposal_id
 
-    @classmethod
-    def project_observations(cls, proposal_id):
-        latest_observation = Observations.objects.filter(pulsar=OuterRef("pk"), proposal_id=proposal_id).order_by(
-            "-utc__utc_ts"
-        )
-        return (
-            cls.objects.filter(observations__isnull=False, observations__proposal__id=proposal_id)
-            .values("jname", "pk")
-            .annotate(
-                last=Max("observations__utc__utc_ts"),
-                first=Min("observations__utc__utc_ts"),
-                proposal_short=Subquery(latest_observation.values("proposal__proposal_short")[:1]),
-                timespan=ExpressionWrapper(
-                    Max("observations__utc__utc_ts") - Min("observations__utc__utc_ts"), output_field=DurationField(),
-                ),
-                nobs=Count("observations"),
-                total_tint_h=Sum("observations__length") / 60 / 60,
-                avg_snr_5min=Avg(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
-                max_snr_5min=Max(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
-                latest_snr=Subquery(latest_observation.values("snr_spip")[:1]),
-                latest_tint_m=Subquery(latest_observation.values("length")[:1]) / 60,
-            )
-        )
+        latest_observation = __class.objects.filter(pulsar=OuterRef("pk"), **proposal_filter).order_by("-utc__utc_ts")
 
-    @classmethod
-    def all_searchmode(cls):
-        latest_searchmode = Searchmode.objects.filter(pulsar=OuterRef("pk")).order_by("-utc__utc_ts")
-        return (
-            cls.objects.filter(searchmode__isnull=False)
-            .values("jname", "pk")
-            .annotate(
-                last=Max("searchmode__utc__utc_ts"),
-                first=Min("searchmode__utc__utc_ts"),
-                proposal_short=Subquery(latest_searchmode.values("proposal__proposal_short")[:1]),
-                timespan=ExpressionWrapper(
-                    Max("searchmode__utc__utc_ts") - Min("observations__utc__utc_ts"), output_field=DurationField()
-                ),
-                nobs=Count("searchmode"),
-                total_tint_h=Sum("searchmode__length") / 60 / 60,
-            )
-        )
+        annotations = {
+            "last": Max(f"{mode}__utc__utc_ts"),
+            "first": Min(f"{mode}__utc__utc_ts"),
+            "proposal_short": Subquery(latest_observation.values("proposal__proposal_short")[:1]),
+            "timespan": ExpressionWrapper(
+                Max(f"{mode}__utc__utc_ts") - Min(f"{mode}__utc__utc_ts"), output_field=DurationField()
+            ),
+            "nobs": Count(f"{mode}"),
+            "total_tint_h": Sum(f"{mode}__length") / 60 / 60,
+        }
+        # only use these for fold mode data
+        if mode == "observations":
+            foldmode_annotations = {
+                "avg_snr_5min": Avg(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
+                "max_snr_5min": Max(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
+                "latest_snr": Subquery(latest_observation.values("snr_spip")[:1]),
+                "latest_tint_m": Subquery(latest_observation.values("length")[:1]) / 60,
+            }
+            annotations.update(foldmode_annotations)
 
-    @classmethod
-    def project_searchmode(cls, proposal_id):
-        latest_searchmode = Observations.objects.filter(pulsar=OuterRef("pk"), proposal_id=proposal_id).order_by(
-            "-utc__utc_ts"
-        )
+        obstype_filter = {f"{mode}__isnull": False}
+
+        pulsar_proposal_filter = {}
+        if proposal_id:
+            pulsar_proposal_filter[f"{mode}__proposal__id"] = proposal_id
+
         return (
-            cls.objects.filter(observations__proposal__id=proposal_id)
+            cls.objects.filter(**obstype_filter, **pulsar_proposal_filter)
             .values("jname", "pk")
-            .annotate(
-                last=Max("observations__utc__utc_ts"),
-                first=Min("observations__utc__utc_ts"),
-                proposal_short=Subquery(latest_searchmode.values("proposal__proposal_short")[:1]),
-                timespan=ExpressionWrapper(
-                    Max("observations__utc__utc_ts") - Min("observations__utc__utc_ts"), output_field=DurationField(),
-                ),
-                nobs=Count("observations"),
-                total_tint_h=Sum("observations__length") / 60 / 60,
-                avg_snr_5min=Avg(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
-                max_snr_5min=Max(F("observations__snr_pipe") / Sqrt(F("observations__length")) * Sqrt(300)),
-                latest_snr=Subquery(latest_searchmode.values("snr_spip")[:1]),
-                latest_tint_m=Subquery(latest_searchmode.values("length")[:1]) / 60,
-            )
+            .annotate(**annotations)
         )
 
     def observations_detail_data(self):
@@ -195,12 +155,12 @@ class Fluxcal(models.Model):
     beam = models.IntegerField()
     comment = models.TextField(blank=True, null=True, default=None)
     length = models.FloatField(blank=True, null=True)
-    bw = models.FloatField()
-    frequency = models.FloatField()
-    nchan = models.IntegerField()
-    nbin = models.IntegerField()
-    nant = models.IntegerField()
-    nant_eff = models.IntegerField()
+    bw = models.FloatField(blank=True, null=True)
+    frequency = models.FloatField(blank=True, null=True)
+    nchan = models.IntegerField(blank=True, null=True)
+    nbin = models.IntegerField(blank=True, null=True)
+    nant = models.IntegerField(blank=True, null=True)
+    nant_eff = models.IntegerField(blank=True, null=True)
     snr_spip = models.FloatField(blank=True, null=True)
 
     @property
