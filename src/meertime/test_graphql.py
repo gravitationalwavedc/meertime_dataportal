@@ -177,9 +177,15 @@ def test_graphql_observations_query_with_token(client, django_user_model):
 # Test mutations
 # Auxiliary strings for testing mutations
 # mutations shared between tests below
-mutation = """
-    mutation ($jname: String!, $utc: String!, $beam: Int!, $DM: Float, $snr: Float, $length: Float, $nchan: Int, $nbin: Int, $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float) {
-        createObservation(jname: $jname, utc: $utc, beam: $beam, DM: $DM, snr: $snr, length: $length, nchan: $nchan, nbin: $nbin, nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq) {
+createObservation_mutation = """
+    mutation (
+        $jname: String!, $utc: String!, $beam: Int!, $DM: Float, $snr: Float, $length: Float, $nchan: Int, $nbin: Int,
+        $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float
+    ) {
+        createObservation(
+            jname: $jname, utc: $utc, beam: $beam, DM: $DM, snr: $snr, length: $length, nchan: $nchan, nbin: $nbin,
+            nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq
+        ) {
             observations {
                 pulsar {
                     jname
@@ -188,7 +194,7 @@ mutation = """
         }
     }
 """
-mutation_variables = """
+createObservation_mutation_variables = """
     {
         "jname": "J1234-5678",
         "utc": "2020-08-12-01:02:03",
@@ -217,11 +223,11 @@ jwt_mutation = """
 """
 
 
-def test_graphql_mutation_without_token(client, django_user_model):
-    payload = {"query": mutation, "variables": mutation_variables}
+def test_graphql_mutation_createObservation_without_token(client, django_user_model):
+    payload = {"query": createObservation_mutation, "variables": createObservation_mutation_variables}
     response = client.post("/graphql/", payload)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":3,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
@@ -231,17 +237,17 @@ def test_graphql_mutation_without_token(client, django_user_model):
 
 
 @pytest.mark.django_db
-def test_graphql_mutation_with_token_without_permission(client, django_user_model):
+def test_graphql_mutation_createObservation_with_token_without_permission(client, django_user_model):
     user = __create_viewer(client, django_user_model)
     assert not user.has_perm("dataportal.add_observations")
 
     jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_viewer)
     # try mutation with the token
-    payload = {"query": mutation, "variables": mutation_variables}
+    payload = {"query": createObservation_mutation, "variables": createObservation_mutation_variables}
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":3,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
@@ -251,14 +257,182 @@ def test_graphql_mutation_with_token_without_permission(client, django_user_mode
 
 
 @pytest.mark.django_db
-def test_graphql_mutation_with_token_with_permission(client, django_user_model):
+def test_graphql_mutation_createObservation_with_token_with_permission(client, django_user_model):
     user = __create_creator(client, django_user_model)
     assert user.has_perm("dataportal.add_observations")
 
     jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_creator)
     # try mutation with the token
-    payload = {"query": mutation, "variables": mutation_variables}
+    payload = {"query": createObservation_mutation, "variables": createObservation_mutation_variables}
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
     assert response.status_code == 200
     assert response.content == b'{"data":{"createObservation":{"observations":{"pulsar":{"jname":"J1234-5678"}}}}}'
+
+
+createSearchmode_mutation = """
+    mutation (
+        $jname: String!, $utc: String!, $beam: Int!, $DM: Float, $RA: String, $DEC: String, $nbit: Int, $nchan: Int,
+        $npol: Int, $tsamp: Float, $nant: Int, $nant_eff: Int, $proposal: String, $length: Float, $bw: Float, $freq: Float
+    ) {
+        createSearchmode(
+            jname: $jname, utc: $utc, beam: $beam, RA: $RA, DEC: $DEC, DM: $DM, nbit: $nbit, nchan: $nchan,
+            npol: $npol, tsamp: $tsamp, nant: $nant, nantEff: $nant_eff, proposal: $proposal, length: $length, bw: $bw, frequency: $freq
+        ) {
+            searchmode {
+                pulsar {
+                    jname
+                }
+            }
+        }
+    }
+"""
+createSearchmode_mutation_variables = """
+    {
+        "jname": "J1234-5678",
+        "utc": "2020-08-12-01:02:03",
+        "beam": 3,
+        "RA": "12:34:12.345",
+        "DEC": "-56:77:56.789",
+        "DM": 5.3514,
+        "nbit": 8,
+        "nchan": 856,
+        "npol": 2,
+        "tsamp": 0.000064,
+        "nant": 57,
+        "nant_eff": 54,
+        "proposal": "SCI-20180516-MB-02",
+        "length": 201.2,
+        "bw": 856,
+        "freq": 1235.0123
+    }
+"""
+
+
+def test_graphql_mutation_createSearchmode_without_token(client, django_user_model):
+    payload = {"query": createSearchmode_mutation, "variables": createSearchmode_mutation_variables}
+    response = client.post("/graphql/", payload)
+    error_list = json.loads(response.content)["errors"]
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createSearchmode"]}],"data":{"createSearchmode":null}}'
+    assert response.status_code == 200
+    assert len(error_list) > 0
+    assert isinstance(error_list[0], dict)
+    assert "message" in error_list[0].keys()
+    assert error_list[0]["message"] == "You do not have permission to perform this action"
+    assert response.content == expected
+
+
+@pytest.mark.django_db
+def test_graphql_mutation_createSearchmode_with_token_without_permission(client, django_user_model):
+    user = __create_viewer(client, django_user_model)
+    assert not user.has_perm("dataportal.add_observations")
+
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_viewer)
+    # try mutation with the token
+    payload = {"query": createSearchmode_mutation, "variables": createSearchmode_mutation_variables}
+    header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
+    response = client.post("/graphql/", payload, **header)
+    error_list = json.loads(response.content)["errors"]
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createSearchmode"]}],"data":{"createSearchmode":null}}'
+    assert response.status_code == 200
+    assert len(error_list) > 0
+    assert isinstance(error_list[0], dict)
+    assert "message" in error_list[0].keys()
+    assert error_list[0]["message"] == "You do not have permission to perform this action"
+    assert response.content == expected
+
+
+@pytest.mark.django_db
+def test_graphql_mutation_createSearchmode_with_token_with_permission(client, django_user_model):
+    user = __create_creator(client, django_user_model)
+    assert user.has_perm("dataportal.add_observations")
+
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_creator)
+    # try mutation with the token
+    payload = {"query": createSearchmode_mutation, "variables": createSearchmode_mutation_variables}
+    header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
+    response = client.post("/graphql/", payload, **header)
+    assert response.status_code == 200
+    assert response.content == b'{"data":{"createSearchmode":{"searchmode":{"pulsar":{"jname":"J1234-5678"}}}}}'
+
+
+createFluxcal_mutation = """
+    mutation (
+        $jname: String!, $utc: String!, $beam: Int!,  $snr: Float, $length: Float, $nbin: Int, $nchan: Int,
+        $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float
+    ) {
+        createFluxcal(
+            jname: $jname, utc: $utc, beam: $beam, snr: $snr, nbin: $nbin, nchan: $nchan, length: $length,
+             nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq
+        ) {
+            fluxcal {
+                pulsar {
+                    jname
+                }
+            }
+        }
+    }
+"""
+createFluxcal_mutation_variables = """
+    {
+        "jname": "J1234-5678",
+        "utc": "2020-08-12-01:02:03",
+        "beam": 3,
+        "snr": 15.231,
+        "length": 201.2,
+        "nchan": 856,
+        "nbin": 1024,
+        "nant": 57,
+        "nant_eff": 54,
+        "proposal": "SCI-20180516-MB-02",
+        "bw": 856,
+        "freq": 1235.0123
+    }
+"""
+
+
+def test_graphql_mutation_createFluxcal_without_token(client, django_user_model):
+    payload = {"query": createFluxcal_mutation, "variables": createFluxcal_mutation_variables}
+    response = client.post("/graphql/", payload)
+    error_list = json.loads(response.content)["errors"]
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createFluxcal"]}],"data":{"createFluxcal":null}}'
+    assert response.status_code == 200
+    assert len(error_list) > 0
+    assert isinstance(error_list[0], dict)
+    assert "message" in error_list[0].keys()
+    assert error_list[0]["message"] == "You do not have permission to perform this action"
+    assert response.content == expected
+
+
+@pytest.mark.django_db
+def test_graphql_mutation_createFluxcal_with_token_without_permission(client, django_user_model):
+    user = __create_viewer(client, django_user_model)
+    assert not user.has_perm("dataportal.add_observations")
+
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_viewer)
+    # try mutation with the token
+    payload = {"query": createFluxcal_mutation, "variables": createFluxcal_mutation_variables}
+    header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
+    response = client.post("/graphql/", payload, **header)
+    error_list = json.loads(response.content)["errors"]
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createFluxcal"]}],"data":{"createFluxcal":null}}'
+    assert response.status_code == 200
+    assert len(error_list) > 0
+    assert isinstance(error_list[0], dict)
+    assert "message" in error_list[0].keys()
+    assert error_list[0]["message"] == "You do not have permission to perform this action"
+    assert response.content == expected
+
+
+@pytest.mark.django_db
+def test_graphql_mutation_createFluxcal_with_token_with_permission(client, django_user_model):
+    user = __create_creator(client, django_user_model)
+    assert user.has_perm("dataportal.add_observations")
+
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_creator)
+    # try mutation with the token
+    payload = {"query": createFluxcal_mutation, "variables": createFluxcal_mutation_variables}
+    header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
+    response = client.post("/graphql/", payload, **header)
+    assert response.status_code == 200
+    assert response.content == b'{"data":{"createFluxcal":{"fluxcal":{"pulsar":{"jname":"J1234-5678"}}}}}'

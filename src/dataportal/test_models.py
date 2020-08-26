@@ -3,7 +3,7 @@ import random
 import string
 from datetime import datetime
 
-from .models import Observations, Searchmode, Fluxcal, Pulsars, Utcs
+from .models import Observations, Searchmode, Fluxcal, Pulsars, Utcs, Proposals
 
 
 def get_random_string(length):
@@ -30,18 +30,19 @@ def test_fluxcal_band():
 def generate_two_db_entries(_psr, utc_later_str, utc_earlier_str):
     expected_beam = 2
     psr = Pulsars.objects.create(jname=_psr)
+    proposal = Proposals.objects.create(proposal="SCI_MB", proposal_short="test")
     utc_later_dt = datetime.strptime(f"{utc_later_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
     utc_later = Utcs.objects.create(utc=utc_later_str, utc_ts=utc_later_dt)
 
     utc_earlier_dt = datetime.strptime(f"{utc_earlier_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
     utc_earlier = Utcs.objects.create(utc=utc_earlier_str, utc_ts=utc_earlier_dt)
 
-    Observations.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam)
-    Observations.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam)
-    Searchmode.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam)
-    Searchmode.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam)
-    Fluxcal.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam)
-    Fluxcal.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam)
+    Observations.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam, proposal=proposal)
+    Observations.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam, proposal=proposal)
+    Searchmode.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam, proposal=proposal)
+    Searchmode.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam, proposal=proposal)
+    Fluxcal.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam, proposal=proposal)
+    Fluxcal.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam, proposal=proposal)
 
     return utc_earlier_dt, utc_later_dt
 
@@ -53,6 +54,7 @@ def test_get_observations_no_project_id():
     utc_earlier_str = "1999-01-01-12:59:12"
 
     expected_utc_earlier, expected_utc_later = generate_two_db_entries(expected_psr, utc_later_str, utc_earlier_str)
+    print("utc", expected_utc_earlier)
 
     obs = Pulsars.get_observations(mode="observations")
     search = Pulsars.get_observations(mode="searchmode")
