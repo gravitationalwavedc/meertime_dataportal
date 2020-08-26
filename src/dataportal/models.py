@@ -2,7 +2,6 @@ from django.db import models
 from django.db.models import Max, Min, F, ExpressionWrapper, DurationField, Count, Sum, Avg, OuterRef, Subquery
 from django.db.models.functions import Sqrt
 from django.apps import apps
-
 from .logic import get_band
 
 import logging
@@ -100,7 +99,10 @@ class Pulsars(models.Model):
 
         obstype_filter = {f"{mode}__isnull": False}
 
-        pulsar_proposal_filter = {}
+        pulsar_proposal_filter = {
+            f"{mode}__proposal__proposal__startswith": "SCI",
+            f"{mode}__proposal__proposal__contains": "MB",
+        }
         if proposal_id:
             pulsar_proposal_filter[f"{mode}__proposal__id"] = proposal_id
 

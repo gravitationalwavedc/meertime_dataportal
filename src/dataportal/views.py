@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from meertime.settings import SENTRY_DSN
+from django.db.models import Sum
 
 
 from .models import Pulsars, Proposals
@@ -23,7 +24,7 @@ class IndexBaseView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["projects"] = Proposals.objects.filter(proposal__contains="SCI")
+        context["projects"] = Proposals.objects.filter(proposal__startswith="SCI", proposal__contains="MB")
         context["project_id"] = self.request.GET.get("project_id")
         return context
 
@@ -37,6 +38,13 @@ class FoldView(IndexBaseView):
 
     def get_queryset(self):
         return Pulsars.get_observations(mode="observations", proposal_id=self.request.GET.get("project_id"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        qs = context["per_pulsar_list"]
+        context["totals"] = qs.aggregate(global_tint_h=Sum("total_tint_h"), global_nobs=Sum("nobs"))
+        context["totals"]["global_npsr"] = qs.count()
+        return context
 
 
 class SearchmodeView(IndexBaseView):

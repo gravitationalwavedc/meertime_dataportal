@@ -2,22 +2,29 @@
 
 {% block content %}
 <div class="row">
-  <div class="form-group">
-    <form action="" method="get">
-      <div class="form-group">
-        <label for="project_id">Select project</lablel>
-          <select class="form-control" id="project_id" name="project_id" onchange="this.form.submit()">
-            <option value="">All</option>
-            {% for project in projects %}
-            {% if project_id == project.id|stringformat:"s" %}
-            <option value={{ project.id }} selected>{{ project.proposal_short }}</option>
-            {% else %}
-            <option value={{ project.id }}>{{ project.proposal_short }}</option>
-            {% endif %}
-            {% endfor %}
-          </select>
-      </div>
-    </form>
+  <div class="col-8">
+    <div class="form-group">
+      <form action="" method="get">
+        <div class="form-group">
+          <label for="project_id">Select project</lablel>
+            <select class="form-control" id="project_id" name="project_id" onchange="this.form.submit()">
+              <option value="">All</option>
+              {% for project in projects %}
+              {% if project_id == project.id|stringformat:"s" %}
+              <option value={{ project.id }} selected>{{ project.proposal_short }}</option>
+              {% else %}
+              <option value={{ project.id }}>{{ project.proposal_short }}</option>
+              {% endif %}
+              {% endfor %}
+            </select>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col-4 justify-content-end">
+    <span class="float-right"></span> In total, we have performed {{ totals.global_nobs }} observations of
+    {{ totals.global_npsr }}
+    pulsars, for a total time of {{ totals.global_tint_h|floatformat }} hours.</span>
   </div>
 </div>
 
