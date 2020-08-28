@@ -30,7 +30,7 @@ data:
       echo "Verifying contents"
       contents=$(cat ${STATE_FILE})
       echo "Contents of the file are :$contents"
-      if [ "${contents}"x = ${DESIRED_STATE}x ] && [ "FORCED_RELOAD" = "true" ]
+      if [ "${contents}"x = ${DESIRED_STATE}x ]
       then
         echo "mysql is in desired state"
       else
