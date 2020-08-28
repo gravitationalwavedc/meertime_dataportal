@@ -63,21 +63,9 @@ spec:
                 secretKeyRef:
                   name: db-root-credentials
                   key: password
-            - name: MYSQL_USER
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: username
-            - name: MYSQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: db-credentials
-                  key: password
-            - name: MYSQL_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: db-conf
-                  key: name
+          envFrom:
+            - secretRef:
+                name: db-config
           ports:
             - containerPort: 3306
               name: mysql
@@ -87,11 +75,11 @@ spec:
           livenessProbe:
             exec:
               command:
-              - bash
-              - "-c"
-              - |
-                set -ex
-                mysqladmin -p$MYSQL_ROOT_PASSWORD ping &> /dev/null
+                - bash
+                - "-c"
+                - |
+                  set -ex
+                  mysqladmin -p$MYSQL_ROOT_PASSWORD ping &> /dev/null
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -99,11 +87,11 @@ spec:
             exec:
               # Check we can execute queries over TCP (skip-networking is off).
               command:
-              - bash
-              - "-c"
-              - |
-                set -ex
-                mysql -h 127.0.0.1 -p$MYSQL_ROOT_PASSWORD -e "SELECT 1" &> /dev/null
+                - bash
+                - "-c"
+                - |
+                  set -ex
+                  mysql -h 127.0.0.1 -p$MYSQL_ROOT_PASSWORD -e "SELECT 1" &> /dev/null
             initialDelaySeconds: 5
             periodSeconds: 2
             timeoutSeconds: 1

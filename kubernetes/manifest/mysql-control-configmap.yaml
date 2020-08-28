@@ -50,7 +50,7 @@ data:
       if [[ "${md5sum_check}" = "${CHECKSUM}" ]]
       then
         echo "Checksum matches, proceeding"
-        gunzip  < ${CONTROL_DIR}/${DESIRED_STATE} | mysql -u $DB_USERNAME -p$DB_PASSWORD -h $DB_HOST $DB_NAME
+        gunzip  < ${CONTROL_DIR}/${DESIRED_STATE} | mysql -u $MYSQL_USER -p$MYSQL_PASSWORD -h $DB_HOST $MYSQL_DATABASE
         echo ${DESIRED_STATE} > ${STATE_FILE}
       else
         echo "Checksum of desired state file does not match expectation, aborting"

@@ -93,9 +93,9 @@ WSGI_APPLICATION = "meertime.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": env("DB_NAME"),
-        "USER": env("DB_USERNAME"),
-        "PASSWORD": env("DB_PASSWORD"),
+        "NAME": env("MYSQL_DATABASE"),
+        "USER": env("MYSQL_USER"),
+        "PASSWORD": env("MYSQL_PASSWORD"),
         "HOST": env("DB_HOST"),
         "PORT": env("DB_PORT", default=3306),
     }
