@@ -78,6 +78,9 @@ spec:
                 secretKeyRef:
                   name: db-credentials
                   key: password
+          envFrom:
+            - secretRef:
+              name: db-control
           volumeMounts:
             - name: mysql-persistent-storage
               mountPath: /mnt/mysql
