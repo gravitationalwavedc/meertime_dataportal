@@ -33,7 +33,7 @@ Go <a href="{% url 'fold' %}">back</a>
       <tr>
         <td class="text-nowrap">
           <a
-            href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc.utc_ts|date:'Y-m-d H:i:s' }}&jname={{ psr|urlencode }}">{{ obs.utc.utc_ts|date:'Y-m-d H:i:s' }}</a>
+            href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}&jname={{ psr|urlencode }}&data=lkzYMlYtiQO1sjYo4RymyJmgIWbhekDDvGhd83h/2p0=">{{ obs.utc.utc_ts|date:'Y-m-d H:i:s' }}</a>
         </td>
         <td>{{ obs.proposal.proposal_short }}</td>
         <td>{{ obs.length|div:60|floatformat:1 }}</td>
