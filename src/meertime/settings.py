@@ -14,6 +14,9 @@ ENV = env("ENV", default="")
 environ.Env.read_env(f".env{ENV}")
 
 DEBUG = env("DEBUG")
+USE_TOOLBAR_IN_DEBUG = env("USE_TOOLBAR_IN_DEBUG", default=True)
+USE_CPROFILER_IN_DEBUG = env("USE_CPROFILER_IN_DEBUG", default=False)
+
 logger.info(f"DEBUG is set to {DEBUG}")
 ADMIN_ENABLED = env("ADMIN_ENABLED")
 logger.info(f"ADMIN_ENABLED is set to {ADMIN_ENABLED}")
@@ -52,6 +55,9 @@ INSTALLED_APPS = [
     "graphene_django",
 ]
 
+if DEBUG and USE_TOOLBAR_IN_DEBUG:
+    INSTALLED_APPS.append("debug_toolbar",)
+
 GRAPHENE = {"SCHEMA": "src.schema.schema", "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"]}
 
 MIDDLEWARE = [
@@ -64,7 +70,13 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 if DEBUG:
+    if USE_TOOLBAR_IN_DEBUG:
+        INTERNAL_IPS = env("INTERNAL_IPS", default="127.0.0.1")
+        MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
     MIDDLEWARE.append("querycount.middleware.QueryCountMiddleware")
+    if USE_CPROFILER_IN_DEBUG:
+        DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = False
+        MIDDLEWARE.append("django_cprofile_middleware.middleware.ProfilerMiddleware")
 
 ROOT_URLCONF = "meertime.urls"
 
