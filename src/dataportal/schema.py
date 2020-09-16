@@ -2,8 +2,8 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import permission_required, login_required
 
-from .models import Observations, Searchmode, Fluxcal, Pulsars, Utcs
-from ingest.ingest import create_fold_mode, create_search_mode, create_fluxcal
+from .models import Observations, Searchmode, Fluxcal, Pulsars, Utcs, Ephemerides, Proposals
+from ingest.ingest_methods import create_fold_mode, create_search_mode, create_fluxcal, create_ephemeris
 
 
 class ObservationsType(DjangoObjectType):
@@ -31,10 +31,23 @@ class PulsarType(DjangoObjectType):
         model = Pulsars
 
 
+class EphemerisType(DjangoObjectType):
+    class Meta:
+        model = Ephemerides
+
+
+class ProposalType(DjangoObjectType):
+    class Meta:
+        model = Proposals
+
+
 class Query(graphene.ObjectType):
     observations = graphene.List(ObservationsType)
+    searchmode = graphene.List(SearchmodeType)
+    fluxcal = graphene.List(FluxcalType)
     utcs = graphene.List(UtcsType)
     pulsars = graphene.List(PulsarType)
+    ephemeris = graphene.List(EphemerisType)
 
     @login_required
     def resolve_observations(self, info, **kwargs):
@@ -55,6 +68,14 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_utcs(self, info, **kwargs):
         return Utcs.objects.all()
+
+    @login_required
+    def resolve_ephemerides(self, info, **kwargs):
+        return Ephemerides.objects.all()
+
+    @login_required
+    def reslove_proposals(self, info, **kwargs):
+        return Proposals.objects.all()
 
 
 class CreateObservation(graphene.Mutation):
@@ -158,7 +179,24 @@ class CreateFluxcal(graphene.Mutation):
         return CreateFluxcal(fluxcal=obs)
 
 
+class CreateEphemeris(graphene.Mutation):
+    class Arguments:
+        pulsar = graphene.String()
+        updated_at = graphene.String()
+        ephemeris = graphene.String()
+        comment = graphene.String()
+
+    ephemeris = graphene.Field(EphemerisType)
+
+    @classmethod
+    @permission_required("dataportal.add_observations")
+    def mutate(cls, self, info, jname, updated_at, ephemeris, comment):
+        eph = create_ephemeris(jname, updated_at, ephemeris, comment)
+        return CreateEphemeris(ephemeris=eph)
+
+
 class Mutation(graphene.ObjectType):
     create_observation = CreateObservation.Field()
     create_searchmode = CreateSearchmode.Field()
     create_fluxcal = CreateFluxcal.Field()
+    create_ephemeris = CreateEphemeris.Field()

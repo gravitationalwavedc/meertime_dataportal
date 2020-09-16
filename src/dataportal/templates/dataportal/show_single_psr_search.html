@@ -1,10 +1,12 @@
-{% extends "dataportal/base.html" %}
+{% extends "dataportal/base_details.html" %}
 {% load mathfilters %}
 
 {% block content %}
 {% if obs_list %}
 Go <a href="{% url 'search' %}">back</a>
 <h2>{{ psr }}</h2>
+{# display the ephemeris #}
+{{ block.super }}
 <div style="clear:both">
   <table id="psrs" class="table table-striped table-bordered table-sm text-right">
     <thead class="thead-dark">

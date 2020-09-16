@@ -57,7 +57,7 @@ def __create_psr_utc_obs():
     psr = Pulsars.objects.create(jname="J1234-5678")
     utc_str = "2000-01-01-12:59:12"
     utc_dt = datetime.strptime(f"{utc_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc = Utcs.objects.create(utc=utc_str, utc_ts=utc_dt)
+    utc = Utcs.objects.create(utc_ts=utc_dt)
     Observations.objects.create(pulsar=psr, utc=utc, beam=1)
     return psr, utc
 
@@ -109,7 +109,7 @@ def test_graphql_pulsars_query_with_token(client, django_user_model):
 query_utcs = """
     query {
         utcs {
-            utc
+            utcTs
         }
     }
 """
@@ -132,7 +132,7 @@ def test_graphql_utcs_query_with_token(client, django_user_model):
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
 
-    expected = b'{"data":{"utcs":[{"utc":"2000-01-01-12:59:12"}]}}'
+    expected = b'{"data":{"utcs":[{"utcTs":"2000-01-01T12:59:12+00:00"}]}}'
     assert response.content == expected
     assert response.status_code == 200
 
@@ -145,7 +145,7 @@ query_obs = """
                jname
            }
            utc {
-               utc
+               utcTs
            }
        }
    }
@@ -169,7 +169,9 @@ def test_graphql_observations_query_with_token(client, django_user_model):
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
 
-    expected = b'{"data":{"observations":[{"pulsar":{"jname":"J1234-5678"},"utc":{"utc":"2000-01-01-12:59:12"}}]}}'
+    expected = (
+        b'{"data":{"observations":[{"pulsar":{"jname":"J1234-5678"},"utc":{"utcTs":"2000-01-01T12:59:12+00:00"}}]}}'
+    )
     assert response.content == expected
     assert response.status_code == 200
 

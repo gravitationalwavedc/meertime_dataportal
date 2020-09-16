@@ -9,7 +9,7 @@ urlpatterns = [
     path("fluxcal/", login_required(views.FoldView.as_view()), name="fluxcal"),
     re_path(
         r"^(?P<psr>[BJ][0-2][0-9]*[-+][0-9]*[a-zA-Z]*)$",
-        login_required(views.DetailView.as_view()),
+        login_required(views.PulsarDetailView.as_view()),
         name="pulsar_detail",
     ),
     re_path(

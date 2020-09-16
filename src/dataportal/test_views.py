@@ -65,34 +65,34 @@ def test_search_view_authenticated_with_project_id(client, django_user_model):
     assert response.template_name == ["dataportal/searchmode.html", "dataportal/pulsars_list.html"]
 
 
-# Test DetailView
+# Test PulsarDetailView
 @pytest.mark.django_db
 def test_detail_view_unauthenticated(client):
-    """DetailView should redirect unauthenticated users to the login page."""
-    Pulsars.objects.create(jname="J111-2222")
-    response = client.get("/meertime/J111-2222")
+    """PulsarDetailView should redirect unauthenticated users to the login page."""
+    Pulsars.objects.create(jname="J1111-2222")
+    response = client.get("/meertime/J1111-2222")
     assert response.status_code == 302
-    assert response["location"] == "/accounts/login/?next=/meertime/J111-2222"
+    assert response["location"] == "/accounts/login/?next=/meertime/J1111-2222"
 
 
 @pytest.mark.django_db
 def test_detail_view_authenticated(client, django_user_model):
-    """DetailView should display the correct template for authenticated users when give a job name."""
+    """PulsarDetailView should display the correct template for authenticated users when give a job name."""
     login_buffy(client, django_user_model)
-    Pulsars.objects.create(jname="J111-2222")
-    response = client.get("/meertime/J111-2222")
+    Pulsars.objects.create(jname="J1111-2222")
+    response = client.get("/meertime/J1111-2222")
     assert response.status_code == 200
     assert response.template_name == ["dataportal/show_single_psr.html", "dataportal/observations_list.html"]
 
 
 @pytest.mark.django_db
 def test_detail_view_accepts_correct_regex(client, django_user_model):
-    """DetailView should accept the correct job strings via the url regex."""
+    """PulsarDetailView should accept the correct job strings via the url regex."""
     login_buffy(client, django_user_model)
-    Pulsars.objects.create(jname="J111-2222")
-    Pulsars.objects.create(jname="J111+2222")
-    response_1 = client.get("/meertime/J111-2222")
-    response_2 = client.get("/meertime/J111+2222")
+    Pulsars.objects.create(jname="J1111-2222")
+    Pulsars.objects.create(jname="J1111+2222")
+    response_1 = client.get("/meertime/J1111-2222")
+    response_2 = client.get("/meertime/J1111+2222")
     assert response_1.status_code == 200
     assert response_1.template_name == ["dataportal/show_single_psr.html", "dataportal/observations_list.html"]
     assert response_2.status_code == 200
@@ -103,18 +103,18 @@ def test_detail_view_accepts_correct_regex(client, django_user_model):
 @pytest.mark.django_db
 def test_search_detail_view_unauthenticated(client):
     """SearchDetailView should redirect unauthenticated users to the login page."""
-    Pulsars.objects.create(jname="J111-2222")
-    response = client.get("/meertime/search/J111-2222")
+    Pulsars.objects.create(jname="J1111-2222")
+    response = client.get("/meertime/search/J1111-2222")
     assert response.status_code == 302
-    assert response["location"] == "/accounts/login/?next=/meertime/search/J111-2222"
+    assert response["location"] == "/accounts/login/?next=/meertime/search/J1111-2222"
 
 
 @pytest.mark.django_db
 def test_search_detail_view_authenticated(client, django_user_model):
     """SearchDetailView should display the correct template for authenticated users when give a job name."""
     login_buffy(client, django_user_model)
-    Pulsars.objects.create(jname="J111-2222")
-    response = client.get("/meertime/search/J111-2222")
+    Pulsars.objects.create(jname="J1111-2222")
+    response = client.get("/meertime/search/J1111-2222")
     assert response.status_code == 200
     assert response.template_name == ["dataportal/show_single_psr_search.html", "dataportal/searchmode_list.html"]
 
@@ -123,10 +123,10 @@ def test_search_detail_view_authenticated(client, django_user_model):
 def test_search_detail_view_accepts_correct_regex(client, django_user_model):
     """SearchDetailView should accept the correct job strings via the url regex."""
     login_buffy(client, django_user_model)
-    Pulsars.objects.create(jname="J111-2222")
-    Pulsars.objects.create(jname="J111+2222")
-    response_1 = client.get("/meertime/search/J111-2222")
-    response_2 = client.get("/meertime/search/J111+2222")
+    Pulsars.objects.create(jname="J1111-2222")
+    Pulsars.objects.create(jname="J1111+2222")
+    response_1 = client.get("/meertime/search/J1111-2222")
+    response_2 = client.get("/meertime/search/J1111+2222")
     assert response_1.status_code == 200
     assert response_1.template_name == ["dataportal/show_single_psr_search.html", "dataportal/searchmode_list.html"]
     assert response_2.status_code == 200

@@ -54,13 +54,21 @@ class Proposals(models.Model):
         db_table = "Proposals"
 
 
+class Ephemerides(models.Model):
+    pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
+    updated_at = models.DateTimeField()
+    # We'll store the ephemerides as JSON but in a TextField. This is to avoid the json getting normalised and losing the order of parameters.
+    ephemeris = models.TextField(blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = "Ephemerides"
+
+
 class Pulsars(models.Model):
     jname = models.TextField(db_column="Jname", blank=True, null=True)
+    ephemeris = models.ForeignKey("Ephemerides", models.SET_NULL, null=True)
     state = models.TextField(blank=True, null=True)
-    gc = models.IntegerField(db_column="GC", blank=True, null=True)
-    relbin = models.IntegerField(db_column="RelBin", blank=True, null=True)
-    tpa = models.IntegerField(db_column="TPA", blank=True, null=True)
-    pta = models.IntegerField(db_column="PTA", blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
 
     @classmethod
@@ -175,7 +183,6 @@ class Fluxcal(models.Model):
 
 
 class Utcs(models.Model):
-    utc = models.TextField(blank=True, null=True)
     utc_ts = models.DateTimeField()
     annotation = models.TextField(blank=True, null=True)
 

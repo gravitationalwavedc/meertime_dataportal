@@ -2,6 +2,9 @@ from datetime import datetime
 import sys
 import os
 import logging
+import json
+
+from .parse_cfg import parse_cfg
 
 
 def __setup_django(root_path, settings):
@@ -18,13 +21,22 @@ def __setup_django(root_path, settings):
 
 __setup_django(os.environ.get("PWD", "."), "meertime.settings")
 
-from dataportal.models import Observations, Searchmode, Fluxcal, Utcs, Pulsars, Proposals
+from dataportal.models import Observations, Searchmode, Fluxcal, Utcs, Pulsars, Proposals, Ephemerides
+
+
+def create_ephemeris(psr, updated_at, ephemeris, comment):
+    psr, created = Pulsars.objects.get_or_create(jname=psr)
+    dt = datetime.strptime(f"{updated_at} +0000", "%Y-%m-%d-%H:%M:%S %z")
+    params = {"comment": comment, "updated_at": dt, "ephemeris": ephemeris}
+
+    eph, created = Ephemerides.objects.update_or_create(pulsar=psr, defaults=params)
+    return eph
 
 
 def create_fold_mode(utc, psr, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq):
     # get the foreign keys:
     utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc, created = Utcs.objects.get_or_create(utc=utc, utc_ts=utc_dt)
+    utc, created = Utcs.objects.get_or_create(utc_ts=utc_dt)
     psr, created = Pulsars.objects.get_or_create(jname=psr)
     proposal, created = Proposals.objects.get_or_create(proposal=proposal)
 
@@ -59,7 +71,7 @@ def create_search_mode(
     utc, psr, beam, ra, dec, DM, nbit, nchan, npol, tsamp, nant, nant_eff, proposal, length, bw, freq
 ):
     utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc, created = Utcs.objects.get_or_create(utc=utc, utc_ts=utc_dt)
+    utc, created = Utcs.objects.get_or_create(utc_ts=utc_dt)
     psr, created = Pulsars.objects.get_or_create(jname=psr)
     proposal, created = Proposals.objects.get_or_create(proposal=proposal)
 
@@ -96,7 +108,7 @@ def create_search_mode(
 def create_fluxcal(utc, psr, beam, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq):
     # get the foreign keys:
     utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc, created = Utcs.objects.get_or_create(utc=utc, utc_ts=utc_dt)
+    utc, created = Utcs.objects.get_or_create(utc_ts=utc_dt)
     psr, created = Pulsars.objects.get_or_create(jname=psr)
     proposal, created = Proposals.objects.get_or_create(proposal=proposal)
 
@@ -192,13 +204,17 @@ def parse_input(line):
 
         create_fluxcal(utc, psr, beam, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq)
 
+    elif len(input_data) == 5 and input_data[4] == "3":
+        # par file
+        psr = input_data[0]
+        updated_at = input_data[1]
+        ephemeris_fn = input_data[2]
+        comment = input_data[3]
+
+        ephemeris = json.dumps(parse_cfg(ephemeris_fn), separators=(",", ":"))
+
+        create_ephemeris(psr, updated_at, ephemeris, comment)
+
     else:
-        msg = "Currently only fold and search mode input is accepted. You either tried to insert different type or malformed the fold mode input."
+        msg = "Currently only folded, search mode, fluxcal, or ephemeris input is accepted. You either tried to insert different type or malformed the fold mode input."
         logging.warning(msg)
-
-
-if __name__ == "__main__":
-    input_fn = "ingest/example.input"
-    with open(input_fn, "r") as input_fh:
-        for line in input_fh:
-            parse_input(line)

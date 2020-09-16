@@ -1,6 +1,6 @@
 import pytest
-from ingest.ingest import parse_input
-from dataportal.models import Observations, Searchmode, Utcs, Pulsars, Proposals
+from ingest.ingest_methods import parse_input
+from dataportal.models import Observations, Searchmode, Utcs, Pulsars, Proposals, Ephemerides
 
 
 @pytest.mark.django_db
@@ -9,6 +9,7 @@ def test_parse_input():
     with open(input_fn, "r") as input_fh:
         for line in input_fh:
             parse_input(line)
+    assert Ephemerides.objects.all().count() == 1
     assert Observations.objects.all().count() == 6
     assert Searchmode.objects.all().count() == 1
     assert Utcs.objects.all().count() == 5

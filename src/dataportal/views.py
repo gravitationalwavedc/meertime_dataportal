@@ -2,9 +2,10 @@ from django.shortcuts import get_object_or_404
 from django.views import generic
 from meertime.settings import SENTRY_DSN
 from django.db.models import Sum
+import json
 
 
-from .models import Pulsars, Proposals
+from .models import Pulsars, Proposals, Ephemerides
 
 from sentry_sdk import last_event_id
 from django.shortcuts import render
@@ -54,36 +55,45 @@ class SearchmodeView(IndexBaseView):
 
 
 class DetailView(generic.ListView):
+    context_object_name = "obs_list"
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+        self.pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["psr"] = self.kwargs["psr"]
+        try:
+            ephemeris = Ephemerides.objects.get(pulsar=self.pulsar)
+        except Ephemerides.DoesNotExist:
+            ephemeris = None
+            updated = None
+        if ephemeris:
+            updated = ephemeris.updated_at
+            ephemeris = json.loads(ephemeris.ephemeris)
+        context["ephemeris"] = ephemeris
+        context["updated"] = updated
+        return context
+
+
+class PulsarDetailView(DetailView):
     """
     Display detail list of observations for a single pulsar.
     """
 
     template_name = "dataportal/show_single_psr.html"
-    context_object_name = "obs_list"
 
     def get_queryset(self):
-        pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
-        return pulsar.observations_detail_data()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["psr"] = self.kwargs["psr"]
-        return context
+        return self.pulsar.observations_detail_data()
 
 
-class SearchDetailView(generic.ListView):
+class SearchDetailView(DetailView):
     """
     Display detail list of search mode observations for a single pulsar
     """
 
     template_name = "dataportal/show_single_psr_search.html"
-    context_object_name = "obs_list"
 
     def get_queryset(self):
-        pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
-        return pulsar.searchmode_detail_data()
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["psr"] = self.kwargs["psr"]
-        return context
+        return self.pulsar.searchmode_detail_data()
