@@ -56,9 +56,16 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG and USE_TOOLBAR_IN_DEBUG:
-    INSTALLED_APPS.append("debug_toolbar",)
+    INSTALLED_APPS.append("debug_toolbar")
 
-GRAPHENE = {"SCHEMA": "src.schema.schema", "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"]}
+if DEBUG:
+    INSTALLED_APPS.append("corsheaders")
+
+GRAPHENE = {
+    "SCHEMA": "meertime.schema.schema",
+    "SCHEMA_OUTPUT": "./frontend/data/schema.json",
+    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -69,11 +76,14 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
 if DEBUG:
     if USE_TOOLBAR_IN_DEBUG:
         INTERNAL_IPS = env("INTERNAL_IPS", default="127.0.0.1")
         MIDDLEWARE.append("debug_toolbar.middleware.DebugToolbarMiddleware")
     MIDDLEWARE.append("querycount.middleware.QueryCountMiddleware")
+    MIDDLEWARE.append("corsheaders.middleware.CorsMiddleware")
+    CORS_ORIGIN_ALLOW_ALL = True
     if USE_CPROFILER_IN_DEBUG:
         DJANGO_CPROFILE_MIDDLEWARE_REQUIRE_STAFF = False
         MIDDLEWARE.append("django_cprofile_middleware.middleware.ProfilerMiddleware")
@@ -123,6 +133,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",},
 ]
+
 AUTHENTICATION_BACKENDS = ["graphql_jwt.backends.JSONWebTokenBackend", "django.contrib.auth.backends.ModelBackend"]
 
 

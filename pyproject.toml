@@ -31,6 +31,7 @@ django_coverage_plugin = "^1.8.0"
 django-graphiql = "^0.4.4"
 django-cprofile-middleware = "^1.0.5"
 django_debug_toolbar = "^2.2"
+django-cors-headers = "^3.5.0"
 
 [tool.black]
 line-length = 119
