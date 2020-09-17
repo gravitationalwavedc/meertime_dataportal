@@ -3,7 +3,6 @@ import json
 from dataportal.models import Observations, Pulsars, Utcs
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
-from graphql.error.located_error import GraphQLLocatedError
 from datetime import datetime
 
 
@@ -438,3 +437,42 @@ def test_graphql_mutation_createFluxcal_with_token_with_permission(client, djang
     response = client.post("/graphql/", payload, **header)
     assert response.status_code == 200
     assert response.content == b'{"data":{"createFluxcal":{"fluxcal":{"pulsar":{"jname":"J1234-5678"}}}}}'
+
+
+createEphemeris_mutation = """
+    mutation (
+        $jname: String!, $updated_at: String!, $ephemeris: String!,  $comment: String!) {
+        createEphemeris(
+            jname: $jname, updatedAt: $updated_at, ephemeris: $ephemeris, comment: $comment) {
+            ephemeris {
+                pulsar {
+                    jname
+                }
+            }
+        }
+    }
+"""
+createEphemeris_mutation_variables = """
+    {
+        "jname": "J1234-5678",
+        "comment": "",
+        "updated_at": "2020-08-12-01:02:03",
+        "ephemeris": "fake"
+    }
+"""
+
+
+@pytest.mark.django_db
+def test_graphql_mutation_createEphemeris_with_token_with_permission(client, django_user_model):
+    user = __create_creator(client, django_user_model)
+    assert user.has_perm("dataportal.add_observations")
+
+    jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_creator)
+    # try mutation with the token
+    payload = {"query": createEphemeris_mutation, "variables": createEphemeris_mutation_variables}
+    header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
+    response = client.post("/graphql/", payload, **header)
+    print(response.status_code)
+    print(response.content)
+    assert response.status_code == 200
+    assert response.content == b'{"data":{"createEphemeris":{"ephemeris":{"pulsar":{"jname":"J1234-5678"}}}}}'

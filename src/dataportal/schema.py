@@ -181,7 +181,7 @@ class CreateFluxcal(graphene.Mutation):
 
 class CreateEphemeris(graphene.Mutation):
     class Arguments:
-        pulsar = graphene.String()
+        jname = graphene.String()
         updated_at = graphene.String()
         ephemeris = graphene.String()
         comment = graphene.String()
