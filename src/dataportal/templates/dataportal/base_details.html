@@ -5,12 +5,12 @@
   <details>
     <summary>View the folding ephemeris as of {{updated|date:'Y-m-d H:i:s'}}</summary>
     <div class="container-fluid">
-      <table class="table table-sm table-borderless">
+      <table class="table table-sm table-borderless table-striped">
         <tbody>
           {% for param, values in ephemeris.items %}
           <tr class="row">
-            <td class="col-1">{{param}}</td>
-            {% for value in values %}<td class="col-2">{{value}}</td class="col-1"> {% endfor %}
+            <td class="col-3 text-break">{{param}}</td>
+            {% for value in values %}<td class="col-2 text-break">{{value}}</td> {% endfor %}
           </tr>
           {% endfor %}
         </tbody>
