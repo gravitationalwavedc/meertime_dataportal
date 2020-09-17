@@ -26,6 +26,7 @@ class IndexBaseView(generic.ListView):
         context = super().get_context_data(**kwargs)
         context["projects"] = Proposals.objects.filter(proposal__startswith="SCI", proposal__contains="MB")
         context["project_id"] = self.request.GET.get("project_id")
+        context["band"] = self.request.GET.get("band")
         qs = context["per_pulsar_list"]
         context["totals"] = qs.aggregate(global_tint_h=Sum("total_tint_h"), global_nobs=Sum("nobs"))
         context["totals"]["global_npsr"] = qs.count()
@@ -40,7 +41,9 @@ class FoldView(IndexBaseView):
     template_name = "dataportal/index.html"
 
     def get_queryset(self):
-        return Pulsars.get_observations(mode="observations", proposal_id=self.request.GET.get("project_id"))
+        return Pulsars.get_observations(
+            mode="observations", proposal=self.request.GET.get("project_id"), band=self.request.GET.get("band")
+        )
 
 
 class SearchmodeView(IndexBaseView):
@@ -51,7 +54,7 @@ class SearchmodeView(IndexBaseView):
     template_name = "dataportal/searchmode.html"
 
     def get_queryset(self):
-        return Pulsars.get_observations(mode="searchmode", proposal_id=self.request.GET.get("project_id"))
+        return Pulsars.get_observations(mode="searchmode", proposal=self.request.GET.get("project_id"))
 
 
 class DetailView(generic.ListView):

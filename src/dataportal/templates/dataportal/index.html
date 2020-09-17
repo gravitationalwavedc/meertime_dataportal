@@ -2,9 +2,12 @@
 
 {% block content %}
 <div class="row">
-  <div class="col-8">
+  <div class="col-4">
     <div class="form-group">
       <form action="" method="get">
+        {% if band %}
+        <input type="hidden" name="band" value={{ band }} ?>
+        {% endif %}
         <div class="form-group">
           <label for="project_id">Select project</lablel>
             <select class="form-control" id="project_id" name="project_id" onchange="this.form.submit()">
@@ -16,6 +19,31 @@
               <option value={{ project.id }}>{{ project.proposal_short }}</option>
               {% endif %}
               {% endfor %}
+            </select>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="col-4">
+    <div class="form-group">
+      <form action="" method="get">
+        {% if project_id %}
+        <input type="hidden" name="project_id" value={{ project_id }} ?>
+        {% endif %}
+        <div class="form-group">
+          <label for="band">Select observing band</lablel>
+            <select class="form-control" id="band" name="band" onchange="this.form.submit()">
+              <option value="">All</option>
+              {# values have to match whats' in logic.py get_band #}
+              {% with "L-band UHF" as foo %}
+              {% for band_option in foo.split %}
+              {% if band == band_option %}
+              <option value={{ band_option }} selected>{{ band_option }}</option>
+              {% else %}
+              <option value={{ band_option }}>{{ band_option }}</option>
+              {% endif %}
+              {% endfor %}
+              {% endwith %}
             </select>
         </div>
       </form>

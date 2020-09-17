@@ -1,5 +1,5 @@
 import pytest
-from .logic import get_band, get_meertime_filters
+from .logic import get_band, get_meertime_filters, get_band_filters
 
 
 def test_get_band_returns_correct_value():
@@ -20,3 +20,16 @@ def test_get_meertime_filters():
     }
     assert get_meertime_filters() == expected_on_empty_input
     assert get_meertime_filters(prefix="observations") == expected_on_prefix_observations
+
+
+def test_get_band_filters():
+    expected_on_empty_input = {}
+    expected_on_lband = {"frequency__gte": 1085.0, "frequency__lte": 1485.0}
+    expected_on_prefix_observations_lband = {"frequency__gte": 1085.0, "frequency__lte": 1485.0}
+    expected_on_prefix_observations_lband = {
+        "observations__frequency__gte": 1085.0,
+        "observations__frequency__lte": 1485.0,
+    }
+    assert get_band_filters() == {}
+    assert get_band_filters(band="L-band") == expected_on_lband
+    assert get_band_filters(band="L-band", prefix="observations") == expected_on_prefix_observations_lband

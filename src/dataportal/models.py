@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import Max, Min, F, ExpressionWrapper, DurationField, Count, Sum, Avg, OuterRef, Subquery
 from django.db.models.functions import Sqrt
 from django.apps import apps
-from .logic import get_band, get_meertime_filters
+from .logic import get_band, get_band_filters, get_meertime_filters
 
 import logging
 
@@ -72,18 +72,23 @@ class Pulsars(models.Model):
     comment = models.TextField(blank=True, null=True)
 
     @classmethod
-    def get_observations(cls, mode, proposal_id=None):
+    def get_observations(cls, mode, proposal=None, band=None):
         try:
             __class = apps.get_model("dataportal", mode.capitalize())
         except LookupError:
             logging.error(f"Mode {mode} does not correspond to any existing model in get_observation")
             return None
 
-        proposal_filter = get_meertime_filters()
-        if proposal_id:
-            proposal_filter["proposal_id"] = proposal_id
+        observation_filter = get_meertime_filters()
+        if proposal:
+            observation_filter["proposal_id"] = proposal
 
-        latest_observation = __class.objects.filter(pulsar=OuterRef("pk"), **proposal_filter).order_by("-utc__utc_ts")
+        if band:
+            observation_filter.update(get_band_filters(band))
+
+        latest_observation = __class.objects.filter(pulsar=OuterRef("pk"), **observation_filter).order_by(
+            "-utc__utc_ts"
+        )
 
         annotations = {
             "last": Max(f"{mode}__utc__utc_ts"),
@@ -108,8 +113,11 @@ class Pulsars(models.Model):
         obstype_filter = {f"{mode}__isnull": False}
 
         pulsar_proposal_filter = get_meertime_filters(prefix=mode)
-        if proposal_id:
-            pulsar_proposal_filter[f"{mode}__proposal__id"] = proposal_id
+        if proposal:
+            pulsar_proposal_filter[f"{mode}__proposal__id"] = proposal
+
+        if band:
+            pulsar_proposal_filter.update(get_band_filters(band=band, prefix=mode))
 
         return (
             cls.objects.filter(**obstype_filter, **pulsar_proposal_filter)

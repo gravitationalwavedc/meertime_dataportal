@@ -1,19 +1,40 @@
+bands = {
+    "UHF": {"centre_frequency": 830.0, "allowed_deviation": 200.0,},
+    "L-band": {"centre_frequency": 1285.0, "allowed_deviation": 200.0,},
+    "S-band": {"centre_frequency": 2625.0, "allowed_deviation": 200.0,},
+}
+
+
 def get_band(frequency):
     """
     Band is the string representation of the frequency used by astronomers.
 
-    There are 2 bands that most frequencies should fit into. 
-    UHF: Ultra High Frequency in the range 300 MHZ to 1 GHZ
-    L-BAND: Freqencies unfortunately used for GPS in the range 1 to 2 GHZ
+    There are 3 bands that most frequencies should fit into.
+    UHF: Ultra High Frequency / 50-cm band, in the range 300 MHZ to 1 GHZ
+    L-band: 20-cm band, around Hydrogen transition line ~1.42 GHz
+    S-band: 10-cm band, around 2.6 GHz
     """
     try:
-        if abs(frequency - 830) < 200:
-            return "UHF"
-        elif abs(frequency - 1285) < 200:
-            return "L-band"
-        return str(frequency)
+        for band in bands.keys():
+            if abs(frequency - bands[band]["centre_frequency"]) < bands[band]["allowed_deviation"]:
+                return band
+        return str(round(frequency, 1))
     except TypeError:
         return None
+
+
+def get_band_filters(band=None, prefix=""):
+    band_filter = {}
+    if band:
+        if band not in bands.keys():
+            return band_filter
+        if prefix:
+            prefix = prefix + "__"
+        band_filter = {
+            f"{prefix}frequency__gte": bands[band]["centre_frequency"] - bands[band]["allowed_deviation"],
+            f"{prefix}frequency__lte": bands[band]["centre_frequency"] + bands[band]["allowed_deviation"],
+        }
+    return band_filter
 
 
 def get_meertime_filters(prefix=""):
