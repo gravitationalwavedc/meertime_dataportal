@@ -41,7 +41,7 @@ spec:
       serviceAccountName: meertime
       initContainers:
         - name: collectstatic
-          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.8.2
+          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.9
           imagePullPolicy: Always
           command: ["python", "manage.py", "collectstatic", "--noinput"]
           env:
