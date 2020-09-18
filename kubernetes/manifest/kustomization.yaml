@@ -1,8 +1,8 @@
 resources:
   - meertime-namespace.yaml
   - meertime-serviceaccount.yaml
-  - meertime-clusterrole.yaml
-  - meertime-clusterrole-binding.yaml
+  - meertime-role.yaml
+  - meertime-role-binding.yaml
   - meertime-secrets-integrator.yaml
   - db-configmap.yaml
   - mysql-control-configmap.yaml
