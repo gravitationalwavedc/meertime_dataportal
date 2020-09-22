@@ -68,6 +68,7 @@ coverage.xml
 .pytest_cache/
 cover/
 /coverage
+coverage
 
 # Translations
 *.mo
@@ -173,3 +174,5 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# React generated files
+__generated__

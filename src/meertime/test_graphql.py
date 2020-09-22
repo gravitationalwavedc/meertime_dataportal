@@ -9,7 +9,7 @@ from datetime import datetime
 # Auxiliary functions
 jwt_mutation = """
     mutation TokenAuth($username: String!, $password: String!) {
-        tokenAuth(username: $username, password: $password) {
+        tokenAuth(input:{username: $username, password: $password}) {
             token
             payload
             refreshExpiresIn
@@ -37,7 +37,6 @@ def __create_creator(client, django_user_model):
     username = "creator"
     password = "rotaerc"
     creator = django_user_model.objects.create_user(username=username, password=password)
-
     content_type = ContentType.objects.get_for_model(Observations)
     permission = Permission.objects.get(content_type=content_type, codename="add_observations")
     creator.user_permissions.add(permission)
@@ -215,7 +214,7 @@ createObservation_mutation_variables = """
 
 jwt_mutation = """
     mutation TokenAuth($username: String!, $password: String!) {
-        tokenAuth(username: $username, password: $password) {
+        tokenAuth(input:{username: $username, password: $password}) {
             token
             payload
             refreshExpiresIn

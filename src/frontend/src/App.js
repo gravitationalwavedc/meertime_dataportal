@@ -1,10 +1,10 @@
 import React from 'react';
-import Fold from './pages/Fold';
+import Router from './components/Router';
 
 const App = () => {
   return (
     <div className="App">
-      <Fold />
+      <Router />
     </div>
   );
 }

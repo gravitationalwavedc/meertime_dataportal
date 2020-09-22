@@ -86,6 +86,38 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
+              "name": "searchmode",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SearchmodeType",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "fluxcal",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "FluxcalType",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
               "name": "utcs",
               "type": {
                 "kind": "LIST",
@@ -109,6 +141,22 @@
                 "ofType": {
                   "kind": "OBJECT",
                   "name": "PulsarType",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "ephemeris",
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "EphemerisType",
                   "ofType": null
                 }
               }
@@ -170,6 +218,18 @@
                   "name": "UtcsType",
                   "ofType": null
                 }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "proposal",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ProposalType",
+                "ofType": null
               }
             },
             {
@@ -482,58 +542,22 @@
               "deprecationReason": null,
               "description": "",
               "isDeprecated": false,
+              "name": "ephemeris",
+              "type": {
+                "kind": "OBJECT",
+                "name": "EphemerisType",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
               "name": "state",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "",
-              "isDeprecated": false,
-              "name": "gc",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "",
-              "isDeprecated": false,
-              "name": "relbin",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "",
-              "isDeprecated": false,
-              "name": "tpa",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "",
-              "isDeprecated": false,
-              "name": "pta",
-              "type": {
-                "kind": "SCALAR",
-                "name": "Int",
                 "ofType": null
               }
             },
@@ -567,6 +591,30 @@
                     "ofType": {
                       "kind": "OBJECT",
                       "name": "ObservationsType",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "ephemeridesSet",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "EphemerisType",
                       "ofType": null
                     }
                   }
@@ -639,13 +687,120 @@
           "possibleTypes": null
         },
         {
-          "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31 - 1) and 2^31 - 1 since represented in JSON as double-precision floating point numbers specifiedby [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).",
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "pulsar",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PulsarType",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "updatedAt",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "DateTime",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "ephemeris",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "comment",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "pulsarsSet",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "PulsarType",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "EphemerisType",
+          "possibleTypes": null
+        },
+        {
+          "description": "The `DateTime` scalar type represents a DateTime\nvalue as specified by\n[iso8601](https://en.wikipedia.org/wiki/ISO_8601).",
           "enumValues": null,
           "fields": null,
           "inputFields": null,
           "interfaces": null,
           "kind": "SCALAR",
-          "name": "Int",
+          "name": "DateTime",
           "possibleTypes": null
         },
         {
@@ -698,6 +853,18 @@
                   "name": "UtcsType",
                   "ofType": null
                 }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "proposal",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ProposalType",
+                "ofType": null
               }
             },
             {
@@ -904,18 +1071,6 @@
               "deprecationReason": null,
               "description": "",
               "isDeprecated": false,
-              "name": "utc",
-              "type": {
-                "kind": "SCALAR",
-                "name": "String",
-                "ofType": null
-              }
-            },
-            {
-              "args": [],
-              "deprecationReason": null,
-              "description": "",
-              "isDeprecated": false,
               "name": "utcTs",
               "type": {
                 "kind": "NON_NULL",
@@ -1019,16 +1174,6 @@
           "possibleTypes": null
         },
         {
-          "description": "The `DateTime` scalar type represents a DateTime\nvalue as specified by\n[iso8601](https://en.wikipedia.org/wiki/ISO_8601).",
-          "enumValues": null,
-          "fields": null,
-          "inputFields": null,
-          "interfaces": null,
-          "kind": "SCALAR",
-          "name": "DateTime",
-          "possibleTypes": null
-        },
-        {
           "description": null,
           "enumValues": null,
           "fields": [
@@ -1078,6 +1223,18 @@
                   "name": "UtcsType",
                   "ofType": null
                 }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "proposal",
+              "type": {
+                "kind": "OBJECT",
+                "name": "ProposalType",
+                "ofType": null
               }
             },
             {
@@ -1209,6 +1366,139 @@
           "interfaces": [],
           "kind": "OBJECT",
           "name": "FluxcalType",
+          "possibleTypes": null
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "id",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "proposal",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "proposalShort",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "observationsSet",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "ObservationsType",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "searchmodeSet",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "SearchmodeType",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": "",
+              "isDeprecated": false,
+              "name": "fluxcalSet",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "FluxcalType",
+                      "ofType": null
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "ProposalType",
+          "possibleTypes": null
+        },
+        {
+          "description": "The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31 - 1) and 2^31 - 1 since represented in JSON as double-precision floating point numbers specifiedby [IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point).",
+          "enumValues": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "kind": "SCALAR",
+          "name": "Int",
           "possibleTypes": null
         },
         {
@@ -1679,27 +1969,66 @@
                 {
                   "defaultValue": null,
                   "description": null,
-                  "name": "username",
+                  "name": "comment",
                   "type": {
-                    "kind": "NON_NULL",
-                    "name": null,
-                    "ofType": {
-                      "kind": "SCALAR",
-                      "name": "String",
-                      "ofType": null
-                    }
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
                   }
                 },
                 {
                   "defaultValue": null,
                   "description": null,
-                  "name": "password",
+                  "name": "ephemeris",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "jname",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                },
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "updatedAt",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  }
+                }
+              ],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "createEphemeris",
+              "type": {
+                "kind": "OBJECT",
+                "name": "CreateEphemeris",
+                "ofType": null
+              }
+            },
+            {
+              "args": [
+                {
+                  "defaultValue": null,
+                  "description": null,
+                  "name": "input",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
                     "ofType": {
-                      "kind": "SCALAR",
-                      "name": "String",
+                      "kind": "INPUT_OBJECT",
+                      "name": "ObtainJSONWebTokenInput",
                       "ofType": null
                     }
                   }
@@ -1711,7 +2040,7 @@
               "name": "tokenAuth",
               "type": {
                 "kind": "OBJECT",
-                "name": "ObtainJSONWebToken",
+                "name": "ObtainJSONWebTokenPayload",
                 "ofType": null
               }
             },
@@ -1720,11 +2049,15 @@
                 {
                   "defaultValue": null,
                   "description": null,
-                  "name": "token",
+                  "name": "input",
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "VerifyInput",
+                      "ofType": null
+                    }
                   }
                 }
               ],
@@ -1734,7 +2067,7 @@
               "name": "verifyToken",
               "type": {
                 "kind": "OBJECT",
-                "name": "Verify",
+                "name": "VerifyPayload",
                 "ofType": null
               }
             },
@@ -1743,11 +2076,15 @@
                 {
                   "defaultValue": null,
                   "description": null,
-                  "name": "token",
+                  "name": "input",
                   "type": {
-                    "kind": "SCALAR",
-                    "name": "String",
-                    "ofType": null
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "RefreshInput",
+                      "ofType": null
+                    }
                   }
                 }
               ],
@@ -1757,7 +2094,7 @@
               "name": "refreshToken",
               "type": {
                 "kind": "OBJECT",
-                "name": "Refresh",
+                "name": "RefreshPayload",
                 "ofType": null
               }
             }
@@ -1838,6 +2175,29 @@
           "possibleTypes": null
         },
         {
+          "description": null,
+          "enumValues": null,
+          "fields": [
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "ephemeris",
+              "type": {
+                "kind": "OBJECT",
+                "name": "EphemerisType",
+                "ofType": null
+              }
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "kind": "OBJECT",
+          "name": "CreateEphemeris",
+          "possibleTypes": null
+        },
+        {
           "description": "Obtain JSON Web Token mutation",
           "enumValues": null,
           "fields": [
@@ -1878,6 +2238,18 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
               "name": "token",
               "type": {
                 "kind": "NON_NULL",
@@ -1893,7 +2265,7 @@
           "inputFields": null,
           "interfaces": [],
           "kind": "OBJECT",
-          "name": "ObtainJSONWebToken",
+          "name": "ObtainJSONWebTokenPayload",
           "possibleTypes": null
         },
         {
@@ -1904,6 +2276,55 @@
           "interfaces": null,
           "kind": "SCALAR",
           "name": "GenericScalar",
+          "possibleTypes": null
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "username",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "password",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "ObtainJSONWebTokenInput",
           "possibleTypes": null
         },
         {
@@ -1925,12 +2346,55 @@
                   "ofType": null
                 }
               }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
             }
           ],
           "inputFields": null,
           "interfaces": [],
           "kind": "OBJECT",
-          "name": "Verify",
+          "name": "VerifyPayload",
+          "possibleTypes": null
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "token",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "VerifyInput",
           "possibleTypes": null
         },
         {
@@ -1974,6 +2438,18 @@
               "deprecationReason": null,
               "description": null,
               "isDeprecated": false,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "args": [],
+              "deprecationReason": null,
+              "description": null,
+              "isDeprecated": false,
               "name": "token",
               "type": {
                 "kind": "NON_NULL",
@@ -1989,7 +2465,38 @@
           "inputFields": null,
           "interfaces": [],
           "kind": "OBJECT",
-          "name": "Refresh",
+          "name": "RefreshPayload",
+          "possibleTypes": null
+        },
+        {
+          "description": null,
+          "enumValues": null,
+          "fields": null,
+          "inputFields": [
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "token",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            },
+            {
+              "defaultValue": null,
+              "description": null,
+              "name": "clientMutationId",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              }
+            }
+          ],
+          "interfaces": null,
+          "kind": "INPUT_OBJECT",
+          "name": "RefreshInput",
           "possibleTypes": null
         },
         {
