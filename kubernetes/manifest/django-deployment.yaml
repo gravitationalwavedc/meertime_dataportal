@@ -51,11 +51,11 @@ spec:
         - name: meertime-regcred
       hostAliases:
         - hostnames:
-            - nexus.gw-cloud.org
+            - nexus.gwdc.org.au
           ip: 10.8.41.10
       serviceAccountName: meertime
       initContainers:
-        - image: nexus.gw-cloud.org/docker/mysqldump:0.2
+        - image: nexus.gwdc.org.au/docker/mysqldump:0.2
           name: mysql-control
           env:
             - name: DB_HOST
@@ -75,7 +75,7 @@ spec:
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
         - name: migrate
-          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.9.1
+          image: nexus.gwdc.org.au/meertime-dev/meertime_django:0.9.1
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -91,7 +91,7 @@ spec:
           command: ["python", "manage.py", "migrate"]
       containers:
         - name: django
-          image: nexus.gw-cloud.org/meertime-dev/meertime_django:0.9.1
+          image: nexus.gwdc.org.au/meertime-dev/meertime_django:0.9.1
           resources: {}
           imagePullPolicy: Always
           env:
