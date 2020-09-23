@@ -9,6 +9,14 @@ def login_buffy(client, django_user_model):
     client.login(username=username, password=password)
 
 
+# Test authentication view template
+@pytest.mark.django_db
+def test_auth_template(client):
+    response = client.get("/accounts/login/")
+    assert response.status_code == 200
+    assert response.template_name == ["registration/login.html"]
+
+
 # Test IndexView
 @pytest.mark.django_db
 def test_index_view_unauthenticated(client):

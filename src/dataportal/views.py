@@ -12,7 +12,10 @@ from django.shortcuts import render
 
 
 def handler500(request):
-    return render(request, "500.html", {"sentry_event_id": last_event_id(), "sentry_dsn": settings.SENTRY_DSN,})
+    if settings.ENABLE_SENTRY_DSN:
+        return render(request, "500.html", {"sentry_event_id": last_event_id(), "sentry_dsn": settings.SENTRY_DSN,})
+    else:
+        return render(request, "500.html", {})
 
 
 class IndexBaseView(generic.ListView):
