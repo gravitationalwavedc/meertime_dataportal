@@ -8,6 +8,7 @@ COPY src/requirements.txt /code/
 RUN pip --no-cache-dir install -r requirements.txt
 RUN apk del libc-dev gcc
 COPY src /code/
+RUN rm -rf /code/frontend
 
 EXPOSE 8000
 

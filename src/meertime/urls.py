@@ -1,7 +1,5 @@
 """meertime URL Configuration
 """
-import debug_toolbar
-
 from django.contrib import admin
 from django.urls import include, path
 from graphene_django.views import GraphQLView
@@ -19,6 +17,9 @@ urlpatterns = [
 ]
 
 if "debug_toolbar" in settings.INSTALLED_APPS:
+    # debug_toolbar not available in production environment
+    import debug_toolbar
+
     urlpatterns += [
         path("__debug__/", include(debug_toolbar.urls)),
     ]
