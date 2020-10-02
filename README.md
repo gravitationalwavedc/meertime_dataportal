@@ -17,6 +17,9 @@ This application provides a ReactJS frontend for access to the MeerTime project 
 * Docker
 * Docker Compose
 
+#### Building docker images
+* We recommend setting DOCKER_BUILDKIT=1 before building images for optimal build time and final image size
+
 ## Setup
 ### To run on your local machine
 
