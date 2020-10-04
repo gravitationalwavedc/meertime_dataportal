@@ -6,6 +6,7 @@ import json
 
 
 from .models import Pulsars, Proposals, Ephemerides
+from .plots import pulsar_summary_plot
 
 from sentry_sdk import last_event_id
 from django.shortcuts import render
@@ -69,6 +70,8 @@ class DetailView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # Add ephemeris to the context
         context["psr"] = self.kwargs["psr"]
         try:
             ephemeris = Ephemerides.objects.get(pulsar=self.pulsar)
@@ -80,6 +83,7 @@ class DetailView(generic.ListView):
             ephemeris = json.loads(ephemeris.ephemeris)
         context["ephemeris"] = ephemeris
         context["updated"] = updated
+
         return context
 
 
@@ -92,6 +96,19 @@ class PulsarDetailView(DetailView):
 
     def get_queryset(self):
         return self.pulsar.observations_detail_data()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Add a summary plot to the context
+        UTCs = context["obs_list"].values_list("utc__utc_ts", flat=True)
+        snrs = context["obs_list"].values_list("snr_spip", flat=True)
+        length = context["obs_list"].values_list("length", flat=True)
+        bokeh_js, bokeh_div = pulsar_summary_plot(UTCs, snrs, length)
+        context["bokeh_js"] = bokeh_js
+        context["bokeh_div"] = bokeh_div
+
+        return context
 
 
 class SearchDetailView(DetailView):
