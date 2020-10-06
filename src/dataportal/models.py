@@ -1,6 +1,18 @@
 from django.db import models
-from django.db.models import Max, Min, F, ExpressionWrapper, DurationField, Count, Sum, Avg, OuterRef, Subquery
-from django.db.models.functions import Sqrt
+from django.db.models import (
+    Max,
+    Min,
+    F,
+    ExpressionWrapper,
+    DurationField,
+    Count,
+    Sum,
+    Avg,
+    OuterRef,
+    Subquery,
+    FloatField,
+)
+from django.db.models.functions import Sqrt, Ceil
 from django.apps import apps
 from .logic import get_band, get_band_filters, get_meertime_filters
 
@@ -128,7 +140,20 @@ class Pulsars(models.Model):
 
     def observations_detail_data(self):
         proposal_filter = get_meertime_filters()
-        return self.observations_set.all().filter(**proposal_filter).order_by("-utc__utc_ts")
+        # Stakeholders requested we display estimated disk size of data.
+        # Unfortunately, we haven't been recording it nor all the necessary information to calculate it.
+        # Therefore, I calculate it below using assumptions which are true for meertime data but will not
+        # necessarily be true for other telescopes/instruments/projects. We will start ingesting required data
+        # but for now we use this workaround:
+        # nbit = 16 => 16.0/ 8.0 is conversion from bits to bytes
+        # npol = 4 => * 4
+        # subintegrations are 8s long, therefore nsubint = ceil(length/8)
+        annotations = {
+            "estimated_size": ExpressionWrapper(
+                F("nchan") * F("nbin") * 4 * 16.0 / 8.0 * Ceil(F("length") / 8.0), output_field=FloatField()
+            ),
+        }
+        return self.observations_set.all().filter(**proposal_filter).annotate(**annotations).order_by("-utc__utc_ts")
 
     def searchmode_detail_data(self):
         proposal_filter = get_meertime_filters()

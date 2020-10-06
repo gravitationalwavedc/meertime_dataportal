@@ -11,9 +11,21 @@
 {% if obs_list %}
 Go <a href="{% url 'fold' %}">back</a>
 <h2>{{ psr }}</h2>
-<a
-  href="http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname={{ psr|urlencode }}&data=lkzYMlYtiQO1sjYo4RymyJmgIWbhekDDvGhd83h/2p0=">Meerwatch
-  link</a>
+<div class="row">
+  <div class="col-8">
+    <a
+      href="http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname={{ psr|urlencode }}&data=lkzYMlYtiQO1sjYo4RymyJmgIWbhekDDvGhd83h/2p0=">Meerwatch
+      link</a>
+  </div>
+  <div class="col-4 justify-content-end">
+    We have performed {{ totals.nobs }} observation{{ total.nobs|pluralize }} of {{ psr }}, for a total of
+    {{ totals.tint|div:3600|floatformat:1 }} hours across {{ totals.project_count }}
+    project{{ totals.project_count|pluralize }} over {{ totals.timespan.days|add:1 }}
+    day{{ totals.timespan.days|add:1|pluralize }} occupying about
+    {{ total_size_estimate.total_size_estimate | filesizeformat }} of raw data.
+  </div>
+</div>
+
 {# display the ephemeris #}
 {{ block.super }}
 

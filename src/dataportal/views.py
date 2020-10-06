@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.conf import settings
-from django.db.models import Sum
+from django.db.models import Sum, Count, ExpressionWrapper, Max, Min, DurationField
 import json
 
 
@@ -107,6 +107,19 @@ class PulsarDetailView(DetailView):
         bokeh_js, bokeh_div = pulsar_summary_plot(UTCs, snrs, length)
         context["bokeh_js"] = bokeh_js
         context["bokeh_div"] = bokeh_div
+
+        # get total size
+        qs = context["obs_list"]
+        context["total_size_estimate"] = qs.aggregate(total_size_estimate=Sum("estimated_size"))
+
+        # get other aggregates
+        annotations = {}
+        context["totals"] = qs.annotate(**annotations).aggregate(
+            tint=Sum("length"),
+            nobs=Count("id"),
+            project_count=Count("proposal", distinct=True),
+            timespan=ExpressionWrapper(Max("utc__utc_ts") - Min("utc__utc_ts"), output_field=DurationField()),
+        )
 
         return context
 
