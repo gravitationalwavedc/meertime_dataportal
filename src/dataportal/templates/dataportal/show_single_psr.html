@@ -4,7 +4,6 @@
 {% block extra_js %}
 {{ block.super }}
 <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.2.1.min.js"></script>
-<link rel="stylesheet" href="http://cdn.bokeh.org/bokeh/release/bokeh-2.2.1.min.css">
 {{ bokeh_js | safe }}
 {% endblock %}
 
@@ -12,15 +11,19 @@
 {% if obs_list %}
 Go <a href="{% url 'fold' %}">back</a>
 <h2>{{ psr }}</h2>
-<a href="http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname={{ psr|urlencode }}&data=lkzYMlYtiQO1sjYo4RymyJmgIWbhekDDvGhd83h/2p0=">Meerwatch link</a>
+<a
+  href="http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname={{ psr|urlencode }}&data=lkzYMlYtiQO1sjYo4RymyJmgIWbhekDDvGhd83h/2p0=">Meerwatch
+  link</a>
 {# display the ephemeris #}
 {{ block.super }}
 
-<div class="d-flex justify-content-center">
-  {{ bokeh_div | safe }}
+<div class="row">
+  <div class="col-12 d-flex justify-content-center">
+    {{ bokeh_div | safe }}
+  </div>
 </div>
 
-<div style="clear:both">
+<div class="row" style="clear:both">
   <table id="psrs" class="table table-striped table-bordered table-sm text-right">
     <thead class="thead-dark">
       <tr>
