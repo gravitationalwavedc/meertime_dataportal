@@ -28,8 +28,8 @@ In total, we have performed {{ totals.global_nobs }} observations of {{ totals.g
         {% for psr in per_pulsar_list %}
         <tr>
           <td class="text-nowrap"><a href="{% url 'pulsar_detail_search' psr.jname %}">{{ psr.jname }}</a></td>
-          <td class="text-nowrap">{{ psr.last|date:'Y-m-d H:i:s' }}</td>
-          <td {{hide_on_medium_nowrap}}>{{ psr.first|date:'Y-m-d H:i:s' }}</td>
+          <td class="text-nowrap">{{ psr.last|date:'Y-m-d-H:i:s' }}</td>
+          <td {{hide_on_medium_nowrap}}>{{ psr.first|date:'Y-m-d-H:i:s' }}</td>
           <td>{{ psr.proposal_short}}</td>
           <td {{hide_on_small}}>{{ psr.timespan.days }}</td>
           <td {{hide_on_small}}>{{ psr.nobs }}</td>
