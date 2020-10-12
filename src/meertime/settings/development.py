@@ -1,4 +1,5 @@
-from meertime.settings.settings import MIDDLEWARE, INSTALLED_APPS
+from meertime.settings.settings import MIDDLEWARE, INSTALLED_APPS, BASE_DIR
+import os
 
 # Development Settings
 
@@ -12,3 +13,5 @@ INSTALLED_APPS.append("corsheaders")
 MIDDLEWARE.append("corsheaders.middleware.CorsMiddleware")
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")

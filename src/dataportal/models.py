@@ -15,6 +15,7 @@ from django.db.models import (
 from django.db.models.functions import Sqrt, Ceil
 from django.apps import apps
 from .logic import get_band, get_band_filters, get_meertime_filters
+from .storage import OverwriteStorage, get_upload_location
 
 import logging
 
@@ -48,6 +49,13 @@ class Observations(models.Model):
     snr_spip = models.FloatField(db_column="SNR_spip", blank=True, null=True)
     nant = models.IntegerField(blank=True, null=True)
     nant_eff = models.IntegerField(blank=True, null=True)
+
+    # plots
+    profile = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    phase_vs_time = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    phase_vs_frequency = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    bandpass = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    snr_vs_time = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
 
     @property
     def band(self):

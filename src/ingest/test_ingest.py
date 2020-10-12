@@ -8,6 +8,8 @@ def test_parse_input():
     input_fn = "ingest/example.input"
     with open(input_fn, "r") as input_fh:
         for line in input_fh:
+            if line[0] == "#":
+                continue
             parse_input(line)
     assert Ephemerides.objects.all().count() == 1
     assert Observations.objects.all().count() == 6

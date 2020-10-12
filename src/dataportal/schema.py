@@ -93,15 +93,62 @@ class CreateObservation(graphene.Mutation):
         proposal = graphene.String()
         bw = graphene.Float()
         frequency = graphene.Float()
+        profile = graphene.String()
+        phase_vs_time = graphene.String()
+        phase_vs_frequency = graphene.String()
+        bandpass = graphene.String()
+        snr_vs_time = graphene.String()
+        update = graphene.Boolean()
 
     observations = graphene.Field(ObservationsType)
 
     @classmethod
     @permission_required("dataportal.add_observations")
     def mutate(
-        cls, self, info, utc, jname, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, frequency
+        cls,
+        self,
+        info,
+        utc,
+        jname,
+        beam,
+        DM,
+        snr,
+        length,
+        nchan,
+        nbin,
+        nant,
+        nant_eff,
+        proposal,
+        bw,
+        frequency,
+        profile,
+        phase_vs_time,
+        phase_vs_frequency,
+        bandpass,
+        snr_vs_time,
+        update,
     ):
-        obs = create_fold_mode(utc, jname, beam, DM, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, frequency)
+        obs = create_fold_mode(
+            utc,
+            jname,
+            beam,
+            DM,
+            snr,
+            length,
+            nchan,
+            nbin,
+            nant,
+            nant_eff,
+            proposal,
+            bw,
+            frequency,
+            profile,
+            phase_vs_time,
+            phase_vs_frequency,
+            bandpass,
+            snr_vs_time,
+            update,
+        )
         return CreateObservation(observations=obs)
 
 

@@ -1,3 +1,6 @@
+# don't track local settings:
+src/meertime/settings/local.py
+
 # macos stuff
 .DS_Store
 
@@ -6,6 +9,9 @@
 
 # django static
 src/static
+
+# django media
+src/media
 
 # VS code:
 .vscode

@@ -4,6 +4,7 @@ from dataportal.models import Observations, Pulsars, Utcs
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
+from ingest.ingest_methods import handle_image_parsing
 
 
 # Auxiliary functions
@@ -180,11 +181,13 @@ def test_graphql_observations_query_with_token(client, django_user_model):
 createObservation_mutation = """
     mutation (
         $jname: String!, $utc: String!, $beam: Int!, $DM: Float, $snr: Float, $length: Float, $nchan: Int, $nbin: Int,
-        $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float
+        $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float,
+        $profile: String, $phaseVsTime: String, $phaseVsFreq: String, $bandpass: String, $snrVsTime: String, $update: Boolean
     ) {
         createObservation(
             jname: $jname, utc: $utc, beam: $beam, DM: $DM, snr: $snr, length: $length, nchan: $nchan, nbin: $nbin,
-            nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq
+            nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq,
+            profile: $profile, phaseVsTime: $phaseVsTime, phaseVsFrequency: $phaseVsFreq, bandpass: $bandpass, snrVsTime: $snrVsTime, update: $update
         ) {
             observations {
                 pulsar {
@@ -194,6 +197,9 @@ createObservation_mutation = """
         }
     }
 """
+
+image_bytes = handle_image_parsing("ingest/example.png")
+
 createObservation_mutation_variables = """
     {
         "jname": "J1234-5678",
@@ -208,9 +214,17 @@ createObservation_mutation_variables = """
         "nant_eff": 57,
         "proposal": "SCI-20180516-MB-02",
         "bw": 856,
-        "freq": 1235.0123
+        "freq": 1235.0123,
+        "profile": "",
+        "phaseVsTime": "",
+        "phaseVsFreq": "%s",
+        "bandpass": "",
+        "snrVsTime": "",
+        "update": false
     }
-"""
+""" % (
+    image_bytes,
+)
 
 jwt_mutation = """
     mutation TokenAuth($username: String!, $password: String!) {
@@ -227,7 +241,7 @@ def test_graphql_mutation_createObservation_without_token(client, django_user_mo
     payload = {"query": createObservation_mutation, "variables": createObservation_mutation_variables}
     response = client.post("/graphql/", payload)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":7,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
@@ -247,7 +261,7 @@ def test_graphql_mutation_createObservation_with_token_without_permission(client
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":7,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
