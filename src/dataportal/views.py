@@ -84,6 +84,9 @@ class DetailView(generic.ListView):
         context["ephemeris"] = ephemeris
         context["updated"] = updated
 
+        # Add a paylod for kronos/meerwatch links
+        context["kronos"] = settings.KRONOS_PAYLOAD
+
         return context
 
 

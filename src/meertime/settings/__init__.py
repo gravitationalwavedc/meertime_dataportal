@@ -21,13 +21,14 @@ DEBUGGER = env("DEBUGGER", default="django_debug_toolbar")
 ENABLE_SENTRY_DSN = env("SENTRY_DSN", default=False)
 
 base_settings = [
-    'settings.py',
-    'logging.py',
-    'database.py',
-    'graphene.py',
-    'authentication.py',
+    "settings.py",
+    "logging.py",
+    "database.py",
+    "graphene.py",
+    "authentication.py",
+    "kronos_payload.py",
     # Optionally override some settings:
-    optional('local.py'),
+    optional("local.py"),
 ]
 
 if DEVELOPMENT_MODE:
