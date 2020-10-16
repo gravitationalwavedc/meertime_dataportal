@@ -50,12 +50,16 @@
   {% endblock %}
   {% block extra_js %}
   {% endblock %}
+  <link rel="shortcut icon" href="{% static 'images/favicon.ico' type='image/x-icon' %}">
 </head>
 
 <body>
   <header class="site-header">
     <nav class="navbar navbar-expand-md navbar-dark bg-steel fixed-top">
       <div class="container">
+        <a href="https://gwdc.org.au/" class="navbar-brand">
+          <img src="{% static 'images/GWDC_white_full_571x150.png' %}" height=75 />
+        </a>
         <a class="navbar-brand mr-4" href="{% url 'fold' %}">MeerTime Observations</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle"
           aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">

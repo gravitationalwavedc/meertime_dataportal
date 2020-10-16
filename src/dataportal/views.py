@@ -49,6 +49,12 @@ class FoldView(IndexBaseView):
             mode="observations", proposal=self.request.GET.get("project_id"), band=self.request.GET.get("band")
         )
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # page title
+        context["title"] = "folded observations"
+        return context
+
 
 class SearchmodeView(IndexBaseView):
     """
@@ -59,6 +65,12 @@ class SearchmodeView(IndexBaseView):
 
     def get_queryset(self):
         return Pulsars.get_observations(mode="searchmode", proposal=self.request.GET.get("project_id"))
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # page title
+        context["title"] = "searchmode observations"
+        return context
 
 
 class DetailView(generic.ListView):
@@ -124,6 +136,8 @@ class PulsarDetailView(DetailView):
             timespan=ExpressionWrapper(Max("utc__utc_ts") - Min("utc__utc_ts"), output_field=DurationField()),
         )
 
+        context["title"] = context["psr"]
+
         return context
 
 
@@ -136,3 +150,9 @@ class SearchDetailView(DetailView):
 
     def get_queryset(self):
         return self.pulsar.searchmode_detail_data()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # page title
+        context["title"] = context["psr"] + " searchmode"
+        return context
