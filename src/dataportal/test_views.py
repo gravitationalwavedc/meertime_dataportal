@@ -1,5 +1,6 @@
 import pytest
-from .models import Proposals, Pulsars
+from .models import Proposals, Pulsars, Observations, Utcs
+from datetime import datetime
 
 
 def login_buffy(client, django_user_model):
@@ -139,3 +140,32 @@ def test_search_detail_view_accepts_correct_regex(client, django_user_model):
     assert response_1.template_name == ["dataportal/show_single_psr_search.html", "dataportal/searchmode_list.html"]
     assert response_2.status_code == 200
     assert response_2.template_name == ["dataportal/show_single_psr_search.html", "dataportal/searchmode_list.html"]
+
+
+# Test ObservationDetailView
+@pytest.mark.django_db
+def test_obs_detail_view_unauthenticated(client):
+    """ObservationDetailView should redirect unauthenticated users to the login page."""
+    response = client.get("/J1111-2222/2020-10-10-10:10:10/2/")
+    assert response.status_code == 302
+    assert response["location"] == "/accounts/login/?next=/J1111-2222/2020-10-10-10%3A10%3A10/2/"
+
+
+@pytest.mark.django_db
+def test_obs_detail_view_authenticated(client, django_user_model):
+    """ObservationDetailView should accept the correct pulsar/utc/beam combination via the url regex."""
+    login_buffy(client, django_user_model)
+
+    psr_str = "J1111-2222"
+    utc_str = "2020-10-10-10:10:10"
+    utc_dt = datetime.strptime(f"{utc_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
+    beam = 2
+
+    utc = Utcs.objects.create(utc_ts=utc_dt)
+    psr = Pulsars.objects.create(jname=psr_str)
+    Observations.objects.create(pulsar=psr, utc=utc, beam=beam)
+
+    response = client.get(f"/{psr_str}/{utc_str}/{beam}/")
+
+    assert response.status_code == 200
+    assert response.template_name == ["dataportal/observation.html"]

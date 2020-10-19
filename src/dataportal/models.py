@@ -51,8 +51,6 @@ class Observations(models.Model):
     mjd_int = models.IntegerField(db_column="MJD_INT", blank=True, null=True)
     mjd_frac = models.TextField(db_column="MJD_frac", blank=True, null=True)
     pa = models.FloatField(db_column="PA", blank=True, null=True)
-    ra = models.TextField(db_column="RA", blank=True, null=True)
-    dec = models.TextField(db_column="DEC", blank=True, null=True)
     observer = models.TextField(blank=True, null=True)
     snr_pipe = models.FloatField(db_column="SNR_pipe", blank=True, null=True)
     snr_spip = models.FloatField(db_column="SNR_spip", blank=True, null=True)

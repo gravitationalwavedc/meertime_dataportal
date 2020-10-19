@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.shortcuts import get_object_or_404
 from django.views import generic
 from django.conf import settings
@@ -5,7 +7,7 @@ from django.db.models import Sum, Count, ExpressionWrapper, Max, Min, DurationFi
 import json
 
 
-from .models import Pulsars, Proposals, Ephemerides
+from .models import Observations, Pulsars, Proposals, Ephemerides, Utcs
 from .plots import pulsar_summary_plot
 
 from sentry_sdk import last_event_id
@@ -155,4 +157,31 @@ class SearchDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         # page title
         context["title"] = context["psr"] + " searchmode"
+        return context
+
+
+class ObservationDetailView(generic.TemplateView):
+    """
+    Display details of a single observation
+    """
+
+    template_name = "dataportal/observation.html"
+
+    def setup(self, request, *args, **kwargs):
+        super().setup(request, *args, **kwargs)
+
+        beam = self.kwargs["beam"]
+        pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
+
+        utc = self.kwargs["utc"]
+        utc_ts = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
+        utc = get_object_or_404(Utcs, utc_ts=utc_ts)
+
+        self.observation = get_object_or_404(Observations, pulsar=pulsar, utc=utc, beam=beam)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context["obs"] = self.observation
+
         return context
