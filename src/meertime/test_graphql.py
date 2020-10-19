@@ -180,14 +180,16 @@ def test_graphql_observations_query_with_token(client, django_user_model):
 # mutations shared between tests below
 createObservation_mutation = """
     mutation (
-        $jname: String!, $utc: String!, $beam: Int!, $DM: Float, $snr: Float, $length: Float, $nchan: Int, $nbin: Int,
-        $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float,
-        $profile: String, $phaseVsTime: String, $phaseVsFreq: String, $bandpass: String, $snrVsTime: String, $update: Boolean
+        $jname: String!, $utc: String!, $beam: Int!, $RA: String, $DEC: String, $DM: Float, $snr: Float, $length: Float, $nchan: Int, $nbin: Int,
+        $nsubint: Int, $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float,
+        $profile: String, $phaseVsTime: String, $phaseVsFreq: String, $bandpass: String, $snrVsTime: String, $update: Boolean,
+        $schedule: String, $phaseup: String
     ) {
         createObservation(
-            jname: $jname, utc: $utc, beam: $beam, DM: $DM, snr: $snr, length: $length, nchan: $nchan, nbin: $nbin,
-            nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq,
-            profile: $profile, phaseVsTime: $phaseVsTime, phaseVsFrequency: $phaseVsFreq, bandpass: $bandpass, snrVsTime: $snrVsTime, update: $update
+            jname: $jname, utc: $utc, beam: $beam, RA: $RA, DEC: $DEC, DM: $DM, snr: $snr, length: $length, nchan: $nchan, nbin: $nbin,
+            nsubint: $nsubint, nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq,
+            profile: $profile, phaseVsTime: $phaseVsTime, phaseVsFrequency: $phaseVsFreq, bandpass: $bandpass, snrVsTime: $snrVsTime, update: $update,
+            schedule: $schedule, phaseup: $phaseup
         ) {
             observations {
                 pulsar {
@@ -205,12 +207,15 @@ createObservation_mutation_variables = """
         "jname": "J1234-5678",
         "utc": "2020-08-12-01:02:03",
         "beam": 3,
+        "RA": "12:34:01.132",
+        "DEC": "-56:78:01.132",
         "DM": 5.3514,
         "snr": 15.231,
         "length": 201.2,
         "nchan": 856,
         "nant": 57,
         "nbin": 1024,
+        "nsubint": 12,
         "nant_eff": 57,
         "proposal": "SCI-20180516-MB-02",
         "bw": 856,
@@ -220,6 +225,8 @@ createObservation_mutation_variables = """
         "phaseVsFreq": "%s",
         "bandpass": "",
         "snrVsTime": "",
+        "schedule": "2020-01",
+        "phaseup": "2020-02",
         "update": false
     }
 """ % (
@@ -241,7 +248,7 @@ def test_graphql_mutation_createObservation_without_token(client, django_user_mo
     payload = {"query": createObservation_mutation, "variables": createObservation_mutation_variables}
     response = client.post("/graphql/", payload)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":7,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":8,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
@@ -261,7 +268,7 @@ def test_graphql_mutation_createObservation_with_token_without_permission(client
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":7,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":8,"column":9}],"path":["createObservation"]}],"data":{"createObservation":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
@@ -287,11 +294,13 @@ def test_graphql_mutation_createObservation_with_token_with_permission(client, d
 createSearchmode_mutation = """
     mutation (
         $jname: String!, $utc: String!, $beam: Int!, $DM: Float, $RA: String, $DEC: String, $nbit: Int, $nchan: Int,
-        $npol: Int, $tsamp: Float, $nant: Int, $nant_eff: Int, $proposal: String, $length: Float, $bw: Float, $freq: Float
+        $npol: Int, $tsamp: Float, $nant: Int, $nant_eff: Int, $proposal: String, $length: Float, $bw: Float, $freq: Float,
+        $schedule: String, $phaseup: String
     ) {
         createSearchmode(
             jname: $jname, utc: $utc, beam: $beam, RA: $RA, DEC: $DEC, DM: $DM, nbit: $nbit, nchan: $nchan,
-            npol: $npol, tsamp: $tsamp, nant: $nant, nantEff: $nant_eff, proposal: $proposal, length: $length, bw: $bw, frequency: $freq
+            npol: $npol, tsamp: $tsamp, nant: $nant, nantEff: $nant_eff, proposal: $proposal, length: $length, bw: $bw, frequency: $freq,
+            schedule: $schedule, phaseup: $phaseup
         ) {
             searchmode {
                 pulsar {
@@ -318,7 +327,9 @@ createSearchmode_mutation_variables = """
         "proposal": "SCI-20180516-MB-02",
         "length": 201.2,
         "bw": 856,
-        "freq": 1235.0123
+        "freq": 1235.0123,
+        "schedule": "2020-01",
+        "phaseup": "2020-03"
     }
 """
 
@@ -327,7 +338,7 @@ def test_graphql_mutation_createSearchmode_without_token(client, django_user_mod
     payload = {"query": createSearchmode_mutation, "variables": createSearchmode_mutation_variables}
     response = client.post("/graphql/", payload)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createSearchmode"]}],"data":{"createSearchmode":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":7,"column":9}],"path":["createSearchmode"]}],"data":{"createSearchmode":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
@@ -347,7 +358,7 @@ def test_graphql_mutation_createSearchmode_with_token_without_permission(client,
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createSearchmode"]}],"data":{"createSearchmode":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":7,"column":9}],"path":["createSearchmode"]}],"data":{"createSearchmode":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
@@ -373,11 +384,13 @@ def test_graphql_mutation_createSearchmode_with_token_with_permission(client, dj
 createFluxcal_mutation = """
     mutation (
         $jname: String!, $utc: String!, $beam: Int!,  $snr: Float, $length: Float, $nbin: Int, $nchan: Int,
-        $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float
+        $nant: Int, $nant_eff: Int, $proposal: String, $bw: Float, $freq: Float,
+        $schedule: String, $phaseup: String
     ) {
         createFluxcal(
             jname: $jname, utc: $utc, beam: $beam, snr: $snr, nbin: $nbin, nchan: $nchan, length: $length,
-             nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq
+             nant: $nant, nantEff: $nant_eff, proposal: $proposal, bw: $bw, frequency: $freq,
+             schedule: $schedule, phaseup: $phaseup
         ) {
             fluxcal {
                 pulsar {
@@ -400,7 +413,9 @@ createFluxcal_mutation_variables = """
         "nant_eff": 54,
         "proposal": "SCI-20180516-MB-02",
         "bw": 856,
-        "freq": 1235.0123
+        "freq": 1235.0123,
+        "schedule": "2020-01",
+        "phaseup": "2020-02"
     }
 """
 
@@ -409,7 +424,7 @@ def test_graphql_mutation_createFluxcal_without_token(client, django_user_model)
     payload = {"query": createFluxcal_mutation, "variables": createFluxcal_mutation_variables}
     response = client.post("/graphql/", payload)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createFluxcal"]}],"data":{"createFluxcal":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":7,"column":9}],"path":["createFluxcal"]}],"data":{"createFluxcal":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)
@@ -429,7 +444,7 @@ def test_graphql_mutation_createFluxcal_with_token_without_permission(client, dj
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
     error_list = json.loads(response.content)["errors"]
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":6,"column":9}],"path":["createFluxcal"]}],"data":{"createFluxcal":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":7,"column":9}],"path":["createFluxcal"]}],"data":{"createFluxcal":null}}'
     assert response.status_code == 200
     assert len(error_list) > 0
     assert isinstance(error_list[0], dict)

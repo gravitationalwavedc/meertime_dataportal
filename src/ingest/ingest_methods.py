@@ -24,7 +24,17 @@ def __setup_django(root_path, settings):
 
 __setup_django(os.environ.get("PWD", "."), "meertime.settings")
 
-from dataportal.models import Observations, Searchmode, Fluxcal, Utcs, Pulsars, Proposals, Ephemerides
+from dataportal.models import (
+    Observations,
+    Searchmode,
+    Fluxcal,
+    Utcs,
+    Pulsars,
+    Proposals,
+    Ephemerides,
+    Schedule,
+    PhaseUp,
+)
 
 
 def handle_image_parsing(img_fn):
@@ -58,15 +68,33 @@ def create_ephemeris(psr, updated_at, ephemeris, comment):
     return eph
 
 
+def get_utc_psr_proposal_schedule_phaseup(utc, psr, proposal, schedule, phaseup):
+    """
+    This method returns foreign keys to UTC, psr, proposal, schedule, and phase up models.
+    """
+    utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
+    utc, created = Utcs.objects.get_or_create(utc_ts=utc_dt)
+    psr, created = Pulsars.objects.get_or_create(jname=psr)
+    proposal, created = Proposals.objects.get_or_create(proposal=proposal)
+    if schedule:
+        schedule, created = Schedule.objects.get_or_create(schedule=schedule)
+    if phaseup:
+        phaseup, created = PhaseUp.objects.get_or_create(phaseup=phaseup)
+    return utc, psr, proposal, schedule, phaseup
+
+
 def create_fold_mode(
     utc,
     psr,
     beam,
+    RA,
+    DEC,
     DM,
     snr,
     length,
     nchan,
     nbin,
+    nsubint,
     nant,
     nant_eff,
     proposal,
@@ -77,6 +105,8 @@ def create_fold_mode(
     phase_vs_frequency,
     bandpass,
     snr_vs_time,
+    schedule=None,
+    phaseup=None,
     update=False,
 ):
     """
@@ -95,10 +125,9 @@ def create_fold_mode(
         update = False
 
     # get the foreign keys:
-    utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc, created = Utcs.objects.get_or_create(utc_ts=utc_dt)
-    psr, created = Pulsars.objects.get_or_create(jname=psr)
-    proposal, created = Proposals.objects.get_or_create(proposal=proposal)
+    utc, psr, proposal, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
+        utc, psr, proposal, schedule, phaseup
+    )
 
     obs_qs = Observations.objects.filter(utc=utc, pulsar=psr, beam=beam)
 
@@ -112,11 +141,14 @@ def create_fold_mode(
         obs.length = length
         obs.nchan = nchan
         obs.nbin = nbin
+        obs.nsubint = nsubint
         obs.nant = nant
         obs.nant_eff = nant_eff
         obs.proposal = proposal
         obs.bw = bw
         obs.frequency = freq
+        obs.ra = RA
+        obs.dec = DEC
 
         plots = {}
         plots["profile"] = profile
@@ -142,12 +174,28 @@ def create_fold_mode(
 
 
 def create_search_mode(
-    utc, psr, beam, ra, dec, DM, nbit, nchan, npol, tsamp, nant, nant_eff, proposal, length, bw, freq
+    utc,
+    psr,
+    beam,
+    ra,
+    dec,
+    DM,
+    nbit,
+    nchan,
+    npol,
+    tsamp,
+    nant,
+    nant_eff,
+    proposal,
+    length,
+    bw,
+    freq,
+    schedule=None,
+    phaseup=None,
 ):
-    utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc, created = Utcs.objects.get_or_create(utc_ts=utc_dt)
-    psr, created = Pulsars.objects.get_or_create(jname=psr)
-    proposal, created = Proposals.objects.get_or_create(proposal=proposal)
+    utc, psr, proposal, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
+        utc, psr, proposal, schedule, phaseup
+    )
 
     sm_qs = Searchmode.objects.filter(utc=utc, pulsar=psr, beam=beam)
     if sm_qs.count() == 0:
@@ -168,6 +216,8 @@ def create_search_mode(
             length=length,
             bw=bw,
             frequency=freq,
+            schedule=schedule,
+            phaseup=phaseup,
         )
         new_sm.save()
         msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} saved"
@@ -179,12 +229,13 @@ def create_search_mode(
         return None
 
 
-def create_fluxcal(utc, psr, beam, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq):
+def create_fluxcal(
+    utc, psr, beam, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq, schedule=None, phaseup=None
+):
     # get the foreign keys:
-    utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc, created = Utcs.objects.get_or_create(utc_ts=utc_dt)
-    psr, created = Pulsars.objects.get_or_create(jname=psr)
-    proposal, created = Proposals.objects.get_or_create(proposal=proposal)
+    utc, psr, proposal, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
+        utc, psr, proposal, schedule, phaseup
+    )
 
     obs_qs = Fluxcal.objects.filter(utc=utc, pulsar=psr, beam=beam)
     if obs_qs.count() == 0:
@@ -201,6 +252,8 @@ def create_fluxcal(utc, psr, beam, snr, length, nchan, nbin, nant, nant_eff, pro
             proposal=proposal,
             bw=bw,
             frequency=freq,
+            schedule=schedule,
+            phaseup=phaseup,
         )
         new_obs.save()
         msg = f"Fluxcal with UTC: {utc} psr: {psr} beam: {beam} saved"
@@ -244,11 +297,14 @@ def parse_input(line):
             utc,
             psr,
             beam,
+            "",
+            "",
             DM,
             snr,
             length,
             nchan,
             nbin,
+            -1,
             nant,
             nant_eff,
             proposal,
@@ -259,39 +315,49 @@ def parse_input(line):
             phase_vs_frequency,
             bandpass,
             snr_vs_time,
+            None,
+            None,
             update,
         )
-    elif len(input_data) == 20 and input_data[19] == "0":
+    elif len(input_data) == 25 and input_data[24] == "0":
         # raw fold mode
         utc = input_data[0]
         psr = input_data[1]
         beam = input_data[2]
-        DM = input_data[3]
-        snr = input_data[4]
-        length = input_data[5]
-        nchan = input_data[6]
-        nbin = input_data[7]
-        nant = input_data[8]
-        nant_eff = input_data[9]
-        proposal = input_data[10]
-        bw = input_data[11]
-        freq = input_data[12]
-        profile = handle_image_parsing(input_data[13])
-        phase_vs_time = handle_image_parsing(input_data[14])
-        phase_vs_frequency = handle_image_parsing(input_data[15])
-        bandpass = handle_image_parsing(input_data[16])
-        snr_vs_time = handle_image_parsing(input_data[17])
-        update = input_data[18]
+        RA = input_data[3]
+        DEC = input_data[4]
+        DM = input_data[5]
+        snr = input_data[6]
+        length = input_data[7]
+        nchan = input_data[8]
+        nbin = input_data[9]
+        nsubint = input_data[10]
+        nant = input_data[11]
+        nant_eff = input_data[12]
+        proposal = input_data[13]
+        bw = input_data[14]
+        freq = input_data[15]
+        profile = handle_image_parsing(input_data[16])
+        phase_vs_time = handle_image_parsing(input_data[17])
+        phase_vs_frequency = handle_image_parsing(input_data[18])
+        bandpass = handle_image_parsing(input_data[19])
+        snr_vs_time = handle_image_parsing(input_data[20])
+        schedule = input_data[21]
+        phaseup = input_data[22]
+        update = input_data[23]
 
         create_fold_mode(
             utc,
             psr,
             beam,
+            RA,
+            DEC,
             DM,
             snr,
             length,
             nchan,
             nbin,
+            nsubint,
             nant,
             nant_eff,
             proposal,
@@ -302,10 +368,12 @@ def parse_input(line):
             phase_vs_frequency,
             bandpass,
             snr_vs_time,
+            schedule,
+            phaseup,
             update,
         )
 
-    elif len(input_data) == 17 and input_data[16] == "1":
+    elif len(input_data) == 19 and input_data[18] == "1":
         # searchmode
         utc = input_data[0]
         psr = input_data[1]
@@ -323,6 +391,8 @@ def parse_input(line):
         length = input_data[13]
         bw = input_data[14]
         freq = input_data[15]
+        schedule = input_data[16]
+        phaseup = input_data[17]
 
         # in searchmode, length can be malformed:
         try:
@@ -331,10 +401,27 @@ def parse_input(line):
             length = "-1"
 
         create_search_mode(
-            utc, psr, beam, ra, dec, DM, nbit, nchan, npol, tsamp, nant, nant_eff, proposal, length, bw, freq
+            utc,
+            psr,
+            beam,
+            ra,
+            dec,
+            DM,
+            nbit,
+            nchan,
+            npol,
+            tsamp,
+            nant,
+            nant_eff,
+            proposal,
+            length,
+            bw,
+            freq,
+            schedule,
+            phaseup,
         )
 
-    elif len(input_data) == 13 and input_data[12] == "2":
+    elif len(input_data) == 15 and input_data[14] == "2":
         # fluxcal
         utc = input_data[0]
         psr = input_data[1]
@@ -348,8 +435,10 @@ def parse_input(line):
         proposal = input_data[10]
         bw = input_data[11]
         freq = input_data[12]
+        schedule = input_data[13]
+        phaseup = input_data[14]
 
-        create_fluxcal(utc, psr, beam, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq)
+        create_fluxcal(utc, psr, beam, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq, schedule, phaseup)
 
     elif len(input_data) == 5 and input_data[4] == "3":
         # par file
@@ -363,5 +452,5 @@ def parse_input(line):
         create_ephemeris(psr, updated_at, ephemeris, comment)
 
     else:
-        msg = "Currently only folded, search mode, fluxcal, or ephemeris input is accepted. You either tried to insert different type or malformed the fold mode input."
+        msg = f"Currently only folded, search mode, fluxcal, or ephemeris input is accepted. You either tried to insert different type or malformed the fold mode input. Input: {line}"
         logging.warning(msg)

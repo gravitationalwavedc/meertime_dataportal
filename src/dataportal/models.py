@@ -24,6 +24,14 @@ logger.setLevel(logging.INFO)
 logger.propagate = False
 
 
+class Schedule(models.Model):
+    schedule = models.TextField()
+
+
+class PhaseUp(models.Model):
+    phaseup = models.TextField()
+
+
 class Observations(models.Model):
     pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
     utc = models.ForeignKey("Utcs", models.DO_NOTHING)
@@ -38,6 +46,7 @@ class Observations(models.Model):
     dm_fold = models.FloatField(db_column="DM_fold", blank=True, null=True)
     nchan = models.IntegerField(blank=True, null=True)
     nbin = models.IntegerField(blank=True, null=True)
+    nsubint = models.IntegerField(blank=True, null=True)
     mjd = models.TextField(db_column="MJD", blank=True, null=True)
     mjd_int = models.IntegerField(db_column="MJD_INT", blank=True, null=True)
     mjd_frac = models.TextField(db_column="MJD_frac", blank=True, null=True)
@@ -49,6 +58,15 @@ class Observations(models.Model):
     snr_spip = models.FloatField(db_column="SNR_spip", blank=True, null=True)
     nant = models.IntegerField(blank=True, null=True)
     nant_eff = models.IntegerField(blank=True, null=True)
+
+    # these are the actual pointing coordinates which may be different from source coordinates.
+    ra = models.TextField(db_column="RA", blank=True, null=True)
+    dec = models.TextField(db_column="DEC", blank=True, null=True)
+
+    # metadata describing which schedule block / observing session was this observatoin a part of
+    # note that phase up is only relevant for interferometric observations
+    schedule = models.ForeignKey("Schedule", on_delete=models.DO_NOTHING, null=True)
+    phaseup = models.ForeignKey("PhaseUp", on_delete=models.DO_NOTHING, null=True)
 
     # plots
     profile = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
@@ -189,6 +207,8 @@ class Searchmode(models.Model):
     dm = models.FloatField(db_column="DM", blank=True, null=True)
     ra = models.TextField(db_column="RA", blank=True, null=True)
     dec = models.TextField(db_column="DEC", blank=True, null=True)
+    schedule = models.ForeignKey("Schedule", on_delete=models.DO_NOTHING, null=True)
+    phaseup = models.ForeignKey("PhaseUp", on_delete=models.DO_NOTHING, null=True)
 
     @property
     def band(self):
@@ -210,9 +230,12 @@ class Fluxcal(models.Model):
     frequency = models.FloatField(blank=True, null=True)
     nchan = models.IntegerField(blank=True, null=True)
     nbin = models.IntegerField(blank=True, null=True)
+    nsubint = models.IntegerField(blank=True, null=True)
     nant = models.IntegerField(blank=True, null=True)
     nant_eff = models.IntegerField(blank=True, null=True)
     snr_spip = models.FloatField(blank=True, null=True)
+    schedule = models.ForeignKey("Schedule", on_delete=models.DO_NOTHING, null=True)
+    phaseup = models.ForeignKey("PhaseUp", on_delete=models.DO_NOTHING, null=True)
 
     @property
     def band(self):
