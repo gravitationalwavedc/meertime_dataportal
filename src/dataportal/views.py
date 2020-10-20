@@ -98,7 +98,7 @@ class DetailView(generic.ListView):
         context["ephemeris"] = ephemeris
         context["updated"] = updated
 
-        # Add a paylod for kronos/meerwatch links
+        # Add a payload for kronos/meerwatch links
         context["kronos"] = settings.KRONOS_PAYLOAD
 
         return context
@@ -170,18 +170,23 @@ class ObservationDetailView(generic.TemplateView):
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
 
-        beam = self.kwargs["beam"]
-        pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
+        self.beam = self.kwargs["beam"]
+        self.pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
 
-        utc = self.kwargs["utc"]
-        utc_ts = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
+        self.utc_str = self.kwargs["utc"]
+        utc_ts = datetime.strptime(f"{self.utc_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
         utc = get_object_or_404(Utcs, utc_ts=utc_ts)
 
-        self.observation = get_object_or_404(Observations, pulsar=pulsar, utc=utc, beam=beam)
+        self.observation = get_object_or_404(Observations, pulsar=self.pulsar, utc=utc, beam=self.beam)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context["obs"] = self.observation
+
+        # Add a payload for kronos/meerwatch links
+        context["kronos"] = settings.KRONOS_PAYLOAD
+
+        context["title"] = f"{self.pulsar}/{self.utc_str}/{self.beam}"
 
         return context

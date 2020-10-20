@@ -107,6 +107,9 @@ class Pulsars(models.Model):
     state = models.TextField(blank=True, null=True)
     comment = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.jname}"
+
     @classmethod
     def get_observations(cls, mode, proposal=None, band=None):
         try:
