@@ -39,6 +39,7 @@ metadata:
     app: mysql
     tier: database
 spec:
+  revisionHistoryLimit: 5
   selector:
     matchLabels:
       app: mysql
