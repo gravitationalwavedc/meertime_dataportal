@@ -106,7 +106,7 @@ spec:
           command: ["python", "manage.py", "migrate"]
       containers:
         - name: django
-          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.0.1
+          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.1
           resources: {}
           imagePullPolicy: Always
           env:

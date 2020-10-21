@@ -10,4 +10,4 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTHENTICATION_BACKENDS = ["graphql_jwt.backends.JSONWebTokenBackend", "django.contrib.auth.backends.ModelBackend"]
 
-LOGIN_REDIRECT_URL = "/MeerTime"
+LOGIN_REDIRECT_URL = "/"
