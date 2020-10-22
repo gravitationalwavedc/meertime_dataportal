@@ -149,6 +149,8 @@ def create_fold_mode(
         obs.frequency = freq
         obs.ra = RA
         obs.dec = DEC
+        obs.schedule = schedule
+        obs.phaseup = phaseup
 
         plots = {}
         plots["profile"] = profile
