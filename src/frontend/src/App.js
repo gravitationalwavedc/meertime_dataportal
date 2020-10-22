@@ -1,9 +1,10 @@
 import React from 'react';
 import Router from './components/Router';
+import './assets/scss/theme.scss';
 
 const App = () => {
   return (
-    <div className="App">
+    <div className="App h-100">
       <Router />
     </div>
   );

@@ -1,0 +1,29 @@
+//Typeface
+h1, .h1 {
+    line-height: 118px;
+    letter-spacing: -1.5px;
+}
+
+h2, .h2 {
+    line-height: 74px;
+    letter-spacing: -0.5px;
+}
+
+h3, h4, h5, h6
+.h3, .h4, .h5, h6 {
+    font-weight: 400;
+}
+
+h6, .h6 {
+    letter-spacing: 0.15px;
+}
+
+.subtitle-1 {
+    font-family: $headings-font-family;
+    font-size: 16px;
+    letter-spacing: 0.15px;
+}
+
+.subtitle-2 {
+
+}

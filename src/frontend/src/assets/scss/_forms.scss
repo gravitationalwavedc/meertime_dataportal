@@ -1,0 +1,13 @@
+.form-group {
+    min-height: 98px;
+}
+
+.form-control-icon-right {
+    z-index: 2;
+    display: block;
+    text-align: center;
+    margin-right: 12px;
+    margin-top: -28px;
+    pointer-events: none;
+    float: right !important;
+}
