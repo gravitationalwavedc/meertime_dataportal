@@ -251,5 +251,8 @@ class Utcs(models.Model):
     utc_ts = models.DateTimeField()
     annotation = models.TextField(blank=True, null=True)
 
+    def __str__(self):
+        return self.utc_ts.strftime("%Y-%m-%d-%H:%M:%S")
+
     class Meta:
         db_table = "UTCs"

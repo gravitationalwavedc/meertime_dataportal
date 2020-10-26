@@ -6,8 +6,11 @@ import logging
 import json
 
 from django.core.files.base import ContentFile
+from django.urls import reverse
 
 from .parse_cfg import parse_cfg
+
+from .slack import post_to_slack, post_to_slack_if_meertime
 
 
 def __setup_django(root_path, settings):
@@ -65,6 +68,11 @@ def create_ephemeris(psr, updated_at, ephemeris, comment):
     params = {"comment": comment, "updated_at": dt, "ephemeris": ephemeris}
 
     eph, created = Ephemerides.objects.update_or_create(pulsar=psr, defaults=params)
+
+    msg = f"Ephemeris for {psr} was just updated"
+    # this does not need to be checked against proposal code
+    post_to_slack(msg)
+
     return eph
 
 
@@ -125,14 +133,15 @@ def create_fold_mode(
         update = False
 
     # get the foreign keys:
-    utc, psr, proposal, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
+    utc, psr, proposal_obj, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
         utc, psr, proposal, schedule, phaseup
     )
 
     obs_qs = Observations.objects.filter(utc=utc, pulsar=psr, beam=beam)
+    count = obs_qs.count()
 
-    if obs_qs.count() == 0 or update:
-        if obs_qs.count() == 0:
+    if count == 0 or update:
+        if count == 0:
             obs = Observations(utc=utc, pulsar=psr, beam=beam,)
         else:
             obs = obs_qs[0]
@@ -144,7 +153,7 @@ def create_fold_mode(
         obs.nsubint = nsubint
         obs.nant = nant
         obs.nant_eff = nant_eff
-        obs.proposal = proposal
+        obs.proposal = proposal_obj
         obs.bw = bw
         obs.frequency = freq
         obs.ra = RA
@@ -168,6 +177,15 @@ def create_fold_mode(
         obs.save()
         msg = f"Observation with UTC: {utc} psr: {psr} beam: {beam} saved"
         logging.info(msg)
+
+        # post to slack if this was a new obs
+        if count == 0:
+            url = "https://pulsars.org.au" + reverse(
+                "obs_detail", kwargs={"psr": f"{psr}", "beam": f"{beam}", "utc": f"{utc}",}
+            )
+            msg = f"An observation of {psr}  in beam {beam} at UTC of {utc} was just added to the portal. The S/N as determined by the backend was {snr:.1f}. See more at {url}."
+            post_to_slack_if_meertime(msg, proposal)
+
         return obs
     else:
         msg = f"Observation with UTC: {utc} psr: {psr} beam: {beam} already existed and update was not requested"
@@ -195,7 +213,7 @@ def create_search_mode(
     schedule=None,
     phaseup=None,
 ):
-    utc, psr, proposal, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
+    utc, psr, proposal_obj, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
         utc, psr, proposal, schedule, phaseup
     )
 
@@ -214,7 +232,7 @@ def create_search_mode(
             tsamp=tsamp,
             nant=nant,
             nant_eff=nant_eff,
-            proposal=proposal,
+            proposal=proposal_obj,
             length=length,
             bw=bw,
             frequency=freq,
@@ -224,6 +242,10 @@ def create_search_mode(
         new_sm.save()
         msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} saved"
         logging.info(msg)
+
+        msg = f"A searchmode observation of {psr} in beam {beam} at UTC of {utc} was just added to the portal."
+        post_to_slack_if_meertime(msg, proposal)
+
         return new_sm
     else:
         msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} already existed"
@@ -235,7 +257,7 @@ def create_fluxcal(
     utc, psr, beam, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, freq, schedule=None, phaseup=None
 ):
     # get the foreign keys:
-    utc, psr, proposal, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
+    utc, psr, proposal_obj, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
         utc, psr, proposal, schedule, phaseup
     )
 
@@ -251,7 +273,7 @@ def create_fluxcal(
             nbin=nbin,
             nant=nant,
             nant_eff=nant_eff,
-            proposal=proposal,
+            proposal=proposal_obj,
             bw=bw,
             frequency=freq,
             schedule=schedule,

@@ -91,7 +91,7 @@ spec:
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
         - name: migrate
-          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.1.1
+          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.1.2
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -107,7 +107,7 @@ spec:
           command: ["python", "manage.py", "migrate"]
       containers:
         - name: django
-          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.1.1
+          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.1.2
           resources: {}
           imagePullPolicy: Always
           env:
@@ -119,7 +119,7 @@ spec:
           volumeMounts:
             - name: meertime-img-storage
               mountPath: /media
-          envFrom: # defines DJANGO_SECRET_KEY, SENTRY_DSN, and KRONOS_PAYLOAD
+          envFrom: # defines DJANGO_SECRET_KEY, SENTRY_DSN, SLACK_WEBHOOK, and KRONOS_PAYLOAD
             - secretRef:
                 name: django-multi
             - secretRef:

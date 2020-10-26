@@ -27,6 +27,7 @@ base_settings = [
     "graphene.py",
     "authentication.py",
     "kronos_payload.py",
+    "slack.py",
     # Optionally override some settings:
     optional("local.py"),
 ]
