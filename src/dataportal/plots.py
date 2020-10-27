@@ -1,7 +1,10 @@
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, HoverTool, LinearInterpolator
 from bokeh.embed import components
-from numpy import sqrt
+from bokeh.models.formatters import DatetimeTickFormatter
+from bokeh.models.tickers import DatetimeTicker
+from datetime import timedelta
+from numpy import sqrt, log10, power
 
 
 def get_interpolator(
@@ -78,6 +81,21 @@ def pulsar_summary_plot(UTCs, SNRs, lengths, height=300, width=800, sizing_mode=
         size={"field": "sqrt_length", "transform": get_interpolator(sqrt_lengths)},
         fill_alpha=0.5,
     )
+
+    # Plots should default to at least a week of range to avoid pointless units like anything between us and h
+    # while still providing a reasonable default if the only observation of a source are on a single day.
+    fig.x_range.default_span = timedelta(days=7)
+    # Ensure we use more consistent tick formatting. We only need to specify days and longer given the minimum span is set to a month
+    fig.xaxis.formatter = DatetimeTickFormatter(days="%d/%m/%Y", months="%m/%Y", years="%Y")
+
+    # We'd like to ensure the y-range includes complete points at their maximum size. However, we do not know how big
+    # the plot will be and thus cannot determine how many dex do 60 pixels (default max point size) correspond to.
+    # We assume that 0.2 dex will be enough. This should be a decent compromise between including pulsar like J0437
+    # with very large S/N in long observations as well as more regular pulsars where 0.2 dex is a bit more than we'd
+    # like.
+    # We only do this if there's more than one point, otherwise the 0.2 dex padding produces essentially an empty plot
+    if len(SNRs) > 1:
+        fig.y_range.end = power(10, log10(max(SNRs)) + 0.2)
 
     script, div = components(fig)
     return script, div

@@ -317,6 +317,11 @@ def parse_input(line):
         snr_vs_time = ""
         update = "false"
 
+        try:
+            snr = float(snr)
+        except ValueError:
+            snr = None
+
         create_fold_mode(
             utc,
             psr,
@@ -369,6 +374,11 @@ def parse_input(line):
         schedule = input_data[21]
         phaseup = input_data[22]
         update = input_data[23]
+
+        try:
+            snr = float(snr)
+        except ValueError:
+            snr = None
 
         create_fold_mode(
             utc,
