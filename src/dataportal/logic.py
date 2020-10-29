@@ -14,38 +14,44 @@ def get_band(frequency):
     L-band: 20-cm band, around Hydrogen transition line ~1.42 GHz
     S-band: 10-cm band, around 2.6 GHz
     """
-    try:
-        for band in bands.keys():
-            if abs(frequency - bands[band]["centre_frequency"]) < bands[band]["allowed_deviation"]:
-                return band
-        return str(round(frequency, 1))
-    except TypeError:
+    # For band check to work the frequency must be either an int or a float.
+    if type(frequency) not in [float, int]:
         return None
 
+    for band in bands.keys():
+        if abs(frequency - bands[band]["centre_frequency"]) < bands[band]["allowed_deviation"]:
+            return band
 
-def get_band_filters(band=None, prefix=""):
-    band_filter = {}
-    if band:
-        if band not in bands.keys():
-            return band_filter
-        if prefix:
-            prefix = prefix + "__"
-        band_filter = {
-            f"{prefix}frequency__gte": bands[band]["centre_frequency"] - bands[band]["allowed_deviation"],
-            f"{prefix}frequency__lte": bands[band]["centre_frequency"] + bands[band]["allowed_deviation"],
-        }
-    return band_filter
+    return str(round(frequency, 1))
 
 
-def get_meertime_filters(prefix=""):
+def get_band_filters(band=None, prefix=None):
+    """
+    Creates dictionary of filters that can be passed to a django query filter method.
+    band: (optional) A string representation of a band.
+    prefix: (optional) if the proposal model is not directly accessible, provide the model via which it can be accessed.
+    """
+    if band not in bands.keys():
+        return {}
+
+    prefix = f"{prefix}__" if prefix else ""
+
+    return {
+        f"{prefix}frequency__gte": bands[band]["centre_frequency"] - bands[band]["allowed_deviation"],
+        f"{prefix}frequency__lte": bands[band]["centre_frequency"] + bands[band]["allowed_deviation"],
+    }
+
+
+def get_meertime_filters(prefix=None):
     """
     Creates a filter dictionary which can be passed on to django ORM filter method.
-    prefix: (optional) if the proposal model is not directly accessible, provide the model via which it can be accessed
+    For a proposal to be included in the observation list it must start with SCI and include MB.
+
+    prefix: (optional) if the proposal model is not directly accessible, provide the model via which it can be accessed.
     """
-    if prefix:
-        prefix = prefix + "__"
-    proposal_filter = {
+    prefix = f"{prefix}__" if prefix else ""
+
+    return {
         f"{prefix}proposal__proposal__startswith": "SCI",
         f"{prefix}proposal__proposal__contains": "MB",
     }
-    return proposal_filter

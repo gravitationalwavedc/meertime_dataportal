@@ -1,6 +1,9 @@
 // MeerTime Design System Theme
 @import "./_variables";
-@import "../../../node_modules/bootstrap/scss/bootstrap";
+@import "bootstrap/scss/bootstrap";
+@import "../../../node_modules/react-bootstrap-table-next/dist/react-bootstrap-table2.min.css";
+@import "../../../node_modules/react-bootstrap-table2-paginator/dist/react-bootstrap-table2-paginator.min.css";
+@import "../../../node_modules/react-bootstrap-table2-toolkit/dist/react-bootstrap-table2-toolkit.min.css";
 @import "./_type";
 @import "./_loginPage";
 @import "./_fullHeight";

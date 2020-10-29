@@ -43,6 +43,31 @@ Run `poetry install` to also install development packages such as testing tools.
 
 Currently, manual initialisation of the DB and migration are required.
 
+### Starting the React Frontend
+The react frontend is currently only available locally while in developement.
+
+#### React Requirements
+- NPM ([installation guide](https://nodejs.org/en/download/))
+- NVM ([installation guide](https://github.com/nvm-sh/nvm#installing-and-updating))
+
+#### Setup React project
+1. Open the django project at meertime-data-portal/src
+2. Generate the relay schema by running `poetry run python manage.py graphql_schema`
+3. Start the django development server and make sure it's running on http://localhost:8000
+4. Open the frontend directory at meertime-data-portal/src/frontend
+5. Run `nvm use`
+6. Install required packages with `npm install`
+7. Generate the relay schema with `npm run relay`
+8. Run tests to make sure everything is setup correctly with `npm test`
+9. Start the server with `npm start`
+10. Open https://localhost:3000
+
+#### Starting React after setup is complete
+1. Generate the relay schema with `npm run relay`
+2. Run tests to make sure everything is setup correctly with `npm test`
+3. Start the server with `npm start`
+4. Open https://localhost:3000
+
 ## Contributing
 
 Contributions can be made to the code base on Phabricator via arcanist. All diffs should include sosl as a reviewer.

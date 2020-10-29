@@ -10,6 +10,7 @@ def test_get_band_returns_correct_value():
     assert get_band(1283.89550781) == "L-band"
     assert get_band(815.734375) == "UHF"
     assert get_band(544) == "544"
+    assert get_band('My band') == None
 
 
 def test_get_meertime_filters():

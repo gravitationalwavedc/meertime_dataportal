@@ -5,6 +5,6 @@
 import '@testing-library/jest-dom/extend-expect';
 
 jest.mock('./relayEnvironment', () => {
-  const { createMockEnvironment } = require('relay-test-utils');
-  return createMockEnvironment();
+    const { createMockEnvironment } = require('relay-test-utils');
+    return createMockEnvironment();
 });

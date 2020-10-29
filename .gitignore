@@ -182,3 +182,6 @@ yarn-error.log*
 
 # React generated files
 __generated__
+
+# Relay schema
+schema.json

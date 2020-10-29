@@ -1,0 +1,76 @@
+{
+    "extends": [
+        "react-app",
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:jest/all"
+    ],
+    "plugins": [
+        "react",
+        "jest"
+    ],
+    "rules": {
+        "indent": [
+            "error",
+            4
+        ],
+        "linebreak-style": [
+            "error",
+            "unix"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "complexity": ["error", 5],
+        "react/prop-types": 0,
+        "no-debugger": ["error"],
+        "no-console": ["error"],
+        "no-unreachable": ["error"], 
+        "no-extra-semi": ["error"],
+        "no-alert": ["error"], 
+        "no-empty-pattern": ["error"],
+        "no-eval": ["error"],
+        "no-implied-eval": ["error"],
+        "no-floating-decimal": ["warn"],
+        "no-invalid-this": ["error"],
+        "no-self-compare": ["warn"],
+        "no-sequences": ["error"],
+        "no-proto": ["error"],
+        "no-with": ["error"],
+        "strict": ["error"],
+        "init-declarations": ["error", "always"],
+        "no-warning-comments": ["warn"],
+        "no-lonely-if": ["error"],
+        "max-len": [
+          "error",
+          {
+            "code": 119,
+            "ignoreUrls": true,
+            "ignoreTemplateLiterals": true
+          }
+        ],
+        "max-depth": ["error", 5],
+        "no-mixed-spaces-and-tabs": ["error"],
+        "arrow-body-style": ["error", "as-needed"],
+        "react/jsx-no-undef": ["error"],
+        "react/jsx-uses-react":["error"],
+        "react/jsx-uses-vars": ["error"],
+        "react/no-did-mount-set-state": ["error"],
+        "react/no-did-update-set-state": ["error"],
+        "react/no-access-state-in-setstate": ["error"],
+        "react/no-array-index-key": ["error"],
+        "react/no-danger": ["error"],
+        "react/no-this-in-sfc": ["error"],
+        "react/no-multi-comp": ["error", { "ignoreStateless": true}],
+        "react/no-unknown-property": ["error"],
+        "react/react-in-jsx-scope": ["error"],
+        "react/self-closing-comp": ["error"],
+        "react/default-props-match-prop-types": ["error"]
+    }
+}
+

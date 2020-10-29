@@ -9,7 +9,8 @@ DEBUG = True
 MIDDLEWARE.append("querycount.middleware.QueryCountMiddleware")
 
 # Enable API for local react app development
-INSTALLED_APPS.append("corsheaders")
+INSTALLED_APPS.extend(["django_extensions", "corsheaders"])
+
 MIDDLEWARE.append("corsheaders.middleware.CorsMiddleware")
 
 CORS_ORIGIN_ALLOW_ALL = True

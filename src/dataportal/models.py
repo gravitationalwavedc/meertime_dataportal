@@ -119,13 +119,14 @@ class Pulsars(models.Model):
             return None
 
         observation_filter = get_meertime_filters()
+
         if proposal:
             observation_filter["proposal_id"] = proposal
 
         if band:
             observation_filter.update(get_band_filters(band))
 
-        latest_observation = __class.objects.filter(pulsar=OuterRef("pk"), **observation_filter).order_by(
+        latest_observation = __class.objects.filter(pulsar=OuterRef("id"), **observation_filter).order_by(
             "-utc__utc_ts"
         )
 
@@ -160,7 +161,7 @@ class Pulsars(models.Model):
 
         return (
             cls.objects.filter(**obstype_filter, **pulsar_proposal_filter)
-            .values("jname", "pk")
+            .values("jname", "id")
             .annotate(**annotations)
             .order_by("-last")
         )
