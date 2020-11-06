@@ -39,9 +39,28 @@ Run `poetry install` to also install development packages such as testing tools.
 ### To run the application using docker-compose
 
 1. Clone the repository.
-2. Run `docker-compose up`.
+2. (optional but recommended) prepare environment and set it up with `set -a; source src/.env` where `src/.env` is based on `src/.env.template`
+3. Run `docker-compose up`.
 
-Currently, manual initialisation of the DB and migration are required.
+
+When building the images, we recommmend running:
+`DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose up --build`
+for optimal image size and build speed.
+
+Currently, manual initialisation of the DB and migration are required. To do this, get a shell in the django container and execute the following:
+
+`python manage.py migrate`
+`python manage.py createsuperuser`
+
+#### To use development mode in docker-compose
+
+If you want to use DEVELOPMENT_MODE=True in docker-compose, the process is slightly different. First, you need to build the images:
+
+`DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose build --build-arg DEVELOPMENT_MODE=True`
+
+followed by bringing the images up:
+
+`docker-compose up`
 
 ### Starting the React Frontend
 The react frontend is currently only available locally while in developement.
@@ -95,6 +114,7 @@ Requirements are managed using [python poetry](https://python-poetry.org/).
 #### Add a development package
 1. Run `poetry add --dev hello` to add development package `hello`
 2. Follow the steps for production package aside from the 1st step
+3. Update requirements.dev.txt with `poetry export --dev -f requirements.txt --without-hashes > src/requirements.dev.txt`. We may move to using poetry in docker too but while we use alpine images, we will stick with this method.
 
 #### Installing black linter for use with arcanist:
 1. Go to the top directory of where you have install arcanist `cd arcanist_top_dir`

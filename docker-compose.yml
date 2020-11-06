@@ -6,9 +6,9 @@ services:
     container_name: meertime-mysql
     environment:
       - MYSQL_ROOT_PASSWORD=$DB_ROOT_PASSWORD
-      - MYSQL_DATABASE=$DB_NAME
-      - MYSQL_USER=$DB_USERNAME
-      - MYSQL_PASSWORD=$DB_PASSWORD
+      - MYSQL_DATABASE
+      - MYSQL_USER
+      - MYSQL_PASSWORD
     volumes:
       - mysql-persistent-storage:/var/lib/mysql
   django:
@@ -25,11 +25,12 @@ services:
       - DB_HOST=mysql
       - DB_PORT
       - DJANGO_SECRET_KEY
-      - DEBUG=False
+      - DEBUG
+      - DEVELOPMENT_MODE
     volumes:
       - ./src/static:/static
     command: >
-      ash -c "python manage.py collectstatic --noinput
+      bash -c "python manage.py collectstatic --noinput
       && gunicorn --bind=0.0.0.0:8000 meertime.wsgi:application"
   nginx:
     build:
