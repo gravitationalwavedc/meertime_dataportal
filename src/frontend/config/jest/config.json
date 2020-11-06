@@ -5,7 +5,11 @@
     ],
     "collectCoverageFrom": [
       "src/**/*.{js,jsx,ts,tsx}",
-      "!src/**/*.d.ts"
+      "**/__generated__/**",
+      "!src/**/*.d.ts",
+      "!src/serviceWorker.js",
+      "!src/relayEnvironment.js",
+      "!src/index.js"
     ],
     "setupFiles": [
       "react-app-polyfill/jsdom"

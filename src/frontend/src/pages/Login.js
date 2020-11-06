@@ -19,7 +19,7 @@ const validationSchema = Yup.object().shape({
     password: Yup.string().required('Please include a password.') 
 });
 
-const Login = ({router}) => {
+const Login = ({router, match}) => {
     const [formErrors, setFormErrors] = useState([]);
   
     const login = (username, password) => {
@@ -38,7 +38,8 @@ const Login = ({router}) => {
                         setFormErrors(errors.map(e => e.message));
                     } else if(tokenAuth){
                         sessionStorage.jwt = tokenAuth.token;
-                        router.replace('/');
+                        const nextPath = match.params['next'] === undefined ? '/' : match.params['next']; 
+                        router.replace(nextPath);
                     }
                 },
                 onError: () => {
@@ -53,7 +54,7 @@ const Login = ({router}) => {
             <Col md={{span: 6, offset: 5}} className="login-col h-100">
                 <Row>
                     <Col md={{span: 8, offset: 2}} className="login-form">
-                        <h1 className="text-center text-gray-100 m-5">MEERTIME</h1>
+                        <h1 className="text-center text-gray-100 mb-5">MEERTIME</h1>
                         <Card className="shadow-2xl">
                             <Card.Body className="m-4">
                                 <h4 className="text-primary-600 mb-4">Sign in</h4>
@@ -66,7 +67,7 @@ const Login = ({router}) => {
                                     onSubmit={(values) => login(values.username, values.password)}
                                 >
                                     {({handleSubmit}) =>
-                                        <Form>
+                                        <Form onSubmit={handleSubmit}>
                                             <Field name="username"> 
                                                 {({field, meta}) =>
                                                     <Form.Group controlId="username">
@@ -99,7 +100,7 @@ const Login = ({router}) => {
                                               formErrors.map((e) => <Alert variant='danger' key={e}>{e}</Alert>)}
                                             <Button 
                                                 className="text-uppercase shadow-md mt-2" 
-                                                onClick={handleSubmit}>Sign in</Button>
+                                                type="submit">Sign in</Button>
                                         </Form>}
                                 </Formik>
                             </Card.Body>

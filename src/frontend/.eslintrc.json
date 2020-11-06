@@ -9,6 +9,11 @@
         "react",
         "jest"
     ],
+    "ignorePatterns": [
+        "**/relayEnvironment.js",
+        "**/serviceWorker.js",
+        "**/config/**"
+    ],
     "rules": {
         "indent": [
             "error",
@@ -29,7 +34,7 @@
         "complexity": ["error", 5],
         "react/prop-types": 0,
         "no-debugger": ["error"],
-        "no-console": ["error"],
+        "no-console": ["warn"],
         "no-unreachable": ["error"], 
         "no-extra-semi": ["error"],
         "no-alert": ["error"], 

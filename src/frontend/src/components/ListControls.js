@@ -38,9 +38,12 @@ const ListControls = ({handleProposalFilter, handleBandFilter, searchProps}) => 
                     </Form.Group>
                 </Col>
                 <Col>
-                    <Form.Group controlId="projectSelect">
+                    <Form.Group controlId="bandSelect">
                         <Form.Label>Band</Form.Label>
-                        <Form.Control as="select" custom onChange={(event) => handleBandFilter(event.target.value)}>
+                        <Form.Control 
+                            custom 
+                            as="select" 
+                            onChange={(event) => handleBandFilter(event.target.value)}>
                             {bandOptions.map(value => <option value={value} key={value}>{value}</option>)}
                         </Form.Control>
                     </Form.Group>
