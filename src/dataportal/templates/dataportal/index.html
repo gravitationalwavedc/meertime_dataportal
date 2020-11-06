@@ -82,7 +82,9 @@
 
         {% for psr in per_pulsar_list %}
         <tr>
+          {% block pulsar_link %}
           <td class="text-nowrap"><a href="{% url 'pulsar_detail' psr.jname %}">{{ psr.jname }}</a></td>
+          {% endblock %}
           <td class="text-nowrap">{{ psr.last|date:'Y-m-d-H:i:s' }}</td>
           <td {{hide_on_medium_nowrap}}>{{ psr.first|date:'Y-m-d-H:i:s' }}</td>
           <td>{{ psr.proposal_short}}</td>

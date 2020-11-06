@@ -111,14 +111,14 @@ class Pulsars(models.Model):
         return f"{self.jname}"
 
     @classmethod
-    def get_observations(cls, mode, proposal=None, band=None):
+    def get_observations(cls, mode, proposal=None, band=None, get_proposal_filters=get_meertime_filters):
         try:
             __class = apps.get_model("dataportal", mode.capitalize())
         except LookupError:
             logging.error(f"Mode {mode} does not correspond to any existing model in get_observation")
             return None
 
-        observation_filter = get_meertime_filters()
+        observation_filter = get_proposal_filters(prefix="proposal")
 
         if proposal:
             observation_filter["proposal_id"] = proposal
@@ -152,7 +152,7 @@ class Pulsars(models.Model):
 
         obstype_filter = {f"{mode}__isnull": False}
 
-        pulsar_proposal_filter = get_meertime_filters(prefix=mode)
+        pulsar_proposal_filter = get_proposal_filters(prefix=f"{mode}__proposal")
         if proposal:
             pulsar_proposal_filter[f"{mode}__proposal__id"] = proposal
 
@@ -166,8 +166,8 @@ class Pulsars(models.Model):
             .order_by("-last")
         )
 
-    def observations_detail_data(self):
-        proposal_filter = get_meertime_filters()
+    def observations_detail_data(self, get_proposal_filters=get_meertime_filters):
+        proposal_filter = get_proposal_filters(prefix="proposal")
         # Stakeholders requested we display estimated disk size of data.
         # Unfortunately, we haven't been recording it nor all the necessary information to calculate it.
         # Therefore, I calculate it below using assumptions which are true for meertime data but will not
@@ -184,7 +184,7 @@ class Pulsars(models.Model):
         return self.observations_set.all().filter(**proposal_filter).annotate(**annotations).order_by("-utc__utc_ts")
 
     def searchmode_detail_data(self):
-        proposal_filter = get_meertime_filters()
+        proposal_filter = get_meertime_filters(prefix="proposal")
         return self.searchmode_set.all().filter(**proposal_filter).order_by("-utc__utc_ts")
 
     class Meta:

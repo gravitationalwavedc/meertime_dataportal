@@ -10,6 +10,8 @@ import json
 from .models import Observations, Pulsars, Proposals, Ephemerides, Utcs
 from .plots import pulsar_summary_plot
 
+from .logic import get_trapum_filters, get_meertime_filters
+
 from sentry_sdk import last_event_id
 from django.shortcuts import render
 
@@ -30,7 +32,8 @@ class IndexBaseView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["projects"] = Proposals.objects.filter(proposal__startswith="SCI", proposal__contains="MB")
+        meertime_filter = get_meertime_filters()
+        context["projects"] = Proposals.objects.filter(**meertime_filter)
         context["project_id"] = self.request.GET.get("project_id")
         context["band"] = self.request.GET.get("band")
         qs = context["per_pulsar_list"]
@@ -41,7 +44,7 @@ class IndexBaseView(generic.ListView):
 
 class FoldView(IndexBaseView):
     """
-    Display pulsars and the latest observation data.
+    Display pulsars and the latest meertime observation data.
     """
 
     template_name = "dataportal/index.html"
@@ -55,6 +58,30 @@ class FoldView(IndexBaseView):
         context = super().get_context_data(**kwargs)
         # page title
         context["title"] = "folded observations"
+        return context
+
+
+class TrapumView(IndexBaseView):
+    """
+    Display pulsars and the latest trapum observation data.
+    """
+
+    template_name = "dataportal/trapum.html"
+
+    def get_queryset(self):
+        return Pulsars.get_observations(
+            mode="observations",
+            proposal=self.request.GET.get("project_id"),
+            band=self.request.GET.get("band"),
+            get_proposal_filters=get_trapum_filters,
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        trapum_filters = get_trapum_filters()
+        context["projects"] = Proposals.objects.filter(**trapum_filters)
+        # page title
+        context["title"] = "trapum observations"
         return context
 
 
@@ -106,7 +133,7 @@ class DetailView(generic.ListView):
 
 class PulsarDetailView(DetailView):
     """
-    Display detail list of observations for a single pulsar.
+    Display detail list of meertime observations for a single pulsar.
     """
 
     template_name = "dataportal/show_single_psr.html"
@@ -139,6 +166,45 @@ class PulsarDetailView(DetailView):
         )
 
         context["title"] = context["psr"]
+
+        return context
+
+
+class TrapumDetailView(DetailView):
+    """
+    Display detail list of trapum observations for a single pulsar.
+    """
+
+    template_name = "dataportal/show_single_psr.html"
+
+    def get_queryset(self):
+        return self.pulsar.observations_detail_data(get_proposal_filters=get_trapum_filters)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Add a summary plot to the context
+        UTCs = context["obs_list"].values_list("utc__utc_ts", flat=True)
+        snrs = context["obs_list"].values_list("snr_spip", flat=True)
+        length = context["obs_list"].values_list("length", flat=True)
+        bokeh_js, bokeh_div = pulsar_summary_plot(UTCs, snrs, length)
+        context["bokeh_js"] = bokeh_js
+        context["bokeh_div"] = bokeh_div
+
+        # get total size
+        qs = context["obs_list"]
+        context["total_size_estimate"] = qs.aggregate(total_size_estimate=Sum("estimated_size"))
+
+        # get other aggregates
+        annotations = {}
+        context["totals"] = qs.annotate(**annotations).aggregate(
+            tint=Sum("length"),
+            nobs=Count("id"),
+            project_count=Count("proposal", distinct=True),
+            timespan=ExpressionWrapper(Max("utc__utc_ts") - Min("utc__utc_ts"), output_field=DurationField()),
+        )
+
+        context["title"] = f'Trapum: {context["psr"]}'
 
         return context
 

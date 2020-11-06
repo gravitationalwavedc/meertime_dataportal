@@ -1,5 +1,5 @@
 import pytest
-from .logic import get_band, get_meertime_filters, get_band_filters
+from .logic import get_band, get_meertime_filters, get_trapum_filters, get_band_filters
 
 
 def test_get_band_returns_correct_value():
@@ -10,17 +10,27 @@ def test_get_band_returns_correct_value():
     assert get_band(1283.89550781) == "L-band"
     assert get_band(815.734375) == "UHF"
     assert get_band(544) == "544"
-    assert get_band('My band') == None
+    assert get_band("My band") == None
 
 
 def test_get_meertime_filters():
-    expected_on_empty_input = {"proposal__proposal__startswith": "SCI", "proposal__proposal__contains": "MB"}
-    expected_on_prefix_observations = {
+    expected_on_empty_input = {"proposal__startswith": "SCI", "proposal__contains": "MB"}
+    expected_on_prefix_observations__proposal = {
         "observations__proposal__proposal__startswith": "SCI",
         "observations__proposal__proposal__contains": "MB",
     }
     assert get_meertime_filters() == expected_on_empty_input
-    assert get_meertime_filters(prefix="observations") == expected_on_prefix_observations
+    assert get_meertime_filters(prefix="observations__proposal") == expected_on_prefix_observations__proposal
+
+
+def test_get_trapum_filters():
+    expected_on_empty_input = {"proposal__startswith": "SCI", "proposal__contains": "MK"}
+    expected_on_prefix_observations__proposal = {
+        "observations__proposal__proposal__startswith": "SCI",
+        "observations__proposal__proposal__contains": "MK",
+    }
+    assert get_trapum_filters() == expected_on_empty_input
+    assert get_trapum_filters(prefix="observations__proposal") == expected_on_prefix_observations__proposal
 
 
 def test_get_band_filters():

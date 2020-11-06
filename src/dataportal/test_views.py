@@ -169,3 +169,65 @@ def test_obs_detail_view_authenticated(client, django_user_model):
 
     assert response.status_code == 200
     assert response.template_name == ["dataportal/observation.html"]
+
+
+# Test TrapumView
+@pytest.mark.django_db
+def test_trapum_view_unauthenticated(client):
+    """TrapumView should redirect unauthenticated users to the login page."""
+    response = client.get("/trapum/")
+    assert response.status_code == 302
+    assert response["location"] == "/accounts/login/?next=/trapum/"
+
+
+@pytest.mark.django_db
+def test_trapum_view_authenticated(client, django_user_model):
+    """TrapumView should display the index template for authenticated users."""
+    login_buffy(client, django_user_model)
+    response = client.get("/trapum/")
+    assert response.status_code == 200
+    assert response.template_name == ["dataportal/trapum.html", "dataportal/pulsars_list.html"]
+
+
+@pytest.mark.django_db
+def test_trapum_view_authenticated_with_project_id(client, django_user_model):
+    """TrapumView should display the correct template when given a project id."""
+    login_buffy(client, django_user_model)
+    proposal_id = Proposals.objects.create().id
+    response = client.get("/trapum/", {"project_id": proposal_id})
+    assert response.status_code == 200
+    assert response.template_name == ["dataportal/trapum.html", "dataportal/pulsars_list.html"]
+
+
+# Test TrapumDetailView
+@pytest.mark.django_db
+def test_trapum_detail_view_unauthenticated(client):
+    """TrapumDetailView should redirect unauthenticated users to the login page."""
+    Pulsars.objects.create(jname="J1111-2222")
+    response = client.get("/trapum/J1111-2222")
+    assert response.status_code == 302
+    assert response["location"] == "/accounts/login/?next=/trapum/J1111-2222"
+
+
+@pytest.mark.django_db
+def test_trapum_detail_view_authenticated(client, django_user_model):
+    """TrapumDetailView should display the correct template for authenticated users when give a job name."""
+    login_buffy(client, django_user_model)
+    Pulsars.objects.create(jname="J1111-2222")
+    response = client.get("/trapum/J1111-2222")
+    assert response.status_code == 200
+    assert response.template_name == ["dataportal/show_single_psr.html", "dataportal/observations_list.html"]
+
+
+@pytest.mark.django_db
+def test_trapum_detail_view_accepts_correct_regex(client, django_user_model):
+    """TrapumDetailView should accept the correct job strings via the url regex."""
+    login_buffy(client, django_user_model)
+    Pulsars.objects.create(jname="J1111-2222")
+    Pulsars.objects.create(jname="J1111+2222")
+    response_1 = client.get("/trapum/J1111-2222")
+    response_2 = client.get("/trapum/J1111+2222")
+    assert response_1.status_code == 200
+    assert response_1.template_name == ["dataportal/show_single_psr.html", "dataportal/observations_list.html"]
+    assert response_2.status_code == 200
+    assert response_2.template_name == ["dataportal/show_single_psr.html", "dataportal/observations_list.html"]

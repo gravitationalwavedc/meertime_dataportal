@@ -45,13 +45,28 @@ def get_band_filters(band=None, prefix=None):
 def get_meertime_filters(prefix=None):
     """
     Creates a filter dictionary which can be passed on to django ORM filter method.
-    For a proposal to be included in the observation list it must start with SCI and include MB.
+    For a proposal to be included in the meertime observation list it must start with SCI and include MB.
 
     prefix: (optional) if the proposal model is not directly accessible, provide the model via which it can be accessed.
     """
     prefix = f"{prefix}__" if prefix else ""
 
     return {
-        f"{prefix}proposal__proposal__startswith": "SCI",
-        f"{prefix}proposal__proposal__contains": "MB",
+        f"{prefix}proposal__startswith": "SCI",
+        f"{prefix}proposal__contains": "MB",
+    }
+
+
+def get_trapum_filters(prefix=None):
+    """
+    Creates a filter dictionary which can be passed on to django ORM filter method.
+    For a proposal to be included in the trapum observation list it must start with SCI and include MK.
+
+    prefix: (optional) if the proposal model is not directly accessible, provide the model via which it can be accessed.
+    """
+    prefix = f"{prefix}__" if prefix else ""
+
+    return {
+        f"{prefix}proposal__startswith": "SCI",
+        f"{prefix}proposal__contains": "MK",
     }

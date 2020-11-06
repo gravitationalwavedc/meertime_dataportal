@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns = [
     path("", login_required(views.FoldView.as_view()), name="fold"),
+    path("trapum/", login_required(views.TrapumView.as_view()), name="trapum"),
     path("search/", login_required(views.SearchmodeView.as_view()), name="search"),
     path("fluxcal/", login_required(views.FoldView.as_view()), name="fluxcal"),
     re_path(
@@ -21,5 +22,10 @@ urlpatterns = [
         r"^(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)/(?P<utc>\d{4}-\d{2}-\d{2}-[0-2]{1}\d{1}:[0-6]{1}\d{1}:[0-6]{1}\d{1})/(?P<beam>\d+)/$",
         login_required(views.ObservationDetailView.as_view()),
         name="obs_detail",
+    ),
+    re_path(
+        r"^trapum/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)$",
+        login_required(views.TrapumDetailView.as_view()),
+        name="pulsar_detail_trapum",
     ),
 ]
