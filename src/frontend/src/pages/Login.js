@@ -19,7 +19,7 @@ const validationSchema = Yup.object().shape({
     password: Yup.string().required('Please include a password.') 
 });
 
-const Login = ({router, match}) => {
+const Login = ({ router, match }) => {
     const [formErrors, setFormErrors] = useState([]);
   
     const login = (username, password) => {
@@ -33,7 +33,7 @@ const Login = ({router, match}) => {
             {
                 mutation,
                 variables,
-                onCompleted: ({tokenAuth}, errors) => {
+                onCompleted: ({ tokenAuth }, errors) => {
                     if(errors){
                         setFormErrors(errors.map(e => e.message));
                     } else if(tokenAuth){
@@ -51,9 +51,9 @@ const Login = ({router, match}) => {
 
     return (
         <Container fluid className="login-page h-100">
-            <Col md={{span: 6, offset: 5}} className="login-col h-100">
+            <Col md={{ span: 6, offset: 5 }} className="login-col h-100">
                 <Row>
-                    <Col md={{span: 8, offset: 2}} className="login-form">
+                    <Col md={{ span: 8, offset: 2 }} className="login-form">
                         <h1 className="text-center text-gray-100 mb-5">MEERTIME</h1>
                         <Card className="shadow-2xl">
                             <Card.Body className="m-4">
@@ -66,10 +66,10 @@ const Login = ({router, match}) => {
                                     validationSchema={validationSchema}
                                     onSubmit={(values) => login(values.username, values.password)}
                                 >
-                                    {({handleSubmit}) =>
+                                    {({ handleSubmit }) =>
                                         <Form onSubmit={handleSubmit}>
                                             <Field name="username"> 
-                                                {({field, meta}) =>
+                                                {({ field, meta }) =>
                                                     <Form.Group controlId="username">
                                                         <Form.Label>Username</Form.Label>
                                                         <Form.Control 
@@ -83,7 +83,7 @@ const Login = ({router, match}) => {
                                                 }
                                             </Field>
                                             <Field name="password">
-                                                {({field, meta}) =>
+                                                {({ field, meta }) =>
                                                     <Form.Group controlId="password">
                                                         <Form.Label>Password</Form.Label>
                                                         <Form.Control 

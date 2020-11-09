@@ -16,11 +16,11 @@ describe('login page', () => {
 
     it('should submit when there is a username and password', async () => {
         expect.hasAssertions();
-        const { getAllByText, getByLabelText } = render(<Login router={router} match={{params: {next: null}}}/>);
+        const { getAllByText, getByLabelText } = render(<Login router={router} match={{ params: { next: null } }}/>);
         const usernameField = getByLabelText('Username');
         const passwordField = getByLabelText('Password');
-        fireEvent.change(usernameField, {target: {value: 'asher'}});
-        fireEvent.change(passwordField, {target: {value: 'password'}});
+        fireEvent.change(usernameField, { target: { value: 'asher' } });
+        fireEvent.change(passwordField, { target: { value: 'password' } });
         fireEvent.click(getAllByText('Sign in')[1]);
         const operation = await waitFor(() => environment.mock.getMostRecentOperation());
         environment.mock.resolve(
@@ -32,11 +32,13 @@ describe('login page', () => {
 
     it('should have the correct next url', async () => {
         expect.hasAssertions();
-        const { getAllByText, getByLabelText } = render(<Login router={router} match={{params: {next: 'search'}}}/>);
+        const { getAllByText, getByLabelText } = render(
+            <Login router={router} match={{ params: { next: 'search' } }}/>
+        );
         const usernameField = getByLabelText('Username');
         const passwordField = getByLabelText('Password');
-        fireEvent.change(usernameField, {target: {value: 'asher'}});
-        fireEvent.change(passwordField, {target: {value: 'password'}});
+        fireEvent.change(usernameField, { target: { value: 'asher' } });
+        fireEvent.change(passwordField, { target: { value: 'password' } });
         fireEvent.click(getAllByText('Sign in')[1]);
         const operation = await waitFor(() => environment.mock.getMostRecentOperation());
         environment.mock.resolve(
@@ -49,11 +51,11 @@ describe('login page', () => {
     it('should display errors from the server', async () => {
         expect.hasAssertions();
         const { getAllByText, getByLabelText, getByText } = 
-          render(<Login router={router} match={{params: {next: null}}}/>);
+          render(<Login router={router} match={{ params: { next: null } }}/>);
         const usernameField = getByLabelText('Username');
         const passwordField = getByLabelText('Password');
-        fireEvent.change(usernameField, {target: {value: 'asher'}});
-        fireEvent.change(passwordField, {target: {value: 'password'}});
+        fireEvent.change(usernameField, { target: { value: 'asher' } });
+        fireEvent.change(passwordField, { target: { value: 'password' } });
         fireEvent.click(getAllByText('Sign in')[1]);
         await waitFor(() => environment.mock.rejectMostRecentOperation(new Error()));
         expect(getByText('Please enter valid credentials.')).toBeInTheDocument();

@@ -21,6 +21,9 @@ class FoldObservationNode(graphene.ObjectType):
     latest_snr = graphene.Float()
     latest_tint_m = graphene.Float()
 
+    def resolve_timespan(self, instance):
+        return self["timespan"].days
+
     def resolve_total_tint_h(self, instance):
         return round(self["total_tint_h"], 1) if self["total_tint_h"] else None
 

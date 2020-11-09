@@ -13,7 +13,7 @@ const query = graphql`
 const Fold = () => (
     <React.Fragment>
         <TopNav/>
-        <Container fluid>
+        <Container fluid className="p-5">
             <Row>
                 <Col>
                     <h4 className="mb-5">Fold Observations</h4>
@@ -23,7 +23,7 @@ const Fold = () => (
                 environment={environment}
                 query={query}
                 fetchPolicy="store-and-network"
-                render = {({props}) => props ? <FoldTable data={props} /> : <h1>Loading...</h1>}
+                render = {({ props }) => props ? <FoldTable data={props} /> : <h1>Loading...</h1>}
             />
         </Container>
     </React.Fragment>

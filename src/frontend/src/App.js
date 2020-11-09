@@ -3,7 +3,7 @@ import Router from './components/Router';
 import './assets/scss/theme.scss';
 
 const App = () => (
-    <div className="App h-100">
+    <div className="App h-100" data-testid="mainApp">
         <Router />
     </div>
 );

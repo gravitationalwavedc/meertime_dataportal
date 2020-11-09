@@ -83,7 +83,7 @@ def test_fold_query_with_token():
                         'last': '2000-01-01T12:59:12+00:00',
                         'first': '2000-01-01T12:59:12+00:00',
                         'proposalShort': 'cool proposal',
-                        'timespan': '0:00:00',
+                        'timespan': '0',
                         'nobs': 1,
                         'totalTintH': 0.0,
                         'avgSnr5min': 15.5,

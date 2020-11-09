@@ -12,10 +12,12 @@ describe('list controls component', () => {
             <ListControls
                 handleProposalFilter={handleProposalFilter}
                 handleBandFilter={jest.fn()}
-                searchProps={{onSearch: jest.fn()}}
+                searchProps={{ onSearch: jest.fn() }}
+                columnToggleProps={{ columns: [] }}
+                exportCSVProps={{}}
             />
         );
-        fireEvent.change(getByLabelText('Project'), {target: {value: 'TPA'}});
+        fireEvent.change(getByLabelText('Project'), { target: { value: 'TPA' } });
         expect(handleProposalFilter).toHaveBeenCalledWith('TPA');
     });
 
@@ -26,10 +28,12 @@ describe('list controls component', () => {
             <ListControls
                 handleProposalFilter={jest.fn()}
                 handleBandFilter={handleBandFilter}
-                searchProps={{onSearch: jest.fn()}}
+                searchProps={{ onSearch: jest.fn() }}
+                columnToggleProps={{ columns: [] }}
+                exportCSVProps={{}}
             />
         );
-        fireEvent.change(getByLabelText('Band'), {target: {value: 'UHF'}});
+        fireEvent.change(getByLabelText('Band'), { target: { value: 'UHF' } });
         expect(handleBandFilter).toHaveBeenCalledWith('UHF');
     });
 });

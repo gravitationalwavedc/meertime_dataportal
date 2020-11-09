@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { QueryRenderer, graphql } from 'react-relay';
 import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
 import FoldTable from './FoldTable';
@@ -28,9 +28,9 @@ describe('the fold table component', () => {
         
     it('passes', () => {
         expect.hasAssertions();
-        const { getByText, getAllByText } = render(<TestRenderer />);
+        const { getAllByText } = render(<TestRenderer />);
         environment.mock.resolveMostRecentOperation(operation => MockPayloadGenerator.generate(operation));
-        expect(getByText('Observations')).toBeInTheDocument();
+        expect(getAllByText('Observations')[0]).toBeInTheDocument();
         expect(getAllByText('42')[0]).toBeInTheDocument();
     });
 });

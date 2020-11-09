@@ -12,7 +12,7 @@ const routeConfig = () => makeRouteConfig(
         <Route
             path="/"
             Component={Fold}
-            render={({Component, props}) => {
+            render={({ Component, props }) => {
                 if (sessionStorage.getItem('jwt') === null) {
                     throw new RedirectException('/login/', 401);
                 }

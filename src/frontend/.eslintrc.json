@@ -32,6 +32,7 @@
             "always"
         ],
         "complexity": ["error", 5],
+        "object-curly-spacing": ["error", "always"],
         "react/prop-types": 0,
         "no-debugger": ["error"],
         "no-console": ["warn"],
