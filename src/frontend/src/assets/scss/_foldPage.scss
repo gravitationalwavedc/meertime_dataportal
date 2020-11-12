@@ -1,0 +1,12 @@
+.graph-pattern-top {
+    position: absolute;
+    z-index: -1;
+    opacity: 0.05;
+    max-width: 110rem;
+    top: 4rem;
+    left: 1rem;
+}
+
+.bg-gray-100 {
+    background: $gray-100;
+}

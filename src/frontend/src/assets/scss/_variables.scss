@@ -72,11 +72,12 @@ $black:    $gray-900;
 $green: #1ED48D;
 
 $primary:       $primary-500;
-$secondary:     $accent-500;
+$secondary:     $accent-400;
 $success:       $green;
 $info:          $primary-300;
 $warning:       $accent-300;
 $danger:        $accent-700;
+$dark: $primary-800;
 
 $theme-colors: (
    'gray-100': $gray-100,
@@ -102,3 +103,19 @@ $input-border-width: 0;
 $input-box-shadow: $shadow-inner;
 $input-bg: $gray-300;
 $input-group-addon-bg: $gray-300;
+
+// Navbar
+$navbar-dark-color: $gray-100;
+$navbar-dark-hover-color: $primary-200;
+$navbar-dark-active-color: $gray-100;
+$navbar-dark-disabled-color: $gray-500;
+
+// Container widths
+
+$container-max-widths: (
+  sm: 540px,
+  md: 720px,
+  lg: 960px,
+  xl: 2000px
+) !default;
+

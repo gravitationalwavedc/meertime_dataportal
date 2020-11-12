@@ -51,7 +51,7 @@ const Login = ({ router, match }) => {
 
     return (
         <Container fluid className="login-page h-100">
-            <Col md={{ span: 6, offset: 5 }} className="login-col h-100">
+            <Col md={{ span: 5, offset: 6 }} className="login-col h-100">
                 <Row>
                     <Col md={{ span: 8, offset: 2 }} className="login-form">
                         <h1 className="text-center text-gray-100 mb-5">MEERTIME</h1>

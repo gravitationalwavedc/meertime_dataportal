@@ -21,6 +21,7 @@ $row-border-radius: 0.75rem;
             border-left-style: solid;
             border-top-left-radius: $row-border-radius; 
             border-bottom-left-radius: $row-border-radius;
+            padding-left: 1.5rem;
         }
 
         &:last-child {
@@ -34,11 +35,16 @@ $row-border-radius: 0.75rem;
         border-top: none;
         border-bottom: none;
         color: $gray-500;
+        font-size: 0.9rem;
 
         &:focus,
         &:hover {
             outline: none;
             color: $primary;
+        }
+
+        &:first-child {
+            padding-left: 1.5rem;
         }
     }
 }

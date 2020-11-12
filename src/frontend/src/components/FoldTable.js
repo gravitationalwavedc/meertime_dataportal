@@ -9,6 +9,7 @@ import { HiOutlineViewGrid, HiOutlineViewList } from 'react-icons/hi';
 import moment from 'moment';
 import JobCardsList from './JobCardsList';
 import sizePerPageRenderer from './CustomSizePerPageBtn';
+import Einstein from '../assets/images/einstein-coloured.png';
 
 const FoldTable = ({ data, relay }) => {
     const [proposal, setProposal] = useState('All');
@@ -25,23 +26,33 @@ const FoldTable = ({ data, relay }) => {
         row.first = moment.parseZone(row.first, moment.ISO_8601).format('YYYY-MM-DD-HH:mm:ss');
         row.totalTintH = `${row.totalTintH} hours`;
         row.latestTintM = `${row.latestTintM} minutes`;
-        row.action = <Button size='sm' variant="outline-primary">View details</Button>;
+        row.action = <Button size='sm' variant="outline-secondary">View details</Button>;
         return [...result, { ...row }];
     }, []);
+
+    const fit2 = { width: '2%', whiteSpace: 'nowrap' };
+    // const fit5 = { width: '5%', whiteSpace: 'nowrap' };
+    const fit6 = { width: '6%', whiteSpace: 'nowrap' };
+    const fit8 = { width: '8%', whiteSpace: 'nowrap' };
     
     const columns = [
-        { dataField: 'jname', text: 'JName', align: 'center', headerAlign: 'center', sort:true },
+        { dataField: 'jname', text: 'JName', sort:true, style: fit6, headerStyle: fit6 },
         { dataField: 'last', text: 'Last', sort: true },
         { dataField: 'first', text: 'First', sort: true },
-        { dataField: 'proposalShort', text: 'Project', sort: true },
+        { dataField: 'proposalShort', text: 'Project', sort: true, style: fit2, headerStyle: fit2 },
         { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'nobs', text: 'Observations', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'totalTintH', text: 'Total int [h]', align: 'right', headerAlign: 'right', sort: true },
+        { dataField: 'nobs', text: 'Observations', align: 'right', headerAlign: 'right', 
+            sort: true, headerStyle: fit8, style: fit8 },
+        { dataField: 'totalTintH', text: 'Total int [h]', align: 'right', headerAlign: 'right', 
+            sort: true, headerStyle: fit8, style: fit8 },
         { dataField: 'avgSnr5min', text: 'Avg S/N pipe (5 mins)', align: 'right', headerAlign: 'right', sort: true },
         { dataField: 'maxSnr5min', text: 'Max S/N pipe (5 mins)', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'latestSnr', text: 'Last S/N raw', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'latestTintM', text: 'Last int. [m]', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'action', text: '', align: 'center', headerAlign: 'center', sort: false }
+        { dataField: 'latestSnr', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
+            sort: true, headerStyle: fit8, style: fit8 },
+        { dataField: 'latestTintM', text: 'Last int. [m]', align: 'right', headerAlign: 'right', 
+            sort: true, headerStyle: fit8, style: fit8 },
+        { dataField: 'action', text: '', align: 'center', headerAlign: 'center', 
+            sort: false, headerStyle: fit8, style: fit8 }
     ];
 
     const options = {
@@ -73,22 +84,23 @@ const FoldTable = ({ data, relay }) => {
         >
             {props => (
                 <React.Fragment>
-                    <Row className="justify-content-end" style={{ marginTop: '-5rem' }}>
+                    <Row className="justify-content-end" style={{ marginTop: '-7.8rem' }}>
                         <Col md={1}>
-                            <p className="mb-1 text-muted">Observations</p>
+                            <p className="mb-1 text-primary-600">Observations</p>
                             <h4>{ data.foldObservations.totalObservations }</h4>
                         </Col>
                         <Col md={1}>
-                            <p className="mb-1 text-muted">Pulsars</p>
+                            <p className="mb-1 text-primary-600">Pulsars</p>
                             <h4>{ data.foldObservations.totalPulsars }</h4>
                         </Col>
                         <Col md={1}>
-                            <p className="mb-1 text-muted">Total Hours</p>
+                            <p className="mb-1 text-primary-600">Total Hours</p>
                             <h4>{ data.foldObservations.totalObservationTime }</h4>
                         </Col>
+                        <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
                     </Row>
-                    <Row>
-                        <Col md={3}>
+                    <Row className='bg-gray-100' style={{ marginTop: '-4rem' }}>
+                        <Col md={4}>
                             <ListControls 
                                 searchProps={props.searchProps} 
                                 handleProposalFilter={setProposal} 
@@ -120,6 +132,7 @@ const FoldTable = ({ data, relay }) => {
                                 pagination={paginationFactory(options)} 
                                 bordered={false}
                                 rowStyle={{ whiteSpace: 'pre', verticalAlign: 'middle' }}
+                                wrapperClasses='bg-gray-100'
                             /> : 
                             <JobCardsList {...props.baseProps} />
                     }

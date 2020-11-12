@@ -4,6 +4,8 @@ import { Container, Row, Col } from 'react-bootstrap';
 import environment from '../relayEnvironment';
 import TopNav from '../components/TopNav';
 import FoldTable from '../components/FoldTable';
+import GraphPattern from '../assets/images/graph-pattern.png';
+
 
 const query = graphql`
   query FoldQuery {
@@ -13,12 +15,13 @@ const query = graphql`
 const Fold = () => (
     <React.Fragment>
         <TopNav/>
-        <Container fluid className="p-5">
+        <Container>
             <Row>
                 <Col>
-                    <h4 className="mb-5">Fold Observations</h4>
+                    <h4 className="mb-6 text-primary-600">Fold Observations</h4>
                 </Col>
             </Row>
+            <img src={GraphPattern} className="graph-pattern-top" alt=""/>
             <QueryRenderer
                 environment={environment}
                 query={query}
