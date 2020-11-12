@@ -85,7 +85,9 @@
           {% block pulsar_link %}
           <td class="text-nowrap"><a href="{% url 'pulsar_detail' psr.jname %}">{{ psr.jname }}</a></td>
           {% endblock %}
-          <td class="text-nowrap">{{ psr.last|date:'Y-m-d-H:i:s' }}</td>
+          <td class="text-nowrap"><a
+              href="{% url 'obs_detail' psr.jname psr.last|date:'Y-m-d-H:i:s' psr.last_beam %}">{{ psr.last|date:'Y-m-d-H:i:s' }}</a>
+          </td>
           <td {{hide_on_medium_nowrap}}>{{ psr.first|date:'Y-m-d-H:i:s' }}</td>
           <td>{{ psr.proposal_short}}</td>
           <td {{hide_on_small}}>{{ psr.timespan.days }}</td>

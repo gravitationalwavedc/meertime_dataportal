@@ -33,7 +33,7 @@ def pulsar_summary_plot(UTCs, SNRs, lengths, height=300, width=800, sizing_mode=
     This function generates a pulsar summary plot in bokeh.
     The summary plot shows S/N vs time with size of the point proportional to integration time / length.
 
-    Inputs are lists and have to be equal length.
+    Inputs are lists or tuples and have to be equal length.
     UTCs must be datetimes
     SNRs and lengths must be floats
 

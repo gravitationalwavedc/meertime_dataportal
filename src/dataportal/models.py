@@ -132,6 +132,7 @@ class Pulsars(models.Model):
 
         annotations = {
             "last": Max(f"{mode}__utc__utc_ts"),
+            "last_beam": Subquery(latest_observation.values("beam")[:1]),
             "first": Min(f"{mode}__utc__utc_ts"),
             "proposal_short": Subquery(latest_observation.values("proposal__proposal_short")[:1]),
             "timespan": ExpressionWrapper(
