@@ -39,7 +39,7 @@ Run `poetry install` to also install development packages such as testing tools.
 ### To run the application using docker-compose
 
 1. Clone the repository.
-2. (optional but recommended) prepare environment and set it up with `set -a; source src/.env` where `src/.env` is based on `src/.env.template`
+2. (optional but recommended) prepare environment and set it up with `set -a; source src/.env` where `src/.env` is based on `src/.env.template`. Note that if you're using .env file in docker-compose, you need to set `DB_HOST` to `mysql`
 3. Run `docker-compose up`.
 
 
@@ -47,10 +47,18 @@ When building the images, we recommmend running:
 `DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose up --build`
 for optimal image size and build speed.
 
-Currently, manual initialisation of the DB and migration are required. To do this, get a shell in the django container and execute the following:
+Currently, manual initialisation of the DB and migration are required. To do this, get a shell in the django container:
+
+`docker exec -it $(docker container ls | grep meertime | grep django | awk '{print $1}') /bin/bash`
+
+and execute the following:
 
 `python manage.py migrate`
+
 `python manage.py createsuperuser`
+
+You likely want to create at least one user via the admin page (available at http://localhost:8000/admin) although the admin user will be able to view the data as well. If you want to mimick the actual setup more closely, you can also setup a second user with permissions to create observations (`dataportal | observations | Can add observations`) and use that user for ingesting data. 
+
 
 #### To use development mode in docker-compose
 
