@@ -182,11 +182,22 @@ class Pulsars(models.Model):
                 F("nchan") * F("nbin") * 4 * 16.0 / 8.0 * Ceil(F("length") / 8.0), output_field=FloatField()
             ),
         }
-        return self.observations_set.all().filter(**proposal_filter).annotate(**annotations).order_by("-utc__utc_ts")
+        return (
+            self.observations_set.all()
+            .select_related("utc", "proposal")
+            .filter(**proposal_filter)
+            .annotate(**annotations)
+            .order_by("-utc__utc_ts")
+        )
 
     def searchmode_detail_data(self):
         proposal_filter = get_meertime_filters(prefix="proposal")
-        return self.searchmode_set.all().filter(**proposal_filter).order_by("-utc__utc_ts")
+        return (
+            self.searchmode_set.all()
+            .select_related("utc", "proposal")
+            .filter(**proposal_filter)
+            .order_by("-utc__utc_ts")
+        )
 
     class Meta:
         db_table = "Pulsars"
