@@ -1,0 +1,60 @@
+{% extends "dataportal/base.html" %}
+{% load mathfilters %}
+{% load static %}
+
+{% block content %}
+{% if obs_list %}
+<div class="row">
+  <div class="col-8"></div>
+  <div class="col-4 justify-content-end">
+    The last session included {{ obs_list.count }} observation{{ obs_list.count|pluralize }}.
+  </div>
+</div>
+<div class="accordion id=" sessionAccordion">
+  {% for obs in obs_list %}
+  <div class="card bg-light">
+    <div class="row">
+      <div class="col-3">
+        <h5>
+          <td class="text-nowrap"><a href="{% url 'pulsar_detail' obs.pulsar.jname %}">{{ obs.pulsar.jname }}</a>
+        </h5>
+        <h6><a
+            href="{% url 'obs_detail' obs.pulsar.jname obs.utc.utc_ts|date:'Y-m-d-H:i:s'  obs.beam %}">{{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}</a>
+        </h6>
+        <h6>{{ obs.proposal.proposal_short }}</h6>
+        <h6>backend S/N: {{ obs.snr_spip|floatformat:1 }}</h6>
+        <h6>Integration: {{ obs.length|floatformat:1 }} s</h6>
+        <h6>Frequency: {{ obs.frequency|floatformat:6 }} MHz</h6>
+      </div>
+      <div class="col-3">
+        {% if obs.profile %}
+        <a href="{{ obs.profile.url }}">
+          <img src="{{ obs.profile.url }}" alt="no profile available" class="img-fluid" /></a>
+        {% else %}
+        <img src="{% static 'images/missing.png' %}" alt="no profile available" class="img-fluid" />
+        {% endif %}
+      </div>
+      <div class="col-3">
+        {% if obs.phase_vs_time %}
+        <a href="{{ obs.phase_vs_time.url }}">
+          <img src="{{ obs.phase_vs_time.url }}" alt="no phase_vs_time available" class="img-fluid" /></a>
+        {% else %}
+        <img src="{% static 'images/missing.png' %}" alt="no phase_vs_time available" class="img-fluid" />
+        {% endif %}
+      </div>
+      <div class="col-3">
+        {% if obs.phase_vs_frequency %}
+        <a href="{{ obs.phase_vs_frequency.url }}">
+          <img src="{{ obs.phase_vs_frequency.url }}" alt="no profile available" class="img-fluid" /></a>
+        {% else %}
+        <img src="{% static 'images/missing.png' %}" alt="no profile available" class="img-fluid" />
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<p>No observations are available.</p>
+{% endif %}
+{% endblock content %}

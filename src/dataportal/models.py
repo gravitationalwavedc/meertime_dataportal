@@ -19,6 +19,8 @@ from .storage import OverwriteStorage, get_upload_location
 
 import logging
 
+from datetime import timedelta
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 logger.propagate = False
@@ -61,7 +63,7 @@ class Observations(models.Model):
     ra = models.TextField(db_column="RA", blank=True, null=True)
     dec = models.TextField(db_column="DEC", blank=True, null=True)
 
-    # metadata describing which schedule block / observing session was this observatoin a part of
+    # metadata describing which schedule block / observing session was this observation a part of
     # note that phase up is only relevant for interferometric observations
     schedule = models.ForeignKey("Schedule", on_delete=models.DO_NOTHING, null=True)
     phaseup = models.ForeignKey("PhaseUp", on_delete=models.DO_NOTHING, null=True)
@@ -80,6 +82,40 @@ class Observations(models.Model):
     class Meta:
         db_table = "Observations"
         unique_together = (("pulsar", "utc", "beam"),)
+
+    @classmethod
+    def get_last_session_by_gap(cls, max_gap=3600.0, get_proposal_filters=get_meertime_filters):
+        """
+        Get last observing session as determined by a gap between observations
+        get_proposal_filters is a method which returns a set of observation filters
+        max_gap is the maximum allowed gap between observations in seconds which defaults to one hour. Must be positive
+        """
+        proposal_filter = get_proposal_filters("proposal")
+        latest_observations = (
+            cls.objects.filter(**proposal_filter).values("id", "utc__utc_ts", "length").order_by("-utc__utc_ts")
+        )
+
+        if latest_observations.count() < 2:
+            return latest_observations
+
+        # latest observation is always in the latest session
+        observation_ids = [latest_observations[0]["id"]]
+        latest_included_utc = latest_observations[0]["utc__utc_ts"]
+
+        for observation in latest_observations[1:]:
+            gap = latest_included_utc - (observation["utc__utc_ts"] + timedelta(seconds=int(observation["length"])))
+            if gap.seconds > max_gap:
+                # we found all observations in the session
+                break
+
+            observation_ids.append(observation["id"])
+            latest_included_utc = observation["utc__utc_ts"]
+
+        return (
+            cls.objects.select_related("utc", "pulsar", "proposal")
+            .filter(id__in=observation_ids)
+            .order_by("-utc__utc_ts")
+        )
 
 
 class Proposals(models.Model):

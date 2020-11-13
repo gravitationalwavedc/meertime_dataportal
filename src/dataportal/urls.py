@@ -5,6 +5,7 @@ from . import views
 
 urlpatterns = [
     path("", login_required(views.FoldView.as_view()), name="fold"),
+    path("session/", login_required(views.SessionView.as_view()), name="session"),
     path("trapum/", login_required(views.TrapumView.as_view()), name="trapum"),
     path("search/", login_required(views.SearchmodeView.as_view()), name="search"),
     path("fluxcal/", login_required(views.FoldView.as_view()), name="fluxcal"),

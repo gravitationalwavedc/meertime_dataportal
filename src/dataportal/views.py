@@ -23,6 +23,18 @@ def handler500(request):
         return render(request, "500.html", {})
 
 
+class SessionView(generic.ListView):
+    """
+    Display observations in an observing session
+    """
+
+    context_object_name = "obs_list"
+    template_name = "dataportal/session.html"
+
+    def get_queryset(self):
+        return Observations.get_last_session_by_gap()
+
+
 class IndexBaseView(generic.ListView):
     """
     Base view for main table views.
