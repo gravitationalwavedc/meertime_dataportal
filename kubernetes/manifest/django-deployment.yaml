@@ -65,10 +65,6 @@ spec:
     spec:
       imagePullSecrets:
         - name: meertime-regcred
-      hostAliases:
-        - hostnames:
-            - nexus.gwdc.org.au
-          ip: 10.8.41.10
       serviceAccountName: meertime
       initContainers:
         - image: nexus.gwdc.org.au/docker/mysqldump:0.2
