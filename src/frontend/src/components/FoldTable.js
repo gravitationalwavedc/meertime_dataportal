@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createRefetchContainer, graphql } from 'react-relay';
-import { Row, Col, Button } from 'react-bootstrap';
+import { Row, Col, Button, ButtonGroup } from 'react-bootstrap';
 import ListControls from '../components/ListControls';
 import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
@@ -26,7 +26,10 @@ const FoldTable = ({ data, relay }) => {
         row.first = moment.parseZone(row.first, moment.ISO_8601).format('YYYY-MM-DD-HH:mm:ss');
         row.totalTintH = `${row.totalTintH} hours`;
         row.latestTintM = `${row.latestTintM} minutes`;
-        row.action = <Button size='sm' variant="outline-secondary">View details</Button>;
+        row.action = <ButtonGroup vertical>
+            <Button size='sm' variant="outline-secondary">View all</Button>
+            <Button size='sm' variant="outline-secondary">View last</Button>
+        </ButtonGroup>;
         return [...result, { ...row }];
     }, []);
 

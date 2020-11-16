@@ -1,4 +1,5 @@
 import graphene
+from django.template.defaultfilters import filesizeformat
 from graphene import relay
 from graphql_relay import from_global_id, to_global_id
 from .models import Pulsars, Proposals
@@ -58,6 +59,73 @@ class FoldObservationConnection(relay.Connection):
         return round(sum([edge.node["total_tint_h"] for edge in self.edges]), 1)
 
 
+class FoldObservationDetailNode(graphene.ObjectType):
+    class Meta:
+        interfaces = (relay.Node,)
+
+    utc = graphene.String()
+    proposal_short = graphene.String()
+    length = graphene.Float()
+    beam = graphene.Int()
+    bw = graphene.Float()
+    nchan = graphene.Int()
+    band = graphene.String()
+    nbin = graphene.Int()
+    nant = graphene.Int()
+    nant_eff = graphene.Int()
+    dm_fold = graphene.Float()
+    dm_pipe = graphene.Float()
+    rm_pipe = graphene.Float()
+    snr_spip = graphene.Float()
+    snr_pipe = graphene.Float()
+    estimated_size = graphene.Float()
+
+    def resolve_snr_spip(self, instance):
+        return round(self.snr_spip, 1) if self.snr_spip else None
+
+    def resolve_snr_pipe(self, instance):
+        return round(self.snr_pipe, 1) if self.snr_pipe else None
+
+    def resolve_length(self, instance):
+        return round(self.length / 60, 1) if self.length else None
+
+
+class FoldObservationDetailConnection(relay.Connection):
+    class Meta:
+        node = FoldObservationDetailNode
+
+    jname = graphene.String()
+    total_observations = graphene.Int()
+    total_observation_hours = graphene.Float()
+    total_estimated_disk_space = graphene.String()
+    total_projects = graphene.Int()
+    total_timespan_days = graphene.Int()
+
+    def resolve_jname(self, instance):
+        return self.iterable[0].pulsar.jname
+
+    def resolve_total_observations(self, instance):
+        return len(self.edges)
+
+    def resolve_total_observation_hours(self, instance):
+        return round(sum([observation.length for observation in self.iterable]) / 3600, 1)
+
+    def resolve_total_projects(self, instance):
+        return len({observation.proposal_short for observation in self.iterable})
+
+    def resolve_total_timespan_days(self, instance):
+        max_utc = max([observation.utc.utc_ts for observation in self.iterable])
+        min_utc = min([observation.utc.utc_ts for observation in self.iterable])
+        duration = max_utc - min_utc
+        # Add 1 day to the end result because the timespan should show the rounded up number of days
+        return duration.days + 1 if duration else 0
+
+    def resolve_total_estimated_disk_space(self, instance):
+        return filesizeformat(
+            sum([observation.estimated_size for observation in self.iterable if observation.estimated_size])
+        )
+
+
 class Query(graphene.ObjectType):
     fold_observations = relay.ConnectionField(
         FoldObservationConnection,
@@ -65,17 +133,24 @@ class Query(graphene.ObjectType):
         proposal=graphene.String(),
         band=graphene.String(),
     )
+    fold_observation_details = relay.ConnectionField(
+        FoldObservationDetailConnection, pulsar_id=graphene.ID(required=True)
+    )
 
     @login_required
     def resolve_fold_observations(self, info, **kwargs):
 
-        if kwargs["proposal"] and kwargs["proposal"] != 'All':
+        if kwargs["proposal"] and kwargs["proposal"] != "All":
             proposal_id = Proposals.objects.filter(proposal_short=kwargs["proposal"]).first().id
             kwargs["proposal"] = proposal_id
         else:
             kwargs["proposal"] = None
 
-        if kwargs["band"] == 'All':
+        if kwargs["band"] == "All":
             kwargs["band"] = None
 
         return Pulsars.get_observations(**kwargs)
+
+    def resolve_fold_observation_details(self, info, **kwargs):
+        _, pulsar_id = from_global_id(kwargs.get("pulsar_id"))
+        return [observation for observation in Pulsars.objects.get(id=pulsar_id).observations_detail_data()]

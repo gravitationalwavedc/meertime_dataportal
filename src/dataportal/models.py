@@ -217,10 +217,10 @@ class Pulsars(models.Model):
             "estimated_size": ExpressionWrapper(
                 F("nchan") * F("nbin") * 4 * 16.0 / 8.0 * Ceil(F("length") / 8.0), output_field=FloatField()
             ),
+            "proposal_short": F("proposal__proposal_short"),
         }
         return (
-            self.observations_set.all()
-            .select_related("utc", "proposal")
+            self.observations_set.select_related("utc", "proposal")
             .filter(**proposal_filter)
             .annotate(**annotations)
             .order_by("-utc__utc_ts")
