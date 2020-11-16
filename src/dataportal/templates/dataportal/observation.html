@@ -106,24 +106,28 @@
   <div class="row">
     <div class="col-lg-6 col-md-12">
       {% if obs.profile %}
-      <img src="{{ obs.profile.url }}" alt="no profile available" class="img-fluid" />
+      <a href="{{ obs.profile.url }}" target="_blank">
+        <img src="{{ obs.profile.url }}" alt="no profile available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no profile available" class="img-fluid" />
       {% endif %}
       {% if obs.phase_vs_time %}
-      <img src="{{ obs.phase_vs_time.url }}" alt="no phase vs time plot available" class="img-fluid" />
+      <a href="{{ obs.phase_vs_time.url }}" target="_blank">
+        <img src="{{ obs.phase_vs_time.url }}" alt="no phase vs time plot available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no phase vs time plot available" class="img-fluid" />
       {% endif %}
     </div>
     <div class="col-lg-6 col-md-12">
       {% if obs.bandpass %}
-      <img src="{{ obs.bandpass.url }}" alt="no bandpass available" class="img-fluid" />
+      <a href="{{ obs.bandpass.url }}" target="_blank">
+        <img src="{{ obs.bandpass.url }}" alt="no bandpass available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no bandpass available" class="img-fluid" />
       {% endif %}
       {% if obs.phase_vs_frequency %}
-      <img src="{{ obs.phase_vs_frequency.url }}" alt="no phase vs freq. plot available" class="img-fluid" />
+      <a href="{{ obs.phase_vs_frequency.url }}" target="_blank">
+        <img src="{{ obs.phase_vs_frequency.url }}" alt="no phase vs freq. plot available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no phase vs freq. plot available" class="img-fluid" />
       {% endif %}
@@ -132,7 +136,8 @@
   <div class="row">
     <div class="col-lg-6 col-md-12">
       {% if obs.snr_vs_time %}
-      <img src="{{ obs.snr_vs_time.url }}" alt="no S/N vs time available" class="img-fluid" />
+      <a href="{{ obs.snr_vs_time.url }}" target="_blank">
+        <img src="{{ obs.snr_vs_time.url }}" alt="no S/N vs time available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no S/N vs time available" class="img-fluid" />
       {% endif %}
