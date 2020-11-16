@@ -10,7 +10,7 @@ import json
 from .models import Observations, Pulsars, Proposals, Ephemerides, Utcs
 from .plots import pulsar_summary_plot
 
-from .logic import get_trapum_filters, get_meertime_filters
+from .logic import get_meertime_filters
 
 from sentry_sdk import last_event_id
 from django.shortcuts import render
@@ -30,9 +30,18 @@ class SessionView(generic.ListView):
 
     context_object_name = "obs_list"
     template_name = "dataportal/session.html"
+    page_title = "last meertime session"
+    detail_url_name = "pulsar_detail"
+    get_proposal_filters = get_meertime_filters
 
-    def get_queryset(self):
-        return Observations.get_last_session_by_gap()
+    def get_queryset(cls):
+        return Observations.get_last_session_by_gap(get_proposal_filters=cls.get_proposal_filters)
+
+    def get_context_data(cls, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["detail_url_name"] = cls.detail_url_name
+        context["title"] = cls.page_title
+        return context
 
 
 class IndexBaseView(generic.ListView):
@@ -42,12 +51,10 @@ class IndexBaseView(generic.ListView):
 
     context_object_name = "per_pulsar_list"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
-        meertime_filter = get_meertime_filters()
-        context["projects"] = Proposals.objects.filter(**meertime_filter)
-        context["project_id"] = self.request.GET.get("project_id")
-        context["band"] = self.request.GET.get("band")
+        context["project_id"] = cls.request.GET.get("project_id")
+        context["band"] = cls.request.GET.get("band")
         qs = context["per_pulsar_list"]
         context["totals"] = qs.aggregate(global_tint_h=Sum("total_tint_h"), global_nobs=Sum("nobs"))
         context["totals"]["global_npsr"] = qs.count()
@@ -60,40 +67,25 @@ class FoldView(IndexBaseView):
     """
 
     template_name = "dataportal/index.html"
+    page_title = "folded observations"
+    detail_url_name = "pulsar_detail"
+    get_proposal_filters = get_meertime_filters
 
-    def get_queryset(self):
-        return Pulsars.get_observations(
-            mode="observations", proposal=self.request.GET.get("project_id"), band=self.request.GET.get("band")
-        )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # page title
-        context["title"] = "folded observations"
-        return context
-
-
-class TrapumView(IndexBaseView):
-    """
-    Display pulsars and the latest trapum observation data.
-    """
-
-    template_name = "dataportal/trapum.html"
-
-    def get_queryset(self):
+    def get_queryset(cls):
         return Pulsars.get_observations(
             mode="observations",
-            proposal=self.request.GET.get("project_id"),
-            band=self.request.GET.get("band"),
-            get_proposal_filters=get_trapum_filters,
+            proposal=cls.request.GET.get("project_id"),
+            band=cls.request.GET.get("band"),
+            get_proposal_filters=cls.get_proposal_filters,
         )
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
-        trapum_filters = get_trapum_filters()
-        context["projects"] = Proposals.objects.filter(**trapum_filters)
+        proposal_filter = cls.get_proposal_filters()
+        context["projects"] = Proposals.objects.filter(**proposal_filter)
         # page title
-        context["title"] = "trapum observations"
+        context["title"] = cls.page_title
+        context["detail_url_name"] = cls.detail_url_name
         return context
 
 
@@ -103,31 +95,39 @@ class SearchmodeView(IndexBaseView):
     """
 
     template_name = "dataportal/searchmode.html"
+    get_proposal_filters = get_meertime_filters
+    detail_url_name = "pulsar_detail_search"
+    page_title = "searchmode observations"
 
-    def get_queryset(self):
-        return Pulsars.get_observations(mode="searchmode", proposal=self.request.GET.get("project_id"))
+    def get_queryset(cls):
+        return Pulsars.get_observations(
+            mode="searchmode",
+            proposal=cls.request.GET.get("project_id"),
+            get_proposal_filters=cls.get_proposal_filters,
+        )
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
         # page title
-        context["title"] = "searchmode observations"
+        context["title"] = cls.page_title
+        context["detail_url_name"] = cls.detail_url_name
         return context
 
 
 class DetailView(generic.ListView):
     context_object_name = "obs_list"
 
-    def setup(self, request, *args, **kwargs):
+    def setup(cls, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
-        self.pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
+        cls.pulsar = get_object_or_404(Pulsars, jname=cls.kwargs["psr"])
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
 
         # Add ephemeris to the context
-        context["psr"] = self.kwargs["psr"]
+        context["psr"] = cls.kwargs["psr"]
         try:
-            ephemeris = Ephemerides.objects.get(pulsar=self.pulsar)
+            ephemeris = Ephemerides.objects.get(pulsar=cls.pulsar)
         except Ephemerides.DoesNotExist:
             ephemeris = None
             updated = None
@@ -149,11 +149,12 @@ class PulsarDetailView(DetailView):
     """
 
     template_name = "dataportal/show_single_psr.html"
+    get_proposal_filters = get_meertime_filters
 
-    def get_queryset(self):
-        return self.pulsar.observations_detail_data()
+    def get_queryset(cls):
+        return cls.pulsar.observations_detail_data(get_proposal_filters=cls.get_proposal_filters)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
 
         # Add a summary plot to the context
@@ -190,59 +191,22 @@ class PulsarDetailView(DetailView):
         return context
 
 
-class TrapumDetailView(DetailView):
-    """
-    Display detail list of trapum observations for a single pulsar.
-    """
-
-    template_name = "dataportal/show_single_psr.html"
-
-    def get_queryset(self):
-        return self.pulsar.observations_detail_data(get_proposal_filters=get_trapum_filters)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Add a summary plot to the context
-        UTCs = context["obs_list"].values_list("utc__utc_ts", flat=True)
-        snrs = context["obs_list"].values_list("snr_spip", flat=True)
-        length = context["obs_list"].values_list("length", flat=True)
-        bokeh_js, bokeh_div = pulsar_summary_plot(UTCs, snrs, length)
-        context["bokeh_js"] = bokeh_js
-        context["bokeh_div"] = bokeh_div
-
-        # get total size
-        qs = context["obs_list"]
-        context["total_size_estimate"] = qs.aggregate(total_size_estimate=Sum("estimated_size"))
-
-        # get other aggregates
-        annotations = {}
-        context["totals"] = qs.annotate(**annotations).aggregate(
-            tint=Sum("length"),
-            nobs=Count("id"),
-            project_count=Count("proposal", distinct=True),
-            timespan=ExpressionWrapper(Max("utc__utc_ts") - Min("utc__utc_ts"), output_field=DurationField()),
-        )
-
-        context["title"] = f'Trapum: {context["psr"]}'
-
-        return context
-
-
 class SearchDetailView(DetailView):
     """
     Display detail list of search mode observations for a single pulsar
     """
 
     template_name = "dataportal/show_single_psr_search.html"
+    page_title_prefix = ""
+    get_proposal_filters = get_meertime_filters
 
-    def get_queryset(self):
-        return self.pulsar.searchmode_detail_data()
+    def get_queryset(cls):
+        return cls.pulsar.searchmode_detail_data(get_proposal_filters=cls.get_proposal_filters)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
         # page title
-        context["title"] = context["psr"] + " searchmode"
+        context["title"] = f'{cls.page_title_prefix} {context["psr"]} searchmode'
         return context
 
 
@@ -253,26 +217,23 @@ class ObservationDetailView(generic.TemplateView):
 
     template_name = "dataportal/observation.html"
 
-    def setup(self, request, *args, **kwargs):
+    def setup(cls, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
 
-        self.beam = self.kwargs["beam"]
-        self.pulsar = get_object_or_404(Pulsars, jname=self.kwargs["psr"])
+        cls.beam = cls.kwargs["beam"]
+        cls.pulsar = get_object_or_404(Pulsars, jname=cls.kwargs["psr"])
 
-        self.utc_str = self.kwargs["utc"]
-        utc_ts = datetime.strptime(f"{self.utc_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
+        cls.utc_str = cls.kwargs["utc"]
+        utc_ts = datetime.strptime(f"{cls.utc_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
         utc = get_object_or_404(Utcs, utc_ts=utc_ts)
 
-        self.observation = get_object_or_404(Observations, pulsar=self.pulsar, utc=utc, beam=self.beam)
+        cls.observation = get_object_or_404(Observations, pulsar=cls.pulsar, utc=utc, beam=cls.beam)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        context["obs"] = self.observation
-
+        context["obs"] = cls.observation
         # Add a payload for kronos/meerwatch links
         context["kronos"] = settings.KRONOS_PAYLOAD
-
-        context["title"] = f"{self.pulsar}/{self.utc_str}/{self.beam}"
+        context["title"] = f"{cls.pulsar}/{cls.utc_str}/{cls.beam}"
 
         return context

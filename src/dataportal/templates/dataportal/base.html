@@ -74,14 +74,32 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarToggle">
           <div class="navbar-nav mr-auto">
-            <a class="nav-item nav-link" href="{% url 'fold' %}">Fold</a>
-            <a class="nav-item nav-link" href="{% url 'search' %}">Search</a>
-            <a class="nav-item nav-link" href="{% url 'session' %}">Session</a>
-            <a class="nav-item nav-link" href="{% url 'trapum' %}">Trapum</a>
-            <a class="nav-item nav-link" href="http://www.meertime.org/">Meertime site</a>
+            <div class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="meertimeDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Meertime
+              </a>
+              <div class="dropdown-menu" aria-labelledby="meertimeDropdown">
+                <a class="dropdown-item" href="{% url 'fold' %}">Folded data</a>
+                <a class="dropdown-item" href="{% url 'search' %}">Searchmode data</a>
+                <a class="dropdown-item" href="{% url 'session' %}">Last session</a>
+              </div>
+            </div>
+            <div class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="meertimeDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                Trapum
+              </a>
+              <div class="dropdown-menu" aria-labelledby="meertimeDropdown">
+                <a class="dropdown-item" href="{% url 'trapum' %}">Folded data</a>
+                <a class="dropdown-item" href="{% url 'trapum_search' %}">Searchmode data</a>
+                <a class="dropdown-item" href="{% url 'trapum_session' %}">Last session</a>
+              </div>
+            </div>
           </div>
           <!-- Navbar Right Side -->
           <div class="navbar-nav">
+            <a class="nav-item nav-link" href="http://www.meertime.org/">Meertime site</a>
             {% if user.is_authenticated %}
             <a class="nav-item nav-link" href="{% url 'logout' %}">Logout</a>
             {% else %}

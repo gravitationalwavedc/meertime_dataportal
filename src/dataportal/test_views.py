@@ -186,7 +186,7 @@ def test_trapum_view_authenticated(client, django_user_model):
     login_buffy(client, django_user_model)
     response = client.get("/trapum/")
     assert response.status_code == 200
-    assert response.template_name == ["dataportal/trapum.html", "dataportal/pulsars_list.html"]
+    assert response.template_name == ["dataportal/index.html", "dataportal/pulsars_list.html"]
 
 
 @pytest.mark.django_db
@@ -196,7 +196,7 @@ def test_trapum_view_authenticated_with_project_id(client, django_user_model):
     proposal_id = Proposals.objects.create().id
     response = client.get("/trapum/", {"project_id": proposal_id})
     assert response.status_code == 200
-    assert response.template_name == ["dataportal/trapum.html", "dataportal/pulsars_list.html"]
+    assert response.template_name == ["dataportal/index.html", "dataportal/pulsars_list.html"]
 
 
 # Test TrapumDetailView
@@ -231,3 +231,49 @@ def test_trapum_detail_view_accepts_correct_regex(client, django_user_model):
     assert response_1.template_name == ["dataportal/show_single_psr.html", "dataportal/observations_list.html"]
     assert response_2.status_code == 200
     assert response_2.template_name == ["dataportal/show_single_psr.html", "dataportal/observations_list.html"]
+
+
+# Test TrapumSearchmodeView
+@pytest.mark.django_db
+def test_trapum_searchmode_view_unauthenticated(client):
+    """TrapumSearchmodeView should redirect unauthenticated users to the login page."""
+    response = client.get("/trapum/search/")
+    assert response.status_code == 302
+    assert response["location"] == "/accounts/login/?next=/trapum/search/"
+
+
+@pytest.mark.django_db
+def test_trapum_searchmode_view_authenticated(client, django_user_model):
+    """TrapumSearchmodeView should display the index template for authenticated users."""
+    login_buffy(client, django_user_model)
+    response = client.get("/trapum/search/")
+    assert response.status_code == 200
+    assert response.template_name == ["dataportal/searchmode.html", "dataportal/pulsars_list.html"]
+
+
+@pytest.mark.django_db
+def test_trapum_searchmode_view_authenticated_with_project_id(client, django_user_model):
+    """TrapumSearchmodeView should display the correct template when given a project id."""
+    login_buffy(client, django_user_model)
+    proposal_id = Proposals.objects.create().id
+    response = client.get("/trapum/search/", {"project_id": proposal_id})
+    assert response.status_code == 200
+    assert response.template_name == ["dataportal/searchmode.html", "dataportal/pulsars_list.html"]
+
+
+# Test SessionView
+@pytest.mark.django_db
+def test_session_view_unauthenticated(client):
+    """SessionView should redirect unauthenticated users to the login page."""
+    response = client.get("/session/")
+    assert response.status_code == 302
+    assert response["location"] == "/accounts/login/?next=/session/"
+
+
+@pytest.mark.django_db
+def test_session_view_authenticated(client, django_user_model):
+    """SessionView should display the index template for authenticated users."""
+    login_buffy(client, django_user_model)
+    response = client.get("/session/")
+    assert response.status_code == 200
+    assert response.template_name == ["dataportal/session.html", "dataportal/observations_list.html"]

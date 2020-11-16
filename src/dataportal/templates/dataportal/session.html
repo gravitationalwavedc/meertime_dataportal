@@ -16,7 +16,7 @@
     <div class="row">
       <div class="col-3">
         <h5>
-          <td class="text-nowrap"><a href="{% url 'pulsar_detail' obs.pulsar.jname %}">{{ obs.pulsar.jname }}</a>
+          <td class="text-nowrap"><a href="{% url detail_url_name obs.pulsar.jname %}">{{ obs.pulsar.jname }}</a>
         </h5>
         <h6><a
             href="{% url 'obs_detail' obs.pulsar.jname obs.utc.utc_ts|date:'Y-m-d-H:i:s'  obs.beam %}">{{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}</a>

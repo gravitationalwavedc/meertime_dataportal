@@ -226,8 +226,8 @@ class Pulsars(models.Model):
             .order_by("-utc__utc_ts")
         )
 
-    def searchmode_detail_data(self):
-        proposal_filter = get_meertime_filters(prefix="proposal")
+    def searchmode_detail_data(self, get_proposal_filters=get_meertime_filters):
+        proposal_filter = get_proposal_filters(prefix="proposal")
         return (
             self.searchmode_set.all()
             .select_related("utc", "proposal")
