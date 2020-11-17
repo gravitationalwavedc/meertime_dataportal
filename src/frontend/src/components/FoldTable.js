@@ -6,6 +6,7 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit';
 import { HiOutlineViewGrid, HiOutlineViewList } from 'react-icons/hi';
+import Link from 'found/Link';
 import moment from 'moment';
 import JobCardsList from './JobCardsList';
 import sizePerPageRenderer from './CustomSizePerPageBtn';
@@ -27,14 +28,13 @@ const FoldTable = ({ data, relay }) => {
         row.totalTintH = `${row.totalTintH} hours`;
         row.latestTintM = `${row.latestTintM} minutes`;
         row.action = <ButtonGroup vertical>
-            <Button size='sm' variant="outline-secondary">View all</Button>
+            <Link to={`/${row.jname}/`} size='sm' variant="outline-secondary" as={Button}>View all</Link>
             <Button size='sm' variant="outline-secondary">View last</Button>
         </ButtonGroup>;
         return [...result, { ...row }];
     }, []);
 
     const fit2 = { width: '2%', whiteSpace: 'nowrap' };
-    // const fit5 = { width: '5%', whiteSpace: 'nowrap' };
     const fit6 = { width: '6%', whiteSpace: 'nowrap' };
     const fit8 = { width: '8%', whiteSpace: 'nowrap' };
     

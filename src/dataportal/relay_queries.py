@@ -134,7 +134,7 @@ class Query(graphene.ObjectType):
         band=graphene.String(),
     )
     fold_observation_details = relay.ConnectionField(
-        FoldObservationDetailConnection, pulsar_id=graphene.ID(required=True)
+        FoldObservationDetailConnection, jname=graphene.String(required=True)
     )
 
     @login_required
@@ -152,5 +152,6 @@ class Query(graphene.ObjectType):
         return Pulsars.get_observations(**kwargs)
 
     def resolve_fold_observation_details(self, info, **kwargs):
-        _, pulsar_id = from_global_id(kwargs.get("pulsar_id"))
-        return [observation for observation in Pulsars.objects.get(id=pulsar_id).observations_detail_data()]
+        return [
+            observation for observation in Pulsars.objects.get(jname=kwargs.get('jname')).observations_detail_data()
+        ]

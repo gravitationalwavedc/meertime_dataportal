@@ -22,7 +22,13 @@ const bandOptions = [
     'UHF'
 ];
 
-const ListControls = ({ handleProposalFilter, handleBandFilter, searchProps, columnToggleProps, exportCSVProps }) => {
+const ListControls = ({ 
+    searchText, 
+    handleProposalFilter, 
+    handleBandFilter, 
+    searchProps, 
+    columnToggleProps, 
+    exportCSVProps }) => {
     const { SearchBar } = Search;
     return (
         <Form>
@@ -30,7 +36,7 @@ const ListControls = ({ handleProposalFilter, handleBandFilter, searchProps, col
                 <Col>
                     <Form.Group controlId="jobSearch">
                         <Form.Label>Search</Form.Label>
-                        <SearchBar label="Search" placeholder="Find a pulsar..." {...searchProps}/>
+                        <SearchBar label="Search" placeholder={searchText} {...searchProps}/>
                     </Form.Group>
                 </Col>
                 <Col md={3}>
@@ -59,6 +65,11 @@ const ListControls = ({ handleProposalFilter, handleBandFilter, searchProps, col
                     <CustomColumnToggle {...columnToggleProps} exportCSVProps={exportCSVProps}/>
                 </Col>
             </Form.Row>
-        </Form>);};
+        </Form>);
+};
+
+ListControls.defaultProps = {
+    searchText: 'Find a pulsar...'
+};
 
 export default ListControls;

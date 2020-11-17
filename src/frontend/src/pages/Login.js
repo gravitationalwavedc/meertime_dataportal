@@ -38,7 +38,7 @@ const Login = ({ router, match }) => {
                         setFormErrors(errors.map(e => e.message));
                     } else if(tokenAuth){
                         sessionStorage.jwt = tokenAuth.token;
-                        const nextPath = match.params['next'] === undefined ? '/' : match.params['next']; 
+                        const nextPath = match.params['next'] === undefined ? '/' : `/${match.params['next']}/`;
                         router.replace(nextPath);
                     }
                 },

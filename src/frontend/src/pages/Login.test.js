@@ -27,7 +27,7 @@ describe('login page', () => {
             operation,
             MockPayloadGenerator.generate(operation)
         );
-        expect(router.replace).toHaveBeenCalledWith(null);
+        expect(router.replace).toHaveBeenCalledWith('/null/');
     });
 
     it('should have the correct next url', async () => {
@@ -45,7 +45,7 @@ describe('login page', () => {
             operation,
             MockPayloadGenerator.generate(operation)
         );
-        expect(router.replace).toHaveBeenCalledWith('search');
+        expect(router.replace).toHaveBeenCalledWith('/search/');
     });
 
     it('should display errors from the server', async () => {

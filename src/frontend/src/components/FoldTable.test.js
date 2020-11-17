@@ -4,6 +4,9 @@ import { QueryRenderer, graphql } from 'react-relay';
 import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
 import FoldTable from './FoldTable';
 
+/* eslint-disable react/display-name */
+
+jest.mock('found/Link',() => ({ children }) => <div>{children}</div>);
 
 describe('the fold table component', () => {
     const environment = createMockEnvironment();
@@ -17,7 +20,7 @@ describe('the fold table component', () => {
           `}
             render={({ error, props }) => {
                 if (props) {
-                    return <FoldTable data={props}/>;
+                    return <FoldTable data={props} match={{}} router={{}}/>;
                 } else if (error) {
                     return error.message;
                 }
