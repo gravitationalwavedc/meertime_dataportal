@@ -12,3 +12,7 @@ resources:
   - django-deployment.yaml
   - nginx-deployment.yaml
   - meertime-ingress.yaml
+  - mysql-bkp-pv.yaml
+  - mysql-bkp-pvc.yaml
+  - mysql-bkp-configmap.yaml
+  - mysql-bkp-cronjob.yaml
