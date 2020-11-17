@@ -1,0 +1,15 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: meertime
+  name: mysql-bkp-pv-claim
+  labels:
+    app: mysql-bkp
+    tier: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 60Gi

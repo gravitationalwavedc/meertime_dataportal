@@ -8,7 +8,7 @@ metadata:
     tier: database
 spec:
   capacity:
-    storage: 60Gi
+    storage: 30Gi
   accessModes:
     - ReadWriteMany
   nfs:
