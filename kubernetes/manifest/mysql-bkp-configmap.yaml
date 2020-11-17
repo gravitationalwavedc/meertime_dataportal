@@ -31,7 +31,7 @@ data:
     BACKUP_DIR="/backup"
     TIMESTAMP="$(date +%Y%m%d%H%M%S)"
     echo "test mysql connection"
-    if [ -z "$(mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -B -e 'SHOW DATABASES;')" ]; then
+    if [ -z "$(mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD} -B -e 'SHOW DATABASES;')" ]; then
       echo "mysql connection failed! exiting..."
       exit 1
     fi
@@ -43,7 +43,7 @@ data:
 
     echo "Backing up db ${MYSQL_DATABASE}"
 
-    mysqldump ${MYSQL_OPTS} -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u ${MYSQL_USER} -p${MYSQL_PASSWORD} --databases ${MYSQL_DATABASE} > ${TIMESTAMP}_${MYSQL_DATABASE}.sql
+    mysqldump ${MYSQL_OPTS} -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD} --databases ${MYSQL_DATABASE} > ${TIMESTAMP}_${MYSQL_DATABASE}.sql
     rc=$?
        
     if [ "$rc" != "0" ]; then

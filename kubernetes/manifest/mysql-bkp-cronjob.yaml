@@ -25,6 +25,12 @@ spec:
             - command:
                 - /bin/sh
                 - /scripts/backup.sh
+              env:
+                - name: MYSQL_ROOT_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: db-root-credentials
+                      key: password
               envFrom:
                 - configMapRef:
                     name: mysql-bkp-configmap
