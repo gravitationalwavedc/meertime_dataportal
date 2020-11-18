@@ -118,6 +118,36 @@ class Observations(models.Model):
         )
 
 
+def get_observations_summary(qs):
+    """
+    This method operates on a query set of Observations and returns a summary of the query set as a dictionary.
+    It is intended to operate on the results of the queryset as produced by get_last_session_by_gap but may be suitable
+    for many observation querysets if deemed useful.
+    """
+
+    if not qs:
+        return None
+
+    # before getting a grouped by aggregate, we need to clear ordering otherwise some operations may work differently
+    # than expected in particular values().annotate() does not work if the queryset was ordered. Even if we didn't
+    # order the qs above, it may have come to us ordered already
+    qs.query.clear_ordering(force_empty=True)
+    projects = qs.values(project=F("proposal__proposal_short")).annotate(nobs=Count("id"))
+
+    qs = qs.order_by("utc__utc_ts")
+    offset = 0
+    if qs.last().length:
+        offset = qs.last().length
+
+    return {
+        "first": qs.first().utc.utc_ts,
+        "last": qs.last().utc.utc_ts + timedelta(seconds=offset),
+        "nobs": qs.count(),
+        "npsr": qs.values("pulsar").distinct().count(),
+        "projects": projects,
+    }
+
+
 class Proposals(models.Model):
     proposal = models.TextField(blank=True, null=True)
     proposal_short = models.TextField(blank=True, null=True)

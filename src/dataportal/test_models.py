@@ -3,7 +3,7 @@ import random
 import string
 from datetime import datetime, timedelta
 
-from .models import Observations, Searchmode, Fluxcal, Pulsars, Utcs, Proposals
+from .models import Observations, Searchmode, Fluxcal, Pulsars, Utcs, Proposals, get_observations_summary
 
 
 def get_random_string(length):
@@ -116,3 +116,20 @@ def test_get_last_session_by_gap():
     assert count_default == n_subsequent_obs
     assert count_gt_big_gap == n_subsequent_obs + 1
     assert count_lt_small_gap == 1
+
+
+@pytest.mark.django_db
+def test_get_observations_summary():
+    expected_psr = "J1234-5678"
+    utc_later_str = "2000-01-01-12:59:12"
+    utc_earlier_str = "1999-01-01-12:59:12"
+
+    expected_utc_earlier, expected_utc_later = generate_two_db_entries(expected_psr, utc_later_str, utc_earlier_str)
+    obs_summary = get_observations_summary(Observations.objects.all())
+
+    assert obs_summary["nobs"] == 2
+    assert obs_summary["npsr"] == 1
+    assert obs_summary["first"] == expected_utc_earlier
+    assert obs_summary["last"] == expected_utc_later
+    assert obs_summary["projects"][0]["project"] == "test"
+    assert obs_summary["projects"][0]["nobs"] == 2

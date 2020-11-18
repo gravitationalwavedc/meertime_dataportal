@@ -5,9 +5,18 @@
 {% block content %}
 {% if obs_list %}
 <div class="row">
-  <div class="col-8"></div>
+  <div class="col-4">
+    <h6>Session start: {{ session_meta.first|date:"jS M, y g:i a e" }}</h6>
+    <h6>Session end: {{ session_meta.last|date:"jS M, y g:i a e" }}</h6>
+  </div>
+  <div class="col-4">
+    <h6>Observations: {{ session_meta.nobs }}</h6>
+    <h6>Pulsars: {{ session_meta.npsr }}</h6>
+  </div>
   <div class="col-4 justify-content-end">
-    The last session included {{ obs_list.count }} observation{{ obs_list.count|pluralize }}.
+    {% for proj_dict in session_meta.projects %}
+    <h6>{{ proj_dict.project }}: {{ proj_dict.nobs }}</h6>
+    {% endfor %}
   </div>
 </div>
 <div class="accordion id=" sessionAccordion">

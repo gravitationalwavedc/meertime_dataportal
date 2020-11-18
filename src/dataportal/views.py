@@ -7,7 +7,7 @@ from django.db.models import Sum, Count, ExpressionWrapper, Max, Min, DurationFi
 import json
 
 
-from .models import Observations, Pulsars, Proposals, Ephemerides, Utcs
+from .models import Observations, Pulsars, Proposals, Ephemerides, Utcs, get_observations_summary
 from .plots import pulsar_summary_plot
 
 from .logic import get_meertime_filters
@@ -39,6 +39,7 @@ class SessionView(generic.ListView):
 
     def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["session_meta"] = get_observations_summary(context["obs_list"])
         context["detail_url_name"] = cls.detail_url_name
         context["title"] = cls.page_title
         return context
