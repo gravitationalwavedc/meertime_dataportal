@@ -9,6 +9,7 @@ import DataDisplay from './DataDisplay';
 import JobCardsList from './JobCardsList';
 import sizePerPageRenderer from './CustomSizePerPageBtn';
 import Einstein from '../assets/images/einstein-coloured.png';
+import PulsarSummaryPlot from './PulsarSummaryPlot';
 
 const FoldDetailTable = ({ data }) => {
     const allRows = data.foldObservationDetails.edges.reduce((result, edge) => [...result, { ...edge.node }], []);
@@ -31,8 +32,8 @@ const FoldDetailTable = ({ data }) => {
         { dataField: 'dmFold', text: 'DM fold', sort: true },
         { dataField: 'dmPipe', text: 'DM meerpipe', sort: true },
         { dataField: 'rmPipe', text: 'RM meerpipe', sort: true },
-        { dataField: 'snrPipe', text: 'S/N backend', sort: true },
-        { dataField: 'snrSpip', text: 'S/N meerpipe', sort: true },
+        { dataField: 'snrSpip', text: 'S/N backend', sort: true },
+        { dataField: 'snrPipe', text: 'S/N meerpipe', sort: true },
     ];
 
     const options = {
@@ -97,6 +98,11 @@ const FoldDetailTable = ({ data }) => {
                         <DataDisplay title="Hours" value={data.foldObservationDetails.totalObservationHours} />
                         <DataDisplay title={`Size [${sizeFormat}]`} value={size} />
                         <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
+                    </Row>
+                    <Row className="justify-content-center">
+                        <Col>
+                            <PulsarSummaryPlot {...props.baseProps} />
+                        </Col>
                     </Row>
                     <Row className='bg-gray-100' style={{ marginTop: '-4rem' }}>
                         <Col md={4}>
