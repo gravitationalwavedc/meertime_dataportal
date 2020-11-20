@@ -9,7 +9,7 @@ const MainLayout = ({ title, children }) =>
         <Container>
             <Row>
                 <Col>
-                    <h4 className="mb-6 text-primary-600">{ title }</h4>
+                    <h2 className="mb-6 text-primary-600">{ title }</h2>
                 </Col>
             </Row>
             <img src={GraphPattern} className="graph-pattern-top" alt=""/>

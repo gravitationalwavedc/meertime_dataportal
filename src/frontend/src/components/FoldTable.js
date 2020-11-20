@@ -87,7 +87,7 @@ const FoldTable = ({ data, relay }) => {
         >
             {props => (
                 <React.Fragment>
-                    <Row className="justify-content-end" style={{ marginTop: '-7.8rem' }}>
+                    <Row className="justify-content-end" style={{ marginTop: '-9rem' }}>
                         <Col md={1}>
                             <p className="mb-1 text-primary-600">Observations</p>
                             <h4>{ data.foldObservations.totalObservations }</h4>

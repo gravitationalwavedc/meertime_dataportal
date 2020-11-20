@@ -2,3 +2,7 @@
     box-shadow: $shadow-base;
     background: linear-gradient(70deg, $primary-600, #30afbb);
 }
+
+.navbar .container {
+    padding: 0 1rem;
+}

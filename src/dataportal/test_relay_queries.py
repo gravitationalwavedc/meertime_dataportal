@@ -38,12 +38,12 @@ def setup_query_test():
         observer="Buffy",
         nant=42,
     )
-    return client, user, pulsar.id
+    return client, user
 
 
 @pytest.mark.django_db
 def test_fold_query_no_token():
-    client, _, _ = setup_query_test()
+    client, _ = setup_query_test()
     response = client.execute(
         """
         query {
@@ -64,7 +64,7 @@ def test_fold_query_no_token():
 
 @pytest.mark.django_db
 def test_fold_query_with_token():
-    client, user, _ = setup_query_test()
+    client, user = setup_query_test()
     client.authenticate(user)
     response = client.execute(
         """
@@ -122,7 +122,7 @@ def test_fold_query_with_token():
 
 @pytest.mark.django_db
 def test_fold_query_with_proposal_and_band():
-    client, user, _ = setup_query_test()
+    client, user = setup_query_test()
     client.authenticate(user)
     response = client.execute(
         """
@@ -154,20 +154,20 @@ def test_fold_query_with_proposal_and_band():
 
 @pytest.mark.django_db
 def test_fold_detail_query():
-    client, user, pulsar_id = setup_query_test()
+    client, user = setup_query_test()
     client.authenticate(user)
     response = client.execute(
-        f"""
-        query {{
-            foldObservationDetails(pulsarId:"{to_global_id('FoldObservationNode', pulsar_id)}") {{
+        """
+        query {
+            foldObservationDetails(jname:"J111-2222") {
             jname
             totalObservations
             totalObservationHours
             totalProjects
             totalEstimatedDiskSpace
             totalTimespanDays
-            edges {{
-              node {{
+            edges {
+              node {
                 utc
                 proposalShort
                 length
@@ -183,10 +183,10 @@ def test_fold_detail_query():
                 rmPipe
                 snrPipe
                 snrSpip
-              }}
-            }}
-          }}
-        }}
+              }
+            }
+          }
+        }
         """
     )
     expected = {

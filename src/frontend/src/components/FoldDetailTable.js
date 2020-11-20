@@ -89,7 +89,7 @@ const FoldDetailTable = ({ data }) => {
         >
             {props => (
                 <React.Fragment>
-                    <Row className="justify-content-end" style={{ marginTop: '-7.8rem' }}>
+                    <Row className="justify-content-end" style={{ marginTop: '-9rem' }}>
                         <DataDisplay title="Observations" value={data.foldObservationDetails.totalObservations} />
                         <DataDisplay title="Projects" value={data.foldObservationDetails.totalProjects} />
                         <DataDisplay 
@@ -99,9 +99,9 @@ const FoldDetailTable = ({ data }) => {
                         <DataDisplay title={`Size [${sizeFormat}]`} value={size} />
                         <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
                     </Row>
-                    <Row className="justify-content-center">
+                    <Row>
                         <Col>
-                            <PulsarSummaryPlot {...props.baseProps} />
+                            <PulsarSummaryPlot {...props.baseProps}/>
                         </Col>
                     </Row>
                     <Row className='bg-gray-100' style={{ marginTop: '-4rem' }}>
