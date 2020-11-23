@@ -47,7 +47,7 @@ def test_fold_query_no_token():
     response = client.execute(
         """
         query {
-            foldObservations(mode:"observations") {
+            relayObservations(mode:"observations") {
                 edges {
                     node {
                         jname
@@ -58,7 +58,7 @@ def test_fold_query_no_token():
     """
     )
     expected_error_message = "You do not have permission to perform this action"
-    assert not response.data["foldObservations"]
+    assert not response.data["relayObservations"]
     assert response.errors[0].message == expected_error_message
 
 
@@ -69,7 +69,7 @@ def test_fold_query_with_token():
     response = client.execute(
         """
         query {
-            foldObservations(mode:"observations", proposal:"All", band:"All") {
+            relayObservations(mode:"observations", proposal:"All", band:"All") {
                 totalObservations
                 totalPulsars
                 totalObservationTime
@@ -93,7 +93,7 @@ def test_fold_query_with_token():
     """
     )
     expected = {
-        "foldObservations": {
+        "relayObservations": {
             "totalObservations": 1,
             "totalPulsars": 1,
             "totalObservationTime": 0,
@@ -127,7 +127,7 @@ def test_fold_query_with_proposal_and_band():
     response = client.execute(
         """
         query {
-            foldObservations(mode:"observations", proposal:"cool proposal", band:"UFH"){
+            relayObservations(mode:"observations", proposal:"cool proposal", band:"UFH"){
                 totalObservations
                 totalObservationTime
                 totalPulsars
@@ -141,7 +141,7 @@ def test_fold_query_with_proposal_and_band():
     """
     )
     expected = {
-        "foldObservations": {
+        "relayObservations": {
             "totalObservations": 1,
             "totalObservationTime": 0,
             "totalPulsars": 1,
@@ -159,7 +159,7 @@ def test_fold_detail_query():
     response = client.execute(
         """
         query {
-            foldObservationDetails(jname:"J111-2222") {
+            relayObservationDetails(jname:"J111-2222") {
             jname
             totalObservations
             totalObservationHours
@@ -190,7 +190,7 @@ def test_fold_detail_query():
         """
     )
     expected = {
-        "foldObservationDetails": {
+        "relayObservationDetails": {
             "jname": "J111-2222",
             "totalObservations": 1,
             "totalObservationHours": 0.0,

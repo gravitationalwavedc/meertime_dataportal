@@ -6,7 +6,7 @@ from .models import Pulsars, Proposals
 from graphql_jwt.decorators import login_required
 
 
-class FoldObservationNode(graphene.ObjectType):
+class ObservationNode(graphene.ObjectType):
     class Meta:
         interfaces = (relay.Node,)
 
@@ -41,9 +41,9 @@ class FoldObservationNode(graphene.ObjectType):
         return round(self["latest_tint_m"], 1) if self["latest_tint_m"] else None
 
 
-class FoldObservationConnection(relay.Connection):
+class ObservationConnection(relay.Connection):
     class Meta:
-        node = FoldObservationNode
+        node = ObservationNode
 
     total_observations = graphene.Int()
     total_pulsars = graphene.Int()
@@ -59,7 +59,7 @@ class FoldObservationConnection(relay.Connection):
         return round(sum([edge.node["total_tint_h"] for edge in self.edges]), 1)
 
 
-class FoldObservationDetailNode(graphene.ObjectType):
+class ObservationDetailNode(graphene.ObjectType):
     class Meta:
         interfaces = (relay.Node,)
 
@@ -90,9 +90,9 @@ class FoldObservationDetailNode(graphene.ObjectType):
         return round(self.length / 60, 1) if self.length else None
 
 
-class FoldObservationDetailConnection(relay.Connection):
+class ObservationDetailConnection(relay.Connection):
     class Meta:
-        node = FoldObservationDetailNode
+        node = ObservationDetailNode
 
     jname = graphene.String()
     total_observations = graphene.Int()
@@ -127,18 +127,15 @@ class FoldObservationDetailConnection(relay.Connection):
 
 
 class Query(graphene.ObjectType):
-    fold_observations = relay.ConnectionField(
-        FoldObservationConnection,
-        mode=graphene.String(required=True),
-        proposal=graphene.String(),
-        band=graphene.String(),
+    relay_observations = relay.ConnectionField(
+        ObservationConnection, mode=graphene.String(required=True), proposal=graphene.String(), band=graphene.String(),
     )
-    fold_observation_details = relay.ConnectionField(
-        FoldObservationDetailConnection, jname=graphene.String(required=True)
+    relay_observation_details = relay.ConnectionField(
+        ObservationDetailConnection, jname=graphene.String(required=True)
     )
 
     @login_required
-    def resolve_fold_observations(self, info, **kwargs):
+    def resolve_relay_observations(self, info, **kwargs):
 
         if kwargs["proposal"] and kwargs["proposal"] != "All":
             proposal_id = Proposals.objects.filter(proposal_short=kwargs["proposal"]).first().id
@@ -151,7 +148,7 @@ class Query(graphene.ObjectType):
 
         return Pulsars.get_observations(**kwargs)
 
-    def resolve_fold_observation_details(self, info, **kwargs):
+    def resolve_relay_observation_details(self, info, **kwargs):
         return [
             observation for observation in Pulsars.objects.get(jname=kwargs.get('jname')).observations_detail_data()
         ]

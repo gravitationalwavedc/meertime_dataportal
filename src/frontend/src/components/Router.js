@@ -7,6 +7,7 @@ import Login from '../pages/Login';
 import React from 'react';
 import { RedirectException } from 'found';
 import { Resolver } from 'found-relay';
+import Search from '../pages/Search';
 import environment from '../relayEnvironment';
 
 const renderPrivateRoute = (Component, props) => {
@@ -24,14 +25,19 @@ const routeConfig = () => makeRouteConfig(
             Component={Login}
         />
         <Route
-            path="/:jname"
+            path="/search/"
+            Component={Search}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        />
+        <Route
+            path="/search/:jname"
             Component={FoldDetail}
-            render={({ Component, props }) => {
-                if (sessionStorage.getItem('jwt') === null) {
-                    throw new RedirectException('/login/', 401);
-                }
-                return <Component {...props}/>;
-            }}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        />
+        <Route
+            path="/fold/:jname"
+            Component={FoldDetail}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
             path="/"

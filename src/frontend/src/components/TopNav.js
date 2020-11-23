@@ -17,7 +17,7 @@ const TopNav = () => {
                 <Navbar.Brand href="#home">MEERTIME</Navbar.Brand>
                 <Nav className="mr-auto">
                     <Link to='/' exact as={Nav.Link}>Fold</Link>
-                    <Nav.Link>Search</Nav.Link>
+                    <Link to='/search/' exact as={Nav.Link}>Search</Link>
                 </Nav>
                 <Nav>
                     <Nav.Link onClick={logout}>Log out</Nav.Link>

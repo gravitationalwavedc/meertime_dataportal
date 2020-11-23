@@ -7,7 +7,7 @@ import environment from '../relayEnvironment';
 
 const query = graphql`
   query FoldDetailQuery($jname: String!) {
-    foldObservationDetails(jname:$jname) {
+    relayObservationDetails(jname:$jname) {
       jname
       totalObservations
       totalObservationHours

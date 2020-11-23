@@ -13,13 +13,13 @@ import moment from 'moment';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import sizePerPageRenderer from './CustomSizePerPageBtn';
 
-const FoldTable = ({ data, relay }) => {
+const SearchTable = ({ data, relay }) => {
     const [proposal, setProposal] = useState('All');
     const [band, setBand] = useState('All');
     const [isTableView, setIsTableView] = useState(true);
 
     useEffect(() => {
-        relay.refetch({ mode: 'observations', proposal: proposal, band: band });
+        relay.refetch({ mode: 'searchmode', proposal: proposal, band: band });
     }, [proposal, band, relay]);
 
     const rows = data.relayObservations.edges.reduce((result, edge) => { 
@@ -29,11 +29,10 @@ const FoldTable = ({ data, relay }) => {
         row.totalTintH = `${row.totalTintH} hours`;
         row.latestTintM = `${row.latestTintM} minutes`;
         row.action = <ButtonGroup vertical>
-            <Link to={`/fold/${row.jname}/`} size='sm' variant="outline-secondary" as={Button}>View all</Link>
+            <Link to={`/search/${row.jname}/`} size='sm' variant="outline-secondary" as={Button}>View all</Link>
             <Button size='sm' variant="outline-secondary">View last</Button>
         </ButtonGroup>;
-        return [...result, { ...row }];
-    }, []);
+        return [...result, { ...row }]; }, []);
 
     const fit2 = { width: '2%', whiteSpace: 'nowrap' };
     const fit6 = { width: '6%', whiteSpace: 'nowrap' };
@@ -46,14 +45,6 @@ const FoldTable = ({ data, relay }) => {
         { dataField: 'proposalShort', text: 'Project', sort: true, style: fit2, headerStyle: fit2 },
         { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true },
         { dataField: 'nobs', text: 'Observations', align: 'right', headerAlign: 'right', 
-            sort: true, headerStyle: fit8, style: fit8 },
-        { dataField: 'totalTintH', text: 'Total int [h]', align: 'right', headerAlign: 'right', 
-            sort: true, headerStyle: fit8, style: fit8 },
-        { dataField: 'avgSnr5min', text: 'Avg S/N pipe (5 mins)', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'maxSnr5min', text: 'Max S/N pipe (5 mins)', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'latestSnr', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
-            sort: true, headerStyle: fit8, style: fit8 },
-        { dataField: 'latestTintM', text: 'Last int. [m]', align: 'right', headerAlign: 'right', 
             sort: true, headerStyle: fit8, style: fit8 },
         { dataField: 'action', text: '', align: 'center', headerAlign: 'center', 
             sort: false, headerStyle: fit8, style: fit8 }
@@ -96,10 +87,6 @@ const FoldTable = ({ data, relay }) => {
                         <Col md={1}>
                             <p className="mb-1 text-primary-600">Pulsars</p>
                             <h4>{ data.relayObservations.totalPulsars }</h4>
-                        </Col>
-                        <Col md={1}>
-                            <p className="mb-1 text-primary-600">Total Hours</p>
-                            <h4>{ data.relayObservations.totalObservationTime }</h4>
                         </Col>
                         <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
                     </Row>
@@ -146,18 +133,17 @@ const FoldTable = ({ data, relay }) => {
 };
 
 export default createRefetchContainer(
-    FoldTable,
+    SearchTable,
     {
         data: graphql`
-          fragment FoldTable_data on Query @argumentDefinitions(
-            mode: {type: "String", defaultValue: "observations"},
+          fragment SearchTable_data on Query @argumentDefinitions(
+            mode: {type: "String", defaultValue: "searchmode"},
             proposal: {type: "String", defaultValue: "All"}
             band: {type: "String", defaultValue: "All"}
           ) {
             relayObservations(mode: $mode, proposal: $proposal, band: $band) {
               totalObservations
               totalPulsars
-              totalObservationTime
               edges {
                 node {
                   jname
@@ -166,19 +152,14 @@ export default createRefetchContainer(
                   proposalShort
                   timespan
                   nobs
-                  latestSnr
-                  latestTintM
-                  maxSnr5min
-                  avgSnr5min
-                  totalTintH
                 }
               }
             }
           }`
     },
     graphql`
-      query FoldTableRefetchQuery($mode: String!, $proposal: String, $band: String) {
-        ...FoldTable_data @arguments(mode: $mode, proposal: $proposal, band: $band)
+      query SearchTableRefetchQuery($mode: String!, $proposal: String, $band: String) {
+        ...SearchTable_data @arguments(mode: $mode, proposal: $proposal, band: $band)
       }
    `
 );

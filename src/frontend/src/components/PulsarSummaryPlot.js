@@ -39,8 +39,7 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
     return plotData;
 };
 
-const PulsarSummaryPlot = ({ data, columns, search }) => {
-    const [value, setValue] = useState(false);
+const PulsarSummaryPlot = ({ data, columns, search }) => { const [value, setValue] = useState(false);
     const [lastDrawLocation, setLastDrawLocation] = useState(null);
 
     const plotData = getPlotData(data, columns, search, lastDrawLocation, setLastDrawLocation);
