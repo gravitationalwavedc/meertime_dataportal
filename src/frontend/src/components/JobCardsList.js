@@ -1,7 +1,6 @@
-import React from 'react';
 import JobCard from './JobCard';
+import React from 'react';
 import { handleSearch } from '../helpers';
-
 
 const JobCardList = ({ data, columns, search }) => {
     

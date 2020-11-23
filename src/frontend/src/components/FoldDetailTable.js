@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
-import { Row, Col, Button } from 'react-bootstrap';
-import ListControls from '../components/ListControls';
-import BootstrapTable from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
-import ToolkitProvider from 'react-bootstrap-table2-toolkit';
+import { Button, Col, Row } from 'react-bootstrap';
 import { HiOutlineViewGrid, HiOutlineViewList } from 'react-icons/hi';
+import React, { useState } from 'react';
+
+import BootstrapTable from 'react-bootstrap-table-next';
 import DataDisplay from './DataDisplay';
-import JobCardsList from './JobCardsList';
-import sizePerPageRenderer from './CustomSizePerPageBtn';
 import Einstein from '../assets/images/einstein-coloured.png';
+import JobCardsList from './JobCardsList';
+import ListControls from '../components/ListControls';
 import PulsarSummaryPlot from './PulsarSummaryPlot';
+import ToolkitProvider from 'react-bootstrap-table2-toolkit';
+import paginationFactory from 'react-bootstrap-table2-paginator';
+import sizePerPageRenderer from './CustomSizePerPageBtn';
 
 const FoldDetailTable = ({ data }) => {
     const allRows = data.foldObservationDetails.edges.reduce((result, edge) => [...result, { ...edge.node }], []);

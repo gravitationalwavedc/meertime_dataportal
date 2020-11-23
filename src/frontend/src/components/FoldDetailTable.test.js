@@ -1,6 +1,7 @@
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
+
 import FoldDetailTable from './FoldDetailTable';
+import React from 'react';
 
 /* eslint-disable react/display-name */
 

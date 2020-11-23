@@ -31,6 +31,7 @@
     "eslint-plugin-jsx-a11y": "6.2.3",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^1.6.1",
+    "eslint-plugin-simple-import-sort": "^6.0.1",
     "farce": "^0.4.5",
     "file-loader": "4.3.0",
     "formik": "^2.2.1",
@@ -40,6 +41,7 @@
     "graphql": "^15.4.0",
     "html-webpack-plugin": "4.0.0-beta.11",
     "identity-obj-proxy": "3.0.0",
+    "import-sort": "^6.0.0",
     "jest": "24.9.0",
     "jest-environment-jsdom-fourteen": "1.0.1",
     "jest-resolve": "24.9.0",
@@ -65,13 +67,13 @@
     "react-dev-utils": "^10.2.1",
     "react-dom": "^16.14.0",
     "react-icons": "^3.11.0",
-    "react-relay": "^10.0.1",
+    "react-relay": "^10.1.0",
     "react-relay-network-modern": "^5.0.1",
     "react-vis": "^1.11.7",
     "regenerator-runtime": "^0.13.7",
-    "relay-compiler": "^10.0.1",
+    "relay-compiler": "^10.1.0",
     "relay-config": "^10.0.1",
-    "relay-test-utils": "^10.0.1",
+    "relay-test-utils": "^10.1.0",
     "resolve": "1.15.0",
     "resolve-url-loader": "^3.1.2",
     "sass-loader": "8.0.2",
@@ -107,5 +109,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "import-sort-cli": "^6.0.0",
+    "import-sort-parser-babylon": "^6.0.0",
+    "import-sort-parser-typescript": "^6.0.0",
+    "import-sort-style-renke": "^6.0.0"
+  },
+  "importSort": {
+    ".js, .jsx": {
+      "parser": "babylon",
+      "style": "eslint"
+    }
   }
 }

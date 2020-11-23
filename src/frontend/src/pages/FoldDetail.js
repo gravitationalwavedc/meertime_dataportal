@@ -1,8 +1,9 @@
-import React from 'react';
-import MainLayout from '../components/MainLayout';
-import { graphql, QueryRenderer } from 'react-relay';
-import environment from '../relayEnvironment';
+import { QueryRenderer, graphql } from 'react-relay';
+
 import FoldDetailTable from '../components/FoldDetailTable';
+import MainLayout from '../components/MainLayout';
+import React from 'react';
+import environment from '../relayEnvironment';
 
 const query = graphql`
   query FoldDetailQuery($jname: String!) {

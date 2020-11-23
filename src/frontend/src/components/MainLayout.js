@@ -1,6 +1,7 @@
-import React from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Col, Container, Row } from 'react-bootstrap';
+
 import GraphPattern from '../assets/images/graph-pattern.png';
+import React from 'react';
 import TopNav from '../components/TopNav';
 
 const MainLayout = ({ title, children }) => 

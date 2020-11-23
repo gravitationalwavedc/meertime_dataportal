@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import moment from 'moment'; 
-import { 
-    Highlight, 
-    Hint, 
-    XAxis, 
-    YAxis, 
-    FlexibleXYPlot, 
-    MarkSeries, 
-    VerticalGridLines, 
-    HorizontalGridLines 
+import {
+    FlexibleXYPlot,
+    Highlight,
+    Hint,
+    HorizontalGridLines,
+    MarkSeries,
+    VerticalGridLines,
+    XAxis,
+    YAxis
 } from 'react-vis';
-import { handleSearch } from '../helpers';
-import { HiOutlineQuestionMarkCircle } from 'react-icons/hi';
-import { Col } from 'react-bootstrap';
+import React, { useState } from 'react';
 
+import { Col } from 'react-bootstrap';
+import { HiOutlineQuestionMarkCircle } from 'react-icons/hi';
+import { handleSearch } from '../helpers';
+import moment from 'moment';
 
 const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocation) => {
     // Pass tqble data through the search filter to enable searching pulsars on chart.

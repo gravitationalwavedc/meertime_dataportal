@@ -1,7 +1,6 @@
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
 import JobCardsList from './JobCardsList';
-
+import React from 'react';
+import { render } from '@testing-library/react';
 
 describe('card list component', () => {
     const data = [

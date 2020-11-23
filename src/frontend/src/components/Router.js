@@ -1,12 +1,13 @@
-import React from 'react';
-import { BrowserProtocol, queryMiddleware } from 'farce';   
-import { createFarceRouter, createRender, makeRouteConfig, Route } from 'found';
-import { Resolver } from 'found-relay';
-import { RedirectException } from 'found';
-import environment from '../relayEnvironment';
-import FoldDetail from '../pages/FoldDetail';
+import { BrowserProtocol, queryMiddleware } from 'farce';
+import { Route, createFarceRouter, createRender, makeRouteConfig } from 'found';
+
 import Fold from '../pages/Fold';
+import FoldDetail from '../pages/FoldDetail';
 import Login from '../pages/Login';
+import React from 'react';
+import { RedirectException } from 'found';
+import { Resolver } from 'found-relay';
+import environment from '../relayEnvironment';
 
 const renderPrivateRoute = (Component, props) => {
     if (sessionStorage.getItem('jwt') === null) {

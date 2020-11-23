@@ -1,5 +1,6 @@
+import { ButtonGroup, Dropdown, DropdownButton } from 'react-bootstrap';
+
 import React from 'react';
-import { ButtonGroup, DropdownButton, Dropdown } from 'react-bootstrap';
 
 const sizePerPageRenderer = ({
     options,

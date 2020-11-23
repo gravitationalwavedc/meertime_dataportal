@@ -5,16 +5,12 @@ import {
 } from 'relay-runtime';
 import {
     RelayNetworkLayer,
-    urlMiddleware,
-    // batchMiddleware,
-    // loggerMiddleware,
-    // errorMiddleware,
-    // perfMiddleware,
-    retryMiddleware,
     authMiddleware,
     cacheMiddleware,
     progressMiddleware,
+    retryMiddleware,
     uploadMiddleware,
+    urlMiddleware,
 } from 'react-relay-network-modern';
 
 const network = new RelayNetworkLayer(

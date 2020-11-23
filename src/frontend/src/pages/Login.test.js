@@ -1,8 +1,9 @@
-import React from 'react';
-import { MockPayloadGenerator } from 'relay-test-utils';
-import { render, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
+
 import Login from './Login';
-import environment from '../relayEnvironment'; 
+import { MockPayloadGenerator } from 'relay-test-utils';
+import React from 'react';
+import environment from '../relayEnvironment';
 
 /* global router */
 

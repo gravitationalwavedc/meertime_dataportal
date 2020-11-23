@@ -1,7 +1,7 @@
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import ListControls from './ListControls';
+import { fireEvent, render } from '@testing-library/react';
 
+import ListControls from './ListControls';
+import React from 'react';
 
 describe('list controls component', () => {
 

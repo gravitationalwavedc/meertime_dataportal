@@ -1,7 +1,7 @@
-import React from 'react';
-import { Dropdown, Button } from 'react-bootstrap';
-import { HiDotsVertical, HiCheck } from 'react-icons/hi';
+import { Button, Dropdown } from 'react-bootstrap';
+import { HiCheck, HiDotsVertical } from 'react-icons/hi';
 
+import React from 'react';
 
 /* eslint react/display-name: 0 */
 

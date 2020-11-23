@@ -1,9 +1,11 @@
+import * as Yup from 'yup';
+
+import { Alert, Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
+import { Field, Formik } from 'formik';
 import React, { useState } from 'react';
 import { commitMutation, graphql } from 'react-relay';
-import { Alert, Container, Form, Col, Row, Button, Card } from 'react-bootstrap';
+
 import { HiOutlineLockClosed } from 'react-icons/hi';
-import { Formik, Field } from 'formik';
-import * as Yup from 'yup';
 import environment from '../relayEnvironment';
 
 const mutation = graphql`

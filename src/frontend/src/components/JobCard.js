@@ -1,5 +1,6 @@
+import { Button, Card, Col, Row } from 'react-bootstrap';
+
 import React from 'react';
-import { Button, Card, Row, Col } from 'react-bootstrap';
 
 const JobCard = ({ row }) => 
     <Card className="mb-3 shadow-md">

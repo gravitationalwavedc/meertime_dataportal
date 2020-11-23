@@ -1,7 +1,7 @@
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import CustomColumnToggle from './CustomColumnToggle';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
+import CustomColumnToggle from './CustomColumnToggle';
+import React from 'react';
 
 describe('custom toggle button', () => {
 

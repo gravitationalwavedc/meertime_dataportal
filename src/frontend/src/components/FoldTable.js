@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { createRefetchContainer, graphql } from 'react-relay';
-import { Row, Col, Button, ButtonGroup } from 'react-bootstrap';
-import ListControls from '../components/ListControls';
-import BootstrapTable from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
-import ToolkitProvider from 'react-bootstrap-table2-toolkit';
+import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import { HiOutlineViewGrid, HiOutlineViewList } from 'react-icons/hi';
-import Link from 'found/Link';
-import moment from 'moment';
-import JobCardsList from './JobCardsList';
-import sizePerPageRenderer from './CustomSizePerPageBtn';
+import React, { useEffect, useState } from 'react';
+import { createRefetchContainer, graphql } from 'react-relay';
+
+import BootstrapTable from 'react-bootstrap-table-next';
 import Einstein from '../assets/images/einstein-coloured.png';
+import JobCardsList from './JobCardsList';
+import Link from 'found/Link';
+import ListControls from '../components/ListControls';
+import ToolkitProvider from 'react-bootstrap-table2-toolkit';
+import moment from 'moment';
+import paginationFactory from 'react-bootstrap-table2-paginator';
+import sizePerPageRenderer from './CustomSizePerPageBtn';
 
 const FoldTable = ({ data, relay }) => {
     const [proposal, setProposal] = useState('All');

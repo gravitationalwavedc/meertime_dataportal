@@ -1,6 +1,7 @@
-import React from 'react';
-import { Container, Navbar, Nav } from 'react-bootstrap';
+import { Container, Nav, Navbar } from 'react-bootstrap';
 import { Link, useRouter } from 'found';
+
+import React from 'react';
 
 const TopNav = () => {
     const { router } = useRouter();

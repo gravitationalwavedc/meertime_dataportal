@@ -1,8 +1,8 @@
-import React from 'react';
-import Form from 'react-bootstrap/Form';
 import Col from 'react-bootstrap/Col';
-import { Search } from 'react-bootstrap-table2-toolkit';
 import CustomColumnToggle from './CustomColumnToggle';
+import Form from 'react-bootstrap/Form';
+import React from 'react';
+import { Search } from 'react-bootstrap-table2-toolkit';
 
 const projectOptions = [
     'All',
