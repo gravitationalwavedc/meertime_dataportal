@@ -29,14 +29,6 @@ class Ephemerides:
     def __init__(self, db):
         self.db = db
 
-    def get_id(self, ephemeris, create=False):
-        """get the id from the ephemeris"""
-        pulsars = Pulsars(db)
-        pulsar_id = Pulsars(db)._get_id(ephemeris.jname)
-        if pulsar_id is None:
-            raise RuntimeError("Could not determine pulsar_id from ephemeris PSRJ %s" % ephemeris.jname)
-        return self.get_id(pulsar_id, ephemeris, create)
-
     def get_id(self, pulsar_id, ephemeris, create=False):
         """get the id from the pulsar_id and the ephemeris(object)"""
         return self._get_id(pulsar_id, ephemeris.p0, ephemeris.dm, ephemeris.rm, json.dumps(ephemeris.ephem), create)
@@ -50,7 +42,7 @@ class Ephemerides:
             logging.error(str(error))
             raise error
         if create and output is None:
-            output = self.new(pulsar_id, p0, dm, rm, ephemeris_json)
+            output = self._new(pulsar_id, p0, dm, rm, ephemeris_json)
         return output
 
     def get_ephemeris(self, ephemeris_id):
@@ -69,10 +61,6 @@ class Ephemerides:
     def new(self, pulsar_id, ephemeris):
         """create a new ephemeris from the pulsar_id and ephemeris(object)"""
         return self._new(pulsar_id, ephemeris.p0, ephemeris.dm, ephemeris.rm, ephemeris.json)
-
-    def new(self, pulsar_id, p0, dm, rm, ephemeris_json):
-        """create a new ephemeris from the pulsar_id, p0, dm, rm and ephemeris(json)"""
-        return self._new(pulsar_id, p0, dm, rm, ephemeris_json)
 
     def _new(self, pulsar_id, p0, dm, rm, ephemeris_json):
         """create a new ephemeris, creating the missing parameters"""

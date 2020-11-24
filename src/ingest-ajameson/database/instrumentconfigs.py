@@ -1,4 +1,5 @@
 import logging
+import database
 
 
 GET_INSTRUMENTCONFIGS_ID_QUERY = """
@@ -43,7 +44,7 @@ class InstrumentConfigs:
 
     def get_config(self, id):
         """get the instrument config dict for specified id"""
-        query = GET_INSTRUMENTCONFIGS_NAME_QUERY % (id)
+        query = GET_INSTRUMENTCONFIGS_QUERY % (id)
         try:
             self.db.execute_query(query)
             return self.db.get_singular_value(query, "id")

@@ -6,7 +6,7 @@ class Ephemeris:
     def __init__(self):
         self.ephem = {}
         self.jname = None
-        self.p0 = None
+        self.p0 = 0
         self.dm = 0
         self.rm = 0
         self.configured = False

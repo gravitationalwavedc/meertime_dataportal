@@ -1,4 +1,5 @@
 import logging
+import database
 
 
 GET_PTUSECONFIGS_ID_QUERY = """

@@ -1,4 +1,5 @@
 import logging
+import database
 
 
 GET_PROCESSINGS_ID_QUERY = """
@@ -13,6 +14,11 @@ SELECT observation_id, pipeline_id, parent_id, location, job_state, job_output, 
 FROM Processings
 WHERE id = %d
 LIMIT 1
+"""
+
+INSERT_PROCESSINGS_ORPHAN_QUERY = """
+INSERT INTO Processings (observation_id, pipeline_id, location, job_state, job_output, results)
+VALUES (%d, %d, '%s', '%s', '%s', '%s')
 """
 
 INSERT_PROCESSINGS_QUERY = """
@@ -49,18 +55,28 @@ class Processings:
             logging.error(str(error))
             raise error
         output = self.db.get_output()
-        return singular_dict(output)
+        return database.util.singular_dict(output)
 
     def new(self, observation_id, pipeline_id, parent_id, location, job_state, job_output, results):
-        query = INSERT_PROCESSINGS_QUERY % (
-            observation_id,
-            pipeline_id,
-            parent_id,
-            location,
-            job_state,
-            job_output,
-            results,
-        )
+        if parent_id is None:
+            query = INSERT_PROCESSINGS_ORPHAN_QUERY % (
+                observation_id,
+                pipeline_id,
+                location,
+                job_state,
+                job_output,
+                results,
+            )
+        else:
+            query = INSERT_PROCESSINGS_QUERY % (
+                observation_id,
+                pipeline_id,
+                parent_id,
+                location,
+                job_state,
+                job_output,
+                results,
+            )
         try:
             self.db.execute_insert(query)
         except Exception as error:

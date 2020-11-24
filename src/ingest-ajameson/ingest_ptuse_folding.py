@@ -10,8 +10,9 @@ import json
 import database
 from util import header, ephemeris
 
-RESULTS_DIR = 'test_data/kronos'
-FOLDING_DIR = 'test_data/timing'
+RESULTS_DIR = 'test-data/kronos'
+FOLDING_DIR = 'test-data/timing'
+PTUSE_FOLDING_DIR = 'test-data/ptuse-folding'
 LOG_DIRECTORY = "logs"
 LOG_FILE = "%s/%s" % (LOG_DIRECTORY, time.strftime("%Y-%m-%d_c2g_receiver.log"))
 
@@ -82,10 +83,17 @@ def main(beam, utc, source, freq):
 
     ptuse_configs = database.PTUSEConfigs(db)
     ptuse_config_id = ptuse_configs.get_id(observation_id, ptuse_calibration_id, hdr, create=True)
+    logging.info("ptuse_config_id=%d" % (ptuse_config_id))
 
     eph = ephemeris.Ephemeris()
     eph_fname = "%s/%s/%s/%s/pulsar.eph" % (RESULTS_DIR, beam, utc_start, source)
-    eph.load_from_file(eph_fname)
+    par_fname = "%s/%s.par" % (PTUSE_FOLDING_DIR, source)
+    if os.path.exists(eph_fname):
+        eph.load_from_file(eph_fname)
+    elif os.path.exists(par_fname):
+        eph.load_from_file(par_fname)
+    else:
+        eph.load_from_string("")
 
     ephemerides = database.Ephemerides(db)
     ephemeris_id = ephemerides.get_id(pulsar_id, eph, create=True)
@@ -93,17 +101,15 @@ def main(beam, utc, source, freq):
 
     pipelines = database.Pipelines(db)
 
-    parent_pipeline_id = pipelines.get_id("Orphan Master", "None", "{}", create=True)
-    logging.info("parent_pipeline=%d" % (parent_pipeline_id))
-
     pipeline_id = pipelines.get_id(hdr.machine, hdr.machine_version, hdr.machine_config, create=True)
     logging.info("pipeline=%d" % (pipeline_id))
 
     location = "%s/%s/%s/%s/%s/" % (FOLDING_DIR, beam, source, utc_start, freq)
     results = {"snr": float(obs_results.get("snr"))}
     processings = database.Processings(db)
+    parent_processing_id = None
     processing_id = processings.get_id(
-        observation_id, pipeline_id, parent_pipeline_id, location, json.dumps(results), create=True
+        observation_id, pipeline_id, parent_processing_id, location, json.dumps(results), create=True
     )
     logging.info("processing_id=%d" % (processing_id))
 
@@ -114,9 +120,9 @@ def main(beam, utc, source, freq):
     # process image results for this observations
     pipelineimages = database.PipelineImages(db)
     rank = 0
-    image_class = "blah"
     for png in glob.glob("%s/*.hi.png" % (results_dir)):
-        pipeline_image_id = pipelineimages.get_id(processing_id, rank, image_class, png, create=True)
+        image_type = png[-11:-7]
+        pipeline_image_id = pipelineimages.get_id(processing_id, rank, image_type, png, create=True)
         rank += 1
         logging.info("pipeline_image_id=%d" % (pipeline_image_id))
 

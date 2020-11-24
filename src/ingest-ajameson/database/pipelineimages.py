@@ -1,3 +1,4 @@
+import database
 import logging
 
 GET_PIPELINEIMAGES_ID_QUERY = """

@@ -18,6 +18,8 @@ django-graphql-jwt = "^0.3.1"
 django-split-settings = "^1.0.1"
 bokeh = "^2.2.1"
 requests = "^2.24.0"
+numpy = "^1.19.4"
+sql = "^0.4.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.0"

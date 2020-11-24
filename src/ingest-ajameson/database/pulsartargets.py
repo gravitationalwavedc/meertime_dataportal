@@ -44,7 +44,7 @@ class PulsarTargets:
 
     def get_pulsars(self, target_id):
         """get the pulsars for the specified target_id"""
-        query = GET_PULSAR_IDS_QUERY % (name)
+        query = GET_PULSAR_IDS_QUERY % (target_id)
         try:
             self.db.execute_query(query)
         except Exception as error:
