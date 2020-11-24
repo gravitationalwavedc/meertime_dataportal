@@ -58,7 +58,9 @@ class Instrumentconfigs(models.Model):
 
 class Launches(models.Model):
     pipeline = models.ForeignKey("Pipelines", models.DO_NOTHING)
-    parent_pipeline = models.ForeignKey("Pipelines", models.DO_NOTHING, blank=True, null=True)
+    parent_pipeline = models.ForeignKey(
+        "Pipelines", models.DO_NOTHING, blank=True, null=True, related_name="parent_pipeline"
+    )
     pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
 
 

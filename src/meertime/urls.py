@@ -6,14 +6,15 @@ from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.conf.urls.static import static
-from .schema import schema
 
-handler500 = "dataportal.views.handler500"
+# from .schema import schema
+
+# handler500 = "dataportal.views.handler500"
 
 urlpatterns = [
-    path("", include("dataportal.urls")),
+    # path("", include("dataportal.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("graphql/", csrf_exempt(GraphQLView.as_view(schema=schema, graphiql=settings.DEVELOPMENT_MODE))),
+    # path("graphql/", csrf_exempt(GraphQLView.as_view(schema=schema, graphiql=settings.DEVELOPMENT_MODE))),
 ]
 
 if "debug_toolbar" in settings.INSTALLED_APPS:
