@@ -2,26 +2,73 @@ import graphene
 from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import permission_required, login_required
 
-from .models import Observations, Searchmode, Fluxcal, Pulsars, Utcs, Ephemerides, Proposals, Schedule, PhaseUp
-from ingest.ingest_methods import create_fold_mode, create_search_mode, create_fluxcal, create_ephemeris
+from .models import (
+    Basebandings,
+    Caspsrconfigs,
+    Collections,
+    Ephemerides,
+    Filterbankings,
+    Foldings,
+    Instrumentconfigs,
+    Launches,
+    Observations,
+    Ptusecalibrations,
+    Ptuseconfigs,
+    Pipelineimages,
+    Pipelines,
+    Processingcollections,
+    Processings,
+    Pulsaraliases,
+    Pulsartargets,
+    Pulsars,
+    Rfis,
+    Targets,
+    Telescopes,
+    Templates,
+    Toas,
+)
+
+# from ingest.ingest_methods import create_fold_mode, create_search_mode, create_fluxcal, create_ephemeris
 
 
-class ScheduleType(DjangoObjectType):
-    """
-    Here we store information about a scheduling block or a session id if available
-    """
-
+class BasebandingsType(DjangoObjectType):
     class Meta:
-        model = Schedule
+        model = Basebandings
 
 
-class PhaseUpType(DjangoObjectType):
-    """
-    Here we store id of a phase up if available
-    """
-
+class CaspsrconfigsType(DjangoObjectType):
     class Meta:
-        model = PhaseUp
+        model = Caspsrconfigs
+
+
+class CollectionsType(DjangoObjectType):
+    class Meta:
+        model = Collections
+
+
+class EphemeridesType(DjangoObjectType):
+    class Meta:
+        model = Ephemerides
+
+
+class FilterbankingsType(DjangoObjectType):
+    class Meta:
+        model = Filterbankings
+
+
+class FoldingsType(DjangoObjectType):
+    class Meta:
+        model = Foldings
+
+
+class InstrumentconfigsType(DjangoObjectType):
+    class Meta:
+        model = Instrumentconfigs
+
+
+class LaunchesType(DjangoObjectType):
+    class Meta:
+        model = Launches
 
 
 class ObservationsType(DjangoObjectType):
@@ -29,307 +76,208 @@ class ObservationsType(DjangoObjectType):
         model = Observations
 
 
-class SearchmodeType(DjangoObjectType):
+class PtusecalibrationsType(DjangoObjectType):
     class Meta:
-        model = Searchmode
+        model = Ptusecalibrations
 
 
-class FluxcalType(DjangoObjectType):
+class PtuseconfigsType(DjangoObjectType):
     class Meta:
-        model = Fluxcal
+        model = Ptuseconfigs
 
 
-class UtcsType(DjangoObjectType):
+class PipelineimagesType(DjangoObjectType):
     class Meta:
-        model = Utcs
+        model = Pipelineimages
 
 
-class PulsarType(DjangoObjectType):
+class PipelinesType(DjangoObjectType):
+    class Meta:
+        model = Pipelines
+
+
+class ProcessingcollectionsType(DjangoObjectType):
+    class Meta:
+        model = Processingcollections
+
+
+class ProcessingsType(DjangoObjectType):
+    class Meta:
+        model = Processings
+
+
+class PulsaraliasesType(DjangoObjectType):
+    class Meta:
+        model = Pulsaraliases
+
+
+class PulsartargetsType(DjangoObjectType):
+    class Meta:
+        model = Pulsartargets
+
+
+class PulsarsType(DjangoObjectType):
     class Meta:
         model = Pulsars
 
 
-class EphemerisType(DjangoObjectType):
+class RfisType(DjangoObjectType):
     class Meta:
-        model = Ephemerides
+        model = Rfis
 
 
-class ProposalType(DjangoObjectType):
+class TargetsType(DjangoObjectType):
     class Meta:
-        model = Proposals
+        model = Targets
+
+
+class TelescopesType(DjangoObjectType):
+    class Meta:
+        model = Telescopes
+
+
+class TemplatesType(DjangoObjectType):
+    class Meta:
+        model = Templates
+
+
+class ToasType(DjangoObjectType):
+    class Meta:
+        model = Toas
 
 
 class Query(graphene.ObjectType):
+    basebandings = graphene.List(BasebandingsType)
+    caspsrconfigs = graphene.List(CaspsrconfigsType)
+    collections = graphene.List(CollectionsType)
+    ephemerides = graphene.List(EphemeridesType)
+    filterbankings = graphene.List(FilterbankingsType)
+    foldings = graphene.List(FoldingsType)
+    instrumentconfigs = graphene.List(InstrumentconfigsType)
+    launches = graphene.List(LaunchesType)
     observations = graphene.List(ObservationsType)
-    searchmode = graphene.List(SearchmodeType)
-    fluxcal = graphene.List(FluxcalType)
-    utcs = graphene.List(UtcsType)
-    pulsars = graphene.List(PulsarType)
-    ephemeris = graphene.List(EphemerisType)
-    schedule = graphene.List(ScheduleType)
-    phaseup = graphene.List(PhaseUpType)
+    ptusecalibrations = graphene.List(PtusecalibrationsType)
+    ptuseconfigs = graphene.List(PtuseconfigsType)
+    pipelineimages = graphene.List(PipelineimagesType)
+    pipelines = graphene.List(PipelinesType)
+    processingcollections = graphene.List(ProcessingcollectionsType)
+    processings = graphene.List(ProcessingsType)
+    pulsaraliases = graphene.List(PulsaraliasesType)
+    pulsartargets = graphene.List(PulsartargetsType)
+    pulsars = graphene.List(PulsarsType)
+    rfis = graphene.List(RfisType)
+    targets = graphene.List(TargetsType)
+    telescopes = graphene.List(TelescopesType)
+    templates = graphene.List(TemplatesType)
+    toas = graphene.List(ToasType)
 
     @login_required
-    def resolve_observations(self, info, **kwargs):
-        return Observations.objects.all()
+    def resolve_basebandings(cls, info, **kwargs):
+        return Basebandings.objects.all()
 
     @login_required
-    def resolve_searchmode(self, info, **kwargs):
-        return Searchmode.objects.all()
+    def resolve_caspsrconfigs(cls, info, **kwargs):
+        return Caspsrconfigs.objects.all()
 
     @login_required
-    def resolve_fluxcal(self, info, **kwargs):
-        return Fluxcal.objects.all()
+    def resolve_collections(cls, info, **kwargs):
+        return Collections.objects.all()
 
     @login_required
-    def resolve_pulsars(self, info, **kwargs):
-        return Pulsars.objects.all()
-
-    @login_required
-    def resolve_utcs(self, info, **kwargs):
-        return Utcs.objects.all()
-
-    @login_required
-    def resolve_ephemerides(self, info, **kwargs):
+    def resolve_ephemerides(cls, info, **kwargs):
         return Ephemerides.objects.all()
 
     @login_required
-    def reslove_proposals(self, info, **kwargs):
-        return Proposals.objects.all()
+    def resolve_filterbankings(cls, info, **kwargs):
+        return Filterbankings.objects.all()
 
     @login_required
-    def resolve_schedules(self, info, **kwargs):
-        return Schedule.objects.all()
+    def resolve_foldings(cls, info, **kwargs):
+        return Foldings.objects.all()
 
     @login_required
-    def resolve_phaseups(self, info, **kwargs):
-        return PhaseUp.objects.all()
+    def resolve_instrumentconfigs(cls, info, **kwargs):
+        return Instrumentconfigs.objects.all()
+
+    @login_required
+    def resolve_launches(cls, info, **kwargs):
+        return Launches.objects.all()
+
+    @login_required
+    def resolve_observations(cls, info, **kwargs):
+        return Observations.objects.all()
+
+    @login_required
+    def resolve_ptusecalibrations(cls, info, **kwargs):
+        return Ptusecalibrations.objects.all()
+
+    @login_required
+    def resolve_ptuseconfigs(cls, info, **kwargs):
+        return Ptuseconfigs.objects.all()
+
+    @login_required
+    def resolve_pipelineimages(cls, info, **kwargs):
+        return Pipelineimages.objects.all()
+
+    @login_required
+    def resolve_pipelines(cls, info, **kwargs):
+        return Pipelines.objects.all()
+
+    @login_required
+    def resolve_processingcollections(cls, info, **kwargs):
+        return Processingcollections.objects.all()
+
+    @login_required
+    def resolve_processings(cls, info, **kwargs):
+        return Processings.objects.all()
+
+    @login_required
+    def resolve_pulsaraliases(cls, info, **kwargs):
+        return Pulsaraliases.objects.all()
+
+    @login_required
+    def resolve_pulsartargets(cls, info, **kwargs):
+        return Pulsartargets.objects.all()
+
+    @login_required
+    def resolve_pulsars(cls, info, **kwargs):
+        return Pulsars.objects.all()
+
+    @login_required
+    def resolve_rfis(cls, info, **kwargs):
+        return Rfis.objects.all()
+
+    @login_required
+    def resolve_targets(cls, info, **kwargs):
+        return Targets.objects.all()
+
+    @login_required
+    def resolve_telescopes(cls, info, **kwargs):
+        return Telescopes.objects.all()
+
+    @login_required
+    def resolve_templates(cls, info, **kwargs):
+        return Templates.objects.all()
+
+    @login_required
+    def resolve_toas(cls, info, **kwargs):
+        return Toas.objects.all()
 
 
-class CreateObservation(graphene.Mutation):
+class CreateTarget(graphene.Mutation):
     class Arguments:
-        utc = graphene.String()
-        jname = graphene.String()
-        beam = graphene.Int()
-        RA = graphene.String()
-        DEC = graphene.String()
-        DM = graphene.Float()
-        snr = graphene.Float()
-        length = graphene.Float()
-        nchan = graphene.Int()
-        nsubint = graphene.Int()
-        nbin = graphene.Int()
-        nant = graphene.Int()
-        nant_eff = graphene.Int()
-        proposal = graphene.String()
-        bw = graphene.Float()
-        frequency = graphene.Float()
-        profile = graphene.String()
-        phase_vs_time = graphene.String()
-        phase_vs_frequency = graphene.String()
-        bandpass = graphene.String()
-        snr_vs_time = graphene.String()
-        schedule = graphene.String()
-        phaseup = graphene.String()
-        update = graphene.Boolean()
+        name = graphene.String()
+        raj = graphene.String()
+        decj = graphene.String()
 
-    observations = graphene.Field(ObservationsType)
+    target = graphene.Field(TargetsType)
 
     @classmethod
-    @permission_required("dataportal.add_observations")
-    def mutate(
-        cls,
-        self,
-        info,
-        utc,
-        jname,
-        beam,
-        RA,
-        DEC,
-        DM,
-        snr,
-        length,
-        nchan,
-        nbin,
-        nsubint,
-        nant,
-        nant_eff,
-        proposal,
-        bw,
-        frequency,
-        profile,
-        phase_vs_time,
-        phase_vs_frequency,
-        bandpass,
-        snr_vs_time,
-        schedule,
-        phaseup,
-        update,
-    ):
-        obs = create_fold_mode(
-            utc,
-            jname,
-            beam,
-            RA,
-            DEC,
-            DM,
-            snr,
-            length,
-            nchan,
-            nbin,
-            nsubint,
-            nant,
-            nant_eff,
-            proposal,
-            bw,
-            frequency,
-            profile,
-            phase_vs_time,
-            phase_vs_frequency,
-            bandpass,
-            snr_vs_time,
-            schedule,
-            phaseup,
-            update,
-        )
-        return CreateObservation(observations=obs)
-
-
-class CreateSearchmode(graphene.Mutation):
-    class Arguments:
-        utc = graphene.String()
-        jname = graphene.String()
-        beam = graphene.Int()
-        RA = graphene.String()
-        DEC = graphene.String()
-        DM = graphene.Float()
-        nbit = graphene.Int()
-        nchan = graphene.Int()
-        npol = graphene.Int()
-        tsamp = graphene.Float()
-        nant = graphene.Int()
-        nant_eff = graphene.Int()
-        proposal = graphene.String()
-        length = graphene.Float()
-        bw = graphene.Float()
-        frequency = graphene.Float()
-        schedule = graphene.String()
-        phaseup = graphene.String()
-
-    searchmode = graphene.Field(SearchmodeType)
-
-    @classmethod
-    @permission_required("dataportal.add_observations")
-    def mutate(
-        cls,
-        self,
-        info,
-        utc,
-        jname,
-        beam,
-        RA,
-        DEC,
-        DM,
-        nbit,
-        nchan,
-        npol,
-        tsamp,
-        nant,
-        nant_eff,
-        proposal,
-        length,
-        bw,
-        frequency,
-        schedule,
-        phaseup,
-    ):
-        obs = create_search_mode(
-            utc,
-            jname,
-            beam,
-            RA,
-            DEC,
-            DM,
-            nbit,
-            nchan,
-            npol,
-            tsamp,
-            nant,
-            nant_eff,
-            proposal,
-            length,
-            bw,
-            frequency,
-            schedule,
-            phaseup,
-        )
-        return CreateSearchmode(searchmode=obs)
-
-
-class CreateFluxcal(graphene.Mutation):
-    class Arguments:
-        utc = graphene.String()
-        jname = graphene.String()
-        beam = graphene.Int()
-        snr = graphene.Float()
-        length = graphene.Float()
-        nchan = graphene.Int()
-        nbin = graphene.Int()
-        nant = graphene.Int()
-        nant_eff = graphene.Int()
-        proposal = graphene.String()
-        bw = graphene.Float()
-        frequency = graphene.Float()
-        schedule = graphene.String()
-        phaseup = graphene.String()
-
-    fluxcal = graphene.Field(FluxcalType)
-
-    @classmethod
-    @permission_required("dataportal.add_observations")
-    def mutate(
-        cls,
-        self,
-        info,
-        utc,
-        jname,
-        beam,
-        snr,
-        length,
-        nchan,
-        nbin,
-        nant,
-        nant_eff,
-        proposal,
-        bw,
-        frequency,
-        schedule,
-        phaseup,
-    ):
-        obs = create_fluxcal(
-            utc, jname, beam, snr, length, nchan, nbin, nant, nant_eff, proposal, bw, frequency, schedule, phaseup
-        )
-        return CreateFluxcal(fluxcal=obs)
-
-
-class CreateEphemeris(graphene.Mutation):
-    class Arguments:
-        jname = graphene.String()
-        updated_at = graphene.String()
-        ephemeris = graphene.String()
-        comment = graphene.String()
-
-    ephemeris = graphene.Field(EphemerisType)
-
-    @classmethod
-    @permission_required("dataportal.add_observations")
-    def mutate(cls, self, info, jname, updated_at, ephemeris, comment):
-        eph = create_ephemeris(jname, updated_at, ephemeris, comment)
-        return CreateEphemeris(ephemeris=eph)
+    @permission_required("dataportal.add_targets")
+    def mutate(cls, self, info, name, raj, decj):
+        _target, _ = Targets.objects.get_or_create(name=name, raj=raj, decj=decj)
+        return CreateTarget(target=_target)
 
 
 class Mutation(graphene.ObjectType):
-    create_observation = CreateObservation.Field()
-    create_searchmode = CreateSearchmode.Field()
-    create_fluxcal = CreateFluxcal.Field()
-    create_ephemeris = CreateEphemeris.Field()
+    create_target = CreateTarget.Field()

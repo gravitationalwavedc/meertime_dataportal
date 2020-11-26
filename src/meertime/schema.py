@@ -1,10 +1,9 @@
 import graphene
 import graphql_jwt
 import dataportal.schema
-import dataportal.relay_queries
 
 
-class Query(dataportal.schema.Query, dataportal.relay_queries.Query, graphene.ObjectType):
+class Query(dataportal.schema.Query, graphene.ObjectType):
     pass
 
 
