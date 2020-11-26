@@ -159,18 +159,20 @@ class PulsarDetailView(DetailView):
         context = super().get_context_data(**kwargs)
 
         # Add a summary plot to the context
-        plot_qs = context["obs_list"].values_list("utc__utc_ts", "snr_spip", "length")
+        plot_list = [(obs.utc.utc_ts, obs.snr_spip, obs.length, obs.band) for obs in context["obs_list"]]
+
         # If no observations exist, the unpacking below will throw a value error
         try:
-            [UTCs, snrs, length] = list(zip(*plot_qs))
+            [UTCs, snrs, lengths, bands] = list(zip(*plot_list))
         except ValueError:
-            [UTCs, snrs, length] = [
+            [UTCs, snrs, lengths, bands] = [
+                (),
                 (),
                 (),
                 (),
             ]
 
-        bokeh_js, bokeh_div = pulsar_summary_plot(UTCs, snrs, length)
+        bokeh_js, bokeh_div = pulsar_summary_plot(UTCs, snrs, lengths, bands)
         context["bokeh_js"] = bokeh_js
         context["bokeh_div"] = bokeh_div
 

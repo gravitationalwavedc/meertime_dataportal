@@ -206,7 +206,7 @@ def test_fold_detail_query():
                         "beam": 1,
                         "bw": 775.75,
                         "nchan": 4,
-                        "band": "300.0",
+                        "band": "Unknown",
                         "nbin": 2,
                         "nant": 42,
                         "nantEff": None,

@@ -5,12 +5,12 @@ from .logic import get_band, get_meertime_filters, get_trapum_filters, get_band_
 def test_get_band_returns_correct_value():
     assert get_band(1283.582) == "L-band"
     assert get_band(1283.58203125) == "L-band"
-    assert get_band(None) == None
-    assert get_band("NULL") == None
+    assert get_band(None) == "Unknown"
+    assert get_band("NULL") == "Unknown"
     assert get_band(1283.89550781) == "L-band"
     assert get_band(815.734375) == "UHF"
-    assert get_band(544) == "544"
-    assert get_band("My band") == None
+    assert get_band(544) == "Unknown"
+    assert get_band("My band") == "Unknown"
 
 
 def test_get_meertime_filters():

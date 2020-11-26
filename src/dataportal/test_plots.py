@@ -31,8 +31,9 @@ def test_pulsar_summary_plot():
     UTCs = generate_random_utcs()
     snrs = generate_random_snrs()
     lengths = generate_random_integrations()
+    bands = ["L-band"] * len(UTCs)
 
-    js, div = pulsar_summary_plot(UTCs, snrs, lengths)
+    js, div = pulsar_summary_plot(UTCs, snrs, lengths, bands)
     assert "</div>" in div
     assert "</script>" in js
     assert js != "<script></script>"

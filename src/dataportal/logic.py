@@ -16,13 +16,13 @@ def get_band(frequency):
     """
     # For band check to work the frequency must be either an int or a float.
     if type(frequency) not in [float, int]:
-        return None
+        return "Unknown"
 
     for band in bands.keys():
         if abs(frequency - bands[band]["centre_frequency"]) < bands[band]["allowed_deviation"]:
             return band
 
-    return str(round(frequency, 1))
+    return "Unknown"
 
 
 def get_band_filters(band=None, prefix=None):
