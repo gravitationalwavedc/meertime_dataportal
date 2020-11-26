@@ -12,7 +12,7 @@ const TopNav = () => {
     };
 
     return (
-        <Navbar bg="dark" variant="dark" className="mb-6">
+        <Navbar bg="dark" variant="dark" className="mb-5">
             <Container>
                 <Navbar.Brand href="#home">MEERTIME</Navbar.Brand>
                 <Nav className="mr-auto">
