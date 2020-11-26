@@ -4,20 +4,20 @@ import logging
 
 GET_OBSERVATIONS_ID_QUERY = """
 SELECT id
-FROM Observations
+FROM dataportal_observations
 WHERE target_id = %d and utc_start = '%s' and obs_type = '%s' and telescope_id = %d and instrument_config_id = %d
 LIMIT 1
 """
 
 GET_OBSERVATIONS_QUERY = """
 SELECT target_id, utc_start, duration, obs_type, telescope_id, instrument_config_id, suspect, comment
-FROM Observations
+FROM dataportal_observations
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_OBSERVATIONS_QUERY = """
-INSERT INTO Observations (target_id, utc_start, duration, obs_type, telescope_id, instrument_config_id, suspect, comment)
+INSERT INTO dataportal_observations (target_id, utc_start, duration, obs_type, telescope_id, instrument_config_id, suspect, comment)
 VALUES (%d, '%s', %f, '%s', %d, %d, %s, '%s')
 """
 

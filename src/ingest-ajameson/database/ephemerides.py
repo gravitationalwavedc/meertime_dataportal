@@ -7,20 +7,20 @@ from util import time, ephemeris
 
 GET_EPHEMERIDES_ID_QUERY = """
 SELECT id
-FROM Ephemerides
+FROM dataportal_ephemerides
 WHERE pulsar_id = %d AND JSON_CONTAINS(ephemeris,'%s')
 LIMIT 1
 """
 
 GET_EPHEMERIDES_QUERY = """
 SELECT pulsar_id, created_at, created_by, p0, dm, rm, ephemeris, valid_from, valid_to, comment
-FROM Ephemerides
+FROM dataportal_ephemerides
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_EPHEMERIDES_QUERY = """
-INSERT INTO Ephemerides (pulsar_id, created_at, created_by, p0, dm, rm, ephemeris, valid_from, valid_to, comment)
+INSERT INTO dataportal_ephemerides (pulsar_id, created_at, created_by, p0, dm, rm, ephemeris, valid_from, valid_to, comment)
 VALUES (%d, '%s', '%s', %f, %f, %f, '%s', '%s', '%s', '%s')
 """
 

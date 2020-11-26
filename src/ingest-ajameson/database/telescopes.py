@@ -2,21 +2,21 @@ import logging
 
 
 GET_TELESCOPE_ID_QUERY = """
-SELECT Telescopes.id
-FROM Telescopes
+SELECT dataportal_telescopes.id
+FROM dataportal_telescopes
 WHERE name = '%s'
 LIMIT 1
 """
 
 GET_TELESCOPE_NAME_QUERY = """
-SELECT Telescopes.name
-FROM Telescopes
+SELECT dataportal_telescopes.name
+FROM dataportal_telescopes
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_TELESCOPE_NAME_QUERY = """
-INSERT INTO Telescopes (name)
+INSERT INTO dataportal_telescopes (name)
 VALUES ('%s');
 """
 

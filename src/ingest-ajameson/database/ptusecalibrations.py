@@ -2,21 +2,21 @@ import logging
 import database
 
 GET_PTUSECALIBRATIONS_ID_QUERY = """
-SELECT PTUSECalibrations.id
-FROM PTUSECalibrations
+SELECT dataportal_ptusecalibrations.id
+FROM dataportal_ptusecalibrations
 WHERE calibration_type = '%s' and location ='%s'
 LIMIT 1
 """
 
 GET_PTUSECALIBRATIONS_CONFIG_QUERY = """
 SELECT calibration_type, location
-FROM PTUSECalibrations
+FROM dataportal_ptusecalibrations
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_PTUSECALIBRATIONS_NAME_QUERY = """
-INSERT INTO PTUSECalibrations (calibration_type, location)
+INSERT INTO dataportal_ptusecalibrations (calibration_type, location)
 VALUES ('%s', '%s');
 """
 

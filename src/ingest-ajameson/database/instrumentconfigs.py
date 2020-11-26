@@ -4,20 +4,20 @@ import database
 
 GET_INSTRUMENTCONFIGS_ID_QUERY = """
 SELECT id
-FROM InstrumentConfigs
+FROM dataportal_instrumentconfigs
 WHERE bandwidth = %f and frequency = %f and nchan = %d and npol = %d and beam = '%s'
 LIMIT 1
 """
 
 GET_INSTRUMENTCONFIGS_QUERY = """
 SELECT bandwidth, frequency, nchan, npol, beam 
-FROM InstrumentConfigs
+FROM dataportal_instrumentconfigs
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_INSTRUMENTCONFIGS_QUERY = """
-INSERT INTO InstrumentConfigs (bandwidth, frequency, nchan, npol, beam)
+INSERT INTO dataportal_instrumentconfigs (bandwidth, frequency, nchan, npol, beam)
 VALUES (%f, %f, %d, %d, '%s')
 """
 

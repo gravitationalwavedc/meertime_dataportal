@@ -2,21 +2,21 @@ import logging
 
 
 GET_PULSAR_ID_QUERY = """
-SELECT Pulsars.id
-FROM Pulsars
+SELECT dataportal_pulsars.id
+FROM dataportal_pulsars
 WHERE jname = '%s'
 LIMIT 1
 """
 
 GET_PULSAR_JNAME_QUERY = """
-SELECT Pulsars.jname
-FROM Pulsars
+SELECT dataportal_pulsars.jname
+FROM dataportal_pulsars
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_PULSAR_JNAME_QUERY = """
-INSERT INTO Pulsars (jname, state, comment)
+INSERT INTO dataportal_pulsars (jname, state, comment)
 VALUES ('%s','%s','%s');
 """
 

@@ -3,20 +3,20 @@ import logging
 
 GET_PIPELINEIMAGES_ID_QUERY = """
 SELECT id
-FROM PipelineImages
-WHERE processing_id = %d AND rank = %d AND image_type='%s' AND image = '%s'
+FROM dataportal_pipelineimages
+WHERE processing_id = %d AND `rank` = %d AND image_type='%s' AND image = '%s'
 LIMIT 1
 """
 
 GET_PIPELINEIMAGES_QUERY = """
-SELECT processing_id, rank, image_type, image
-FROM PipelineImages
+SELECT processing_id, `rank`, image_type, image
+FROM dataportal_pipelineimages
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_PIPELINEIMAGES_QUERY = """
-INSERT INTO PipelineImages (processing_id, rank, image_type, image)
+INSERT INTO dataportal_pipelineimages (processing_id, `rank`, image_type, image)
 VALUES (%d, %d, '%s', '%s')
 """
 

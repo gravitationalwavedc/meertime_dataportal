@@ -4,20 +4,20 @@ import logging
 
 GET_FOLDINGS_ID_QUERY = """
 SELECT id
-FROM Foldings
+FROM dataportal_foldings
 WHERE processing_id = %d and folding_ephemeris_id = %d
 LIMIT 1
 """
 
 GET_FOLDINGS_QUERY = """
 SELECT processing_id, folding_ephemeris_id, nbin, npol, nchan, dm, tsubint
-FROM Foldings
+FROM dataportal_foldings
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_FOLDINGS_QUERY = """
-INSERT INTO Foldings (processing_id, folding_ephemeris_id, nbin, npol, nchan, dm, tsubint)
+INSERT INTO dataportal_foldings (processing_id, folding_ephemeris_id, nbin, npol, nchan, dm, tsubint)
 VALUES (%d, %d, %d, %d, %d, %f, %d)
 """
 

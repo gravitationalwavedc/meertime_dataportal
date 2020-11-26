@@ -4,25 +4,25 @@ import database
 
 GET_PROCESSINGS_ID_QUERY = """
 SELECT id
-FROM Processings
+FROM dataportal_processings
 WHERE observation_id = %d AND pipeline_id = %d AND location = '%s' AND JSON_CONTAINS(results, '%s')
 LIMIT 1
 """
 
 GET_PROCESSINGS_QUERY = """
 SELECT observation_id, pipeline_id, parent_id, location, job_state, job_output, results
-FROM Processings
+FROM dataportal_processings
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_PROCESSINGS_ORPHAN_QUERY = """
-INSERT INTO Processings (observation_id, pipeline_id, location, job_state, job_output, results)
+INSERT INTO dataportal_processings (observation_id, pipeline_id, location, job_state, job_output, results)
 VALUES (%d, %d, '%s', '%s', '%s', '%s')
 """
 
 INSERT_PROCESSINGS_QUERY = """
-INSERT INTO Processings (observation_id, pipeline_id, parent_id, location, job_state, job_output, results)
+INSERT INTO dataportal_processings (observation_id, pipeline_id, parent_id, location, job_state, job_output, results)
 VALUES (%d, %d, %d, '%s', '%s', '%s', '%s')
 """
 

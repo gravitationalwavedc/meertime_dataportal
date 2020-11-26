@@ -2,21 +2,21 @@ import logging
 
 
 GET_TARGET_ID_QUERY = """
-SELECT Targets.id
-FROM Targets
+SELECT dataportal_targets.id
+FROM dataportal_targets
 WHERE name = '%s'
 LIMIT 1
 """
 
 GET_TARGET_NAME_QUERY = """
-SELECT Targets.name
-FROM Targets
+SELECT dataportal_targets.name
+FROM dataportal_targets
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_TARGET_NAME_QUERY = """
-INSERT INTO Targets (name, raj, decj)
+INSERT INTO dataportal_targets (name, raj, decj)
 VALUES ('%s','%s','%s');
 """
 

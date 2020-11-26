@@ -10,10 +10,10 @@ from .dbmanager import DBManager
 
 
 class PsrDataBase(DBManager):
-    __HOST = "localhost"
-    __NAME = "meertime"
-    __USER = "meertime"
-    __PASSWD = "meertime"
+    __HOST = os.environ.get("DB_HOST", "localhost")
+    __NAME = os.environ.get("MYSQL_DATABASE", "meertime")
+    __USER = os.environ.get("MYSQL_USER", "meertime")
+    __PASSWD = os.environ.get("MYSQL_PASSWORD", "meertime")
 
     def __init__(self):
         super(PsrDataBase, self).__init__()

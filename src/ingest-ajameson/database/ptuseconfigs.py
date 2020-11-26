@@ -4,20 +4,20 @@ import database
 
 GET_PTUSECONFIGS_ID_QUERY = """
 SELECT id
-FROM PTUSEConfigs
+FROM dataportal_ptuseconfigs
 WHERE observation_id = %d and calibration_id = %d
 LIMIT 1
 """
 
 GET_PTUSECONFIGS_QUERY = """
 SELECT observation_id, calibration_id, proposal_id, schedule_block_id, experiment_id, phaseup_id, delaycal_id, nant, nant_eff, configuration
-FROM PTUSEConfigs
+FROM dataportal_ptuseconfigs
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_PTUSECONFIGS_QUERY = """
-INSERT INTO PTUSEConfigs (observation_id, calibration_id, proposal_id, schedule_block_id, experiment_id, phaseup_id, delaycal_id, nant, nant_eff, configuration)
+INSERT INTO dataportal_ptuseconfigs (observation_id, calibration_id, proposal_id, schedule_block_id, experiment_id, phaseup_id, delaycal_id, nant, nant_eff, configuration)
 VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s', %d, %d, '%s')
 """
 

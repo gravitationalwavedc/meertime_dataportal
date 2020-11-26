@@ -6,20 +6,20 @@ from util import time
 
 GET_PIPELINE_ID_QUERY = """
 SELECT id
-FROM Pipelines
+FROM dataportal_pipelines
 WHERE name = '%s' AND revision = '%s' AND JSON_CONTAINS(configuration, '%s')
 LIMIT 1
 """
 
 GET_PIPELINE_QUERY = """
 SELECT name, revision, configuration
-FROM Pipelines
+FROM dataportal_pipelines
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_PIPELINE_QUERY = """
-INSERT INTO Pipelines (name, description, revision, created_at, created_by, configuration)
+INSERT INTO dataportal_pipelines (name, description, revision, created_at, created_by, configuration)
 VALUES ('%s','%s','%s', '%s', '%s', '%s');
 """
 

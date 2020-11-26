@@ -2,24 +2,24 @@ import logging
 
 GET_PULSAR_TARGET_ID_QUERY = """
 SELECT pulsar_id, target_id
-FROM PulsarTargets
+FROM dataportal_pulsartargets
 WHERE pulsar_id = %d AND target_id = %d
 """
 
 GET_PULSAR_IDS_QUERY = """
 SELECT pulsar_id
-FROM PulsarTargets
+FROM dataportal_pulsartargets
 WHERE target_id = %d
 """
 
 GET_TARGET_IDS_QUERY = """
 SELECT target_id
-FROM PulsarTargets
+FROM dataportal_pulsartargets
 WHERE pulsar_id = %d
 """
 
 INSERT_PULSAR_TARGET_QUERY = """
-INSERT INTO PulsarTargets (pulsar_id, target_id)
+INSERT INTO dataportal_pulsartargets (pulsar_id, target_id)
 VALUES (%d, %d)
 """
 
