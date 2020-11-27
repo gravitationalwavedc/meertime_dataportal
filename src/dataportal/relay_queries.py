@@ -126,12 +126,70 @@ class ObservationDetailConnection(relay.Connection):
         )
 
 
+class SearchObservationDetailNode(graphene.ObjectType):
+    class Meta:
+        interfaces = (relay.Node,)
+
+    utc = graphene.String()
+    proposal_short = graphene.String()
+    beam = graphene.Int()
+    comment = graphene.String()
+    length = graphene.Float()
+    tsamp = graphene.Float()
+    bw = graphene.Float()
+    frequency = graphene.Float()
+    nchan = graphene.Int()
+    nbit = graphene.Int()
+    npol = graphene.Int()
+    nant = graphene.Int()
+    nant_eff = graphene.Int()
+    dm = graphene.Float()
+    ra = graphene.String()
+    dec = graphene.String()
+
+    def resolve_length(self, instance):
+        return round(self.length / 60, 1) if self.length else None
+
+
+class SearchObservationDetailConnection(relay.Connection):
+    class Meta:
+        node = SearchObservationDetailNode
+
+    jname = graphene.String()
+    total_observations = graphene.Int()
+    total_observation_hours = graphene.Float()
+    total_projects = graphene.Int()
+    total_timespan_days = graphene.Int()
+
+    def resolve_jname(self, instance):
+        return self.iterable[0].pulsar.jname
+
+    def resolve_total_observations(self, instance):
+        return len(self.edges)
+
+    def resolve_total_observation_hours(self, instance):
+        return round(sum([observation.length for observation in self.iterable]) / 3600, 1)
+
+    def resolve_total_projects(self, instance):
+        return len({observation.proposal_short for observation in self.iterable})
+
+    def resolve_total_timespan_days(self, instance):
+        max_utc = max([observation.utc.utc_ts for observation in self.iterable])
+        min_utc = min([observation.utc.utc_ts for observation in self.iterable])
+        duration = max_utc - min_utc
+        # Add 1 day to the end result because the timespan should show the rounded up number of days
+        return duration.days + 1 if duration else 0
+
+
 class Query(graphene.ObjectType):
     relay_observations = relay.ConnectionField(
         ObservationConnection, mode=graphene.String(required=True), proposal=graphene.String(), band=graphene.String(),
     )
     relay_observation_details = relay.ConnectionField(
         ObservationDetailConnection, jname=graphene.String(required=True)
+    )
+    relay_searchmode_details = relay.ConnectionField(
+        SearchObservationDetailConnection, jname=graphene.String(required=True)
     )
 
     @login_required
@@ -152,3 +210,6 @@ class Query(graphene.ObjectType):
         return [
             observation for observation in Pulsars.objects.get(jname=kwargs.get('jname')).observations_detail_data()
         ]
+
+    def resolve_relay_searchmode_details(self, info, **kwargs):
+        return [observation for observation in Pulsars.objects.get(jname=kwargs.get('jname')).searchmode_detail_data()]

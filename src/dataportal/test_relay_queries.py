@@ -6,7 +6,7 @@ from graphql.error.located_error import GraphQLLocatedError
 from graphql_jwt.testcases import JSONWebTokenClient
 from meertime.schema import schema
 from graphql_relay import from_global_id, to_global_id
-from .models import Pulsars, Observations, Utcs, Proposals
+from .models import Pulsars, Observations, Utcs, Proposals, Searchmode
 
 
 def setup_query_test():
@@ -37,6 +37,25 @@ def setup_query_test():
         pa=12.23,
         observer="Buffy",
         nant=42,
+    )
+    Searchmode.objects.create(
+        pulsar=pulsar,
+        utc=utc,
+        proposal=proposal,
+        beam=2,
+        comment="A comment",
+        length=4,
+        tsamp=2.2,
+        bw=381.12,
+        frequency=375.12954,
+        nchan=6,
+        nbit=5,
+        npol=4,
+        nant=12,
+        nant_eff=22,
+        dm=41.21,
+        ra="-515.123",
+        dec="12:12:21",
     )
     return client, user
 
@@ -215,6 +234,78 @@ def test_fold_detail_query():
                         "rmPipe": 1.0,
                         "snrPipe": 4.0,
                         "snrSpip": 741.3,
+                    }
+                }
+            ],
+        }
+    }
+    assert not response.errors
+    assert response.data == expected
+
+
+@pytest.mark.django_db
+def test_serachmode_detail_query():
+    client, user = setup_query_test()
+    client.authenticate(user)
+    response = client.execute(
+        """
+        query {
+            relaySearchmodeDetails(jname:"J111-2222"){
+                jname
+                totalObservations
+                totalProjects
+                totalObservationHours
+                totalTimespanDays
+                edges {
+                  node {
+                    utc
+                    proposalShort
+                    beam
+                    comment
+                    length
+                    tsamp
+                    bw
+                    frequency
+                    nchan
+                    nbit
+                    npol
+                    nant
+                    nantEff
+                    dm
+                    ra
+                    dec
+                 }
+              }
+           }
+        } 
+        """
+    )
+    expected = {
+        'relaySearchmodeDetails': {
+            'jname': 'J111-2222',
+            'totalObservations': 1,
+            'totalProjects': 1,
+            'totalObservationHours': 0.0,
+            'totalTimespanDays': 0,
+            'edges': [
+                {
+                    'node': {
+                        'utc': '2000-01-01-12:59:12',
+                        'proposalShort': 'cool proposal',
+                        'beam': 2,
+                        'comment': 'A comment',
+                        'length': 0.1,
+                        'tsamp': 2.2,
+                        'bw': 381.12,
+                        'frequency': 375.12954,
+                        'nchan': 6,
+                        'nbit': 5,
+                        'npol': 4,
+                        'nant': 12,
+                        'nantEff': 22,
+                        'dm': 41.21,
+                        'ra': '-515.123',
+                        'dec': '12:12:21',
                     }
                 }
             ],

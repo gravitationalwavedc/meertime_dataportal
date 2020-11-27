@@ -7,13 +7,12 @@ import DataDisplay from './DataDisplay';
 import Einstein from '../assets/images/einstein-coloured.png';
 import JobCardsList from './JobCardsList';
 import ListControls from '../components/ListControls';
-import PulsarSummaryPlot from './PulsarSummaryPlot';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import sizePerPageRenderer from './CustomSizePerPageBtn';
 
-const FoldDetailTable = ({ data }) => {
-    const allRows = data.relayObservationDetails.edges.reduce((result, edge) => [...result, { ...edge.node }], []);
+const SearchmodeDetailTable = ({ data }) => {
+    const allRows = data.relaySearchmodeDetails.edges.reduce((result, edge) => [...result, { ...edge.node }], []);
     const [isTableView, setIsTableView] = useState(true);
     const [rows, setRows] = useState(allRows);
 
@@ -22,19 +21,17 @@ const FoldDetailTable = ({ data }) => {
     const columns = [
         { dataField: 'utc', text: 'Timestamp', sort: true, headerStyle: fit10 },
         { dataField: 'proposalShort', text: 'Project', sort: true },
+        { dataField: 'ra', text: 'RA', sort: true },
+        { dataField: 'dec', text: 'DEC', sort: true },
         { dataField: 'length', text: 'Length [m]', sort: true },
         { dataField: 'beam', text: 'Beam', sort: true },
-        { dataField: 'bw', text: 'BW', sort: true },
+        { dataField: 'frequency', text: 'Frequency [MHz]', sort: true },
         { dataField: 'nchan', text: 'Nchan', sort: true },
-        { dataField: 'band', text: 'Band', sort: true },
-        { dataField: 'nbin', text: 'Nbin', sort: true },
-        { dataField: 'nant', text: 'Nant', sort: true },
-        { dataField: 'nantEff', text: 'Nant eff', sort: true },
-        { dataField: 'dmFold', text: 'DM fold', sort: true },
-        { dataField: 'dmPipe', text: 'DM meerpipe', sort: true },
-        { dataField: 'rmPipe', text: 'RM meerpipe', sort: true },
-        { dataField: 'snrSpip', text: 'S/N backend', sort: true },
-        { dataField: 'snrPipe', text: 'S/N meerpipe', sort: true },
+        { dataField: 'nbit', text: 'Nbit', sort: true },
+        { dataField: 'nantEff', text: 'Nant Eff', sort: true },
+        { dataField: 'npol', text: 'Npol', sort: true },
+        { dataField: 'dm', text: 'DM', sort: true },
+        { dataField: 'tsamp', text: 'tSamp [μs]', sort: true },
     ];
 
     const options = {
@@ -51,20 +48,6 @@ const FoldDetailTable = ({ data }) => {
         nextPageText: 'Next',
         lastPageText: 'Last', showTotal: true,
         disablePageTitle: true, sizePerPageRenderer,
-    };
-
-    // totalEstimatedDiskSpace is a human readable formatted byte string in the form of "900.2\u00a0MB".
-    // We split on this character so we can use the number and the units separately.
-    const [size, sizeFormat] = data.relayObservationDetails.totalEstimatedDiskSpace.split('\u00a0');
-
-    const handleBandFilter = (band) => {
-        if(band === 'All') {
-            setRows(allRows);
-            return;
-        }
-
-        const newRows = allRows.filter((row) => row.band === band);
-        setRows(newRows);
     };
 
     const handleProjectFilter = (project) => {
@@ -91,19 +74,12 @@ const FoldDetailTable = ({ data }) => {
             {props => (
                 <React.Fragment>
                     <Row className="justify-content-end" style={{ marginTop: '-9rem' }}>
-                        <DataDisplay title="Observations" value={data.relayObservationDetails.totalObservations} />
-                        <DataDisplay title="Projects" value={data.relayObservationDetails.totalProjects} />
+                        <DataDisplay title="Observations" value={data.relaySearchmodeDetails.totalObservations} />
+                        <DataDisplay title="Projects" value={data.relaySearchmodeDetails.totalProjects} />
                         <DataDisplay 
                             title="Timespan [days]" 
-                            value={data.relayObservationDetails.totalTimespanDays} />
-                        <DataDisplay title="Hours" value={data.relayObservationDetails.totalObservationHours} />
-                        <DataDisplay title={`Size [${sizeFormat}]`} value={size} />
+                            value={data.relaySearchmodeDetails.totalTimespanDays} />
                         <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <PulsarSummaryPlot {...props.baseProps}/>
-                        </Col>
                     </Row>
                     <Row className='bg-gray-100' style={{ marginTop: '-4rem' }}>
                         <Col md={4}>
@@ -111,7 +87,6 @@ const FoldDetailTable = ({ data }) => {
                                 searchProps={props.searchProps} 
                                 searchText="Find an observation..."
                                 handleProposalFilter={handleProjectFilter} 
-                                handleBandFilter={handleBandFilter}
                                 columnToggleProps={props.columnToggleProps}
                                 exportCSVProps={props.csvProps}
                             />
@@ -148,4 +123,4 @@ const FoldDetailTable = ({ data }) => {
     );
 };
 
-export default FoldDetailTable;
+export default SearchmodeDetailTable;

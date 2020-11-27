@@ -8,6 +8,7 @@ import React from 'react';
 import { RedirectException } from 'found';
 import { Resolver } from 'found-relay';
 import Search from '../pages/Search';
+import SearchmodeDetail from '../pages/SearchmodeDetail';
 import environment from '../relayEnvironment';
 
 const renderPrivateRoute = (Component, props) => {
@@ -31,7 +32,7 @@ const routeConfig = () => makeRouteConfig(
         />
         <Route
             path="/search/:jname"
-            Component={FoldDetail}
+            Component={SearchmodeDetail}
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route

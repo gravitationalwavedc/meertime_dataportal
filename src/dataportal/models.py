@@ -262,6 +262,7 @@ class Pulsars(models.Model):
             self.searchmode_set.all()
             .select_related("utc", "proposal")
             .filter(**proposal_filter)
+            .annotate(proposal_short=F("proposal__proposal_short"))
             .order_by("-utc__utc_ts")
         )
 

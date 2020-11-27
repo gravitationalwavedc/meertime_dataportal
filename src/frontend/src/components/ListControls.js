@@ -50,7 +50,7 @@ const ListControls = ({
                         </Form.Control>
                     </Form.Group>
                 </Col>
-                <Col md={3}>
+                {handleBandFilter && <Col md={3}>
                     <Form.Group controlId="bandSelect">
                         <Form.Label>Band</Form.Label>
                         <Form.Control 
@@ -60,7 +60,7 @@ const ListControls = ({
                             {bandOptions.map(value => <option value={value} key={value}>{value}</option>)}
                         </Form.Control>
                     </Form.Group>
-                </Col>
+                </Col>}
                 <Col md={1} className="d-flex align-items-center">
                     <CustomColumnToggle {...columnToggleProps} exportCSVProps={exportCSVProps}/>
                 </Col>
