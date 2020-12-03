@@ -9,10 +9,10 @@ from django.conf.urls.static import static
 
 from .schema import schema
 
-# handler500 = "dataportal.views.handler500"
+handler500 = "dataportal.views.handler500"
 
 urlpatterns = [
-    # path("", include("dataportal.urls")),
+    path("", include("dataportal.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
     path("graphql/", csrf_exempt(GraphQLView.as_view(schema=schema, graphiql=settings.DEVELOPMENT_MODE))),
 ]

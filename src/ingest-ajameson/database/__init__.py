@@ -9,10 +9,10 @@ from .pulsartargets import PulsarTargets
 from .telescopes import Telescopes
 from .instrumentconfigs import InstrumentConfigs
 from .observations import Observations
-from .ptusecalibrations import PTUSECalibrations
-from .ptuseconfigs import PTUSEConfigs
+from .calibrations import Calibrations
 from .ephemerides import Ephemerides
 from .pipelines import Pipelines
+from .projects import Projects
 from .processings import Processings
 from .foldings import Foldings
 from .pipelineimages import PipelineImages

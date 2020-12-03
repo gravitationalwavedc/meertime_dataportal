@@ -6,18 +6,19 @@ import logging
 import time
 import os
 import json
+from datetime import datetime, timedelta
 
 import database
 from util import header, ephemeris
 
-RESULTS_DIR = 'test-data/kronos'
-FOLDING_DIR = 'test-data/timing'
-PTUSE_FOLDING_DIR = 'test-data/ptuse-folding'
+RESULTS_DIR = "test-data/kronos"
+FOLDING_DIR = "test-data/timing"
+PTUSE_FOLDING_DIR = "test-data/ptuse-folding"
 LOG_DIRECTORY = "logs"
 LOG_FILE = "%s/%s" % (LOG_DIRECTORY, time.strftime("%Y-%m-%d_c2g_receiver.log"))
 
 
-def main(beam, utc, source, freq):
+def main(beam, utc_start, source, freq):
 
     obs_type = "fold"
     results_dir = "%s/%s/%s/%s" % (RESULTS_DIR, beam, utc_start, source)
@@ -65,25 +66,42 @@ def main(beam, utc, source, freq):
     telescope_id = telescopes.get_id(hdr, create=True)
     logging.info("telescope_id=%d" % (telescope_id))
 
+    instrument_name = "PTUSE"  # not present in the headers I think
     instrument_configs = database.InstrumentConfigs(db)
-    instrument_config_id = instrument_configs.get_id(hdr, create=True)
+    instrument_config_id = instrument_configs.get_id(instrument_name, hdr, create=True)
     logging.info("instrument_config_id=%d" % (instrument_config_id))
+
+    calibrations = database.Calibrations(db)
+    calibration_id = calibrations.get_id(utc_start, create=True)
+    logging.info("calibration_id=%d" % (calibration_id))
+
+    projects = database.Projects(db)
+    # 18 months (548 days) embargo in us:
+    embargo_us = 1e6 * 60 * 60 * 24 * 548
+    project_id = projects.get_id(embargo_us, hdr, create=True)
+    logging.info("project_id=%d" % (project_id))
 
     # estimate the duration of the observation
     duration = float(obs_results.get("length"))
+    suspect = False
+    comment = ""
     observations = database.Observations(db)
     observation_id = observations.get_id(
-        target_id, utc_start, duration, obs_type, telescope_id, instrument_config_id, create=True
+        target_id,
+        calibration_id,
+        telescope_id,
+        instrument_config_id,
+        project_id,
+        hdr.configuration,
+        utc_start,
+        duration,
+        hdr.nant,
+        hdr.nant_eff,
+        suspect,
+        comment,
+        create=True,
     )
     logging.info("observation_id=%d" % (observation_id))
-
-    ptuse_calibrations = database.PTUSECalibrations(db)
-    ptuse_calibration_id = ptuse_calibrations.get_id(utc_start, create=True)
-    logging.info("ptuse_calibration_id=%d" % (ptuse_calibration_id))
-
-    ptuse_configs = database.PTUSEConfigs(db)
-    ptuse_config_id = ptuse_configs.get_id(observation_id, ptuse_calibration_id, hdr, create=True)
-    logging.info("ptuse_config_id=%d" % (ptuse_config_id))
 
     eph = ephemeris.Ephemeris()
     eph_fname = "%s/%s/%s/%s/pulsar.eph" % (RESULTS_DIR, beam, utc_start, source)
@@ -108,8 +126,11 @@ def main(beam, utc, source, freq):
     results = {"snr": float(obs_results.get("snr"))}
     processings = database.Processings(db)
     parent_processing_id = None
+    utc_dt = datetime.strptime(f"{utc_start} +0000", "%Y-%m-%d-%H:%M:%S %z")
+    embargo_end_dt = utc_dt + timedelta(microseconds=embargo_us)
+    embargo_end = embargo_end_dt.strftime("%Y-%m-%d-%H:%M:%S")
     processing_id = processings.get_id(
-        observation_id, pipeline_id, parent_processing_id, location, json.dumps(results), create=True
+        observation_id, pipeline_id, parent_processing_id, embargo_end, location, json.dumps(results), create=True
     )
     logging.info("processing_id=%d" % (processing_id))
 
@@ -130,11 +151,11 @@ def main(beam, utc, source, freq):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description='Ingest PTUSE fold mode observation')
-    parser.add_argument('beam', type=str, help='beam number')
-    parser.add_argument('utc_start', type=str, help='utc_start of the obs')
-    parser.add_argument('source', type=str, help='source of the obs')
-    parser.add_argument('freq', type=str, help='coarse centre frequency of the obs in MHz')
+    parser = argparse.ArgumentParser(description="Ingest PTUSE fold mode observation")
+    parser.add_argument("beam", type=str, help="beam number")
+    parser.add_argument("utc_start", type=str, help="utc_start of the obs")
+    parser.add_argument("source", type=str, help="source of the obs")
+    parser.add_argument("freq", type=str, help="coarse centre frequency of the obs in MHz")
     args = parser.parse_args()
 
     beam = args.beam

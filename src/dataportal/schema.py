@@ -1,10 +1,17 @@
 import graphene
 from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import permission_required, login_required
+from graphene_django.converter import convert_django_field
+from django_mysql.models import JSONField
+
+
+@convert_django_field.register(JSONField)
+def convert_json_field_to_string(field, registry=None):
+    return graphene.String()
+
 
 from .models import (
     Basebandings,
-    Caspsrconfigs,
     Collections,
     Ephemerides,
     Filterbankings,
@@ -12,12 +19,12 @@ from .models import (
     Instrumentconfigs,
     Launches,
     Observations,
-    Ptusecalibrations,
-    Ptuseconfigs,
+    Calibrations,
     Pipelineimages,
     Pipelines,
     Processingcollections,
     Processings,
+    Projects,
     Pulsaraliases,
     Pulsartargets,
     Pulsars,
@@ -34,11 +41,6 @@ from .models import (
 class BasebandingsType(DjangoObjectType):
     class Meta:
         model = Basebandings
-
-
-class CaspsrconfigsType(DjangoObjectType):
-    class Meta:
-        model = Caspsrconfigs
 
 
 class CollectionsType(DjangoObjectType):
@@ -76,14 +78,9 @@ class ObservationsType(DjangoObjectType):
         model = Observations
 
 
-class PtusecalibrationsType(DjangoObjectType):
+class CalibrationsType(DjangoObjectType):
     class Meta:
-        model = Ptusecalibrations
-
-
-class PtuseconfigsType(DjangoObjectType):
-    class Meta:
-        model = Ptuseconfigs
+        model = Calibrations
 
 
 class PipelineimagesType(DjangoObjectType):
@@ -104,6 +101,11 @@ class ProcessingcollectionsType(DjangoObjectType):
 class ProcessingsType(DjangoObjectType):
     class Meta:
         model = Processings
+
+
+class ProjectsType(DjangoObjectType):
+    class Meta:
+        model = Projects
 
 
 class PulsaraliasesType(DjangoObjectType):
@@ -148,7 +150,6 @@ class ToasType(DjangoObjectType):
 
 class Query(graphene.ObjectType):
     basebandings = graphene.List(BasebandingsType)
-    caspsrconfigs = graphene.List(CaspsrconfigsType)
     collections = graphene.List(CollectionsType)
     ephemerides = graphene.List(EphemeridesType)
     filterbankings = graphene.List(FilterbankingsType)
@@ -156,12 +157,12 @@ class Query(graphene.ObjectType):
     instrumentconfigs = graphene.List(InstrumentconfigsType)
     launches = graphene.List(LaunchesType)
     observations = graphene.List(ObservationsType)
-    ptusecalibrations = graphene.List(PtusecalibrationsType)
-    ptuseconfigs = graphene.List(PtuseconfigsType)
+    calibrations = graphene.List(CalibrationsType)
     pipelineimages = graphene.List(PipelineimagesType)
     pipelines = graphene.List(PipelinesType)
     processingcollections = graphene.List(ProcessingcollectionsType)
     processings = graphene.List(ProcessingsType)
+    projects = graphene.List(ProjectsType)
     pulsaraliases = graphene.List(PulsaraliasesType)
     pulsartargets = graphene.List(PulsartargetsType)
     pulsars = graphene.List(PulsarsType)
@@ -174,10 +175,6 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_basebandings(cls, info, **kwargs):
         return Basebandings.objects.all()
-
-    @login_required
-    def resolve_caspsrconfigs(cls, info, **kwargs):
-        return Caspsrconfigs.objects.all()
 
     @login_required
     def resolve_collections(cls, info, **kwargs):
@@ -208,12 +205,8 @@ class Query(graphene.ObjectType):
         return Observations.objects.all()
 
     @login_required
-    def resolve_ptusecalibrations(cls, info, **kwargs):
-        return Ptusecalibrations.objects.all()
-
-    @login_required
-    def resolve_ptuseconfigs(cls, info, **kwargs):
-        return Ptuseconfigs.objects.all()
+    def resolve_calibrations(cls, info, **kwargs):
+        return Calibrations.objects.all()
 
     @login_required
     def resolve_pipelineimages(cls, info, **kwargs):
@@ -230,6 +223,10 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_processings(cls, info, **kwargs):
         return Processings.objects.all()
+
+    @login_required
+    def resolve_projects(cls, info, **kwargs):
+        return Projects.objects.all()
 
     @login_required
     def resolve_pulsaraliases(cls, info, **kwargs):

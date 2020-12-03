@@ -1,14 +1,24 @@
 from django.db import models
+from django.db.models import F
+from django_mysql.models import Model
+from django_mysql.models import JSONField
+from .logic import get_meertime_filters, get_band
+from json import loads
+from datetime import timedelta
 
 
 class Basebandings(models.Model):
     processing = models.ForeignKey("Processings", models.DO_NOTHING)
 
 
-class Caspsrconfigs(models.Model):
-    observation = models.ForeignKey("Observations", models.DO_NOTHING)
-    pid = models.CharField(max_length=16)
-    configuration = models.TextField()  # This field type is a guess.
+class Calibrations(models.Model):
+    CALIBRATION_TYPES = [
+        ("pre", "pre"),
+        ("post", "post"),
+        ("none", "none"),
+    ]
+    calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
+    location = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Collections(models.Model):
@@ -20,7 +30,8 @@ class Ephemerides(models.Model):
     pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
     created_at = models.DateTimeField()
     created_by = models.CharField(max_length=64)
-    ephemeris = models.TextField()  # This field type is a guess.
+    # Keeping this as a text field for now, to avoid having to reformat the ephemeris when displaying
+    ephemeris = models.TextField()
     p0 = models.DecimalField(max_digits=10, decimal_places=8)
     dm = models.FloatField()
     rm = models.FloatField()
@@ -40,15 +51,21 @@ class Filterbankings(models.Model):
 
 class Foldings(models.Model):
     processing = models.ForeignKey("Processings", models.DO_NOTHING)
-    folding_ephemeris = models.ForeignKey(Ephemerides, models.DO_NOTHING)
+    folding_ephemeris = models.ForeignKey("Ephemerides", models.DO_NOTHING)
     nbin = models.IntegerField()
     npol = models.IntegerField()
     nchan = models.IntegerField()
     dm = models.FloatField(blank=True, null=True)
     tsubint = models.IntegerField()
 
+    @property
+    def band(cls):
+        freq = cls.processing.observation.instrument_config.frequency
+        return get_band(float(freq))
+
 
 class Instrumentconfigs(models.Model):
+    name = models.CharField(max_length=255)
     bandwidth = models.DecimalField(max_digits=12, decimal_places=6)
     frequency = models.DecimalField(max_digits=15, decimal_places=9)
     nchan = models.IntegerField()
@@ -66,31 +83,26 @@ class Launches(models.Model):
 
 class Observations(models.Model):
     target = models.ForeignKey("Targets", models.DO_NOTHING)
-    utc_start = models.DateTimeField()
-    duration = models.FloatField()
-    obs_type = models.CharField(max_length=8)
+    calibration = models.ForeignKey("Calibrations", models.DO_NOTHING, null=True)
     telescope = models.ForeignKey("Telescopes", models.DO_NOTHING)
-    instrument_config = models.ForeignKey(Instrumentconfigs, models.DO_NOTHING)
-    suspect = models.IntegerField()
+    instrument_config = models.ForeignKey("Instrumentconfigs", models.DO_NOTHING)
+    project = models.ForeignKey("Projects", models.DO_NOTHING)
+    config = JSONField(blank=True, null=True)
+    utc_start = models.DateTimeField()
+    duration = models.FloatField(null=True)
+    nant = models.IntegerField(blank=True, null=True)
+    nant_eff = models.IntegerField(blank=True, null=True)
+    suspect = models.BooleanField(default=False)
     comment = models.CharField(max_length=255, blank=True, null=True)
 
 
-class Ptusecalibrations(models.Model):
-    calibration_type = models.CharField(max_length=4)
-    location = models.CharField(max_length=255, blank=True, null=True)
+class Projects(models.Model):
+    default_embargo = timedelta(days=548)  # 18 months default embargo
 
-
-class Ptuseconfigs(models.Model):
-    observation = models.ForeignKey(Observations, models.DO_NOTHING)
-    calibration = models.ForeignKey(Ptusecalibrations, models.DO_NOTHING)
-    proposal_id = models.CharField(max_length=32)
-    schedule_block_id = models.CharField(max_length=32)
-    experiment_id = models.CharField(max_length=32)
-    phaseup_id = models.CharField(max_length=32, blank=True, null=True)
-    delaycal_id = models.CharField(max_length=32, blank=True, null=True)
-    nant = models.IntegerField()
-    nant_eff = models.IntegerField()
-    configuration = models.TextField()  # This field type is a guess.
+    code = models.CharField(max_length=255, unique=True)
+    short = models.CharField(max_length=20, default="???")
+    embargo_period = models.DurationField(default=default_embargo)
+    description = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Pipelineimages(models.Model):
@@ -106,7 +118,7 @@ class Pipelines(models.Model):
     revision = models.CharField(max_length=16)
     created_at = models.DateTimeField()
     created_by = models.CharField(max_length=64)
-    configuration = models.TextField(blank=True, null=True)  # This field type is a guess.
+    configuration = JSONField(blank=True, null=True)
 
 
 class Processingcollections(models.Model):
@@ -114,14 +126,15 @@ class Processingcollections(models.Model):
     collection = models.ForeignKey(Collections, models.DO_NOTHING)
 
 
-class Processings(models.Model):
+class Processings(Model):
     observation = models.ForeignKey(Observations, models.DO_NOTHING)
     pipeline = models.ForeignKey(Pipelines, models.DO_NOTHING)
     parent = models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
+    embargo_end = models.DateTimeField()
     location = models.CharField(max_length=255)
     job_state = models.CharField(max_length=255, blank=True, null=True)
-    job_output = models.TextField(blank=True, null=True)  # This field type is a guess.
-    results = models.TextField(blank=True, null=True)  # This field type is a guess.
+    job_output = JSONField(blank=True, null=True)
+    results = JSONField(blank=True, null=True)
 
 
 class Pulsaraliases(models.Model):
@@ -138,6 +151,21 @@ class Pulsars(models.Model):
     jname = models.CharField(max_length=64)
     state = models.CharField(max_length=255, blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
+
+    def get_observations_detail_data(cls, get_proposal_filters=get_meertime_filters):
+        annotations = {
+            "utc": F("processing__observation__utc_start"),
+            "bw": F("processing__observation__instrument_config__bandwidth"),
+            "length": F("processing__observation__duration"),
+            "proposal": F("processing__observation__duration"),
+            "beam": F("processing__observation__instrument_config__beam"),
+            "nant": F("processing__observation__nant"),
+            "nant_eff": F("processing__observation__nant_eff"),
+            "results": F("processing__results"),
+            "dm_eph": F("folding_ephemeris__dm"),
+        }
+        folds = Foldings.objects.filter(folding_ephemeris__pulsar=cls).annotate(**annotations)
+        return folds
 
 
 class Rfis(models.Model):
@@ -169,14 +197,16 @@ class Templates(models.Model):
 
 
 class Toas(models.Model):
+    QUALITY_CHOICES = [("nominal", "nominal"), ("bad", "bad")]
+
     processing = models.ForeignKey(Processings, models.DO_NOTHING)
     input_folding = models.ForeignKey(Foldings, models.DO_NOTHING)
-    timing_ephemeris = models.ForeignKey(Ephemerides, models.DO_NOTHING, blank=True, null=True)
+    timing_ephemeris = models.ForeignKey(Ephemerides, models.DO_NOTHING, null=True)
     template = models.ForeignKey(Templates, models.DO_NOTHING)
-    flags = models.TextField()  # This field type is a guess.
+    flags = JSONField()
     frequency = models.FloatField()
     mjd = models.CharField(max_length=32, blank=True, null=True)
     site = models.IntegerField(blank=True, null=True)
     uncertainty = models.FloatField(blank=True, null=True)
-    valid = models.IntegerField(blank=True, null=True)
+    quality = models.IntegerField(blank=True, null=True, choices=QUALITY_CHOICES)
     comment = models.CharField(max_length=255, blank=True, null=True)

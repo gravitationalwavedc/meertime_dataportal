@@ -5,6 +5,7 @@
 import MySQLdb as mysqldb
 import sql as qb
 import time
+import os
 
 from .dbmanager import DBManager
 

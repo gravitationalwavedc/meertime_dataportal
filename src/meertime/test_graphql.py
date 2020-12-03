@@ -6,7 +6,6 @@ from datetime import datetime
 
 from dataportal.models import (
     Basebandings,
-    Caspsrconfigs,
     Collections,
     Ephemerides,
     Filterbankings,
@@ -14,12 +13,12 @@ from dataportal.models import (
     Instrumentconfigs,
     Launches,
     Observations,
-    Ptusecalibrations,
-    Ptuseconfigs,
+    Calibrations,
     Pipelineimages,
     Pipelines,
     Processingcollections,
     Processings,
+    Projects,
     Pulsaraliases,
     Pulsartargets,
     Pulsars,

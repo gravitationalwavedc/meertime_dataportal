@@ -1,301 +1,455 @@
-CREATE TABLE `Observations` (
-  `id` int PRIMARY KEY AUTO_INCREMENT,
-  `target_id` int NOT NULL,
-  `utc_start` datetime NOT NULL,
-  `duration` float NOT NULL,
-  `obs_type` ENUM ('fold', 'search', 'baseband') NOT NULL,
-  `telescope_id` int NOT NULL,
-  `instrument_config_id` int NOT NULL,
-  `suspect` bool NOT NULL,
-  `comment` varchar(255)
-);
+--
+-- Produced using mysqldump from django-created db
+--
 
-CREATE TABLE `Telescopes` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `name` varchar(64) NOT NULL
-);
+--
+-- Table structure for table `dataportal_basebandings`
+--
 
-CREATE TABLE `InstrumentConfigs` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `bandwidth` DECIMAL(12,6) NOT NULL,
-  `frequency` DECIMAL(15,9) NOT NULL,
-  `nchan` int NOT NULL,
-  `npol` int NOT NULL,
-  `beam` varchar(16) NOT NULL
-);
+DROP TABLE IF EXISTS `dataportal_basebandings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_basebandings` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `processing_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_basebandi_processing_id_cd5cd99d_fk_dataporta` (`processing_id`),
+  CONSTRAINT `dataportal_basebandi_processing_id_cd5cd99d_fk_dataporta` FOREIGN KEY (`processing_id`) REFERENCES `dataportal_processings` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE `PTUSEConfigs` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `observation_id` int NOT NULL,
-  `calibration_id` int NOT NULL,
-  `proposal_id` varchar(32) NOT NULL,
-  `schedule_block_id` varchar(32) NOT NULL,
-  `experiment_id` varchar(32) NOT NULL,
-  `phaseup_id` varchar(32),
-  `delaycal_id` varchar(32),
-  `nant` int NOT NULL,
-  `nant_eff` int NOT NULL,
-  `configuration` JSON NOT NULL
-);
+--
+-- Table structure for table `dataportal_calibrations`
+--
 
-CREATE TABLE `PTUSECalibrations` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `calibration_type` ENUM ('pre', 'post', 'none') NOT NULL,
-  `location` varchar(255)
-);
+DROP TABLE IF EXISTS `dataportal_calibrations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_calibrations` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `calibration_type` varchar(4) NOT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE `CASPSRConfigs` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `observation_id` int NOT NULL,
-  `pid` varchar(16) NOT NULL,
-  `configuration` JSON NOT NULL
-);
+--
+-- Table structure for table `dataportal_collections`
+--
 
-CREATE TABLE `Processings` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `observation_id` int NOT NULL,
-  `pipeline_id` int NOT NULL,
-  `parent_id` int,
-  `location` varchar(255) NOT NULL,
-  `job_state` varchar(255),
-  `job_output` JSON,
-  `results` JSON
-);
-
-CREATE TABLE `Targets` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `dataportal_collections`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_collections` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(64) NOT NULL,
-  `raj` varchar(16) NOT NULL,
-  `decj` varchar(16) NOT NULL
-);
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE `Pulsars` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `jname` varchar(64) NOT NULL,
-  `state` varchar(255),
-  `comment` varchar(255)
-);
+--
+-- Table structure for table `dataportal_ephemerides`
+--
 
-CREATE TABLE `Pipelines` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `name` varchar(64) NOT NULL,
-  `description` varchar(255),
-  `revision` varchar(16) NOT NULL,
-  `created_at` datetime NOT NULL,
+DROP TABLE IF EXISTS `dataportal_ephemerides`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_ephemerides` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(6) NOT NULL,
   `created_by` varchar(64) NOT NULL,
-  `configuration` JSON
-);
-
-CREATE TABLE `Ephemerides` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `pulsar_id` int NOT NULL,
-  `created_at` datetime NOT NULL,
-  `created_by` varchar(64) NOT NULL,
-  `ephemeris` JSON NOT NULL,
+  `ephemeris` longtext NOT NULL,
   `p0` decimal(10,8) NOT NULL,
-  `dm` float NOT NULL,
-  `rm` float NOT NULL,
-  `comment` varchar(255),
-  `valid_from` datetime NOT NULL,
-  `valid_to` datetime NOT NULL
-);
+  `dm` double NOT NULL,
+  `rm` double NOT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `valid_from` datetime(6) NOT NULL,
+  `valid_to` datetime(6) NOT NULL,
+  `pulsar_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_ephemerid_pulsar_id_3e68759c_fk_dataporta` (`pulsar_id`),
+  CONSTRAINT `dataportal_ephemerid_pulsar_id_3e68759c_fk_dataporta` FOREIGN KEY (`pulsar_id`) REFERENCES `dataportal_pulsars` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE `Basebandings` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `processing_id` int NOT NULL
-);
+--
+-- Table structure for table `dataportal_filterbankings`
+--
 
-CREATE TABLE `Foldings` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `processing_id` int NOT NULL,
-  `folding_ephemeris_id` int NOT NULL,
-  `nbin` int NOT NULL,
-  `npol` int NOT NULL,
-  `nchan` int NOT NULL,
-  `dm` float,
-  `tsubint` int NOT NULL
-);
-
-CREATE TABLE `Filterbankings` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `processing_id` int NOT NULL,
+DROP TABLE IF EXISTS `dataportal_filterbankings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_filterbankings` (
+  `id` int NOT NULL AUTO_INCREMENT,
   `nbit` int NOT NULL,
   `npol` int NOT NULL,
   `nchan` int NOT NULL,
-  `tsamp` float NOT NULL,
-  `dm` float NOT NULL
-);
-
-CREATE TABLE `PipelineImages` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `tsamp` double NOT NULL,
+  `dm` double NOT NULL,
   `processing_id` int NOT NULL,
-  `rank` int NOT NULL,
-  `image_type` varchar(64),
-  `image` varchar(255) NOT NULL COMMENT 'The DJANGO image field'
-);
+  PRIMARY KEY (`id`),
+  KEY `dataportal_filterban_processing_id_f1db930e_fk_dataporta` (`processing_id`),
+  CONSTRAINT `dataportal_filterban_processing_id_f1db930e_fk_dataporta` FOREIGN KEY (`processing_id`) REFERENCES `dataportal_processings` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE `RFIs` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+--
+-- Table structure for table `dataportal_foldings`
+--
+
+DROP TABLE IF EXISTS `dataportal_foldings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_foldings` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `nbin` int NOT NULL,
+  `npol` int NOT NULL,
+  `nchan` int NOT NULL,
+  `dm` double DEFAULT NULL,
+  `tsubint` int NOT NULL,
+  `folding_ephemeris_id` int NOT NULL,
   `processing_id` int NOT NULL,
-  `folding_id` int NOT NULL,
-  `percent_zapped` float NOT NULL
-);
+  PRIMARY KEY (`id`),
+  KEY `dataportal_foldings_folding_ephemeris_id_28995ebf_fk_dataporta` (`folding_ephemeris_id`),
+  KEY `dataportal_foldings_processing_id_1a5663e4_fk_dataporta` (`processing_id`),
+  CONSTRAINT `dataportal_foldings_folding_ephemeris_id_28995ebf_fk_dataporta` FOREIGN KEY (`folding_ephemeris_id`) REFERENCES `dataportal_ephemerides` (`id`),
+  CONSTRAINT `dataportal_foldings_processing_id_1a5663e4_fk_dataporta` FOREIGN KEY (`processing_id`) REFERENCES `dataportal_processings` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE `Toas` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `processing_id` int NOT NULL,
-  `input_folding_id` int NOT NULL,
-  `timing_ephemeris_id` int,
-  `template_id` int NOT NULL,
-  `flags` JSON NOT NULL,
-  `frequency` double NOT NULL,
-  `mjd` varchar(32),
-  `site` int,
-  `uncertainty` float,
-  `valid` bool,
-  `comment` varchar(255)
-);
+--
+-- Table structure for table `dataportal_instrumentconfigs`
+--
 
-CREATE TABLE `Templates` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `dataportal_instrumentconfigs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_instrumentconfigs` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `bandwidth` decimal(12,6) NOT NULL,
+  `frequency` decimal(15,9) NOT NULL,
+  `nchan` int NOT NULL,
+  `npol` int NOT NULL,
+  `beam` varchar(16) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_launches`
+--
+
+DROP TABLE IF EXISTS `dataportal_launches`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_launches` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `parent_pipeline_id` int DEFAULT NULL,
+  `pipeline_id` int NOT NULL,
   `pulsar_id` int NOT NULL,
-  `frequency` float NOT NULL,
-  `bandwidth` float NOT NULL,
-  `created_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_launches_parent_pipeline_id_418735f2_fk_dataporta` (`parent_pipeline_id`),
+  KEY `dataportal_launches_pipeline_id_06861798_fk_dataporta` (`pipeline_id`),
+  KEY `dataportal_launches_pulsar_id_07ff17ce_fk_dataportal_pulsars_id` (`pulsar_id`),
+  CONSTRAINT `dataportal_launches_parent_pipeline_id_418735f2_fk_dataporta` FOREIGN KEY (`parent_pipeline_id`) REFERENCES `dataportal_pipelines` (`id`),
+  CONSTRAINT `dataportal_launches_pipeline_id_06861798_fk_dataporta` FOREIGN KEY (`pipeline_id`) REFERENCES `dataportal_pipelines` (`id`),
+  CONSTRAINT `dataportal_launches_pulsar_id_07ff17ce_fk_dataportal_pulsars_id` FOREIGN KEY (`pulsar_id`) REFERENCES `dataportal_pulsars` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_observations`
+--
+
+DROP TABLE IF EXISTS `dataportal_observations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_observations` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `config` json DEFAULT NULL,
+  `utc_start` datetime(6) NOT NULL,
+  `duration` double DEFAULT NULL,
+  `nant` int DEFAULT NULL,
+  `nant_eff` int DEFAULT NULL,
+  `suspect` tinyint(1) NOT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `calibration_id` int DEFAULT NULL,
+  `instrument_config_id` int NOT NULL,
+  `project_id` int NOT NULL,
+  `target_id` int NOT NULL,
+  `telescope_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_observati_calibration_id_96ded406_fk_dataporta` (`calibration_id`),
+  KEY `dataportal_observati_instrument_config_id_e1776b8c_fk_dataporta` (`instrument_config_id`),
+  KEY `dataportal_observati_project_id_848e1e3d_fk_dataporta` (`project_id`),
+  KEY `dataportal_observati_target_id_4c54834a_fk_dataporta` (`target_id`),
+  KEY `dataportal_observati_telescope_id_8832a2ac_fk_dataporta` (`telescope_id`),
+  CONSTRAINT `dataportal_observati_calibration_id_96ded406_fk_dataporta` FOREIGN KEY (`calibration_id`) REFERENCES `dataportal_calibrations` (`id`),
+  CONSTRAINT `dataportal_observati_instrument_config_id_e1776b8c_fk_dataporta` FOREIGN KEY (`instrument_config_id`) REFERENCES `dataportal_instrumentconfigs` (`id`),
+  CONSTRAINT `dataportal_observati_project_id_848e1e3d_fk_dataporta` FOREIGN KEY (`project_id`) REFERENCES `dataportal_projects` (`id`),
+  CONSTRAINT `dataportal_observati_target_id_4c54834a_fk_dataporta` FOREIGN KEY (`target_id`) REFERENCES `dataportal_targets` (`id`),
+  CONSTRAINT `dataportal_observati_telescope_id_8832a2ac_fk_dataporta` FOREIGN KEY (`telescope_id`) REFERENCES `dataportal_telescopes` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_pipelineimages`
+--
+
+DROP TABLE IF EXISTS `dataportal_pipelineimages`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_pipelineimages` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `rank` int NOT NULL,
+  `image_type` varchar(64) DEFAULT NULL,
+  `image` varchar(255) NOT NULL,
+  `processing_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_pipelinei_processing_id_e60525d6_fk_dataporta` (`processing_id`),
+  CONSTRAINT `dataportal_pipelinei_processing_id_e60525d6_fk_dataporta` FOREIGN KEY (`processing_id`) REFERENCES `dataportal_processings` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_pipelines`
+--
+
+DROP TABLE IF EXISTS `dataportal_pipelines`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_pipelines` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `revision` varchar(16) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `created_by` varchar(64) NOT NULL,
+  `configuration` json DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_processingcollections`
+--
+
+DROP TABLE IF EXISTS `dataportal_processingcollections`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_processingcollections` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `collection_id` int NOT NULL,
+  `processing_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_processin_collection_id_1531a3ec_fk_dataporta` (`collection_id`),
+  KEY `dataportal_processin_processing_id_11a1df46_fk_dataporta` (`processing_id`),
+  CONSTRAINT `dataportal_processin_collection_id_1531a3ec_fk_dataporta` FOREIGN KEY (`collection_id`) REFERENCES `dataportal_collections` (`id`),
+  CONSTRAINT `dataportal_processin_processing_id_11a1df46_fk_dataporta` FOREIGN KEY (`processing_id`) REFERENCES `dataportal_processings` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_processings`
+--
+
+DROP TABLE IF EXISTS `dataportal_processings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_processings` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `embargo_end` datetime(6) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  `location` varchar(255) NOT NULL,
+  `job_state` varchar(255) DEFAULT NULL,
+  `job_output` json DEFAULT NULL,
+  `results` json DEFAULT NULL,
+  `observation_id` int NOT NULL,
+  `parent_id` int DEFAULT NULL,
+  `pipeline_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_processin_observation_id_b17374fa_fk_dataporta` (`observation_id`),
+  KEY `dataportal_processin_parent_id_b8e9c97a_fk_dataporta` (`parent_id`),
+  KEY `dataportal_processin_pipeline_id_a2b8120d_fk_dataporta` (`pipeline_id`),
+  CONSTRAINT `dataportal_processin_observation_id_b17374fa_fk_dataporta` FOREIGN KEY (`observation_id`) REFERENCES `dataportal_observations` (`id`),
+  CONSTRAINT `dataportal_processin_parent_id_b8e9c97a_fk_dataporta` FOREIGN KEY (`parent_id`) REFERENCES `dataportal_processings` (`id`),
+  CONSTRAINT `dataportal_processin_pipeline_id_a2b8120d_fk_dataporta` FOREIGN KEY (`pipeline_id`) REFERENCES `dataportal_pipelines` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_projects`
+--
+
+DROP TABLE IF EXISTS `dataportal_projects`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_projects` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `code` varchar(255) NOT NULL,
+  `short` varchar(20) NOT NULL,
+  `embargo_period` bigint NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_pulsaraliases`
+--
+
+DROP TABLE IF EXISTS `dataportal_pulsaraliases`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_pulsaraliases` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `alias` varchar(64) NOT NULL,
+  `pulsar_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_pulsarali_pulsar_id_90e08a20_fk_dataporta` (`pulsar_id`),
+  CONSTRAINT `dataportal_pulsarali_pulsar_id_90e08a20_fk_dataporta` FOREIGN KEY (`pulsar_id`) REFERENCES `dataportal_pulsars` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_pulsars`
+--
+
+DROP TABLE IF EXISTS `dataportal_pulsars`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_pulsars` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `jname` varchar(64) NOT NULL,
+  `state` varchar(255) DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_pulsartargets`
+--
+
+DROP TABLE IF EXISTS `dataportal_pulsartargets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_pulsartargets` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `pulsar_id` int NOT NULL,
+  `target_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_pulsartar_pulsar_id_5ab05064_fk_dataporta` (`pulsar_id`),
+  KEY `dataportal_pulsartar_target_id_fde4dabb_fk_dataporta` (`target_id`),
+  CONSTRAINT `dataportal_pulsartar_pulsar_id_5ab05064_fk_dataporta` FOREIGN KEY (`pulsar_id`) REFERENCES `dataportal_pulsars` (`id`),
+  CONSTRAINT `dataportal_pulsartar_target_id_fde4dabb_fk_dataporta` FOREIGN KEY (`target_id`) REFERENCES `dataportal_targets` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_rfis`
+--
+
+DROP TABLE IF EXISTS `dataportal_rfis`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_rfis` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `percent_zapped` double NOT NULL,
+  `folding_id` int NOT NULL,
+  `processing_id` int NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_rfis_folding_id_cd6b99fe_fk_dataportal_foldings_id` (`folding_id`),
+  KEY `dataportal_rfis_processing_id_3d293796_fk_dataporta` (`processing_id`),
+  CONSTRAINT `dataportal_rfis_folding_id_cd6b99fe_fk_dataportal_foldings_id` FOREIGN KEY (`folding_id`) REFERENCES `dataportal_foldings` (`id`),
+  CONSTRAINT `dataportal_rfis_processing_id_3d293796_fk_dataporta` FOREIGN KEY (`processing_id`) REFERENCES `dataportal_processings` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_targets`
+--
+
+DROP TABLE IF EXISTS `dataportal_targets`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_targets` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL,
+  `raj` varchar(16) NOT NULL,
+  `decj` varchar(16) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_telescopes`
+--
+
+DROP TABLE IF EXISTS `dataportal_telescopes`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_telescopes` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `name` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `dataportal_templates`
+--
+
+DROP TABLE IF EXISTS `dataportal_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_templates` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `frequency` double NOT NULL,
+  `bandwidth` double NOT NULL,
+  `created_at` datetime(6) NOT NULL,
   `created_by` varchar(64) NOT NULL,
   `location` varchar(255) NOT NULL,
-  `method` varchar(255),
-  `type` varchar(255),
-  `comment` varchar(255)
-);
-
-CREATE TABLE `Launches` (
-  `pipeline_id` int NOT NULL,
-  `parent_pipeline_id` int,
-  `pulsar_id` int NOT NULL
-);
-
-CREATE TABLE `PulsarTargets` (
-  `target_id` int NOT NULL,
-  `pulsar_id` int NOT NULL
-);
-
-CREATE TABLE `PulsarAliases` (
+  `method` varchar(255) DEFAULT NULL,
+  `type` varchar(255) DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
   `pulsar_id` int NOT NULL,
-  `alias` varchar(64) NOT NULL
-);
+  PRIMARY KEY (`id`),
+  KEY `dataportal_templates_pulsar_id_120f5002_fk_dataportal_pulsars_id` (`pulsar_id`),
+  CONSTRAINT `dataportal_templates_pulsar_id_120f5002_fk_dataportal_pulsars_id` FOREIGN KEY (`pulsar_id`) REFERENCES `dataportal_pulsars` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
-CREATE TABLE `ProcessingCollections` (
+--
+-- Table structure for table `dataportal_toas`
+--
+
+DROP TABLE IF EXISTS `dataportal_toas`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `dataportal_toas` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `flags` json NOT NULL,
+  `frequency` double NOT NULL,
+  `mjd` varchar(32) DEFAULT NULL,
+  `site` int DEFAULT NULL,
+  `uncertainty` double DEFAULT NULL,
+  `quality` int DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `input_folding_id` int NOT NULL,
   `processing_id` int NOT NULL,
-  `collection_id` int NOT NULL
-);
-
-CREATE TABLE `Collections` (
-  `id` int PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `name` varchar(64) NOT NULL,
-  `description` varchar(255)
-);
-
-ALTER TABLE `Observations` ADD FOREIGN KEY (`target_id`) REFERENCES `Targets` (`id`);
-
-ALTER TABLE `Observations` ADD FOREIGN KEY (`telescope_id`) REFERENCES `Telescopes` (`id`);
-
-ALTER TABLE `Observations` ADD FOREIGN KEY (`instrument_config_id`) REFERENCES `InstrumentConfigs` (`id`);
-
-ALTER TABLE `PTUSEConfigs` ADD FOREIGN KEY (`observation_id`) REFERENCES `Observations` (`id`);
-
-ALTER TABLE `PTUSEConfigs` ADD FOREIGN KEY (`calibration_id`) REFERENCES `PTUSECalibrations` (`id`);
-
-ALTER TABLE `CASPSRConfigs` ADD FOREIGN KEY (`observation_id`) REFERENCES `Observations` (`id`);
-
-ALTER TABLE `Processings` ADD FOREIGN KEY (`observation_id`) REFERENCES `Observations` (`id`);
-
-ALTER TABLE `Processings` ADD FOREIGN KEY (`pipeline_id`) REFERENCES `Pipelines` (`id`);
-
-ALTER TABLE `Processings` ADD FOREIGN KEY (`parent_id`) REFERENCES `Processings` (`id`);
-
-ALTER TABLE `Ephemerides` ADD FOREIGN KEY (`pulsar_id`) REFERENCES `Pulsars` (`id`);
-
-ALTER TABLE `Basebandings` ADD FOREIGN KEY (`processing_id`) REFERENCES `Processings` (`id`);
-
-ALTER TABLE `Foldings` ADD FOREIGN KEY (`processing_id`) REFERENCES `Processings` (`id`);
-
-ALTER TABLE `Foldings` ADD FOREIGN KEY (`folding_ephemeris_id`) REFERENCES `Ephemerides` (`id`);
-
-ALTER TABLE `Filterbankings` ADD FOREIGN KEY (`processing_id`) REFERENCES `Processings` (`id`);
-
-ALTER TABLE `PipelineImages` ADD FOREIGN KEY (`processing_id`) REFERENCES `Processings` (`id`);
-
-ALTER TABLE `RFIs` ADD FOREIGN KEY (`processing_id`) REFERENCES `Processings` (`id`);
-
-ALTER TABLE `RFIs` ADD FOREIGN KEY (`folding_id`) REFERENCES `Foldings` (`id`);
-
-ALTER TABLE `Toas` ADD FOREIGN KEY (`processing_id`) REFERENCES `Processings` (`id`);
-
-ALTER TABLE `Toas` ADD FOREIGN KEY (`input_folding_id`) REFERENCES `Foldings` (`id`);
-
-ALTER TABLE `Toas` ADD FOREIGN KEY (`timing_ephemeris_id`) REFERENCES `Ephemerides` (`id`);
-
-ALTER TABLE `Toas` ADD FOREIGN KEY (`template_id`) REFERENCES `Templates` (`id`);
-
-ALTER TABLE `Templates` ADD FOREIGN KEY (`pulsar_id`) REFERENCES `Pulsars` (`id`);
-
-ALTER TABLE `Launches` ADD FOREIGN KEY (`pipeline_id`) REFERENCES `Pipelines` (`id`);
-
-ALTER TABLE `Launches` ADD FOREIGN KEY (`parent_pipeline_id`) REFERENCES `Pipelines` (`id`);
-
-ALTER TABLE `Launches` ADD FOREIGN KEY (`pulsar_id`) REFERENCES `Pulsars` (`id`);
-
-ALTER TABLE `PulsarTargets` ADD FOREIGN KEY (`target_id`) REFERENCES `Targets` (`id`);
-
-ALTER TABLE `PulsarTargets` ADD FOREIGN KEY (`pulsar_id`) REFERENCES `Pulsars` (`id`);
-
-ALTER TABLE `PulsarAliases` ADD FOREIGN KEY (`pulsar_id`) REFERENCES `Pulsars` (`id`);
-
-ALTER TABLE `ProcessingCollections` ADD FOREIGN KEY (`processing_id`) REFERENCES `Processings` (`id`);
-
-ALTER TABLE `ProcessingCollections` ADD FOREIGN KEY (`collection_id`) REFERENCES `Collections` (`id`);
-
-ALTER TABLE `Observations` COMMENT = "Abstract definition of an observation - does not define the data product produced by PTUSE - that is performed in a Processings table entry";
-
-ALTER TABLE `Telescopes` COMMENT = "common telescope configuration";
-
-ALTER TABLE `InstrumentConfigs` COMMENT = "basic configuration of the telescope, the parameters are the input to the signal processing";
-
-ALTER TABLE `PTUSEConfigs` COMMENT = "MeerKAT specific observation configuration parameters";
-
-ALTER TABLE `CASPSRConfigs` COMMENT = "CASPSR specific observation configuration parameters";
-
-ALTER TABLE `Processings` COMMENT = "Processing of an data from an observation, could include PTUSE search mode, PTUSE fold mode, OzStar fold of PTUSE search mode, RFI Cleaning of fold mode, etc";
-
-ALTER TABLE `Targets` COMMENT = "antenna / tied array beam position";
-
-ALTER TABLE `Pulsars` COMMENT = "both pulsars and calibrators in this table";
-
-ALTER TABLE `Pipelines` COMMENT = "Definition of a processing pipeline including configuration parameters for that pipeline";
-
-ALTER TABLE `Ephemerides` COMMENT = "copied from previous DB definition";
-
-ALTER TABLE `Basebandings` COMMENT = "Processing that results in a baseband data product";
-
-ALTER TABLE `Foldings` COMMENT = "Processing that results in a folded data product";
-
-ALTER TABLE `Filterbankings` COMMENT = "Processing that results in a filterbank data product";
-
-ALTER TABLE `PipelineImages` COMMENT = "Images produced by pipelines that will be uploaded to the webserver for display";
-
-ALTER TABLE `RFIs` COMMENT = "RFI metrics from an observation, more detail could be added";
-
-ALTER TABLE `Toas` COMMENT = "copied from previous DB definition";
-
-ALTER TABLE `Templates` COMMENT = "copied from previous DB definition";
-
-ALTER TABLE `Launches` COMMENT = "receipe for which pipelines should be run on which pulsars";
-
-ALTER TABLE `PulsarTargets` COMMENT = "mapping from tied array beam target names to pulsar names - useful for GCs";
-
-ALTER TABLE `PulsarAliases` COMMENT = "Alternate source names for the same pulsar";
-
-ALTER TABLE `ProcessingCollections` COMMENT = "An mapping of processings to a collection";
-
-ALTER TABLE `Collections` COMMENT = "An logical grouping which can host multple processings";
+  `template_id` int NOT NULL,
+  `timing_ephemeris_id` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `dataportal_toas_input_folding_id_eac98ced_fk_dataporta` (`input_folding_id`),
+  KEY `dataportal_toas_processing_id_d2eb77e4_fk_dataporta` (`processing_id`),
+  KEY `dataportal_toas_template_id_503d0842_fk_dataportal_templates_id` (`template_id`),
+  KEY `dataportal_toas_timing_ephemeris_id_9a8830a3_fk_dataporta` (`timing_ephemeris_id`),
+  CONSTRAINT `dataportal_toas_input_folding_id_eac98ced_fk_dataporta` FOREIGN KEY (`input_folding_id`) REFERENCES `dataportal_foldings` (`id`),
+  CONSTRAINT `dataportal_toas_processing_id_d2eb77e4_fk_dataporta` FOREIGN KEY (`processing_id`) REFERENCES `dataportal_processings` (`id`),
+  CONSTRAINT `dataportal_toas_template_id_503d0842_fk_dataportal_templates_id` FOREIGN KEY (`template_id`) REFERENCES `dataportal_templates` (`id`),
+  CONSTRAINT `dataportal_toas_timing_ephemeris_id_9a8830a3_fk_dataporta` FOREIGN KEY (`timing_ephemeris_id`) REFERENCES `dataportal_ephemerides` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;

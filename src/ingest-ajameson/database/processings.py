@@ -10,20 +10,20 @@ LIMIT 1
 """
 
 GET_PROCESSINGS_QUERY = """
-SELECT observation_id, pipeline_id, parent_id, location, job_state, job_output, results
+SELECT observation_id, pipeline_id, parent_id, embargo_end, location, job_state, job_output, results
 FROM dataportal_processings
 WHERE id = %d
 LIMIT 1
 """
 
 INSERT_PROCESSINGS_ORPHAN_QUERY = """
-INSERT INTO dataportal_processings (observation_id, pipeline_id, location, job_state, job_output, results)
-VALUES (%d, %d, '%s', '%s', '%s', '%s')
+INSERT INTO dataportal_processings (observation_id, pipeline_id, embargo_end, location, job_state, job_output, results)
+VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s')
 """
 
 INSERT_PROCESSINGS_QUERY = """
-INSERT INTO dataportal_processings (observation_id, pipeline_id, parent_id, location, job_state, job_output, results)
-VALUES (%d, %d, %d, '%s', '%s', '%s', '%s')
+INSERT INTO dataportal_processings (observation_id, pipeline_id, parent_id, embargo_end, location, job_state, job_output, results)
+VALUES (%d, %d, %d, '%s', '%s', '%s', '%s', '%s')
 """
 
 
@@ -31,7 +31,7 @@ class Processings:
     def __init__(self, db):
         self.db = db
 
-    def get_id(self, observation_id, pipeline_id, parent_id, location, results, create=False):
+    def get_id(self, observation_id, pipeline_id, parent_id, embargo_end, location, results, create=False):
         """get the id for the specified instrument config"""
         query = GET_PROCESSINGS_ID_QUERY % (observation_id, pipeline_id, location, results)
         try:
@@ -42,7 +42,9 @@ class Processings:
         if create and output is None:
             job_state = "None"
             job_output = "{}"
-            output = self.new(observation_id, pipeline_id, parent_id, location, job_state, job_output, results)
+            output = self.new(
+                observation_id, pipeline_id, parent_id, embargo_end, location, job_state, job_output, results
+            )
         return output
 
     def get_config(self, id):
@@ -57,11 +59,12 @@ class Processings:
         output = self.db.get_output()
         return database.util.singular_dict(output)
 
-    def new(self, observation_id, pipeline_id, parent_id, location, job_state, job_output, results):
+    def new(self, observation_id, pipeline_id, parent_id, embargo_end, location, job_state, job_output, results):
         if parent_id is None:
             query = INSERT_PROCESSINGS_ORPHAN_QUERY % (
                 observation_id,
                 pipeline_id,
+                embargo_end,
                 location,
                 job_state,
                 job_output,
@@ -72,6 +75,7 @@ class Processings:
                 observation_id,
                 pipeline_id,
                 parent_id,
+                embargo_end,
                 location,
                 job_state,
                 job_output,

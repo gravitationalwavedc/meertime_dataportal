@@ -8,14 +8,14 @@ class KeyValueStore:
         self.read_file(fname)
 
     def read_file(self, fname):
-        fptr = open(fname, 'r')
+        fptr = open(fname, "r")
         for line in fptr:
             # remove all comments
             line = line.strip()
             line = re.sub("#.*", "", line)
             if line:
                 line = re.sub("\s+", " ", line)
-                parts = line.split(' ', 1)
+                parts = line.split(" ", 1)
                 if len(parts) == 2:
                     self.cfg[parts[0]] = parts[1].strip()
         fptr.close()
@@ -58,22 +58,17 @@ class PTUSEHeader(Header):
         Header.parse(self)
 
         self.proposal_id = self.get("PROPOSAL_ID")
-        self.schedule_block_id = self.get("SCHEDULE_BLOCK_ID")
-        self.experiment_id = self.get("EXPERIMENT_ID")
-        self.phaseup_id = self.get("PHASEUP_ID")
-        self.delaycal_id = self.get("DELCAY_ID")
+
         self.nant = len(self.get("ANTENNAE").split(","))
 
         h_weights = self.get("WEIGHTS_POLH").split(",")
         v_weights = self.get("WEIGHTS_POLV").split(",")
-        polh = 0
-        polv = 0
+        nant_eff_h = 0
+        nant_eff_v = 0
         for w in h_weights:
-            polh += float(w)
+            nant_eff_h += float(w)
         for w in v_weights:
-            polv += float(w)
-        nant_eff_h = polh / len(h_weights)
-        nant_eff_v = polh / len(v_weights)
+            nant_eff_v += float(w)
         self.nant_eff = int((nant_eff_h + nant_eff_v) / 2)
         self.configuration = json.dumps(self.cfg)
 

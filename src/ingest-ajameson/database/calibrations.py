@@ -1,27 +1,27 @@
 import logging
 import database
 
-GET_PTUSECALIBRATIONS_ID_QUERY = """
-SELECT dataportal_ptusecalibrations.id
-FROM dataportal_ptusecalibrations
+GET_CALIBRATIONS_ID_QUERY = """
+SELECT dataportal_calibrations.id
+FROM dataportal_calibrations
 WHERE calibration_type = '%s' and location ='%s'
 LIMIT 1
 """
 
-GET_PTUSECALIBRATIONS_CONFIG_QUERY = """
+GET_CALIBRATIONS_CONFIG_QUERY = """
 SELECT calibration_type, location
-FROM dataportal_ptusecalibrations
+FROM dataportal_calibrations
 WHERE id = %d
 LIMIT 1
 """
 
-INSERT_PTUSECALIBRATIONS_NAME_QUERY = """
-INSERT INTO dataportal_ptusecalibrations (calibration_type, location)
+INSERT_CALIBRATIONS_NAME_QUERY = """
+INSERT INTO dataportal_calibrations (calibration_type, location)
 VALUES ('%s', '%s');
 """
 
 
-class PTUSECalibrations:
+class Calibrations:
     def __init__(self, db):
         self.db = db
         self.cal_dir = "/fred/oz005/users/aparthas/reprocessing_MK/poln_calibration/"
@@ -45,8 +45,8 @@ class PTUSECalibrations:
         return output
 
     def _get_id(self, calibration_type, location):
-        """get the id for the ptuse calibration from the type and location"""
-        query = GET_PTUSECALIBRATIONS_ID_QUERY % (calibration_type, location)
+        """get the id for the calibration from the type and location"""
+        query = GET_CALIBRATIONS_ID_QUERY % (calibration_type, location)
         try:
             return self.db.get_singular_value(query, "id")
         except Exception as error:
@@ -54,8 +54,8 @@ class PTUSECalibrations:
             raise error
 
     def get_config(self, id):
-        """get the ptuse calibration dict fro the id"""
-        query = GET_PTUSECALIBRATIONS_CONFIG_QUERY % (id)
+        """get the calibration dict fro the id"""
+        query = GET_CALIBRATIONS_CONFIG_QUERY % (id)
         try:
             self.db.execute_query(query)
         except Exception as error:
@@ -67,8 +67,8 @@ class PTUSECalibrations:
         return database.util.singular_dict(output)
 
     def new(self, calibration_type, location):
-        """create a new ptuse_calibration """
-        query = INSERT_PTUSECALIBRATIONS_NAME_QUERY % (calibration_type, location)
+        """create a new calibration """
+        query = INSERT_CALIBRATIONS_NAME_QUERY % (calibration_type, location)
         try:
             self.db.execute_insert(query)
         except Exception as error:

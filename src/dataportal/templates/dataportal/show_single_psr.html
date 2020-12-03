@@ -9,7 +9,7 @@
 
 {% block content %}
 {% if obs_list %}
-Go <a href="{% url 'fold' %}">back</a>
+Go <a href="">back</a>
 <h2>{{ psr }}</h2>
 <div class="row">
   <div class="col-8">
@@ -60,10 +60,9 @@ Go <a href="{% url 'fold' %}">back</a>
       {% for obs in obs_list %}
       <tr>
         <td class="text-nowrap">
-          <a
-            href="{% url 'obs_detail' obs.pulsar.jname obs.utc.utc_ts|date:'Y-m-d-H:i:s'  obs.beam %}">{{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}</a>
+          <a href="">{{ obs.utc|date:'Y-m-d-H:i:s' }}</a>
         </td>
-        <td>{{ obs.proposal.proposal_short }}</td>
+        <td>{{ obs.proposal }}</td>
         <td>{{ obs.length|div:60|floatformat:1 }}</td>
         <td>{{ obs.beam }}</td>
         <td>{{ obs.bw|floatformat:2 }}</td>
@@ -72,11 +71,15 @@ Go <a href="{% url 'fold' %}">back</a>
         <td>{{ obs.nbin }}</td>
         <td>{{ obs.nant }}</td>
         <td>{{ obs.nant_eff }}</td>
-        <td>{{ obs.dm_fold|floatformat:-4 }}</td>
+        <td>{{ obs.dm_eph|floatformat:-4 }}</td>
         <td>{{ obs.dm_pipe|default_if_none:"0"|floatformat:5 }}</td>
         <td>{{ obs.rm_pipe|default_if_none:"0"|floatformat:2 }}</td>
-        <td>{{ obs.snr_spip|floatformat:1 }}</td>
+        {% comment %}<td id="snr"></td>{% endcomment %}
+        <td>{{ obs.results.snr|floatformat:1 }}</td>
         <td>{{ obs.snr_pipe|default_if_none:"0"|floatformat:1 }}</td>
+        {% comment %}{{ obs.snr|json_script:"results" }}
+        <script>document.getElementById("snr").innerHTML = JSON.parse(document.getElementById("results").textContent)</script>
+        {% endcomment %}
       </tr>
       {% endfor %}
     </tbody>
