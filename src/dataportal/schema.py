@@ -159,7 +159,11 @@ class Query(graphene.ObjectType):
     observations = graphene.List(ObservationsType)
     calibrations = graphene.List(CalibrationsType)
     pipelineimages = graphene.List(PipelineimagesType)
+
     pipelines = graphene.List(PipelinesType)
+    pipelineById = graphene.Field(PipelinesType, id=graphene.Int())
+    pipelinesByName = graphene.List(PipelinesType, name=graphene.String())
+
     processingcollections = graphene.List(ProcessingcollectionsType)
     processings = graphene.List(ProcessingsType)
     projects = graphene.List(ProjectsType)
@@ -223,6 +227,20 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_pipelines(cls, info, **kwargs):
         return Pipelines.objects.all()
+
+    @login_required
+    def resolve_pipelineById(cls, info, **kwargs):
+        id = kwargs.get('id')
+        if id is not None:
+            return Pipelines.objects.get(pk=id)
+        return None
+
+    @login_required
+    def resolve_pipelinesByName(cls, info, **kwargs):
+        name = kwargs.get('name')
+        if name is not None:
+            return Pipelines.objects.filter(name=name)
+        return None
 
     @login_required
     def resolve_processingcollections(cls, info, **kwargs):
@@ -364,15 +382,65 @@ class UpdateTarget(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_targets")
     def mutate(cls, self, info, id, name, raj, decj):
-        ok = False
         _target = Targets.objects.get(pk=id)
         if _target:
-            ok = True
             _target.name = name
             _target.raj = raj
             _target.decj = decj
-            return UpdateTarget(ok=ok, target=_target)
-        return UpdateTarget(ok=ok, target=None)
+            return UpdateTarget(target=_target)
+        return UpdateTarget(target=None)
+
+
+class PipelinesInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
+    description = graphene.String(required=True)
+    revision = graphene.String(required=True)
+    createdAt = graphene.DateTime(required=True)
+    createdBy = graphene.String(required=True)
+    configuration = graphene.String(required=True)
+
+
+class CreatePipeline(graphene.Mutation):
+    class Arguments:
+        input = PipelinesInput(required=True)
+
+    pipeline = graphene.Field(PipelinesType)
+
+    @classmethod
+    @permission_required("dataportal.add_pipelines")
+    def mutate(cls, self, info, input=None):
+        _pipeline, _ = Pipelines.objects.get_or_create(
+            name=input.name,
+            description=input.description,
+            revision=input.revision,
+            created_at=input.createdAt,
+            created_by=input.createdBy,
+            configuration=input.configuration,
+        )
+        return CreatePipeline(pipeline=_pipeline)
+
+
+class UpdatePipeline(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        input = PipelinesInput(required=True)
+
+    pipeline = graphene.Field(PipelinesType)
+
+    @classmethod
+    @permission_required("dataportal.add_pipelines")
+    def mutate(cls, self, info, id, input=None):
+        _pipeline = Pipelines.objects.get(pk=id)
+        if _pipeline:
+            _pipeline.id = id
+            _pipeline.name = input.name
+            _pipeline.description = input.description
+            _pipeline.revision = input.revision
+            _pipeline.created_at = input.createdAt
+            _pipeline.created_by = input.createdBy
+            _pipeline.configuration = input.configuration
+            return UpdatePipeline(pipeline=_pipeline)
+        return UpdatePipeline(pipeline=None)
 
 
 class Mutation(graphene.ObjectType):
@@ -380,3 +448,5 @@ class Mutation(graphene.ObjectType):
     update_target = UpdateTarget.Field()
     create_pulsar = CreatePulsar.Field()
     update_pulsar = UpdatePulsar.Field()
+    create_pipeline = CreatePipeline.Field()
+    update_pipeline = UpdatePipeline.Field()

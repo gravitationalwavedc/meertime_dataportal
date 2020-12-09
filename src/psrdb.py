@@ -3,6 +3,7 @@ import sys
 
 from cli.tables.pulsars import Pulsars
 from cli.tables.targets import Targets
+from cli.tables.pipelines import Pipelines
 from cli.graphql_client import GraphQLClient
 
 if __name__ == "__main__":
@@ -17,7 +18,7 @@ if __name__ == "__main__":
 
     subparsers = parser.add_subparsers(dest='command', required=True, help='Database models which can be interrogated')
 
-    tables = [Pulsars, Targets]
+    tables = [Pulsars, Targets, Pipelines]
     configured = []
     for t in tables:
         n = t.get_name()
