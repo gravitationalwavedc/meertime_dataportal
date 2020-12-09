@@ -165,9 +165,17 @@ class Query(graphene.ObjectType):
     projects = graphene.List(ProjectsType)
     pulsaraliases = graphene.List(PulsaraliasesType)
     pulsartargets = graphene.List(PulsartargetsType)
+
     pulsars = graphene.List(PulsarsType)
+    pulsarById = graphene.Field(PulsarsType, id=graphene.Int())
+    pulsarsByJname = graphene.List(PulsarsType, jname=graphene.String())
+
     rfis = graphene.List(RfisType)
+
     targets = graphene.List(TargetsType)
+    targetById = graphene.Field(TargetsType, id=graphene.Int())
+    targetsByName = graphene.List(TargetsType, name=graphene.String())
+
     telescopes = graphene.List(TelescopesType)
     templates = graphene.List(TemplatesType)
     toas = graphene.List(ToasType)
@@ -241,12 +249,40 @@ class Query(graphene.ObjectType):
         return Pulsars.objects.all()
 
     @login_required
+    def resolve_pulsarById(cls, info, **kwargs):
+        id = kwargs.get('id')
+        if id is not None:
+            return Pulsars.objects.get(pk=id)
+        return None
+
+    @login_required
+    def resolve_pulsarsByJname(cls, info, **kwargs):
+        jname = kwargs.get('jname')
+        if jname is not None:
+            return Pulsars.objects.filter(jname=jname)
+        return None
+
+    @login_required
     def resolve_rfis(cls, info, **kwargs):
         return Rfis.objects.all()
 
     @login_required
     def resolve_targets(cls, info, **kwargs):
         return Targets.objects.all()
+
+    @login_required
+    def resolve_targetById(cls, info, **kwargs):
+        id = kwargs.get('id')
+        if id is not None:
+            return Targets.objects.get(pk=id)
+        return None
+
+    @login_required
+    def resolve_targetsByName(cls, info, **kwargs):
+        name = kwargs.get('name')
+        if name is not None:
+            return Targets.objects.filter(name=name)
+        return None
 
     @login_required
     def resolve_telescopes(cls, info, **kwargs):
@@ -261,20 +297,86 @@ class Query(graphene.ObjectType):
         return Toas.objects.all()
 
 
+class CreatePulsar(graphene.Mutation):
+    class Arguments:
+        jname = graphene.String(required=True)
+        state = graphene.String(required=True)
+        comment = graphene.String(required=True)
+
+    pulsar = graphene.Field(PulsarsType)
+
+    @classmethod
+    @permission_required("dataportal.add_pulsars")
+    def mutate(cls, self, info, jname, state, comment):
+        _pulsar, _ = Pulsars.objects.get_or_create(jname=jname, state=state, comment=comment)
+        return CreatePulsar(pulsar=_pulsar)
+
+
+class UpdatePulsar(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        jname = graphene.String(required=True)
+        state = graphene.String(required=True)
+        comment = graphene.String(required=True)
+
+    pulsar = graphene.Field(PulsarsType)
+
+    @classmethod
+    @permission_required("dataportal.add_pulsars")
+    def mutate(cls, self, info, id, jname, state, comment):
+        ok = False
+        _pulsar = Pulsars.objects.get(pk=id)
+        if _pulsar:
+            _pulsar.jname = jname
+            _pulsar.state = state
+            _pulsar.comment = comment
+            return UpdatePulsar(pulsar=_pulsar)
+        return UpdatePulsar(pulsar=None)
+
+
 class CreateTarget(graphene.Mutation):
     class Arguments:
-        name = graphene.String()
-        raj = graphene.String()
-        decj = graphene.String()
+        name = graphene.String(required=True)
+        raj = graphene.String(required=True)
+        decj = graphene.String(required=True)
 
+    ok = graphene.Boolean()
     target = graphene.Field(TargetsType)
 
     @classmethod
     @permission_required("dataportal.add_targets")
     def mutate(cls, self, info, name, raj, decj):
+        ok = True
         _target, _ = Targets.objects.get_or_create(name=name, raj=raj, decj=decj)
-        return CreateTarget(target=_target)
+        return CreateTarget(ok=ok, target=_target)
+
+
+class UpdateTarget(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        name = graphene.String(required=True)
+        raj = graphene.String(required=True)
+        decj = graphene.String(required=True)
+
+    ok = graphene.Boolean()
+    target = graphene.Field(TargetsType)
+
+    @classmethod
+    @permission_required("dataportal.add_targets")
+    def mutate(cls, self, info, id, name, raj, decj):
+        ok = False
+        _target = Targets.objects.get(pk=id)
+        if _target:
+            ok = True
+            _target.name = name
+            _target.raj = raj
+            _target.decj = decj
+            return UpdateTarget(ok=ok, target=_target)
+        return UpdateTarget(ok=ok, target=None)
 
 
 class Mutation(graphene.ObjectType):
     create_target = CreateTarget.Field()
+    update_target = UpdateTarget.Field()
+    create_pulsar = CreatePulsar.Field()
+    update_pulsar = UpdatePulsar.Field()
