@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import BootstrapTable from 'react-bootstrap-table-next';
 import DataDisplay from './DataDisplay';
 import Einstein from '../assets/images/einstein-coloured.png';
+import Ephemeris from './Ephemeris';
 import JobCardsList from './JobCardsList';
 import ListControls from '../components/ListControls';
 import PulsarSummaryPlot from './PulsarSummaryPlot';
@@ -12,10 +13,15 @@ import ToolkitProvider from 'react-bootstrap-table2-toolkit';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import sizePerPageRenderer from './CustomSizePerPageBtn';
 
+// This is a really insecure, temporary fix that will be changed asap.
+const meerWatchLink = (jname) =>
+    `http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname=${jname}&data=${sessionStorage.meerWatchKey}`;
+
 const FoldDetailTable = ({ data }) => {
     const allRows = data.relayObservationDetails.edges.reduce((result, edge) => [...result, { ...edge.node }], []);
     const [isTableView, setIsTableView] = useState(true);
     const [rows, setRows] = useState(allRows);
+    const [ephemerisVisable, setEphemerisVisable] = useState(false);
 
     const fit10 = { width: '10%', whiteSpace: 'nowrap' };
     
@@ -100,11 +106,36 @@ const FoldDetailTable = ({ data }) => {
                         <DataDisplay title={`Size [${sizeFormat}]`} value={size} />
                         <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
                     </Row>
+                    <Row style={{ marginTop: '-10rem', marginBottom:'12rem' }}>
+                        <Col>
+                            <Button 
+                                size="sm"
+                                variant="outline-secondary" 
+                                className="mr-2"
+                                disabled={data.relayObservationDetails.ephemeris ? false : true}
+                                onClick={() => setEphemerisVisable(true)}>
+                                { data.relayObservationDetails.ephemeris ? 
+                                    'View folding ephemeris' : 'Folding ephemeris unavailable'}
+                            </Button>
+                            <Button 
+                                size="sm"
+                                as="a"
+                                href={meerWatchLink(data.relayObservationDetails.jname)}
+                                variant="outline-secondary"> 
+                              View MeerWatch
+                            </Button>
+                        </Col>
+                    </Row>
                     <Row>
                         <Col>
                             <PulsarSummaryPlot {...props.baseProps}/>
                         </Col>
                     </Row>
+                    {data.relayObservationDetails.ephemeris && <Ephemeris 
+                        ephemeris={data.relayObservationDetails.ephemeris} 
+                        updated={data.relayObservationDetails.ephemerisUpdatedAt}
+                        show={ephemerisVisable} 
+                        setShow={setEphemerisVisable} />}
                     <Row className='bg-gray-100' style={{ marginTop: '-4rem' }}>
                         <Col md={4}>
                             <ListControls 

@@ -14,6 +14,8 @@ const query = graphql`
       totalProjects
       totalEstimatedDiskSpace
       totalTimespanDays
+      ephemeris
+      ephemerisUpdatedAt
       edges {
         node {
           id
@@ -39,31 +41,33 @@ const query = graphql`
 
 const FoldDetail = ({ match }) => {
     const jname = match.params.jname;
-    return (<MainLayout title={jname}>
-        <QueryRenderer
-            environment={environment}
-            query={query}
-            variables={{
-                jname: jname
-            }}
-            fetchPolicy="store-and-network"
-            render = {({ props, error }) => {
-                if (error) {
-                    return <React.Fragment>
-                        <h1>404</h1> 
-                        <h2>This Pulsar hasn&apos;t been discovered yet!</h2>
-                        <h5 className="mt-3">Or maybe it just isn&apos;t in our database?</h5>
-                    </React.Fragment>;
-                }
+    return (
+        <MainLayout title={jname}>
+            <QueryRenderer
+                environment={environment}
+                query={query}
+                variables={{
+                    jname: jname
+                }}
+                fetchPolicy="store-and-network"
+                render = {({ props, error }) => {
+                    if (error) {
+                        return <React.Fragment>
+                            <h1>404</h1> 
+                            <h2>This Pulsar hasn&apos;t been discovered yet!</h2>
+                            <h5 className="mt-3">Or maybe it just isn&apos;t in our database?</h5>
+                        </React.Fragment>;
+                    }
 
-                if(props) {
-                    return <FoldDetailTable data={props} />;
-                }
+                    if(props) {
+                        return <FoldDetailTable data={props} />;
+                    }
 
-                return <h1>Loading...</h1>;
-            }}
-        />
-    </MainLayout>);
+                    return <h1>Loading...</h1>;
+                }}
+            />
+        </MainLayout>
+    );
 };
 
 export default FoldDetail;

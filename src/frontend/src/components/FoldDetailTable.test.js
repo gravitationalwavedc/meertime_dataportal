@@ -9,7 +9,7 @@ jest.mock('found/Link',() => ({ children }) => <div>{children}</div>);
 
 describe('the fold table component', () => {
     const data = { 
-        foldObservationDetails: { 
+        relayObservationDetails: { 
             jname:'J0255-5304',
             totalObservations:5,
             totalObservationHours:0.3,
@@ -92,7 +92,6 @@ describe('the fold table component', () => {
         expect.hasAssertions();
         const { getAllByText, getByLabelText } = render(<FoldDetailTable data={data}/>);
         const bandFilter = getByLabelText('Band'); 
-
         expect(getAllByText('UHF')).toHaveLength(2);
         expect(getAllByText('L-band')).toHaveLength(2);
         fireEvent.change(bandFilter, { target: { value: 'UHF' } });

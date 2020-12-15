@@ -1,9 +1,56 @@
+from datetime import datetime
 import graphene
 from django.template.defaultfilters import filesizeformat
 from graphene import relay
 from graphql_relay import from_global_id, to_global_id
-from .models import Pulsars, Proposals
+from .models import Pulsars, Proposals, Ephemerides, Observations
 from graphql_jwt.decorators import login_required
+from graphene_django import DjangoObjectType
+
+
+class ObservationModel(DjangoObjectType):
+    class Meta:
+        model = Observations
+        fields = (
+            'id',
+            'beam',
+            'frequency',
+            'bw',
+            'ra',
+            'dec',
+            'length',
+            'snr_spip',
+            'nbin',
+            'nchan',
+            'nsubint',
+            'nant',
+            'profile',
+            'phase_vs_time',
+            'phase_vs_frequency',
+            'snr_vs_time',
+            'bandpass',
+        )
+
+    jname = graphene.String()
+    utc = graphene.String()
+    proposal = graphene.String()
+    schedule = graphene.String()
+    phaseup = graphene.String()
+
+    def resolve_jname(self, info):
+        return self.pulsar.jname if self.pulsar else None
+
+    def resolve_utc(self, info):
+        return self.utc.utc_ts if self.utc else None
+
+    def resolve_proposal(self, info):
+        return self.proposal.proposal if self.proposal else None
+
+    def resolve_schedule(self, info):
+        return self.schedule.schedule if self.schedule else None
+
+    def resolve_phaseup(self, info):
+        return self.phaseup.phaseup if self.phaseup else None
 
 
 class ObservationNode(graphene.ObjectType):
@@ -100,6 +147,8 @@ class ObservationDetailConnection(relay.Connection):
     total_estimated_disk_space = graphene.String()
     total_projects = graphene.Int()
     total_timespan_days = graphene.Int()
+    ephemeris = graphene.String()
+    ephemeris_updated_at = graphene.DateTime()
 
     def resolve_jname(self, instance):
         return self.iterable[0].pulsar.jname
@@ -124,6 +173,14 @@ class ObservationDetailConnection(relay.Connection):
         return filesizeformat(
             sum([observation.estimated_size for observation in self.iterable if observation.estimated_size])
         )
+
+    def resolve_ephemeris(self, instance):
+        ephemeris = self.iterable[0].pulsar.ephemerides_set.last()
+        return ephemeris.ephemeris if ephemeris else None
+
+    def resolve_ephemeris_updated_at(self, instance):
+        ephemeris = self.iterable[0].pulsar.ephemerides_set.last()
+        return ephemeris.updated_at if ephemeris else None
 
 
 class SearchObservationDetailNode(graphene.ObjectType):
@@ -182,6 +239,12 @@ class SearchObservationDetailConnection(relay.Connection):
 
 
 class Query(graphene.ObjectType):
+    relay_observation_model = graphene.Field(
+        ObservationModel,
+        jname=graphene.String(required=True),
+        utc=graphene.String(required=True),
+        beam=graphene.Int(required=True),
+    )
     relay_observations = relay.ConnectionField(
         ObservationConnection, mode=graphene.String(required=True), proposal=graphene.String(), band=graphene.String(),
     )
@@ -193,8 +256,15 @@ class Query(graphene.ObjectType):
     )
 
     @login_required
-    def resolve_relay_observations(self, info, **kwargs):
+    def resolve_relay_observation_model(self, info, **kwargs):
+        return Observations.objects.get(
+            pulsar__jname=kwargs.get('jname'),
+            utc__utc_ts=datetime.strptime(f"{kwargs.get('utc')} +0000", "%Y-%m-%d-%H:%M:%S %z"),
+            beam=kwargs.get('beam'),
+        )
 
+    @login_required
+    def resolve_relay_observations(self, info, **kwargs):
         if kwargs["proposal"] and kwargs["proposal"] != "All":
             proposal_id = Proposals.objects.filter(proposal_short=kwargs["proposal"]).first().id
             kwargs["proposal"] = proposal_id
@@ -206,10 +276,12 @@ class Query(graphene.ObjectType):
 
         return Pulsars.get_observations(**kwargs)
 
+    @login_required
     def resolve_relay_observation_details(self, info, **kwargs):
         return [
             observation for observation in Pulsars.objects.get(jname=kwargs.get('jname')).observations_detail_data()
         ]
 
+    @login_required
     def resolve_relay_searchmode_details(self, info, **kwargs):
         return [observation for observation in Pulsars.objects.get(jname=kwargs.get('jname')).searchmode_detail_data()]

@@ -13,6 +13,7 @@ const mutation = graphql`
     tokenAuth (input: {username: $username, password: $password})
     {
       token
+      meerWatchKey
     }
   }`;
 
@@ -40,6 +41,7 @@ const Login = ({ router, match }) => {
                         setFormErrors(errors.map(e => e.message));
                     } else if(tokenAuth){
                         sessionStorage.jwt = tokenAuth.token;
+                        sessionStorage.meerWatchKey = tokenAuth.meerWatchKey;
                         const nextPath = match.params['next'] === undefined ? '/' : `/${match.params['next']}/`;
                         router.replace(nextPath);
                     }

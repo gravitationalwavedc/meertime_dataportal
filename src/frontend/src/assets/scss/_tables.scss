@@ -1,6 +1,17 @@
 $row-border-radius: 0.75rem;
 
-.table {
+
+.ephemeris-table.table {
+    td, th {
+        border-top: none;
+    }
+
+    .ephemris-item span:first-child {
+        padding-right: 1rem;
+    }
+}
+
+.react-bootstrap-table .table {
     border-collapse: separate;
     border-spacing: 0 0.5rem;
     margin-top: -2rem;

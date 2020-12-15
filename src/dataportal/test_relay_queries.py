@@ -185,6 +185,8 @@ def test_fold_detail_query():
             totalProjects
             totalEstimatedDiskSpace
             totalTimespanDays
+            ephemeris
+            ephemerisUpdatedAt
             edges {
               node {
                 utc
@@ -216,6 +218,8 @@ def test_fold_detail_query():
             "totalProjects": 1,
             "totalEstimatedDiskSpace": "192\xa0bytes",
             "totalTimespanDays": 0,
+            "ephemeris": None,
+            "ephemerisUpdatedAt": None,
             "edges": [
                 {
                     "node": {
@@ -312,4 +316,57 @@ def test_serachmode_detail_query():
         }
     }
     assert not response.errors
+    assert response.data == expected
+
+
+@pytest.mark.django_db
+def test_observation_model_query():
+    client, user = setup_query_test()
+    client.authenticate(user)
+    response = client.execute(
+        """
+        query {
+            relayObservationModel(jname:"J111-2222", utc:"2000-01-01-12:59:12", beam:1){
+            jname
+            beam
+            schedule
+            phaseup
+            utc
+            proposal
+            frequency
+            bw
+            ra
+            dec
+            length
+            snrSpip
+            nbin
+            nchan
+            nsubint
+            nant
+            profile
+          }
+        }
+        """
+    )
+    expected = {
+        'relayObservationModel': {
+            'jname': 'J111-2222',
+            'beam': 1,
+            'utc': '2000-01-01 12:59:12+00:00',
+            'proposal': 'SCI_thing_MB',
+            'frequency': 300.0,
+            'bw': 775.75,
+            'ra': None,
+            'dec': None,
+            'length': 20.0,
+            'snrSpip': 741.3,
+            'nbin': 2,
+            'nchan': 4,
+            'nsubint': 5,
+            'phaseup': None,
+            'schedule': None,
+            'nant': 42,
+            'profile': '',
+        }
+    }
     assert response.data == expected

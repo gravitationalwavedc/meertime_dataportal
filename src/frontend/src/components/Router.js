@@ -4,6 +4,7 @@ import { Route, createFarceRouter, createRender, makeRouteConfig } from 'found';
 import Fold from '../pages/Fold';
 import FoldDetail from '../pages/FoldDetail';
 import Login from '../pages/Login';
+import ObservationTime from '../pages/ObservationTime';
 import React from 'react';
 import { RedirectException } from 'found';
 import { Resolver } from 'found-relay';
@@ -31,12 +32,17 @@ const routeConfig = () => makeRouteConfig(
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
-            path="/search/:jname"
+            path="/search/:jname/"
             Component={SearchmodeDetail}
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
-            path="/fold/:jname"
+            path="/:jname/:utc/:beam/"
+            Component={ObservationTime}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        />
+        <Route
+            path="/fold/:jname/"
             Component={FoldDetail}
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />

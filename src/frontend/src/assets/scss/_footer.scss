@@ -1,12 +1,8 @@
 .footer {
-    color: $gray-100;
-    background: $primary-700;
+    background: $gray-200;
 
     a {
-        color: $gray-100;
-
         &:hover {
-            color: $gray-300;
             text-decoration: none;
         }
     }

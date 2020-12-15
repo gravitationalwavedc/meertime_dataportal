@@ -5,7 +5,7 @@ import GraphPattern from '../assets/images/graph-pattern.png';
 import React from 'react';
 import TopNav from '../components/TopNav';
 
-const MainLayout = ({ title, children }) => 
+const MainLayout = ({ title, subtitle, children }) => 
     <React.Fragment>
         <TopNav/>
         <Container>
