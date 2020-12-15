@@ -87,7 +87,7 @@ spec:
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
         - name: migrate
-          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.2.3
+          image: nexus.gwdc.org.au/meertime-dev/meertime_django:dev
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -103,7 +103,7 @@ spec:
           command: ["python", "manage.py", "migrate"]
       containers:
         - name: django
-          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.2.3
+          image: nexus.gwdc.org.au/meertime-dev/meertime_django:dev
           resources: {}
           imagePullPolicy: Always
           env:
@@ -125,7 +125,7 @@ spec:
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
-            claimName: mysql-pv-claim
+            claimName: mysql-pv-claim-dev
         - name: mysql-control-script
           configMap:
             name: mysql-control-map
