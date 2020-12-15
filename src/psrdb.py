@@ -12,11 +12,11 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-t", "--token", nargs=1, help="JWT token")
-    parser.add_argument("-u", "--url", nargs=1, default="http://127.0.0.1:8000/graphql/", help="GraphQL URL")
+    parser.add_argument("-u", "--url", nargs=1, default=["http://127.0.0.1:8000/graphql/",], help="GraphQL URL")
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
     parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
 
-    subparsers = parser.add_subparsers(dest='command', required=True, help='Database models which can be interrogated')
+    subparsers = parser.add_subparsers(dest="command", required=True, help="Database models which can be interrogated")
 
     tables = [Pulsars, Targets, Pipelines]
     configured = []
@@ -36,8 +36,8 @@ if __name__ == "__main__":
 
     for c in configured:
         if args.command == c["name"]:
-            client = GraphQLClient(args.url, args.very_verbose)
-            table = c["table"](client, args.url, args.token[0])
+            client = GraphQLClient(args.url[0], args.very_verbose)
+            table = c["table"](client, args.url[0], args.token[0])
             response = table.process(args)
             if args.verbose:
                 import json
