@@ -3,21 +3,21 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: meertime-ingress
-  namespace: meertime
+  namespace: meertime-dev
   labels:
     app: nginx
     app.kubernetes.io/instance: meertime
     tier: nginx
 spec:
   rules:
-    - host: meertime.gw-cloud.org
+    - host: dev-meertime.local-1.vm
       http:
         paths:
           - path: /
             backend:
               serviceName: nginx
               servicePort: 80
-    - host: pulsars.org.au
+    - host: dev.pulsars.org.au
       http:
         paths:
           - path: /

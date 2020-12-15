@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: meertime
+  namespace: meertime-dev
   name: db-conf
 data:
   host: mysql

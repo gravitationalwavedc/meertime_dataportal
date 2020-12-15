@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mysql-bkp-storage
+  name: mysql-bkp-storage-dev
   labels:
     app: mysql-bkp
     tier: database
 spec:
   capacity:
-    storage: 60Gi
+    storage: 3Gi
   accessModes:
     - ReadWriteOnce
   nfs:
-    path: /mnt/sharedfolder/meertime/mysqlbkp
+    path: /mnt/sharedfolder/meertime/mysqlbkp-dev
     server: nfs1.private.loc

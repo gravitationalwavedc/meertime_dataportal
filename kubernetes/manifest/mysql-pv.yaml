@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mysql-persistent-storage
+  name: mysql-persistent-storage-dev
   labels:
     app: mysql
     tier: database
 spec:
   capacity:
-    storage: 30Gi
+    storage: 3Gi
   accessModes:
     - ReadWriteMany
   nfs:
-    path: /mnt/sharedfolder/meertime/mysql
-    server: 10.8.41.12
+    path: /mnt/sharedfolder/meertime/mysql-dev
+    server: nfs1.private.loc

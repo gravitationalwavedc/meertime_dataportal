@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: meertime
+  namespace: meertime-dev
   name: django
 spec:
   selector:
@@ -16,8 +16,8 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  namespace: meertime
-  name: meertime-img-pv-claim
+  namespace: meertime-dev
+  name: meertime-img-pv-claim-dev
   labels:
     app: dataportal
     tier: django
@@ -26,12 +26,12 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: 40Gi
+      storage: 2Gi
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: meertime
+  namespace: meertime-dev
   name: django
   labels:
     app: dataportal
@@ -113,7 +113,7 @@ spec:
                   name: db-conf
                   key: host
           volumeMounts:
-            - name: meertime-img-storage
+            - name: meertime-img-storage-dev
               mountPath: /media
           envFrom: # defines DJANGO_SECRET_KEY, SENTRY_DSN, SLACK_WEBHOOK, and KRONOS_PAYLOAD
             - secretRef:
@@ -129,6 +129,6 @@ spec:
         - name: mysql-control-script
           configMap:
             name: mysql-control-map
-        - name: meertime-img-storage
+        - name: meertime-img-storage-dev
           persistentVolumeClaim:
-            claimName: meertime-img-pv-claim
+            claimName: meertime-img-pv-claim-dev

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: meertime
+  namespace: meertime-dev
   name: nginx
   labels:
     app: nginx
@@ -19,7 +19,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: meertime
+  namespace: meertime-dev
   name: ng-meertime
   labels:
     app: nginx
@@ -68,7 +68,7 @@ spec:
             - mountPath: /static
               name: static-volume-django
             - mountPath: /media
-              name: meertime-img-storage
+              name: meertime-img-storage-dev
           livenessProbe:
             httpGet:
               path: /
@@ -85,6 +85,6 @@ spec:
       volumes:
         - name: static-volume-django
           emptyDir: {}
-        - name: meertime-img-storage
+        - name: meertime-img-storage-dev
           persistentVolumeClaim:
-            claimName: meertime-img-pv-claim
+            claimName: meertime-img-pv-claim-dev

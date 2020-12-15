@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: meertime
+  namespace: meertime-dev
   name: mysql-bkp-configmap
   labels:
     app.kubernetes.io/name: mysql-bkp
@@ -11,13 +11,13 @@ data:
   MYSQL_HOST: "mysql"
   MYSQL_PORT: "3306"
   MYSQL_OPTS: "--opt --single-transaction"
-  KEEP_DAYS: "30"
+  KEEP_DAYS: "3"
 ---
 # Source: mysqldump/templates/configmap.yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: meertime
+  namespace: meertime-dev
   name: mysql-bkp-script-configmap
   labels:
     app.kubernetes.io/name: mysql-bkp-script-configmap
@@ -45,7 +45,7 @@ data:
 
     mysqldump ${MYSQL_OPTS} -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD} --databases ${MYSQL_DATABASE} > ${TIMESTAMP}_${MYSQL_DATABASE}.sql
     rc=$?
-       
+
     if [ "$rc" != "0" ]; then
       echo "backup failed"
       exit 1
