@@ -104,6 +104,7 @@ class FoldView(IndexBaseView):
             return qs
 
     def get_context_data(cls, **kwargs):
+        print("Hello Asher!")
         context = super().get_context_data(**kwargs)
         proposal_filter = cls.get_proposal_filters()
         context["projects"] = Proposals.objects.filter(**proposal_filter)

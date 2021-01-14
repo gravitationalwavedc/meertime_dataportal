@@ -1,24 +1,32 @@
-import { Button, Col, Row } from 'react-bootstrap';
-import { HiOutlineViewGrid, HiOutlineViewList } from 'react-icons/hi';
 import React, { useState } from 'react';
 
-import BootstrapTable from 'react-bootstrap-table-next';
-import DataDisplay from './DataDisplay';
-import Einstein from '../assets/images/einstein-coloured.png';
-import JobCardsList from './JobCardsList';
-import ListControls from '../components/ListControls';
-import ToolkitProvider from 'react-bootstrap-table2-toolkit';
-import paginationFactory from 'react-bootstrap-table2-paginator';
-import sizePerPageRenderer from './CustomSizePerPageBtn';
+import Button from 'react-bootstrap/Button';
+import DataView from './DataView';
+import Ephemeris from './Ephemeris';
+import Row from 'react-bootstrap/Row';
+import { kronosLink } from '../helpers';
 
 const SearchmodeDetailTable = ({ data }) => {
-    const allRows = data.relaySearchmodeDetails.edges.reduce((result, edge) => [...result, { ...edge.node }], []);
-    const [isTableView, setIsTableView] = useState(true);
+    const allRows = data.relaySearchmodeDetails.edges.reduce(
+        (result, edge) => [...result, 
+            { 
+                key: `${edge.node.utc}:${edge.node.beam}`,
+                ...edge.node, 
+                action: <Button
+                    href={kronosLink(edge.node.beam, data.relaySearchmodeDetails.jname, edge.node.utc)} 
+                    as="a"
+                    size='sm' 
+                    variant="outline-secondary" 
+                >View</Button> }],
+        []);
+
     const [rows, setRows] = useState(allRows);
+    const [ephemerisVisable, setEphemerisVisable] = useState(false);
 
     const fit10 = { width: '10%', whiteSpace: 'nowrap' };
     
     const columns = [
+        { dataField: 'key', text: '', sort: false, hidden: true },
         { dataField: 'utc', text: 'Timestamp', sort: true, headerStyle: fit10 },
         { dataField: 'proposalShort', text: 'Project', sort: true },
         { dataField: 'ra', text: 'RA', sort: true },
@@ -32,23 +40,8 @@ const SearchmodeDetailTable = ({ data }) => {
         { dataField: 'npol', text: 'Npol', sort: true },
         { dataField: 'dm', text: 'DM', sort: true },
         { dataField: 'tsamp', text: 'tSamp [μs]', sort: true },
+        { dataField: 'action', text: '', align: 'center', headerAlign: 'center', sort: false }
     ];
-
-    const options = {
-        sizePerPage: 200,
-        sizePerPageList: [
-            { text: '25', value: 25 },
-            { text: '50', value: 50 },
-            { text: '100', value: 100 },
-            { text: '200', value: 200 }
-
-        ],
-        firstPageText: 'First',
-        prePageText: 'Back',
-        nextPageText: 'Next',
-        lastPageText: 'Last', showTotal: true,
-        disablePageTitle: true, sizePerPageRenderer,
-    };
 
     const handleProjectFilter = (project) => {
         if(project === 'All') {
@@ -61,66 +54,37 @@ const SearchmodeDetailTable = ({ data }) => {
 
     };
 
-    return (
-        <ToolkitProvider
-            bootstrap4 
-            keyField='id' 
-            columns={columns} 
-            data={rows} 
-            columnToggle
-            search
-            exportCSV
-        >
-            {props => (
-                <React.Fragment>
-                    <Row className="justify-content-end" style={{ marginTop: '-9rem' }}>
-                        <DataDisplay title="Observations" value={data.relaySearchmodeDetails.totalObservations} />
-                        <DataDisplay title="Projects" value={data.relaySearchmodeDetails.totalProjects} />
-                        <DataDisplay 
-                            title="Timespan [days]" 
-                            value={data.relaySearchmodeDetails.totalTimespanDays} />
-                        <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
-                    </Row>
-                    <Row className='bg-gray-100' style={{ marginTop: '-4rem' }}>
-                        <Col md={4}>
-                            <ListControls 
-                                searchProps={props.searchProps} 
-                                searchText="Find an observation..."
-                                handleProposalFilter={handleProjectFilter} 
-                                columnToggleProps={props.columnToggleProps}
-                                exportCSVProps={props.csvProps}
-                            />
-                        </Col>
-                        <Col md={1} className="d-flex align-items-center">
-                            <Button 
-                                variant="icon" 
-                                className="mr-2" 
-                                active={isTableView} 
-                                onClick={() => setIsTableView(true)}>
-                                <HiOutlineViewList className='h5' />
-                            </Button>
-                            <Button 
-                                variant="icon"
-                                active={!isTableView}
-                                onClick={() => setIsTableView(false)}>
-                                <HiOutlineViewGrid className='h5' />
-                            </Button>
-                        </Col>
-                    </Row>
-                    {
-                        isTableView ? 
-                            <BootstrapTable 
-                                {...props.baseProps} 
-                                pagination={paginationFactory(options)} 
-                                bordered={false}
-                                rowStyle={{ whiteSpace: 'pre', verticalAlign: 'middle' }}
-                                wrapperClasses='bg-gray-100'
-                            /> : 
-                            <JobCardsList {...props.baseProps} />
-                    }
-                </React.Fragment>)}
-        </ToolkitProvider>
-    );
+    const summaryData = [
+        { title: 'Observations', value: data.relaySearchmodeDetails.totalObservations },
+        { title: 'Projects', value: data.relaySearchmodeDetails.totalProjects },
+        { title: 'Timespan', value: data.relaySearchmodeDetails.totalTimespanDays }
+    ];
+
+    return <React.Fragment>
+        <Row style={{ margin: '-12.5rem 0 10.5rem 0' }}>
+            <Button 
+                size="sm"
+                variant="outline-secondary" 
+                className="mr-2"
+                disabled={data.relaySearchmodeDetails.ephemeris ? false : true}
+                onClick={() => setEphemerisVisable(true)}>
+                { data.relaySearchmodeDetails.ephemeris ? 
+                    'View folding ephemeris' : 'Folding ephemeris unavailable'}
+            </Button>
+        </Row>
+        {data.relaySearchmodeDetails.ephemeris && <Ephemeris 
+            ephemeris={data.relaySearchmodeDetails.ephemeris} 
+            updated={data.relaySearchmodeDetails.ephemerisUpdatedAt}
+            show={ephemerisVisable} 
+            setShow={setEphemerisVisable} />}
+        <DataView 
+            summaryData={summaryData}
+            columns={columns}
+            rows={rows}
+            setProposal={handleProjectFilter}
+            keyField='key'
+        />
+    </React.Fragment>;
 };
 
 export default SearchmodeDetailTable;

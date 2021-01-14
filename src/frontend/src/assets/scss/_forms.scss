@@ -12,6 +12,11 @@
     float: right !important;
 }
 
+.btn {
+    position: relative;
+    z-index: 2;
+}
+
 .btn.btn-icon {
     color: $gray-800;
     padding: 0;

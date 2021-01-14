@@ -8,7 +8,7 @@ const JobCardList = ({ data, columns, search }) => {
 
     return (
         <React.Fragment>
-            {results.map(row => <JobCard key={row.jname} row={row} />)}
+            {results.map(row => <JobCard key={row.jname ? row.jname : row.key } row={row} />)}
         </React.Fragment>
     );
 };

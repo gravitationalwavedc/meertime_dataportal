@@ -4,12 +4,13 @@ import { Route, createFarceRouter, createRender, makeRouteConfig } from 'found';
 import Fold from '../pages/Fold';
 import FoldDetail from '../pages/FoldDetail';
 import Login from '../pages/Login';
-import ObservationTime from '../pages/ObservationTime';
 import React from 'react';
 import { RedirectException } from 'found';
 import { Resolver } from 'found-relay';
 import Search from '../pages/Search';
 import SearchmodeDetail from '../pages/SearchmodeDetail';
+import Session from '../pages/Session';
+import SingleObservation from '../pages/SingleObservation';
 import environment from '../relayEnvironment';
 
 const renderPrivateRoute = (Component, props) => {
@@ -18,7 +19,6 @@ const renderPrivateRoute = (Component, props) => {
     }
     return <Component {...props}/>;
 };
-
 
 const routeConfig = () => makeRouteConfig(
     <Route>
@@ -32,18 +32,23 @@ const routeConfig = () => makeRouteConfig(
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
-            path="/search/:jname/"
+            path="/last-session/"
+            Component={Session}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        />
+        <Route
+            path="/search/:project/:jname/"
             Component={SearchmodeDetail}
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
-            path="/:jname/:utc/:beam/"
-            Component={ObservationTime}
+            path="/fold/:project/:jname/"
+            Component={FoldDetail}
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
-            path="/fold/:jname/"
-            Component={FoldDetail}
+            path="/:jname/:utc/:beam/"
+            Component={SingleObservation}
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route

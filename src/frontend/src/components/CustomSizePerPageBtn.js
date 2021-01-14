@@ -2,7 +2,7 @@ import { ButtonGroup, Dropdown, DropdownButton } from 'react-bootstrap';
 
 import React from 'react';
 
-const sizePerPageRenderer = ({
+const CustomSizePerPageBtn = ({
     options,
     currSizePerPage,
     onSizePerPageChange
@@ -25,4 +25,4 @@ const sizePerPageRenderer = ({
     </ButtonGroup>
 );
 
-export default sizePerPageRenderer;
+export default CustomSizePerPageBtn;

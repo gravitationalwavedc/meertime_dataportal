@@ -5,7 +5,7 @@ import { MockPayloadGenerator } from 'relay-test-utils';
 import React from 'react';
 import environment from '../relayEnvironment';
 
-/* global router */
+/* global mockRouter */
 
 describe('login page', () => {
     it('should have a username and password field', () => {
@@ -17,7 +17,7 @@ describe('login page', () => {
 
     it('should submit when there is a username and password', async () => {
         expect.hasAssertions();
-        const { getAllByText, getByLabelText } = render(<Login router={router} match={{ params: { next: null } }}/>);
+        const { getAllByText, getByLabelText } = render(<Login router={mockRouter} match={{ params: { next: null } }}/>);
         const usernameField = getByLabelText('Username');
         const passwordField = getByLabelText('Password');
         fireEvent.change(usernameField, { target: { value: 'asher' } });
@@ -28,13 +28,13 @@ describe('login page', () => {
             operation,
             MockPayloadGenerator.generate(operation)
         );
-        expect(router.replace).toHaveBeenCalledWith('/null/');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/null/');
     });
 
     it('should have the correct next url', async () => {
         expect.hasAssertions();
         const { getAllByText, getByLabelText } = render(
-            <Login router={router} match={{ params: { next: 'search' } }}/>
+            <Login router={mockRouter} match={{ params: { next: 'search' } }}/>
         );
         const usernameField = getByLabelText('Username');
         const passwordField = getByLabelText('Password');
@@ -46,13 +46,13 @@ describe('login page', () => {
             operation,
             MockPayloadGenerator.generate(operation)
         );
-        expect(router.replace).toHaveBeenCalledWith('/search/');
+        expect(mockRouter.replace).toHaveBeenCalledWith('/search/');
     });
 
     it('should display errors from the server', async () => {
         expect.hasAssertions();
         const { getAllByText, getByLabelText, getByText } = 
-          render(<Login router={router} match={{ params: { next: null } }}/>);
+          render(<Login router={mockRouter} match={{ params: { next: null } }}/>);
         const usernameField = getByLabelText('Username');
         const passwordField = getByLabelText('Password');
         fireEvent.change(usernameField, { target: { value: 'asher' } });

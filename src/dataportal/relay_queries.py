@@ -1,11 +1,12 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import graphene
 from django.template.defaultfilters import filesizeformat
 from graphene import relay
 from graphql_relay import from_global_id, to_global_id
-from .models import Pulsars, Proposals, Ephemerides, Observations
+from .models import Pulsars, Proposals, Ephemerides, Observations, get_observations_summary
 from graphql_jwt.decorators import login_required
 from graphene_django import DjangoObjectType
+from dataportal.logic import PROPOSAL_FILTERS
 
 
 class ObservationModel(DjangoObjectType):
@@ -34,6 +35,7 @@ class ObservationModel(DjangoObjectType):
     jname = graphene.String()
     utc = graphene.String()
     proposal = graphene.String()
+    proposal_short = graphene.String()
     schedule = graphene.String()
     phaseup = graphene.String()
 
@@ -45,6 +47,9 @@ class ObservationModel(DjangoObjectType):
 
     def resolve_proposal(self, info):
         return self.proposal.proposal if self.proposal else None
+
+    def resolve_proposal_short(self, info):
+        return self.proposal.proposal_short if self.proposal else None
 
     def resolve_schedule(self, info):
         return self.schedule.schedule if self.schedule else None
@@ -68,6 +73,7 @@ class ObservationNode(graphene.ObjectType):
     max_snr_5min = graphene.Float()
     latest_snr = graphene.Float()
     latest_tint_m = graphene.Float()
+    last_beam = graphene.Int()
 
     def resolve_timespan(self, instance):
         return self["timespan"].days
@@ -217,6 +223,8 @@ class SearchObservationDetailConnection(relay.Connection):
     total_observation_hours = graphene.Float()
     total_projects = graphene.Int()
     total_timespan_days = graphene.Int()
+    ephemeris = graphene.String()
+    ephemeris_updated_at = graphene.DateTime()
 
     def resolve_jname(self, instance):
         return self.iterable[0].pulsar.jname
@@ -237,6 +245,43 @@ class SearchObservationDetailConnection(relay.Connection):
         # Add 1 day to the end result because the timespan should show the rounded up number of days
         return duration.days + 1 if duration else 0
 
+    def resolve_ephemeris(self, instance):
+        ephemeris = self.iterable[0].pulsar.ephemerides_set.last()
+        return ephemeris.ephemeris if ephemeris else None
+
+    def resolve_ephemeris_updated_at(self, instance):
+        ephemeris = self.iterable[0].pulsar.ephemerides_set.last()
+        return ephemeris.updated_at if ephemeris else None
+
+
+class SessionNode(graphene.ObjectType):
+    class Meta:
+        interfaces = (relay.Node,)
+
+
+class SessionsConnection(relay.Connection):
+    class Meta:
+        node = ObservationModel
+
+    first = graphene.DateTime()
+    last = graphene.DateTime()
+    nobs = graphene.Int()
+    npsr = graphene.Int()
+
+    def resolve_first(self, instance):
+        return self.iterable.order_by("utc__utc_ts")[0].utc.utc_ts if self.iterable else None
+
+    def resolve_last(self, instance):
+        last_observation = self.iterable.order_by("-utc__utc_ts")[0]
+        offset = last_observation.length if last_observation.length else 0
+        return last_observation.utc.utc_ts + timedelta(seconds=offset)
+
+    def resolve_nobs(self, instance):
+        return self.iterable.count() if self.iterable else None
+
+    def resolve_npsr(self, instance):
+        return self.iterable.values('pulsar').distinct().count() if self.iterable else None
+
 
 class Query(graphene.ObjectType):
     relay_observation_model = graphene.Field(
@@ -246,14 +291,20 @@ class Query(graphene.ObjectType):
         beam=graphene.Int(required=True),
     )
     relay_observations = relay.ConnectionField(
-        ObservationConnection, mode=graphene.String(required=True), proposal=graphene.String(), band=graphene.String(),
+        ObservationConnection,
+        mode=graphene.String(required=True),
+        proposal=graphene.String(),
+        band=graphene.String(),
+        get_proposal_filters=graphene.String(),
     )
     relay_observation_details = relay.ConnectionField(
-        ObservationDetailConnection, jname=graphene.String(required=True)
+        ObservationDetailConnection, jname=graphene.String(required=True), get_proposal_filters=graphene.String()
     )
     relay_searchmode_details = relay.ConnectionField(
-        SearchObservationDetailConnection, jname=graphene.String(required=True)
+        SearchObservationDetailConnection, jname=graphene.String(required=True), get_proposal_filters=graphene.String()
     )
+
+    relay_sessions = relay.ConnectionField(SessionsConnection, get_proposal_filters=graphene.String())
 
     @login_required
     def resolve_relay_observation_model(self, info, **kwargs):
@@ -265,23 +316,42 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_relay_observations(self, info, **kwargs):
-        if kwargs["proposal"] and kwargs["proposal"] != "All":
-            proposal_id = Proposals.objects.filter(proposal_short=kwargs["proposal"]).first().id
-            kwargs["proposal"] = proposal_id
+        if "proposal" in kwargs and kwargs["proposal"] != "All":
+            kwargs["proposal"] = Proposals.objects.filter(proposal_short=kwargs["proposal"]).first().id
         else:
             kwargs["proposal"] = None
 
-        if kwargs["band"] == "All":
+        if "get_proposal_filters" in kwargs:
+            kwargs["get_proposal_filters"] = PROPOSAL_FILTERS.get(kwargs["get_proposal_filters"])
+        else:
+            kwargs["get_proposal_filters"] = PROPOSAL_FILTERS.get("meertime")
+
+        if "band" in kwargs and kwargs["band"] == "All":
             kwargs["band"] = None
 
         return Pulsars.get_observations(**kwargs)
 
     @login_required
     def resolve_relay_observation_details(self, info, **kwargs):
+        filter_type = kwargs.get("get_proposal_filters", "meertime")
         return [
-            observation for observation in Pulsars.objects.get(jname=kwargs.get('jname')).observations_detail_data()
+            observation
+            for observation in Pulsars.objects.get(jname=kwargs.get('jname')).observations_detail_data(
+                get_proposal_filters=PROPOSAL_FILTERS.get(filter_type)
+            )
         ]
 
     @login_required
     def resolve_relay_searchmode_details(self, info, **kwargs):
-        return [observation for observation in Pulsars.objects.get(jname=kwargs.get('jname')).searchmode_detail_data()]
+        filter_type = kwargs.get("get_proposal_filters", "meertime")
+        return [
+            observation
+            for observation in Pulsars.objects.get(jname=kwargs.get('jname')).searchmode_detail_data(
+                get_proposal_filters=PROPOSAL_FILTERS.get(filter_type)
+            )
+        ]
+
+    @login_required
+    def resolve_relay_sessions(self, info, **kwargs):
+        filter_type = kwargs.get("get_proposal_filters", "meertime")
+        return Observations.get_last_session_by_gap(get_proposal_filters=PROPOSAL_FILTERS.get(filter_type))

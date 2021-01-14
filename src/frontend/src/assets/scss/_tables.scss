@@ -47,6 +47,8 @@ $row-border-radius: 0.75rem;
         border-bottom: none;
         color: $gray-500;
         font-size: 0.9rem;
+        position: relative;
+        z-index: 3;
 
         &:focus,
         &:hover {

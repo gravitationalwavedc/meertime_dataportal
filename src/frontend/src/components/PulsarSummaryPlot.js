@@ -16,7 +16,7 @@ import { handleSearch } from '../helpers';
 import moment from 'moment';
 
 const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocation) => {
-    // Pass tqble data through the search filter to enable searching pulsars on chart.
+    // Pass table data through the search filter to enable searching pulsars on chart.
     const results = search.searchText ? handleSearch(data, columns, search) : data;
 
     // Process the table data in a way that react-vis understands.
@@ -39,7 +39,8 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
     return plotData;
 };
 
-const PulsarSummaryPlot = ({ data, columns, search }) => { const [value, setValue] = useState(false);
+const PulsarSummaryPlot = ({ data, columns, search }) => { 
+    const [value, setValue] = useState(false);
     const [lastDrawLocation, setLastDrawLocation] = useState(null);
 
     const plotData = getPlotData(data, columns, search, lastDrawLocation, setLastDrawLocation);
@@ -107,7 +108,8 @@ const PulsarSummaryPlot = ({ data, columns, search }) => { const [value, setValu
                 </FlexibleXYPlot>
             </div>
             <p className="pb-4 text-center text-primary-600">UTC</p>
-        </Col>);
+        </Col>
+    );
 };
 
 export default PulsarSummaryPlot;

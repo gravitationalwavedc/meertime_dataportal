@@ -70,3 +70,6 @@ def get_trapum_filters(prefix=None):
         f"{prefix}proposal__startswith": "SCI",
         f"{prefix}proposal__contains": "MK",
     }
+
+
+PROPOSAL_FILTERS = {'meertime': get_meertime_filters, 'trapum': get_trapum_filters}

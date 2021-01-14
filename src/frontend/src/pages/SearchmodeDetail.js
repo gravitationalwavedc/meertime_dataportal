@@ -6,13 +6,15 @@ import SearchmodeDetailTable from '../components/SearchmodeDetailTable';
 import environment from '../relayEnvironment';
 
 const query = graphql`
-  query SearchmodeDetailQuery($jname: String!) {
-    relaySearchmodeDetails(jname:$jname) {
+  query SearchmodeDetailQuery($jname: String!, $getProposalFilters: String) {
+    relaySearchmodeDetails(jname:$jname, getProposalFilters: $getProposalFilters) {
       jname
       totalObservations
       totalObservationHours
       totalProjects
       totalTimespanDays
+      ephemeris
+      ephemerisUpdatedAt
       edges {
         node {
           id
@@ -38,13 +40,14 @@ const query = graphql`
   }`;
 
 const SearchmodeDetail = ({ match }) => {
-    const jname = match.params.jname;
+    const { jname, project } = match.params;
     return (<MainLayout title={jname}>
         <QueryRenderer
             environment={environment}
             query={query}
             variables={{
-                jname: jname
+                jname: jname,
+                getProposalFilters: project
             }}
             fetchPolicy="store-and-network"
             render = {({ props, error }) => {

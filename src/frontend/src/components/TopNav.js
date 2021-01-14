@@ -7,17 +7,18 @@ const TopNav = () => {
     const { router } = useRouter();
 
     const logout = () => {
-        sessionStorage.removeItem('jwt');
+        sessionStorage.clear();
         router.replace('/');
     };
 
     return (
-        <Navbar bg="dark" variant="dark" className="mb-5">
+        <Navbar bg="dark" variant="dark" className="mb-5 navbar-expand-sm">
             <Container>
                 <Navbar.Brand href="#home">MEERTIME</Navbar.Brand>
                 <Nav className="mr-auto">
-                    <Link to='/' exact as={Nav.Link}>Fold</Link>
-                    <Link to='/search/' exact as={Nav.Link}>Search</Link>
+                    <Link to='/' exact as={Nav.Link}>Folded</Link>
+                    <Link to='/search/' exact as={Nav.Link}>Searchmode</Link>
+                    <Link to='/last-session/' exact as={Nav.Link}>Last session</Link>
                 </Nav>
                 <Nav>
                     <Nav.Link onClick={logout}>Log out</Nav.Link>

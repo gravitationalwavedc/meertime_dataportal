@@ -15,6 +15,7 @@ const Fold = () =>
         <QueryRenderer
             environment={environment}
             query={query}
+            fetchPolicy="store-and-network"
             render = {({ props }) => props ? <FoldTable data={props} /> : <h1>Loading...</h1>}
         />
     </MainLayout>;

@@ -6,8 +6,8 @@ import React from 'react';
 import environment from '../relayEnvironment';
 
 const query = graphql`
-  query FoldDetailQuery($jname: String!) {
-    relayObservationDetails(jname:$jname) {
+  query FoldDetailQuery($jname: String!, $getProposalFilters: String) {
+    relayObservationDetails(jname:$jname, getProposalFilters: $getProposalFilters) {
       jname
       totalObservations
       totalObservationHours
@@ -39,15 +39,16 @@ const query = graphql`
     }
   }`;
 
-const FoldDetail = ({ match }) => {
-    const jname = match.params.jname;
+const FoldDetail = ({ match, relayEnvironment }) => {
+    const { jname, project } = match.params;
     return (
         <MainLayout title={jname}>
             <QueryRenderer
-                environment={environment}
+                environment={relayEnvironment}
                 query={query}
                 variables={{
-                    jname: jname
+                    jname: jname,
+                    getProposalFilters: project
                 }}
                 fetchPolicy="store-and-network"
                 render = {({ props, error }) => {
@@ -68,6 +69,10 @@ const FoldDetail = ({ match }) => {
             />
         </MainLayout>
     );
+};
+
+FoldDetail.defaultProps = {
+    relayEnvironment: environment
 };
 
 export default FoldDetail;

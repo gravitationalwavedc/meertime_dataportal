@@ -3,7 +3,7 @@ import { Button, Card, Col, Row } from 'react-bootstrap';
 import React from 'react';
 
 const JobCard = ({ row }) => 
-    <Card className="mb-3 shadow-md">
+    <Card className="mb-3 shadow-md" data-testid="job-card">
         <Card.Body>
             <Card.Title>{row.jname} {row.proposalShort}</Card.Title>
             <Row>

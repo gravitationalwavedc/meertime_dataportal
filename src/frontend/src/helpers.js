@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import moment from 'moment';
 
 /* eslint-disable complexity */
 
@@ -27,3 +28,9 @@ export const handleSearch = (data, columns, search) => {
     });
 };
 
+export const formatUTC = (utc) => moment.parseZone(utc, moment.ISO_8601).format('YYYY-MM-DD-HH:mm:ss');
+
+export const kronosLink = (beam, jname, utc) => 
+    `http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam=${beam}&utc_start=${utc}&jname=${jname}&data=${sessionStorage.meerWatchKey}`;
+
+export default { handleSearch, formatUTC, kronosLink };

@@ -1,31 +1,36 @@
-import { Button, Col, Row } from 'react-bootstrap';
-import { HiOutlineViewGrid, HiOutlineViewList } from 'react-icons/hi';
+import { Button, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
 
-import BootstrapTable from 'react-bootstrap-table-next';
-import DataDisplay from './DataDisplay';
-import Einstein from '../assets/images/einstein-coloured.png';
+import DataView from './DataView';
 import Ephemeris from './Ephemeris';
-import JobCardsList from './JobCardsList';
-import ListControls from '../components/ListControls';
-import PulsarSummaryPlot from './PulsarSummaryPlot';
-import ToolkitProvider from 'react-bootstrap-table2-toolkit';
-import paginationFactory from 'react-bootstrap-table2-paginator';
-import sizePerPageRenderer from './CustomSizePerPageBtn';
+import Link from 'found/Link';
 
 // This is a really insecure, temporary fix that will be changed asap.
 const meerWatchLink = (jname) =>
     `http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname=${jname}&data=${sessionStorage.meerWatchKey}`;
 
-const FoldDetailTable = ({ data }) => {
-    const allRows = data.relayObservationDetails.edges.reduce((result, edge) => [...result, { ...edge.node }], []);
-    const [isTableView, setIsTableView] = useState(true);
+const FoldDetailTable = ({ data: { relayObservationDetails } }) => {
+    const allRows = relayObservationDetails.edges.reduce(
+        (result, edge) => [
+            ...result, 
+            { 
+                key: `${edge.node.utc}:${edge.node.beam}`,
+                ...edge.node, 
+                action: <Link 
+                    to={`/${relayObservationDetails.jname}/${edge.node.utc}/${edge.node.beam}/`}
+                    size="sm" 
+                    variant="outline-secondary" as={Button}>View</Link> 
+            }
+        ], []
+    );
+
     const [rows, setRows] = useState(allRows);
     const [ephemerisVisable, setEphemerisVisable] = useState(false);
 
     const fit10 = { width: '10%', whiteSpace: 'nowrap' };
     
     const columns = [
+        { dataField: 'key', text: '', sort: false, hidden: true },
         { dataField: 'utc', text: 'Timestamp', sort: true, headerStyle: fit10 },
         { dataField: 'proposalShort', text: 'Project', sort: true },
         { dataField: 'length', text: 'Length [m]', sort: true },
@@ -41,27 +46,12 @@ const FoldDetailTable = ({ data }) => {
         { dataField: 'rmPipe', text: 'RM meerpipe', sort: true },
         { dataField: 'snrSpip', text: 'S/N backend', sort: true },
         { dataField: 'snrPipe', text: 'S/N meerpipe', sort: true },
+        { dataField: 'action', text: '', sort: false, align: 'center', headerAlign: 'center' },
     ];
-
-    const options = {
-        sizePerPage: 200,
-        sizePerPageList: [
-            { text: '25', value: 25 },
-            { text: '50', value: 50 },
-            { text: '100', value: 100 },
-            { text: '200', value: 200 }
-
-        ],
-        firstPageText: 'First',
-        prePageText: 'Back',
-        nextPageText: 'Next',
-        lastPageText: 'Last', showTotal: true,
-        disablePageTitle: true, sizePerPageRenderer,
-    };
 
     // totalEstimatedDiskSpace is a human readable formatted byte string in the form of "900.2\u00a0MB".
     // We split on this character so we can use the number and the units separately.
-    const [size, sizeFormat] = data.relayObservationDetails.totalEstimatedDiskSpace.split('\u00a0');
+    const [size, sizeFormat] = relayObservationDetails.totalEstimatedDiskSpace.split('\u00a0');
 
     const handleBandFilter = (band) => {
         if(band === 'All') {
@@ -84,98 +74,49 @@ const FoldDetailTable = ({ data }) => {
 
     };
 
+    const summaryData = [
+        { title: 'Observations', value: relayObservationDetails.totalObservations }, 
+        { title: 'Projects', value: relayObservationDetails.totalProjects }, 
+        { title: 'Timespan [days]', value: relayObservationDetails.totalTimespanDays }, 
+        { title: 'Hours', value: relayObservationDetails.totalObservationHours }, 
+        { title: `Size [${sizeFormat}]`, value: size }, 
+    ];
+
     return (
-        <ToolkitProvider
-            bootstrap4 
-            keyField='id' 
-            columns={columns} 
-            data={rows} 
-            columnToggle
-            search
-            exportCSV
-        >
-            {props => (
-                <React.Fragment>
-                    <Row className="justify-content-end" style={{ marginTop: '-9rem' }}>
-                        <DataDisplay title="Observations" value={data.relayObservationDetails.totalObservations} />
-                        <DataDisplay title="Projects" value={data.relayObservationDetails.totalProjects} />
-                        <DataDisplay 
-                            title="Timespan [days]" 
-                            value={data.relayObservationDetails.totalTimespanDays} />
-                        <DataDisplay title="Hours" value={data.relayObservationDetails.totalObservationHours} />
-                        <DataDisplay title={`Size [${sizeFormat}]`} value={size} />
-                        <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
-                    </Row>
-                    <Row style={{ marginTop: '-10rem', marginBottom:'12rem' }}>
-                        <Col>
-                            <Button 
-                                size="sm"
-                                variant="outline-secondary" 
-                                className="mr-2"
-                                disabled={data.relayObservationDetails.ephemeris ? false : true}
-                                onClick={() => setEphemerisVisable(true)}>
-                                { data.relayObservationDetails.ephemeris ? 
-                                    'View folding ephemeris' : 'Folding ephemeris unavailable'}
-                            </Button>
-                            <Button 
-                                size="sm"
-                                as="a"
-                                href={meerWatchLink(data.relayObservationDetails.jname)}
-                                variant="outline-secondary"> 
-                              View MeerWatch
-                            </Button>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <PulsarSummaryPlot {...props.baseProps}/>
-                        </Col>
-                    </Row>
-                    {data.relayObservationDetails.ephemeris && <Ephemeris 
-                        ephemeris={data.relayObservationDetails.ephemeris} 
-                        updated={data.relayObservationDetails.ephemerisUpdatedAt}
-                        show={ephemerisVisable} 
-                        setShow={setEphemerisVisable} />}
-                    <Row className='bg-gray-100' style={{ marginTop: '-4rem' }}>
-                        <Col md={4}>
-                            <ListControls 
-                                searchProps={props.searchProps} 
-                                searchText="Find an observation..."
-                                handleProposalFilter={handleProjectFilter} 
-                                handleBandFilter={handleBandFilter}
-                                columnToggleProps={props.columnToggleProps}
-                                exportCSVProps={props.csvProps}
-                            />
-                        </Col>
-                        <Col md={1} className="d-flex align-items-center">
-                            <Button 
-                                variant="icon" 
-                                className="mr-2" 
-                                active={isTableView} 
-                                onClick={() => setIsTableView(true)}>
-                                <HiOutlineViewList className='h5' />
-                            </Button>
-                            <Button 
-                                variant="icon"
-                                active={!isTableView}
-                                onClick={() => setIsTableView(false)}>
-                                <HiOutlineViewGrid className='h5' />
-                            </Button>
-                        </Col>
-                    </Row>
-                    {
-                        isTableView ? 
-                            <BootstrapTable 
-                                {...props.baseProps} 
-                                pagination={paginationFactory(options)} 
-                                bordered={false}
-                                rowStyle={{ whiteSpace: 'pre', verticalAlign: 'middle' }}
-                                wrapperClasses='bg-gray-100'
-                            /> : 
-                            <JobCardsList {...props.baseProps} />
-                    }
-                </React.Fragment>)}
-        </ToolkitProvider>
+        <React.Fragment>
+            <Row style={{ margin: '-12.5rem 0 10.5rem 0' }}>
+                <Button 
+                    size="sm"
+                    variant="outline-secondary" 
+                    className="mr-2"
+                    disabled={relayObservationDetails.ephemeris ? false : true}
+                    onClick={() => setEphemerisVisable(true)}>
+                    { relayObservationDetails.ephemeris ? 
+                        'View folding ephemeris' : 'Folding ephemeris unavailable'}
+                </Button>
+                <Button 
+                    size="sm"
+                    as="a"
+                    href={meerWatchLink(relayObservationDetails.jname)}
+                    variant="outline-secondary"> 
+                        View MeerWatch
+                </Button>
+            </Row>
+            {relayObservationDetails.ephemeris && <Ephemeris 
+                ephemeris={relayObservationDetails.ephemeris} 
+                updated={relayObservationDetails.ephemerisUpdatedAt}
+                show={ephemerisVisable} 
+                setShow={setEphemerisVisable} />}
+            <DataView 
+                summaryData={summaryData}
+                columns={columns}
+                rows={rows}
+                setProposal={handleProjectFilter}
+                setBand={handleBandFilter}
+                plot
+                keyField="key"
+            />
+        </React.Fragment>
     );
 };
 
