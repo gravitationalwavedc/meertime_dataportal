@@ -1,10 +1,10 @@
 import logging
 import sys
 
-from cli.tables.pulsars import Pulsars
-from cli.tables.targets import Targets
-from cli.tables.pipelines import Pipelines
-from cli.graphql_client import GraphQLClient
+from tables.pulsars import Pulsars
+from tables.targets import Targets
+from tables.pipelines import Pipelines
+from graphql_client import GraphQLClient
 
 if __name__ == "__main__":
 
@@ -16,7 +16,8 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
     parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
 
-    subparsers = parser.add_subparsers(dest="command", required=True, help="Database models which can be interrogated")
+    subparsers = parser.add_subparsers(dest="command", help="Database models which can be interrogated")
+    subparsers.required = True
 
     tables = [Pulsars, Targets, Pipelines]
     configured = []

@@ -2,7 +2,7 @@ import json
 import logging
 import requests as r
 from requests.packages.urllib3.util.retry import Retry
-from ..graphql_client import GraphQLClient
+from graphql_client import GraphQLClient
 
 log = logging.getLogger(__name__)
 
