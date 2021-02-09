@@ -117,6 +117,7 @@ class SearchmodeView(IndexBaseView):
 
 class DetailView(generic.ListView):
     context_object_name = "obs_list"
+    parent_url_name = "fold"
 
     def setup(cls, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
@@ -137,6 +138,8 @@ class DetailView(generic.ListView):
             ephemeris = json.loads(ephemeris.ephemeris)
         context["ephemeris"] = ephemeris
         context["updated"] = updated
+
+        context["parent_url_name"] = cls.parent_url_name
 
         # Add a payload for kronos/meerwatch links
         context["kronos"] = settings.KRONOS_PAYLOAD

@@ -64,7 +64,9 @@ urlpatterns = [
     ),
     re_path(
         r"^trapum/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)$",
-        login_required(views.PulsarDetailView.as_view(get_proposal_filters=get_trapum_filters)),
+        login_required(
+            views.PulsarDetailView.as_view(get_proposal_filters=get_trapum_filters, parent_url_name="trapum")
+        ),
         name="pulsar_detail_trapum",
     ),
     re_path(

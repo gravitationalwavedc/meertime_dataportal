@@ -9,7 +9,7 @@
 
 {% block content %}
 {% if obs_list %}
-Go <a href="{% url 'fold' %}">back</a>
+Go <a href="{% url parent_url_name %}">back</a>
 <h2>{{ psr }}</h2>
 <div class="row">
   <div class="col-8">
@@ -60,8 +60,7 @@ Go <a href="{% url 'fold' %}">back</a>
       {% for obs in obs_list %}
       <tr>
         <td class="text-nowrap">
-          <a
-            href="{% url 'obs_detail' obs.pulsar.jname obs.utc.utc_ts|date:'Y-m-d-H:i:s'  obs.beam %}">{{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}</a>
+          <a href="{% url 'obs_detail' obs.pulsar.jname obs.utc.utc_ts|date:'Y-m-d-H:i:s'  obs.beam %}">{{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}</a>
         </td>
         <td>{{ obs.proposal.proposal_short }}</td>
         <td>{{ obs.length|div:60|floatformat:1 }}</td>
