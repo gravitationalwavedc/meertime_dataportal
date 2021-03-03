@@ -6,7 +6,9 @@ from .logic import get_trapum_filters, get_meertime_filters
 from . import views
 
 urlpatterns = [
-    path("", login_required(views.FoldView.as_view(get_proposal_filters=get_meertime_filters,)), name="fold"),
+    path("", views.WelcomeView.as_view(), name="welcome"),
+    path("meertime/", login_required(views.FoldView.as_view(get_proposal_filters=get_meertime_filters,)), name="fold"),
+    path("public/", views.FoldView.as_view(get_proposal_filters=get_meertime_filters,), name="public_fold"),
     path(
         "trapum/",
         login_required(
@@ -19,7 +21,7 @@ urlpatterns = [
         name="trapum",
     ),
     path(
-        "session/",
+        "meertime/session/",
         login_required(views.SessionView.as_view(get_proposal_filters=get_meertime_filters)),
         name="session",
     ),
@@ -46,7 +48,7 @@ urlpatterns = [
         name="trapum_search",
     ),
     path(
-        "search/",
+        "meertime/search/",
         login_required(
             views.SearchmodeView.as_view(
                 get_proposal_filters=get_meertime_filters,
@@ -56,11 +58,25 @@ urlpatterns = [
         ),
         name="search",
     ),
+    path(
+        "public/search/",
+        views.SearchmodeView.as_view(
+            get_proposal_filters=get_meertime_filters,
+            page_title="searchmode observations",
+            detail_url_name="public_pulsar_detail_search",
+        ),
+        name="public_search",
+    ),
     path("fluxcal/", login_required(views.FoldView.as_view()), name="fluxcal"),
     re_path(
         r"^(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)[/]?$",
         login_required(views.PulsarDetailView.as_view(get_proposal_filters=get_meertime_filters)),
         name="pulsar_detail",
+    ),
+    re_path(
+        r"^public/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)[/]?$",
+        views.PulsarDetailView.as_view(get_proposal_filters=get_meertime_filters),
+        name="public_pulsar_detail",
     ),
     re_path(
         r"^trapum/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)$",
@@ -70,9 +86,14 @@ urlpatterns = [
         name="pulsar_detail_trapum",
     ),
     re_path(
-        r"^search/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)$",
+        r"^meertime/search/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)$",
         login_required(views.SearchDetailView.as_view(get_proposal_filters=get_meertime_filters)),
         name="pulsar_detail_search",
+    ),
+    re_path(
+        r"^public/search/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)$",
+        views.SearchDetailView.as_view(get_proposal_filters=get_meertime_filters),
+        name="public_pulsar_detail_search",
     ),
     re_path(
         r"^trapum/search/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)$",
@@ -85,5 +106,10 @@ urlpatterns = [
         r"^(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)/(?P<utc>\d{4}-\d{2}-\d{2}-[0-2]{1}\d{1}:[0-6]{1}\d{1}:[0-6]{1}\d{1})/(?P<beam>\d+)/$",
         login_required(views.ObservationDetailView.as_view()),
         name="obs_detail",
+    ),
+    re_path(
+        r"^public/(?P<psr>[BJ][0-2]\d*[-+]+\d*[a-zA-Z]*)/(?P<utc>\d{4}-\d{2}-\d{2}-[0-2]{1}\d{1}:[0-6]{1}\d{1}:[0-6]{1}\d{1})/(?P<beam>\d+)/$",
+        views.ObservationDetailView.as_view(),
+        name="public_obs_detail",
     ),
 ]

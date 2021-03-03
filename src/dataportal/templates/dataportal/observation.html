@@ -95,14 +95,15 @@
     </div>
   </div>
 
+  {% if user.is_authenticated %}
   <div class="row">
     <p>
       View more at
-      <a
-        href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}&jname={{ psr|urlencode }}&data={{ kronos }}">kronos</a>
+      <a href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}&jname={{ psr|urlencode }}&data={{ kronos }}">kronos</a>
     </p>
 
   </div>
+  {% endif %}
   <div class="row">
     <div class="col-lg-6 col-md-12">
       {% if obs.profile %}

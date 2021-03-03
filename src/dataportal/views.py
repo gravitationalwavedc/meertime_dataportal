@@ -23,6 +23,15 @@ def handler500(request):
         return render(request, "500.html", {})
 
 
+class WelcomeView(generic.TemplateView):
+    """
+    This is the landing page which informs visitors what they can find on the portal.
+    It also provides a link to the public data accessible without logging in.
+    """
+
+    template_name = "dataportal/welcome.html"
+
+
 class SessionView(generic.ListView):
     """
     Display observations in an observing session
@@ -73,12 +82,17 @@ class FoldView(IndexBaseView):
     get_proposal_filters = get_meertime_filters
 
     def get_queryset(cls):
-        return Pulsars.get_observations(
+        qs = Pulsars.get_observations(
             mode="observations",
             proposal=cls.request.GET.get("project_id"),
             band=cls.request.GET.get("band"),
             get_proposal_filters=cls.get_proposal_filters,
         )
+
+        if not cls.request.user.is_authenticated:
+            return qs.order_by("jname")
+        else:
+            return qs
 
     def get_context_data(cls, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -86,7 +100,11 @@ class FoldView(IndexBaseView):
         context["projects"] = Proposals.objects.filter(**proposal_filter)
         # page title
         context["title"] = cls.page_title
-        context["detail_url_name"] = cls.detail_url_name
+        if cls.request.user.is_authenticated:
+            context["detail_url_name"] = cls.detail_url_name
+        else:
+            context["detail_url_name"] = f"public_{cls.detail_url_name}"
+
         return context
 
 

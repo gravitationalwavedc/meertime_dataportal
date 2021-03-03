@@ -72,8 +72,10 @@
           <th {{hide_on_small}}>Timespan [days]</th>
           <th {{hide_on_small}}>No. of obs</th>
           <th {{hide_on_small}}>Total int. [h]</th>
+          {% if user.is_authenticated %}
           <th {{hide_on_small}}>Avg S/N<sub>pipe</sub> (5 min)</th>
           <th {{hide_on_small}}>Max S/N<sub>pipe</sub> (5 min)</th>
+          {% endif %}
           <th>Last S/N<sub>raw</sub></th>
           <th>Last int. [m]</th>
         </tr>
@@ -82,17 +84,26 @@
 
         {% for psr in per_pulsar_list %}
         <tr>
+          {% if user.is_authenticated %}
           <td class="text-nowrap"><a href="{% url detail_url_name psr.jname %}">{{ psr.jname }}</a></td>
-          <td class="text-nowrap"><a
-              href="{% url 'obs_detail' psr.jname psr.last|date:'Y-m-d-H:i:s' psr.last_beam %}">{{ psr.last|date:'Y-m-d-H:i:s' }}</a>
+          {% else %}
+          <td class="text-nowrap"><a href="{% url detail_url_name psr.jname %}">{{ psr.jname }}</a></td>
+          {% endif %}
+          {% if user.is_authenticated %}
+          <td class="text-nowrap"><a href="{% url 'obs_detail' psr.jname psr.last|date:'Y-m-d-H:i:s' psr.last_beam %}">{{ psr.last|date:'Y-m-d-H:i:s' }}</a>
+            {% else %}
+          <td class="text-nowrap"><a href="{% url 'public_obs_detail' psr.jname psr.last|date:'Y-m-d-H:i:s' psr.last_beam %}">{{ psr.last|date:'Y-m-d-H:i:s' }}</a>
+            {% endif %}
           </td>
           <td {{hide_on_medium_nowrap}}>{{ psr.first|date:'Y-m-d-H:i:s' }}</td>
           <td>{{ psr.proposal_short}}</td>
           <td {{hide_on_small}}>{{ psr.timespan.days }}</td>
           <td {{hide_on_small}}>{{ psr.nobs }}</td>
           <td {{hide_on_small}}>{{ psr.total_tint_h|floatformat }}</td>
+          {% if user.is_authenticated %}
           <td {{hide_on_small}}>{{ psr.avg_snr_5min|default_if_none:"-1"|floatformat }}</td>
-          <td {{hide_on_small}}>{{ psr.max_snr_5min|default_if_none:"-1"|floatformat  }}</td>
+          <td {{hide_on_small}}>{{ psr.max_snr_5min|default_if_none:"-1"|floatformat }}</td>
+          {% endif %}
           <td>{{ psr.latest_snr|floatformat }}</td>
           <td>{{ psr.latest_tint_m|floatformat }}</td>
         </tr>

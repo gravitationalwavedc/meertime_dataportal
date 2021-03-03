@@ -18,20 +18,30 @@ def test_auth_template(client):
     assert response.template_name == ["registration/login.html"]
 
 
+# Test WelcomeView
+
+
+@pytest.mark.django_db
+def test_welcome_view_unauthenticated(client):
+    response = client.get("")
+    assert response.status_code == 200
+    assert response.template_name == ["dataportal/welcome.html"]
+
+
 # Test IndexView
 @pytest.mark.django_db
 def test_index_view_unauthenticated(client):
     """IndexView should redirect unauthenticated users to the login page."""
-    response = client.get("")
+    response = client.get("/meertime/")
     assert response.status_code == 302
-    assert response["location"] == "/accounts/login/?next=/"
+    assert response["location"] == "/accounts/login/?next=/meertime/"
 
 
 @pytest.mark.django_db
 def test_index_view_authenticated(client, django_user_model):
     """IndexView should display the index template for authenticated users."""
     login_buffy(client, django_user_model)
-    response = client.get("")
+    response = client.get("/meertime/")
     assert response.status_code == 200
     assert response.template_name == ["dataportal/index.html", "dataportal/pulsars_list.html"]
 
@@ -41,7 +51,7 @@ def test_index_view_authenticated_with_project_id(client, django_user_model):
     """IndexView should display the correct template when given a project id."""
     login_buffy(client, django_user_model)
     proposal_id = Proposals.objects.create().id
-    response = client.get("", {"project_id": proposal_id})
+    response = client.get("/meertime/", {"project_id": proposal_id})
     assert response.status_code == 200
     assert response.template_name == ["dataportal/index.html", "dataportal/pulsars_list.html"]
 
@@ -50,16 +60,16 @@ def test_index_view_authenticated_with_project_id(client, django_user_model):
 @pytest.mark.django_db
 def test_search_view_unauthenticated(client):
     """IndexView should redirect unauthenticated users to the login page."""
-    response = client.get("/search/")
+    response = client.get("/meertime/search/")
     assert response.status_code == 302
-    assert response["location"] == "/accounts/login/?next=/search/"
+    assert response["location"] == "/accounts/login/?next=/meertime/search/"
 
 
 @pytest.mark.django_db
 def test_search_view_authenticated(client, django_user_model):
     """IndexView should display the index template for authenticated users."""
     login_buffy(client, django_user_model)
-    response = client.get("/search/")
+    response = client.get("/meertime/search/")
     assert response.status_code == 200
     assert response.template_name == ["dataportal/searchmode.html", "dataportal/pulsars_list.html"]
 
@@ -69,7 +79,7 @@ def test_search_view_authenticated_with_project_id(client, django_user_model):
     """IndexView should display the correct template when given a project id."""
     login_buffy(client, django_user_model)
     proposal_id = Proposals.objects.create().id
-    response = client.get("/search/", {"project_id": proposal_id})
+    response = client.get("/meertime/search/", {"project_id": proposal_id})
     assert response.status_code == 200
     assert response.template_name == ["dataportal/searchmode.html", "dataportal/pulsars_list.html"]
 
@@ -113,9 +123,9 @@ def test_detail_view_accepts_correct_regex(client, django_user_model):
 def test_search_detail_view_unauthenticated(client):
     """SearchDetailView should redirect unauthenticated users to the login page."""
     Pulsars.objects.create(jname="J1111-2222")
-    response = client.get("/search/J1111-2222")
+    response = client.get("/meertime/search/J1111-2222")
     assert response.status_code == 302
-    assert response["location"] == "/accounts/login/?next=/search/J1111-2222"
+    assert response["location"] == "/accounts/login/?next=/meertime/search/J1111-2222"
 
 
 @pytest.mark.django_db
@@ -123,7 +133,7 @@ def test_search_detail_view_authenticated(client, django_user_model):
     """SearchDetailView should display the correct template for authenticated users when give a job name."""
     login_buffy(client, django_user_model)
     Pulsars.objects.create(jname="J1111-2222")
-    response = client.get("/search/J1111-2222")
+    response = client.get("/meertime/search/J1111-2222")
     assert response.status_code == 200
     assert response.template_name == ["dataportal/show_single_psr_search.html", "dataportal/searchmode_list.html"]
 
@@ -134,8 +144,8 @@ def test_search_detail_view_accepts_correct_regex(client, django_user_model):
     login_buffy(client, django_user_model)
     Pulsars.objects.create(jname="J1111-2222")
     Pulsars.objects.create(jname="J1111+2222")
-    response_1 = client.get("/search/J1111-2222")
-    response_2 = client.get("/search/J1111+2222")
+    response_1 = client.get("/meertime/search/J1111-2222")
+    response_2 = client.get("/meertime/search/J1111+2222")
     assert response_1.status_code == 200
     assert response_1.template_name == ["dataportal/show_single_psr_search.html", "dataportal/searchmode_list.html"]
     assert response_2.status_code == 200
@@ -265,15 +275,15 @@ def test_trapum_searchmode_view_authenticated_with_project_id(client, django_use
 @pytest.mark.django_db
 def test_session_view_unauthenticated(client):
     """SessionView should redirect unauthenticated users to the login page."""
-    response = client.get("/session/")
+    response = client.get("/meertime/session/")
     assert response.status_code == 302
-    assert response["location"] == "/accounts/login/?next=/session/"
+    assert response["location"] == "/accounts/login/?next=/meertime/session/"
 
 
 @pytest.mark.django_db
 def test_session_view_authenticated(client, django_user_model):
     """SessionView should display the index template for authenticated users."""
     login_buffy(client, django_user_model)
-    response = client.get("/session/")
+    response = client.get("/meertime/session/")
     assert response.status_code == 200
     assert response.template_name == ["dataportal/session.html", "dataportal/observations_list.html"]

@@ -1,0 +1,43 @@
+{% extends "dataportal/base.html" %}
+{% load static %}
+
+{% block content %}
+<header class="masthead">
+  <div class="container h-100">
+    <div class="row h-100">
+      <div class="col-lg-7 col-md-12">
+        <div class="header-content mx-auto">
+          <h1 class="mb-5">Pulsar data portal</h1>
+          <p>The <a href="https://gwdc.org.au/">Gravitational Wave Data Centre</a> pulsar data portal provides access to pulsar observations metadata and some data products. Currently, we are hosting observations from the <a href="http://www.meertime.org/">MeerTime</a> project with plans to include more in the future.</p>
+          <p>The data are recorded with the <a href="https://science.ska.ac.za/meerkat">MeerKAT</a> telescope operated by <a href="https://www.sarao.ac.za/">South African Radio Astronomical Observatory</a>.</p>
+        </div>
+      </div>
+      <div class="col-lg-5 col-md-12">
+        <img src="{% static 'images/einstein-coloured.png' %}" class="img-fluid" alt="">
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="mt-4">
+  <div class="container h-100 mt-auto">
+    <div class="row h-100">
+      <div class="col md-12 col-lg-8">
+        <p>
+          Currenlty, we provide <a href="{% url 'public_fold' %}">public access</a> to all the metadata associated with those observations without the need to log in. Otherwise you can <a href="{% url 'login' %}">log in</a> to view more data.</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="row h-100">
+      <div class="col md-12 col-lg-4">
+        <a class="btn btn-primary active" href="{% url 'public_fold' %}">Public access</a>
+      </div>
+      <div class="col md-12 col-lg-4">
+        <a class="btn btn-primary active" href="{% url 'login' %}" role="button">Login</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
