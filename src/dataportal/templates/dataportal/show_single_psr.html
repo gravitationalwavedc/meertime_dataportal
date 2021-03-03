@@ -9,7 +9,7 @@
 
 {% block content %}
 {% if obs_list %}
-Go <a href="">back</a>
+Go <a href="{% url parent_url_name %}">back</a>
 <h2>{{ psr }}</h2>
 <div class="row">
   <div class="col-8">
@@ -60,7 +60,7 @@ Go <a href="">back</a>
       {% for obs in obs_list %}
       <tr>
         <td class="text-nowrap">
-          <a href="">{{ obs.utc|date:'Y-m-d-H:i:s' }}</a>
+          <a href="{% url 'obs_detail' psr obs.utc|date:'Y-m-d-H:i:s' obs.beam %}">{{ obs.utc|date:'Y-m-d-H:i:s' }}</a>
         </td>
         <td>{{ obs.proposal }}</td>
         <td>{{ obs.length|div:60|floatformat:1 }}</td>
@@ -74,12 +74,8 @@ Go <a href="">back</a>
         <td>{{ obs.dm_eph|floatformat:-4 }}</td>
         <td>{{ obs.dm_pipe|default_if_none:"0"|floatformat:5 }}</td>
         <td>{{ obs.rm_pipe|default_if_none:"0"|floatformat:2 }}</td>
-        {% comment %}<td id="snr"></td>{% endcomment %}
         <td>{{ obs.results.snr|floatformat:1 }}</td>
         <td>{{ obs.snr_pipe|default_if_none:"0"|floatformat:1 }}</td>
-        {% comment %}{{ obs.snr|json_script:"results" }}
-        <script>document.getElementById("snr").innerHTML = JSON.parse(document.getElementById("results").textContent)</script>
-        {% endcomment %}
       </tr>
       {% endfor %}
     </tbody>

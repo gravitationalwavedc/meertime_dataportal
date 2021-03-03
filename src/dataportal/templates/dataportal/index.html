@@ -59,12 +59,12 @@
 
 {% block table %}
 {% if per_pulsar_list %}
+{% with hide_on_small='class="d-none d-sm-table-cell"' hide_on_medium='class="d-none d-lg-table-cell"' hide_on_medium_nowrap='class="text-nowrap d-none d-lg-table-cell"' %}
 <div style="clear:both">
   <div class="row">
     <table id="psrs" class="table table-striped table-bordered table-sm">
       <thead class="thead-dark">
         <tr>
-          {% with hide_on_small='class="d-none d-sm-table-cell"' hide_on_medium='class="d-none d-lg-table-cell"' hide_on_medium_nowrap='class="text-nowrap d-none d-lg-table-cell"' %}
           <th>JNAME</th>
           <th>Last obs</th>
           <th {{hide_on_medium}}>First obs</th>
@@ -83,26 +83,25 @@
         {% for psr in per_pulsar_list %}
         <tr>
           <td class="text-nowrap"><a href="{% url detail_url_name psr.jname %}">{{ psr.jname }}</a></td>
-          <td class="text-nowrap"><a
-              href="{% url 'obs_detail' psr.jname psr.last|date:'Y-m-d-H:i:s' psr.last_beam %}">{{ psr.last|date:'Y-m-d-H:i:s' }}</a>
-          </td>
+          <td class="text-nowrap"><a href="{% url 'obs_detail' psr.jname psr.last|date:'Y-m-d-H:i:s' psr.beam %}">{{ psr.last|date:'Y-m-d-H:i:s' }}</a></td>
           <td {{hide_on_medium_nowrap}}>{{ psr.first|date:'Y-m-d-H:i:s' }}</td>
-          <td>{{ psr.proposal_short}}</td>
-          <td {{hide_on_small}}>{{ psr.timespan.days }}</td>
-          <td {{hide_on_small}}>{{ psr.nobs }}</td>
-          <td {{hide_on_small}}>{{ psr.total_tint_h|floatformat }}</td>
-          <td {{hide_on_small}}>{{ psr.avg_snr_5min|default_if_none:"-1"|floatformat }}</td>
-          <td {{hide_on_small}}>{{ psr.max_snr_5min|default_if_none:"-1"|floatformat  }}</td>
-          <td>{{ psr.latest_snr|floatformat }}</td>
-          <td>{{ psr.latest_tint_m|floatformat }}</td>
+          <td>{{ psr.proposal_short }}</td>
+          <td>{{ psr.timespan.days|add:1 }}</td>
+          <td>{{ psr.nobs }}</td>
+          <td>{{ psr.total_tint_h|floatformat }}</td>
+          <!--TODO avg and max 5min S/N not implemented yet in the models.py, waiting for some example pipelines data-->
+          <td></td>
+          <td></td>
+          <td>{{ psr.snr|floatformat:1 }}</td>
+          <td>{{ psr.length|floatformat }}</td>
         </tr>
         {% endfor %}
-        {% endwith %}
 
       </tbody>
     </table>
   </div>
 </div>
+{% endwith %}
 {% else %}
 <p>No observations are available.</p>
 {% endif %}

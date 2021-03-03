@@ -1,5 +1,5 @@
 import logging
-from cli.tables.graphql_table import GraphQLTable
+from tables.graphql_table import GraphQLTable
 
 
 class Pulsars(GraphQLTable):
@@ -115,7 +115,8 @@ class Pulsars(GraphQLTable):
     def configure_parsers(cls, parser):
         """Add sub-parsers for each of the valid commands."""
         parser.set_defaults(command=cls.get_name())
-        subs = parser.add_subparsers(dest='subcommand', required=True)
+        subs = parser.add_subparsers(dest='subcommand')
+        subs.required = True
 
         # create the parser for the "list" command
         parser_list = subs.add_parser('list', help='list existing Pulsars')

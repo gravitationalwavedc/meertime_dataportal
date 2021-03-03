@@ -14,23 +14,23 @@ def test_get_band_returns_correct_value():
 
 
 def test_get_meertime_filters():
-    expected_on_empty_input = {"proposal__startswith": "SCI", "proposal__contains": "MB"}
-    expected_on_prefix_observations__proposal = {
-        "observations__proposal__proposal__startswith": "SCI",
-        "observations__proposal__proposal__contains": "MB",
+    expected_on_empty_input = {"project__code__startswith": "SCI", "project__code__contains": "MB"}
+    expected_on_prefix_observations = {
+        "observations__project__code__startswith": "SCI",
+        "observations__project__code__contains": "MB",
     }
     assert get_meertime_filters() == expected_on_empty_input
-    assert get_meertime_filters(prefix="observations__proposal") == expected_on_prefix_observations__proposal
+    assert get_meertime_filters(prefix="observations") == expected_on_prefix_observations
 
 
 def test_get_trapum_filters():
-    expected_on_empty_input = {"proposal__startswith": "SCI", "proposal__contains": "MK"}
-    expected_on_prefix_observations__proposal = {
-        "observations__proposal__proposal__startswith": "SCI",
-        "observations__proposal__proposal__contains": "MK",
+    expected_on_empty_input = {"project__code__startswith": "SCI", "project__code__contains": "MK"}
+    expected_on_prefix_observations = {
+        "observations__project__code__startswith": "SCI",
+        "observations__project__code__contains": "MK",
     }
     assert get_trapum_filters() == expected_on_empty_input
-    assert get_trapum_filters(prefix="observations__proposal") == expected_on_prefix_observations__proposal
+    assert get_trapum_filters(prefix="observations") == expected_on_prefix_observations
 
 
 def test_get_band_filters():

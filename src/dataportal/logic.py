@@ -52,8 +52,8 @@ def get_meertime_filters(prefix=None):
     prefix = f"{prefix}__" if prefix else ""
 
     return {
-        f"{prefix}proposal__startswith": "SCI",
-        f"{prefix}proposal__contains": "MB",
+        f"{prefix}project__code__startswith": "SCI",
+        f"{prefix}project__code__contains": "MB",
     }
 
 
@@ -67,6 +67,6 @@ def get_trapum_filters(prefix=None):
     prefix = f"{prefix}__" if prefix else ""
 
     return {
-        f"{prefix}proposal__startswith": "SCI",
-        f"{prefix}proposal__contains": "MK",
+        f"{prefix}project__code__startswith": "SCI",
+        f"{prefix}project__code__contains": "MK",
     }

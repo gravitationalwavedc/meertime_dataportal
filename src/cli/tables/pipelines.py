@@ -1,5 +1,5 @@
 import logging
-from cli.tables.graphql_table import GraphQLTable
+from tables.graphql_table import GraphQLTable
 
 
 class Pipelines(GraphQLTable):
@@ -160,7 +160,8 @@ class Pipelines(GraphQLTable):
         """Add sub-parsers for each of the valid commands."""
         # create the parser for the "list" command
         parser.set_defaults(command=cls.get_name())
-        subs = parser.add_subparsers(dest="subcommand", required=True)
+        subs = parser.add_subparsers(dest="subcommand")
+        subs.required = True
 
         parser_list = subs.add_parser('list', help='list existing pipelines')
         parser_list.add_argument('--id', type=int, help='list pipelines matching the id')

@@ -1,10 +1,11 @@
 from django.db import models
-from django.db.models import F
+from django.db.models import F, OuterRef, Subquery, Max, Min, ExpressionWrapper, Count, Sum
 from django_mysql.models import Model
 from django_mysql.models import JSONField
 from .logic import get_meertime_filters, get_band
 from json import loads
 from datetime import timedelta
+from .storage import OverwriteStorage, get_upload_location
 
 
 class Basebandings(models.Model):
@@ -37,6 +38,7 @@ class Ephemerides(models.Model):
     rm = models.FloatField()
     comment = models.CharField(max_length=255, blank=True, null=True)
     valid_from = models.DateTimeField()
+    # we should be making sure valid_to is later than valid_from
     valid_to = models.DateTimeField()
 
 
@@ -56,12 +58,46 @@ class Foldings(models.Model):
     npol = models.IntegerField()
     nchan = models.IntegerField()
     dm = models.FloatField(blank=True, null=True)
-    tsubint = models.IntegerField()
+    tsubint = models.FloatField()
 
     @property
     def band(cls):
         freq = cls.processing.observation.instrument_config.frequency
         return get_band(float(freq))
+
+    @classmethod
+    def get_observation_details(cls, pulsar, utc, beam):
+        annotations = {
+            "jname": F("folding_ephemeris__pulsar__jname"),
+            "utc": F("processing__observation__utc_start"),
+            "beam": F("processing__observation__instrument_config__beam"),
+            "proposal": F("processing__observation__project__code"),
+            "frequency": F("processing__observation__instrument_config__frequency"),
+            "bw": F("processing__observation__instrument_config__bandwidth"),
+            "ra": F("processing__observation__target__raj"),
+            "dec": F("processing__observation__target__decj"),
+            "duration": F("processing__observation__duration"),
+            "results": F("processing__results"),
+            "nant": F("processing__observation__nant"),
+            "nant_eff": F("processing__observation__nant_eff"),
+            "config": F("processing__observation__config"),
+        }
+
+        return (
+            cls.objects.select_related(
+                "processing__observation__instrument_config",
+                "folding_ephemeris__pulsar",
+                "processing__observation__project",
+                "processing__observation__target",
+            )
+            .filter(
+                folding_ephemeris__pulsar=pulsar,
+                processing__observation__utc_start=utc,
+                processing__observation__instrument_config__beam=beam,
+            )
+            .annotate(**annotations)
+            .first()
+        )
 
 
 class Instrumentconfigs(models.Model):
@@ -109,7 +145,7 @@ class Pipelineimages(models.Model):
     processing = models.ForeignKey("Processings", models.DO_NOTHING)
     rank = models.IntegerField()
     image_type = models.CharField(max_length=64, blank=True, null=True)
-    image = models.CharField(max_length=255)
+    image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
 
 
 class Pipelines(models.Model):
@@ -152,20 +188,59 @@ class Pulsars(models.Model):
     state = models.CharField(max_length=255, blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
 
-    def get_observations_detail_data(cls, get_proposal_filters=get_meertime_filters):
+    def get_observations_for_pulsar(cls, get_proposal_filters=get_meertime_filters):
+        folding_filter = get_proposal_filters(prefix="processing__observation")
+
         annotations = {
             "utc": F("processing__observation__utc_start"),
             "bw": F("processing__observation__instrument_config__bandwidth"),
             "length": F("processing__observation__duration"),
-            "proposal": F("processing__observation__duration"),
+            "proposal": F("processing__observation__project__short"),
             "beam": F("processing__observation__instrument_config__beam"),
             "nant": F("processing__observation__nant"),
             "nant_eff": F("processing__observation__nant_eff"),
             "results": F("processing__results"),
-            "dm_eph": F("folding_ephemeris__dm"),
         }
-        folds = Foldings.objects.filter(folding_ephemeris__pulsar=cls).annotate(**annotations)
-        return folds
+
+        folds = (
+            Foldings.objects.select_related("processing__observation__instrument_config")
+            .filter(folding_ephemeris__pulsar=cls, **folding_filter)
+            .annotate(**annotations)
+        )
+        return folds.order_by("-utc")
+
+    @classmethod
+    def get_latest_observations(cls, get_proposal_filters=get_meertime_filters):
+        folding_filter = get_proposal_filters(prefix="processing__observation")
+
+        latest_observation = Foldings.objects.filter(
+            folding_ephemeris__pulsar=OuterRef("id"), **folding_filter
+        ).order_by("-processing__observation__utc_start")
+        annotations = {
+            "last": Max("pulsartargets__target__observations__utc_start"),
+            "first": Min("pulsartargets__target__observations__utc_start"),
+            "timespan": ExpressionWrapper(
+                Max("pulsartargets__target__observations__utc_start")
+                - Min("pulsartargets__target__observations__utc_start")
+                + 1,
+                output_field=models.DurationField(),
+            ),
+            "nobs": Count("pulsartargets__target__observations"),
+            "length": Subquery(latest_observation.values("processing__observation__duration")[:1]) / 60.0,
+            "total_tint_h": Sum("pulsartargets__target__observations__duration") / 60.0 / 60.0,
+            "proposal_short": Subquery(latest_observation.values("processing__observation__project__short")[:1]),
+            "snr": Subquery(latest_observation.values("processing__results__snr")[:1]),
+            "beam": Subquery(latest_observation.values("processing__observation__instrument_config__beam")[:1]),
+        }
+
+        pulsar_proposal_filter = get_proposal_filters(prefix="pulsartargets__target__observations")
+
+        return (
+            cls.objects.values("jname", "id")
+            .filter(**pulsar_proposal_filter)
+            .annotate(**annotations)
+            .order_by("-last")
+        )
 
 
 class Rfis(models.Model):

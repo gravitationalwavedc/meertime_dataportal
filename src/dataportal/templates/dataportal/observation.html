@@ -6,8 +6,8 @@
 <div class="col-12">
   <div class="row">
     <h1>
-      <a href="{% url 'pulsar_detail' obs.pulsar.jname %}">{{ obs.pulsar.jname }}</a> ::
-      {{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }} :: {{ obs.beam }}
+      <a href="{% url 'pulsar_detail' obs.jname %}">{{ obs.jname }}</a> ::
+      {{ obs.processing.observation.utc_start|date:'Y-m-d-H:i:s' }} :: {{ obs.processing.observation.instrument_config.beam }}
     </h1>
   </div>
 
@@ -17,11 +17,11 @@
         <tbody>
           <tr>
             <td class="text-left">Pulsar</td>
-            <td class="text-right">{{ obs.pulsar.jname }}</td>
+            <td class="text-right">{{ obs.jname }}</td>
           </tr>
           <tr>
             <td class="text-left">UTC</td>
-            <td class="text-right">{{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}</td>
+            <td class="text-right">{{ obs.utc|date:'Y-m-d-H:i:s' }}</td>
           </tr>
           <tr>
             <td class="text-left">Beam</td>
@@ -29,7 +29,7 @@
           </tr>
           <tr>
             <td class="text-left">Proposal</td>
-            <td class="text-right">{{ obs.proposal.proposal|default:"N/A" }}</td>
+            <td class="text-right">{{ obs.proposal|default:"N/A" }}</td>
           </tr>
           <tr>
             <td class="text-left">Centre frequency</td>
@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="text-left">Bandwidth</td>
-            <td class="text-right">{{ obs.bw|default:"N/A" }} MHz</td>
+            <td class="text-right">{{ obs.bw|default:"N/A"|floatformat:1 }} MHz</td>
           </tr>
           <tr>
             <td class="text-left">Pointing RA</td>
@@ -56,11 +56,11 @@
         <tbody>
           <tr>
             <td class="text-left">Integration time</td>
-            <td class="text-right">{{ obs.length|floatformat:1 }} s</td>
+            <td class="text-right">{{ obs.duration|floatformat:1 }} s</td>
           </tr>
           <tr>
             <td class="text-left">S/N</td>
-            <td class="text-right">{{ obs.snr_spip|floatformat:1 }}</td>
+            <td class="text-right">{{ obs.results.snr|floatformat:1 }}</td>
           </tr>
           <tr>
             <td class="text-left">Nbin</td>
@@ -84,11 +84,11 @@
           </tr>
           <tr>
             <td class="text-left">Schedule block ID</td>
-            <td class="text-right">{{ obs.schedule.schedule|default:"N/A" }}</td>
+            <td class="text-right">{{ obs.config.SCHEDULE_BLOCK_ID|default:"N/A" }}</td>
           </tr>
           <tr>
             <td class="text-left">Phase-up ID</td>
-            <td class="text-right">{{ obs.phaseup.phaseup|default:"N/A" }}</td>
+            <td class="text-right">{{ obs.config.PHASEUP_ID|default:"N/A" }}</td>
           </tr>
         </tbody>
       </table>
@@ -98,36 +98,35 @@
   <div class="row">
     <p>
       View more at
-      <a
-        href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}&jname={{ psr|urlencode }}&data={{ kronos }}">kronos</a>
+      <a href="http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam={{ obs.beam }}&utc_start={{ obs.utc.utc_ts|date:'Y-m-d-H:i:s' }}&jname={{ psr|urlencode }}&data={{ kronos }}">kronos</a>
     </p>
 
   </div>
   <div class="row">
     <div class="col-lg-6 col-md-12">
-      {% if obs.profile %}
-      <a href="{{ obs.profile.url }}" target="_blank">
-        <img src="{{ obs.profile.url }}" alt="no profile available" class="img-fluid" /></a>
+      {% if profile %}
+      <a href="{{ profile.0.image.url }}" target="_blank">
+        <img src="{{ profile.0.image.url }}" alt="no profile available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no profile available" class="img-fluid" />
       {% endif %}
-      {% if obs.phase_vs_time %}
-      <a href="{{ obs.phase_vs_time.url }}" target="_blank">
-        <img src="{{ obs.phase_vs_time.url }}" alt="no phase vs time plot available" class="img-fluid" /></a>
+      {% if phase_vs_time %}
+      <a href="{{ phase_vs_time.0.image.url }}" target="_blank">
+        <img src="{{ phase_vs_time.0.image.url }}" alt="no phase vs time plot available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no phase vs time plot available" class="img-fluid" />
       {% endif %}
     </div>
     <div class="col-lg-6 col-md-12">
-      {% if obs.bandpass %}
-      <a href="{{ obs.bandpass.url }}" target="_blank">
-        <img src="{{ obs.bandpass.url }}" alt="no bandpass available" class="img-fluid" /></a>
+      {% if bandpass %}
+      <a href="{{ bandpass.0.image.url }}" target="_blank">
+        <img src="{{ bandpass.0.image.url }}" alt="no bandpass available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no bandpass available" class="img-fluid" />
       {% endif %}
-      {% if obs.phase_vs_frequency %}
-      <a href="{{ obs.phase_vs_frequency.url }}" target="_blank">
-        <img src="{{ obs.phase_vs_frequency.url }}" alt="no phase vs freq. plot available" class="img-fluid" /></a>
+      {% if phase_vs_frequency %}
+      <a href="{{ phase_vs_frequency.0.image.url }}" target="_blank">
+        <img src="{{ phase_vs_frequency.0.image.url }}" alt="no phase vs freq. plot available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no phase vs freq. plot available" class="img-fluid" />
       {% endif %}
@@ -135,9 +134,9 @@
   </div>
   <div class="row">
     <div class="col-lg-6 col-md-12">
-      {% if obs.snr_vs_time %}
-      <a href="{{ obs.snr_vs_time.url }}" target="_blank">
-        <img src="{{ obs.snr_vs_time.url }}" alt="no S/N vs time available" class="img-fluid" /></a>
+      {% if snr_vs_time %}
+      <a href="{{ snr_vs_time.0.image.url }}" target="_blank">
+        <img src="{{ snr_vs_time.0.image.url }}" alt="no S/N vs time available" class="img-fluid" /></a>
       {% else %}
       <img src="{% static 'images/missing.png' %}" alt="no S/N vs time available" class="img-fluid" />
       {% endif %}

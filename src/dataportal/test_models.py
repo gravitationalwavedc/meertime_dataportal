@@ -3,7 +3,20 @@ import random
 import string
 from datetime import datetime, timedelta
 
-from .models import Observations, Searchmode, Fluxcal, Pulsars, Utcs, Proposals, get_observations_summary
+from .models import (
+    Ephemerides,
+    Filterbankings,
+    Foldings,
+    Instrumentconfigs,
+    Observations,
+    Pipelines,
+    Pulsars,
+    Pulsartargets,
+    Processings,
+    Projects,
+    Targets,
+    Telescopes,
+)
 
 
 def get_random_string(length):
@@ -12,124 +25,167 @@ def get_random_string(length):
     return result_str
 
 
-def test_observation_band():
-    observation = Observations(frequency=1238.128383)
-    assert observation.band == "L-band"
+@pytest.mark.django_db
+def test_foldings_band():
+    utc_later_str = "2000-01-01-12:59:12"
+    utc_earlier_str = "1999-01-01-12:59:12"
+    _, _ = generate_two_db_entries("J1234-5678", utc_later_str, utc_earlier_str)
+    folding = Foldings.objects.all().first()
+    assert folding.band == "L-band"
 
 
-def test_searchmode_band():
-    search_mode = Searchmode(frequency=843)
-    assert search_mode.band == "UHF"
+default_entry_config = {
+    "raj": "04:37:00.000",
+    "decj": "-47:15:00.000",
+    "name": "foo",
+    "bandwidth": 256.0,
+    "frequency": 1421.0,
+    "nchan": 4096,
+    "nbin": 1024,
+    "npol": 2,
+    "beam": 2,
+    "p0": 4.3,
+    "dm": 2.77,
+    "rm": 0.0,
+    "duration": 100.0,
+    "nant": 64,
+    "nant_eff": 64,
+    "nbit": 8,
+    "tsamp": 0.000064,
+    "proposal": "SCI-MB",
+    "proposal_short": "test",
+    "telescope": "MK",
+    "ephemeris": "",
+    "pipeline_version": "A",
+    "tsubint": 8.0,
+}
 
 
-def test_fluxcal_band():
-    fluxcal = Fluxcal(frequency=1300.0)
-    assert fluxcal.band == "L-band"
+def generate_db_entry(psr, utc, config=default_entry_config):
+    """
+    Helper method to populate the database with a test entry for a pulsar with name specified by psr and at the time of utc. Optionally, all parameters can be modifed by providing a entry config dictionary.
+
+    Return the utc as datetime with timezone set
+    """
+    psr, _ = Pulsars.objects.get_or_create(jname=psr)
+    target, _ = Targets.objects.get_or_create(name=psr, raj=config["raj"], decj=config["decj"])
+    psrtarget, _ = Pulsartargets.objects.get_or_create(pulsar=psr, target=target)
+    proposal, _ = Projects.objects.get_or_create(code=config["proposal"], short=config["proposal_short"])
+    instrument = Instrumentconfigs.objects.create(
+        name=config["name"],
+        bandwidth=config["bandwidth"],
+        frequency=config["frequency"],
+        nchan=config["nchan"],
+        npol=config["npol"],
+        beam=config["beam"],
+    )
+    telescope = Telescopes.objects.create(name=config["telescope"])
+
+    utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
+
+    eph = Ephemerides.objects.create(
+        pulsar=psr,
+        created_at=utc_dt,
+        created_by=config["name"],
+        ephemeris=config["ephemeris"],
+        p0=config["p0"],
+        dm=config["dm"],
+        rm=config["rm"],
+        valid_from=utc_dt,
+        valid_to=utc_dt,
+    )
+    pipeline = Pipelines.objects.create(
+        name=config["name"], created_at=utc_dt, revision=config["pipeline_version"], created_by=config["name"]
+    )
+
+    obs = Observations.objects.create(
+        target=target,
+        telescope=telescope,
+        instrument_config=instrument,
+        project=proposal,
+        utc_start=utc_dt,
+        duration=config["duration"],
+        nant=config["nant"],
+        nant_eff=config["nant_eff"],
+    )
+
+    proc = Processings.objects.create(observation=obs, pipeline=pipeline, embargo_end=utc_dt)
+    Foldings.objects.create(
+        processing=proc,
+        folding_ephemeris=eph,
+        nbin=config["nbin"],
+        npol=config["npol"],
+        nchan=config["nchan"],
+        dm=config["dm"],
+        tsubint=config["tsubint"],
+    )
+    Filterbankings.objects.create(
+        processing=proc,
+        nbit=config["nbit"],
+        npol=config["npol"],
+        nchan=config["nchan"],
+        tsamp=config["tsamp"],
+        dm=config["dm"],
+    )
+    return utc_dt
 
 
-def generate_two_db_entries(_psr, utc_later_str, utc_earlier_str):
-    expected_beam = 2
-    psr = Pulsars.objects.create(jname=_psr)
-    proposal = Proposals.objects.create(proposal="SCI_MB", proposal_short="test")
-    utc_later_dt = datetime.strptime(f"{utc_later_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc_later = Utcs.objects.create(utc_ts=utc_later_dt)
-
-    utc_earlier_dt = datetime.strptime(f"{utc_earlier_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc_earlier = Utcs.objects.create(utc_ts=utc_earlier_dt)
-
-    Observations.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam, proposal=proposal)
-    Observations.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam, proposal=proposal)
-    Searchmode.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam, proposal=proposal)
-    Searchmode.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam, proposal=proposal)
-    Fluxcal.objects.create(pulsar=psr, utc=utc_later, beam=expected_beam, proposal=proposal)
-    Fluxcal.objects.create(pulsar=psr, utc=utc_earlier, beam=expected_beam, proposal=proposal)
+def generate_two_db_entries(psr, utc_later_str, utc_earlier_str):
+    utc_later_dt = generate_db_entry(psr, utc_later_str)
+    utc_earlier_dt = generate_db_entry(psr, utc_earlier_str)
 
     return utc_earlier_dt, utc_later_dt
 
 
 @pytest.mark.django_db
-def test_get_observations_no_project_id():
+def test_get_latest_observations():
     expected_psr = "J1234-5678"
     utc_later_str = "2000-01-01-12:59:12"
     utc_earlier_str = "1999-01-01-12:59:12"
 
     expected_utc_earlier, expected_utc_later = generate_two_db_entries(expected_psr, utc_later_str, utc_earlier_str)
 
-    obs = Pulsars.get_observations(mode="observations")
-    search = Pulsars.get_observations(mode="searchmode")
-    flux = Pulsars.get_observations(mode="fluxcal")
-    fake = Pulsars.get_observations(mode=get_random_string(8))
+    obs = Pulsars.get_latest_observations()
 
-    assert fake is None
-    for tested_model in [obs, search, flux]:
-        assert tested_model[0]["jname"] == expected_psr
-        assert tested_model[0]["first"] == expected_utc_earlier
-        assert tested_model[0]["last"] == expected_utc_later
-        assert tested_model[0]["nobs"] == 2
+    assert obs[0]["jname"] == expected_psr
+    assert obs[0]["first"] == expected_utc_earlier
+    assert obs[0]["last"] == expected_utc_later
+    assert obs[0]["nobs"] == 2
 
 
 @pytest.mark.django_db
-def test_get_last_session_by_gap():
-    # this test will create 9 observations
-    # 7 of them with a gap of a minute between the end of one and start of the next one
-    # and one with a gap of 3 hours and one with gap of a day
-    # we start with the last obs and go backwards in time
-    n_subsequent_obs = 7
-    length = 60.0
-    small_gap = 60.0
-    big_gap_hours = 3.0
-
-    beam = 1
-    psr = Pulsars.objects.create(jname="J1234-5678")
-    utc_start = "2000-01-01-12:59:12"
-    utc_start_dt = datetime.strptime(f"{utc_start} +0000", "%Y-%m-%d-%H:%M:%S %z")
-
-    # this is needed to get through the default proposal filter
-    proposal = Proposals.objects.create(proposal="SCI-MB", proposal_short="test")
-
-    for iobs in range(n_subsequent_obs):
-        # add the gap
-        utc_start_dt -= timedelta(seconds=small_gap)
-
-        utc = Utcs.objects.create(utc_ts=utc_start_dt)
-        obs = Observations.objects.create(pulsar=psr, utc=utc, beam=beam, length=length, proposal=proposal)
-        # calculate the end of the observation and set it as the starting point for the next obs
-        utc_start_dt -= timedelta(seconds=length + small_gap)
-
-    # now add the observation with a longer gap
-    utc_start_dt -= timedelta(seconds=big_gap_hours * 3600.0)
-    utc = Utcs.objects.create(utc_ts=utc_start_dt)
-    obs = Observations.objects.create(pulsar=psr, utc=utc, beam=beam, length=length, proposal=proposal)
-
-    # now add the observation a day earlier
-    utc_start_dt -= timedelta(days=1)
-    utc = Utcs.objects.create(utc_ts=utc_start_dt)
-    obs = Observations.objects.create(pulsar=psr, utc=utc, beam=beam, length=length, proposal=proposal)
-
-    # here we should find n_subsequent_obs
-    count_default = Observations.get_last_session_by_gap().count()
-    # here we should find n_subsequent_obs plus the one after a larger gap
-    count_gt_big_gap = Observations.get_last_session_by_gap(max_gap=(big_gap_hours + 1.0) * 3600.0).count()
-    # here we should only find one obs
-    count_lt_small_gap = Observations.get_last_session_by_gap(max_gap=small_gap / 6).count()
-
-    assert count_default == n_subsequent_obs
-    assert count_gt_big_gap == n_subsequent_obs + 1
-    assert count_lt_small_gap == 1
-
-
-@pytest.mark.django_db
-def test_get_observations_summary():
+def test_get_observations_for_pulsar():
     expected_psr = "J1234-5678"
     utc_later_str = "2000-01-01-12:59:12"
     utc_earlier_str = "1999-01-01-12:59:12"
 
     expected_utc_earlier, expected_utc_later = generate_two_db_entries(expected_psr, utc_later_str, utc_earlier_str)
-    obs_summary = get_observations_summary(Observations.objects.all())
 
-    assert obs_summary["nobs"] == 2
-    assert obs_summary["npsr"] == 1
-    assert obs_summary["first"] == expected_utc_earlier
-    assert obs_summary["last"] == expected_utc_later
-    assert obs_summary["projects"][0]["project"] == "test"
-    assert obs_summary["projects"][0]["nobs"] == 2
+    obs_detail = Pulsars.objects.all().first().get_observations_for_pulsar()
+    first = obs_detail.first()
+    last = obs_detail.last()
+
+    assert first.utc == expected_utc_later
+    assert last.utc == expected_utc_earlier
+
+
+@pytest.mark.django_db
+def test_get_observation_details():
+    utc = "2000-01-01-12:59:12"
+
+    utc_dt = generate_db_entry("J0437-4715", utc)
+    psr = Pulsars.objects.get(jname="J0437-4715")
+
+    obs = Foldings.get_observation_details(psr, utc_dt, default_entry_config["beam"])
+
+    assert obs.jname == psr.jname
+    assert obs.utc == utc_dt
+    assert obs.beam == str(default_entry_config["beam"])
+    assert obs.proposal == default_entry_config["proposal"]
+    assert obs.frequency == default_entry_config["frequency"]
+    assert obs.bw == default_entry_config["bandwidth"]
+    assert obs.ra == default_entry_config["raj"]
+    assert obs.dec == default_entry_config["decj"]
+    assert obs.duration == default_entry_config["duration"]
+    assert obs.nant == default_entry_config["nant"]
+    assert obs.nant_eff == default_entry_config["nant_eff"]

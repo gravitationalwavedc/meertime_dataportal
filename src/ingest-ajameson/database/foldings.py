@@ -18,7 +18,7 @@ LIMIT 1
 
 INSERT_FOLDINGS_QUERY = """
 INSERT INTO dataportal_foldings (processing_id, folding_ephemeris_id, nbin, npol, nchan, dm, tsubint)
-VALUES (%d, %d, %d, %d, %d, %f, %d)
+VALUES (%d, %d, %d, %d, %d, %f, %f)
 """
 
 
