@@ -31,6 +31,15 @@ class WelcomeView(generic.TemplateView):
 
     template_name = "dataportal/welcome.html"
 
+    def get_context_data(cls, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        qs = Pulsars.get_observations(mode="observations")
+        context["totals"] = qs.aggregate(global_tint_h=Sum("total_tint_h"), global_nobs=Sum("nobs"))
+        context["totals"]["global_npsr"] = qs.count()
+
+        return context
+
 
 class SessionView(generic.ListView):
     """

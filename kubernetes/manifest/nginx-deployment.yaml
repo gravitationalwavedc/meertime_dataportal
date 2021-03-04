@@ -42,7 +42,7 @@ spec:
       serviceAccountName: meertime
       initContainers:
         - name: collectstatic
-          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.2.6
+          image: nexus.gwdc.org.au/meertime-dev/meertime_django:1.2.7
           imagePullPolicy: Always
           command: ["python", "manage.py", "collectstatic", "--noinput"]
           env:
@@ -71,14 +71,14 @@ spec:
               name: meertime-img-storage
           livenessProbe:
             httpGet:
-              path: /
+              path: /meertime/
               port: 80
               httpHeaders:
             initialDelaySeconds: 3
             periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /
+              path: /meertime/
               port: 80
             initialDelaySeconds: 3
             periodSeconds: 3

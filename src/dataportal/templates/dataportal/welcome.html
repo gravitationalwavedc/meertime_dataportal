@@ -9,6 +9,8 @@
         <div class="header-content mx-auto">
           <h1 class="mb-5">Pulsar data portal</h1>
           <p>The <a href="https://gwdc.org.au/">Gravitational Wave Data Centre</a> pulsar data portal provides access to pulsar observations metadata and some data products. Currently, we are hosting observations from the <a href="http://www.meertime.org/">MeerTime</a> project with plans to include more in the future.</p>
+          <p> There are {{ totals.global_nobs }} folded observations of {{ totals.global_npsr }} pulsars present in the public dataset, with a total integration time of {{ totals.global_tint_h|floatformat }} hours.
+          </p>
           <p>The data are recorded with the <a href="https://science.ska.ac.za/meerkat">MeerKAT</a> telescope operated by <a href="https://www.sarao.ac.za/">South African Radio Astronomical Observatory</a>.</p>
         </div>
       </div>
@@ -19,6 +21,8 @@
   </div>
 </header>
 
+
+{% if not user.is_authenticated %}
 <section class="mt-4">
   <div class="container h-100 mt-auto">
     <div class="row h-100">
@@ -39,5 +43,6 @@
     </div>
   </div>
 </section>
+{% endif %}
 
 {% endblock %}
