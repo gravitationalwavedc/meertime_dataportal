@@ -1,5 +1,6 @@
 import logging
 from tables.graphql_table import GraphQLTable
+from base64 import b64encode
 
 
 class Pulsars(GraphQLTable):
@@ -46,48 +47,47 @@ class Pulsars(GraphQLTable):
         """
 
     def list_graphql(self, id, jname):
-        if id is None and jname is not None:
-            self.list_query = """
-            query PulsarsByJname($jname: String!) {
-                pulsarsByJname(jname: $jname) {
-                    id,
-                    jname,
-                    state,
-                    comment
+        self.string_query = """
+            query allPulsars($variable: String!) {
+                allPulsars(%s: $variable) {
+                    edges {
+                        node {
+                            id,
+                            jname,
+                            state,
+                            comment
+                        }
+                    }
                 }
             }
-            """
+        """
+        if id is None and jname is not None:
+            self.list_query = self.string_query % ("jname")
             self.list_variables = """
             {
-                "jname": "%s"
+                "variable": "%s"
             }
             """
             return GraphQLTable.list_graphql(self, (jname))
         elif id is not None and jname is None:
-            self.list_query = """
-            query pulsarById($id: Int!) {
-                pulsarById(id: $id) {
-                    id,
-                    jname,
-                    state,
-                    comment
-                }
-            }
-            """
+            id_encoded_string = b64encode(f"PulsarsNode:{id}".encode("ascii")).decode("utf-8")
+            self.list_query = self.string_query % ("id")
             self.list_variables = """
             {
-                "id": %d
+                "variable": %d
             }
             """
-            return GraphQLTable.list_graphql(self, (id))
+            return GraphQLTable.list_graphql(self, (id_encoded_string))
         else:
             self.list_query = """
             query AllPulsars {
-                pulsars {
-                    id,
-                    jname,
-                    state,
-                    comment
+                edges {
+                    node{
+                        id,
+                        jname,
+                        state,
+                        comment
+                    }
                 }
             }
             """
@@ -115,26 +115,26 @@ class Pulsars(GraphQLTable):
     def configure_parsers(cls, parser):
         """Add sub-parsers for each of the valid commands."""
         parser.set_defaults(command=cls.get_name())
-        subs = parser.add_subparsers(dest='subcommand')
+        subs = parser.add_subparsers(dest="subcommand")
         subs.required = True
 
         # create the parser for the "list" command
-        parser_list = subs.add_parser('list', help='list existing Pulsars')
-        parser_list.add_argument('--id', type=int, help='list Pulsars matching the id')
-        parser_list.add_argument('--jname', type=str, help='list Pulsars matching the jname')
+        parser_list = subs.add_parser("list", help="list existing Pulsars")
+        parser_list.add_argument("--id", type=int, help="list Pulsars matching the id")
+        parser_list.add_argument("--jname", type=str, help="list Pulsars matching the jname")
 
         # create the parser for the "create" command
-        parser_create = subs.add_parser('create', help='create a new pulsar')
-        parser_create.add_argument('jname', type=str, help='jname of the pulsar')
-        parser_create.add_argument('state', type=str, help=',')
-        parser_create.add_argument('comment', type=str, help='description of the pulsar')
+        parser_create = subs.add_parser("create", help="create a new pulsar")
+        parser_create.add_argument("jname", type=str, help="jname of the pulsar")
+        parser_create.add_argument("state", type=str, help=",")
+        parser_create.add_argument("comment", type=str, help="description of the pulsar")
 
         # create the parser for the "create" command
-        parser_udpate = subs.add_parser('update', help='update the values of an existing pulsar')
-        parser_udpate.add_argument('id', type=int, help='database id of the pulsar')
-        parser_udpate.add_argument('jname', type=str, help='jname of the pulsar')
-        parser_udpate.add_argument('state', type=str, help='state of the pulsar, e.g. new, solved')
-        parser_udpate.add_argument('comment', type=str, help='description of the pulsar')
+        parser_udpate = subs.add_parser("update", help="update the values of an existing pulsar")
+        parser_udpate.add_argument("id", type=int, help="database id of the pulsar")
+        parser_udpate.add_argument("jname", type=str, help="jname of the pulsar")
+        parser_udpate.add_argument("state", type=str, help="state of the pulsar, e.g. new, solved")
+        parser_udpate.add_argument("comment", type=str, help="description of the pulsar")
 
 
 if __name__ == "__main__":

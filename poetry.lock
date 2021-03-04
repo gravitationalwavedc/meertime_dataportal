@@ -216,6 +216,17 @@ python-versions = ">=3.5"
 version = "3.0.9"
 
 [[package]]
+category = "main"
+description = "Django-filter is a reusable Django application for allowing users to filter querysets dynamically."
+name = "django-filter"
+optional = false
+python-versions = ">=3.5"
+version = "2.4.0"
+
+[package.dependencies]
+Django = ">=2.2"
+
+[[package]]
 category = "dev"
 description = "Integrate GraphiQL easily into your Django project"
 name = "django-graphiql"
@@ -904,7 +915,7 @@ extras = ["flake8"]
 version = ">=4,<5"
 
 [metadata]
-content-hash = "4b5e72dee03d1af8b107dc770794035169b6b1b0c4c9ec305cc78850adfa1acf"
+content-hash = "d824e936b054ba1facbdef0260717bfcf12009c6ffd2b7eb4fc041e0c06fbc5b"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -1016,6 +1027,10 @@ django-environ = [
 django-extensions = [
     {file = "django-extensions-3.0.9.tar.gz", hash = "sha256:6809c89ca952f0e08d4e0766bc0101dfaf508d7649aced1180c091d737046ea7"},
     {file = "django_extensions-3.0.9-py3-none-any.whl", hash = "sha256:dc663652ac9460fd06580a973576820430c6d428720e874ae46b041fa63e0efa"},
+]
+django-filter = [
+    {file = "django-filter-2.4.0.tar.gz", hash = "sha256:84e9d5bb93f237e451db814ed422a3a625751cbc9968b484ecc74964a8696b06"},
+    {file = "django_filter-2.4.0-py3-none-any.whl", hash = "sha256:e00d32cebdb3d54273c48f4f878f898dced8d5dfaad009438fe61ebdf535ace1"},
 ]
 django-graphiql = [
     {file = "django-graphiql-0.4.4.tar.gz", hash = "sha256:693d1b0c82cb9515f27a24f213d7b5c3aa4f5b8d6b8123a293981ee8d072c78c"},

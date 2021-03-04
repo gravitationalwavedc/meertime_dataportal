@@ -4,6 +4,7 @@ certifi==2020.6.20
 chardet==3.0.4
 django==2.2.17
 django-environ==0.4.5
+django-filter==2.4.0
 django-graphql-jwt==0.3.1
 django-mathfilters==1.0.0
 django-mysql==3.9.0

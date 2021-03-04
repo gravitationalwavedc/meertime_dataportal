@@ -1,12 +1,22 @@
-import graphene
+from graphene import relay, ObjectType
+from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from .types import *
 from ...models import Filterbankings
 
 
-class Query(graphene.ObjectType):
-    filterbankings = graphene.List(FilterbankingsType)
+class FilterbankingsNode(DjangoObjectType):
+    class Meta:
+        model = Filterbankings
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
 
+    @classmethod
     @login_required
-    def resolve_filterbankings(cls, info, **kwargs):
-        return Filterbankings.objects.all()
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+
+class Query(ObjectType):
+    filterbanking = relay.Node.Field(FilterbankingsNode)
+    all_filterbankings = DjangoFilterConnectionField(FilterbankingsNode)

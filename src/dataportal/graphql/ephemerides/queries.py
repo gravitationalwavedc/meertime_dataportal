@@ -1,12 +1,22 @@
-import graphene
+from graphene import relay, ObjectType
+from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from .types import *
 from ...models import Ephemerides
 
 
-class Query(graphene.ObjectType):
-    ephemerides = graphene.List(EphemeridesType)
+class EphemeridesNode(DjangoObjectType):
+    class Meta:
+        model = Ephemerides
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
 
+    @classmethod
     @login_required
-    def resolve_ephemerides(cls, info, **kwargs):
-        return Ephemerides.objects.all()
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+
+class Query(ObjectType):
+    ephemeride = relay.Node.Field(EphemeridesNode)
+    all_ephemerides = DjangoFilterConnectionField(EphemeridesNode)

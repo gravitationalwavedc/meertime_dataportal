@@ -60,8 +60,8 @@ class GraphQLTable:
         if response.status_code == 200:
             content = json.loads(response.content)
             if not "errors" in content.keys():
-                for key in content['data'].keys():
-                    record_set = content['data'][key]
+                for key in content["data"].keys():
+                    record_set = content["data"][key]
                 self.print_record_set(record_set, delim)
         return response
 
@@ -69,7 +69,7 @@ class GraphQLTable:
         print(delim.join(record_set.keys()))
 
     def print_record_set_values(self, record_set, delim):
-        print(delim.join(record_set.values()))
+        print(delim.join(record_set["edges"][0]["node"].values()))
 
     def print_record_set(self, record_set, delim):
         num_records = len(record_set)

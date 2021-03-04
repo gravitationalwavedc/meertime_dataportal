@@ -1,12 +1,23 @@
-import graphene
+from graphene import relay, ObjectType
+from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from .types import *
+from ..jsonfield_filter import JSONFieldFilter
 from ...models import Observations
 
 
-class Query(graphene.ObjectType):
-    observations = graphene.List(ObservationsType)
+class ObservationsNode(DjangoObjectType):
+    class Meta:
+        model = Observations
+        filterset_class = JSONFieldFilter
+        interfaces = (relay.Node,)
 
+    @classmethod
     @login_required
-    def resolve_observations(cls, info, **kwargs):
-        return Observations.objects.all()
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+
+class Query(ObjectType):
+    observation = relay.Node.Field(ObservationsNode)
+    all_observations = DjangoFilterConnectionField(ObservationsNode)

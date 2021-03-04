@@ -1,27 +1,24 @@
-import graphene
+from graphene import relay, ObjectType
+from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 from .types import *
+from ...models import Pulsars
 
 
-class Query(graphene.ObjectType):
-    pulsars = graphene.List(PulsarsType)
-    pulsarById = graphene.Field(PulsarsType, id=graphene.Int())
-    pulsarsByJname = graphene.List(PulsarsType, jname=graphene.String())
+class PulsarsNode(DjangoObjectType):
+    class Meta:
+        model = Pulsars
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
 
+    @classmethod
     @login_required
-    def resolve_pulsars(cls, info, **kwargs):
-        return Pulsars.objects.all()
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
 
-    @login_required
-    def resolve_pulsarById(cls, info, **kwargs):
-        id = kwargs.get("id")
-        if id is not None:
-            return Pulsars.objects.get(pk=id)
-        return None
 
-    @login_required
-    def resolve_pulsarsByJname(cls, info, **kwargs):
-        jname = kwargs.get("jname")
-        if jname is not None:
-            return Pulsars.objects.filter(jname=jname)
-        return None
+class Query(ObjectType):
+    pulsar = relay.Node.Field(PulsarsNode)
+    all_pulsars = DjangoFilterConnectionField(PulsarsNode)

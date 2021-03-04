@@ -88,8 +88,12 @@ def __obtain_jwt_token(client, mutation, vars):
 # pulsars query
 query_target = """
     query {
-        targets {
-            name
+        allTargets {
+            edges {
+                node {
+                    name
+                }
+            }
         }
     }
 """
@@ -103,7 +107,7 @@ def __create_target():
 @pytest.mark.django_db
 def test_graphql_targets_query_no_token(client, django_user_model):
     target = __create_target()
-    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":3,"column":9}],"path":["targets"]}],"data":{"targets":null}}'
+    expected = b'{"errors":[{"message":"You do not have permission to perform this action","locations":[{"line":3,"column":9}],"path":["allTargets"]}],"data":{"allTargets":null}}'
     response = client.post("/graphql/", {"query": query_target})
     assert response.content == expected
     assert response.status_code == 200
@@ -119,7 +123,7 @@ def test_graphql_targets_query_with_token(client, django_user_model):
     header = {"HTTP_AUTHORIZATION": f"JWT {jwt_token}"}
     response = client.post("/graphql/", payload, **header)
 
-    expected = b'{"data":{"targets":[{"name":"J1234-5678"}]}}'
+    expected = b'{"data":{"allTargets":{"edges":[{"node":{"name":"J1234-5678"}}]}}}'
     assert response.content == expected
     assert response.status_code == 200
 

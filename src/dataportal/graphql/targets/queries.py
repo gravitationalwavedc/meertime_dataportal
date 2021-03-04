@@ -1,27 +1,23 @@
-import graphene
+from graphene import relay, ObjectType
+from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from .types import *
+from ..jsonfield_filter import JSONFieldFilter
+from ...models import Targets
 
 
-class Query(graphene.ObjectType):
-    targets = graphene.List(TargetsType)
-    targetById = graphene.Field(TargetsType, id=graphene.Int())
-    targetsByName = graphene.List(TargetsType, name=graphene.String())
+class TargetsNode(DjangoObjectType):
+    class Meta:
+        model = Targets
+        filterset_class = JSONFieldFilter
+        interfaces = (relay.Node,)
 
+    @classmethod
     @login_required
-    def resolve_targets(cls, info, **kwargs):
-        return Targets.objects.all()
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
 
-    @login_required
-    def resolve_targetById(cls, info, **kwargs):
-        id = kwargs.get("id")
-        if id is not None:
-            return Targets.objects.get(pk=id)
-        return None
 
-    @login_required
-    def resolve_targetsByName(cls, info, **kwargs):
-        name = kwargs.get("name")
-        if name is not None:
-            return Targets.objects.filter(name=name)
-        return None
+class Query(ObjectType):
+    target = relay.Node.Field(TargetsNode)
+    all_targets = DjangoFilterConnectionField(TargetsNode)
