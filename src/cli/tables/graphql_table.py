@@ -1,6 +1,7 @@
 import json
 import logging
 import requests as r
+from base64 import b64decode, b64encode
 from requests.packages.urllib3.util.retry import Retry
 from graphql_client import GraphQLClient
 
@@ -30,6 +31,14 @@ class GraphQLTable:
 
         self.cli_name = None
         self.cli_description = None
+
+    def encode_id(self, id):
+        unencoded = f"{self.__class__.__name__ }Node:{id}"
+        return b64encode(unencoded.encode("ascii")).decode("utf-8")
+
+    def decode_id(self, encoded):
+        decoded = b64decode(encoded).decode("ascii")
+        return decoded.split(":")[1]
 
     def create_graphql(self, vars_values):
 
@@ -62,14 +71,74 @@ class GraphQLTable:
             if not "errors" in content.keys():
                 for key in content["data"].keys():
                     record_set = content["data"][key]
-                self.print_record_set(record_set, delim)
+                    if "edges" in record_set.keys():
+                        record_set = record_set["edges"]
+                    self.print_record_set(record_set, delim)
         return response
 
+    def build_list_all_query(self):
+        table = self.__class__.__name__
+        query_name = f"all{table.title()}"
+        template = """
+        query %s {
+            %s {
+                edges {
+                    node {
+                        %s
+                    }
+                }
+            }
+        }
+        """
+        delim = ",\n                        "
+        query = template % (query_name, query_name, delim.join(self.field_names))
+        return query
+
+    def build_list_id_query(self, singular, id):
+        table = self.__class__.__name__
+        query_name = f"all{table.title()}"
+        id_encoded = b64encode(f"{table.title()}Node:{id}".encode("ascii")).decode("utf-8")
+        template = """
+        query {
+            %s (id: \"%s\") {
+                %s
+            }
+        }
+        """
+        delim = ",\n                "
+        query = template % (singular, id_encoded, delim.join(self.field_names))
+        return query
+
+    def build_list_str_query(self, field):
+        table = self.__class__.__name__
+        query_name = f"all{table.title()}"
+        template = """
+        query %s ($variable: String!) {
+            %s (%s: $variable) {
+                edges {
+                    node {
+                        %s
+                    }
+                }
+            }
+        }
+        """
+        delim = ",\n                        "
+        query = template % (query_name, query_name, field, delim.join(self.field_names))
+        return query
+
     def print_record_set_fields(self, record_set, delim):
+        if "node" in record_set.keys():
+            record_set = record_set["node"]
         print(delim.join(record_set.keys()))
 
     def print_record_set_values(self, record_set, delim):
-        print(delim.join(record_set["edges"][0]["node"].values()))
+        if "node" in record_set.keys():
+            record_set = record_set["node"]
+        for key in record_set.keys():
+            if key == 'id':
+                record_set[key] = self.decode_id(record_set[key])
+        print(delim.join(record_set.values()))
 
     def print_record_set(self, record_set, delim):
         num_records = len(record_set)

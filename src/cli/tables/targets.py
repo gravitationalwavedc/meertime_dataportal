@@ -1,5 +1,6 @@
 import logging
 from tables.graphql_table import GraphQLTable
+from base64 import b64encode
 
 
 class Targets(GraphQLTable):
@@ -44,53 +45,23 @@ class Targets(GraphQLTable):
             "decj": "%s"
         }
         """
+        self.field_names = ["id", "name", "raj", "decj"]
 
     def list_graphql(self, id, name):
         if id is None and name is not None:
-            self.list_query = """
-            query targetsByName($name: String!) {
-                targetsByName(name: $name) {
-                    id,
-                    name,
-                    raj,
-                    decj
-                    }
-            }
-            """
+            self.list_query = self.build_list_str_query("name")
             self.list_variables = """
             {
-                "name": "%s"
+                "variable": "%s"
             }
             """
             return GraphQLTable.list_graphql(self, (name))
         elif id is not None and name is None:
-            self.list_query = """
-            query targetById($id: Int!) {
-                targetById(id: $id) {
-                    id,
-                    name,
-                    raj,
-                    decj
-                    }
-            }
-            """
-            self.list_variables = """
-            {
-                "id": %d
-            }
-            """
-            return GraphQLTable.list_graphql(self, (id))
+            self.list_query = self.build_list_id_query("target", id)
+            self.list_variables = "{}"
+            return GraphQLTable.list_graphql(self, ())
         else:
-            self.list_query = """
-            query AllTargets {
-                targets {
-                    id,
-                    name,
-                    raj,
-                    decj
-                    }
-            }
-            """
+            self.list_query = self.build_list_all_query()
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 

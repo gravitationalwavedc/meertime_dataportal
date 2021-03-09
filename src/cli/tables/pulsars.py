@@ -46,23 +46,11 @@ class Pulsars(GraphQLTable):
         }
         """
 
+        self.field_names = ["id", "jname", "state", "comment"]
+
     def list_graphql(self, id, jname):
-        self.string_query = """
-            query allPulsars($variable: String!) {
-                allPulsars(%s: $variable) {
-                    edges {
-                        node {
-                            id,
-                            jname,
-                            state,
-                            comment
-                        }
-                    }
-                }
-            }
-        """
         if id is None and jname is not None:
-            self.list_query = self.string_query % ("jname")
+            self.list_query = self.build_list_str_query("jname")
             self.list_variables = """
             {
                 "variable": "%s"
@@ -70,27 +58,11 @@ class Pulsars(GraphQLTable):
             """
             return GraphQLTable.list_graphql(self, (jname))
         elif id is not None and jname is None:
-            id_encoded_string = b64encode(f"PulsarsNode:{id}".encode("ascii")).decode("utf-8")
-            self.list_query = self.string_query % ("id")
-            self.list_variables = """
-            {
-                "variable": %d
-            }
-            """
-            return GraphQLTable.list_graphql(self, (id_encoded_string))
+            self.list_query = self.build_list_id_query("pulsar", id)
+            self.list_variables = "{}"
+            return GraphQLTable.list_graphql(self, ())
         else:
-            self.list_query = """
-            query AllPulsars {
-                edges {
-                    node{
-                        id,
-                        jname,
-                        state,
-                        comment
-                    }
-                }
-            }
-            """
+            self.list_query = self.build_list_all_query()
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 

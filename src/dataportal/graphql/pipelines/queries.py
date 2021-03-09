@@ -9,7 +9,9 @@ from ...models import Pipelines
 class PipelinesNode(DjangoObjectType):
     class Meta:
         model = Pipelines
-        filterset_class = JSONFieldFilter
+        fields = "__all__"
+        filter_fields = ["name"]
+        # filterset_class = JSONFieldFilter
         interfaces = (relay.Node,)
 
     @classmethod
