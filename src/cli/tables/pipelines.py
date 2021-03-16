@@ -1,4 +1,6 @@
 import logging
+import json
+from datetime import datetime
 from tables.graphql_table import GraphQLTable
 
 
@@ -8,7 +10,7 @@ class Pipelines(GraphQLTable):
 
         # create a new record
         self.create_mutation = """
-        mutation ($name: String!, $description: String!, $revision: String!, $createdAt: DateTime!, $createdBy: String!, $configuration: String!) {
+        mutation ($name: String!, $description: String!, $revision: String!, $createdAt: DateTime!, $createdBy: String!, $configuration: JSONString!) {
             createPipeline(input: { 
                 name: $name,
                 description: $description,
@@ -21,16 +23,6 @@ class Pipelines(GraphQLTable):
                     id
                 }
             }
-        }
-        """
-        self.create_variables = """
-        {
-            "name": "%s",
-            "description": "%s",
-            "revision": "%s",
-            "createdAt": "%s",
-            "createdBy": "%s",
-            "configuration": "%s"
         }
         """
         # Update an existing record
@@ -56,17 +48,6 @@ class Pipelines(GraphQLTable):
             }
         }
         """
-        self.update_variables = """
-        {
-            "id": %d,
-            "name": "%s",
-            "description": "%s",
-            "revision": "%s",
-            "createdAt": "%s",
-            "createdBy": "%s",
-            "configuration": "%s"
-         }
-        """
         self.field_names = ["id", "name", "description", "revision", "createdAt", "createdBy", "configuration"]
 
     def list_graphql(self, id, name):
@@ -90,21 +71,26 @@ class Pipelines(GraphQLTable):
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            return self.create_graphql(
-                (args.name, args.description, args.revision, args.created_at, args.created_by, args.configuration)
-            )
+            self.create_variables = {
+                "name": args.name,
+                "description": args.description,
+                "revision": args.revision,
+                "createdAt": args.created_at,
+                "createdBy": args.created_by,
+                "configuration": args.configuration,
+            }
+            return self.create_graphql()
         elif args.subcommand == "update":
-            return self.update_graphql(
-                (
-                    args.id,
-                    args.name,
-                    args.description,
-                    args.revision,
-                    args.created_at,
-                    args.created_by,
-                    args.configuration,
-                )
-            )
+            self.update_variables = {
+                "id": args.id,
+                "name": args.name,
+                "description": args.description,
+                "revision": args.revision,
+                "createdAt": args.created_at,
+                "createdBy": args.created_by,
+                "configuration": args.configuration,
+            }
+            return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name)
 
@@ -124,28 +110,28 @@ class Pipelines(GraphQLTable):
         subs = parser.add_subparsers(dest="subcommand")
         subs.required = True
 
-        parser_list = subs.add_parser('list', help='list existing pipelines')
-        parser_list.add_argument('--id', type=int, help='list pipelines matching the id')
-        parser_list.add_argument('--name', type=str, help='list pipelines matching the name')
+        parser_list = subs.add_parser("list", help="list existing pipelines")
+        parser_list.add_argument("--id", type=int, help="list pipelines matching the id")
+        parser_list.add_argument("--name", type=str, help="list pipelines matching the name")
 
         # create the parser for the "create" command
-        parser_create = subs.add_parser('create', help='create a new pipeline')
-        parser_create.add_argument('name', type=str, help='name of the pipeline')
-        parser_create.add_argument('description', type=str, help='description of the pipeline')
-        parser_create.add_argument('revision', type=str, help='distinguishing version for the pipeline')
-        parser_create.add_argument('created_at', type=str, help='date of the pipeline creation')
-        parser_create.add_argument('created_by', type=str, help='author of the pipeline')
-        parser_create.add_argument('configuration', type=str, help='author of the pipeline')
+        parser_create = subs.add_parser("create", help="create a new pipeline")
+        parser_create.add_argument("name", type=str, help="name of the pipeline")
+        parser_create.add_argument("description", type=str, help="description of the pipeline")
+        parser_create.add_argument("revision", type=str, help="distinguishing version for the pipeline")
+        parser_create.add_argument("created_at", type=str, help="date of the pipeline creation")
+        parser_create.add_argument("created_by", type=str, help="author of the pipeline")
+        parser_create.add_argument("configuration", type=str, help="json config of the pipeline")
 
         # create the parser for the "update" command
-        parse_update = subs.add_parser('update', help='update the values of an existing pipeline')
-        parse_update.add_argument('id', type=int, help='database id of the pipeline')
-        parse_update.add_argument('name', type=str, help='name of the pipeline')
-        parse_update.add_argument('description', type=str, help='description of the pipeline')
-        parse_update.add_argument('revision', type=str, help='distinguishing version for the pipeline')
-        parse_update.add_argument('created_at', type=str, help='date of the pipeline creation')
-        parse_update.add_argument('created_by', type=str, help='author of the pipeline')
-        parse_update.add_argument('configuration', type=str, help='author of the pipeline')
+        parse_update = subs.add_parser("update", help="update the values of an existing pipeline")
+        parse_update.add_argument("id", type=int, help="database id of the pipeline")
+        parse_update.add_argument("name", type=str, help="name of the pipeline")
+        parse_update.add_argument("description", type=str, help="description of the pipeline")
+        parse_update.add_argument("revision", type=str, help="distinguishing version for the pipeline")
+        parse_update.add_argument("created_at", type=str, help="date of the pipeline creation")
+        parse_update.add_argument("created_by", type=str, help="author of the pipeline")
+        parse_update.add_argument("configuration", type=str, help="json config of the pipeline")
 
 
 if __name__ == "__main__":

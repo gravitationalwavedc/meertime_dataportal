@@ -1,9 +1,15 @@
 import logging
 import sys
 
-from tables.pulsars import Pulsars
-from tables.targets import Targets
+from tables.calibrations import Calibrations
+from tables.instrumentconfigs import Instrumentconfigs
+from tables.observations import Observations
 from tables.pipelines import Pipelines
+from tables.projects import Projects
+from tables.pulsars import Pulsars
+from tables.pulsartargets import Pulsartargets
+from tables.targets import Targets
+from tables.telescopes import Telescopes
 from graphql_client import GraphQLClient
 
 if __name__ == "__main__":
@@ -19,7 +25,17 @@ if __name__ == "__main__":
     subparsers = parser.add_subparsers(dest="command", help="Database models which can be interrogated")
     subparsers.required = True
 
-    tables = [Pulsars, Targets, Pipelines]
+    tables = [
+        Calibrations,
+        Instrumentconfigs,
+        Observations,
+        Projects,
+        Pulsars,
+        Pulsartargets,
+        Pipelines,
+        Telescopes,
+        Targets,
+    ]
     configured = []
     for t in tables:
         n = t.get_name()

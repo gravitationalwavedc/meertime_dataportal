@@ -17,13 +17,6 @@ class Pulsars(GraphQLTable):
                 }
             }
         """
-        self.create_variables = """
-            {
-                "jname": "%s",
-                "state": "%s",
-                "comment": "%s"
-            }
-            """
         # Update an existing record
         self.update_mutation = """
             mutation ($id: Int!, $jname: String!, $state: String!, $comment: String!) {
@@ -36,14 +29,6 @@ class Pulsars(GraphQLTable):
                     }
                 }
             }
-        """
-        self.update_variables = """
-        {
-            "id": %d,
-            "jname": "%s",
-            "state": "%s",
-            "comment": "%s"
-        }
         """
 
         self.field_names = ["id", "jname", "state", "comment"]
@@ -69,9 +54,11 @@ class Pulsars(GraphQLTable):
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            return self.create_graphql((args.jname, args.state, args.comment))
+            self.create_variables = {"jname": args.jname, "state": args.state, "comment": args.comment}
+            return self.create_graphql()
         elif args.subcommand == "update":
-            return self.update_graphql((args.id, args.jname, args.state, args.comment))
+            self.update_variables = {"id": args.id, "jname": args.jname, "state": args.state, "comment": args.comment}
+            return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.jname)
 

@@ -46,7 +46,7 @@ class GraphQLClient:
         logging.debug(f"Using url: {url}")
         logging.debug(f"Using payload: {payload}")
         logging.debug(f"Using header: {header}")
-        response = self.graphql_session.post(url, headers=header, data=payload, timeout=(15, 15))
+        response = self.graphql_session.post(url, headers=header, json=payload, timeout=(15, 15))
         content = json.loads(response.content)
 
         if response.status_code != 200:

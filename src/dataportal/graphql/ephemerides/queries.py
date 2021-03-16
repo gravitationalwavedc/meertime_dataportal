@@ -18,5 +18,5 @@ class EphemeridesNode(DjangoObjectType):
 
 
 class Query(ObjectType):
-    ephemeride = relay.Node.Field(EphemeridesNode)
+    ephemeris = relay.Node.Field(EphemeridesNode)
     all_ephemerides = DjangoFilterConnectionField(EphemeridesNode)

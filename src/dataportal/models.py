@@ -21,6 +21,11 @@ class Calibrations(models.Model):
     calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
     location = models.CharField(max_length=255, blank=True, null=True)
 
+    def save(cls, *args, **kwargs):
+        # Enforce choices are respected
+        cls.full_clean()
+        return super(Calibrations, cls).save(*args, **kwargs)
+
 
 class Collections(models.Model):
     name = models.CharField(max_length=64)

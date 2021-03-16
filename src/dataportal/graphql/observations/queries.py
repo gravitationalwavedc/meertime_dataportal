@@ -9,7 +9,9 @@ from ...models import Observations
 class ObservationsNode(DjangoObjectType):
     class Meta:
         model = Observations
-        filterset_class = JSONFieldFilter
+        fields = "__all__"
+        filter_fields = ["utc_start", "duration", "suspect"]
+        # filterset_class = JSONFieldFilter
         interfaces = (relay.Node,)
 
     @classmethod

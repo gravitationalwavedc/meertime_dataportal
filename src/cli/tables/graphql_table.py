@@ -23,9 +23,9 @@ class GraphQLTable:
             self.header = {"HTTP_AUTHORIZATION": f"JWT {token}"}
 
         self.create_mutation = None
-        self.create_variables = None
+        self.create_variables = {}
         self.update_mutation = None
-        self.update_variables = None
+        self.update_variables = {}
         self.list_query = None
         self.list_variables = None
 
@@ -40,22 +40,20 @@ class GraphQLTable:
         decoded = b64decode(encoded).decode("ascii")
         return decoded.split(":")[1]
 
-    def create_graphql(self, vars_values):
+    def create_graphql(self,):
 
         logging.debug(f"Using mutation {self.create_mutation}")
-        logging.debug(f"Using mutation vars {self.create_variables}")
-        logging.debug(f"Using with values {vars_values}")
+        logging.debug(f"Using mutation vars in a dict {self.create_variables}")
 
-        payload = {"query": self.create_mutation, "variables": self.create_variables % vars_values}
+        payload = {"query": self.create_mutation, "variables": self.create_variables}
         return self.client.post(self.url, payload, **self.header)
 
-    def update_graphql(self, vars_values):
+    def update_graphql(self,):
 
         logging.debug(f"Using mutation {self.update_mutation}")
-        logging.debug(f"Using mutation vars {self.update_variables}")
-        logging.debug(f"Using with values {vars_values}")
+        logging.debug(f"Using mutation vars dict {self.update_variables}")
 
-        payload = {"query": self.update_mutation, "variables": self.update_variables % vars_values}
+        payload = {"query": self.update_mutation, "variables": self.update_variables}
         return self.client.post(self.url, payload, **self.header)
 
     def list_graphql(self, vars_values, delim="\t"):
@@ -136,9 +134,9 @@ class GraphQLTable:
         if "node" in record_set.keys():
             record_set = record_set["node"]
         for key in record_set.keys():
-            if key == 'id':
+            if key == "id":
                 record_set[key] = self.decode_id(record_set[key])
-        print(delim.join(record_set.values()))
+        print(delim.join([str(value) for value in record_set.values()]))
 
     def print_record_set(self, record_set, delim):
         num_records = len(record_set)

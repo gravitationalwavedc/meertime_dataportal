@@ -36,6 +36,7 @@ class UpdatePulsar(graphene.Mutation):
             _pulsar.jname = jname
             _pulsar.state = state
             _pulsar.comment = comment
+            _pulsar.save()
             return UpdatePulsar(pulsar=_pulsar)
         return UpdatePulsar(pulsar=None)
 

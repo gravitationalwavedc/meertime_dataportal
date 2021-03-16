@@ -22,4 +22,4 @@ class PipelinesInput(graphene.InputObjectType):
     revision = graphene.String(required=True)
     createdAt = graphene.DateTime(required=True)
     createdBy = graphene.String(required=True)
-    configuration = graphene.String(required=True)
+    configuration = graphene.JSONString(required=True)
