@@ -1,9 +1,9 @@
 import {
+    CustomSVGSeries,
     FlexibleXYPlot,
     Highlight,
     Hint,
     HorizontalGridLines,
-    MarkSeries,
     VerticalGridLines,
     XAxis,
     YAxis
@@ -19,12 +19,16 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
     // Pass table data through the search filter to enable searching pulsars on chart.
     const results = search.searchText ? handleSearch(data, columns, search) : data;
 
+    console.log(data);
     // Process the table data in a way that react-vis understands.
     const plotData = results.map(row => ({ 
         x: moment(row.utc, 'YYYY-MM-DD-HH:mm:ss'), 
         y: row.snrSpip,
-        size: row.length,
-        color: '#E07761'
+        value: row.snrSpip,
+        customComponent: row.band === 'L-band' ? 'circle' : 'square',
+        style: { fill:'#E07761', opacity:'0.4' },
+        size: row.length * 5,
+        color: '#E07761',
     }));
 
     if (plotData.length && plotData.length < 2 && lastDrawLocation === null){
@@ -88,15 +92,11 @@ const PulsarSummaryPlot = ({ data, columns, search }) => {
                             ]} 
                         />
                     }
-                    <MarkSeries 
+                    <CustomSVGSeries 
                         data={plotData} 
-                        seriesId="pulsar-mark-series"
-                        sizeRange={[10, 50]} 
-                        colorType="literal"
-                        opacity={0.4} 
                         animation={true}
-                        onNearestXY={value => setValue(value)}
-                    />
+                        sizeRange={[5, 50]}
+                        onNearestXY={value => setValue(value)}/>
                     <Highlight
                         onBrushEnd={area => setLastDrawLocation(area)}
                         onDrag={area => setLastDrawLocation({

@@ -1,10 +1,10 @@
 import { Button, ButtonGroup } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { createRefetchContainer, graphql } from 'react-relay';
+import { formatUTC, nullCellFormatter } from '../helpers';
 
 import DataView from './DataView';
 import Link from 'found/Link';
-import { formatUTC } from '../helpers';
 
 const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
     const [project, setProject] = useState('meertime');
@@ -17,6 +17,7 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
 
     const rows = relayData.edges.reduce((result, edge) => { 
         const row = { ...edge.node };
+        row.projectKey = project;
         row.last = formatUTC(row.last);
         row.first = formatUTC(row.first);
         row.totalTintH = `${row.totalTintH} hours`;
@@ -29,11 +30,11 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
                   View all
             </Link>
             <Link 
-                to={`/${row.jname}/${row.last}/${row.beam}/`} 
+                to={`/${row.jname}/${row.last}/${row.lastBeam}/`} 
                 size='sm' 
                 variant="outline-secondary" 
                 as={Button}>
-                  View Last
+                  View last
             </Link>
         </ButtonGroup>;
         return [...result, { ...row }];
@@ -45,6 +46,7 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
     
     const columns = [
         { dataField: 'jname', text: 'JName', sort:true, style: fit6, headerStyle: fit6 },
+        { dataField: 'projectKey', hidden: true, sort:false },
         { dataField: 'last', text: 'Last', sort: true },
         { dataField: 'first', text: 'First', sort: true },
         { dataField: 'proposalShort', text: 'Project', sort: true, style: fit2, headerStyle: fit2 },
@@ -53,8 +55,10 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
             sort: true, headerStyle: fit8, style: fit8 },
         { dataField: 'totalTintH', text: 'Total int [h]', align: 'right', headerAlign: 'right', 
             sort: true, headerStyle: fit8, style: fit8 },
-        { dataField: 'avgSnr5min', text: 'Avg S/N pipe (5 mins)', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'maxSnr5min', text: 'Max S/N pipe (5 mins)', align: 'right', headerAlign: 'right', sort: true },
+        { dataField: 'avgSnr5min', formatter: nullCellFormatter, text: 'Avg S/N pipe (5 mins)', align: 'right', 
+            headerAlign: 'right', sort: true },
+        { dataField: 'maxSnr5min', formatter: nullCellFormatter, text: 'Max S/N pipe (5 mins)', align: 'right', 
+            headerAlign: 'right', sort: true },
         { dataField: 'latestSnr', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
             sort: true, headerStyle: fit8, style: fit8 },
         { dataField: 'latestTintM', text: 'Last int. [m]', align: 'right', headerAlign: 'right', 

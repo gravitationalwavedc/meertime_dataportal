@@ -23,9 +23,13 @@ const DataView = ({ summaryData, columns, rows, project, setProject, setProposal
                 keyField={keyField}
                 columns={columns} 
                 data={rows} 
+                exportCSV={{
+                    fileName: 'pulsars-data.csv',
+                    exportAll: false,
+                    onlyExportFiltered: true
+                }}
                 columnToggle
                 search
-                exportCSV
             >
                 {props => (
                     <React.Fragment>

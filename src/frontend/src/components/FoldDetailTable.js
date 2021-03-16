@@ -4,10 +4,7 @@ import React, { useState } from 'react';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
 import Link from 'found/Link';
-
-// This is a really insecure, temporary fix that will be changed asap.
-const meerWatchLink = (jname) =>
-    `http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname=${jname}&data=${sessionStorage.meerWatchKey}`;
+import { meerWatchLink } from '../helpers';
 
 const FoldDetailTable = ({ data: { relayObservationDetails } }) => {
     const allRows = relayObservationDetails.edges.reduce(

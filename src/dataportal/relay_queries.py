@@ -7,6 +7,7 @@ from .models import Pulsars, Proposals, Ephemerides, Observations, get_observati
 from graphql_jwt.decorators import login_required
 from graphene_django import DjangoObjectType
 from dataportal.logic import PROPOSAL_FILTERS
+from django.db.models import Count
 
 
 class ObservationModel(DjangoObjectType):
@@ -19,8 +20,6 @@ class ObservationModel(DjangoObjectType):
             'bw',
             'ra',
             'dec',
-            'length',
-            'snr_spip',
             'nbin',
             'nchan',
             'nsubint',
@@ -38,6 +37,8 @@ class ObservationModel(DjangoObjectType):
     proposal_short = graphene.String()
     schedule = graphene.String()
     phaseup = graphene.String()
+    length = graphene.Float()
+    snr_spip = graphene.Float()
 
     def resolve_jname(self, info):
         return self.pulsar.jname if self.pulsar else None
@@ -56,6 +57,12 @@ class ObservationModel(DjangoObjectType):
 
     def resolve_phaseup(self, info):
         return self.phaseup.phaseup if self.phaseup else None
+
+    def resolve_length(self, info):
+        return round(self.length, 1)
+
+    def resolve_snr_spip(self, info):
+        return round(self.snr_spip, 1)
 
 
 class ObservationNode(graphene.ObjectType):
@@ -254,9 +261,9 @@ class SearchObservationDetailConnection(relay.Connection):
         return ephemeris.updated_at if ephemeris else None
 
 
-class SessionNode(graphene.ObjectType):
-    class Meta:
-        interfaces = (relay.Node,)
+class ProposalObject(graphene.ObjectType):
+    name = graphene.String()
+    count = graphene.Int()
 
 
 class SessionsConnection(relay.Connection):
@@ -267,6 +274,7 @@ class SessionsConnection(relay.Connection):
     last = graphene.DateTime()
     nobs = graphene.Int()
     npsr = graphene.Int()
+    proposals = graphene.List(ProposalObject)
 
     def resolve_first(self, instance):
         return self.iterable.order_by("utc__utc_ts")[0].utc.utc_ts if self.iterable else None
@@ -281,6 +289,12 @@ class SessionsConnection(relay.Connection):
 
     def resolve_npsr(self, instance):
         return self.iterable.values('pulsar').distinct().count() if self.iterable else None
+
+    def resolve_proposals(self, instance):
+        return [
+            ProposalObject(name=proposal, count=self.iterable.filter(proposal__proposal_short=proposal).count())
+            for proposal in set([observation.proposal.proposal_short for observation in self.iterable])
+        ]
 
 
 class Query(graphene.ObjectType):

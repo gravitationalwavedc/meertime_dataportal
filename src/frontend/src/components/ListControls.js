@@ -1,4 +1,4 @@
-import { HiOutlineViewGrid, HiOutlineViewList } from 'react-icons/hi';
+import { HiDownload, HiViewGrid, HiViewList } from 'react-icons/hi';
 
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -6,6 +6,8 @@ import CustomColumnToggle from './CustomColumnToggle';
 import Form from 'react-bootstrap/Form';
 import React from 'react';
 import { Search } from 'react-bootstrap-table2-toolkit';
+import ToggleButton from 'react-bootstrap/ToggleButton';
+import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup';
 
 const projects = [
     {
@@ -55,12 +57,6 @@ const ListControls = ({
     return (
         <Form>
             <Form.Row>
-                <Col md={4}>
-                    <Form.Group controlId="jobSearch">
-                        <Form.Label>Search</Form.Label>
-                        <SearchBar label="Search" placeholder={searchText} {...searchProps}/>
-                    </Form.Group>
-                </Col>
                 { currentProject && <Col md={2}>
                     <Form.Group controlId="mainProjectSelect">
                         <Form.Label>Main Project</Form.Label>
@@ -97,27 +93,54 @@ const ListControls = ({
                         </Form.Control>
                     </Form.Group>
                 </Col>}
-                <Col md={1} className="d-flex align-items-center">
-                    <CustomColumnToggle {...columnToggleProps} exportCSVProps={exportCSVProps}/>
-                    <Button 
-                        data-testid="table-view-button"
-                        variant="icon" 
-                        className="ml-2 mr-1" 
-                        active={isTableView} 
-                        onClick={() => setIsTableView(true)}>
-                        <HiOutlineViewList className='h5' />
-                    </Button>
-                    <Button 
-                        data-testid="list-view-button"
-                        variant="icon"
-                        active={!isTableView}
-                        onClick={() => setIsTableView(false)}>
-                        <HiOutlineViewGrid className='h5' />
-                    </Button>
+            </Form.Row>
+            <Form.Row style={{ marginTop: '-20px' }}>
+                <Col md={4}>
+                    <Form.Group controlId="jobSearch">
+                        <Form.Label>Search</Form.Label>
+                        <SearchBar label="Search" placeholder={searchText} {...searchProps}/>
+                    </Form.Group>
                 </Col>
+                <Form.Group>
+                    <ToggleButtonGroup 
+                        style={{ marginTop: '2.3rem' }} type="radio" name="viewType" defaultValue="table">
+                        <ToggleButton 
+                            data-testid="table-view-button"
+                            variant="link" 
+                            size="sm"
+                            value="table"
+                            active={isTableView} 
+                            onClick={() => setIsTableView(true)}>
+                            <HiViewGrid className="mr-2" />
+                            Table view 
+                        </ToggleButton>
+                        <ToggleButton
+                            data-testid="list-view-button"
+                            variant="link"
+                            value="list"
+                            size="sm"
+                            active={!isTableView}
+                            onClick={() => setIsTableView(false)}>
+                            <HiViewList className="mr-2"/>
+                            List view
+                        </ToggleButton>
+                    </ToggleButtonGroup>
+                </Form.Group>
+                <CustomColumnToggle {...columnToggleProps} exportCSVProps={exportCSVProps}/>
+                <Form.Group>
+                    <Button 
+                        style={{ marginTop: '2.3rem' }} 
+                        variant="link" 
+                        size="sm"
+                        onClick={() => exportCSVProps.onExport()}>
+                        <HiDownload/>
+                      Download CSV
+                    </Button>
+                </Form.Group>
             </Form.Row>
         </Form>);
 };
+// <Dropdown.Item onClick={() => exportCSVProps.onExport()}>Export as csv</Dropdown.Item>
 
 ListControls.defaultProps = {
     searchText: 'Find a pulsar...'

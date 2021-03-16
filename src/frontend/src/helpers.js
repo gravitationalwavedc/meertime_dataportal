@@ -33,4 +33,10 @@ export const formatUTC = (utc) => moment.parseZone(utc, moment.ISO_8601).format(
 export const kronosLink = (beam, jname, utc) => 
     `http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam=${beam}&utc_start=${utc}&jname=${jname}&data=${sessionStorage.meerWatchKey}`;
 
-export default { handleSearch, formatUTC, kronosLink };
+// This is a really insecure, temporary fix that will be changed asap.
+export const meerWatchLink = (jname) =>
+    `http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname=${jname}&data=${sessionStorage.meerWatchKey}`;
+
+export const nullCellFormatter = cell => !cell ? '-' : cell;
+
+export default { handleSearch, formatUTC, kronosLink, meerWatchLink, nullCellFormatter };

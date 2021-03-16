@@ -1,0 +1,15 @@
+.job-card {
+    background-color: white;
+
+   .card-title span {
+       color: $accent-400
+    }
+
+    .card-footer {
+        background-color: $primary-600;
+        
+        .btn-link {
+            color: $primary-100;
+        }
+    }
+}
