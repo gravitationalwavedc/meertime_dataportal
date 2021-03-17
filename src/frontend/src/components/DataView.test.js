@@ -3,6 +3,10 @@ import { fireEvent, render, waitFor } from '@testing-library/react';
 import DataView from './DataView';
 import React from 'react';
 
+/* eslint-disable react/display-name */
+
+jest.mock('found/Link',() => ({ children }) => <div>{children}</div>);
+
 describe('data view component', () => {
     const rows = [
         { 

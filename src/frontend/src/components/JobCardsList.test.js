@@ -2,6 +2,10 @@ import JobCardsList from './JobCardsList';
 import React from 'react';
 import { render } from '@testing-library/react';
 
+/* eslint-disable react/display-name */
+
+jest.mock('found/Link',() => ({ children }) => <div>{children}</div>);
+
 describe('card list component', () => {
     const data = [
         {
@@ -66,7 +70,7 @@ describe('card list component', () => {
     it('should display data without a search term', () => {
         expect.hasAssertions();
         const { getByText } = render(<JobCardsList data={data} columns={columns} search={{ searchText: '' }} />);
-        expect(getByText('J0151-0635 TPA')).toBeInTheDocument();
+        expect(getByText('J0151-0635')).toBeInTheDocument();
     });
 
     it('should filter display data based on the search term', () => {
@@ -74,8 +78,8 @@ describe('card list component', () => {
         const { getByText, queryByText } = render(
             <JobCardsList data={data} columns={columns} search={{ searchText: 'J0255' }} />
         );
-        expect(queryByText('J0151-0635 TPA')).not.toBeInTheDocument();
-        expect(getByText('J0255-5304 TPA')).toBeInTheDocument();
+        expect(queryByText('J0151-0635')).not.toBeInTheDocument();
+        expect(getByText('J0255-5304')).toBeInTheDocument();
     });
 
     it('should ignore columns that are not searchable', () => {
@@ -84,7 +88,7 @@ describe('card list component', () => {
         const { queryByText } = render(
             <JobCardsList data={data} columns={columns} search={{ searchText: 'J0255' }} />
         );
-        expect(queryByText('J0255-5304 TPA')).not.toBeInTheDocument();
+        expect(queryByText('J0255-5304')).not.toBeInTheDocument();
 
     });
 });

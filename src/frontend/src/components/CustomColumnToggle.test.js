@@ -40,22 +40,6 @@ describe('custom toggle button', () => {
         });
     });
 
-    it('should call onExport when the export as csv is clicked', () => {
-        expect.hasAssertions();
-        const onExport = jest.fn();
-        const { getByText, getByTestId } = render(
-            <CustomColumnToggle 
-                columns={[]} 
-                onColumnToggle={{}} 
-                toggles={{}} 
-                exportCSVProps={{ onExport: onExport }} />
-        );
-        fireEvent.click(getByTestId('tableOptions')); 
-        const exportBtn = getByText('Export as csv');
-        fireEvent.click(exportBtn);
-        expect(onExport).toHaveBeenCalled(); //eslint-disable-line
-    });
-
     it('should show which columns are active', () => {
         expect.hasAssertions();
         const { rerender, getByText, getByTestId, getAllByTestId } = render(

@@ -19,7 +19,6 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
     // Pass table data through the search filter to enable searching pulsars on chart.
     const results = search.searchText ? handleSearch(data, columns, search) : data;
 
-    console.log(data);
     // Process the table data in a way that react-vis understands.
     const plotData = results.map(row => ({ 
         x: moment(row.utc, 'YYYY-MM-DD-HH:mm:ss'), 
@@ -95,7 +94,6 @@ const PulsarSummaryPlot = ({ data, columns, search }) => {
                     <CustomSVGSeries 
                         data={plotData} 
                         animation={true}
-                        sizeRange={[5, 50]}
                         onNearestXY={value => setValue(value)}/>
                     <Highlight
                         onBrushEnd={area => setLastDrawLocation(area)}

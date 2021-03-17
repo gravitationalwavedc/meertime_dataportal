@@ -4,6 +4,7 @@ import Button from 'react-bootstrap/Button';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
 import Row from 'react-bootstrap/Row';
+import SearchmodeDetailCard from './SearchmodeDetailCard';
 import { kronosLink } from '../helpers';
 
 const SearchmodeDetailTable = ({ data }) => {
@@ -12,6 +13,7 @@ const SearchmodeDetailTable = ({ data }) => {
             { 
                 key: `${edge.node.utc}:${edge.node.beam}`,
                 ...edge.node, 
+                jname: data.relaySearchmodeDetails.jname,
                 action: <Button
                     href={kronosLink(edge.node.beam, data.relaySearchmodeDetails.jname, edge.node.utc)} 
                     as="a"
@@ -83,6 +85,7 @@ const SearchmodeDetailTable = ({ data }) => {
             rows={rows}
             setProposal={handleProjectFilter}
             keyField='key'
+            card={SearchmodeDetailCard}
         />
     </React.Fragment>;
 };

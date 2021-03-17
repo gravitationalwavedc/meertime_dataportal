@@ -7,6 +7,7 @@ describe('pulsar Summary Plot component', () => {
     it('should render a circle for each data point', () => {
         expect.hasAssertions();
         const data = [{
+            action: {},
             band: 'L-band',
             beam: 4,
             bw: 856,
@@ -26,7 +27,7 @@ describe('pulsar Summary Plot component', () => {
             utc: '2020-09-29-17:13:32'
         }];
         const { container } = render(
-            <PulsarSummaryPlot search={{ searchText: '' }} data={data} />
+            <PulsarSummaryPlot search={{ searchText: '' }} data={data} columns={{}} />
         ); 
         expect(container.querySelector('circle')).not.toBeNull();
     }); 

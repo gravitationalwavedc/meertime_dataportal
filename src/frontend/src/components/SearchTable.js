@@ -5,6 +5,7 @@ import { formatUTC, kronosLink } from '../helpers';
 
 import DataView from './DataView';
 import Link from 'found/Link';
+import SearchmodeCard from './SearchmodeCard';
 
 const SearchTable = ({ data: { relayObservations }, relay }) => {
     const [project, setProject] = useState('meertime');
@@ -21,6 +22,7 @@ const SearchTable = ({ data: { relayObservations }, relay }) => {
         row.first = formatUTC(row.first);
         row.totalTintH = `${row.totalTintH} hours`;
         row.latestTintM = `${row.latestTintM} minutes`;
+        row.projectKey = project;
         row.action = <ButtonGroup vertical>
             <Link 
                 to={`/search/${project}/${row.jname}/`} 
@@ -69,7 +71,9 @@ const SearchTable = ({ data: { relayObservations }, relay }) => {
             setProposal={setProposal}
             setBand={setBand}
             setProject={setProject}
-            project={project}/>
+            project={project}
+            card={SearchmodeCard}
+        />
     );
 };
 

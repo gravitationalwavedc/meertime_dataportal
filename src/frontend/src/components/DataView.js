@@ -11,7 +11,19 @@ import SummaryDataRow from './SummaryDataRow';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 
-const DataView = ({ summaryData, columns, rows, project, setProject, setProposal, setBand, options, plot, keyField }) => {
+const DataView = ({ 
+    summaryData, 
+    columns, 
+    rows, 
+    project, 
+    setProject, 
+    setProposal, 
+    setBand, 
+    options, 
+    plot, 
+    keyField,
+    card 
+  }) => {
     const [isTableView, setIsTableView] = useState(true);
 
     return (
@@ -64,7 +76,7 @@ const DataView = ({ summaryData, columns, rows, project, setProject, setProposal
                                     rowStyle={{ whiteSpace: 'pre', verticalAlign: 'middle' }}
                                     wrapperClasses='bg-gray-100'
                                 /> : 
-                                <JobCardsList {...props.baseProps} />
+                                <JobCardsList {...props.baseProps} as={card} />
                         }
                     </React.Fragment>)}
             </ToolkitProvider>

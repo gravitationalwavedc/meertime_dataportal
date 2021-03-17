@@ -5,6 +5,7 @@ import { createRefetchContainer, graphql } from 'react-relay';
 import DataView from './DataView';
 import Link from 'found/Link';
 import MainLayout from '../components/MainLayout';
+import SessionCard from './SessionCard';
 import { formatUTC } from '../helpers';
 import image404 from '../assets/images/image404.png';
 import moment from 'moment';
@@ -22,6 +23,7 @@ const SessionTable = ({ data: { relaySessions }, relay }) => {
     const rows = relaySessions.edges.reduce((result, edge) => { 
         const row = { ...edge.node };
         row.utc = formatUTC(row.utc);
+        row.projectKey = project;
         row.length = `${row.length} seconds`;
         row.frequency= `${row.frequency} MHz`;
         row.profile = <Image rounded fluid src={row.profile.length > 0 ? `http://localhost:8000/media/${row.profile}` : image404}/>;
@@ -77,7 +79,8 @@ const SessionTable = ({ data: { relaySessions }, relay }) => {
                 columns={columns}
                 rows={rows}
                 project={project}
-                setProject={setProject} />
+                setProject={setProject}
+                card={SessionCard}/>
         </MainLayout>
     );
 };

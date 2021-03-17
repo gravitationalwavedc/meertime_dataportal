@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
+import FoldDetailCard from './FoldDetailCard';
 import Link from 'found/Link';
 import { meerWatchLink } from '../helpers';
 
@@ -12,6 +13,7 @@ const FoldDetailTable = ({ data: { relayObservationDetails } }) => {
             ...result, 
             { 
                 key: `${edge.node.utc}:${edge.node.beam}`,
+                jname: relayObservationDetails.jname,
                 ...edge.node, 
                 action: <Link 
                     to={`/${relayObservationDetails.jname}/${edge.node.utc}/${edge.node.beam}/`}
@@ -112,6 +114,7 @@ const FoldDetailTable = ({ data: { relayObservationDetails } }) => {
                 setBand={handleBandFilter}
                 plot
                 keyField="key"
+                card={FoldDetailCard}
             />
         </React.Fragment>
     );
