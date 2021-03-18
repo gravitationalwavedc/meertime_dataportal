@@ -5,37 +5,31 @@ from .types import *
 
 class CreatePulsar(graphene.Mutation):
     class Arguments:
-        jname = graphene.String(required=True)
-        state = graphene.String(required=True)
-        comment = graphene.String(required=True)
+        input = PulsarsInput(required=True)
 
     pulsar = graphene.Field(PulsarsType)
 
     @classmethod
     @permission_required("dataportal.add_pulsars")
-    def mutate(cls, self, info, jname, state, comment):
-        _pulsar, _ = Pulsars.objects.get_or_create(jname=jname, state=state, comment=comment)
+    def mutate(cls, self, info, input):
+        _pulsar, _ = Pulsars.objects.get_or_create(**input.__dict__)
         return CreatePulsar(pulsar=_pulsar)
 
 
 class UpdatePulsar(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
-        jname = graphene.String(required=True)
-        state = graphene.String(required=True)
-        comment = graphene.String(required=True)
+        input = PulsarsInput(required=True)
 
     pulsar = graphene.Field(PulsarsType)
 
     @classmethod
     @permission_required("dataportal.add_pulsars")
-    def mutate(cls, self, info, id, jname, state, comment):
-        ok = False
+    def mutate(cls, self, info, id, input):
         _pulsar = Pulsars.objects.get(pk=id)
         if _pulsar:
-            _pulsar.jname = jname
-            _pulsar.state = state
-            _pulsar.comment = comment
+            for key, value in input.__dict__.items():
+                setattr(_pulsar, key, value)
             _pulsar.save()
             return UpdatePulsar(pulsar=_pulsar)
         return UpdatePulsar(pulsar=None)

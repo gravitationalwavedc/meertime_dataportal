@@ -17,11 +17,11 @@ class ObservationsType(DjangoObjectType):
 
 
 class ObservationsInput(graphene.InputObjectType):
-    target_id = graphene.Int(name="target", required=True)
-    calibration_id = graphene.Int(name="calibration", required=True)
-    telescope_id = graphene.Int(name="telescope", required=True)
-    instrument_config_id = graphene.Int(name="instrument_config", required=True)
-    project_id = graphene.Int(name="project", required=True)
+    target_id = graphene.Int(name="target_id", required=True)
+    calibration_id = graphene.Int(name="calibration_id", required=True)
+    telescope_id = graphene.Int(name="telescope_id", required=True)
+    instrument_config_id = graphene.Int(name="instrument_config_id", required=True)
+    project_id = graphene.Int(name="project_id", required=True)
     config = graphene.JSONString(required=True)
     utc_start = graphene.DateTime(required=True)
     duration = graphene.Float(required=True)

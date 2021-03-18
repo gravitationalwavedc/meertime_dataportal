@@ -10,7 +10,11 @@ class Targets(GraphQLTable):
         # create a new record
         self.create_mutation = """
         mutation ($name: String!, $raj: String!, $decj: String!) {
-            createTarget(name: $name, raj: $raj, decj: $decj) {
+            createTarget(input: {
+                name: $name,
+                raj: $raj,
+                decj: $decj
+                }) {
                 target {
                     id
                 }
@@ -20,7 +24,11 @@ class Targets(GraphQLTable):
         # Update an existing record
         self.update_mutation = """
         mutation ($id: Int!, $name: String!, $raj: String!, $decj: String!) {
-            updateTarget(id: $id, name: $name, raj: $raj, decj: $decj) {
+            updateTarget(id: $id, input: {
+                name: $name,
+                raj: $raj,
+                decj: $decj
+                }) {
                 target {
                     id,
                     name,

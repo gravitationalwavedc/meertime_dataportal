@@ -10,7 +10,9 @@ class Telescopes(GraphQLTable):
         # create a new record
         self.create_mutation = """
         mutation ($name: String!) {
-            createTelescope(name: $name) {
+            createTelescope(input: {
+                name: $name,
+                }) {
                 telescope {
                     id
                 }

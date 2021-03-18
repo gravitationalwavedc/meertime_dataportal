@@ -1,6 +1,4 @@
 import logging
-import json
-from datetime import datetime
 from tables.graphql_table import GraphQLTable
 
 
@@ -12,11 +10,11 @@ class Observations(GraphQLTable):
         self.create_mutation = """
         mutation ($target: Int!, $calibration: Int!, $telescope: Int!, $instrument_config: Int!, $project: Int!, $config: JSONString!, $duration: Float!, $utc_start: DateTime!, $nant: Int!, $nant_eff: Int!, $suspect: Boolean!, $comment: String) {
             createObservation(input: { 
-                target: $target,
-                calibration: $calibration,
-                telescope: $telescope,
-                instrument_config: $instrument_config,
-                project: $project,
+                target_id: $target,
+                calibration_id: $calibration,
+                telescope_id: $telescope,
+                instrument_config_id: $instrument_config,
+                project_id: $project,
                 config: $config,
                 utcStart: $utc_start,
                 duration: $duration,

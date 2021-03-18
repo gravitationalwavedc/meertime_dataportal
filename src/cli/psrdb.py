@@ -2,9 +2,12 @@ import logging
 import sys
 
 from tables.calibrations import Calibrations
+from tables.ephemerides import Ephemerides
+from tables.foldings import Foldings
 from tables.instrumentconfigs import Instrumentconfigs
 from tables.observations import Observations
 from tables.pipelines import Pipelines
+from tables.processings import Processings
 from tables.projects import Projects
 from tables.pulsars import Pulsars
 from tables.pulsartargets import Pulsartargets
@@ -27,8 +30,11 @@ if __name__ == "__main__":
 
     tables = [
         Calibrations,
+        Ephemerides,
+        Foldings,
         Instrumentconfigs,
         Observations,
+        Processings,
         Projects,
         Pulsars,
         Pulsartargets,

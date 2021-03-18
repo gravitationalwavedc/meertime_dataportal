@@ -9,26 +9,32 @@ class Pulsars(GraphQLTable):
 
         # create a new record
         self.create_mutation = """
-            mutation ($jname: String!, $state: String!, $comment: String!) {
-                createPulsar(jname: $jname, state: $state, comment: $comment) {
-                    pulsar {
-                        id
-                    }
+        mutation ($jname: String!, $state: String!, $comment: String!) {
+            createPulsar(input: {
+                jname: $jname, state: $state, comment: $comment
+            }) {
+                pulsar {
+                    id
                 }
             }
+        }
         """
         # Update an existing record
         self.update_mutation = """
-            mutation ($id: Int!, $jname: String!, $state: String!, $comment: String!) {
-                updatePulsar(id: $id, jname: $jname, state: $state, comment: $comment) {
-                    pulsar {
-                        id,
-                        jname,
-                        state,
-                        comment
-                    }
+        mutation ($id: Int!, $jname: String!, $state: String!, $comment: String!) {
+           updatePulsar(id: $id, input: {
+                jname: $jname,
+                state: $state,
+                comment: $comment
+            }) {
+                pulsar {
+                    id,
+                    jname,
+                    state,
+                    comment
                 }
             }
+        }
         """
 
         self.field_names = ["id", "jname", "state", "comment"]
@@ -88,7 +94,7 @@ class Pulsars(GraphQLTable):
         parser_create.add_argument("state", type=str, help=",")
         parser_create.add_argument("comment", type=str, help="description of the pulsar")
 
-        # create the parser for the "create" command
+        # create the parser for the "update" command
         parser_udpate = subs.add_parser("update", help="update the values of an existing pulsar")
         parser_udpate.add_argument("id", type=int, help="database id of the pulsar")
         parser_udpate.add_argument("jname", type=str, help="jname of the pulsar")

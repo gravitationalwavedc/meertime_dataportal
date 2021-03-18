@@ -10,7 +10,10 @@ class Calibrations(GraphQLTable):
         # create a new record
         self.create_mutation = """
         mutation ($type: String!, $location: String!) {
-            createCalibration(type: $type, location: $location) {
+            createCalibration(input: {
+                type: $type,
+                location: $location
+                }) {
                 calibration {
                     id
                 }

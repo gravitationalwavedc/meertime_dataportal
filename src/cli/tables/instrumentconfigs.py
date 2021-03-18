@@ -10,7 +10,14 @@ class Instrumentconfigs(GraphQLTable):
         # create a new record
         self.create_mutation = """
         mutation ($name: String!, $bandwidth: Decimal!, $frequency: Decimal!, $nchan: Int!, $npol: Int!, $beam: String!) {
-            createInstrumentconfig(name: $name, bandwidth: $bandwidth, frequency: $frequency, nchan: $nchan, npol: $npol, beam: $beam) {
+            createInstrumentconfig(input: {
+                name: $name,
+                bandwidth: $bandwidth,
+                frequency: $frequency,
+                nchan: $nchan,
+                npol: $npol,
+                beam: $beam
+                }) {
                 instrumentconfig {
                     id
                 }

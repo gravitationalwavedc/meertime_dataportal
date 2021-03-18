@@ -10,7 +10,12 @@ class Projects(GraphQLTable):
         # create a new record
         self.create_mutation = """
         mutation ($code: String!, $short: String!, $embargoPeriod: Int!, $description: String!) {
-            createProject(code: $code, short: $short, embargoPeriod: $embargoPeriod, description: $description) {
+            createProject(input: {
+                code: $code,
+                short: $short,
+                embargoPeriod: $embargoPeriod,
+                description: $description
+                }) {
                 project {
                     id
                 }

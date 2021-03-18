@@ -5,39 +5,35 @@ from .types import *
 
 class CreateTarget(graphene.Mutation):
     class Arguments:
-        name = graphene.String(required=True)
-        raj = graphene.String(required=True)
-        decj = graphene.String(required=True)
+        input = TargetsInput(required=True)
 
     ok = graphene.Boolean()
     target = graphene.Field(TargetsType)
 
     @classmethod
     @permission_required("dataportal.add_targets")
-    def mutate(cls, self, info, name, raj, decj):
+    def mutate(cls, self, info, input):
         ok = True
-        _target, _ = Targets.objects.get_or_create(name=name, raj=raj, decj=decj)
+        _target, _ = Targets.objects.get_or_create(**input.__dict__)
         return CreateTarget(ok=ok, target=_target)
 
 
 class UpdateTarget(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
-        name = graphene.String(required=True)
-        raj = graphene.String(required=True)
-        decj = graphene.String(required=True)
+        input = TargetsInput(required=True)
 
     ok = graphene.Boolean()
     target = graphene.Field(TargetsType)
 
     @classmethod
     @permission_required("dataportal.add_targets")
-    def mutate(cls, self, info, id, name, raj, decj):
+    def mutate(cls, self, info, id, input):
         _target = Targets.objects.get(pk=id)
         if _target:
-            _target.name = name
-            _target.raj = raj
-            _target.decj = decj
+            for key, val in input.__dict__.items():
+                setattr(_target, key, val)
+            _target.save()
             return UpdateTarget(target=_target)
         return UpdateTarget(target=None)
 

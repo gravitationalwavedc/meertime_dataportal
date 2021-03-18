@@ -20,6 +20,6 @@ class PipelinesInput(graphene.InputObjectType):
     name = graphene.String(required=True)
     description = graphene.String(required=True)
     revision = graphene.String(required=True)
-    createdAt = graphene.DateTime(required=True)
-    createdBy = graphene.String(required=True)
+    created_at = graphene.DateTime(required=True, name="created_at")
+    created_by = graphene.String(required=True, name="created_by")
     configuration = graphene.JSONString(required=True)

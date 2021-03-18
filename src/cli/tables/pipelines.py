@@ -1,6 +1,4 @@
 import logging
-import json
-from datetime import datetime
 from tables.graphql_table import GraphQLTable
 
 
@@ -15,8 +13,8 @@ class Pipelines(GraphQLTable):
                 name: $name,
                 description: $description,
                 revision: $revision,
-                createdAt: $createdAt,
-                createdBy: $createdBy,
+                created_at: $createdAt,
+                created_by: $createdBy,
                 configuration: $configuration
             }) {
                 pipeline {
@@ -27,13 +25,13 @@ class Pipelines(GraphQLTable):
         """
         # Update an existing record
         self.update_mutation = """
-        mutation ($id: Int!, $name: String!, $description: String!, $revision: String!, $createdAt: DateTime!, $createdBy: String!, $configuration: String!) {
+        mutation ($id: Int!, $name: String!, $description: String!, $revision: String!, $createdAt: DateTime!, $createdBy: String!, $configuration: JSONString!) {
             updatePipeline(id: $id, input: { 
                 name: $name,
                 description: $description,
                 revision: $revision,
-                createdAt: $createdAt,
-                createdBy: $createdBy,
+                created_at: $createdAt,
+                created_by: $createdBy,
                 configuration: $configuration
             }) {
                 pipeline {

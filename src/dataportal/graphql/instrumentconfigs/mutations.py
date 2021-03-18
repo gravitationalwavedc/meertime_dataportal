@@ -5,23 +5,36 @@ from .types import *
 
 class CreateInstrumentconfig(graphene.Mutation):
     class Arguments:
-        name = graphene.String()
-        bandwidth = graphene.Decimal()
-        frequency = graphene.Decimal()
-        nchan = graphene.Int()
-        npol = graphene.Int()
-        beam = graphene.String()
+        input = InstrumentconfigsInput(required=True)
 
     instrumentconfig = graphene.Field(InstrumentconfigsType)
 
     @classmethod
     @permission_required("dataportal.add_instrumentconfigs")
-    def mutate(cls, self, info, name, bandwidth, frequency, nchan, npol, beam):
-        _instrumentconfig, _ = Instrumentconfigs.objects.get_or_create(
-            name=name, bandwidth=bandwidth, frequency=frequency, nchan=nchan, npol=npol, beam=beam
-        )
+    def mutate(cls, self, info, input):
+        _instrumentconfig, _ = Instrumentconfigs.objects.get_or_create(**input.__dict__)
         return CreateInstrumentconfig(instrumentconfig=_instrumentconfig)
+
+
+class UpdateInstrumentconfig(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        input = InstrumentconfigsInput(required=True)
+
+    instrumentconfig = graphene.Field(InstrumentconfigsType)
+
+    @classmethod
+    @permission_required("dataportal.add_instrumentconfigs")
+    def mutate(cls, self, info, id, input):
+        _instrumentconfig, _ = Instrumentconfigs.objects.get(id)
+        if _instrumentconfig:
+            for key, val in input.__dict__.items():
+                setattr(_instrumentconfig, key, val)
+            _instrumentconfig.save()
+            return UpdateInstrumentconfig(instrumentconfig=_instrumentconfig)
+        return UpdateInstrumentconfig(instrumentconfig=None)
 
 
 class Mutation(graphene.ObjectType):
     create_instrumentconfig = CreateInstrumentconfig.Field()
+    update_instrumentconfig = UpdateInstrumentconfig.Field()

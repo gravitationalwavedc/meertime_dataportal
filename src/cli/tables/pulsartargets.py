@@ -10,7 +10,23 @@ class Pulsartargets(GraphQLTable):
         # create a new record
         self.create_mutation = """
         mutation ($pulsar: Int!, $target: Int!) {
-            createPulsartarget(pulsar: $pulsar, target: $target) {
+            createPulsartarget(input: {
+                pulsar_id: $pulsar,
+                target_id: $target
+                }) {
+                pulsartarget {
+                    id
+                }
+            }
+        }
+        """
+        # update an existing record
+        self.update_mutation = """
+        mutation ($id: Int!, $pulsar: Int!, $target: Int!) {
+            updatePulsartarget(id: $id, input: {
+                pulsar_id: $pulsar,
+                target_id: $target
+                }) {
                 pulsartarget {
                     id
                 }
@@ -42,6 +58,9 @@ class Pulsartargets(GraphQLTable):
         if args.subcommand == "create":
             self.create_variables = {"pulsar": args.pulsar, "target": args.target}
             return self.create_graphql()
+        elif args.subcommand == "update":
+            self.update_variables = {"id": args.id, "pulsar": args.pulsar, "target": args.target}
+            return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.pulsar)
 
@@ -69,6 +88,12 @@ class Pulsartargets(GraphQLTable):
         parser_create = subs.add_parser("create", help="create a new pulsartarget")
         parser_create.add_argument("pulsar", type=int, help="id of the pulsar")
         parser_create.add_argument("target", type=int, help="id of the target")
+
+        # create the parser for the "update" command
+        parser_update = subs.add_parser("update", help="update an existing pulsartarget")
+        parser_update.add_argument("id", type=int, help="id of the pulsartarget")
+        parser_update.add_argument("pulsar", type=int, help="id of the pulsar")
+        parser_update.add_argument("target", type=int, help="id of the target")
 
 
 if __name__ == "__main__":
