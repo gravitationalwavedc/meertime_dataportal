@@ -33,7 +33,8 @@ class Pulsartargets(GraphQLTable):
             }
         }
         """
-        self.field_names = ["id"]
+        self.literal_field_names = ["id", "pulsar {id}", "target {id}"]
+        self.field_names = ["id", "pulsar {jname}", "target {name}"]
 
     def list_graphql(self, id, pulsar):
         if id is None and pulsar is not None:

@@ -22,6 +22,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-t", "--token", nargs=1, help="JWT token")
     parser.add_argument("-u", "--url", nargs=1, default=["http://127.0.0.1:8000/graphql/",], help="GraphQL URL")
+    parser.add_argument(
+        "-l",
+        "--literal",
+        action="store_true",
+        default=False,
+        help="Return literal IDs in tables instead of more human readable text",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
     parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
 
@@ -61,8 +68,9 @@ if __name__ == "__main__":
         if args.command == c["name"]:
             client = GraphQLClient(args.url[0], args.very_verbose)
             table = c["table"](client, args.url[0], args.token[0])
+            table.set_literal(args.literal)
             response = table.process(args)
-            if args.verbose:
+            if args.verbose or args.very_verbose:
                 import json
 
                 print(response.status_code)

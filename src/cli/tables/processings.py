@@ -43,7 +43,26 @@ class Processings(GraphQLTable):
                 }
             }
         }       """
-        self.field_names = ["id", "location", "embargoEnd", "jobState", "jobOutput", "results"]
+        self.field_names = [
+            "id",
+            "pipeline { name }",
+            "parent { id }",
+            "location",
+            "embargoEnd",
+            "jobState",
+            "jobOutput",
+            "results",
+        ]
+        self.literal_field_names = [
+            "id",
+            "pipeline { id }",
+            "parent { id } ",
+            "location",
+            "embargoEnd",
+            "jobState",
+            "jobOutput",
+            "results",
+        ]
 
     def list_graphql(self, id):
         if id is not None:

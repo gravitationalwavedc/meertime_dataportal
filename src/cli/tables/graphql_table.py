@@ -32,6 +32,15 @@ class GraphQLTable:
         self.cli_name = None
         self.cli_description = None
 
+        self.human_readable = True
+        self.literal_field_names = []
+        self.field_names = []
+
+    def set_literal(self, literal):
+        if literal:
+            self.field_names = self.literal_field_names
+        self.human_readable = not literal
+
     def encode_id(self, id):
         unencoded = f"{self.__class__.__name__ }Node:{id}"
         return b64encode(unencoded.encode("ascii")).decode("utf-8")
@@ -130,12 +139,21 @@ class GraphQLTable:
             record_set = record_set["node"]
         print(delim.join(record_set.keys()))
 
+    def get_record_set_value(self, key, value):
+        if key == "id":
+            return self.decode_id(value)
+        elif type(value) is dict:
+            k = list(value.keys())[0]
+            v = list(value.values())[0]
+            return self.get_record_set_value(k, v)
+        else:
+            return value
+
     def print_record_set_values(self, record_set, delim):
         if "node" in record_set.keys():
             record_set = record_set["node"]
         for key in record_set.keys():
-            if key == "id":
-                record_set[key] = self.decode_id(record_set[key])
+            record_set[key] = self.get_record_set_value(key, record_set[key])
         print(delim.join([str(value) for value in record_set.values()]))
 
     def print_record_set(self, record_set, delim):

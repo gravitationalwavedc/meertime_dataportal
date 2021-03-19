@@ -30,7 +30,35 @@ class Observations(GraphQLTable):
         }
         """
 
-        self.field_names = ["id", "utcStart", "duration", "nant", "nantEff", "suspect", "comment"]
+        self.field_names = [
+            "id",
+            "target { name }",
+            "calibration { location }",
+            "telescope { name }",
+            "instrumentConfig { name }",
+            "project { code }",
+            "utcStart",
+            "duration",
+            "nant",
+            "nantEff",
+            "suspect",
+            "comment",
+        ]
+        self.literal_field_names = [
+            "id",
+            "target { id }",
+            "calibration { id }",
+            "telescope { id }",
+            "instrumentConfig { id }",
+            "project { id }",
+            "config",
+            "utcStart",
+            "duration",
+            "nant",
+            "nantEff",
+            "suspect",
+            "comment",
+        ]
 
     def list_graphql(self, id):
 
