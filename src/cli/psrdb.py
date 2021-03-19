@@ -5,6 +5,7 @@ from tables.calibrations import Calibrations
 from tables.ephemerides import Ephemerides
 from tables.foldings import Foldings
 from tables.instrumentconfigs import Instrumentconfigs
+from tables.launches import Launches
 from tables.observations import Observations
 from tables.pipelines import Pipelines
 from tables.processings import Processings
@@ -40,6 +41,7 @@ if __name__ == "__main__":
         Ephemerides,
         Foldings,
         Instrumentconfigs,
+        Launches,
         Observations,
         Processings,
         Projects,

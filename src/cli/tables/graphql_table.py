@@ -38,7 +38,8 @@ class GraphQLTable:
 
     def set_literal(self, literal):
         if literal:
-            self.field_names = self.literal_field_names
+            if len(self.literal_field_names) > 0:
+                self.field_names = self.literal_field_names
         self.human_readable = not literal
 
     def encode_id(self, id):
@@ -132,6 +133,25 @@ class GraphQLTable:
         """
         delim = ",\n                        "
         query = template % (query_name, query_name, field, delim.join(self.field_names))
+        return query
+
+    def build_list_join_id_query(self, join, field, id):
+        table = self.__class__.__name__
+        query_name = f"all{table.title()}"
+        id_encoded = b64encode(f"{join.title()}Node:{id}".encode("ascii")).decode("utf-8")
+        template = """
+        query %s {
+            %s (%s: \"%s\") {
+                edges {
+                    node {
+                        %s
+                    }
+                }
+            }
+        }
+        """
+        delim = ",\n                        "
+        query = template % (query_name, query_name, field, id_encoded, delim.join(self.field_names))
         return query
 
     def print_record_set_fields(self, record_set, delim):
