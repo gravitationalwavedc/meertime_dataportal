@@ -2,6 +2,7 @@ import json
 import logging
 import requests as r
 from base64 import b64decode, b64encode
+import binascii
 from requests.packages.urllib3.util.retry import Retry
 from graphql_client import GraphQLClient
 
@@ -32,6 +33,8 @@ class GraphQLTable:
         self.cli_name = None
         self.cli_description = None
 
+        self.record_name = self.__class__.__name__.lower().rstrip('s')
+
         self.human_readable = True
         self.literal_field_names = []
         self.field_names = []
@@ -56,15 +59,42 @@ class GraphQLTable:
         logging.debug(f"Using mutation vars in a dict {self.create_variables}")
 
         payload = {"query": self.create_mutation, "variables": self.create_variables}
-        return self.client.post(self.url, payload, **self.header)
+        response = self.client.post(self.url, payload, **self.header)
+        if response.status_code == 200:
+            content = json.loads(response.content)
+            if not "errors" in content.keys():
+                for key in content["data"].keys():
+                    record_set = content["data"][key]
+                    if self.record_name in record_set.keys():
+                        print(record_set[self.record_name]["id"])
+                    else:
+                        logging.warn(f"Record {self.record_name} did not exist in returned json")
+            else:
+                logging.warn(f"Errors returned in content {content['errors']}")
+        else:
+            logging.warn(f"Bad response status_code={response.status_code}")
+        return response
 
-    def update_graphql(self,):
+    def update_graphql(self, delim="\t"):
 
         logging.debug(f"Using mutation {self.update_mutation}")
         logging.debug(f"Using mutation vars dict {self.update_variables}")
 
         payload = {"query": self.update_mutation, "variables": self.update_variables}
-        return self.client.post(self.url, payload, **self.header)
+        response = self.client.post(self.url, payload, **self.header)
+
+        if response.status_code == 200:
+            content = json.loads(response.content)
+            if not "errors" in content.keys():
+                for key in content["data"].keys():
+                    record_set = content["data"][key]
+                    if "edges" in record_set.keys():
+                        record_set = record_set["edges"]
+                    if self.record_name in record_set.keys():
+                        self.print_record_set(record_set[self.record_name], delim)
+                    else:
+                        logging.warn(f"Record {self.record_name} did not exist in returned json")
+        return response
 
     def list_graphql(self, vars_values, delim="\t"):
 
@@ -79,9 +109,10 @@ class GraphQLTable:
             if not "errors" in content.keys():
                 for key in content["data"].keys():
                     record_set = content["data"][key]
-                    if "edges" in record_set.keys():
-                        record_set = record_set["edges"]
-                    self.print_record_set(record_set, delim)
+                    if type(record_set) == dict:
+                        if "edges" in record_set.keys():
+                            record_set = record_set["edges"]
+                        self.print_record_set(record_set, delim)
         return response
 
     def build_list_all_query(self):
@@ -161,13 +192,17 @@ class GraphQLTable:
 
     def get_record_set_value(self, key, value):
         if key == "id":
-            return self.decode_id(value)
+            try:
+                result = self.decode_id(value)
+            except binascii.Error:
+                result = value
         elif type(value) is dict:
             k = list(value.keys())[0]
             v = list(value.values())[0]
-            return self.get_record_set_value(k, v)
+            result = self.get_record_set_value(k, v)
         else:
-            return value
+            result = value
+        return result
 
     def print_record_set_values(self, record_set, delim):
         if "node" in record_set.keys():

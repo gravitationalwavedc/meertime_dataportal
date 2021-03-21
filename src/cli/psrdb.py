@@ -1,13 +1,17 @@
 import logging
 import sys
 
+from tables.basebandings import Basebandings
 from tables.calibrations import Calibrations
+from tables.collections import Collections
 from tables.ephemerides import Ephemerides
 from tables.foldings import Foldings
+from tables.filterbankings import Filterbankings
 from tables.instrumentconfigs import Instrumentconfigs
 from tables.launches import Launches
 from tables.observations import Observations
 from tables.pipelines import Pipelines
+from tables.processingcollections import Processingcollections
 from tables.processings import Processings
 from tables.projects import Projects
 from tables.pulsars import Pulsars
@@ -37,12 +41,16 @@ if __name__ == "__main__":
     subparsers.required = True
 
     tables = [
+        Basebandings,
         Calibrations,
+        Collections,
         Ephemerides,
+        Filterbankings,
         Foldings,
         Instrumentconfigs,
         Launches,
         Observations,
+        Processingcollections,
         Processings,
         Projects,
         Pulsars,

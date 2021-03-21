@@ -2,23 +2,22 @@ import logging
 from tables.graphql_table import GraphQLTable
 
 
-class Foldings(GraphQLTable):
+class Filterbankings(GraphQLTable):
     def __init__(self, client, url, token):
         GraphQLTable.__init__(self, client, url, token)
 
         # create a new record
         self.create_mutation = """
-        mutation ($processing_id: Int!, $folding_ephemeris_id: Int!, $nbin: Int!, $npol: Int!, $nchan: Int!, $dm: Float!, $tsubint: Float!) {
-            createFolding(input: { 
+        mutation ($processing_id: Int!, $nbit: Int!, $npol: Int!, $nchan: Int!, $dm: Float!, $tsamp: Float!) {
+            createFilterbanking(input: { 
                 processing_id: $processing_id,
-                folding_ephemeris_id: $folding_ephemeris_id,
-                nbin: $nbin,
+                nbit: $nbit,
                 npol: $npol,
                 nchan: $nchan,
                 dm: $dm,
-                tsubint: $tsubint
+                tsamp: $tsamp
             }) {
-                folding {
+                filterbanking {
                     id
                 }
             }
@@ -26,32 +25,36 @@ class Foldings(GraphQLTable):
         """
         # Update an existing record
         self.update_mutation = """
-        mutation ($id: Int!, $processing_id: Int!, $folding_ephemeris_id: Int!, $nbin: Int!, $npol: Int!, $nchan: Int!, $dm: Float!, $tsubint: Float!) {
-            updateFolding(id: $id, input: { 
+        mutation ($id: Int!, $processing_id: Int!, $nbit: Int!, $npol: Int!, $nchan: Int!, $dm: Float!, $tsamp: Float!) {
+            updateFilterbanking(id: $id, input: { 
                 processing_id: $processing_id,
-                folding_ephemeris_id: $folding_ephemeris_id,
-                nbin: $nbin,
+                nbit: $nbit,
                 npol: $npol,
                 nchan: $nchan,
                 dm: $dm,
-                tsubint: $tsubint
+                tsamp: $tsamp
             }) {
-                folding {
+                filterbanking {
                     id,
-                    nbin,
+                    processing { id },
+                    nbit,
                     npol,
                     nchan,
                     dm,
-                    tsubint
+                    tsamp
                 }
             }
         }
         """
-        self.field_names = ["id", "foldingEphemeris { id }", "nbin", "npol", "nchan", "dm", "tsubint"]
+        self.field_names = ["id", "processing { id }", "nbit", "npol", "nchan", "dm", "tsamp"]
 
-    def list_graphql(self, id):
-        if id is not None:
-            self.list_query = self.build_list_id_query("folding", id)
+    def list_graphql(self, id, processing_id):
+        if id is not None and processing_id is None:
+            self.list_query = self.build_list_id_query("filterbanking", id)
+            self.list_variables = "{}"
+            return GraphQLTable.list_graphql(self, ())
+        elif id is None and processing_id is not None:
+            self.list_query = self.build_list_join_id_query("Processings", "processing", processing_id)
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
         else:
@@ -64,36 +67,34 @@ class Foldings(GraphQLTable):
         if args.subcommand == "create":
             self.create_variables = {
                 "processing_id": args.processing,
-                "folding_ephemeris_id": args.eph,
-                "nbin": args.nbin,
+                "nbit": args.nbit,
                 "npol": args.npol,
                 "nchan": args.nchan,
                 "dm": args.dm,
-                "tsubint": args.tsubint,
+                "tsamp": args.tsamp,
             }
             return self.create_graphql()
         elif args.subcommand == "update":
             self.update_variables = {
                 "id": args.id,
                 "processing_id": args.processing,
-                "folding_ephemeris_id": args.eph,
-                "nbin": args.nbin,
+                "nbit": args.nbit,
                 "npol": args.npol,
                 "nchan": args.nchan,
                 "dm": args.dm,
-                "tsubint": args.tsubint,
+                "tsamp": args.tsamp,
             }
             return self.update_graphql()
         elif args.subcommand == "list":
-            return self.list_graphql(args.id)
+            return self.list_graphql(args.id, args.processing)
 
     @classmethod
     def get_name(cls):
-        return "foldings"
+        return "filterbankings"
 
     @classmethod
     def get_description(cls):
-        return "Folding of data to produce an archive."
+        return "Filterbanking of data to produce an archive."
 
     @classmethod
     def configure_parsers(cls, parser):
@@ -105,28 +106,26 @@ class Foldings(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing pipelines")
         parser_list.add_argument("--id", type=int, help="list pipelines matching the id")
-        parser_list.add_argument("--name", type=str, help="list pipelines matching the name")
+        parser_list.add_argument("--processing", type=str, help="list pipelines matching the processing id")
 
         # create the parser for the "create" command
-        parser_create = subs.add_parser("create", help="create a new folding")
-        parser_create.add_argument("processing", type=int, help="processing id of the folding")
-        parser_create.add_argument("eph", type=str, help="ephemeris id of the folding")
-        parser_create.add_argument("nbin", type=int, help="Number o bins in the folding")
-        parser_create.add_argument("npol", type=int, help="Number o polarisations in the folding")
-        parser_create.add_argument("nchan", type=int, help="Number o channels in the folding")
-        parser_create.add_argument("dm", type=float, help="DM of the folding")
-        parser_create.add_argument("tsubint", type=float, help="subintegration time of the folding")
+        parser_create = subs.add_parser("create", help="create a new filterbanking")
+        parser_create.add_argument("processing", type=int, help="processing id of the filterbanking")
+        parser_create.add_argument("nbit", type=int, help="Number of bits in the filterbanking")
+        parser_create.add_argument("npol", type=int, help="Number of polarisations in the filterbanking")
+        parser_create.add_argument("nchan", type=int, help="Number of channels in the filterbanking")
+        parser_create.add_argument("dm", type=float, help="DM of the filterbanking")
+        parser_create.add_argument("tsamp", type=float, help="sampling interval of the filterbanking")
 
         # create the parser for the "update" command
-        parser_update = subs.add_parser("update", help="update the values of an existing folding")
-        parser_update.add_argument("id", type=int, help="database id of the folding")
-        parser_update.add_argument("processing", type=int, help="processing id of the folding")
-        parser_update.add_argument("eph", type=str, help="ephemeris id of the folding")
-        parser_update.add_argument("nbin", type=int, help="Number o bins in the folding")
-        parser_update.add_argument("npol", type=int, help="Number o polarisations in the folding")
-        parser_update.add_argument("nchan", type=int, help="Number o channels in the folding")
-        parser_update.add_argument("dm", type=float, help="DM of the folding")
-        parser_update.add_argument("tsubint", type=float, help="subintegration time of the folding")
+        parser_update = subs.add_parser("update", help="update the values of an existing filterbanking")
+        parser_update.add_argument("id", type=int, help="database id of the filterbanking")
+        parser_update.add_argument("processing", type=int, help="processing id of the filterbanking")
+        parser_update.add_argument("nbit", type=int, help="Number o bins in the filterbanking")
+        parser_update.add_argument("npol", type=int, help="Number o polarisations in the filterbanking")
+        parser_update.add_argument("nchan", type=int, help="Number o channels in the filterbanking")
+        parser_update.add_argument("dm", type=float, help="DM of the filterbanking")
+        parser_update.add_argument("tsamp", type=float, help="sampling interval of the filterbanking")
 
 
 if __name__ == "__main__":
@@ -138,7 +137,7 @@ if __name__ == "__main__":
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
     parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
 
-    Foldings.configure_parsers(parser)
+    Filterbankings.configure_parsers(parser)
     args = parser.parse_args()
 
     format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -150,5 +149,5 @@ if __name__ == "__main__":
     from cli.graphql_client import GraphQLClient
 
     client = GraphQLClient(args.url, args.very_verbose)
-    t = Foldings(client, args.url, args.token[0])
+    t = Filterbankings(client, args.url, args.token[0])
     t.process(args)
