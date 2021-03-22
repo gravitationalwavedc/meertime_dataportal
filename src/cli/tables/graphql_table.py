@@ -3,7 +3,6 @@ import logging
 import requests as r
 from base64 import b64decode, b64encode
 import binascii
-from requests.packages.urllib3.util.retry import Retry
 from graphql_client import GraphQLClient
 
 log = logging.getLogger(__name__)
@@ -33,7 +32,7 @@ class GraphQLTable:
         self.cli_name = None
         self.cli_description = None
 
-        self.record_name = self.__class__.__name__.lower().rstrip('s')
+        self.record_name = self.__class__.__name__.lower().rstrip("s")
 
         self.human_readable = True
         self.literal_field_names = []
@@ -58,7 +57,7 @@ class GraphQLTable:
         logging.debug(f"Using mutation {self.create_mutation}")
         logging.debug(f"Using mutation vars in a dict {self.create_variables}")
 
-        payload = {"query": self.create_mutation, "variables": self.create_variables}
+        payload = {"query": self.create_mutation, "variables": json.dumps(self.create_variables)}
         response = self.client.post(self.url, payload, **self.header)
         if response.status_code == 200:
             content = json.loads(response.content)
@@ -80,7 +79,7 @@ class GraphQLTable:
         logging.debug(f"Using mutation {self.update_mutation}")
         logging.debug(f"Using mutation vars dict {self.update_variables}")
 
-        payload = {"query": self.update_mutation, "variables": self.update_variables}
+        payload = {"query": self.update_mutation, "variables": json.dumps(self.update_variables)}
         response = self.client.post(self.url, payload, **self.header)
 
         if response.status_code == 200:
