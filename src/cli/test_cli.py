@@ -6,6 +6,11 @@ from datetime import datetime
 
 from dataportal.models import Pulsars, Targets
 
+# need to modify the sys path to get the tests to work properly
+import sys
+
+sys.path.append("cli")
+
 from cli.tables.pulsars import Pulsars as CliPulsars
 from cli.tables.targets import Targets as CliTargets
 from cli.graphql_client import GraphQLClient
@@ -88,7 +93,7 @@ def test_cli_target_parser():
     parser.add_argument("-u", "--url", nargs=1, default="http://127.0.0.1:8000/graphql/", help="GraphQL URL")
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
     parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
-    subparsers = parser.add_subparsers(dest='command', required=True, help='Database models which can be interrogated')
+    subparsers = parser.add_subparsers(dest="command", required=True, help="Database models which can be interrogated")
 
     target_parser = subparsers.add_parser(CliTargets.get_name(), help=CliTargets.get_description())
     CliTargets.configure_parsers(target_parser)
@@ -127,7 +132,7 @@ def test_cli_target_list_with_token(client, django_user_model):
     response = t.process(args)
     print(json.loads(response.content))
     assert response.status_code == 200
-    assert response.content == b'{"data":{"targets":[]}}'
+    assert response.content == b'{"data":{"allTargets":{"edges":[]}}}'
 
 
 @pytest.mark.django_db
@@ -145,7 +150,7 @@ def test_cli_target_list_with_name_and_token(client, django_user_model):
     response = t.process(args)
     print(json.loads(response.content))
     assert response.status_code == 200
-    assert response.content == b'{"data":{"targetsByName":[]}}'
+    assert response.content == b'{"data":{"allTargets":{"edges":[]}}}'
 
 
 @pytest.mark.django_db
@@ -212,7 +217,7 @@ def test_cli_pulsar_parser():
     parser.add_argument("-u", "--url", nargs=1, default="http://127.0.0.1:8000/graphql/", help="GraphQL URL")
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
     parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
-    subparsers = parser.add_subparsers(dest='command', required=True, help='Database models which can be interrogated')
+    subparsers = parser.add_subparsers(dest="command", required=True, help="Database models which can be interrogated")
 
     pulsar_parser = subparsers.add_parser(CliPulsars.get_name(), help=CliPulsars.get_description())
     CliPulsars.configure_parsers(pulsar_parser)
@@ -226,7 +231,7 @@ def test_cli_pulsar_create_with_token(client, django_user_model):
     jwt_token = __obtain_jwt_token(client, jwt_mutation, jwt_vars_creator)
     args = __obtain_default_args()
     args.subcommand = "create"
-    args.jname = "jname"
+    args.jname = "J1234-1234"
     args.state = "state"
     args.comment = "comment"
 
@@ -249,9 +254,8 @@ def test_cli_pulsar_list_with_token(client, django_user_model):
 
     t = CliPulsars(client, "/graphql/", jwt_token)
     response = t.process(args)
-    print(json.loads(response.content))
     assert response.status_code == 200
-    assert response.content == b'{"data":{"pulsars":[]}}'
+    assert response.content == b'{"data":{"allPulsars":{"edges":[]}}}'
 
 
 @pytest.mark.django_db
