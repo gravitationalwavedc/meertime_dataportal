@@ -7,15 +7,15 @@ def get_upload_location(instance, filename):
     """
     This method provides a filename to store an uploaded image.
     Inputs:
-    instance: instance of an Observation class
+    instance: instance of a Pipelineimages class
     filename: string
 
     returns:
     string:
     """
-    psr = instance.pulsar.jname
-    beam = instance.beam
-    utc = instance.utc.utc_ts.strftime("%Y-%m-%d-%H:%M:%S")
+    psr = instance.processing.observation.target.name
+    beam = instance.processing.observation.instrument_config.beam
+    utc = instance.processing.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
     return f"{psr}/{utc}/{beam}/{filename}"
 
 

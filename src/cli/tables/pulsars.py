@@ -1,6 +1,5 @@
 import logging
 from tables.graphql_table import GraphQLTable
-from base64 import b64encode
 
 
 class Pulsars(GraphQLTable):

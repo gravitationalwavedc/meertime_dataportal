@@ -499,6 +499,17 @@ python-versions = "*"
 version = "0.6.1"
 
 [[package]]
+category = "dev"
+description = "Smart object creation facility for Django."
+name = "model-bakery"
+optional = false
+python-versions = "*"
+version = "1.2.1"
+
+[package.dependencies]
+django = ">=1.11.0"
+
+[[package]]
 category = "main"
 description = "Python interface to MySQL"
 name = "mysqlclient"
@@ -915,7 +926,7 @@ extras = ["flake8"]
 version = ">=4,<5"
 
 [metadata]
-content-hash = "d824e936b054ba1facbdef0260717bfcf12009c6ffd2b7eb4fc041e0c06fbc5b"
+content-hash = "51272b116d64b4ab476056be6201a1353d57a95c6a763ba9cbf1f6472e273021"
 lock-version = "1.0"
 python-versions = "^3.8"
 
@@ -1170,6 +1181,10 @@ markupsafe = [
 mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
+]
+model-bakery = [
+    {file = "model_bakery-1.2.1-py2.py3-none-any.whl", hash = "sha256:d3260bd055c25998b54eda2082a507ba7fd113fe071156bdad065da426b14851"},
+    {file = "model_bakery-1.2.1.tar.gz", hash = "sha256:c2b3521a866b2b25ee0b5f953bfa385ef7d27ad75f30abf5e2de6dd61160c404"},
 ]
 mysqlclient = [
     {file = "mysqlclient-2.0.1-cp36-cp36m-win_amd64.whl", hash = "sha256:edd42ccaa444b00702d5374b2f5f7585c9d0ce201917f15339f1c3cf91c1b1ed"},

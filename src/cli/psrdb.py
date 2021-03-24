@@ -10,6 +10,7 @@ from tables.filterbankings import Filterbankings
 from tables.instrumentconfigs import Instrumentconfigs
 from tables.launches import Launches
 from tables.observations import Observations
+from tables.pipelineimages import Pipelineimages
 from tables.pipelines import Pipelines
 from tables.processingcollections import Processingcollections
 from tables.processings import Processings
@@ -55,6 +56,7 @@ if __name__ == "__main__":
         Projects,
         Pulsars,
         Pulsartargets,
+        Pipelineimages,
         Pipelines,
         Telescopes,
         Targets,
