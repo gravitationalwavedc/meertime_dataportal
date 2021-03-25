@@ -9,9 +9,9 @@ class Calibrations(GraphQLTable):
 
         # create a new record
         self.create_mutation = """
-        mutation ($type: String!, $location: String!) {
+        mutation ($calibration_type: String!, $location: String!) {
             createCalibration(input: {
-                type: $type,
+                calibration_type: $calibration_type,
                 location: $location
                 }) {
                 calibration {
@@ -43,7 +43,7 @@ class Calibrations(GraphQLTable):
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {"type": args.type, "location": args.location}
+            self.create_variables = {"calibration_type": args.type, "location": args.location}
             return self.create_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.type)

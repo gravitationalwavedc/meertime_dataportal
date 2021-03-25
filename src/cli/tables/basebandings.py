@@ -23,9 +23,9 @@ class Basebandings(GraphQLTable):
 
         # create a new record
         self.create_mutation = """
-        mutation ($processing: Int!) {
+        mutation ($processing_id: Int!) {
             createBasebanding(input: { 
-                processing_id: $processing,
+                processing_id: $processing_id,
             }) {
                 basebanding {
                     id

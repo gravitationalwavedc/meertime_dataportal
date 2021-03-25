@@ -10,5 +10,5 @@ class CalibrationsType(DjangoObjectType):
 
 
 class CalibrationsInput(graphene.InputObjectType):
-    type = graphene.String(required=True)
+    calibration_type = graphene.String(name="calibration_type", required=True)
     location = graphene.String(required=True)
