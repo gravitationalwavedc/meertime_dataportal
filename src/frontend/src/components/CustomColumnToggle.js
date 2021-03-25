@@ -17,7 +17,6 @@ const CustomColumnToggle = ({ columns, onColumnToggle, toggles, exportCSVProps }
             size="sm"
             aria-label="table options"
             data-testid="tableOptions"
-            style={{ marginTop: '2.3rem' }}
             className="mr-2 ml-2"
         >
             <HiCog/>
@@ -32,7 +31,7 @@ const CustomColumnToggle = ({ columns, onColumnToggle, toggles, exportCSVProps }
                 <Dropdown.Header style={{ minWidth: '16rem' }}>Columns</Dropdown.Header>
                 {
                     columns
-                        .filter(column => column.dataField !== 'action' && !column.hidden)
+                        .filter(column => column.dataField !== 'action' && column.toggle !== false)
                         .map(column => ({
                             ...column,
                             toggle: toggles[column.dataField]

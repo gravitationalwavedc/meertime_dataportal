@@ -1,6 +1,5 @@
 $row-border-radius: 0.75rem;
 
-
 .ephemeris-table.table {
     td, th {
         border-top: none;
@@ -14,7 +13,6 @@ $row-border-radius: 0.75rem;
 .react-bootstrap-table .table {
     border-collapse: separate;
     border-spacing: 0 0.5rem;
-    margin-top: -2rem;
 
     tbody tr {
         box-shadow: $shadow-base;
@@ -23,7 +21,6 @@ $row-border-radius: 0.75rem;
 
     td {
         vertical-align: middle;
-        padding: 1.25rem 1rem;
         background: white;
         border: 1px solid $gray-100;
         border-style: solid none;
@@ -32,7 +29,6 @@ $row-border-radius: 0.75rem;
             border-left-style: solid;
             border-top-left-radius: $row-border-radius; 
             border-bottom-left-radius: $row-border-radius;
-            padding-left: 1.5rem;
         }
 
         &:last-child {
@@ -55,9 +51,16 @@ $row-border-radius: 0.75rem;
             outline: none;
             color: $primary;
         }
+    }
 
-        &:first-child {
-            padding-left: 1.5rem;
+    @include media-breakpoint-up(md){
+        margin-top: -2rem;
+
+        td {
+            padding: 1.25rem 1rem;
+            border: 1px solid $gray-100;
+            border-style: solid none;
         }
+
     }
 }

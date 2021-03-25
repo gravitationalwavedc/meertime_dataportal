@@ -10,6 +10,7 @@ import PulsarSummaryPlot from './PulsarSummaryPlot';
 import SummaryDataRow from './SummaryDataRow';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit';
 import paginationFactory from 'react-bootstrap-table2-paginator';
+import { useScreenSize } from '../context/screenSize-context';
 
 const DataView = ({ 
     summaryData, 
@@ -22,9 +23,10 @@ const DataView = ({
     options, 
     plot, 
     keyField,
-    card 
+    card
   }) => {
-    const [isTableView, setIsTableView] = useState(true);
+    const { screenSize } = useScreenSize();
+    const [isTableView, setIsTableView] = useState(["md", "lg", "xl", "xxl"].includes(screenSize));
 
     return (
         <React.Fragment>
@@ -43,7 +45,8 @@ const DataView = ({
                 columnToggle
                 search
             >
-                {props => (
+                {props => {
+                  return (
                     <React.Fragment>
                         {plot && 
                           <Row>
@@ -53,7 +56,7 @@ const DataView = ({
                           </Row>
                         }
                         <Row className='bg-gray-100'>
-                            <Col md={6}>
+                            <Col lg={10} md={12}>
                                 <ListControls 
                                     searchProps={props.searchProps} 
                                     handleProposalFilter={setProposal} 
@@ -79,6 +82,7 @@ const DataView = ({
                                 <JobCardsList {...props.baseProps} as={card} />
                         }
                     </React.Fragment>)}
+              }
             </ToolkitProvider>
         </React.Fragment>);
 };
@@ -101,7 +105,7 @@ DataView.defaultProps = {
         showTotal: true,
         disablePageTitle: true, 
         CustomSizePerPageBtn,
-    }
+    },
 };
 
 export default DataView;

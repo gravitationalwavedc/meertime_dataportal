@@ -40,8 +40,8 @@ const Login = ({ router, match }) => {
                     if(errors){
                         setFormErrors(errors.map(e => e.message));
                     } else if(tokenAuth){
-                        sessionStorage.jwt = tokenAuth.token;
-                        sessionStorage.meerWatchKey = tokenAuth.meerWatchKey;
+                        localStorage.jwt = tokenAuth.token;
+                        localStorage.meerWatchKey = tokenAuth.meerWatchKey;
                         const nextPath = match.params['next'] === undefined ? '/' : `/${match.params['next']}/`;
                         router.replace(nextPath);
                     }
@@ -55,11 +55,16 @@ const Login = ({ router, match }) => {
 
     return (
         <Container fluid className="login-page h-100">
-            <Col md={{ span: 5, offset: 6 }} className="login-col h-100">
+            <Col xl={{ span: 6, offset: 5 }} md={{ span: 10, offset: 1 }} className="login-col h-100">
                 <Row>
-                    <Col md={{ span: 8, offset: 2 }} className="login-form">
-                        <h1 className="text-center text-gray-100 mb-5">MEERTIME</h1>
-                        <Card className="shadow-2xl">
+                    <h1 className="text-gray-100 w-100 mt-5 text-center d-none d-sm-block" 
+                        style={{ marginBottom: '-3rem' }}>
+                  MEERTIME</h1>
+                    <h2 className="text-gray-100 w-100 mt-5 text-center d-block d-sm-none" 
+                        style={{ marginBottom: '-3rem' }}>
+                  MEERTIME</h2>
+                    <Col xl={{ span: 8, offset: 2 }} md={{ span: 8, offset: 2 }} className="login-form">
+                        <Card className="shadow-2xl text-left">
                             <Card.Body className="m-4">
                                 <h4 className="text-primary-600 mb-4">Sign in</h4>
                                 <Formik

@@ -31,8 +31,8 @@ describe('top navigation bar', () => {
         const { getByText } = render(<TopNav />);
         const logoutButton = getByText('Log out');
         fireEvent.click(logoutButton);
-        expect(sessionStorage.clear).toHaveBeenCalledTimes(1);
-        expect(sessionStorage).toHaveLength(0); 
+        expect(localStorage.clear).toHaveBeenCalledTimes(1);
+        expect(localStorage).toHaveLength(0); 
     });
 
 });

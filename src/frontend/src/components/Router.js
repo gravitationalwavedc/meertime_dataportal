@@ -14,7 +14,7 @@ import SingleObservation from '../pages/SingleObservation';
 import environment from '../relayEnvironment';
 
 const renderPrivateRoute = (Component, props) => {
-    if (sessionStorage.getItem('jwt') === null) {
+    if (localStorage.getItem('jwt') === null) {
         throw new RedirectException('/login/', 401);
     }
     return <Component {...props}/>;

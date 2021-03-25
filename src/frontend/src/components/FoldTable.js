@@ -5,8 +5,10 @@ import { formatUTC, nullCellFormatter } from '../helpers';
 
 import DataView from './DataView';
 import Link from 'found/Link';
+import { useScreenSize } from '../context/screenSize-context';
 
 const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
+    const { screenSize } = useScreenSize();
     const [project, setProject] = useState('meertime');
     const [proposal, setProposal] = useState('All');
     const [band, setBand] = useState('All');
@@ -20,8 +22,8 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
         row.projectKey = project;
         row.last = formatUTC(row.last);
         row.first = formatUTC(row.first);
-        row.totalTintH = `${row.totalTintH} hours`;
-        row.latestTintM = `${row.latestTintM} minutes`;
+        row.totalTintH = `${row.totalTintH} [h]`;
+        row.latestTintM = `${row.latestTintM} [m]`;
         row.action = <ButtonGroup vertical>
             <Link 
                 to={`/fold/${project}/${row.jname}/`} 
@@ -40,32 +42,33 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
         return [...result, { ...row }];
     }, []);
 
-    const fit2 = { width: '2%', whiteSpace: 'nowrap' };
-    const fit6 = { width: '6%', whiteSpace: 'nowrap' };
-    const fit8 = { width: '8%', whiteSpace: 'nowrap' };
-    
     const columns = [
-        { dataField: 'jname', text: 'JName', sort:true, style: fit6, headerStyle: fit6 },
-        { dataField: 'projectKey', hidden: true, sort:false },
+        { dataField: 'projectKey', hidden: true, toggle: false, sort:false },
+        { dataField: 'jname', text: 'JName', sort:true },
+        { dataField: 'proposalShort', text: 'Project', sort: true, screenSizes: ['xl', 'xxl'] },
         { dataField: 'last', text: 'Last', sort: true },
-        { dataField: 'first', text: 'First', sort: true },
-        { dataField: 'proposalShort', text: 'Project', sort: true, style: fit2, headerStyle: fit2 },
-        { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true },
+        { dataField: 'first', text: 'First', sort: true, screenSizes: ['xxl'] },
+        { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true, 
+            screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'nobs', text: 'Observations', align: 'right', headerAlign: 'right', 
-            sort: true, headerStyle: fit8, style: fit8 },
+            sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'totalTintH', text: 'Total int [h]', align: 'right', headerAlign: 'right', 
-            sort: true, headerStyle: fit8, style: fit8 },
+            sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'avgSnr5min', formatter: nullCellFormatter, text: 'Avg S/N pipe (5 mins)', align: 'right', 
-            headerAlign: 'right', sort: true },
+            headerAlign: 'right', sort: true, hidden: true },
         { dataField: 'maxSnr5min', formatter: nullCellFormatter, text: 'Max S/N pipe (5 mins)', align: 'right', 
-            headerAlign: 'right', sort: true },
+            headerAlign: 'right', sort: true, hidden: true },
         { dataField: 'latestSnr', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
-            sort: true, headerStyle: fit8, style: fit8 },
+            sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'latestTintM', text: 'Last int. [m]', align: 'right', headerAlign: 'right', 
-            sort: true, headerStyle: fit8, style: fit8 },
-        { dataField: 'action', text: '', align: 'center', headerAlign: 'center', 
-            sort: false, headerStyle: fit8, style: fit8 }
+            sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'action', text: '', align: 'right', headerAlign: 'right', 
+            sort: false }
     ];
+
+    columns.filter(
+        column => ('screenSizes' in column) && !column.screenSizes.includes(screenSize)
+    ).map(column => column['hidden'] = true);
 
     const summaryData = [
         { title: 'Observations', value: relayData.totalObservations },

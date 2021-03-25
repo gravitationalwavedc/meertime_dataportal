@@ -1,5 +1,18 @@
+.searchbar {
+    @include media-breakpoint-up(md) {
+        margin-top: -20px;
+
+        .btn {
+            margin-top: 2.3rem;
+        }
+    }
+
+}
+
 .form-group {
-    min-height: 98px;
+    @include media-breakpoint-up(md){
+        min-height: 98px;
+    }
 }
 
 .form-control-icon-right {

@@ -5,6 +5,11 @@
     max-width: 80%;
     top: 4rem;
     left: 1rem;
+
+    @include media-breakpoint-down(sm) {
+        max-width: 97%;
+        left: 0;
+    }
 }
 
 .bg-gray-100 {

@@ -32,7 +32,7 @@ const network = new RelayNetworkLayer(
             statusCodes: [500, 503, 504],
         }),
         authMiddleware({
-            token: () => sessionStorage.jwt,
+            token: () => localStorage.jwt,
             prefix: 'JWT '
         }),
         progressMiddleware({
