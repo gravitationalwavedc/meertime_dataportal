@@ -23,25 +23,26 @@ const SearchRow = ({ setIsTableView, isTableView, searchText, searchProps, colum
             </Col>
             <Form.Group>
                 <ToggleButtonGroup 
+                    className="ml-2"
                     type="radio" 
                     name="viewType" 
                     defaultValue={isTableView ? 'table' : 'list'}>
                     <ToggleButton 
                         data-testid="table-view-button"
-                        variant="link" 
+                        variant="outline-primary" 
                         size="sm"
                         value="table"
                         onClick={() => setIsTableView(true)}>
-                        <HiViewGrid className="mr-2" />
+                        <HiViewGrid className='icon'/>
                             Table view 
                     </ToggleButton>
                     <ToggleButton
                         data-testid="list-view-button"
-                        variant="link"
+                        variant="outline-primary"
                         value="list"
                         size="sm"
                         onClick={() => setIsTableView(false)}>
-                        <HiViewList className="mr-2"/>
+                        <HiViewList className="icon"/>
                             List view
                     </ToggleButton>
                 </ToggleButtonGroup>
@@ -52,7 +53,7 @@ const SearchRow = ({ setIsTableView, isTableView, searchText, searchProps, colum
                     variant="link" 
                     size="sm"
                     onClick={() => exportCSVProps.onExport()}>
-                    <HiDownload/>
+                    <HiDownload className="icon"/>
                       Download CSV
                 </Button>
             </Form.Group>

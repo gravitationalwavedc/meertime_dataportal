@@ -49,7 +49,7 @@ const DataView = ({
                   return (
                     <React.Fragment>
                         {plot && 
-                          <Row>
+                          <Row className="d-none d-sm-block">
                               <Col>
                                   <PulsarSummaryPlot {...props.baseProps}/>
                               </Col>

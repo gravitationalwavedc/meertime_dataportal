@@ -1,7 +1,7 @@
 import { Button, ButtonGroup } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
+import { columnsSizeFilter, formatUTC, nullCellFormatter } from '../helpers';
 import { createRefetchContainer, graphql } from 'react-relay';
-import { formatUTC, nullCellFormatter } from '../helpers';
 
 import DataView from './DataView';
 import Link from 'found/Link';
@@ -66,9 +66,7 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
             sort: false }
     ];
 
-    columns.filter(
-        column => ('screenSizes' in column) && !column.screenSizes.includes(screenSize)
-    ).map(column => column['hidden'] = true);
+    const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
     const summaryData = [
         { title: 'Observations', value: relayData.totalObservations },
@@ -79,7 +77,7 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
     return (
         <DataView
             summaryData={summaryData}
-            columns={columns}
+            columns={columnsSizeFiltered}
             rows={rows}
             setProject={setProject}
             project={project}

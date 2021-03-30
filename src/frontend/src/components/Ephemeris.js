@@ -11,19 +11,22 @@ const Ephemeris = ({ ephemeris, updated, show, setShow }) => {
         </td>;
 
     return (
-        <Modal size="xl" show={show} onHide={() => setShow(false)} aria-labelledby="ephemeris-data">
+        <Modal 
+            className="ephemeris-table" 
+            show={show} 
+            onHide={() => setShow(false)} aria-labelledby="ephemeris-data">
             <Modal.Header style={{ borderBottom: 'none' }} closeButton>
                 <Modal.Title className="text-primary">
-                  Folding Ephemeris
+                      Folding Ephemeris
                     <h6 className="text-muted">as of {formatUTC(updated)}</h6>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <Table className="ephemeris-table">
+                <Table>
                     <tbody>
                         {Object.keys(ephemerisJSON).map((key) => 
                             <tr key={key}>
-                                <th style={{ textAlign: 'right' }}>{key}</th>
+                                <th>{key}</th>
                                 <EphemerisValue data={ephemerisJSON[key]}/>
                             </tr>)}
                     </tbody>

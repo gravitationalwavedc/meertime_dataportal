@@ -1,16 +1,18 @@
 import { Button, ButtonGroup, Image } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
+import { columnsSizeFilter, formatUTC } from '../helpers';
 import { createRefetchContainer, graphql } from 'react-relay';
 
 import DataView from './DataView';
 import Link from 'found/Link';
 import MainLayout from '../components/MainLayout';
 import SessionCard from './SessionCard';
-import { formatUTC } from '../helpers';
 import image404 from '../assets/images/image404.png';
 import moment from 'moment';
+import { useScreenSize } from '../context/screenSize-context';
 
 const SessionTable = ({ data: { relaySessions }, relay }) => {
+    const { screenSize } = useScreenSize();
     const [project, setProject] = useState('meertime');
 
     useEffect(() => {
@@ -24,7 +26,7 @@ const SessionTable = ({ data: { relaySessions }, relay }) => {
         const row = { ...edge.node };
         row.utc = formatUTC(row.utc);
         row.projectKey = project;
-        row.length = `${row.length} seconds`;
+        row.length = `${row.length} [s]`;
         row.frequency= `${row.frequency} MHz`;
         row.profile = <Image rounded fluid src={row.profile.length > 0 ? `http://localhost:8000/media/${row.profile}` : image404}/>;
         row.phaseVsTime = <Image rounded fluid src={row.profile.length > 0 ? `http://localhost:8000/media/${row.phaseVsTime}` : image404}/>;
@@ -49,22 +51,29 @@ const SessionTable = ({ data: { relaySessions }, relay }) => {
 
     const columns = [
         { dataField: 'jname', text: 'JName', sort:true },
-        { dataField: 'proposalShort', text: 'Project', sort: true },
-        { dataField: 'utc', text: 'UTC', sort: true },
-        { dataField: 'snrSpip', text: 'Backend S/N', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'length', text: 'Integration', align: 'right', headerAlign: 'right', sort: true },
-        { dataField: 'frequency', text: 'Frequency', align: 'right', headerAlign: 'right', sort: true },
+        { dataField: 'proposalShort', text: 'Project', sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
+        { dataField: 'utc', text: 'UTC', sort: true, screenSizes: ['xl', 'xxl'] },
+        { dataField: 'snrSpip', text: 'Backend S/N', align: 'right', headerAlign: 'right', sort: true, 
+            screenSizes: ['xl', 'xxl'] },
+        { dataField: 'length', text: 'Integration', align: 'right', headerAlign: 'right', sort: true,
+            screenSizes: ['xl', 'xxl'] },
+        { dataField: 'frequency', text: 'Frequency', align: 'right', headerAlign: 'right', sort: true, 
+            screenSizes: ['xxl'] },
         { dataField: 'profile', text: 'Profile', align: 'center', headerAlign: 'center', sort: false },
-        { dataField: 'phaseVsTime', text: 'Phase vs time', align: 'center', headerAlign: 'center', sort: false },
+        { dataField: 'phaseVsTime', text: 'Phase vs time', align: 'center', headerAlign: 'center', sort: false, 
+            screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
         { 
             dataField: 'phaseVsFrequency', 
             text: 'Phase vs frequency', 
             align: 'center', 
             headerAlign: 'center', 
-            sort: false 
+            sort: false,
+            screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl']
         },
         { dataField: 'action', text: '', align: 'center', headerAlign: 'center', sort: false }
     ];
+
+    const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
     const summaryData = [
         { title: 'Observations', value: relaySessions.nobs },
@@ -74,13 +83,15 @@ const SessionTable = ({ data: { relaySessions }, relay }) => {
 
     return(
         <MainLayout title='Last Session' subtitle={`${startDate} to ${endDate}`}>
-            <DataView
-                summaryData={summaryData}
-                columns={columns}
-                rows={rows}
-                project={project}
-                setProject={setProject}
-                card={SessionCard}/>
+            <div className="session-table">
+                <DataView
+                    summaryData={summaryData}
+                    columns={columnsSizeFiltered}
+                    rows={rows}
+                    project={project}
+                    setProject={setProject}
+                    card={SessionCard}/>
+            </div>
         </MainLayout>
     );
 };

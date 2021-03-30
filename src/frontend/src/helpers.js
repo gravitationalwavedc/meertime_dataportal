@@ -39,4 +39,12 @@ export const meerWatchLink = (jname) =>
 
 export const nullCellFormatter = cell => !cell ? '-' : cell;
 
-export default { handleSearch, formatUTC, kronosLink, meerWatchLink, nullCellFormatter };
+export const columnsSizeFilter = (columns, screenSize) => {
+    columns.filter(column => ('screenSizes' in column) && !column.screenSizes.includes(screenSize))
+        .map(column => column['hidden'] = true);
+    return columns;
+};
+
+export default { columnsSizeFilter, handleSearch, formatUTC, kronosLink, meerWatchLink, nullCellFormatter };
+
+

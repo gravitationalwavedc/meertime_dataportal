@@ -1,13 +1,15 @@
 import { Button, ButtonGroup } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
+import { columnsSizeFilter, formatUTC, kronosLink } from '../helpers';
 import { createRefetchContainer, graphql } from 'react-relay';
-import { formatUTC, kronosLink } from '../helpers';
 
 import DataView from './DataView';
 import Link from 'found/Link';
 import SearchmodeCard from './SearchmodeCard';
+import { useScreenSize } from '../context/screenSize-context';
 
 const SearchTable = ({ data: { relayObservations }, relay }) => {
+    const { screenSize } = useScreenSize();
     const [project, setProject] = useState('meertime');
     const [proposal, setProposal] = useState('All');
     const [band, setBand] = useState('All');
@@ -41,22 +43,20 @@ const SearchTable = ({ data: { relayObservations }, relay }) => {
         </ButtonGroup>;
         return [...result, { ...row }]; }, []);
 
-    const fit2 = { width: '2%', whiteSpace: 'nowrap' };
-    const fit6 = { width: '6%', whiteSpace: 'nowrap' };
-    const fit8 = { width: '8%', whiteSpace: 'nowrap' };
-    
     const columns = [
-        { dataField: 'jname', text: 'JName', sort:true, style: fit6, headerStyle: fit6 },
+        { dataField: 'jname', text: 'JName', sort:true },
+        { dataField: 'proposalShort', text: 'Project', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'last', text: 'Last', sort: true },
-        { dataField: 'first', text: 'First', sort: true },
-        { dataField: 'proposalShort', text: 'Project', sort: true, style: fit2, headerStyle: fit2 },
-        { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true },
+        { dataField: 'first', text: 'First', sort: true, screenSizes: ['xl', 'xxl'] },
+        { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true, 
+            screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'nobs', text: 'Observations', align: 'right', headerAlign: 'right', 
-            sort: true, headerStyle: fit8, style: fit8 },
+            sort: true },
         { dataField: 'action', text: '', align: 'center', headerAlign: 'center', 
-            sort: false, headerStyle: fit8, style: fit8 }
+            sort: false }
     ];
 
+    const columnsForScreenSize = columnsSizeFilter(columns, screenSize);
 
     const summaryData = [
         { title: 'Observations', value: relayObservations.totalObservations },
@@ -64,16 +64,18 @@ const SearchTable = ({ data: { relayObservations }, relay }) => {
     ];
 
     return (
-        <DataView
-            summaryData={summaryData}
-            columns={columns}
-            rows={rows}
-            setProposal={setProposal}
-            setBand={setBand}
-            setProject={setProject}
-            project={project}
-            card={SearchmodeCard}
-        />
+        <div className="searchmode-table">
+            <DataView
+                summaryData={summaryData}
+                columns={columnsForScreenSize}
+                rows={rows}
+                setProposal={setProposal}
+                setBand={setBand}
+                setProject={setProject}
+                project={project}
+                card={SearchmodeCard}
+            />
+        </div>
     );
 };
 

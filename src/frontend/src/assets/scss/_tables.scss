@@ -1,12 +1,14 @@
 $row-border-radius: 0.75rem;
 
-.ephemeris-table.table {
-    td, th {
-        border-top: none;
-    }
+.ephemeris-table {
+    .modal-dialog {
+        max-width: 600px;
+    };
 
-    .ephemris-item span:first-child {
-        padding-right: 1rem;
+    .table {
+        td, th {
+            border-top: none;
+        }
     }
 }
 

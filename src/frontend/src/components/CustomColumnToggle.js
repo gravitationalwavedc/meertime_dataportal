@@ -19,7 +19,7 @@ const CustomColumnToggle = ({ columns, onColumnToggle, toggles, exportCSVProps }
             data-testid="tableOptions"
             className="mr-2 ml-2"
         >
-            <HiCog/>
+            <HiCog className="icon"/>
             Columns 
         </Button>
     ));
