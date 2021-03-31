@@ -32,7 +32,17 @@ class GraphQLTable:
         self.cli_name = None
         self.cli_description = None
 
-        self.record_name = self.__class__.__name__.lower().rstrip("s")
+        # record name is the singular form of the record
+        records = self.__class__.__name__.lower()
+
+        if records.endswith("ides"):
+            self.record_name = records.rstrip("ides") + "is"
+        elif records.endswith("es"):
+            self.record_name = records.rstrip("es")
+        elif records.endswith("s"):
+            self.record_name = records.rstrip("s")
+        else:
+            raise RuntimeError("Could not determine singular form of record from " + records)
 
         self.human_readable = True
         self.literal_field_names = []
@@ -44,9 +54,12 @@ class GraphQLTable:
                 self.field_names = self.literal_field_names
         self.human_readable = not literal
 
-    def encode_id(self, id):
-        unencoded = f"{self.__class__.__name__ }Node:{id}"
+    def encode_table_id(self, table, id):
+        unencoded = f"{table}Node:{id}"
         return b64encode(unencoded.encode("ascii")).decode("utf-8")
+
+    def encode_id(self, id):
+        return self.encode_table_id(self.__class__.__name__, id)
 
     def decode_id(self, encoded):
         decoded = b64decode(encoded).decode("ascii")
@@ -67,11 +80,11 @@ class GraphQLTable:
                     if self.record_name in record_set.keys():
                         print(record_set[self.record_name]["id"])
                     else:
-                        logging.warn(f"Record {self.record_name} did not exist in returned json")
+                        logging.warning(f"Record {self.record_name} did not exist in returned json")
             else:
-                logging.warn(f"Errors returned in content {content['errors']}")
+                logging.warning(f"Errors returned in content {content['errors']}")
         else:
-            logging.warn(f"Bad response status_code={response.status_code}")
+            logging.warning(f"Bad response status_code={response.status_code}")
         return response
 
     def update_graphql(self, delim="\t"):
@@ -81,7 +94,6 @@ class GraphQLTable:
 
         payload = {"query": self.update_mutation, "variables": json.dumps(self.update_variables)}
         response = self.client.post(self.url, payload, **self.header)
-
         if response.status_code == 200:
             content = json.loads(response.content)
             if not "errors" in content.keys():
@@ -92,7 +104,7 @@ class GraphQLTable:
                     if self.record_name in record_set.keys():
                         self.print_record_set(record_set[self.record_name], delim)
                     else:
-                        logging.warn(f"Record {self.record_name} did not exist in returned json")
+                        logging.warning(f"Record {self.record_name} did not exist in returned json")
         return response
 
     def list_graphql(self, vars_values, delim="\t"):

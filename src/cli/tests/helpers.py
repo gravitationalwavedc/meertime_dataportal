@@ -1,5 +1,6 @@
 import pytest
 import json
+import logging
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
@@ -151,3 +152,8 @@ def creator(django_user_model):
     creator.user_permissions.add(permission)
 
     return creator
+
+
+@pytest.fixture
+def debug_log(caplog):
+    caplog.set_level(logging.DEBUG)

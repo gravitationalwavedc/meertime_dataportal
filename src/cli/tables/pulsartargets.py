@@ -28,7 +28,9 @@ class Pulsartargets(GraphQLTable):
                 target_id: $target
                 }) {
                 pulsartarget {
-                    id
+                    id,
+                    pulsar {id},
+                    target {id}
                 }
             }
         }
@@ -61,7 +63,7 @@ class Pulsartargets(GraphQLTable):
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create(args.pulsar, args.target)
+            return self.create(args.pulsar, args.target)
         elif args.subcommand == "update":
             self.update_variables = {"id": args.id, "pulsar": args.pulsar, "target": args.target}
             return self.update_graphql()

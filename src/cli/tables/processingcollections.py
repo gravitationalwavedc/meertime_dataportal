@@ -28,7 +28,9 @@ class Processingcollections(GraphQLTable):
                 collection_id: $collection
                 }) {
                 processingcollection {
-                    id
+                    id,
+                    processing {id},
+                    collection {id}
                 }
             }
         }

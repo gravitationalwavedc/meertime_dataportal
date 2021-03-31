@@ -28,7 +28,9 @@ class Collections(GraphQLTable):
                 description: $description
                 }) {
                 collection {
-                    id
+                    id,
+                    name,
+                    description
                 }
             }
         }
@@ -53,17 +55,24 @@ class Collections(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, name, description):
+        self.create_variables = {
+            "name": name,
+            "description": description,
+        }
+        return self.create_graphql()
+
+    def update(self, id, name, description):
+        """Update the name and description for the specified id"""
+        self.update_variables = {"id": id, "name": name, "description": description}
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {
-                "name": args.name,
-                "description": args.description,
-            }
-            return self.create_graphql()
+            return self.create(args.name, args.description)
         elif args.subcommand == "update":
-            self.update_variables = {"id": args.id, "name": args.name, "description": args.description}
-            return self.update_graphql()
+            return self.update(args.id, args.name, args.description)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name)
 

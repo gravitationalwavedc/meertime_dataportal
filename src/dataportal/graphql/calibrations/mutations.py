@@ -26,7 +26,7 @@ class UpdateCalibration(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_calibrations")
     def mutate(cls, self, info, id, input):
-        _calibration, _ = Calibrations.objects.get(id)
+        _calibration = Calibrations.objects.get(pk=id)
         if _calibration:
             for key, val in input.__dict__.items():
                 setattr(_calibration, key, val)

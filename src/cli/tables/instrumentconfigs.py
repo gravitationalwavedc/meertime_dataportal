@@ -1,6 +1,5 @@
 import logging
 from tables.graphql_table import GraphQLTable
-from base64 import b64encode
 
 
 class Instrumentconfigs(GraphQLTable):
@@ -20,6 +19,29 @@ class Instrumentconfigs(GraphQLTable):
                 }) {
                 instrumentconfig {
                     id
+                }
+            }
+        }
+        """
+        # Update an existing record
+        self.update_mutation = """
+        mutation ($id: Int!, $name: String!, $bandwidth: Decimal!, $frequency: Decimal!, $nchan: Int!, $npol: Int!, $beam: String!) {
+            updateInstrumentconfig(id: $id, input: {
+                name: $name,
+                bandwidth: $bandwidth,
+                frequency: $frequency,
+                nchan: $nchan,
+                npol: $npol,
+                beam: $beam
+                }) {
+                instrumentconfig {
+                    id,
+                    name,
+                    bandwidth,
+                    frequency,
+                    nchan,
+                    npol,
+                    beam
                 }
             }
         }
@@ -62,10 +84,24 @@ class Instrumentconfigs(GraphQLTable):
         }
         return self.create_graphql()
 
+    def update(self, id, name, bandwidth, frequency, nchan, npol, beam):
+        self.update_variables = {
+            "id": id,
+            "name": name,
+            "bandwidth": bandwidth,
+            "frequency": frequency,
+            "nchan": nchan,
+            "npol": npol,
+            "beam": beam,
+        }
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create(args.name, args.bandwidth, args.frequency, args.nchan, args.npol, args.beam)
+            return self.create(args.name, args.bandwidth, args.frequency, args.nchan, args.npol, args.beam)
+        elif args.subcommand == "update":
+            return self.update(args.id, args.name, args.bandwidth, args.frequency, args.nchan, args.npol, args.beam)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name, args.beam)
 
@@ -92,6 +128,16 @@ class Instrumentconfigs(GraphQLTable):
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new instrument configuration")
+        parser_create.add_argument("name", type=str, help="name of the instrument configuration")
+        parser_create.add_argument("frequency", type=float, help="frequency of the instrument configuration")
+        parser_create.add_argument("bandwidth", type=float, help="bandwidth of the instrument configuration")
+        parser_create.add_argument("nchan", type=int, help="number of channels of the instrument configuration")
+        parser_create.add_argument("npol", type=int, help="number of polarisation of the instrument configuration")
+        parser_create.add_argument("beam", type=str, help="beam description of the instrument configuration")
+
+        # create the parser for the "create" command
+        parser_create = subs.add_parser("update", help="update an existing instrument configuration")
+        parser_create.add_argument("id", type=int, help="database id of the instrument configuration")
         parser_create.add_argument("name", type=str, help="name of the instrument configuration")
         parser_create.add_argument("frequency", type=float, help="frequency of the instrument configuration")
         parser_create.add_argument("bandwidth", type=float, help="bandwidth of the instrument configuration")

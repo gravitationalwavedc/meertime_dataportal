@@ -43,12 +43,14 @@ def test_cli_pulsartarget_update_with_token(client, creator, args, jwt_token):
 
     # first create a record
     pulsartarget = baker.make("dataportal.Pulsartargets")
+    pulsar = baker.make("dataportal.Pulsars")
+    target = baker.make("dataportal.Targets")
 
     # then update the record we just created
     args.subcommand = "update"
     args.id = pulsartarget.id
-    args.pulsar = "updated"
-    args.target = "updated"
+    args.pulsar = pulsar.id
+    args.target = target.id
 
     t = CliPulsartargets(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -56,8 +58,16 @@ def test_cli_pulsartarget_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updatePulsartarget":{"pulsartarget":{"id":"'
-        + str(pulsartarget.id).encode("utf-8")
-        + b'","pulsar":"updated","target":"updated"}}}}'
+        '{"data":{"updatePulsartarget":{"pulsartarget":{'
+        + '"id":"'
+        + str(pulsartarget.id)
+        + '",'
+        + '"pulsar":{"id":"'
+        + t.encode_table_id("Pulsars", args.pulsar)
+        + '"},'
+        + '"target":{"id":"'
+        + t.encode_table_id("Targets", args.target)
+        + '"}}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

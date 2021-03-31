@@ -44,7 +44,7 @@ def test_cli_calibration_update_with_token(client, creator, args, jwt_token):
     # then update the record we just created
     args.subcommand = "update"
     args.id = calibration.id
-    args.type = "updated"
+    args.type = "post"
     args.location = "updated"
 
     t = CliCalibrations(client, "/graphql/", jwt_token)
@@ -53,8 +53,12 @@ def test_cli_calibration_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updateCalibration":{"calibration":{"id":"'
-        + str(calibration.id).encode("utf-8")
-        + b'","type":"updated","location":"updated"}}}}'
+        '{"data":{"updateCalibration":{"calibration":{'
+        + '"id":"'
+        + str(calibration.id)
+        + '",'
+        + '"calibrationType":"POST",'
+        + '"location":"updated"}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode('utf-8')

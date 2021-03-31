@@ -30,7 +30,10 @@ class Launches(GraphQLTable):
                 pulsar_id: $pulsar_id
                 }) {
                 launch {
-                    id
+                    id,
+                    pipeline {id},
+                    parentPipeline {id},
+                    pulsar {id}
                 }
             }
         }

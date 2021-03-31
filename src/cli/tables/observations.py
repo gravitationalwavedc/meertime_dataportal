@@ -30,6 +30,41 @@ class Observations(GraphQLTable):
         }
         """
 
+        self.update_mutation = """
+        mutation ($id: Int!, $target: Int!, $calibration: Int!, $telescope: Int!, $instrument_config: Int!, $project: Int!, $config: JSONString!, $duration: Float!, $utc_start: DateTime!, $nant: Int!,   $nant_eff: Int!, $suspect: Boolean!, $comment: String) {
+            updateObservation(id: $id, input: {
+                target_id: $target,
+                calibration_id: $calibration,
+                telescope_id: $telescope,
+                instrument_config_id: $instrument_config,
+                project_id: $project,
+                config: $config,
+                utcStart: $utc_start,
+                duration: $duration,
+                nant: $nant,
+                nantEff: $nant_eff,
+                suspect: $suspect,
+                comment: $comment
+            }) {
+                observation {
+                    id,
+                    target { id },
+                    calibration { id },
+                    telescope { id },
+                    instrumentConfig { id },
+                    project { id },
+                    config,
+                    utcStart,
+                    duration,
+                    nant,
+                    nantEff,
+                    suspect,
+                    comment
+                }
+            }
+        }
+        """
+
         self.field_names = [
             "id",
             "target { name }",
@@ -102,10 +137,59 @@ class Observations(GraphQLTable):
         }
         return self.create_graphql()
 
+    def update(
+        self,
+        id,
+        target,
+        calibration,
+        telescope,
+        instrument_config,
+        project,
+        config,
+        utc,
+        duration,
+        nant,
+        nanteff,
+        suspect,
+        comment,
+    ):
+        self.update_variables = {
+            "id": id,
+            "target": target,
+            "calibration": calibration,
+            "telescope": telescope,
+            "instrument_config": instrument_config,
+            "project": project,
+            "config": config,
+            "utc_start": utc,
+            "duration": duration,
+            "nant": nant,
+            "nant_eff": nanteff,
+            "suspect": suspect,
+            "comment": comment,
+        }
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create(
+            return self.create(
+                args.target,
+                args.calibration,
+                args.telescope,
+                args.instrument_config,
+                args.project,
+                args.config,
+                args.utc,
+                args.duration,
+                args.nant,
+                args.nanteff,
+                args.suspect,
+                args.comment,
+            )
+        elif args.subcommand == "update":
+            return self.update(
+                args.id,
                 args.target,
                 args.calibration,
                 args.telescope,
@@ -157,6 +241,23 @@ class Observations(GraphQLTable):
         )
         parser_create.add_argument("suspect", type=bool, help="status of the observation")
         parser_create.add_argument("comment", type=str, help="any comment on the observation")
+
+        parser_update = subs.add_parser("update", help="create a new observation")
+        parser_update.add_argument("id", type=int, help="database id of the existing observation")
+        parser_update.add_argument("target", type=int, help="target id of the observation")
+        parser_update.add_argument("calibration", type=int, help="calibration id of the observation")
+        parser_update.add_argument("telescope", type=int, help="telescope id of the observation")
+        parser_update.add_argument("instrument_config", type=int, help="instrument config id of the observation")
+        parser_update.add_argument("project", type=int, help="project id of the observation")
+        parser_update.add_argument("config", type=str, help="json config of the observation")
+        parser_update.add_argument("utc", type=str, help="start utc of the observation")
+        parser_update.add_argument("duration", type=float, help="duration of the observation in seconds")
+        parser_update.add_argument("nant", type=int, help="number of antennas used during the observation")
+        parser_update.add_argument(
+            "nanteff", type=int, help="effective number of antennas used during the observation"
+        )
+        parser_update.add_argument("suspect", type=bool, help="status of the observation")
+        parser_update.add_argument("comment", type=str, help="any comment on the observation")
 
 
 if __name__ == "__main__":

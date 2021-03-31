@@ -25,7 +25,7 @@ def test_cli_pipeline_create_with_token(client, creator, args, jwt_token):
     args.name = "updated"
     args.description = "updated"
     args.revision = "updated"
-    args.created_at = "2000-01-01T00:00:00+0000"
+    args.created_at = "2000-01-01T00:00:00+00:00"
     args.created_by = "updated"
     args.configuration = '{"foo":"bar"}'
 
@@ -51,9 +51,9 @@ def test_cli_pipeline_update_with_token(client, creator, args, jwt_token):
     args.name = "updated"
     args.description = "updated"
     args.revision = "updated"
-    args.created_at = "updated"
+    args.created_at = "2000-01-01T00:00:01+00:00"
     args.created_by = "updated"
-    args.configuration = "updated"
+    args.configuration = '{"foo":"updated"}'
 
     t = CliPipelines(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -61,8 +61,16 @@ def test_cli_pipeline_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updatePipeline":{"pipeline":{"id":"'
-        + str(pipeline.id).encode("utf-8")
-        + b'","name":"updated","description":"updated","revision":"updated","created_at":"updated","created_by":"updated","configuration":"updated"}}}}'
+        '{"data":{"updatePipeline":{"pipeline":{'
+        + '"id":"'
+        + str(pipeline.id)
+        + '",'
+        + '"name":"updated",'
+        + '"description":"updated",'
+        + '"revision":"updated",'
+        + '"createdAt":"2000-01-01T00:00:01+00:00",'
+        + '"createdBy":"updated",'
+        + '"configuration":"{\'foo\': \'updated\'}"}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

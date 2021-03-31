@@ -40,11 +40,20 @@ class Processings(GraphQLTable):
             }) {
                 processing {
                     id
+                    observation { id },
+                    pipeline { id },
+                    parent { id },
+                    location,
+                    embargoEnd,
+                    jobState,
+                    jobOutput,
+                    results
                 }
             }
         }       """
         self.field_names = [
             "id",
+            "observation { id }",
             "pipeline { name }",
             "parent { id }",
             "location",
@@ -55,6 +64,7 @@ class Processings(GraphQLTable):
         ]
         self.literal_field_names = [
             "id",
+            "observation { id }",
             "pipeline { id }",
             "parent { id } ",
             "location",
@@ -131,10 +141,10 @@ class Processings(GraphQLTable):
         parser_create.add_argument(
             "embargo_end", type=str, help="end of embargo of the processing (YYYY-MM-DDTHH:MM:SS+0000)"
         )
-        parser_create.add_argument("location", type=str, help="location (on disk) of the processing)")
-        parser_create.add_argument("job_state", type=str, help="JSON with the state of the processing)")
-        parser_create.add_argument("job_output", type=str, help="JSON with output of the processing)")
-        parser_create.add_argument("results", type=str, help="JSON with results of the processing)")
+        parser_create.add_argument("location", type=str, help="location (on disk) of the processing")
+        parser_create.add_argument("job_state", type=str, help="JSON with the state of the processing")
+        parser_create.add_argument("job_output", type=str, help="JSON with output of the processing")
+        parser_create.add_argument("results", type=str, help="JSON with results of the processing")
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update the values of an existing processing")
@@ -145,10 +155,10 @@ class Processings(GraphQLTable):
         parser_update.add_argument(
             "embargo_end", type=str, help="end of embargo of the processing (YYYY-MM-DDTHH:MM:SS+0000)"
         )
-        parser_update.add_argument("location", type=str, help="location (on disk) of the processing)")
-        parser_update.add_argument("job_state", type=str, help="JSON with the state of the processing)")
-        parser_update.add_argument("job_output", type=str, help="JSON with output of the processing)")
-        parser_update.add_argument("results", type=str, help="JSON with results of the processing)")
+        parser_update.add_argument("location", type=str, help="location (on disk) of the processing")
+        parser_update.add_argument("job_state", type=str, help="JSON with the state of the processing")
+        parser_update.add_argument("job_output", type=str, help="JSON with output of the processing")
+        parser_update.add_argument("results", type=str, help="JSON with results of the processing")
 
 
 if __name__ == "__main__":

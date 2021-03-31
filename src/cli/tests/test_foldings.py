@@ -48,17 +48,19 @@ def test_cli_folding_update_with_token(client, creator, args, jwt_token):
 
     # first create a record
     folding = baker.make("dataportal.Foldings")
+    processing = baker.make("dataportal.Processings")
+    ephemeris = baker.make("dataportal.Ephemerides")
 
     # then update the record we just created
     args.subcommand = "update"
     args.id = folding.id
-    args.processing = "updated"
-    args.eph = "updated"
-    args.nbin = "updated"
-    args.npol = "updated"
-    args.nchan = "updated"
-    args.dm = "updated"
-    args.tsubint = "updated"
+    args.processing = processing.id
+    args.eph = ephemeris.id
+    args.nbin = 1025
+    args.npol = 5
+    args.nchan = 1023
+    args.dm = 13.13
+    args.tsubint = 0.1234
 
     t = CliFoldings(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -66,8 +68,30 @@ def test_cli_folding_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updateFolding":{"folding":{"id":"'
-        + str(folding.id).encode("utf-8")
-        + b'","processing":"updated","eph":"updated","nbin":"updated","npol":"updated","nchan":"updated","dm":"updated","tsubint":"updated"}}}}'
+        '{"data":{"updateFolding":{"folding":{"id":"'
+        + str(folding.id)
+        + '",'
+        + '"processing":{"id":"'
+        + t.encode_table_id("Processings", args.processing)
+        + '"},'
+        + '"foldingEphemeris":{"id":"'
+        + t.encode_table_id("Ephemerides", args.eph)
+        + '"},'
+        + '"nbin":'
+        + str(args.nbin)
+        + ','
+        + '"npol":'
+        + str(args.npol)
+        + ','
+        + '"nchan":'
+        + str(args.nchan)
+        + ','
+        + '"dm":'
+        + str(args.dm)
+        + ','
+        + '"tsubint":'
+        + str(args.tsubint)
+        + '}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

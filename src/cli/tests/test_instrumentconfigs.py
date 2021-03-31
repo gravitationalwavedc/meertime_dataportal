@@ -28,7 +28,7 @@ def test_cli_instrumentconfig_create_with_token(client, creator, args, jwt_token
     args.bandwidth = 800.0
     args.nchan = 1024
     args.npol = 2
-    args.beam = 1
+    args.beam = "1"
 
     t = CliInstrumentconfigs(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -50,11 +50,11 @@ def test_cli_instrumentconfig_update_with_token(client, creator, args, jwt_token
     args.subcommand = "update"
     args.id = instrumentconfig.id
     args.name = "updated"
-    args.frequency = "updated"
-    args.bandwidth = "updated"
-    args.nchan = "updated"
-    args.npol = "updated"
-    args.beam = "updated"
+    args.frequency = 2345.2345
+    args.bandwidth = 801.0
+    args.nchan = 1025
+    args.npol = 3
+    args.beam = "2"
 
     t = CliInstrumentconfigs(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -62,8 +62,27 @@ def test_cli_instrumentconfig_update_with_token(client, creator, args, jwt_token
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updateInstrumentconfig":{"instrumentconfig":{"id":"'
-        + str(instrumentconfig.id).encode("utf-8")
-        + b'","name":"updated","frequency":"updated","bandwidth":"updated","nchan":"updated","npol":"updated","beam":"updated"}}}}'
+        '{"data":{"updateInstrumentconfig":{"instrumentconfig":{"id":"'
+        + str(instrumentconfig.id)
+        + '",'
+        + '"name":"'
+        + args.name
+        + '",'
+        + '"bandwidth":'
+        + str(args.bandwidth)
+        + ','
+        + '"frequency":'
+        + str(args.frequency)
+        + ','
+        + '"nchan":'
+        + str(args.nchan)
+        + ','
+        + '"npol":'
+        + str(args.npol)
+        + ','
+        + '"beam":"'
+        + args.beam
+        + '"}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

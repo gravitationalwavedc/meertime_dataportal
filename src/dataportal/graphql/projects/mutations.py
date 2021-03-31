@@ -22,5 +22,27 @@ class CreateProject(graphene.Mutation):
         return CreateProject(project=_project)
 
 
+class UpdateProject(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        input = ProjectsInput(required=True)
+
+    project = graphene.Field(ProjectsType)
+
+    @classmethod
+    @permission_required("dataportal.add_projects")
+    def mutate(cls, self, info, id, input):
+        _project = Projects.objects.get(pk=id)
+        if _project:
+            _project.code = input.code
+            _project.short = input.short
+            _project.embargo_period = timedelta(days=input.embargo_period)
+            _project.description = input.description
+            _project.save()
+            return UpdateProject(project=_project)
+        return UpdateProject(project=None)
+
+
 class Mutation(graphene.ObjectType):
     create_project = CreateProject.Field()
+    update_project = UpdateProject.Field()

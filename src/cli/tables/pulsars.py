@@ -63,7 +63,7 @@ class Pulsars(GraphQLTable):
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create(args.jname, args.state, args.comment)
+            return self.create(args.jname, args.state, args.comment)
         elif args.subcommand == "update":
             self.update_variables = {"id": args.id, "jname": args.jname, "state": args.state, "comment": args.comment}
             return self.update_graphql()

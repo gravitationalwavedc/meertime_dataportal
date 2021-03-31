@@ -20,6 +20,19 @@ class Telescopes(GraphQLTable):
         }
         """
 
+        self.update_mutation = """
+        mutation ($id: Int!, $name: String!) {
+            updateTelescope(id: $id, input: {
+                name: $name,
+                }) {
+                telescope {
+                    id,
+                    name
+                 }
+            }
+        }
+        """
+
         self.field_names = ["id", "name"]
 
     def list_graphql(self, id, name):
@@ -44,10 +57,16 @@ class Telescopes(GraphQLTable):
         self.create_variables = {"name": name}
         return self.create_graphql()
 
+    def update(self, id, name):
+        self.update_variables = {"id": id, "name": name}
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create(args.name)
+            return self.create(args.name)
+        if args.subcommand == "update":
+            return self.update(args.id, args.name)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name)
 
@@ -74,6 +93,11 @@ class Telescopes(GraphQLTable):
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new telescope")
         parser_create.add_argument("name", type=str, help="name of the telescope")
+
+        # create the parser for the "update" command
+        parser_update = subs.add_parser("update", help="update an existing telescope")
+        parser_update.add_argument("id", type=int, help="database id of an existing telescope")
+        parser_update.add_argument("name", type=str, help="name of the telescope")
 
 
 if __name__ == "__main__":

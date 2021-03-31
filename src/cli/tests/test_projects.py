@@ -48,7 +48,7 @@ def test_cli_project_update_with_token(client, creator, args, jwt_token):
     args.id = project.id
     args.code = "updated"
     args.short = "updated"
-    args.embargo_period = "updated"
+    args.embargo_period = 1801
     args.description = "updated"
 
     t = CliProjects(client, "/graphql/", jwt_token)
@@ -57,8 +57,22 @@ def test_cli_project_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updateProject":{"project":{"id":"'
-        + str(project.id).encode("utf-8")
-        + b'","code":"updated","short":"updated","embargo_period":"updated","description":"updated"}}}}'
+        '{"data":{"updateProject":{"project":{'
+        + '"id":"'
+        + str(project.id)
+        + '",'
+        + '"code":"'
+        + args.code
+        + '",'
+        + '"short":"'
+        + args.short
+        + '",'
+        + '"embargoPeriod":"'
+        + str(args.embargo_period)
+        + ' days, 0:00:00",'
+        + '"description":"'
+        + args.description
+        + '"}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

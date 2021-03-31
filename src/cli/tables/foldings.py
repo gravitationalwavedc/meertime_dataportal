@@ -38,6 +38,8 @@ class Foldings(GraphQLTable):
             }) {
                 folding {
                     id,
+                    processing { id },
+                    foldingEphemeris { id },
                     nbin,
                     npol,
                     nchan,
@@ -47,7 +49,16 @@ class Foldings(GraphQLTable):
             }
         }
         """
-        self.field_names = ["id", "foldingEphemeris { id }", "nbin", "npol", "nchan", "dm", "tsubint"]
+        self.field_names = [
+            "id",
+            "processing { id }",
+            "foldingEphemeris { id }",
+            "nbin",
+            "npol",
+            "nchan",
+            "dm",
+            "tsubint",
+        ]
 
     def list_graphql(self, id):
         if id is not None:

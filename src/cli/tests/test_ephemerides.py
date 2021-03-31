@@ -32,8 +32,8 @@ def test_cli_ephemeris_create_with_token(client, creator, args, jwt_token):
     args.dm = 32.32
     args.rm = 0.0
     args.comment = "updated"
-    args.valid_from = "2000-01-01T00:00:00+0000"
-    args.valid_to = "2001-01-01T00:00:00+0000"
+    args.valid_from = "2000-01-01T00:00:00+00:00"
+    args.valid_to = "2001-01-01T00:00:01+00:00"
 
     t = CliEphemerides(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -45,22 +45,26 @@ def test_cli_ephemeris_create_with_token(client, creator, args, jwt_token):
     assert compiled_pattern.match(response.content)
 
 
-def test_cli_ephemeris_update_with_token(client, creator, args, jwt_token):
+def test_cli_ephemeris_update_with_token(client, creator, args, jwt_token, debug_log):
     assert creator.has_perm("dataportal.add_ephemerides")
 
     # first create a record
-    ephemeride = baker.make("dataportal.Ephemerides")
+    ephemeris = baker.make("dataportal.Ephemerides")
+    pulsar = baker.make("dataportal.Pulsars")
 
     # then update the record we just created
     args.subcommand = "update"
-    args.id = ephemeride.id
-    args.pulsar = "updated"
+    args.id = ephemeris.id
+    args.pulsar = pulsar.id
+    args.created_at = "2000-01-01T00:00:01+00:00"
     args.created_by = "updated"
-    args.ephemeris = "updated"
-    args.p0 = "updated"
-    args.dm = "updated"
-    args.rm = "updated"
+    args.ephemeris = '{"F0": "2345.6" }'
+    args.p0 = 13.13
+    args.dm = 32.32
+    args.rm = 0.1
     args.comment = "updated"
+    args.valid_from = "2000-01-01T00:00:01+00:00"
+    args.valid_to = "2001-01-01T00:00:02+00:00"
 
     t = CliEphemerides(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -68,8 +72,39 @@ def test_cli_ephemeris_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updateEphemeride":{"ephemeride":{"id":"'
-        + str(ephemeride.id).encode("utf-8")
-        + b'","pulsar":"updated","created_by":"updated","ephemeris":"updated","p0":"updated","dm":"updated","rm":"updated","comment":"updated"}}}}'
+        '{"data":{"updateEphemeris":{"ephemeris":{'
+        + '"id":"'
+        + str(ephemeris.id)
+        + '",'
+        + '"pulsar":{"id":"'
+        + t.encode_table_id("Pulsars", args.pulsar)
+        + '"},'
+        + '"createdAt":"'
+        + args.created_at
+        + '",'
+        + '"createdBy":"'
+        + args.created_by
+        + '",'
+        + '"ephemeris":"'
+        + "{\'F0\': \'2345.6\'}\","
+        + '"p0":'
+        + str(args.p0)
+        + ','
+        + '"dm":'
+        + str(args.dm)
+        + ','
+        + '"rm":'
+        + str(args.rm)
+        + ','
+        + '"comment":"'
+        + args.comment
+        + '",'
+        + '"validFrom":"'
+        + args.valid_from
+        + '",'
+        + '"validTo":"'
+        + args.valid_to
+        + '"}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

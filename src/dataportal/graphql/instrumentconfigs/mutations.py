@@ -26,7 +26,7 @@ class UpdateInstrumentconfig(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_instrumentconfigs")
     def mutate(cls, self, info, id, input):
-        _instrumentconfig, _ = Instrumentconfigs.objects.get(id)
+        _instrumentconfig = Instrumentconfigs.objects.get(pk=id)
         if _instrumentconfig:
             for key, val in input.__dict__.items():
                 setattr(_instrumentconfig, key, val)

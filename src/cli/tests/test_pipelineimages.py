@@ -1,5 +1,7 @@
 import re
 from model_bakery import baker
+from datetime import datetime
+from dataportal.storage import get_upload_location
 from cli.tests.helpers import *
 from cli.tables.pipelineimages import Pipelineimages as CliPipelineimages
 
@@ -21,7 +23,10 @@ def test_cli_pipelineimage_create_with_token(client, creator, args, jwt_token):
     assert creator.has_perm("dataportal.add_pipelineimages")
 
     processing = baker.make(
-        "dataportal.Processings", observation__target__name="test", observation__instrument_config__beam="test",
+        "dataportal.Processings",
+        observation__telescope__name="test",
+        observation__target__name="test",
+        observation__instrument_config__beam="test",
     )
 
     args.subcommand = "create"
@@ -40,17 +45,26 @@ def test_cli_pipelineimage_create_with_token(client, creator, args, jwt_token):
     assert compiled_pattern.match(response.content)
 
 
-def test_cli_pipelineimage_update_with_token(client, creator, args, jwt_token):
+def test_cli_pipelineimage_update_with_token(client, creator, args, jwt_token, debug_log):
     assert creator.has_perm("dataportal.add_pipelineimages")
 
     # first create a record
-    pipelineimage = baker.make("dataportal.Pipelineimages")
+    pipelineimage = baker.make(
+        "dataportal.Pipelineimages",
+        image_type="updated",
+        processing__observation__telescope__name="test",
+        processing__observation__target__name="test",
+        processing__observation__instrument_config__beam="test",
+        processing__observation__utc_start=datetime.strptime("2020-10-10-10:10:10", "%Y-%m-%d-%H:%M:%S"),
+    )
 
     # then update the record we just created
     args.subcommand = "update"
     args.id = pipelineimage.id
-    args.processing_id = "updated"
-    args.image = "updated"
+    args.image = __file__
+    args.image_type = "updated"
+    args.rank = 100
+    args.processing_id = pipelineimage.processing_id
 
     t = CliPipelineimages(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -58,8 +72,22 @@ def test_cli_pipelineimage_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updatePipelineimage":{"pipelineimage":{"id":"'
-        + str(pipelineimage.id).encode("utf-8")
-        + b'","processing_id":"updated","image":"updated"}}}}'
+        '{"data":{"updatePipelineimage":{"pipelineimage":{'
+        + '"id":"'
+        + str(pipelineimage.id)
+        + '",'
+        + '"image":"'
+        + get_upload_location(pipelineimage, "updated.png")
+        + '",'
+        + '"imageType":"'
+        + args.image_type
+        + '",'
+        + '"processing":{"id":"'
+        + t.encode_table_id("Processings", args.processing_id)
+        + '"},'
+        + '"rank":'
+        + str(args.rank)
+        + '}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

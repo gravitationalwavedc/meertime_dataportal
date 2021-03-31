@@ -46,16 +46,17 @@ def test_cli_filterbanking_update_with_token(client, creator, args, jwt_token):
 
     # first create a record
     filterbanking = baker.make("dataportal.Filterbankings")
+    processing = baker.make("dataportal.Processings")
 
     # then update the record we just created
     args.subcommand = "update"
     args.id = filterbanking.id
-    args.processing = "updated"
-    args.nbit = "updated"
-    args.npol = "updated"
-    args.nchan = "updated"
-    args.dm = "updated"
-    args.tsamp = "updated"
+    args.processing = processing.id
+    args.nbit = 9
+    args.npol = 3
+    args.nchan = 1025
+    args.dm = 13.13
+    args.tsamp = 0.00065
 
     t = CliFilterbankings(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -63,8 +64,27 @@ def test_cli_filterbanking_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updateFilterbanking":{"filterbanking":{"id":"'
-        + str(filterbanking.id).encode("utf-8")
-        + b'","processing":"updated","nbit":"updated","npol":"updated","nchan":"updated","dm":"updated","tsamp":"updated"}}}}'
+        '{"data":{"updateFilterbanking":{"filterbanking":{"id":"'
+        + str(filterbanking.id)
+        + '",'
+        + '"processing":{"id":"'
+        + t.encode_table_id("Processings", args.processing)
+        + '"},'
+        + '"nbit":'
+        + str(args.nbit)
+        + ','
+        + '"npol":'
+        + str(args.npol)
+        + ','
+        + '"nchan":'
+        + str(args.nchan)
+        + ','
+        + '"dm":'
+        + str(args.dm)
+        + ','
+        + '"tsamp":'
+        + str(args.tsamp)
+        + '}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

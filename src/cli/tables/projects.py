@@ -22,6 +22,25 @@ class Projects(GraphQLTable):
             }
         }
         """
+        self.update_mutation = """
+        mutation ($id: Int!, $code: String!, $short: String!, $embargoPeriod: Int!, $description: String!) {
+            updateProject(id: $id, input: {
+                code: $code,
+                short: $short,
+                embargoPeriod: $embargoPeriod,
+                description: $description
+                }) {
+                project {
+                    id,
+                    code,
+                    short,
+                    embargoPeriod,
+                    description
+                }
+            }
+        }
+        """
+
         self.field_names = ["id", "code", "short", "embargoPeriod", "description"]
 
     def list_graphql(self, id, code):
@@ -51,10 +70,22 @@ class Projects(GraphQLTable):
         }
         return self.create_graphql()
 
+    def update(self, id, code, short, embargo_period, description):
+        self.update_variables = {
+            "id": id,
+            "code": code,
+            "short": short,
+            "embargoPeriod": embargo_period,
+            "description": description,
+        }
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create(args.code, args.short, args.embargo_period, args.description)
+            return self.create(args.code, args.short, args.embargo_period, args.description)
+        elif args.subcommand == "update":
+            return self.update(args.id, args.code, args.short, args.embargo_period, args.description)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.code)
 
@@ -84,6 +115,13 @@ class Projects(GraphQLTable):
         parser_create.add_argument("short", type=str, help="short name of the project")
         parser_create.add_argument("embargo_period", type=int, help="emabrgo period of the project in days")
         parser_create.add_argument("description", type=str, help="description of the project")
+
+        parser_update = subs.add_parser("update", help="update an existing project")
+        parser_update.add_argument("id", type=int, help="database id of existing project")
+        parser_update.add_argument("code", type=str, help="code of the project")
+        parser_update.add_argument("short", type=str, help="short name of the project")
+        parser_update.add_argument("embargo_period", type=int, help="emabrgo period of the project in days")
+        parser_update.add_argument("description", type=str, help="description of the project")
 
 
 if __name__ == "__main__":

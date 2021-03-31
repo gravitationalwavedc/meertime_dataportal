@@ -13,10 +13,11 @@ def get_upload_location(instance, filename):
     returns:
     string:
     """
+    telescope = instance.processing.observation.telescope.name
     psr = instance.processing.observation.target.name
     beam = instance.processing.observation.instrument_config.beam
     utc = instance.processing.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
-    return f"{psr}/{utc}/{beam}/{filename}"
+    return f"{telescope}/{psr}/{utc}/{beam}/{filename}"
 
 
 class OverwriteStorage(FileSystemStorage):

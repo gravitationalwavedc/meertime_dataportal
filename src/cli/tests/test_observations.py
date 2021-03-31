@@ -1,4 +1,5 @@
 import re
+import logging
 from model_bakery import baker
 from cli.tests.helpers import *
 from cli.tables.observations import Observations as CliObservations
@@ -37,8 +38,8 @@ def test_cli_observation_create_with_token(client, creator, args, jwt_token):
     args.duration = 2134.5
     args.nant = 64
     args.nanteff = 64
-    args.suspect = "updated"
-    args.comment = "updated"
+    args.suspect = "suspect"
+    args.comment = "comment"
 
     t = CliObservations(client, "/graphql/", jwt_token)
     response = t.process(args)
@@ -55,20 +56,26 @@ def test_cli_observation_update_with_token(client, creator, args, jwt_token):
 
     # first create a record
     observation = baker.make("dataportal.Observations")
+    target = baker.make("dataportal.Targets")
+    calibration = baker.make("dataportal.Calibrations")
+    telescope = baker.make("dataportal.Telescopes")
+    ic = baker.make("dataportal.Instrumentconfigs")
+    project = baker.make("dataportal.Projects")
 
     # then update the record we just created
     args.subcommand = "update"
     args.id = observation.id
-    args.target = "updated"
-    args.calibration = "updated"
-    args.telescope = "updated"
-    args.instrument_config = "updated"
-    args.project = "updated"
-    args.config = "updated"
-    args.utc = "updated"
-    args.duration = "updated"
-    args.nant = "updated"
-    args.suspect = "updated"
+    args.target = target.id
+    args.calibration = calibration.id
+    args.telescope = telescope.id
+    args.instrument_config = ic.id
+    args.project = project.id
+    args.config = "{}"
+    args.utc = "2000-01-01T00:00:01+00:00"
+    args.duration = 2134.6
+    args.nant = 65
+    args.nanteff = 65
+    args.suspect = False
     args.comment = "updated"
 
     t = CliObservations(client, "/graphql/", jwt_token)
@@ -77,8 +84,46 @@ def test_cli_observation_update_with_token(client, creator, args, jwt_token):
     assert response.status_code == 200
 
     expected_content = (
-        b'{"data":{"updateObservation":{"observation":{"id":"'
-        + str(observation.id).encode("utf-8")
-        + b'","target":"updated","calibration":"updated","telescope":"updated","instrument_config":"updated","project":"updated","config":"updated","utc":"updated","duration":"updated","nant":"updated","suspect":"updated","comment":"updated"}}}}'
+        '{"data":{"updateObservation":{"observation":{'
+        + '"id":"'
+        + str(observation.id)
+        + '",'
+        + '"target":{"id":"'
+        + t.encode_table_id("Targets", args.target)
+        + '"},'
+        + '"calibration":{"id":"'
+        + t.encode_table_id("Calibrations", args.calibration)
+        + '"},'
+        + '"telescope":{"id":"'
+        + t.encode_table_id("Telescopes", args.telescope)
+        + '"},'
+        + '"instrumentConfig":{"id":"'
+        + t.encode_table_id("Instrumentconfigs", args.instrument_config)
+        + '"},'
+        + '"project":{"id":"'
+        + t.encode_table_id("Projects", args.project)
+        + '"},'
+        + '"config":"'
+        + args.config
+        + '",'
+        + '"utcStart":"'
+        + args.utc
+        + '",'
+        + '"duration":'
+        + str(args.duration)
+        + ','
+        + '"nant":'
+        + str(args.nant)
+        + ','
+        + '"nantEff":'
+        + str(args.nanteff)
+        + ','
+        + '"suspect":'
+        + str(args.suspect).lower()
+        + ','
+        + '"comment":"'
+        + args.comment
+        + '"}}}}'
     )
-    assert response.content == expected_content
+
+    assert response.content == expected_content.encode("utf-8")

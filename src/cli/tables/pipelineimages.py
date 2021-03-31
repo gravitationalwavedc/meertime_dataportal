@@ -28,6 +28,7 @@ def prepare_image(img_fn):
 class Pipelineimages(GraphQLTable):
     def __init__(self, client, url, token):
         GraphQLTable.__init__(self, client, url, token)
+        self.record_name = "pipelineimage"
 
         # create a new record
         self.create_mutation = """
@@ -35,6 +36,21 @@ class Pipelineimages(GraphQLTable):
             createPipelineimage (input: {image: $image, image_type: $image_type, processing_id: $processing_id, rank: $rank}) {
                 pipelineimage {
                     id
+                }
+            }
+        }
+        """
+
+        # udpate an existing record
+        self.update_mutation = """
+        mutation ($id: Int!, $image: String!, $image_type: String!, $processing_id: Int!, $rank: Int!) {
+            updatePipelineimage (id: $id, input: {image: $image, image_type: $image_type, processing_id: $processing_id, rank: $rank}) {
+                pipelineimage {
+                    id,
+                    image,
+                    imageType,
+                    processing {id},
+                    rank
                 }
             }
         }
@@ -52,17 +68,34 @@ class Pipelineimages(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, image, image_type, rank, processing_id):
+        prepared_image = prepare_image(image)
+        self.create_variables = {
+            "image": prepared_image,
+            "image_type": image_type,
+            "rank": rank,
+            "processing_id": processing_id,
+        }
+        return self.create_graphql()
+
+    def update(self, id, image, image_type, rank, processing_id):
+        prepared_image = prepare_image(image)
+        logging.info("prepared_image=" + str(prepared_image))
+        self.update_variables = {
+            "id": id,
+            "image": prepared_image,
+            "image_type": image_type,
+            "rank": rank,
+            "processing_id": processing_id,
+        }
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            image = prepare_image(args.image)
-            self.create_variables = {
-                "image": image,
-                "image_type": args.image_type,
-                "rank": args.rank,
-                "processing_id": args.processing_id,
-            }
-            return self.create_graphql()
+            return self.create(args.image, args.image_type, args.rank, args.processing_id)
+        elif args.subcommand == "update":
+            return self.update(args.id, args.image, args.image_type, args.rank, args.processing_id)
         elif args.subcommand == "list":
             return self.list_graphql(args.id)
 
@@ -95,6 +128,18 @@ class Pipelineimages(GraphQLTable):
             "rank", type=int, help="rank of the image, used to indicate the order of displaing the image"
         )
         parser_create.add_argument("image", type=str, help="path to the image to be uploaded")
+
+        # create the parser for the "update" command
+        parser_update = subs.add_parser("update", help="update a new pipelineimage")
+        parser_update.add_argument("id", type=id, help='database id of the existing pipeline image')
+        parser_update.add_argument(
+            "image_type", type=str, help='description of image type, e.g., "flux" or "snr" or "bandpass"'
+        )
+        parser_update.add_argument("processing_id", type=int, help="id of the related processing")
+        parser_update.add_argument(
+            "rank", type=int, help="rank of the image, used to indicate the order of displaing the image"
+        )
+        parser_update.add_argument("image", type=str, help="path to the image to be uploaded")
 
 
 if __name__ == "__main__":

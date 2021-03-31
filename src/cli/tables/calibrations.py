@@ -1,6 +1,5 @@
 import logging
 from tables.graphql_table import GraphQLTable
-from base64 import b64encode
 
 
 class Calibrations(GraphQLTable):
@@ -20,6 +19,23 @@ class Calibrations(GraphQLTable):
             }
         }
         """
+
+        # Update an existing record
+        self.update_mutation = """
+        mutation ($id: Int!, $calibration_type: String!, $location: String!) {
+           updateCalibration(id: $id, input: {
+                calibration_type: $calibration_type,
+                location: $location
+           }) {
+               calibration {
+                   id
+                   calibrationType,
+                   location
+                }
+            }
+        }
+        """
+
         self.field_names = ["id", "calibrationType", "location"]
 
     def list_graphql(self, id, type):
@@ -44,12 +60,23 @@ class Calibrations(GraphQLTable):
         self.create_variables = {"calibration_type": type, "location": location}
         return self.create_graphql()
 
+    def update(self, id, type, location):
+        self.update_variables = {"id": id, "calibration_type": type, "location": location}
+        return self.update_graphql()
+
+    def list(self, id, type):
+        return self.list_graphql(id, type)
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create(args.type, args.location)
+            return self.create(args.type, args.location)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.type)
+            return self.list(args.id, args.type)
+        elif args.subcommand == "update":
+            return self.update(args.id, args.type, args.location)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -69,12 +96,17 @@ class Calibrations(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing calibrations")
         parser_list.add_argument("--id", type=int, help="list calibrations matching the id")
-        parser_list.add_argument("--type", type=str, help="list calibrations matching the type")
+        parser_list.add_argument("--type", type=str, help="list calibrations matching the type [pre, post or none]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new calibration")
-        parser_create.add_argument("type", type=str, help="type of the calibration")
-        parser_create.add_argument("location", type=str, help="location of the calibration")
+        parser_create.add_argument("type", type=str, help="type of the calibration [pre, post or none]")
+        parser_create.add_argument("location", type=str, help="location of the calibration on the filesystem")
+
+        parser_udpate = subs.add_parser("update", help="update the values of an existing calibration")
+        parser_udpate.add_argument("id", type=int, help="database id of the calibration")
+        parser_udpate.add_argument("type", type=str, help="type of the calibration [pre, post or none]")
+        parser_udpate.add_argument("location", type=str, help="location of the calibration on the filesystem")
 
 
 if __name__ == "__main__":

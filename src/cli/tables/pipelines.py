@@ -5,6 +5,7 @@ from tables.graphql_table import GraphQLTable
 class Pipelines(GraphQLTable):
     def __init__(self, client, url, token):
         GraphQLTable.__init__(self, client, url, token)
+        self.record_name = "pipeline"
 
         # create a new record
         self.create_mutation = """

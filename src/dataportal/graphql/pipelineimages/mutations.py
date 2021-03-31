@@ -35,5 +35,29 @@ class CreatePipelineimage(graphene.Mutation):
         return CreatePipelineimage(pipelineimage=_pipeline_image)
 
 
+class UpdatePipelineimage(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+        input = PipelineimagesInput(required=True)
+
+    pipelineimage = graphene.Field(PipelineimagesType)
+
+    @classmethod
+    @permission_required("dataportal.add_pipelineimages")
+    def mutate(cls, self, info, id, input=None):
+        _pipelineimage = Pipelineimages.objects.get(pk=id)
+        if _pipelineimage:
+            _pipelineimage.processing_id = input.processing_id
+            _pipelineimage.rank = input.rank
+            _pipelineimage.image_type = input.image_type
+            if input.image:
+                image_cf = ContentFile(b64decode(input.image))
+                _pipelineimage.image.save(f"{input.image_type}.png", image_cf)
+            _pipelineimage.save()
+            return UpdatePipelineimage(pipelineimage=_pipelineimage)
+        return UpdatePipelineimage(pipelineimage=None)
+
+
 class Mutation(graphene.ObjectType):
     create_pipelineimage = CreatePipelineimage.Field()
+    update_pipelineimage = UpdatePipelineimage.Field()

@@ -65,7 +65,7 @@ class Targets(GraphQLTable):
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create(args.name, args.raj, args.decj)
+            return self.create(args.name, args.raj, args.decj)
         elif args.subcommand == "update":
             self.update_variables = {"id": args.id, "name": args.name, "raj": args.raj, "decj": args.decj}
             return self.update_graphql()
