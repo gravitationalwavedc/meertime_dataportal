@@ -42,16 +42,19 @@ class Projects(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, code, short, embargo_period, description):
+        self.create_variables = {
+            "code": code,
+            "short": short,
+            "embargoPeriod": embargo_period,
+            "description": description,
+        }
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {
-                "code": args.code,
-                "short": args.short,
-                "embargoPeriod": args.embargo_period,
-                "description": args.description,
-            }
-            return self.create_graphql()
+            self.create(args.code, args.short, args.embargo_period, args.description)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.code)
 

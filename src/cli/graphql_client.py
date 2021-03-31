@@ -1,5 +1,6 @@
 import json
 import logging
+import copy
 import requests as r
 from requests.packages.urllib3.util.retry import Retry
 
@@ -45,7 +46,11 @@ class GraphQLClient:
         """Post the payload and header to the GraphQL URL."""
         logging.debug(f"Using url: {url}")
         logging.debug(f"Using payload: {payload}")
-        logging.debug(f"Using header: {header}")
+        header_log = copy.deepcopy(header)
+        if "Authorization" in header.keys():
+            if "JWT" in header_log["Authorization"]:
+                header_log["Authorization"] = "JWT [redacted]"
+        logging.debug(f"Using header: {header_log}")
         response = self.graphql_session.post(url, headers=header, json=payload, timeout=(15, 15))
         content = json.loads(response.content)
 

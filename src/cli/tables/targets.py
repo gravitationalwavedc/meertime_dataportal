@@ -58,11 +58,14 @@ class Targets(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, name, raj, decj):
+        self.create_variables = {"name": name, "raj": raj, "decj": decj}
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {"name": args.name, "raj": args.raj, "decj": args.decj}
-            return self.create_graphql()
+            self.create(args.name, args.raj, args.decj)
         elif args.subcommand == "update":
             self.update_variables = {"id": args.id, "name": args.name, "raj": args.raj, "decj": args.decj}
             return self.update_graphql()

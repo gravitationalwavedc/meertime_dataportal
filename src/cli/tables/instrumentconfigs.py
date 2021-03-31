@@ -51,18 +51,21 @@ class Instrumentconfigs(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, name, bandwidth, frequency, nchan, npol, beam):
+        self.create_variables = {
+            "name": name,
+            "bandwidth": bandwidth,
+            "frequency": frequency,
+            "nchan": nchan,
+            "npol": npol,
+            "beam": beam,
+        }
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {
-                "name": args.name,
-                "bandwidth": args.bandwidth,
-                "frequency": args.frequency,
-                "nchan": args.nchan,
-                "npol": args.npol,
-                "beam": args.beam,
-            }
-            return self.create_graphql()
+            self.create(args.name, args.bandwidth, args.frequency, args.nchan, args.npol, args.beam)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name, args.beam)
 

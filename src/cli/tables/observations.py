@@ -71,24 +71,54 @@ class Observations(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(
+        self,
+        target,
+        calibration,
+        telescope,
+        instrument_config,
+        project,
+        config,
+        utc,
+        duration,
+        nant,
+        nanteff,
+        suspect,
+        comment,
+    ):
+        self.create_variables = {
+            "target": target,
+            "calibration": calibration,
+            "telescope": telescope,
+            "instrument_config": instrument_config,
+            "project": project,
+            "config": config,
+            "utc_start": utc,
+            "duration": duration,
+            "nant": nant,
+            "nant_eff": nanteff,
+            "suspect": suspect,
+            "comment": comment,
+        }
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {
-                "target": args.target,
-                "calibration": args.calibration,
-                "telescope": args.telescope,
-                "instrument_config": args.instrument_config,
-                "project": args.project,
-                "config": args.config,
-                "utc_start": args.utc,
-                "duration": args.duration,
-                "nant": args.nant,
-                "nant_eff": args.nanteff,
-                "suspect": args.suspect,
-                "comment": args.comment,
-            }
-            return self.create_graphql()
+            self.create(
+                args.target,
+                args.calibration,
+                args.telescope,
+                args.instrument_config,
+                args.project,
+                args.config,
+                args.utc,
+                args.duration,
+                args.nant,
+                args.nanteff,
+                args.suspect,
+                args.comment,
+            )
         elif args.subcommand == "list":
             return self.list_graphql(args.id)
 

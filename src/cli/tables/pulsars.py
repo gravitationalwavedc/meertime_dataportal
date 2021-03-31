@@ -56,11 +56,14 @@ class Pulsars(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, jname, state, comment):
+        self.create_variables = {"jname": jname, "state": state, "comment": comment}
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {"jname": args.jname, "state": args.state, "comment": args.comment}
-            return self.create_graphql()
+            self.create(args.jname, args.state, args.comment)
         elif args.subcommand == "update":
             self.update_variables = {"id": args.id, "jname": args.jname, "state": args.state, "comment": args.comment}
             return self.update_graphql()

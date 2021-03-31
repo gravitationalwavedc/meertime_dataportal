@@ -40,11 +40,14 @@ class Calibrations(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, type, location):
+        self.create_variables = {"calibration_type": type, "location": location}
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {"calibration_type": args.type, "location": args.location}
-            return self.create_graphql()
+            self.create(args.type, args.location)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.type)
 

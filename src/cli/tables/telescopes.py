@@ -40,11 +40,14 @@ class Telescopes(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, name):
+        self.create_variables = {"name": name}
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {"name": args.name}
-            return self.create_graphql()
+            self.create(args.name)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name)
 
