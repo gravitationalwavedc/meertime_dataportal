@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+
 import logging
-import sys
+from os import environ
 
 from tables.basebandings import Basebandings
 from tables.calibrations import Calibrations
@@ -27,7 +29,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="")
     parser.add_argument("-t", "--token", nargs=1, help="JWT token")
-    parser.add_argument("-u", "--url", nargs=1, default=["http://127.0.0.1:8000/graphql/",], help="GraphQL URL")
+    parser.add_argument("-u", "--url", nargs=1, default=[environ.get("PSRDB_URL"),], help="GraphQL URL")
     parser.add_argument(
         "-l",
         "--literal",
@@ -75,6 +77,9 @@ if __name__ == "__main__":
         logging.basicConfig(format=format, level=logging.DEBUG)
     else:
         logging.basicConfig(format=format, level=logging.INFO)
+
+    if args.url[0] is None:
+        raise RuntimeError("GraphQL URL must be provided in $PSRDB_URL or via -u option")
 
     for c in configured:
         if args.command == c["name"]:
