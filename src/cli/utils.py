@@ -1,5 +1,6 @@
 import argparse
 import json
+from os import environ
 
 
 jwt_mutation = """
@@ -55,11 +56,23 @@ def obtain_default_args():
     return args
 
 
-def obtain_psrdb_subparser():
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-t", "--token", nargs=1, help="JWT token")
-    parser.add_argument("-u", "--url", nargs=1, default="http://127.0.0.1:8000/graphql/", help="GraphQL URL")
+def obtain_psrdb_parser(desc=""):
+    parser = argparse.ArgumentParser(description=desc)
+    parser.add_argument("-t", "--token", nargs=1, default=environ.get("PSRDB_TOKEN"), help="JWT token")
+    parser.add_argument("-u", "--url", nargs=1, default=environ.get("PSRDB_URL"), help="GraphQL URL")
+    parser.add_argument(
+        "-l",
+        "--literal",
+        action="store_true",
+        default=False,
+        help="Return literal IDs in tables instead of more human readable text",
+    )
     parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
     parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
+    return parser
+
+
+def obtain_psrdb_subparser():
+    parser = obtain_psrdb_parser()
     subparser = parser.add_subparsers(dest='command', required=True, help='Database models which can be interrogated')
     return subparser

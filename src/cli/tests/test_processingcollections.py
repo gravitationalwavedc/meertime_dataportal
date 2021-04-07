@@ -13,7 +13,7 @@ def test_cli_processingcollection_list_with_token(client, creator, args, jwt_tok
     response = t.process(args)
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"allProcessingcollections":{"edges":\[*\]}}}'
+    expected_content_pattern = b'{"data":{"allProcessingcollections":{"edges":\\[*\\]}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 
@@ -33,7 +33,7 @@ def test_cli_processingcollection_create_with_token(client, creator, args, jwt_t
 
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"createProcessingcollection":{"processingcollection":{"id":"\d+"}}}}'
+    expected_content_pattern = b'{"data":{"createProcessingcollection":{"processingcollection":{"id":"\\d+"}}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 

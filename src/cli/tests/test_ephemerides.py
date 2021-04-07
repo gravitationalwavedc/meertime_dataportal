@@ -13,7 +13,7 @@ def test_cli_ephemeris_list_with_token(client, creator, args, jwt_token):
     response = t.process(args)
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"allEphemerides":{"edges":\[*\]}}}'
+    expected_content_pattern = b'{"data":{"allEphemerides":{"edges":\\[*\\]}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 
@@ -40,7 +40,7 @@ def test_cli_ephemeris_create_with_token(client, creator, args, jwt_token):
 
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"createEphemeris":{"ephemeris":{"id":"\d+"}}}}'
+    expected_content_pattern = b'{"data":{"createEphemeris":{"ephemeris":{"id":"\\d+"}}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 

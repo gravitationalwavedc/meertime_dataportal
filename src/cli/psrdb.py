@@ -3,65 +3,35 @@
 import logging
 from os import environ
 
-from tables.basebandings import Basebandings
-from tables.calibrations import Calibrations
-from tables.collections import Collections
-from tables.ephemerides import Ephemerides
-from tables.foldings import Foldings
-from tables.filterbankings import Filterbankings
-from tables.instrumentconfigs import Instrumentconfigs
-from tables.launches import Launches
-from tables.observations import Observations
-from tables.pipelineimages import Pipelineimages
-from tables.pipelines import Pipelines
-from tables.processingcollections import Processingcollections
-from tables.processings import Processings
-from tables.projects import Projects
-from tables.pulsars import Pulsars
-from tables.pulsartargets import Pulsartargets
-from tables.targets import Targets
-from tables.telescopes import Telescopes
+import tables
+from tables.graphql_table import GraphQLTable
 from graphql_client import GraphQLClient
 
 if __name__ == "__main__":
 
-    import argparse
-
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-t", "--token", nargs=1, help="JWT token")
-    parser.add_argument("-u", "--url", nargs=1, default=[environ.get("PSRDB_URL"),], help="GraphQL URL")
-    parser.add_argument(
-        "-l",
-        "--literal",
-        action="store_true",
-        default=False,
-        help="Return literal IDs in tables instead of more human readable text",
-    )
-    parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
-    parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
-
+    parser = GraphQLTable.get_default_parser()
     subparsers = parser.add_subparsers(dest="command", help="Database models which can be interrogated")
     subparsers.required = True
 
     tables = [
-        Basebandings,
-        Calibrations,
-        Collections,
-        Ephemerides,
-        Filterbankings,
-        Foldings,
-        Instrumentconfigs,
-        Launches,
-        Observations,
-        Processingcollections,
-        Processings,
-        Projects,
-        Pulsars,
-        Pulsartargets,
-        Pipelineimages,
-        Pipelines,
-        Telescopes,
-        Targets,
+        tables.Basebandings,
+        tables.Calibrations,
+        tables.Collections,
+        tables.Ephemerides,
+        tables.Filterbankings,
+        tables.Foldings,
+        tables.Instrumentconfigs,
+        tables.Launches,
+        tables.Observations,
+        tables.Processingcollections,
+        tables.Processings,
+        tables.Projects,
+        tables.Pulsars,
+        tables.Pulsartargets,
+        tables.Pipelineimages,
+        tables.Pipelines,
+        tables.Telescopes,
+        tables.Targets,
     ]
     configured = []
     for t in tables:
@@ -71,20 +41,12 @@ if __name__ == "__main__":
         configured.append({"name": n, "parser": p, "table": t})
 
     args = parser.parse_args()
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-    if args.verbose:
-        logging.basicConfig(format=format, level=logging.DEBUG)
-    else:
-        logging.basicConfig(format=format, level=logging.INFO)
-
-    if args.url[0] is None:
-        raise RuntimeError("GraphQL URL must be provided in $PSRDB_URL or via -u option")
+    GraphQLTable.configure_logging(args)
 
     for c in configured:
         if args.command == c["name"]:
-            client = GraphQLClient(args.url[0], args.very_verbose)
-            table = c["table"](client, args.url[0], args.token[0])
+            client = GraphQLClient(args.url, args.very_verbose)
+            table = c["table"](client, args.url, args.token)
             table.set_literal(args.literal)
             response = table.process(args)
             if args.verbose or args.very_verbose:

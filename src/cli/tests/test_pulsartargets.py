@@ -13,7 +13,7 @@ def test_cli_pulsartarget_list_with_token(client, creator, args, jwt_token):
     response = t.process(args)
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"allPulsartargets":{"edges":\[*\]}}}'
+    expected_content_pattern = b'{"data":{"allPulsartargets":{"edges":\\[*\\]}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 
@@ -33,7 +33,7 @@ def test_cli_pulsartarget_create_with_token(client, creator, args, jwt_token):
 
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"createPulsartarget":{"pulsartarget":{"id":"\d+"}}}}'
+    expected_content_pattern = b'{"data":{"createPulsartarget":{"pulsartarget":{"id":"\\d+"}}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 

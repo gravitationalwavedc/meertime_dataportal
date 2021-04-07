@@ -13,7 +13,7 @@ def test_cli_collection_list_with_token(client, creator, args, jwt_token):
     response = t.process(args)
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"allCollections":{"edges":\[*\]}}}'
+    expected_content_pattern = b'{"data":{"allCollections":{"edges":\\[*\\]}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 
@@ -30,7 +30,7 @@ def test_cli_collection_create_with_token(client, creator, args, jwt_token):
 
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"createCollection":{"collection":{"id":"\d+"}}}}'
+    expected_content_pattern = b'{"data":{"createCollection":{"collection":{"id":"\\d+"}}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 

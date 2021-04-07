@@ -13,7 +13,7 @@ def test_cli_basebanding_list_with_token(client, creator, args, jwt_token):
     response = t.process(args)
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"allBasebandings":{"edges":\[*\]}}}'
+    expected_content_pattern = b'{"data":{"allBasebandings":{"edges":\\[*\\]}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 
@@ -30,7 +30,7 @@ def test_cli_basebanding_create_with_token(client, creator, args, jwt_token):
 
     assert response.status_code == 200
 
-    expected_content_pattern = b'{"data":{"createBasebanding":{"basebanding":{"id":"\d+"}}}}'
+    expected_content_pattern = b'{"data":{"createBasebanding":{"basebanding":{"id":"\\d+"}}}}'
     compiled_pattern = re.compile(expected_content_pattern)
     assert compiled_pattern.match(response.content)
 

@@ -5,8 +5,6 @@ from base64 import b64decode, b64encode
 import binascii
 from graphql_client import GraphQLClient
 
-log = logging.getLogger(__name__)
-
 
 class GraphQLTable:
     """Abstract base class to perform create, update and select GraphQL queries"""
@@ -235,3 +233,35 @@ class GraphQLTable:
             self.print_record_set_values(record_set, delim)
         else:
             raise RuntimeError("did not understand type of recordset")
+
+    @classmethod
+    def get_default_parser(cls, desc=""):
+        from argparse import ArgumentParser
+        from os import environ
+
+        parser = ArgumentParser(description=desc)
+        parser.add_argument("-t", "--token", nargs=1, default=environ.get("PSRDB_TOKEN"), help="JWT token")
+        parser.add_argument("-u", "--url", nargs=1, default=environ.get("PSRDB_URL"), help="GraphQL URL")
+        parser.add_argument(
+            "-l",
+            "--literal",
+            action="store_true",
+            default=False,
+            help="Return literal IDs in tables instead of more human readable text",
+        )
+        parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
+        parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
+        return parser
+
+    @classmethod
+    def configure_logging(cls, args):
+        format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        if args.verbose or args.very_verbose:
+            logging.basicConfig(format=format, level=logging.DEBUG)
+        else:
+            logging.basicConfig(format=format, level=logging.INFO)
+
+        if args.url is None:
+            raise RuntimeError("GraphQL URL must be provided in $PSRDB_URL or via -u option")
+        if args.token is None:
+            raise RuntimeError("GraphQL Token must be provided in $PSRDB_TOKEN or via -t option")

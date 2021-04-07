@@ -1,4 +1,3 @@
-import logging
 from tables.graphql_table import GraphQLTable
 
 
@@ -79,6 +78,13 @@ class Pulsars(GraphQLTable):
         return "A pulsar source defined by a J2000 name"
 
     @classmethod
+    def get_parsers(cls):
+        """ Returns the default parser for this model"""
+        parser = GraphQLTable.get_default_parser("Pulsars model parser")
+        cls.configure_parsers(parser)
+        return parser
+
+    @classmethod
     def configure_parsers(cls, parser):
         """Add sub-parsers for each of the valid commands."""
         parser.set_defaults(command=cls.get_name())
@@ -105,25 +111,15 @@ class Pulsars(GraphQLTable):
 
 
 if __name__ == "__main__":
-    import argparse
 
-    parser = argparse.ArgumentParser(description="")
-    parser.add_argument("-t", "--token", nargs=1, help="JWT token")
-    parser.add_argument("-u", "--url", nargs=1, default="http://127.0.0.1:8000/graphql/", help="GraphQL URL")
-    parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
-    parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
-
-    Pulsars.configure_parsers(parser)
+    parser = Pulsars.get_parsers()
     args = parser.parse_args()
 
-    format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    if args.verbose:
-        logging.basicConfig(format=format, level=logging.DEBUG)
-    else:
-        logging.basicConfig(format=format, level=logging.INFO)
+    GraphQLTable.configure_logging(args)
 
-    from cli.graphql_client import GraphQLClient
+    from graphql_client import GraphQLClient
 
     client = GraphQLClient(args.url, args.very_verbose)
-    p = Pulsars(client, args.url, args.token[0])
+
+    p = Pulsars(client, args.url, args.token)
     response = p.process(args)
