@@ -86,22 +86,36 @@ class Ephemerides(GraphQLTable):
         }
         return self.update_graphql()
 
+    def create(self, pulsar, created_at, created_by, ephemeris, p0, dm, rm, comment, valid_from, valid_to):
+        self.create_variables = {
+            "pulsar": pulsar,
+            "created_at": created_at,
+            "created_by": created_by,
+            "ephemeris": ephemeris,
+            "p0": p0,
+            "dm": dm,
+            "rm": rm,
+            "comment": comment,
+            "valid_from": valid_from,
+            "valid_to": valid_to,
+        }
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {
-                "pulsar": args.pulsar,
-                "created_at": args.created_at,
-                "created_by": args.created_by,
-                "ephemeris": args.ephemeris,
-                "p0": args.p0,
-                "dm": args.dm,
-                "rm": args.rm,
-                "comment": args.comment,
-                "valid_from": args.valid_from,
-                "valid_to": args.valid_to,
-            }
-            return self.create_graphql()
+            return self.create(
+                args.pulsar,
+                args.created_at,
+                args.created_by,
+                args.ephemeris,
+                args.p0,
+                args.dm,
+                args.rm,
+                args.comment,
+                args.valid_from,
+                args.valid_to,
+            )
         elif args.subcommand == "update":
             return self.update(
                 args.id,

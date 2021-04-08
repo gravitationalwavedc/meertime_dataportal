@@ -189,7 +189,7 @@ class Pulsartargets(models.Model):
 
 
 class Pulsars(models.Model):
-    jname = models.CharField(max_length=64)
+    jname = models.CharField(max_length=64, unique=True)
     state = models.CharField(max_length=255, blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
 
@@ -239,12 +239,14 @@ class Pulsars(models.Model):
         }
 
         pulsar_proposal_filter = get_proposal_filters(prefix="pulsartargets__target__observations")
-
+        # since ingest is now done in stages, it can happen that an observation won't have the beam set properly so we need to filter empty beams not to trip up the obs_detail url lookup
+        # this can happen if an observation is created, is the latest observation, but no corresponding processing/folding was created yet
         return (
             cls.objects.values("jname", "id")
             .filter(**pulsar_proposal_filter)
             .annotate(**annotations)
             .order_by("-last")
+            .exclude(beam__isnull=True)
         )
 
 
@@ -255,13 +257,13 @@ class Rfis(models.Model):
 
 
 class Targets(models.Model):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
     raj = models.CharField(max_length=16)
     decj = models.CharField(max_length=16)
 
 
 class Telescopes(models.Model):
-    name = models.CharField(max_length=64)
+    name = models.CharField(max_length=64, unique=True)
 
 
 class Templates(models.Model):

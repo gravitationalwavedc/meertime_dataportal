@@ -83,20 +83,32 @@ class Processings(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, observation, pipeline, parent, embargo_end, location, job_state, job_output, results):
+        self.create_variables = {
+            "observation_id": observation,
+            "pipeline_id": pipeline,
+            "parent_id": parent,
+            "embargo_end": embargo_end,
+            "location": location,
+            "job_state": job_state,
+            "job_output": job_output,
+            "results": results,
+        }
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {
-                "observation_id": args.observation,
-                "pipeline_id": args.pipeline,
-                "parent_id": args.parent,
-                "embargo_end": args.embargo_end,
-                "location": args.location,
-                "job_state": args.job_state,
-                "job_output": args.job_output,
-                "results": args.results,
-            }
-            return self.create_graphql()
+            return self.create(
+                args.observation,
+                args.pipeline,
+                args.parent,
+                args.embargo_end,
+                args.location,
+                args.job_state,
+                args.job_output,
+                args.results,
+            )
         elif args.subcommand == "update":
             self.update_variables = {
                 "id": args.id,

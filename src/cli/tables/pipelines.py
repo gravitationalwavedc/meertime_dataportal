@@ -66,18 +66,23 @@ class Pipelines(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, name, description, revision, created_at, created_by, configuration):
+        self.create_variables = {
+            "name": name,
+            "description": description,
+            "revision": revision,
+            "createdAt": created_at,
+            "createdBy": created_by,
+            "configuration": configuration,
+        }
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {
-                "name": args.name,
-                "description": args.description,
-                "revision": args.revision,
-                "createdAt": args.created_at,
-                "createdBy": args.created_by,
-                "configuration": args.configuration,
-            }
-            return self.create_graphql()
+            return self.create(
+                args.name, args.description, args.revision, args.created_at, args.created_by, args.configuration,
+            )
         elif args.subcommand == "update":
             self.update_variables = {
                 "id": args.id,

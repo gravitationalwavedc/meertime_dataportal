@@ -12,6 +12,8 @@ class CreateProcessing(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_processings")
     def mutate(cls, self, info, input=None):
+        if input.parent_id == -1:
+            input.parent_id = None
         _processing, _ = Processings.objects.get_or_create(**input.__dict__)
         return CreateProcessing(processing=_processing)
 

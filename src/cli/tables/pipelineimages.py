@@ -136,7 +136,7 @@ class Pipelineimages(GraphQLTable):
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update a new pipelineimage")
-        parser_update.add_argument("id", type=id, help='database id of the existing pipeline image')
+        parser_update.add_argument("id", type=id, help="database id of the existing pipeline image")
         parser_update.add_argument(
             "image_type", type=str, help='description of image type, e.g., "flux" or "snr" or "bandpass"'
         )

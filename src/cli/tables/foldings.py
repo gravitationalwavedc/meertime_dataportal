@@ -69,19 +69,22 @@ class Foldings(GraphQLTable):
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
 
+    def create(self, processing, eph, nbin, npol, nchan, dm, tsubint):
+        self.create_variables = {
+            "processing_id": processing,
+            "folding_ephemeris_id": eph,
+            "nbin": nbin,
+            "npol": npol,
+            "nchan": nchan,
+            "dm": dm,
+            "tsubint": tsubint,
+        }
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
-            self.create_variables = {
-                "processing_id": args.processing,
-                "folding_ephemeris_id": args.eph,
-                "nbin": args.nbin,
-                "npol": args.npol,
-                "nchan": args.nchan,
-                "dm": args.dm,
-                "tsubint": args.tsubint,
-            }
-            return self.create_graphql()
+            return self.create(args.processing, args.eph, args.nbin, args.npol, args.nchan, args.dm, args.tsubint)
         elif args.subcommand == "update":
             self.update_variables = {
                 "id": args.id,
