@@ -8,4 +8,4 @@ src/.coverage
 src/.pytest_cache
 src/.env.template
 src/.env.development
-src/frontend
+node_modules

@@ -1,16 +1,19 @@
 version: "3"
 
 services:
+
   mysql:
     image: mysql:5.7.20
     container_name: meertime-mysql
+    restart: unless-stopped
+    volumes:
+      - mysql-persistent-storage:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD
       - MYSQL_DATABASE
       - MYSQL_USER
       - MYSQL_PASSWORD
-    volumes:
-      - mysql-persistent-storage:/var/lib/mysql
+
   django:
     build:
       context: .
@@ -18,20 +21,28 @@ services:
     container_name: meertime_django
     depends_on:
       - mysql
+    volumes:
+      - ./backend/static:/static
+      - ./backend/media:/media
     environment:
       - MYSQL_DATABASE
       - MYSQL_USER
       - MYSQL_PASSWORD
-      - DB_HOST=mysql
+      - DB_HOST
       - MYSQL_PORT
       - DJANGO_SECRET_KEY
       - DEBUG
       - DEVELOPMENT_MODE
-    volumes:
-      - ./src/static:/static
     command: >
-      bash -c "python manage.py collectstatic --noinput
+      bash -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput
       && gunicorn --bind=0.0.0.0:8000 meertime.wsgi:application"
+
+  react:
+    build:
+      dockerfile: ./docker/meertime_react.Dockerfile
+      context: .
+    container_name: react
+
   nginx:
     build:
       context: .
@@ -41,8 +52,11 @@ services:
     container_name: meertime_nginx
     depends_on:
       - django
+      - react_app
     volumes:
-      - ./src/nginx:/etc/nginx/conf.d
-      - ./src/static:/static
+      - ./nginx:/etc/nginx/conf.d
+      - ./backend/static:/static
+      - ./backend/media:/media
+
 volumes:
   mysql-persistent-storage:
