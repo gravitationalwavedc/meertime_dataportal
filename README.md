@@ -70,6 +70,47 @@ followed by bringing the images up:
 
 `docker-compose up`
 
+
+#### To deploy on a kubernetes cluster
+
+The whole app is designed to work in a kubernetes cluster, in particular to use the GWDC operated cluster. If desired (e.g, for local deployment for testing purposes), the k8s cluster can be easily recreated from this repository:https://github.com/gravitationalwavedc/gwc_devops
+
+Prerequisities (fulfiled by the linked k8s cluster):
+1. A hashicorp vault (for storing secrets and configuration)
+2. A sonata nexus or another repository to serve as a docker register and a raw file storage (for sql initialisation files)
+3. (Optional) Argo CD to facilitate deployment and sync with the repository
+
+##### Vault configuration
+
+The vault needs to be configured with appropriate ACL policies and roles to allow the app to read secrets but configuring this is beyond this scope of this readme. Please refer to hashicorp vault documentation. 
+
+Note that all values need to be stored as base64 encoded strings. The following secrets need to exist in the key-value store at meertime/kv path:
+1. db-config
+    1. MYSQL_DATABASE - defines the name of the DB to be used by the app
+    2. MYSQL_PASSWORD - define the password for the DB
+    3. MYSQL_UESR - define the user for the DB
+2. db-control
+    1. FORCE_RELOAD - controls if the database needs to be re-initialised using a script stored on nexus. Set to "FORCE_RELOAD" to do so
+3. dbroot
+    1. password - define root password for the MYSQL DB
+4. django-multi
+    1. DJANGO_SECRET_KEY - define the django variable with the same name
+    2. ENV - define a environment variable with the same name. Used to ensure django running k8s is configured from vault rather than .env file
+    3. KRONOS_PAYLOAD - payload for easier transition between pages
+    4. SENTRY_DSN - DSN for sentry.io (note: appears to be broken as of April 2021)
+    5. SLACK_WEBHOOK - webhook for notifications on slack when new data is added to the DB
+5. nexus/service
+    1. NEXUS_CONTROL_DIR - directory on raw file repository with mysql initialisation scripts
+    2. NEXUS_PASS - nexus password
+    3. NEXUS_URL - nexus URL
+    4. NEXUS_USER - nexus username
+
+Furthermore, the vault needs to store docker registry credentials at the nexus/kv/docker path
+
+##### Deployment
+
+We use Argo CD for deployment. Any new kubernetes manifests need to be added to kubernetes/manifests directory. Do not forget to add the manifest to kustomization.yaml as well.
+
 ### Starting the React Frontend
 The react frontend is currently only available locally while in developement.
 
