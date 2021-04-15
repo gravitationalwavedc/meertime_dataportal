@@ -212,43 +212,49 @@ def create_search_mode(
     freq,
     schedule=None,
     phaseup=None,
+    update=False,
 ):
+    if update == "false" or update == "False":
+        update = False
+
     utc, psr, proposal_obj, schedule, phaseup = get_utc_psr_proposal_schedule_phaseup(
         utc, psr, proposal, schedule, phaseup
     )
 
     sm_qs = Searchmode.objects.filter(utc=utc, pulsar=psr, beam=beam)
-    if sm_qs.count() == 0:
-        new_sm = Searchmode(
-            utc=utc,
-            pulsar=psr,
-            beam=beam,
-            ra=ra,
-            dec=dec,
-            dm=DM,
-            nbit=nbit,
-            nchan=nchan,
-            npol=npol,
-            tsamp=tsamp,
-            nant=nant,
-            nant_eff=nant_eff,
-            proposal=proposal_obj,
-            length=length,
-            bw=bw,
-            frequency=freq,
-            schedule=schedule,
-            phaseup=phaseup,
-        )
-        new_sm.save()
+    count = sm_qs.count()
+    if count == 0 or update:
+        if count == 0:
+            sm = Searchmode(utc=utc, pulsar=psr, beam=beam,)
+        else:
+            sm = sm_qs[0]
+        sm.ra = ra
+        sm.dec = dec
+        sm.dm = DM
+        sm.nbit = nbit
+        sm.nchan = nchan
+        sm.npol = npol
+        sm.tsamp = tsamp
+        sm.nant = nant
+        sm.nant_eff = nant_eff
+        sm.proposal = proposal_obj
+        sm.length = length
+        sm.bw = bw
+        sm.frequency = freq
+        sm.schedule = schedule
+        sm.phaseup = phaseup
+
+        sm.save()
         msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} saved"
         logging.info(msg)
 
-        msg = f"A searchmode observation of {psr} in beam {beam} at UTC of {utc} was just added to the portal."
-        post_to_slack_if_meertime(msg, proposal)
+        if count == 0:
+            msg = f"A searchmode observation of {psr} in beam {beam} at UTC of {utc} was just added to the portal."
+            post_to_slack_if_meertime(msg, proposal)
 
-        return new_sm
+        return sm
     else:
-        msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} already existed"
+        msg = f"Searchmode with UTC: {utc} psr: {psr} beam: {beam} already existed and update was not requested"
         logging.warning(msg)
         return None
 

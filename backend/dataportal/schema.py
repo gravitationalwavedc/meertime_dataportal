@@ -215,6 +215,7 @@ class CreateSearchmode(graphene.Mutation):
         frequency = graphene.Float()
         schedule = graphene.String()
         phaseup = graphene.String()
+        update = graphene.Boolean()
 
     searchmode = graphene.Field(SearchmodeType)
 
@@ -242,6 +243,7 @@ class CreateSearchmode(graphene.Mutation):
         frequency,
         schedule,
         phaseup,
+        update,
     ):
         obs = create_search_mode(
             utc,
@@ -262,6 +264,7 @@ class CreateSearchmode(graphene.Mutation):
             frequency,
             schedule,
             phaseup,
+            update,
         )
         return CreateSearchmode(searchmode=obs)
 
