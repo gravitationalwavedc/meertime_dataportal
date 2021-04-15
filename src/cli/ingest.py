@@ -232,8 +232,20 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Ingest PTUSE fold mode observation")
-    parser.add_argument("-t", "--token", action="store", help="JWT token")
-    parser.add_argument("-u", "--url", action="store", default=["http://127.0.0.1:8000/graphql/",], help="GraphQL URL")
+    parser.add_argument(
+        "-t",
+        "--token",
+        action="store",
+        help="JWT token. Best configured via env variable INGEST_TOKEN.",
+        default=os.environ.get("INGEST_TOKEN"),
+    )
+    parser.add_argument(
+        "-u",
+        "--url",
+        action="store",
+        default=os.environ.get("INGEST_URL"),
+        help="GraphQL URL. Can be configured via INGEST_URL env variable",
+    )
     parser.add_argument("beam", type=str, help="beam number")
     parser.add_argument("utc_start", type=str, help="utc_start of the obs")
     parser.add_argument("source", type=str, help="source of the obs")

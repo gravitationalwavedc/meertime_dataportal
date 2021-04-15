@@ -12,7 +12,9 @@ class CreatePipeline(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_pipelines")
     def mutate(cls, self, info, input=None):
-        _pipeline, _ = Pipelines.objects.get_or_create(**input.__dict__)
+        _pipeline, _ = Pipelines.objects.get_or_create(
+            name=input.name, revision=input.revision, defaults=input.__dict__
+        )
         return CreatePipeline(pipeline=_pipeline)
 
 

@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import F, OuterRef, Subquery, Max, Min, ExpressionWrapper, Count, Sum
+from django.db.models.constraints import UniqueConstraint
 from django_mysql.models import Model
 from django_mysql.models import JSONField
 from .logic import get_meertime_filters, get_band
@@ -9,7 +10,8 @@ from .storage import OverwriteStorage, get_upload_location
 
 
 class Basebandings(models.Model):
-    processing = models.ForeignKey("Processings", models.DO_NOTHING)
+    # Note, this is intended as a 1-to-1 extension of the Processings table, sort of a "subclass" of the Processings
+    processing = models.OneToOneField("Processings", models.DO_NOTHING)
 
 
 class Calibrations(models.Model):
@@ -36,8 +38,8 @@ class Ephemerides(models.Model):
     pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
     created_at = models.DateTimeField()
     created_by = models.CharField(max_length=64)
-    # Keeping this as a text field for now, to avoid having to reformat the ephemeris when displaying
-    ephemeris = models.TextField()
+    # TODO ephemeris is a bit of a problem. We'd like to have pulsar + ephemeris as a unique constraint. But: if ephemeris is a JSONField then we can't use it as a constraint without specifying which keys are to be used for the constraint (and I don't think we can support that via django). And if it's a Text or Char Field then we need to specify max length and potentially run into issues with long ephemerides. Max is 3072 bytes but we're defaulting to UTF-8 so that's 3 bytes per character and thus we could only use a 1024 character long ephemeris which is not that long at all. For now, leaving as textfield and out of index as I don't know how to work around this problem. To try and ensure this doens't cause issues, we use ephemeris in get_or_create lookup but according to the docs, this does not guarantee there won't be duplicates without a unique constraint here.
+    ephemeris = JSONField()
     p0 = models.DecimalField(max_digits=10, decimal_places=8)
     dm = models.FloatField()
     rm = models.FloatField()
@@ -57,6 +59,7 @@ class Filterbankings(models.Model):
 
 
 class Foldings(models.Model):
+    # Note, this is intended as a 1-to-1 extension of the Processings table, sort of a "subclass" of the Processings
     processing = models.ForeignKey("Processings", models.DO_NOTHING)
     folding_ephemeris = models.ForeignKey("Ephemerides", models.DO_NOTHING)
     nbin = models.IntegerField()
@@ -64,6 +67,9 @@ class Foldings(models.Model):
     nchan = models.IntegerField()
     dm = models.FloatField(blank=True, null=True)
     tsubint = models.FloatField()
+
+    class Meta:
+        constraints = [UniqueConstraint(fields=["processing"], name="unique folding")]
 
     @property
     def band(cls):
@@ -152,6 +158,11 @@ class Pipelineimages(models.Model):
     image_type = models.CharField(max_length=64, blank=True, null=True)
     image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
 
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=["processing", "image_type"], name="unique image type for a processing")
+        ]
+
 
 class Pipelines(models.Model):
     name = models.CharField(max_length=64)
@@ -160,6 +171,9 @@ class Pipelines(models.Model):
     created_at = models.DateTimeField()
     created_by = models.CharField(max_length=64)
     configuration = JSONField(blank=True, null=True)
+
+    class Meta:
+        constraints = [UniqueConstraint(fields=["name", "revision"], name="unique pipeline")]
 
 
 class Processingcollections(models.Model):
@@ -175,7 +189,13 @@ class Processings(Model):
     location = models.CharField(max_length=255)
     job_state = models.CharField(max_length=255, blank=True, null=True)
     job_output = JSONField(blank=True, null=True)
+    # TODO we would like to use results as part of the unique constraint but same problem as in the ephemeris class (see the comment there)
     results = JSONField(blank=True, null=True)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=["observation", "pipeline", "location", "parent"], name="unique processing")
+        ]
 
 
 class Pulsaraliases(models.Model):
@@ -251,15 +271,19 @@ class Pulsars(models.Model):
 
 
 class Rfis(models.Model):
+    # Note, this is intended as a 1-to-1 extension of the Processings table, sort of a "subclass" of the Processings
     processing = models.ForeignKey(Processings, models.DO_NOTHING)
     folding = models.ForeignKey(Foldings, models.DO_NOTHING)
     percent_zapped = models.FloatField()
 
 
 class Targets(models.Model):
-    name = models.CharField(max_length=64, unique=True)
+    name = models.CharField(max_length=64)
     raj = models.CharField(max_length=16)
     decj = models.CharField(max_length=16)
+
+    class Meta:
+        constraints = [UniqueConstraint(fields=["name", "raj", "decj"], name="unique target")]
 
 
 class Telescopes(models.Model):

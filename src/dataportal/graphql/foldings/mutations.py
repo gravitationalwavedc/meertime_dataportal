@@ -12,7 +12,7 @@ class CreateFolding(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_foldings")
     def mutate(cls, self, info, input):
-        _folding, _ = Foldings.objects.get_or_create(**input.__dict__)
+        _folding, _ = Foldings.objects.get_or_create(processing__id=input.processing_id, defaults=input.__dict__)
         return CreateFolding(folding=_folding)
 
 

@@ -18,17 +18,20 @@ class CreatePipelineimage(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_pipelineimages")
     def mutate(cls, self, info, input):
+        _pipeline_image = None
         try:
-            Pipelineimages.objects.get(processing_id=input.processing_id, rank=input.rank)
-            raise GraphQLError("a matching image already exists")
+            _pipeline_image = Pipelineimages.objects.get(processing_id=input.processing_id, rank=input.rank)
         except ObjectDoesNotExist:
             pass
         except MultipleObjectsReturned:
             raise GraphQLError("Multiple objects match, please update the matching entry/ies")
 
-        _pipeline_image = Pipelineimages.objects.create(
-            processing_id=input.processing_id, rank=input.rank, image_type=input.image_type, image=None
-        )
+        if _pipeline_image:
+            return CreatePipelineimage(pipelineimage=_pipeline_image)
+        else:
+            _pipeline_image = Pipelineimages.objects.create(
+                processing_id=input.processing_id, rank=input.rank, image_type=input.image_type, image=None
+            )
         if input.image:
             image_cf = ContentFile(b64decode(input.image))
             _pipeline_image.image.save(f"{input.image_type}.png", image_cf)

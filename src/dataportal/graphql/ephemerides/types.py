@@ -1,7 +1,14 @@
 import graphene
+from django_mysql.models import JSONField
 from graphene_django import DjangoObjectType
+from graphene_django.converter import convert_django_field
 
 from ...models import Ephemerides
+
+
+@convert_django_field.register(JSONField)
+def convert_json_field_to_string(field, registry=None):
+    return graphene.JSONString()
 
 
 class EphemeridesType(DjangoObjectType):

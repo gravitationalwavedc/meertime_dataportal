@@ -30,7 +30,7 @@ data:
       echo "Verifying contents"
       contents=$(cat ${STATE_FILE})
       echo "Contents of the file are :$contents"
-      if [ "${contents}"x != ${DESIRED_STATE}x ] || [ "FORCE_RELOAD"x = "$FORCE_RELOAD"x ]
+      if [ "${contents}"x != ${DESIRED_STATE}x ] || [ "FORCE_RELOAD_DEV"x = "$FORCE_RELOAD"x ]
       then
         PERFORM_INIT=0
       else

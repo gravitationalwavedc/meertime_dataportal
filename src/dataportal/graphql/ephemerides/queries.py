@@ -8,7 +8,7 @@ from ...models import Ephemerides
 class EphemeridesNode(DjangoObjectType):
     class Meta:
         model = Ephemerides
-        filter_fields = "__all__"
+        filter_fields = ["pulsar", "p0", "dm", "rm"]
         interfaces = (relay.Node,)
 
     @classmethod
