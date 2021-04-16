@@ -17,6 +17,7 @@ const FoldDetailTable = ({ data: { relayObservationDetails } }) => {
                 key: `${edge.node.utc}:${edge.node.beam}`,
                 jname: relayObservationDetails.jname,
                 ...edge.node, 
+                plotLink: `${process.env.REACT_APP_BASE_URL}/${relayObservationDetails.jname}/${edge.node.utc}/${edge.node.beam}/`,
                 action: <Link 
                     to={`${process.env.REACT_APP_BASE_URL}/${relayObservationDetails.jname}/${edge.node.utc}/${edge.node.beam}/`}
                     size="sm" 
@@ -30,6 +31,7 @@ const FoldDetailTable = ({ data: { relayObservationDetails } }) => {
 
     const columns = [
         { dataField: 'key', text: '', sort: false, hidden: true, toggle: false },
+        { dataField: 'plotLink', text: '', sort: false, hidden: true, toggle: false },
         { dataField: 'utc', text: 'Timestamp', sort: true, headerClasses: 'fold-detail-utc' },
         { dataField: 'proposalShort', text: 'Project', sort: true, 
             screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },

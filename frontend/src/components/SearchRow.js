@@ -47,8 +47,8 @@ const SearchRow = ({ setIsTableView, isTableView, searchText, searchProps, colum
                     </ToggleButton>
                 </ToggleButtonGroup>
             </Form.Group>
-            <CustomColumnToggle {...columnToggleProps} exportCSVProps={exportCSVProps}/>
-            <Form.Group>
+            { isTableView && <CustomColumnToggle {...columnToggleProps} exportCSVProps={exportCSVProps}/>}
+            { isTableView && <Form.Group>
                 <Button 
                     variant="link" 
                     size="sm"
@@ -56,7 +56,7 @@ const SearchRow = ({ setIsTableView, isTableView, searchText, searchProps, colum
                     <HiDownload className="icon"/>
                       Download CSV
                 </Button>
-            </Form.Group>
+            </Form.Group>}
         </Form.Row>
     );
 };

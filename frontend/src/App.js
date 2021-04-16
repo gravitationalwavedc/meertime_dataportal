@@ -1,4 +1,5 @@
 import './assets/scss/theme.scss';
+import 'react-image-lightbox/style.css';
 
 import React from 'react';
 import Router from './components/Router';

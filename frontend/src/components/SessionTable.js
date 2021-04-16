@@ -4,8 +4,8 @@ import { columnsSizeFilter, formatUTC } from '../helpers';
 import { createRefetchContainer, graphql } from 'react-relay';
 
 import DataView from './DataView';
+import LightBox from 'react-image-lightbox';
 import Link from 'found/Link';
-import MainLayout from '../components/MainLayout';
 import SessionCard from './SessionCard';
 import image404 from '../assets/images/image404.png';
 import moment from 'moment';
@@ -14,6 +14,8 @@ import { useScreenSize } from '../context/screenSize-context';
 const SessionTable = ({ data: { relaySessions }, relay }) => {
     const { screenSize } = useScreenSize();
     const [project, setProject] = useState('meertime');
+    const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
+    const [lightBoxImages, setLightBoxImages] = useState({ images: [], imagesIndex: 0 });
 
     useEffect(() => {
         relay.refetch({ getProposalFilters: project });
@@ -22,15 +24,33 @@ const SessionTable = ({ data: { relaySessions }, relay }) => {
     const startDate = moment.parseZone(relaySessions.first, moment.ISO_8601).format('h:mma DD/MM/YYYY');
     const endDate = moment.parseZone(relaySessions.last, moment.ISO_8601).format('h:mma DD/MM/YYYY');
 
+    const openLightBox = (images, imageIndex) => {
+        setIsLightBoxOpen(true);
+        setLightBoxImages({ images: images, imagesIndex: imageIndex });
+    };
+
     const rows = relaySessions.edges.reduce((result, edge) => { 
         const row = { ...edge.node };
         row.utc = formatUTC(row.utc);
         row.projectKey = project;
         row.length = `${row.length} [s]`;
         row.frequency= `${row.frequency} MHz`;
-        row.profile = <Image rounded fluid src={row.profile.length > 0 ? `${process.env.REACT_APP_MEDIA_URL}${row.profile}` : image404}/>;
-        row.phaseVsTime = <Image rounded fluid src={row.profile.length > 0 ? `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsTime}` : image404}/>;
-        row.phaseVsFrequency = <Image rounded fluid src={row.profile.length > 0 ? `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsFrequency}` : image404}/>;
+        
+        const images = [
+            `${process.env.REACT_APP_MEDIA_URL}${row.profile}`,
+            `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsTime}`,
+            `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsFrequency}`
+        ];
+
+        row.profile = row.profile.length ? 
+            <Image rounded onClick={() => openLightBox(images, 0)} fluid src={images[0]}/> : 
+            <Image rounded fluid src={image404}/>;
+        row.phaseVsTime = row.phaseVsTime.length ?
+            <Image rounded onClick={() => openLightBox(images, 1)} fluid src={images[1]}/> : 
+            <Image rounded fluid src={image404}/>;
+        row.phaseVsFrequency = row.phaseVsFrequency.length ? 
+            <Image rounded onClick={() => openLightBox(images, 1)} fluid src={images[2]}/> : 
+            <Image rounded fluid src={image404}/>;
         row.action = <ButtonGroup vertical>
             <Link 
                 to={`${process.env.REACT_APP_BASE_URL}/fold/${project}/${row.jname}/`} 
@@ -82,17 +102,41 @@ const SessionTable = ({ data: { relaySessions }, relay }) => {
     ]; 
 
     return(
-        <MainLayout title='Last Session' subtitle={`${startDate} to ${endDate}`}>
-            <div className="session-table">
-                <DataView
-                    summaryData={summaryData}
-                    columns={columnsSizeFiltered}
-                    rows={rows}
-                    project={project}
-                    setProject={setProject}
-                    card={SessionCard}/>
-            </div>
-        </MainLayout>
+        <div className="session-table">
+            <h5 style={{ marginTop: '-12rem', marginBottom: '10rem' }}>{startDate} - {endDate}</h5>
+            <DataView
+                summaryData={summaryData}
+                columns={columnsSizeFiltered}
+                rows={rows}
+                project={project}
+                setProject={setProject}
+                card={SessionCard}/>
+            {isLightBoxOpen && 
+            <LightBox
+                mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
+                nextSrc={lightBoxImages.images[(lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length]}
+                prevSrc={
+                    lightBoxImages.images[(
+                        lightBoxImages.imagesIndex + lightBoxImages.images.length - 1) % lightBoxImages.images.length]}
+                onCloseRequest={() => setIsLightBoxOpen(false)}
+                onMovePrevRequest={() =>
+                    setLightBoxImages({
+                        images: lightBoxImages.images,
+                        imagesIndex: (
+                            lightBoxImages.imagesIndex + lightBoxImages.images.length - 1
+                        ) % lightBoxImages.images.length,
+                    })
+                }
+                onMoveNextRequest={() =>
+                    setLightBoxImages({
+                        images: lightBoxImages.images,
+                        imagesIndex: (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length,
+                    })
+                }
+            />
+            }
+
+        </div>
     );
 };
 

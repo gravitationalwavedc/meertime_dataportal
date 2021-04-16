@@ -149,6 +149,9 @@ class ObservationDetailNode(graphene.ObjectType):
     def resolve_length(self, instance):
         return round(self.length / 60, 1) if self.length else None
 
+    def resolve_dm_fold(self, instance):
+        return round(self.dm_fold, 5) if self.length else None
+
 
 class ObservationDetailConnection(relay.Connection):
     class Meta:

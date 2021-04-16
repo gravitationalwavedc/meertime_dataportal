@@ -44,6 +44,7 @@ const DataView = ({
                 }}
                 columnToggle
                 search
+                condensed
             >
                 {props => {
                   return (

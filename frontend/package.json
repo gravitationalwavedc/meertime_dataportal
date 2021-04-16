@@ -69,6 +69,7 @@
     "react-dev-utils": "^11.0.4",
     "react-dom": "^16.14.0",
     "react-icons": "^3.11.0",
+    "react-image-lightbox": "^5.1.1",
     "react-relay": "^10.1.0",
     "react-relay-network-modern": "^5.0.1",
     "react-vis": "^1.11.7",

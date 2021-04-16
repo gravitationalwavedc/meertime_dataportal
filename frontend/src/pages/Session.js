@@ -1,5 +1,6 @@
 import { QueryRenderer, graphql } from 'react-relay';
 
+import MainLayout from '../components/MainLayout';
 import React from 'react';
 import SessionTable from '../components/SessionTable';
 import environment from '../relayEnvironment';
@@ -10,26 +11,26 @@ const query = graphql`
   }`;
 
 const Session = () => (
-    <QueryRenderer
-        environment={environment}
-        query={query}
-        fetchPolicy="store-and-network"
-        render = {({ props, error }) => {
-            if (error) {
-                return <React.Fragment>
-                    <h1>404</h1> 
-                    <h2>This Pulsar hasn&apos;t been discovered yet!</h2>
-                    <h5 className="mt-3">Or maybe it just isn&apos;t in our database?</h5>
-                </React.Fragment>;
-            }
+    <MainLayout title='Last Session' >
+        <QueryRenderer
+            environment={environment}
+            query={query}
+            fetchPolicy="store-and-network"
+            render = {({ props, error }) => {
+                if (error) {
+                    return <React.Fragment>
+                        <h1>404</h1> 
+                    </React.Fragment>;
+                }
 
-            if(props) {
-                return <SessionTable data={props}/>;
-            }
+                if(props) {
+                    return <SessionTable data={props}/>;
+                }
 
-            return <h1>Loading...</h1>;
-        }}
-    />
+                return <h1>Loading...</h1>;
+            }}
+        />
+    </MainLayout>
 );
 
 export default Session;

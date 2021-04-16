@@ -1,0 +1,13 @@
+.single-observation-subheading {
+    @include media-breakpoint-up(md) {
+        margin-top: -12rem;
+    }
+}
+
+.single-observation-data {
+    margin-top: 1rem;
+
+    @include media-breakpoint-only(md) {
+        margin-top: 4rem;
+    }
+}

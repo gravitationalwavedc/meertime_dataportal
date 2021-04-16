@@ -1,8 +1,7 @@
-import { Button, Card, Col, Image, Row } from 'react-bootstrap';
+import { Button, Card, Col, Row } from 'react-bootstrap';
 
 import Link from 'found/Link';
 import React from 'react';
-import image404 from '../assets/images/image404.png';
 import { meerWatchLink } from '../helpers';
 
 const SessionCard = ({ row }) => 
@@ -23,22 +22,13 @@ const SessionCard = ({ row }) =>
                     <p>{row.frequency}</p>
                 </Col>
                 <Col>
-                    <Image 
-                        rounded 
-                        fluid 
-                        src={row.profile.length > 0 ? `${process.env.REACT_APP_MEDIA_URL}${row.profile}` : image404}/> 
+                    {row.profile}
                 </Col>
                 <Col>
-                    <Image 
-                        rounded 
-                        fluid 
-                        src={row.profile.length > 0 ? `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsTime}` : image404}/>
+                    {row.phaseVsTime}
                 </Col>
                 <Col>
-                    <Image 
-                        rounded 
-                        fluid 
-                        src={row.profile.length > 0 ? `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsFrequency}` : image404}/>
+                    {row.phaseVsFrequency}
                 </Col>
             </Row>
         </Card.Body>

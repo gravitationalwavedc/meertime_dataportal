@@ -35,7 +35,7 @@ const SingleObservationTable = ({ data: { relayObservationModel } }) => {
 
     return (
         <MainLayout title={title}>
-            <h5 style={{ marginTop: '-12rem' }}>{displayDate}</h5>
+            <h5 className="single-observation-subheading">{displayDate}</h5>
             <h5>Beam {relayObservationModel.beam}</h5>
             <Row>
                 <Col>
@@ -60,8 +60,8 @@ const SingleObservationTable = ({ data: { relayObservationModel } }) => {
                     </Link>
                 </Col>
             </Row>
-            <Row className="mt-3">
-                <Col>
+            <Row className="single-observation-data">
+                <Col sm={12} md={4} xl={6}>
                     {Object.keys(pulsarImages).map(key => <Image 
                         rounded
                         fluid
@@ -70,9 +70,9 @@ const SingleObservationTable = ({ data: { relayObservationModel } }) => {
                         alt={key}
                         src={pulsarImages[key].length > 0 ? `${process.env.REACT_APP_MEDIA_URL}${pulsarImages[key]}` : image404}/>                     )}
                 </Col>
-                <Col>
+                <Col md={8} xl={6}>
                     {Object.keys(dataItems).map(key => 
-                        <DataDisplay key={key} title={key} value={dataItems[key]} /> 
+                        <DataDisplay key={key} title={key} value={dataItems[key]} full/> 
                     )}
                 </Col>
             </Row>

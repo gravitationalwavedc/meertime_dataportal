@@ -55,8 +55,6 @@ const FoldDetail = ({ match, relayEnvironment }) => {
                     if (error) {
                         return <React.Fragment>
                             <h1>404</h1> 
-                            <h2>This Pulsar hasn&apos;t been discovered yet!</h2>
-                            <h5 className="mt-3">Or maybe it just isn&apos;t in our database?</h5>
                         </React.Fragment>;
                     }
 

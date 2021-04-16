@@ -20,7 +20,7 @@ const TopNav = () => {
                 <Navbar.Collapse id="top-navbar">
                     <Nav className="mr-auto">
                         <Link to={`${process.env.REACT_APP_BASE_URL}/`} exact as={Nav.Link}>Folded</Link>
-                        <Link to={`${process.env.REACT_APP_BASE_URL}/search/`} exact as={Nav.Link}>Searchmode</Link>
+                        <Link to={`${process.env.REACT_APP_BASE_URL}/search/`} exact as={Nav.Link}>Search mode</Link>
                         <Link 
                             to={`${process.env.REACT_APP_BASE_URL}/last-session/`} 
                             exact 
