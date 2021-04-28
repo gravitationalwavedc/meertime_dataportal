@@ -10,7 +10,19 @@ class ObservationsNode(DjangoObjectType):
     class Meta:
         model = Observations
         fields = "__all__"
-        filter_fields = ["utc_start", "duration", "suspect"]
+        filter_fields = [
+            "utc_start",
+            "duration",
+            "suspect",
+            "telescope__id",
+            "telescope__name",
+            "target__id",
+            "target__name",
+            "project__id",
+            "project__code",
+            "instrument_config__id",
+            "instrument_config__name",
+        ]
         # filterset_class = JSONFieldFilter
         interfaces = (relay.Node,)
 
