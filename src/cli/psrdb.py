@@ -5,6 +5,8 @@ from os import environ
 
 import tables
 from tables.graphql_table import GraphQLTable
+import joins
+from joins.graphql_join import GraphQLJoin
 from graphql_client import GraphQLClient
 
 if __name__ == "__main__":
@@ -33,12 +35,24 @@ if __name__ == "__main__":
         tables.Telescopes,
         tables.Targets,
     ]
+
+    joins = [
+        joins.FoldedObservations,
+        joins.ProcessedObservations,
+    ]
+
     configured = []
     for t in tables:
         n = t.get_name()
         p = subparsers.add_parser(n, help=t.get_description())
         t.configure_parsers(p)
         configured.append({"name": n, "parser": p, "table": t})
+
+    for j in joins:
+        n = j.get_name()
+        p = subparsers.add_parser(n, help=j.get_description())
+        j.configure_parsers(p)
+        configured.append({"name": n, "parser": p, "table": j})
 
     args = parser.parse_args()
     GraphQLTable.configure_logging(args)
@@ -47,7 +61,7 @@ if __name__ == "__main__":
         if args.command == c["name"]:
             client = GraphQLClient(args.url, args.very_verbose)
             table = c["table"](client, args.url, args.token)
-            table.set_literal(args.literal)
+            table.set_field_names(args.literal, args.quiet)
             response = table.process(args)
             if args.verbose or args.very_verbose:
                 import json

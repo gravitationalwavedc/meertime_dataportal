@@ -94,10 +94,31 @@ class Observations(GraphQLTable):
             "comment",
         ]
 
-    def list_graphql(self, id):
+    def list_graphql(self, args):
+        filters = [
+            {"field": "target_Id", "join": "Targets"},
+            {"field": "target_Name", "join": "Targets"},
+            {"field": "telescope_Id", "join": "Telescopes"},
+            {"field": "telescope_Name", "join": "Telescopes"},
+            {"field": "project_Id", "join": "Projects"},
+            {"field": "project_Code", "join": "Projects"},
+            {"field": "instrumentConfig_Id", "join": "InstrumentConfigs"},
+            {"field": "instrumentConfig_Name", "join": "InstrumentConfigs"},
+            {"field": "utcStart_Gte", "join": None},
+            {"field": "utcStart_Lte", "join": None},
+        ]
+        fields = []
+        for f in filters:
+            if hasattr(args, f["field"]) and not getattr(args, f["field"]) is None:
+                f["value"] = getattr(args, f["field"])
+                fields.append(f)
 
-        if id is not None and id is None:
-            self.list_query = self.build_list_id_query("observation", id)
+        if args.id is not None:
+            self.list_query = self.build_list_id_query("observation", args.id)
+            self.list_variables = "{}"
+            return GraphQLTable.list_graphql(self, ())
+        elif len(fields) > 0:
+            self.list_query = self.build_filter_query(fields)
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
         else:
@@ -203,7 +224,7 @@ class Observations(GraphQLTable):
                 args.comment,
             )
         elif args.subcommand == "list":
-            return self.list_graphql(args.id)
+            return self.list_graphql(args)
 
     @classmethod
     def get_name(cls):
@@ -230,6 +251,24 @@ class Observations(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing observations")
         parser_list.add_argument("--id", type=int, help="list observations matching the id")
+        parser_list.add_argument("--target_Id", type=int, help="list observations matching the target id")
+        parser_list.add_argument("--target_Name", type=str, help="list observations matching the target Name")
+        parser_list.add_argument("--telescope_Id", type=int, help="list observations matching the telescope id")
+        parser_list.add_argument("--telescope_Name", type=str, help="list observations matching the telescope name")
+        parser_list.add_argument(
+            "--instrumentConfig_Id", type=int, help="list observations matching the instrument_config id"
+        )
+        parser_list.add_argument(
+            "--instrumentConfig_Name", type=str, help="list observations matching the instrument_config name"
+        )
+        parser_list.add_argument("--project_Id", type=int, help="list observations matching the project id")
+        parser_list.add_argument("--project_Code", type=str, help="list observations matching the project code")
+        parser_list.add_argument(
+            "--utcStart_Gte", type=str, help="list observations with utc_start greater than the timestamp"
+        )
+        parser_list.add_argument(
+            "--utcStart_Lte", type=str, help="list observations with utc_start greater than the timestamp"
+        )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new observation")

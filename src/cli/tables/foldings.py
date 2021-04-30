@@ -59,9 +59,24 @@ class Foldings(GraphQLTable):
             "tsubint",
         ]
 
-    def list_graphql(self, id):
-        if id is not None:
-            self.list_query = self.build_list_id_query("folding", id)
+    def list_graphql(self, args):
+
+        filters = [
+            {"arg": "processing_id", "field": "processingId", "join": "Processings"},
+            {"arg": "folding_ephemeris_id", "field": "foldingEphemerisId", "join": None},
+        ]
+        fields = []
+        for f in filters:
+            if hasattr(args, f["arg"]) and not getattr(args, f["arg"]) is None:
+                f["value"] = getattr(args, f["arg"])
+                fields.append(f)
+
+        if args.id is not None:
+            self.list_query = self.build_list_id_query("folding", args.id)
+            self.list_variables = "{}"
+            return GraphQLTable.list_graphql(self, ())
+        elif len(fields) > 0:
+            self.list_query = self.build_filter_query(fields)
             self.list_variables = "{}"
             return GraphQLTable.list_graphql(self, ())
         else:
@@ -98,7 +113,7 @@ class Foldings(GraphQLTable):
             }
             return self.update_graphql()
         elif args.subcommand == "list":
-            return self.list_graphql(args.id)
+            return self.list_graphql(args)
 
     @classmethod
     def get_name(cls):
@@ -123,17 +138,18 @@ class Foldings(GraphQLTable):
         subs = parser.add_subparsers(dest="subcommand")
         subs.required = True
 
-        parser_list = subs.add_parser("list", help="list existing pipelines")
-        parser_list.add_argument("--id", type=int, help="list pipelines matching the id")
-        parser_list.add_argument("--name", type=str, help="list pipelines matching the name")
+        parser_list = subs.add_parser("list", help="list existing foldings")
+        parser_list.add_argument("--id", type=int, help="list foldings matching the id")
+        parser_list.add_argument("--processing_id", type=int, help="list foldings matching the processing id")
+        parser_list.add_argument("--folding_ephemeris_id", type=int, help="list foldings matching the ephemeris id")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new folding")
         parser_create.add_argument("processing", type=int, help="processing id of the folding")
         parser_create.add_argument("eph", type=str, help="ephemeris id of the folding")
-        parser_create.add_argument("nbin", type=int, help="Number o bins in the folding")
-        parser_create.add_argument("npol", type=int, help="Number o polarisations in the folding")
-        parser_create.add_argument("nchan", type=int, help="Number o channels in the folding")
+        parser_create.add_argument("nbin", type=int, help="Number of bins in the folding")
+        parser_create.add_argument("npol", type=int, help="Number of polarisations in the folding")
+        parser_create.add_argument("nchan", type=int, help="Number of channels in the folding")
         parser_create.add_argument("dm", type=float, help="DM of the folding")
         parser_create.add_argument("tsubint", type=float, help="subintegration time of the folding")
 

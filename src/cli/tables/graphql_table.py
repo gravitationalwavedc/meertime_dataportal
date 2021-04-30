@@ -29,6 +29,8 @@ class GraphQLTable:
 
         self.cli_name = None
         self.cli_description = None
+        self.quiet = False
+        self.table_name = self.__class__.__name__
 
         # record name is the singular form of the record
         records = self.__class__.__name__.lower()
@@ -46,10 +48,13 @@ class GraphQLTable:
         self.literal_field_names = []
         self.field_names = []
 
-    def set_literal(self, literal):
+    def set_field_names(self, literal, id_only):
         if literal:
             if len(self.literal_field_names) > 0:
                 self.field_names = self.literal_field_names
+        elif id_only:
+            self.field_names = ["id"]
+            self.quiet = True
         self.human_readable = not literal
 
     def encode_table_id(self, table, id):
@@ -125,8 +130,7 @@ class GraphQLTable:
         return response
 
     def build_list_all_query(self):
-        table = self.__class__.__name__
-        query_name = f"all{table.title()}"
+        query_name = f"all{self.table_name.title()}"
         template = """
         query %s {
             %s {
@@ -194,10 +198,53 @@ class GraphQLTable:
         query = template % (query_name, query_name, field, id_encoded, delim.join(self.field_names))
         return query
 
-    def print_record_set_fields(self, record_set, delim):
+    def build_filter_query(self, fields):
+        table = self.__class__.__name__
+        query_name = f"all{table.title()}"
+        clauses = []
+        for f in fields:
+            field = f["field"]
+            join = f["join"]
+            value = f["value"]
+            if field.endswith("_Id"):
+                id_encoded = b64encode(f"{join}Node:{value}".encode("ascii")).decode("utf-8")
+                clauses.append(field + ": \"" + id_encoded + "\"")
+            else:
+                clauses.append(field + ": \"" + value + "\"")
+
+        template = """
+        query {
+            %s (%s) {
+                edges {
+                    node {
+                        %s
+                    }
+                }
+            }
+        }
+        """
+        delim = ",\n"
+        query = template % (query_name, ", ".join(clauses), delim.join(self.field_names))
+        return query
+
+    def print_record_set_fields(self, prefix, record_set, delim):
+        fields = []
         if "node" in record_set.keys():
             record_set = record_set["node"]
-        print(delim.join(record_set.keys()))
+        for k in record_set.keys():
+            if type(record_set[k]) is dict:
+                if prefix is None:
+                    fields.extend(self.print_record_set_fields(k, record_set[k], delim))
+                else:
+                    fields.extend(self.print_record_set_fields(prefix + "_" + k, record_set[k], delim))
+            else:
+                if prefix is None:
+                    fields.append(str(k))
+                else:
+                    fields.append(prefix + "_" + str(k))
+        if prefix is None:
+            print(delim.join(fields))
+        return fields
 
     def get_record_set_value(self, key, value):
         if key == "id":
@@ -211,26 +258,37 @@ class GraphQLTable:
             result = self.get_record_set_value(k, v)
         else:
             result = value
-        return result
+        return str(result)
 
-    def print_record_set_values(self, record_set, delim):
+    def print_record_set_values(self, prefix, record_set, delim):
+        values = []
         if "node" in record_set.keys():
             record_set = record_set["node"]
-        for key in record_set.keys():
-            record_set[key] = self.get_record_set_value(key, record_set[key])
-        print(delim.join([str(value) for value in record_set.values()]))
+        for k in record_set.keys():
+            if type(record_set[k]) is dict:
+                if prefix is None:
+                    values.extend(self.print_record_set_values(k, record_set[k], delim))
+                else:
+                    values.extend(self.print_record_set_values(k + "_" + prefix, record_set[k], delim))
+            else:
+                values.append(self.get_record_set_value(k, record_set[k]))
+        if prefix is None:
+            print(delim.join(values))
+        return values
 
     def print_record_set(self, record_set, delim):
         num_records = len(record_set)
         if num_records == 0:
             return
         if type(record_set) == list:
-            self.print_record_set_fields(record_set[0], delim)
+            if not self.quiet:
+                self.print_record_set_fields(None, record_set[0], delim)
             for record in record_set:
-                self.print_record_set_values(record, delim)
+                self.print_record_set_values(None, record, delim)
         elif type(record_set) == dict:
-            self.print_record_set_fields(record_set, delim)
-            self.print_record_set_values(record_set, delim)
+            if not self.quiet:
+                self.print_record_set_fields(None, record_set, delim)
+            self.print_record_set_values(None, record_set, delim)
         else:
             raise RuntimeError("did not understand type of recordset")
 
@@ -249,6 +307,7 @@ class GraphQLTable:
             default=False,
             help="Return literal IDs in tables instead of more human readable text",
         )
+        parser.add_argument("-q", "--quiet", action="store_true", default=False, help="Return ID only")
         parser.add_argument("-v", "--verbose", action="store_true", default=False, help="Increase verbosity")
         parser.add_argument("-vv", "--very_verbose", action="store_true", default=False, help="Increase verbosity")
         return parser

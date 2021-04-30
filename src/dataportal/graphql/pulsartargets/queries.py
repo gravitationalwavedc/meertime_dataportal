@@ -8,7 +8,12 @@ from ...models import Pulsartargets
 class PulsartargetsNode(DjangoObjectType):
     class Meta:
         model = Pulsartargets
-        filter_fields = "__all__"
+        filter_fields = [
+            "target__id",
+            "target__name",
+            "pulsar__id",
+            "pulsar__jname",
+        ]
         interfaces = (relay.Node,)
 
     @classmethod

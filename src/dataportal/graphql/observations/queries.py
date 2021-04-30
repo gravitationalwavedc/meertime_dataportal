@@ -5,24 +5,27 @@ from graphql_jwt.decorators import login_required
 from ..jsonfield_filter import JSONFieldFilter
 from ...models import Observations
 
+DATETIME_FILTERS = ['exact', 'isnull', 'lt', 'lte', 'gt', 'gte', 'month', 'year', 'date']
+NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']
+
 
 class ObservationsNode(DjangoObjectType):
     class Meta:
         model = Observations
         fields = "__all__"
-        filter_fields = [
-            "utc_start",
-            "duration",
-            "suspect",
-            "telescope__id",
-            "telescope__name",
-            "target__id",
-            "target__name",
-            "project__id",
-            "project__code",
-            "instrument_config__id",
-            "instrument_config__name",
-        ]
+        filter_fields = {
+            "utc_start": DATETIME_FILTERS,
+            "duration": NUMERIC_FILTERS,
+            "suspect": ["exact"],
+            "telescope__id": ["exact"],
+            "telescope__name": ["exact"],
+            "target__id": ["exact"],
+            "target__name": ["exact"],
+            "project__id": ["exact"],
+            "project__code": ["exact"],
+            "instrument_config__id": ["exact"],
+            "instrument_config__name": ["exact"],
+        }
         # filterset_class = JSONFieldFilter
         interfaces = (relay.Node,)
 

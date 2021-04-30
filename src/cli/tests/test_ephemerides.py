@@ -85,8 +85,8 @@ def test_cli_ephemeris_update_with_token(client, creator, args, jwt_token, debug
         + '"createdBy":"'
         + args.created_by
         + '",'
-        + '"ephemeris":"'
-        + "{\'F0\': \'2345.6\'}\","
+        + '"ephemeris":'
+        + '"{\\"F0\\": \\"2345.6\\"}",'
         + '"p0":'
         + str(args.p0)
         + ','
