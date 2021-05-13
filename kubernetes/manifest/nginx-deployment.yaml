@@ -71,14 +71,14 @@ spec:
               name: meertime-img-storage-dev
           livenessProbe:
             httpGet:
-              path: /J1234-5678/
+              path: /accounts/login/
               port: 80
               httpHeaders:
             initialDelaySeconds: 3
             periodSeconds: 30
           readinessProbe:
             httpGet:
-              path: /J1234-5678/
+              path: /accounts/login/
               port: 80
             initialDelaySeconds: 3
             periodSeconds: 3
