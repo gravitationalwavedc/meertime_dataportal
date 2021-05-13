@@ -19,4 +19,4 @@ class PulsaraliasesNode(DjangoObjectType):
 
 class Query(ObjectType):
     pulsaralias = relay.Node.Field(PulsaraliasesNode)
-    all_pulsaraliases = DjangoFilterConnectionField(PulsaraliasesNode)
+    all_pulsaraliases = DjangoFilterConnectionField(PulsaraliasesNode, max_limit=10000)

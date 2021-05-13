@@ -19,4 +19,4 @@ class ProjectsNode(DjangoObjectType):
 
 class Query(ObjectType):
     project = relay.Node.Field(ProjectsNode)
-    all_projects = DjangoFilterConnectionField(ProjectsNode)
+    all_projects = DjangoFilterConnectionField(ProjectsNode, max_limit=10000)

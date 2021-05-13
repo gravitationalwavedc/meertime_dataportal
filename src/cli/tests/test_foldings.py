@@ -7,7 +7,8 @@ from cli.tables.foldings import Foldings as CliFoldings
 def test_cli_folding_list_with_token(client, creator, args, jwt_token):
     args.subcommand = "list"
     args.id = None
-    args.name = None
+    args.processing = None
+    args.eph = None
 
     t = CliFoldings(client, "/graphql/", jwt_token)
     response = t.process(args)

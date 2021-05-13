@@ -19,4 +19,4 @@ class TelescopesNode(DjangoObjectType):
 
 class Query(ObjectType):
     telescope = relay.Node.Field(TelescopesNode)
-    all_telescopes = DjangoFilterConnectionField(TelescopesNode)
+    all_telescopes = DjangoFilterConnectionField(TelescopesNode, max_limit=10000)

@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Calibrations(GraphQLTable):
@@ -38,22 +39,11 @@ class Calibrations(GraphQLTable):
         self.field_names = ["id", "calibrationType", "location"]
 
     def list_graphql(self, id, type):
-        if id is None and type is not None:
-            self.list_query = self.build_list_str_query("calibration_type")
-            self.list_variables = """
-            {
-                "variable": "%s"
-            }
-            """
-            return GraphQLTable.list_graphql(self, (type))
-        elif id is not None and type is None:
-            self.list_query = self.build_list_id_query("calibration", id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+        filters = [
+            {"field": "type", "value": type, "join": None},
+        ]
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(self, type, location):
         self.create_variables = {"calibration_type": type, "location": location}

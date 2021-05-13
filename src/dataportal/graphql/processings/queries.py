@@ -37,4 +37,4 @@ class ProcessingsNode(DjangoObjectType):
 
 class Query(ObjectType):
     processing = relay.Node.Field(ProcessingsNode)
-    all_processings = DjangoFilterConnectionField(ProcessingsNode)
+    all_processings = DjangoFilterConnectionField(ProcessingsNode, max_limit=10000)

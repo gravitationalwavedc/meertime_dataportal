@@ -24,4 +24,4 @@ class PulsartargetsNode(DjangoObjectType):
 
 class Query(ObjectType):
     pulsartarget = relay.Node.Field(PulsartargetsNode)
-    all_pulsartargets = DjangoFilterConnectionField(PulsartargetsNode)
+    all_pulsartargets = DjangoFilterConnectionField(PulsartargetsNode, max_limit=10000)

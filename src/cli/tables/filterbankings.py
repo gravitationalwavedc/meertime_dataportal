@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Filterbankings(GraphQLTable):
@@ -47,19 +48,12 @@ class Filterbankings(GraphQLTable):
         """
         self.field_names = ["id", "processing { id }", "nbit", "npol", "nchan", "dm", "tsamp"]
 
-    def list_graphql(self, id, processing_id):
-        if id is not None and processing_id is None:
-            self.list_query = self.build_list_id_query("filterbanking", id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        elif id is None and processing_id is not None:
-            self.list_query = self.build_list_join_id_query("Processings", "processing", processing_id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+    def list_graphql(self, id, processing):
+        filters = [
+            {"field": "processing", "value": processing, "join": "Processings"},
+        ]
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""

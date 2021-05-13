@@ -21,4 +21,4 @@ class TargetsNode(DjangoObjectType):
 
 class Query(ObjectType):
     target = relay.Node.Field(TargetsNode)
-    all_targets = DjangoFilterConnectionField(TargetsNode)
+    all_targets = DjangoFilterConnectionField(TargetsNode, max_limit=10000)

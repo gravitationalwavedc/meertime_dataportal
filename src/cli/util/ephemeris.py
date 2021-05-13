@@ -24,7 +24,7 @@ class Ephemeris:
             output = str(output, "utf-8")
         # first populate from string and parse to set all the attributes but then set to string as uploading via graphql expects a string
         self.load_from_string(output)
-        self.ephem = json.dumps(self.ephem)
+        # self.ephem = json.dumps(self.ephem)
 
     def load_from_json(self, ephemeris_json):
         self.ephem = json.loads(ephemeris_json)
@@ -52,7 +52,7 @@ class Ephemeris:
         _dm = self.get_val("DM")
         _rm = self.get_val("RM")
         if _f0 is not None:
-            self.p0 = 1.0 / float(_f0)
+            self.p0 = float(1.0 / float(_f0))
         if _dm is not None:
             self.dm = float(_dm)
         if _rm is not None:

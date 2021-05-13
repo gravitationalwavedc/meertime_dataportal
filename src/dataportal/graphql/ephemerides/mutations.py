@@ -1,6 +1,7 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 from .types import *
+from decimal import Decimal
 
 
 class CreateEphemeris(graphene.Mutation):
@@ -10,8 +11,12 @@ class CreateEphemeris(graphene.Mutation):
     ephemeris = graphene.Field(EphemeridesType)
 
     @classmethod
-    @permission_required("dataportal.add_pulsars")
+    @permission_required("dataportal.add_ephemerides")
     def mutate(cls, self, info, input):
+        # santize the the decimal values due to Django bug
+        for field, limits in EphemeridesInput.limits.items():
+            deci_str = "1.".ljust(limits["deci"] + 2, "0")
+            input.__dict__[field] = input.__dict__[field].quantize(Decimal(deci_str))
         _ephemeris, _ = Ephemerides.objects.get_or_create(**input.__dict__)
         return CreateEphemeris(ephemeris=_ephemeris)
 
@@ -24,7 +29,7 @@ class UpdateEphemeris(graphene.Mutation):
     ephemeris = graphene.Field(EphemeridesType)
 
     @classmethod
-    @permission_required("dataportal.add_pulsars")
+    @permission_required("dataportal.add_ephemerides")
     def mutate(cls, self, info, id, input):
         _ephemeris = Ephemerides.objects.get(pk=id)
         if _ephemeris:

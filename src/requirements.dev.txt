@@ -22,6 +22,7 @@ django-filter==2.4.0
 django-graphiql==0.4.4
 django-graphql-jwt==0.3.1
 django-mathfilters==1.0.0
+django-mysql==3.9.0
 django-querycount==0.7.0
 django-split-settings==1.0.1
 django-test-migrations==1.0.0

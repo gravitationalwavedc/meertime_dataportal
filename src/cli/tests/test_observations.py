@@ -8,6 +8,17 @@ from cli.tables.observations import Observations as CliObservations
 def test_cli_observation_list_with_token(client, creator, args, jwt_token):
     args.subcommand = "list"
     args.id = None
+    args.id = None
+    args.target_id = None
+    args.target_name = None
+    args.telescope_id = None
+    args.telescope_name = None
+    args.project_id = None
+    args.project_code = None
+    args.instrumentconfig_id = None
+    args.instrumentconfig_name = None
+    args.utcstart_gte = None
+    args.utcstart_lte = None
 
     t = CliObservations(client, "/graphql/", jwt_token)
     response = t.process(args)

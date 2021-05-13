@@ -8,6 +8,10 @@ def test_cli_pulsartarget_list_with_token(client, creator, args, jwt_token):
     args.subcommand = "list"
     args.id = None
     args.pulsar = None
+    args.target = None
+    args.target_name = None
+    args.pulsar = None
+    args.pulsar_jname = None
 
     t = CliPulsartargets(client, "/graphql/", jwt_token)
     response = t.process(args)

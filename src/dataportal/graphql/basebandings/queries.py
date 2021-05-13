@@ -19,4 +19,4 @@ class BasebandingsNode(DjangoObjectType):
 
 class Query(ObjectType):
     basebanding = relay.Node.Field(BasebandingsNode)
-    all_basebandings = DjangoFilterConnectionField(BasebandingsNode)
+    all_basebandings = DjangoFilterConnectionField(BasebandingsNode, max_limit=10000)

@@ -19,4 +19,4 @@ class FilterbankingsNode(DjangoObjectType):
 
 class Query(ObjectType):
     filterbanking = relay.Node.Field(FilterbankingsNode)
-    all_filterbankings = DjangoFilterConnectionField(FilterbankingsNode)
+    all_filterbankings = DjangoFilterConnectionField(FilterbankingsNode, max_limit=10000)

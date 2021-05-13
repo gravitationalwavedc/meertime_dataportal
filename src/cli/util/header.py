@@ -38,8 +38,14 @@ class Header(KeyValueStore):
         self.source = self.cfg["SOURCE"]
         self.ra = self.cfg["RA"]
         self.dec = self.cfg["DEC"]
-        self.tied_beam_ra = self.cfg["TIED_BEAM_RA"]
-        self.tied_beam_dec = self.cfg["TIED_BEAM_DEC"]
+        if "TIED_BEAM_RA" in self.cfg.keys():
+            self.tied_beam_ra = self.cfg["TIED_BEAM_RA"]
+        else:
+            self.tied_beam_ra = self.ra
+        if "TIED_BEAM_DEC" in self.cfg.keys():
+            self.tied_beam_dec = self.cfg["TIED_BEAM_DEC"]
+        else:
+            self.tied_beam_dec = self.dec
         self.telescope = self.cfg["TELESCOPE"]
 
         # Instrument Config
@@ -63,18 +69,22 @@ class PTUSEHeader(Header):
 
         h_weights = self.get("WEIGHTS_POLH").split(",")
         v_weights = self.get("WEIGHTS_POLV").split(",")
-        nant_eff_h = 0
-        nant_eff_v = 0
-        for w in h_weights:
-            nant_eff_h += float(w)
-        for w in v_weights:
-            nant_eff_v += float(w)
-        self.nant_eff = int((nant_eff_h + nant_eff_v) / 2)
+        if self.get("WEIGHTS_POLH") == "Unknown" or self.get("WEIGHTS_POLV") == "Unknown":
+            self.nant_eff = self.nant
+        else:
+            nant_eff_h = 0
+            nant_eff_v = 0
+            for w in h_weights:
+                nant_eff_h += float(w)
+            for w in v_weights:
+                nant_eff_v += float(w)
+            self.nant_eff = int((nant_eff_h + nant_eff_v) / 2)
         self.configuration = json.dumps(self.cfg)
 
         self.machine = "PTUSE"
         self.machine_version = "1.0"
-        self.machine_config = "{}"
+        machine_config = {"machine": "PTUSE", "version": 1.0}
+        self.machine_config = json.dumps(machine_config)
 
         self.fold_dm = float(self.get("FOLD_DM"))
         self.fold_nchan = int(self.get("FOLD_OUTNCHAN"))

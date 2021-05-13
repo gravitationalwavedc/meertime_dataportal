@@ -19,4 +19,4 @@ class LaunchesNode(DjangoObjectType):
 
 class Query(ObjectType):
     launch = relay.Node.Field(LaunchesNode)
-    all_launches = DjangoFilterConnectionField(LaunchesNode)
+    all_launches = DjangoFilterConnectionField(LaunchesNode, max_limit=10000)

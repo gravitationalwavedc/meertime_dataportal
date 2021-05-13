@@ -19,4 +19,4 @@ class TemplatesNode(DjangoObjectType):
 
 class Query(ObjectType):
     template = relay.Node.Field(TemplatesNode)
-    all_templates = DjangoFilterConnectionField(TemplatesNode)
+    all_templates = DjangoFilterConnectionField(TemplatesNode, max_limit=10000)

@@ -8,6 +8,7 @@ def test_cli_launch_list_with_token(client, creator, args, jwt_token):
     args.subcommand = "list"
     args.id = None
     args.pipeline_id = None
+    args.parent_pipeline_id = None
     args.pulsar_id = None
 
     t = CliLaunches(client, "/graphql/", jwt_token)

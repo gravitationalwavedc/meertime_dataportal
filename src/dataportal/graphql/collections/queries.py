@@ -19,4 +19,4 @@ class CollectionsNode(DjangoObjectType):
 
 class Query(ObjectType):
     collection = relay.Node.Field(CollectionsNode)
-    all_collections = DjangoFilterConnectionField(CollectionsNode)
+    all_collections = DjangoFilterConnectionField(CollectionsNode, max_limit=10000)

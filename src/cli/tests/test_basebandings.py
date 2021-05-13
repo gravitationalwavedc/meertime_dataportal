@@ -15,6 +15,7 @@ def test_cli_basebanding_list_with_token(client, creator, args, jwt_token):
 
     expected_content_pattern = b'{"data":{"allBasebandings":{"edges":\\[*\\]}}}'
     compiled_pattern = re.compile(expected_content_pattern)
+    print(response.content)
     assert compiled_pattern.match(response.content)
 
 

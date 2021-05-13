@@ -22,4 +22,4 @@ class PipelinesNode(DjangoObjectType):
 
 class Query(ObjectType):
     pipeline = relay.Node.Field(PipelinesNode)
-    all_pipelines = DjangoFilterConnectionField(PipelinesNode)
+    all_pipelines = DjangoFilterConnectionField(PipelinesNode, max_limit=10000)

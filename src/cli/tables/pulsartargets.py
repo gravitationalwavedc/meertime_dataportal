@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Pulsartargets(GraphQLTable):
@@ -36,31 +37,15 @@ class Pulsartargets(GraphQLTable):
         self.literal_field_names = ["id", "pulsar {id}", "target {id}"]
         self.field_names = ["id", "pulsar {jname}", "target {name}"]
 
-    def list_graphql(self, args):
+    def list_graphql(self, id, target_id, target_name, pulsar_id, pulsar_jname):
         filters = [
-            {"arg": "target_id", "field": "target_Id", "join": "Targets"},
-            {"arg": "target_name", "field": "target_Name", "join": "Targets"},
-            {"arg": "pulsar_id", "field": "pulsar_Id", "join": "Pulsars"},
-            {"arg": "pulsar_jname", "field": "pulsar_Jname", "join": "Pulsars"},
+            {"field": "target_Id", "value": target_id, "join": "Targets"},
+            {"field": "target_Name", "value": target_name, "join": "Targets"},
+            {"field": "pulsar_Id", "value": pulsar_id, "join": "Pulsars"},
+            {"field": "pulsar_Jname", "value": pulsar_jname, "join": "Pulsars"},
         ]
-        fields = []
-        for f in filters:
-            if hasattr(args, f["arg"]) and not getattr(args, f["arg"]) is None:
-                f["value"] = getattr(args, f["arg"])
-                fields.append(f)
-
-        if args.id is not None:
-            self.list_query = self.build_list_id_query("pulsartarget", args.id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        elif len(fields) > 0:
-            self.list_query = self.build_filter_query(fields)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(self, pulsar, target):
         self.create_variables = {"pulsar": pulsar, "target": target}
@@ -74,7 +59,7 @@ class Pulsartargets(GraphQLTable):
             self.update_variables = {"id": args.id, "pulsar": args.pulsar, "target": args.target}
             return self.update_graphql()
         elif args.subcommand == "list":
-            return self.list_graphql(args)
+            return self.list_graphql(args.id, args.target, args.target_name, args.pulsar, args.pulsar_jname)
 
     @classmethod
     def get_name(cls):
@@ -101,9 +86,9 @@ class Pulsartargets(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing pulsartargets")
         parser_list.add_argument("--id", type=int, help="list pulsartargets matching the id")
-        parser_list.add_argument("--pulsar_id", type=int, help="list pulsartargets matching the pulsar id")
+        parser_list.add_argument("--pulsar", type=int, help="list pulsartargets matching the pulsar id")
         parser_list.add_argument("--pulsar_jname", type=str, help="list pulsartargets matching the pulsar Jname")
-        parser_list.add_argument("--target_id", type=int, help="list pulsartargets matching the target id")
+        parser_list.add_argument("--target", type=int, help="list pulsartargets matching the target id")
         parser_list.add_argument("--target_name", type=str, help="list pulsartargets matching the target name")
 
         # create the parser for the "create" command

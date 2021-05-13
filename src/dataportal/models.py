@@ -35,12 +35,15 @@ class Collections(models.Model):
 
 
 class Ephemerides(models.Model):
+    limits = {
+        "p0": {"max": 10, "deci": 8},
+    }
     pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
     created_at = models.DateTimeField()
     created_by = models.CharField(max_length=64)
     # TODO ephemeris is a bit of a problem. We'd like to have pulsar + ephemeris as a unique constraint. But: if ephemeris is a JSONField then we can't use it as a constraint without specifying which keys are to be used for the constraint (and I don't think we can support that via django). And if it's a Text or Char Field then we need to specify max length and potentially run into issues with long ephemerides. Max is 3072 bytes but we're defaulting to UTF-8 so that's 3 bytes per character and thus we could only use a 1024 character long ephemeris which is not that long at all. For now, leaving as textfield and out of index as I don't know how to work around this problem. To try and ensure this doens't cause issues, we use ephemeris in get_or_create lookup but according to the docs, this does not guarantee there won't be duplicates without a unique constraint here.
     ephemeris = JSONField()
-    p0 = models.DecimalField(max_digits=10, decimal_places=8)
+    p0 = models.DecimalField(max_digits=limits["p0"]["max"], decimal_places=limits["p0"]["deci"])
     dm = models.FloatField()
     rm = models.FloatField()
     comment = models.CharField(max_length=255, blank=True, null=True)
@@ -112,9 +115,10 @@ class Foldings(models.Model):
 
 
 class Instrumentconfigs(models.Model):
+    limits = {"bandwidth": {"max": 12, "deci": 6}, "frequency": {"max": 15, "deci": 9}}
     name = models.CharField(max_length=255)
-    bandwidth = models.DecimalField(max_digits=12, decimal_places=6)
-    frequency = models.DecimalField(max_digits=15, decimal_places=9)
+    bandwidth = models.DecimalField(max_digits=limits["bandwidth"]["max"], decimal_places=limits["bandwidth"]["deci"])
+    frequency = models.DecimalField(max_digits=limits["frequency"]["max"], decimal_places=limits["frequency"]["deci"])
     nchan = models.IntegerField()
     npol = models.IntegerField()
     beam = models.CharField(max_length=16)

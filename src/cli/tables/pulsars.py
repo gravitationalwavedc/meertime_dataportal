@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Pulsars(GraphQLTable):
@@ -38,22 +39,11 @@ class Pulsars(GraphQLTable):
         self.field_names = ["id", "jname", "state", "comment"]
 
     def list_graphql(self, id, jname):
-        if id is None and jname is not None:
-            self.list_query = self.build_list_str_query("jname")
-            self.list_variables = """
-            {
-                "variable": "%s"
-            }
-            """
-            return GraphQLTable.list_graphql(self, (jname))
-        elif id is not None and jname is None:
-            self.list_query = self.build_list_id_query("pulsar", id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+        filters = [
+            {"field": "jname", "value": jname, "join": None},
+        ]
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(self, jname, state, comment):
         self.create_variables = {"jname": jname, "state": state, "comment": comment}

@@ -8,6 +8,10 @@ from cli.tables.ephemerides import Ephemerides as CliEphemerides
 def test_cli_ephemeris_list_with_token(client, creator, args, jwt_token):
     args.subcommand = "list"
     args.id = None
+    args.pulsar = None
+    args.p0 = 11.11
+    args.dm = 22.22
+    args.rm = 33.33
 
     t = CliEphemerides(client, "/graphql/", jwt_token)
     response = t.process(args)

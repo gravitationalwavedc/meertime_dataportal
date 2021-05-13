@@ -20,4 +20,4 @@ class ToasNode(DjangoObjectType):
 
 class Query(ObjectType):
     toa = relay.Node.Field(ToasNode)
-    all_toas = DjangoFilterConnectionField(ToasNode)
+    all_toas = DjangoFilterConnectionField(ToasNode, max_limit=10000)

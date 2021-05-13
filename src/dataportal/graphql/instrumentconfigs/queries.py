@@ -19,4 +19,4 @@ class InstrumentconfigsNode(DjangoObjectType):
 
 class Query(ObjectType):
     instrumentconfig = relay.Node.Field(InstrumentconfigsNode)
-    all_instrumentconfigs = DjangoFilterConnectionField(InstrumentconfigsNode)
+    all_instrumentconfigs = DjangoFilterConnectionField(InstrumentconfigsNode, max_limit=10000)

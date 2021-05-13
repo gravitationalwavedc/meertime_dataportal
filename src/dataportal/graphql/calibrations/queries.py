@@ -19,4 +19,4 @@ class CalibrationsNode(DjangoObjectType):
 
 class Query(ObjectType):
     calibration = relay.Node.Field(CalibrationsNode)
-    all_calibrations = DjangoFilterConnectionField(CalibrationsNode)
+    all_calibrations = DjangoFilterConnectionField(CalibrationsNode, max_limit=10000)

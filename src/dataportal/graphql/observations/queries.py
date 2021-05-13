@@ -37,4 +37,4 @@ class ObservationsNode(DjangoObjectType):
 
 class Query(ObjectType):
     observation = relay.Node.Field(ObservationsNode)
-    all_observations = DjangoFilterConnectionField(ObservationsNode)
+    all_observations = DjangoFilterConnectionField(ObservationsNode, max_limit=10000)

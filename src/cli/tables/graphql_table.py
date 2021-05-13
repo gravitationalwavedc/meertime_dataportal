@@ -26,6 +26,7 @@ class GraphQLTable:
         self.update_variables = {}
         self.list_query = None
         self.list_variables = None
+        self.paginate = False
 
         self.cli_name = None
         self.cli_description = None
@@ -48,11 +49,14 @@ class GraphQLTable:
         self.literal_field_names = []
         self.field_names = []
 
+    def set_use_pagination(self, paginate):
+        self.paginate = paginate
+
     def set_field_names(self, literal, id_only):
         if literal:
             if len(self.literal_field_names) > 0:
                 self.field_names = self.literal_field_names
-        elif id_only:
+        if id_only:
             self.field_names = ["id"]
             self.quiet = True
         self.human_readable = not literal
@@ -110,27 +114,38 @@ class GraphQLTable:
                         logging.warning(f"Record {self.record_name} did not exist in returned json")
         return response
 
-    def list_graphql(self, vars_values, delim="\t"):
+    def list_graphql(self, graphql_query, delim="\t"):
+        graphql_query.set_field_list(self.field_names)
+        graphql_query.set_use_pagination(self.paginate)
+        cursor = None
+        has_next_page = True
+        while has_next_page:
+            query = graphql_query.paginate(cursor)
+            logging.debug(f"Using query {query}")
+            payload = {"query": query}
+            response = self.client.post(self.url, payload, **self.header)
+            has_next_page = False
+            if response.status_code == 200:
+                content = json.loads(response.content)
+                if not "errors" in content.keys():
+                    for key in content["data"].keys():
+                        record_set = content["data"][key]
+                        if record_set is None:
+                            continue
+                        if type(record_set) == dict:
+                            if "pageInfo" in record_set.keys():
+                                if content["data"][key]["pageInfo"]["hasNextPage"]:
+                                    cursor = content["data"][key]["pageInfo"]["endCursor"]
+                                    has_next_page = True
+                            if "edges" in record_set.keys():
+                                record_set = record_set["edges"]
+                            self.print_record_set(record_set, delim, print_headers=(cursor is None))
 
-        logging.debug(f"Using query {self.list_query}")
-        logging.debug(f"Using query vars {self.list_variables}")
-        logging.debug(f"Using with values {vars_values}")
-
-        payload = {"query": self.list_query, "variables": self.list_variables % vars_values}
-        response = self.client.post(self.url, payload, **self.header)
-        if response.status_code == 200:
-            content = json.loads(response.content)
-            if not "errors" in content.keys():
-                for key in content["data"].keys():
-                    record_set = content["data"][key]
-                    if type(record_set) == dict:
-                        if "edges" in record_set.keys():
-                            record_set = record_set["edges"]
-                        self.print_record_set(record_set, delim)
         return response
 
     def build_list_all_query(self):
         query_name = f"all{self.table_name.title()}"
+        query_clause = f"{query_name}(%s)"
         template = """
         query %s {
             %s {
@@ -139,11 +154,15 @@ class GraphQLTable:
                         %s
                     }
                 }
+                pageInfo {
+                    endCursor
+                    hasNextPage
+                }
             }
         }
         """
         delim = ",\n                        "
-        query = template % (query_name, query_name, delim.join(self.field_names))
+        query = template % (query_name, query_clause, delim.join(self.field_names))
         return query
 
     def build_list_id_query(self, singular, id):
@@ -276,17 +295,17 @@ class GraphQLTable:
             print(delim.join(values))
         return values
 
-    def print_record_set(self, record_set, delim):
+    def print_record_set(self, record_set, delim, print_headers=True):
         num_records = len(record_set)
         if num_records == 0:
             return
         if type(record_set) == list:
-            if not self.quiet:
+            if not self.quiet and print_headers:
                 self.print_record_set_fields(None, record_set[0], delim)
             for record in record_set:
                 self.print_record_set_values(None, record, delim)
         elif type(record_set) == dict:
-            if not self.quiet:
+            if not self.quiet and print_headers:
                 self.print_record_set_fields(None, record_set, delim)
             self.print_record_set_values(None, record_set, delim)
         else:

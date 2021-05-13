@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 from base64 import b64encode
 
 
@@ -58,14 +59,9 @@ class Pipelineimages(GraphQLTable):
         self.field_names = ["id", "image", "imageType", "rank", "processing {id}"]
 
     def list_graphql(self, id):
-        if id is not None:
-            self.list_query = self.build_list_id_query("pipelineimage", id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+        filters = []
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(self, image, image_type, rank, processing_id):
         prepared_image = prepare_image(image)

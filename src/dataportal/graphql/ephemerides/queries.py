@@ -19,4 +19,4 @@ class EphemeridesNode(DjangoObjectType):
 
 class Query(ObjectType):
     ephemeris = relay.Node.Field(EphemeridesNode)
-    all_ephemerides = DjangoFilterConnectionField(EphemeridesNode)
+    all_ephemerides = DjangoFilterConnectionField(EphemeridesNode, max_limit=10000)

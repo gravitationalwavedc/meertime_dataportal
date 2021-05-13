@@ -21,4 +21,4 @@ class PulsarsNode(DjangoObjectType):
 
 class Query(ObjectType):
     pulsar = relay.Node.Field(PulsarsNode)
-    all_pulsars = DjangoFilterConnectionField(PulsarsNode)
+    all_pulsars = DjangoFilterConnectionField(PulsarsNode, max_limit=10000)

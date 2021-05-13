@@ -62,6 +62,7 @@ if __name__ == "__main__":
             client = GraphQLClient(args.url, args.very_verbose)
             table = c["table"](client, args.url, args.token)
             table.set_field_names(args.literal, args.quiet)
+            table.set_use_pagination(True)
             response = table.process(args)
             if args.verbose or args.very_verbose:
                 import json

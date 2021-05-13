@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Instrumentconfigs(GraphQLTable):
@@ -48,29 +49,12 @@ class Instrumentconfigs(GraphQLTable):
         self.field_names = ["id", "name", "frequency", "bandwidth", "nchan", "npol", "beam"]
 
     def list_graphql(self, id, name, beam):
-        if id is None and name is not None:
-            self.list_query = self.build_list_str_query("name")
-            self.list_variables = """
-            {
-                "variable": "%s"
-            }
-            """
-            return GraphQLTable.list_graphql(self, (name))
-        elif id is None and beam is not None:
-            self.list_query = self.build_list_str_query("beam")
-            self.list_variables = """
-            {
-                "variable": "%s"
-            }
-            """
-        elif id is not None and name is None and beam is None:
-            self.list_query = self.build_list_id_query("instrumentconfig", id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+        filters = [
+            {"field": "name", "value": name, "join": None},
+            {"field": "beam", "value": beam, "join": None},
+        ]
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(self, name, bandwidth, frequency, nchan, npol, beam):
         self.create_variables = {

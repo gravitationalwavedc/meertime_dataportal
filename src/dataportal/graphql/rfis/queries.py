@@ -19,4 +19,4 @@ class RfisNode(DjangoObjectType):
 
 class Query(ObjectType):
     rfi = relay.Node.Field(RfisNode)
-    all_rfis = DjangoFilterConnectionField(RfisNode)
+    all_rfis = DjangoFilterConnectionField(RfisNode, max_limit=10000)

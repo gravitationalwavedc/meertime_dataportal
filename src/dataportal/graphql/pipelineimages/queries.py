@@ -19,4 +19,4 @@ class PipelineimagesNode(DjangoObjectType):
 
 class Query(ObjectType):
     pipelineimage = relay.Node.Field(PipelineimagesNode)
-    all_pipelineimages = DjangoFilterConnectionField(PipelineimagesNode)
+    all_pipelineimages = DjangoFilterConnectionField(PipelineimagesNode, max_limit=10000)

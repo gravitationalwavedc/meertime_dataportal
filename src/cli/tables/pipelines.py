@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Pipelines(GraphQLTable):
@@ -49,22 +50,11 @@ class Pipelines(GraphQLTable):
         self.field_names = ["id", "name", "description", "revision", "createdAt", "createdBy", "configuration"]
 
     def list_graphql(self, id, name):
-        if id is None and name is not None:
-            self.list_query = self.build_list_str_query("name")
-            self.list_variables = """
-            {
-                "variable": "%s"
-            }
-            """
-            return GraphQLTable.list_graphql(self, (name))
-        elif id is not None and name is None:
-            self.list_query = self.build_list_id_query("pipeline", id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+        filters = [
+            {"field": "name", "value": name, "join": None},
+        ]
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(self, name, description, revision, created_at, created_by, configuration):
         self.create_variables = {

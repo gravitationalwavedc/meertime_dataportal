@@ -16,3 +16,5 @@ class InstrumentconfigsInput(graphene.InputObjectType):
     nchan = graphene.Int(required=True)
     npol = graphene.Int(required=True)
     beam = graphene.String(required=True)
+
+    limits = Instrumentconfigs.limits

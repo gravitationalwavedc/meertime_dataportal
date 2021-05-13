@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Launches(GraphQLTable):
@@ -39,20 +40,14 @@ class Launches(GraphQLTable):
         self.literal_field_names = ["id", "pipeline {id}", "parentPipeline {id}", "pulsar {id}"]
         self.field_names = ["id", "pipeline {name}", "parentPipeline {name}", "pulsar {jname}"]
 
-    def list_graphql(self, id, pipeline_id, pulsar_id):
-        self.list_variables = "{}"
-        if id is None and pulsar_id is None and pipeline_id is not None:
-            self.list_query = self.build_list_join_id_query("Pipelines", "pipeline", pipeline_id)
-            return GraphQLTable.list_graphql(self, ())
-        if id is None and pulsar_id is not None and pipeline_id is None:
-            self.list_query = self.build_list_join_id_query("Pulsars", "pulsar", pulsar_id)
-            return GraphQLTable.list_graphql(self, ())
-        elif id is not None and pipeline_id is None and pulsar_id is None:
-            self.list_query = self.build_list_id_query("launch", id)
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            return GraphQLTable.list_graphql(self, ())
+    def list_graphql(self, id, pipeline, parentPipeline, pulsar):
+        filters = [
+            {"field": "pipeline", "value": pipeline, "join": "Pipelines"},
+            {"field": "parentPipeline", "value": parentPipeline, "join": "Pipelines"},
+            {"field": "pulsar", "value": pulsar, "join": "Pulsars"},
+        ]
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
@@ -72,7 +67,7 @@ class Launches(GraphQLTable):
             }
             return self.update_graphql()
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.pipeline_id, args.pulsar_id)
+            return self.list_graphql(args.id, args.pipeline_id, args.parent_pipeline_id, args.pulsar_id)
 
     @classmethod
     def get_name(cls):

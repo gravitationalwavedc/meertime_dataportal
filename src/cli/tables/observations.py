@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Observations(GraphQLTable):
@@ -94,37 +95,34 @@ class Observations(GraphQLTable):
             "comment",
         ]
 
-    def list_graphql(self, args):
+    def list_graphql(
+        self,
+        id,
+        target_id,
+        target_name,
+        telescope_id,
+        telescope_name,
+        project_id,
+        project_code,
+        instrumentconfig_id,
+        instrumentconfig_name,
+        utcstart_gte,
+        utcstart_lte,
+    ):
         filters = [
-            {"field": "target_Id", "join": "Targets"},
-            {"field": "target_Name", "join": "Targets"},
-            {"field": "telescope_Id", "join": "Telescopes"},
-            {"field": "telescope_Name", "join": "Telescopes"},
-            {"field": "project_Id", "join": "Projects"},
-            {"field": "project_Code", "join": "Projects"},
-            {"field": "instrumentConfig_Id", "join": "InstrumentConfigs"},
-            {"field": "instrumentConfig_Name", "join": "InstrumentConfigs"},
-            {"field": "utcStart_Gte", "join": None},
-            {"field": "utcStart_Lte", "join": None},
+            {"field": "target_Id", "value": target_id, "join": "Targets"},
+            {"field": "target_Name", "value": target_name, "join": "Targets"},
+            {"field": "telescope_Id", "value": telescope_id, "join": "Telescopes"},
+            {"field": "telescope_Name", "value": telescope_name, "join": "Telescopes"},
+            {"field": "project_Id", "value": project_id, "join": "Projects"},
+            {"field": "project_Code", "value": project_code, "join": "Projects"},
+            {"field": "instrumentConfig_Id", "value": instrumentconfig_id, "join": "InstrumentConfigs"},
+            {"field": "instrumentConfig_Name", "value": instrumentconfig_name, "join": "InstrumentConfigs"},
+            {"field": "utcStart_Gte", "value": utcstart_gte, "join": None},
+            {"field": "utcStart_Lte", "value": utcstart_lte, "join": None},
         ]
-        fields = []
-        for f in filters:
-            if hasattr(args, f["field"]) and not getattr(args, f["field"]) is None:
-                f["value"] = getattr(args, f["field"])
-                fields.append(f)
-
-        if args.id is not None:
-            self.list_query = self.build_list_id_query("observation", args.id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        elif len(fields) > 0:
-            self.list_query = self.build_filter_query(fields)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(
         self,
@@ -224,7 +222,19 @@ class Observations(GraphQLTable):
                 args.comment,
             )
         elif args.subcommand == "list":
-            return self.list_graphql(args)
+            return self.list_graphql(
+                args.id,
+                args.target_id,
+                args.target_name,
+                args.telescope_id,
+                args.telescope_name,
+                args.project_id,
+                args.project_code,
+                args.instrumentconfig_id,
+                args.instrumentconfig_name,
+                args.utcstart_gte,
+                args.utcstart_lte,
+            )
 
     @classmethod
     def get_name(cls):
@@ -251,23 +261,23 @@ class Observations(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing observations")
         parser_list.add_argument("--id", type=int, help="list observations matching the id")
-        parser_list.add_argument("--target_Id", type=int, help="list observations matching the target id")
-        parser_list.add_argument("--target_Name", type=str, help="list observations matching the target Name")
-        parser_list.add_argument("--telescope_Id", type=int, help="list observations matching the telescope id")
-        parser_list.add_argument("--telescope_Name", type=str, help="list observations matching the telescope name")
+        parser_list.add_argument("--target_id", type=int, help="list observations matching the target id")
+        parser_list.add_argument("--target_name", type=str, help="list observations matching the target Name")
+        parser_list.add_argument("--telescope_id", type=int, help="list observations matching the telescope id")
+        parser_list.add_argument("--telescope_name", type=str, help="list observations matching the telescope name")
         parser_list.add_argument(
-            "--instrumentConfig_Id", type=int, help="list observations matching the instrument_config id"
+            "--instrumentconfig_id", type=int, help="list observations matching the instrument_config id"
         )
         parser_list.add_argument(
-            "--instrumentConfig_Name", type=str, help="list observations matching the instrument_config name"
+            "--instrumentconfig_name", type=str, help="list observations matching the instrument_config name"
         )
-        parser_list.add_argument("--project_Id", type=int, help="list observations matching the project id")
-        parser_list.add_argument("--project_Code", type=str, help="list observations matching the project code")
+        parser_list.add_argument("--project_id", type=int, help="list observations matching the project id")
+        parser_list.add_argument("--project_code", type=str, help="list observations matching the project code")
         parser_list.add_argument(
-            "--utcStart_Gte", type=str, help="list observations with utc_start greater than the timestamp"
+            "--utcstart_gte", type=str, help="list observations with utc_start greater than or equal to the timestamp"
         )
         parser_list.add_argument(
-            "--utcStart_Lte", type=str, help="list observations with utc_start greater than the timestamp"
+            "--utcstart_lte", type=str, help="list observations with utc_start less than or equal to the timestamp"
         )
 
         # create the parser for the "create" command

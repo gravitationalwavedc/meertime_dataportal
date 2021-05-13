@@ -1,4 +1,5 @@
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Foldings(GraphQLTable):
@@ -59,30 +60,13 @@ class Foldings(GraphQLTable):
             "tsubint",
         ]
 
-    def list_graphql(self, args):
-
+    def list_graphql(self, id, processing_id, folding_ephemeris_id):
         filters = [
-            {"arg": "processing_id", "field": "processingId", "join": "Processings"},
-            {"arg": "folding_ephemeris_id", "field": "foldingEphemerisId", "join": None},
+            {"field": "processing", "value": processing_id, "join": "Processings"},
+            {"field": "foldingEphemeris", "value": folding_ephemeris_id, "join": "Ephemerides"},
         ]
-        fields = []
-        for f in filters:
-            if hasattr(args, f["arg"]) and not getattr(args, f["arg"]) is None:
-                f["value"] = getattr(args, f["arg"])
-                fields.append(f)
-
-        if args.id is not None:
-            self.list_query = self.build_list_id_query("folding", args.id)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        elif len(fields) > 0:
-            self.list_query = self.build_filter_query(fields)
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLTable.list_graphql(self, ())
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(self, processing, eph, nbin, npol, nchan, dm, tsubint):
         self.create_variables = {
@@ -113,7 +97,7 @@ class Foldings(GraphQLTable):
             }
             return self.update_graphql()
         elif args.subcommand == "list":
-            return self.list_graphql(args)
+            return self.list_graphql(args.id, args.processing, args.eph)
 
     @classmethod
     def get_name(cls):
@@ -140,8 +124,8 @@ class Foldings(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing foldings")
         parser_list.add_argument("--id", type=int, help="list foldings matching the id")
-        parser_list.add_argument("--processing_id", type=int, help="list foldings matching the processing id")
-        parser_list.add_argument("--folding_ephemeris_id", type=int, help="list foldings matching the ephemeris id")
+        parser_list.add_argument("--processing", type=int, help="list foldings matching the processing id")
+        parser_list.add_argument("--eph", type=int, help="list foldings matching the ephemeris id")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new folding")

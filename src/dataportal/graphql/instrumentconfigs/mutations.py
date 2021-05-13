@@ -1,6 +1,7 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 from .types import *
+from decimal import Decimal
 
 
 class CreateInstrumentconfig(graphene.Mutation):
@@ -12,6 +13,10 @@ class CreateInstrumentconfig(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_instrumentconfigs")
     def mutate(cls, self, info, input):
+        # santize the the decimal values due to Django bug
+        for field, limits in InstrumentconfigsInput.limits.items():
+            deci_str = "1.".ljust(limits["deci"] + 2, "0")
+            input.__dict__[field] = input.__dict__[field].quantize(Decimal(deci_str))
         _instrumentconfig, _ = Instrumentconfigs.objects.get_or_create(**input.__dict__)
         return CreateInstrumentconfig(instrumentconfig=_instrumentconfig)
 

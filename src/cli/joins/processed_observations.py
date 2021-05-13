@@ -1,4 +1,5 @@
 from joins.graphql_join import GraphQLJoin
+from tables.graphql_query import graphql_query_factory
 
 
 class ProcessedObservations(GraphQLJoin):
@@ -50,37 +51,29 @@ class ProcessedObservations(GraphQLJoin):
         ]
 
     def list_graphql(self, args):
-
         filters = [
-            {"arg": "target_id", "field": "observation_Target_Id", "join": "Targets"},
-            {"arg": "target_name", "field": "observation_Target_Name", "join": "Targets"},
-            {"arg": "telescope_id", "field": "observation_Telescope_Id", "join": "Telescopes"},
-            {"arg": "telescope_name", "field": "observation_Telescope_Name", "join": "Telescopes"},
-            {"arg": "project_id", "field": "observation_Project_Id", "join": "Projects"},
-            {"arg": "project_code", "field": "observation_Project_Code", "join": "Projects"},
-            {"arg": "instrument_config_id", "field": "observation_InstrumentConfig_Id", "join": "InstrumentConfigs"},
+            {"value": args.target_id, "field": "observation_Target_Id", "join": "Targets"},
+            {"value": args.target_name, "field": "observation_Target_Name", "join": "Targets"},
+            {"value": args.telescope_id, "field": "observation_Telescope_Id", "join": "Telescopes"},
+            {"value": args.telescope_name, "field": "observation_Telescope_Name", "join": "Telescopes"},
+            {"value": args.project_id, "field": "observation_Project_Id", "join": "Projects"},
+            {"value": args.project_code, "field": "observation_Project_Code", "join": "Projects"},
             {
-                "arg": "instrument_config_name",
+                "value": args.instrument_config_id,
+                "field": "observation_InstrumentConfig_Id",
+                "join": "InstrumentConfigs",
+            },
+            {
+                "value": args.instrument_config_name,
                 "field": "observation_InstrumentConfig_Name",
                 "join": "InstrumentConfigs",
             },
-            {"arg": "utc_start_gte", "field": "observation_UtcStart_Gte", "join": None},
-            {"arg": "utc_start_lte", "field": "observation_UtcStart_Lte", "join": None},
+            {"value": args.utc_start_gte, "field": "observation_UtcStart_Gte", "join": None},
+            {"value": args.utc_start_lte, "field": "observation_UtcStart_Lte", "join": None},
         ]
-        fields = []
-        for f in filters:
-            if hasattr(args, f["arg"]) and not getattr(args, f["arg"]) is None:
-                f["value"] = getattr(args, f["arg"])
-                fields.append(f)
 
-        if len(fields) > 0:
-            self.list_query = self.build_filter_query(fields)
-            self.list_variables = "{}"
-            return GraphQLJoin.list_graphql(self, ())
-        else:
-            self.list_query = self.build_list_all_query()
-            self.list_variables = "{}"
-            return GraphQLJoin.list_graphql(self, ())
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, None, filters)
+        return GraphQLJoin.list_graphql(self, graphql_query)
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""

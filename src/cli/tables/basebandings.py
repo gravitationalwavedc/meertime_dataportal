@@ -3,6 +3,7 @@
 """
 
 from tables.graphql_table import GraphQLTable
+from tables.graphql_query import graphql_query_factory
 
 
 class Basebandings(GraphQLTable):
@@ -46,18 +47,12 @@ class Basebandings(GraphQLTable):
         """
         self.field_names = ["id", "processing { id }"]
 
-    def list_graphql(self, basebanding_id, processing_id):
-        list_args = ()
-        self.list_variables = "{}"
-
-        if basebanding_id is not None and processing_id is None:
-            self.list_query = self.build_list_id_query("basebanding", basebanding_id)
-        elif basebanding_id is None and processing_id is not None:
-            self.list_query = self.build_list_join_id_query("Processings", "processing", processing_id)
-        else:
-            self.list_query = self.build_list_all_query()
-
-        return GraphQLTable.list_graphql(self, list_args)
+    def list_graphql(self, id, processing_id):
+        filters = [
+            {"field": "processing", "value": processing_id, "join": "Processings"},
+        ]
+        graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
+        return GraphQLTable.list_graphql(self, graphql_query)
 
     def process(self, parser_args):
         """Parse the arguments collected by the CLI."""
@@ -102,7 +97,7 @@ class Basebandings(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing pipelines")
         parser_list.add_argument("--id", type=int, help="list pipelines matching the id")
-        parser_list.add_argument("--processing", type=str, help="list pipelines matching the processing id")
+        parser_list.add_argument("--processing", type=int, help="list pipelines matching the processing id")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new basebanding")

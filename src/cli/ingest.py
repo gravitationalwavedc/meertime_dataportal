@@ -13,9 +13,10 @@ from graphql_client import GraphQLClient
 from util import header, ephemeris
 from util import time as util_time
 
+CALIBRATIONS_DIR = "../ingest-ajameson/test-data/calibrations"
 RESULTS_DIR = "../ingest-ajameson/test-data/kronos"
 FOLDING_DIR = "../ingest-ajameson/test-data/timing"
-PTUSE_FOLDING_DIR = "test-data/ptuse-folding"
+PTUSE_FOLDING_DIR = "../ingest-ajameson/test-data/ptuse-folding"
 LOG_DIRECTORY = "logs"
 LOG_FILE = "%s/%s" % (LOG_DIRECTORY, time.strftime("%Y-%m-%d_c2g_receiver.log"))
 
@@ -32,19 +33,37 @@ def get_id(response, table):
     return None
 
 
-def get_id_from_listing(response, table):
+def get_id_from_listing(response, table, listing=None):
     content = json.loads(response.content)
     if not "errors" in content.keys():
         data = content["data"]
-        listing = "all%ss" % (table.capitalize())
+        if listing is None:
+            listing = "all%ss" % (table.capitalize())
         if listing in data.keys():
             if "edges" in data[listing]:
                 edge_list = data[listing]["edges"]
-                if len(edge_list) == 1:
+                if len(edge_list) >= 1:
                     if "node" in edge_list[0].keys():
                         if "id" in edge_list[0]["node"]:
                             return edge_list[0]["node"]["id"]
     return None
+
+
+def get_calibration(utc_start):
+    utc_start_dt = datetime.strptime(utc_start, "%Y-%m-%d-%H:%M:%S")
+    auto_cal_epoch = "2020-04-04-00:00:00"
+    auto_cal_epoch_dt = datetime.strptime(auto_cal_epoch, "%Y-%m-%d-%H:%M:%S")
+    if utc_start_dt < auto_cal_epoch_dt:
+        cals = sorted(glob.glob(CALIBRATIONS_DIR + "/*.jones"), reverse=True)
+        for cal in cals:
+            cal_file = os.path.basename(cal)
+            cal_epoch = cal_file.rstrip(".jones")
+            cal_epoch_dt = datetime.strptime(cal_epoch, "%Y-%m-%d-%H:%M:%S")
+            if cal_epoch_dt < utc_start_dt:
+                return ("post", cal)
+        raise RuntimeError("Could not find calibration file for utc_start=" + utc_start)
+    else:
+        return ("pre", "None")
 
 
 def main(beam, utc_start, source, freq, client, url, token):
@@ -73,7 +92,11 @@ def main(beam, utc_start, source, freq, client, url, token):
         logging.error(str(error))
         raise error
 
+    literal = False
+    quiet = True
+
     targets = Targets(client, url, token)
+    targets.set_field_names(literal, quiet)
     response = targets.list_graphql(None, hdr.source)
     encoded_target_id = get_id_from_listing(response, "target")
     if encoded_target_id:
@@ -85,6 +108,7 @@ def main(beam, utc_start, source, freq, client, url, token):
         logging.info("target_id=%d" % (target_id))
 
     pulsars = Pulsars(client, url, token)
+    pulsars.set_field_names(literal, quiet)
     response = pulsars.list_graphql(None, hdr.source)
     encoded_pulsar_id = get_id_from_listing(response, "pulsar")
     if encoded_target_id:
@@ -112,14 +136,15 @@ def main(beam, utc_start, source, freq, client, url, token):
     instrument_config_id = get_id(response, "instrumentconfig")
     logging.info("instrument_config_id=%d" % (instrument_config_id))
 
-    # TODO calibration needs more work
-    # calibrations = Calibrations(client, url, token)
-    # response = calibrations.create
-    # calibration_id = get_id(response, "calibration")
-    calibration_id = 1
-    # logging.info("calibration_id=%d" % (calibration_id))
+    calibrations = Calibrations(client, url, token)
+    (calibration_type, calibration_location) = get_calibration(utc_start)
+    calibration_id = get_id
+    response = calibrations.create(calibration_type, calibration_location)
+    calibration_id = get_id(response, "calibration")
+    logging.info("calibration_id=%d" % (calibration_id))
 
     projects = Projects(client, url, token)
+    projects.set_field_names(literal, quiet)
     # 18 months (548 days) embargo in us:
     embargo_days = 548
     response = projects.list_graphql(None, hdr.proposal_id)
@@ -177,14 +202,30 @@ def main(beam, utc_start, source, freq, client, url, token):
     valid_to = util_time.get_time(4294967295)
     comment = "Created by tables.ephemeris.new"
 
+    # get_or_create in the mutation always creates, since the created_at, valid from times are always different
+    # TODO filter on the actual ephemeris, but JSONfield filtering doesn't seem to work
     ephemerides = Ephemerides(client, url, token)
-    # TODO check existing / understand why get_or_create in the mutation always creates
-    response = ephemerides.create(
-        pulsar_id, created_at, created_by, eph.ephem, eph.p0, eph.dm, eph.rm, comment, valid_from, valid_to
-    )
-
-    ephemeris_id = get_id(response, "ephemeris")
-    logging.info("ephemeris_id=%d" % (ephemeris_id))
+    ephemerides.set_field_names(literal, quiet)
+    response = ephemerides.list_graphql(None, pulsar_id, eph.p0, eph.dm, eph.rm)
+    encoded_ephemeris_id = get_id_from_listing(response, "ephemeris", listing="allEphemerides")
+    if encoded_ephemeris_id:
+        ephemeris_id = int(ephemerides.decode_id(encoded_ephemeris_id))
+        logging.info("ephemeris_id=%d (pre-existing)" % ephemeris_id)
+    else:
+        response = ephemerides.create(
+            pulsar_id,
+            created_at,
+            created_by,
+            json.dumps(eph.ephem),
+            eph.p0,
+            eph.dm,
+            eph.rm,
+            comment,
+            valid_from,
+            valid_to,
+        )
+        ephemeris_id = get_id(response, "ephemeris")
+        logging.info("ephemeris_id=%d" % (ephemeris_id))
 
     pipelines = Pipelines(client, url, token)
     # TODO check existing / understand why gein the mutation always creates
@@ -197,7 +238,7 @@ def main(beam, utc_start, source, freq, client, url, token):
     results = json.dumps({"snr": float(obs_results.get("snr"))})
 
     processings = Processings(client, url, token)
-    # TODO check existing / understand why gein the mutation always creates
+    # TODO check existing / understand why the mutation always creates
     parent_processing_id = None
     utc_dt = datetime.strptime(f"{utc_start} +0000", "%Y-%m-%d-%H:%M:%S %z")
     embargo_end_dt = utc_dt + timedelta(microseconds=embargo_us)
@@ -220,12 +261,16 @@ def main(beam, utc_start, source, freq, client, url, token):
     pipelineimages = Pipelineimages(client, url, token)
     # TODO check existing / understand why gein the mutation always creates
     rank = 0
-    for png in glob.glob("%s/*.hi.png" % (results_dir)):
-        image_type = png[-11:-7]  # clunky!
-        response = pipelineimages.create(png, image_type, rank, processing_id)
-        pipeline_image_id = get_id(response, "pipelineimage")
-        rank += 1
-        logging.info("pipeline_image_id=%d" % (pipeline_image_id))
+    for png in glob.glob("%s/*.*.png" % (results_dir)):
+        # check image size
+        if os.stat(png).st_size > 0:
+            image_type = png[-11:-4]  # clunky!
+            response = pipelineimages.create(png, image_type, rank, processing_id)
+            pipeline_image_id = get_id(response, "pipelineimage")
+            rank += 1
+            logging.info("pipeline_image_id=%d" % (pipeline_image_id))
+        else:
+            logging.info("Ignoring empty pipeline image %s" % (png))
 
 
 if __name__ == "__main__":

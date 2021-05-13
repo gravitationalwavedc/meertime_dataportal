@@ -40,4 +40,4 @@ class FoldingsNode(DjangoObjectType):
 
 class Query(ObjectType):
     folding = relay.Node.Field(FoldingsNode)
-    all_foldings = DjangoFilterConnectionField(FoldingsNode)
+    all_foldings = DjangoFilterConnectionField(FoldingsNode, max_limit=10000)
