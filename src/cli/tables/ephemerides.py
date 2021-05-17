@@ -59,6 +59,14 @@ class Ephemerides(GraphQLTable):
         }
         """
 
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteEphemeris(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "pulsar {jname}", "createdAt", "createdBy", "p0", "dm", "rm", "ephemeris"]
         self.literal_field_names = ["id", "pulsar {id}", "createdAt", "createdBy", "p0", "dm", "rm", "ephemeris"]
 
@@ -138,6 +146,10 @@ class Ephemerides(GraphQLTable):
             )
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.pulsar, args.p0, args.dm, args.rm)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -207,6 +219,10 @@ class Ephemerides(GraphQLTable):
         parser_update.add_argument(
             "valid_to", type=str, help="end of the validity of the ephemeris (YYYY-MM-DDTHH:MM:SS+00:00)"
         )
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing ephemeris")
+        parser_delete.add_argument("id", type=int, help="id of the ephemeris")
 
 
 if __name__ == "__main__":

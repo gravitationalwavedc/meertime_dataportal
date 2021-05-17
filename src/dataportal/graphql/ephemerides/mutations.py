@@ -39,6 +39,22 @@ class UpdateEphemeris(graphene.Mutation):
         return CreateEphemeris(ephemeris=None)
 
 
+class DeleteEphemeris(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    ephemeris = graphene.Field(EphemeridesType)
+
+    @classmethod
+    @permission_required("dataportal.add_ephemeriss")
+    def mutate(cls, self, info, id):
+        _ephemeris = Ephemerides.objects.get(pk=id)
+        _ephemeris.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_ephemeris = CreateEphemeris.Field()
     update_ephemeris = UpdateEphemeris.Field()
+    delete_ephemeris = DeleteEphemeris.Field()

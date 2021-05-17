@@ -33,6 +33,14 @@ class Telescopes(GraphQLTable):
         }
         """
 
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteTelescope(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "name"]
 
     def list_graphql(self, id, name):
@@ -58,6 +66,10 @@ class Telescopes(GraphQLTable):
             return self.update(args.id, args.name)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -94,6 +106,9 @@ class Telescopes(GraphQLTable):
         parser_update = subs.add_parser("update", help="update an existing telescope")
         parser_update.add_argument("id", type=int, help="database id of an existing telescope")
         parser_update.add_argument("name", type=str, help="name of the telescope")
+
+        parser_delete = subs.add_parser("delete", help="delete an existing telescope")
+        parser_delete.add_argument("id", type=int, help="id of the telescope")
 
 
 if __name__ == "__main__":

@@ -34,6 +34,15 @@ class Collections(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteCollection(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "name", "description"]
 
     def list_graphql(self, id, name):
@@ -63,6 +72,10 @@ class Collections(GraphQLTable):
             return self.update(args.id, args.name, args.description)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -97,10 +110,14 @@ class Collections(GraphQLTable):
         parser_create.add_argument("description", type=str, help="description of the collection")
 
         # create the parser for the "update" command
-        parser_update = subs.add_parser("update", help="update an existing pulsartarget")
+        parser_update = subs.add_parser("update", help="update an existing collection")
         parser_update.add_argument("id", type=int, help="id of the collection")
         parser_update.add_argument("name", type=str, help="name of the collection")
         parser_update.add_argument("description", type=str, help="description of the collection")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing collection")
+        parser_delete.add_argument("id", type=int, help="id of the collection")
 
 
 if __name__ == "__main__":

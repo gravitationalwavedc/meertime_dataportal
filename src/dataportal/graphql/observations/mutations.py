@@ -34,6 +34,21 @@ class UpdateObservation(graphene.Mutation):
         return CreateObservation(observation=None)
 
 
+class DeleteObservation(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+
+    @classmethod
+    @permission_required("dataportal.add_observations")
+    def mutate(cls, self, info, id):
+        _observation = Observations.objects.get(pk=id)
+        _observation.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_observation = CreateObservation.Field()
     update_observation = UpdateObservation.Field()
+    delete_observation = DeleteObservation.Field()

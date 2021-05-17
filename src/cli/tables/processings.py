@@ -39,7 +39,7 @@ class Processings(GraphQLTable):
                 results: $results
             }) {
                 processing {
-                    id
+                    id,
                     observation { id },
                     pipeline { id },
                     parent { id },
@@ -51,6 +51,15 @@ class Processings(GraphQLTable):
                 }
             }
         }       """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteProcessing(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = [
             "id",
             "observation { id }",
@@ -74,8 +83,12 @@ class Processings(GraphQLTable):
             "results",
         ]
 
-    def list_graphql(self, id):
-        filters = []
+    def list_graphql(self, id, location, utc_start):
+        filters = [
+            {"field": "location", "value": location, "join": None},
+            {"field": "observation_UtcStart_Gte", "value": utc_start, "join": "Observations"},
+            {"field": "observation_UtcStart_Lte", "value": utc_start, "join": "Observations"},
+        ]
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)
 
@@ -119,7 +132,11 @@ class Processings(GraphQLTable):
             }
             return self.update_graphql()
         elif args.subcommand == "list":
-            return self.list_graphql(args.id)
+            return self.list_graphql(args.id, args.location, args.utc_start)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -146,6 +163,8 @@ class Processings(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing processings")
         parser_list.add_argument("--id", type=int, help="list processing matching the id")
+        parser_list.add_argument("--utc_start", type=str, help="list processing matching the observation utc_start")
+        parser_list.add_argument("--location", type=str, help="list processing matching the processing location")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new pipeline")
@@ -166,13 +185,17 @@ class Processings(GraphQLTable):
         parser_update.add_argument("observation", type=int, help="observation id for the processing")
         parser_update.add_argument("pipeline", type=int, help="pipeline id for the processing")
         parser_update.add_argument("parent", type=int, help="parent id for the processing")
+        parser_update.add_argument("location", type=str, help="location (on disk) of the processing")
         parser_update.add_argument(
             "embargo_end", type=str, help="end of embargo of the processing (YYYY-MM-DDTHH:MM:SS+0000)"
         )
-        parser_update.add_argument("location", type=str, help="location (on disk) of the processing")
         parser_update.add_argument("job_state", type=str, help="JSON with the state of the processing")
         parser_update.add_argument("job_output", type=str, help="JSON with output of the processing")
         parser_update.add_argument("results", type=str, help="JSON with results of the processing")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing processing")
+        parser_delete.add_argument("id", type=int, help="id of the processing")
 
 
 if __name__ == "__main__":

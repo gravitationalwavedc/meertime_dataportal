@@ -35,6 +35,22 @@ class UpdateCalibration(graphene.Mutation):
         return UpdateCalibration(calibration=None)
 
 
+class DeleteCalibration(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    calibration = graphene.Field(CalibrationsType)
+
+    @classmethod
+    @permission_required("dataportal.add_calibrations")
+    def mutate(cls, self, info, id):
+        _calibration = Calibrations.objects.get(pk=id)
+        _calibration.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_calibration = CreateCalibration.Field()
     update_calibration = UpdateCalibration.Field()
+    delete_calibration = DeleteCalibration.Field()

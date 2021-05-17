@@ -37,6 +37,21 @@ class UpdateProcessing(graphene.Mutation):
         return UpdateProcessing(processing=None)
 
 
+class DeleteProcessing(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+
+    @classmethod
+    @permission_required("dataportal.add_processings")
+    def mutate(cls, self, info, id):
+        _processing = Processings.objects.get(pk=id)
+        _processing.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_processing = CreateProcessing.Field()
     update_processing = UpdateProcessing.Field()
+    delete_processing = DeleteProcessing.Field()

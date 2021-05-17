@@ -61,6 +61,23 @@ class UpdatePipelineimage(graphene.Mutation):
         return UpdatePipelineimage(pipelineimage=None)
 
 
+class DeletePipelineimage(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    pipelineimage = graphene.Field(PipelineimagesType)
+
+    @classmethod
+    @permission_required("dataportal.add_pipelineimages")
+    def mutate(cls, self, info, id):
+        _pipelineimage = Pipelineimages.objects.get(pk=id)
+        _pipelineimage.image.delete()
+        _pipelineimage.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_pipelineimage = CreatePipelineimage.Field()
     update_pipelineimage = UpdatePipelineimage.Field()
+    delete_pipelineimage = DeletePipelineimage.Field()

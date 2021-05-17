@@ -35,6 +35,22 @@ class UpdateTelescope(graphene.Mutation):
         return UpdateTelescope(telescope=None)
 
 
+class DeleteTelescope(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    telescope = graphene.Field(TelescopesType)
+
+    @classmethod
+    @permission_required("dataportal.add_telescopes")
+    def mutate(cls, self, info, id):
+        _telescope = Telescopes.objects.get(pk=id)
+        _telescope.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_telescope = CreateTelescope.Field()
     update_telescope = UpdateTelescope.Field()
+    delete_telescope = DeleteTelescope.Field()

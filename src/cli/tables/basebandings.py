@@ -45,6 +45,15 @@ class Basebandings(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteBasebanding(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "processing { id }"]
 
     def list_graphql(self, id, processing_id):
@@ -61,15 +70,18 @@ class Basebandings(GraphQLTable):
                 "processing_id": parser_args.processing,
             }
             return self.create_graphql()
-        if parser_args.subcommand == "update":
+        elif parser_args.subcommand == "update":
             self.update_variables = {
                 "id": parser_args.id,
                 "processing_id": parser_args.processing,
             }
             return self.update_graphql()
-        if parser_args.subcommand == "list":
+        elif parser_args.subcommand == "list":
             return self.list_graphql(parser_args.id, parser_args.processing)
-        return None
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -107,6 +119,10 @@ class Basebandings(GraphQLTable):
         parser_update = subs.add_parser("update", help="update the values of an existing basebanding")
         parser_update.add_argument("id", type=int, help="database id of the basebanding")
         parser_update.add_argument("processing", type=int, help="processing id of the basebanding")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing basebanding")
+        parser_delete.add_argument("id", type=int, help="id of the basebanding")
 
 
 if __name__ == "__main__":

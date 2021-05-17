@@ -34,6 +34,15 @@ class Pulsartargets(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deletePulsartarget(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.literal_field_names = ["id", "pulsar {id}", "target {id}"]
         self.field_names = ["id", "pulsar {jname}", "target {name}"]
 
@@ -60,6 +69,10 @@ class Pulsartargets(GraphQLTable):
             return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.target, args.target_name, args.pulsar, args.pulsar_jname)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -101,6 +114,10 @@ class Pulsartargets(GraphQLTable):
         parser_update.add_argument("id", type=int, help="id of the pulsartarget")
         parser_update.add_argument("pulsar", type=int, help="id of the pulsar")
         parser_update.add_argument("target", type=int, help="id of the target")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing pulsartarget")
+        parser_delete.add_argument("id", type=int, help="id of the pulsartarget")
 
 
 if __name__ == "__main__":

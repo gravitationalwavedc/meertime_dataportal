@@ -35,6 +35,22 @@ class UpdateBasebanding(graphene.Mutation):
         return UpdateBasebanding(basebanding=None)
 
 
+class DeleteBasebanding(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    basebanding = graphene.Field(BasebandingsType)
+
+    @classmethod
+    @permission_required("dataportal.add_basebandings")
+    def mutate(cls, self, info, id):
+        _basebanding = Basebandings.objects.get(pk=id)
+        _basebanding.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_basebanding = CreateBasebanding.Field()
     update_basebanding = UpdateBasebanding.Field()
+    delete_basebanding = DeleteBasebanding.Field()

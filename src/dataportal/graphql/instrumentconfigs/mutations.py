@@ -40,6 +40,22 @@ class UpdateInstrumentconfig(graphene.Mutation):
         return UpdateInstrumentconfig(instrumentconfig=None)
 
 
+class DeleteInstrumentconfig(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    instrumentconfig = graphene.Field(InstrumentconfigsType)
+
+    @classmethod
+    @permission_required("dataportal.add_instrumentconfigs")
+    def mutate(cls, self, info, id):
+        _instrumentconfig = Instrumentconfigs.objects.get(pk=id)
+        _instrumentconfig.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_instrumentconfig = CreateInstrumentconfig.Field()
     update_instrumentconfig = UpdateInstrumentconfig.Field()
+    delete_instrumentconfig = DeleteInstrumentconfig.Field()

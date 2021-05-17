@@ -35,6 +35,22 @@ class UpdateFilterbanking(graphene.Mutation):
         return UpdateFilterbanking(filterbanking=None)
 
 
+class DeleteFilterbanking(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    filterbanking = graphene.Field(FilterbankingsType)
+
+    @classmethod
+    @permission_required("dataportal.add_filterbankings")
+    def mutate(cls, self, info, id):
+        _filterbanking = Filterbankings.objects.get(pk=id)
+        _filterbanking.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_filterbanking = CreateFilterbanking.Field()
     update_filterbanking = UpdateFilterbanking.Field()
+    delete_filterbanking = DeleteFilterbanking.Field()

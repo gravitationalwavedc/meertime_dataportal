@@ -38,6 +38,22 @@ class UpdateTarget(graphene.Mutation):
         return UpdateTarget(target=None)
 
 
+class DeleteTarget(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    target = graphene.Field(TargetsType)
+
+    @classmethod
+    @permission_required("dataportal.add_targets")
+    def mutate(cls, self, info, id):
+        _target = Targets.objects.get(pk=id)
+        _target.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_target = CreateTarget.Field()
     update_target = UpdateTarget.Field()
+    delete_target = DeleteTarget.Field()

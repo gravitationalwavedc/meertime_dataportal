@@ -34,6 +34,15 @@ class Processingcollections(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteProcessingcollection(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.literal_field_names = ["id", "processing {id}", "collection {id}"]
         self.field_names = ["id", "processing {id}", "collection {name}"]
 
@@ -54,6 +63,10 @@ class Processingcollections(GraphQLTable):
             return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.processing)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -94,6 +107,10 @@ class Processingcollections(GraphQLTable):
         parser_update.add_argument("id", type=int, help="id of the processingcollection")
         parser_update.add_argument("processing", type=int, help="id of the processing")
         parser_update.add_argument("collection", type=int, help="id of the collection")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing processingcollection")
+        parser_delete.add_argument("id", type=int, help="id of the processingcollection")
 
 
 if __name__ == "__main__":

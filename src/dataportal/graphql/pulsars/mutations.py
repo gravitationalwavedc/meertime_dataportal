@@ -35,6 +35,22 @@ class UpdatePulsar(graphene.Mutation):
         return UpdatePulsar(pulsar=None)
 
 
+class DeletePulsar(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    pulsar = graphene.Field(PulsarsType)
+
+    @classmethod
+    @permission_required("dataportal.add_pulsars")
+    def mutate(cls, self, info, id):
+        _pulsar = Pulsars.objects.get(pk=id)
+        _pulsar.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_pulsar = CreatePulsar.Field()
     update_pulsar = UpdatePulsar.Field()
+    delete_pulsar = DeletePulsar.Field()

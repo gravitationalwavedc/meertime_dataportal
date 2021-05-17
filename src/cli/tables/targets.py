@@ -37,6 +37,15 @@ class Targets(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteTarget(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "name", "raj", "decj"]
 
     def list_graphql(self, id, name):
@@ -59,6 +68,10 @@ class Targets(GraphQLTable):
             return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -99,6 +112,10 @@ class Targets(GraphQLTable):
         parse_update.add_argument("name", type=str, help="name of the target")
         parse_update.add_argument("raj", type=str, help="right ascension string in J2000 coordinates")
         parse_update.add_argument("decj", type=str, help="declincation string in J2000 coordnates")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing target")
+        parser_delete.add_argument("id", type=int, help="id of the target")
 
 
 if __name__ == "__main__":

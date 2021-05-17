@@ -35,6 +35,22 @@ class UpdateProcessingcollection(graphene.Mutation):
         return UpdateProcessingcollection(processingcollection=None)
 
 
+class DeleteProcessingcollection(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    processingcollection = graphene.Field(ProcessingcollectionsType)
+
+    @classmethod
+    @permission_required("dataportal.add_processingcollections")
+    def mutate(cls, self, info, id):
+        _processingcollection = Processingcollections.objects.get(pk=id)
+        _processingcollection.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_processingcollection = CreateProcessingcollection.Field()
     update_processingcollection = UpdateProcessingcollection.Field()
+    delete_processingcollection = DeleteProcessingcollection.Field()

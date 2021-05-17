@@ -65,6 +65,14 @@ class Observations(GraphQLTable):
         }
         """
 
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteObservation(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = [
             "id",
             "target { name }",
@@ -86,7 +94,6 @@ class Observations(GraphQLTable):
             "telescope { id }",
             "instrumentConfig { id }",
             "project { id }",
-            "config",
             "utcStart",
             "duration",
             "nant",
@@ -235,6 +242,10 @@ class Observations(GraphQLTable):
                 args.utcstart_gte,
                 args.utcstart_lte,
             )
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -313,6 +324,10 @@ class Observations(GraphQLTable):
         )
         parser_update.add_argument("suspect", type=bool, help="status of the observation")
         parser_update.add_argument("comment", type=str, help="any comment on the observation")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing observation")
+        parser_delete.add_argument("id", type=int, help="id of the observation")
 
 
 if __name__ == "__main__":

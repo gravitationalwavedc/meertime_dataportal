@@ -15,6 +15,7 @@ class ProcessingsNode(DjangoObjectType):
         model = Processings
         fields = "__all__"
         filter_fields = {
+            "location": ["exact"],
             "observation_id": ["exact"],
             "pipeline_id": ["exact"],
             "parent_id": ["exact"],

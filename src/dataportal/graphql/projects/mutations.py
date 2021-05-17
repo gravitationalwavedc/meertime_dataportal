@@ -43,6 +43,22 @@ class UpdateProject(graphene.Mutation):
         return UpdateProject(project=None)
 
 
+class DeleteProject(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    project = graphene.Field(ProjectsType)
+
+    @classmethod
+    @permission_required("dataportal.add_projects")
+    def mutate(cls, self, info, id):
+        _project = Projects.objects.get(pk=id)
+        _project.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_project = CreateProject.Field()
     update_project = UpdateProject.Field()
+    delete_project = DeleteProject.Field()

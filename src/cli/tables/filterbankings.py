@@ -46,6 +46,15 @@ class Filterbankings(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteFilterbanking(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "processing { id }", "nbit", "npol", "nchan", "dm", "tsamp"]
 
     def list_graphql(self, id, processing):
@@ -80,6 +89,10 @@ class Filterbankings(GraphQLTable):
             return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.processing)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -126,6 +139,10 @@ class Filterbankings(GraphQLTable):
         parser_update.add_argument("nchan", type=int, help="Number o channels in the filterbanking")
         parser_update.add_argument("dm", type=float, help="DM of the filterbanking")
         parser_update.add_argument("tsamp", type=float, help="sampling interval of the filterbanking")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing filterbanking")
+        parser_delete.add_argument("id", type=int, help="id of the filterbanking")
 
 
 if __name__ == "__main__":

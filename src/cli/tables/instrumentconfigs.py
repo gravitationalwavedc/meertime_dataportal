@@ -46,6 +46,15 @@ class Instrumentconfigs(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteInstrumentconfig(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "name", "frequency", "bandwidth", "nchan", "npol", "beam"]
 
     def list_graphql(self, id, name, beam):
@@ -87,6 +96,10 @@ class Instrumentconfigs(GraphQLTable):
             return self.update(args.id, args.name, args.bandwidth, args.frequency, args.nchan, args.npol, args.beam)
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name, args.beam)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -134,6 +147,10 @@ class Instrumentconfigs(GraphQLTable):
         parser_create.add_argument("nchan", type=int, help="number of channels of the instrument configuration")
         parser_create.add_argument("npol", type=int, help="number of polarisation of the instrument configuration")
         parser_create.add_argument("beam", type=str, help="beam description of the instrument configuration")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing instrument configuration")
+        parser_delete.add_argument("id", type=int, help="id of the instrument configuration")
 
 
 if __name__ == "__main__":

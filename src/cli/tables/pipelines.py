@@ -47,6 +47,15 @@ class Pipelines(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deletePipeline(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "name", "description", "revision", "createdAt", "createdBy", "configuration"]
 
     def list_graphql(self, id, name):
@@ -86,6 +95,10 @@ class Pipelines(GraphQLTable):
             return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.name)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -132,6 +145,10 @@ class Pipelines(GraphQLTable):
         parse_update.add_argument("created_at", type=str, help="date of the pipeline creation")
         parse_update.add_argument("created_by", type=str, help="author of the pipeline")
         parse_update.add_argument("configuration", type=str, help="json config of the pipeline")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing pipeline")
+        parser_delete.add_argument("id", type=int, help="id of the pipeline")
 
 
 if __name__ == "__main__":

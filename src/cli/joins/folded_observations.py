@@ -19,14 +19,16 @@ class FoldedObservations(GraphQLJoin):
             "tsubint,",
             """
             processing {
+                id
                 observation {
-                    target { id } 
-                    telescope { id } 
-                    calibration { id } 
-                    project { id } 
-                    instrument_config { id } 
+                    target { id }
+                    telescope { id }
+                    calibration { id }
+                    project { id }
+                    instrumentConfig { id }
                     utc_start
                 }
+                location
             }
             """,
         ]
@@ -45,16 +47,18 @@ class FoldedObservations(GraphQLJoin):
             """,
             """
             processing {
+                id
                 observation {
                     target {
                         name
                     },
-                    telescope { name } 
-                    calibration { id } 
-                    project { code } 
-                    instrumentConfig { id } 
+                    telescope { name }
+                    calibration { id }
+                    project { code }
+                    instrumentConfig { id }
                     utcStart
                 }
+                location
             }
             """,
         ]

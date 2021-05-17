@@ -56,6 +56,14 @@ class Pipelineimages(GraphQLTable):
         }
         """
 
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deletePipelineimage(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "image", "imageType", "rank", "processing {id}"]
 
     def list_graphql(self, id):
@@ -92,6 +100,10 @@ class Pipelineimages(GraphQLTable):
             return self.update(args.id, args.image, args.image_type, args.rank, args.processing_id)
         elif args.subcommand == "list":
             return self.list_graphql(args.id)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -141,6 +153,10 @@ class Pipelineimages(GraphQLTable):
             "rank", type=int, help="rank of the image, used to indicate the order of displaing the image"
         )
         parser_update.add_argument("image", type=str, help="path to the image to be uploaded")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing pipelineimage")
+        parser_delete.add_argument("id", type=int, help="id of the pipelineimage")
 
 
 if __name__ == "__main__":

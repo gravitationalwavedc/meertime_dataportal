@@ -49,6 +49,15 @@ class Foldings(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteFolding(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = [
             "id",
             "processing { id }",
@@ -98,6 +107,10 @@ class Foldings(GraphQLTable):
             return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.processing, args.eph)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -147,6 +160,10 @@ class Foldings(GraphQLTable):
         parser_update.add_argument("nchan", type=int, help="Number o channels in the folding")
         parser_update.add_argument("dm", type=float, help="DM of the folding")
         parser_update.add_argument("tsubint", type=float, help="subintegration time of the folding")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing folding")
+        parser_delete.add_argument("id", type=int, help="id of the folding")
 
 
 if __name__ == "__main__":

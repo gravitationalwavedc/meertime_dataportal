@@ -35,6 +35,22 @@ class UpdateCollection(graphene.Mutation):
         return UpdateCollection(collection=None)
 
 
+class DeleteCollection(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    collection = graphene.Field(CollectionsType)
+
+    @classmethod
+    @permission_required("dataportal.add_collections")
+    def mutate(cls, self, info, id):
+        _collection = Collections.objects.get(pk=id)
+        _collection.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_collection = CreateCollection.Field()
     update_collection = UpdateCollection.Field()
+    delete_collection = DeleteCollection.Field()

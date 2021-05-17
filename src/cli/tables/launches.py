@@ -37,6 +37,15 @@ class Launches(GraphQLTable):
             }
         }
         """
+
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteLaunch(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.literal_field_names = ["id", "pipeline {id}", "parentPipeline {id}", "pulsar {id}"]
         self.field_names = ["id", "pipeline {name}", "parentPipeline {name}", "pulsar {jname}"]
 
@@ -68,6 +77,10 @@ class Launches(GraphQLTable):
             return self.update_graphql()
         elif args.subcommand == "list":
             return self.list_graphql(args.id, args.pipeline_id, args.parent_pipeline_id, args.pulsar_id)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
+        else:
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -112,6 +125,10 @@ class Launches(GraphQLTable):
         parser_update.add_argument("pipeline_id", type=int, help="id of the pipeline")
         parser_update.add_argument("parent_pipeline_id", type=int, help="id of the parent pipeline")
         parser_update.add_argument("pulsar_id", type=int, help="id of the pulsar")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing launch")
+        parser_delete.add_argument("id", type=int, help="id of the launch")
 
 
 if __name__ == "__main__":

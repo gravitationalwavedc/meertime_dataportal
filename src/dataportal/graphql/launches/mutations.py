@@ -35,6 +35,22 @@ class UpdateLaunch(graphene.Mutation):
         return UpdateLaunch(launch=None)
 
 
+class DeleteLaunch(graphene.Mutation):
+    class Arguments:
+        id = graphene.Int(required=True)
+
+    ok = graphene.Boolean()
+    launch = graphene.Field(LaunchesType)
+
+    @classmethod
+    @permission_required("dataportal.add_launchs")
+    def mutate(cls, self, info, id):
+        _launch = Launches.objects.get(pk=id)
+        _launch.delete()
+        return cls(ok=True)
+
+
 class Mutation(graphene.ObjectType):
     create_launch = CreateLaunch.Field()
     update_launch = UpdateLaunch.Field()
+    delete_launch = DeleteLaunch.Field()

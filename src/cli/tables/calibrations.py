@@ -36,6 +36,14 @@ class Calibrations(GraphQLTable):
         }
         """
 
+        self.delete_mutation = """
+        mutation ($id: Int!) {
+            deleteCalibration(id: $id) {
+                ok
+            }
+        }
+        """
+
         self.field_names = ["id", "calibrationType", "location"]
 
     def list_graphql(self, id, type):
@@ -64,6 +72,8 @@ class Calibrations(GraphQLTable):
             return self.list(args.id, args.type)
         elif args.subcommand == "update":
             return self.update(args.id, args.type, args.location)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
         else:
             raise RuntimeError(args.subcommand + " command is not implemented")
 
@@ -103,6 +113,10 @@ class Calibrations(GraphQLTable):
         parser_udpate.add_argument("id", type=int, help="database id of the calibration")
         parser_udpate.add_argument("type", type=str, help="type of the calibration [pre, post or none]")
         parser_udpate.add_argument("location", type=str, help="location of the calibration on the filesystem")
+
+        # create the parser for the "delete" command
+        parser_delete = subs.add_parser("delete", help="delete an existing calibration")
+        parser_delete.add_argument("id", type=int, help="id of the calibration")
 
 
 if __name__ == "__main__":

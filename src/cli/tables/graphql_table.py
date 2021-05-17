@@ -26,6 +26,8 @@ class GraphQLTable:
         self.update_variables = {}
         self.list_query = None
         self.list_variables = None
+        self.delete_mutation = None
+        self.delete_variables = {}
         self.paginate = False
 
         self.cli_name = None
@@ -71,6 +73,11 @@ class GraphQLTable:
     def decode_id(self, encoded):
         decoded = b64decode(encoded).decode("ascii")
         return decoded.split(":")[1]
+
+    def delete(self, id):
+        """ Delete a record in the table matching the unique id."""
+        self.delete_variables = {"id": id}
+        return self.delete_graphql()
 
     def create_graphql(self,):
 
@@ -143,108 +150,26 @@ class GraphQLTable:
 
         return response
 
-    def build_list_all_query(self):
-        query_name = f"all{self.table_name.title()}"
-        query_clause = f"{query_name}(%s)"
-        template = """
-        query %s {
-            %s {
-                edges {
-                    node {
-                        %s
-                    }
-                }
-                pageInfo {
-                    endCursor
-                    hasNextPage
-                }
-            }
-        }
-        """
-        delim = ",\n                        "
-        query = template % (query_name, query_clause, delim.join(self.field_names))
-        return query
+    def delete_graphql(self):
+        logging.debug(f"Using mutation {self.delete_mutation}")
+        logging.debug(f"Using mutation vars dict {self.delete_variables}")
 
-    def build_list_id_query(self, singular, id):
-        table = self.__class__.__name__
-        query_name = f"all{table.title()}"
-        id_encoded = b64encode(f"{table.title()}Node:{id}".encode("ascii")).decode("utf-8")
-        template = """
-        query {
-            %s (id: \"%s\") {
-                %s
-            }
-        }
-        """
-        delim = ",\n                "
-        query = template % (singular, id_encoded, delim.join(self.field_names))
-        return query
-
-    def build_list_str_query(self, field):
-        table = self.__class__.__name__
-        query_name = f"all{table.title()}"
-        template = """
-        query %s ($variable: String!) {
-            %s (%s: $variable) {
-                edges {
-                    node {
-                        %s
-                    }
-                }
-            }
-        }
-        """
-        delim = ",\n                        "
-        query = template % (query_name, query_name, field, delim.join(self.field_names))
-        return query
-
-    def build_list_join_id_query(self, join, field, id):
-        table = self.__class__.__name__
-        query_name = f"all{table.title()}"
-        id_encoded = b64encode(f"{join.title()}Node:{id}".encode("ascii")).decode("utf-8")
-        template = """
-        query %s {
-            %s (%s: \"%s\") {
-                edges {
-                    node {
-                        %s
-                    }
-                }
-            }
-        }
-        """
-        delim = ",\n                        "
-        query = template % (query_name, query_name, field, id_encoded, delim.join(self.field_names))
-        return query
-
-    def build_filter_query(self, fields):
-        table = self.__class__.__name__
-        query_name = f"all{table.title()}"
-        clauses = []
-        for f in fields:
-            field = f["field"]
-            join = f["join"]
-            value = f["value"]
-            if field.endswith("_Id"):
-                id_encoded = b64encode(f"{join}Node:{value}".encode("ascii")).decode("utf-8")
-                clauses.append(field + ": \"" + id_encoded + "\"")
+        payload = {"query": self.delete_mutation, "variables": json.dumps(self.delete_variables)}
+        response = self.client.post(self.url, payload, **self.header)
+        if response.status_code == 200:
+            content = json.loads(response.content)
+            if not "errors" in content.keys():
+                for key in content["data"].keys():
+                    record_set = content["data"][key]
+                    if self.record_name in record_set.keys():
+                        print(record_set[self.record_name]["id"])
+                    else:
+                        logging.warning(f"Record {self.record_name} did not exist in returned json")
             else:
-                clauses.append(field + ": \"" + value + "\"")
-
-        template = """
-        query {
-            %s (%s) {
-                edges {
-                    node {
-                        %s
-                    }
-                }
-            }
-        }
-        """
-        delim = ",\n"
-        query = template % (query_name, ", ".join(clauses), delim.join(self.field_names))
-        return query
+                logging.warning(f"Errors returned in content {content['errors']}")
+        else:
+            logging.warning(f"Bad response status_code={response.status_code}")
+        return response
 
     def print_record_set_fields(self, prefix, record_set, delim):
         fields = []
