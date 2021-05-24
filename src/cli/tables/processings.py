@@ -83,8 +83,9 @@ class Processings(GraphQLTable):
             "results",
         ]
 
-    def list_graphql(self, id, location, utc_start):
+    def list_graphql(self, id, observation_id, location, utc_start):
         filters = [
+            {"field": "observationId", "value": observation_id, "join": "Observations"},
             {"field": "location", "value": location, "join": None},
             {"field": "observation_UtcStart_Gte", "value": utc_start, "join": "Observations"},
             {"field": "observation_UtcStart_Lte", "value": utc_start, "join": "Observations"},
@@ -132,7 +133,7 @@ class Processings(GraphQLTable):
             }
             return self.update_graphql()
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.location, args.utc_start)
+            return self.list_graphql(args.id, args.observation, args.location, args.utc_start)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -163,6 +164,7 @@ class Processings(GraphQLTable):
 
         parser_list = subs.add_parser("list", help="list existing processings")
         parser_list.add_argument("--id", type=int, help="list processing matching the id")
+        parser_list.add_argument("--observation", type=int, help="list processing matching the observation id")
         parser_list.add_argument("--utc_start", type=str, help="list processing matching the observation utc_start")
         parser_list.add_argument("--location", type=str, help="list processing matching the processing location")
 

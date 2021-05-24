@@ -94,6 +94,7 @@ class Observations(GraphQLTable):
             "telescope { id }",
             "instrumentConfig { id }",
             "project { id }",
+            "config",
             "utcStart",
             "duration",
             "nant",

@@ -71,7 +71,7 @@ class Foldings(GraphQLTable):
 
     def list_graphql(self, id, processing_id, folding_ephemeris_id):
         filters = [
-            {"field": "processing", "value": processing_id, "join": "Processings"},
+            {"field": "processingId", "value": processing_id, "join": "Processings"},
             {"field": "foldingEphemeris", "value": folding_ephemeris_id, "join": "Ephemerides"},
         ]
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)

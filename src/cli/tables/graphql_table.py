@@ -194,7 +194,7 @@ class GraphQLTable:
         if key == "id":
             try:
                 result = self.decode_id(value)
-            except binascii.Error:
+            except (binascii.Error, UnicodeDecodeError):
                 result = value
         elif type(value) is dict:
             k = list(value.keys())[0]

@@ -69,7 +69,7 @@ class GraphQLQuery:
             return self.template % (self.op_type, self.op_name, query_clauses, fields, "")
 
     def paginate(self, cursor):
-        clauses = ["first:1000"]
+        clauses = ["first:100"]
         if not cursor is None:
             clauses.append("after:\"" + cursor + "\"")
         return self.generate(clauses)

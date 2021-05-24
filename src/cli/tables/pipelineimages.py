@@ -66,8 +66,10 @@ class Pipelineimages(GraphQLTable):
 
         self.field_names = ["id", "image", "imageType", "rank", "processing {id}"]
 
-    def list_graphql(self, id):
-        filters = []
+    def list_graphql(self, id, processing_id):
+        filters = [
+            {"field": "processing", "value": processing_id, "join": "Processings"},
+        ]
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)
 
@@ -99,7 +101,7 @@ class Pipelineimages(GraphQLTable):
         elif args.subcommand == "update":
             return self.update(args.id, args.image, args.image_type, args.rank, args.processing_id)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id)
+            return self.list_graphql(args.id, args.processing_id)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -130,6 +132,7 @@ class Pipelineimages(GraphQLTable):
         # create the parser for the "list" command
         parser_list = subs.add_parser("list", help="list existing Pipelineimages")
         parser_list.add_argument("--id", type=int, help="list Pipelineimages matching the id")
+        parser_list.add_argument("--processing_id", type=int, help="list Pipelineimages matching the processing id")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new pipelineimage")
