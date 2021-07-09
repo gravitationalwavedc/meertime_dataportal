@@ -9,6 +9,7 @@ from cli.tables.pipelineimages import Pipelineimages as CliPipelineimages
 def test_cli_pipelineimage_list_with_token(client, creator, args, jwt_token):
     args.subcommand = "list"
     args.id = None
+    args.processing_id = None
 
     t = CliPipelineimages(client, "/graphql/", jwt_token)
     response = t.process(args)

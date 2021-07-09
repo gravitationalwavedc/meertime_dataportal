@@ -9,6 +9,7 @@ def test_cli_processing_list_with_token(client, creator, args, jwt_token):
     args.id = None
     args.location = None
     args.utc_start = None
+    args.observation = None
 
     t = CliProcessings(client, "/graphql/", jwt_token)
     response = t.process(args)
