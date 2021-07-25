@@ -31,8 +31,8 @@ class UpdateObservation(graphene.Mutation):
             for key, val in input.__dict__.items():
                 setattr(_observation, key, val)
             _observation.save()
-            return CreateObservation(observation=_observation)
-        return CreateObservation(observation=None)
+            return UpdateObservation(observation=_observation)
+        return UpdateObservation(observation=None)
 
 
 class DeleteObservation(graphene.Mutation):

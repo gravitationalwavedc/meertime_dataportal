@@ -36,8 +36,8 @@ class UpdateEphemeris(graphene.Mutation):
             for key, val in input.__dict__.items():
                 setattr(_ephemeris, key, val)
             _ephemeris.save()
-            return CreateEphemeris(ephemeris=_ephemeris)
-        return CreateEphemeris(ephemeris=None)
+            return UpdateEphemeris(ephemeris=_ephemeris)
+        return UpdateEphemeris(ephemeris=None)
 
 
 class DeleteEphemeris(graphene.Mutation):
