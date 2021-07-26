@@ -1,3 +1,4 @@
 {
-  "load": [".pinterest-linters"]
+  "load": [".pinterest-linters"],
+  "phabricator.uri" : "https://phab.adacs.org.au/source/meertime-data-portal"
 }
