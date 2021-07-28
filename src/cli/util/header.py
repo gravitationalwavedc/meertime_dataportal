@@ -86,8 +86,18 @@ class PTUSEHeader(Header):
         machine_config = {"machine": "PTUSE", "version": 1.0}
         self.machine_config = json.dumps(machine_config)
 
-        self.fold_dm = float(self.get("FOLD_DM"))
-        self.fold_nchan = int(self.get("FOLD_OUTNCHAN"))
-        self.fold_npol = int(self.get("FOLD_OUTNPOL"))
-        self.fold_nbin = int(self.get("FOLD_OUTNBIN"))
-        self.fold_tsubint = int(self.get("FOLD_OUTTSUBINT"))
+        if self.get("PERFORM_FOLD") == "1":
+            self.fold_dm = float(self.get("FOLD_DM"))
+            self.fold_nchan = int(self.get("FOLD_OUTNCHAN"))
+            self.fold_npol = int(self.get("FOLD_OUTNPOL"))
+            self.fold_nbin = int(self.get("FOLD_OUTNBIN"))
+            self.fold_tsubint = int(self.get("FOLD_OUTTSUBINT"))
+            self.fold_mode = self.get("MODE")
+
+        if self.get("PERFORM_SEARCH") == "1":
+            self.search_nbit = int(self.get("SEARCH_OUTNBIT"))
+            self.search_npol = int(self.get("SEARCH_OUTNPOL"))
+            self.search_nchan = int(self.get("SEARCH_OUTNCHAN"))
+            self.search_tsamp = float(self.get("SEARCH_OUTTSAMP"))
+            self.search_dm = float(self.get("SEARCH_DM"))
+            self.search_tsubint = float(self.get("SEARCH_OUTTSUBINT"))

@@ -64,6 +64,17 @@ class Filterbankings(GraphQLTable):
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)
 
+    def create(self, processing, nbit, npol, nchan, dm, tsamp):
+        self.create_variables = {
+            "processing_id": processing,
+            "nbit": nbit,
+            "npol": npol,
+            "nchan": nchan,
+            "dm": dm,
+            "tsamp": tsamp,
+        }
+        return self.create_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
