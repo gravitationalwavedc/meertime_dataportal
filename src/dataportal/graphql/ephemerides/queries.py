@@ -4,11 +4,13 @@ from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 from ...models import Ephemerides
 
+NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']
+
 
 class EphemeridesNode(DjangoObjectType):
     class Meta:
         model = Ephemerides
-        filter_fields = ["pulsar", "p0", "dm", "rm"]
+        filter_fields = {"pulsar__id": ["exact"], "p0": NUMERIC_FILTERS, "dm": NUMERIC_FILTERS, "rm": NUMERIC_FILTERS}
         interfaces = (relay.Node,)
 
     @classmethod

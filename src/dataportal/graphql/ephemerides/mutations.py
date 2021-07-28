@@ -48,7 +48,7 @@ class DeleteEphemeris(graphene.Mutation):
     ephemeris = graphene.Field(EphemeridesType)
 
     @classmethod
-    @permission_required("dataportal.add_ephemeriss")
+    @permission_required("dataportal.add_ephemerides")
     def mutate(cls, self, info, id):
         _ephemeris = Ephemerides.objects.get(pk=id)
         _ephemeris.delete()

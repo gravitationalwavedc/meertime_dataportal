@@ -74,9 +74,12 @@ class Ephemerides(GraphQLTable):
 
         # P0 is stored with a maximum of 8 decimal places only
         m = 10 ** 8
-        p0_filtered = round(p0 * m) / m
+        if p0 is None:
+            p0_filtered = None
+        else:
+            p0_filtered = round(p0 * m) / m
         filters = [
-            {"field": "pulsar", "value": pulsar_id, "join": "Pulsars"},
+            {"field": "pulsar_Id", "value": pulsar_id, "join": "Pulsars"},
             {"field": "p0", "value": p0_filtered, "join": None},
             {"field": "dm", "value": dm, "join": None},
             {"field": "rm", "value": rm, "join": None},
