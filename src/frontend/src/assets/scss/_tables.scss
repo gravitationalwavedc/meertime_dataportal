@@ -1,9 +1,20 @@
 $row-border-radius: 0.75rem;
 
-.table {
+.ephemeris-table {
+    .modal-dialog {
+        max-width: 600px;
+    };
+
+    .table {
+        td, th {
+            border-top: none;
+        }
+    }
+}
+
+.react-bootstrap-table .table {
     border-collapse: separate;
     border-spacing: 0 0.5rem;
-    margin-top: -2rem;
 
     tbody tr {
         box-shadow: $shadow-base;
@@ -12,7 +23,6 @@ $row-border-radius: 0.75rem;
 
     td {
         vertical-align: middle;
-        padding: 1.25rem 1rem;
         background: white;
         border: 1px solid $gray-100;
         border-style: solid none;
@@ -21,7 +31,6 @@ $row-border-radius: 0.75rem;
             border-left-style: solid;
             border-top-left-radius: $row-border-radius; 
             border-bottom-left-radius: $row-border-radius;
-            padding-left: 1.5rem;
         }
 
         &:last-child {
@@ -36,15 +45,24 @@ $row-border-radius: 0.75rem;
         border-bottom: none;
         color: $gray-500;
         font-size: 0.9rem;
+        position: relative;
+        z-index: 3;
 
         &:focus,
         &:hover {
             outline: none;
             color: $primary;
         }
+    }
 
-        &:first-child {
-            padding-left: 1.5rem;
+    @include media-breakpoint-up(md){
+        margin-top: -2rem;
+
+        td {
+            padding: 0.5rem;
+            border: 1px solid $gray-100;
+            border-style: solid none;
         }
+
     }
 }

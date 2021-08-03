@@ -24,6 +24,13 @@ h6, .h6 {
     letter-spacing: 0.15px;
 }
 
+.overline {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    line-height: 13.62px;
+    font-weight: 400;
+}
+
 // Coloured text
 .text-primary-700 {
     color: $primary-700;

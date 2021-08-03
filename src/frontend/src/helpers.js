@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import moment from 'moment';
 
 /* eslint-disable complexity */
 
@@ -26,4 +27,24 @@ export const handleSearch = (data, columns, search) => {
         return false;
     });
 };
+
+export const formatUTC = (utc) => moment.parseZone(utc, moment.ISO_8601).format('YYYY-MM-DD-HH:mm:ss');
+
+export const kronosLink = (beam, jname, utc) => 
+    `http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam=${beam}&utc_start=${utc}&jname=${jname}&data=${localStorage.meerWatchKey}`;
+
+// This is a really insecure, temporary fix that will be changed asap.
+export const meerWatchLink = (jname) =>
+    `http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname=${jname}&data=${localStorage.meerWatchKey}`;
+
+export const nullCellFormatter = cell => !cell ? '-' : cell;
+
+export const columnsSizeFilter = (columns, screenSize) => {
+    columns.filter(column => ('screenSizes' in column) && !column.screenSizes.includes(screenSize))
+        .map(column => column['hidden'] = true);
+    return columns;
+};
+
+export default { columnsSizeFilter, handleSearch, formatUTC, kronosLink, meerWatchLink, nullCellFormatter };
+
 

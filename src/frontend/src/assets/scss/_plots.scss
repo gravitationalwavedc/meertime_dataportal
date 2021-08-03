@@ -1,0 +1,17 @@
+.pulsar-plot-wrapper {
+    height: 24rem;
+    padding: 0 50px 0 0;
+}
+
+.pulsar-plot-display {
+    background-color: white;
+    border-radius: 0.75rem;
+    box-shadow: $shadow-base;
+}
+
+.y-label {
+    position: absolute;
+    transform: rotate(270deg);
+    top: 50%;
+    color: $primary-600;
+}

@@ -49,6 +49,7 @@
         "no-proto": ["error"],
         "no-with": ["error"],
         "strict": ["error"],
+        "sort-imports": ["error"],
         "init-declarations": ["error", "always"],
         "no-warning-comments": ["warn"],
         "no-lonely-if": ["error"],

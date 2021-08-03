@@ -1,80 +1,140 @@
+import {
+    CustomSVGSeries,
+    FlexibleXYPlot,
+    Highlight,
+    Hint,
+    HorizontalGridLines,
+    VerticalGridLines,
+    XAxis,
+    YAxis
+} from 'react-vis';
 import React, { useState } from 'react';
-import moment from 'moment'; 
-import { Highlight, Hint, XAxis, YAxis, XYPlot, MarkSeries, VerticalGridLines, HorizontalGridLines } from 'react-vis';
+
+import { Col } from 'react-bootstrap';
+import { HiOutlineQuestionMarkCircle } from 'react-icons/hi';
 import { handleSearch } from '../helpers';
+import moment from 'moment';
+import { useRouter } from 'found';
 
+const scaleValue = (value, from, to) => {
+    const scale = (to[1] - to[0]) / (from[1] - from[0]);
+    const capped = Math.min(from[1], Math.max(from[0], value)) - from[0];
+    return ~~(capped * scale + to[0]);
+};
 
-const PulsarSummaryPlot = ({ data, columns, search }) => {
-    const [value, setValue] = useState(false);
-    const [lastDrawLocation, setLastDrawLocation] = useState(null);
+const getDataSizeRange = (results) => results.length > 0 ? results.reduce(
+    (minMax, row) => {
+        const min = minMax[0] < row.length ? minMax[0] : row.length;
+        const max = minMax[1] > row.length ? minMax[1] : row.length;
+        return [ min, max ];
+    }, 
+    [results[0].length, results[0].length] 
+) : [0, 0];
 
+const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocation) => {
+    // Pass table data through the search filter to enable searching pulsars on chart.
     const results = search.searchText ? handleSearch(data, columns, search) : data;
 
+    const dataSizeRange = getDataSizeRange(results);
+
+    // Process the table data in a way that react-vis understands.
     const plotData = results.map(row => ({ 
         x: moment(row.utc, 'YYYY-MM-DD-HH:mm:ss'), 
         y: row.snrSpip,
-        size: row.length
+        value: row.snrSpip,
+        customComponent: row.band === 'L-band' ? 'circle' : 'square',
+        style: { fill:'#E07761', opacity:'0.4' },
+        size: scaleValue(row.length, dataSizeRange, [5, 50]),
+        color: '#E07761',
+        length: row.length,
+        link: row.plotLink
     }));
 
+    if (plotData.length && plotData.length < 2 && lastDrawLocation === null){
+        setLastDrawLocation({
+            top: plotData[0].y + 100,
+            bottom: plotData[0].y - 100,
+            left: plotData[0].x.clone().subtract(3, 'days').toDate(), 
+            right: plotData[0].x.clone().add(3, 'days').toDate()
+        });
+    }
+
+    return plotData;
+};
+
+const PulsarSummaryPlot = ({ data, columns, search }) => { 
+    const [value, setValue] = useState(false);
+    const [lastDrawLocation, setLastDrawLocation] = useState(null);
+    const { router } = useRouter();
+
+    const plotData = getPlotData(data, columns, search, lastDrawLocation, setLastDrawLocation);
+
+    const plotLink = () => {
+        router.replace(value.link);
+    };
+
     return (
-        <React.Fragment>
-            <XYPlot 
-                margin={{ left: 60, right: 60, top: 40, bottom: 40 }}
-                xDomain={
-                    lastDrawLocation && [
-                        lastDrawLocation.left,
-                        lastDrawLocation.right
-                    ]
-                }
-                yDomain={
-                    lastDrawLocation && [
-                        lastDrawLocation.bottom,
-                        lastDrawLocation.top
-                    ]
-                }
-                onMouseLeave={() => setValue(false)} 
-                className="m-5" 
-                width={1000} 
-                height={500}>
-                <VerticalGridLines />
-                <HorizontalGridLines />
-                <XAxis 
-                    tickTotal={5}
-                    xType="time"
-                    title="UTC"
-                    tickFormat={
-                        (v) => moment(v).format('MM/YYYY')
-                    } />
-                <YAxis title="S/N"/>
-                {
-                    value && 
-                  <Hint 
-                      value={value} 
-                      format={(value) => [
-                          { title: 'raw S/N', value: value.y },
-                          { title: 'integration time [m]', value: value.size },
-                          { title: 'UTC', value: value.x.format('YYYY-MM-DD-HH:mm:ss') },
-                      ]} 
-                  />
-                }
-                <MarkSeries 
-                    data={plotData} 
-                    seriesId="pulsar-mark-series"
-                    sizeRange={[10, 50]} 
-                    opacity={0.5} 
-                    animation={true}
-                    onNearestXY={value => setValue(value)}
-                />
-                <Highlight
-                    onBrushEnd={area => setLastDrawLocation(area)}
-                    onDrag={area => setLastDrawLocation({
-                        bottom: lastDrawLocation.bottom + (area.top - area.bottom),
-                        left: lastDrawLocation.left - (area.right = area.left),
-                        right: lastDrawLocation.right - (area.right - area.left),
-                        top: lastDrawLocation.top + (area.top - area.bottom)
-                    })}/>
-            </XYPlot>
-        </React.Fragment>);
+        <Col md={10} className="pulsar-plot-display">
+            <p className="text-muted pt-3">
+                <HiOutlineQuestionMarkCircle className="mb-1" /> 
+                Drag to zoom. Click empty area to reset. Double click to view utc.
+            </p>
+            <p className="y-label">S/N</p>
+            <div className="pulsar-plot-wrapper">
+                <FlexibleXYPlot 
+                    margin={{ left: 60, right: 60, top: 60, bottom: 60 }}
+                    xDomain={
+                        lastDrawLocation && [
+                            lastDrawLocation.left,
+                            lastDrawLocation.right
+                        ]
+                    }
+                    yDomain={
+                        lastDrawLocation && [
+                            lastDrawLocation.bottom,
+                            lastDrawLocation.top
+                        ]
+                    }
+                    onMouseLeave={() => setValue(false)} 
+                    onDoubleClick={plotLink}
+                    className="m-5" 
+                >
+                    <VerticalGridLines xType="time" tickTotal={5} />
+                    <HorizontalGridLines />
+                    <XAxis 
+                        xType="time-utc"
+                        tickTotal={5}
+                        tickFormat={(v) => moment(v).format('DD/MM/YY')} 
+                    />
+                    <YAxis />
+                    {
+                        value && 
+                        <Hint 
+                            value={value} 
+                            format={(value) => [
+                                { title: 'raw S/N', value: value.y },
+                                { title: 'integration time', value: `${value.length} [m]` },
+                                { title: 'UTC', value: value.x.format('YYYY-MM-DD-HH:mm:ss') }
+                            ]} 
+                        />
+                    }
+                    <CustomSVGSeries 
+                        data={plotData} 
+                        animation={true}
+                        onNearestXY={value => setValue(value)}/>
+                    <Highlight
+                        onBrushEnd={area => setLastDrawLocation(area)}
+                        onDrag={area => setLastDrawLocation({
+                            bottom: lastDrawLocation.bottom + (area.top - area.bottom),
+                            left: lastDrawLocation.left - (area.right = area.left),
+                            right: lastDrawLocation.right - (area.right - area.left),
+                            top: lastDrawLocation.top + (area.top - area.bottom)
+                        })}/>
+                </FlexibleXYPlot>
+            </div>
+            <p className="pb-4 text-center text-primary-600">UTC</p>
+        </Col>
+    );
 };
 
 export default PulsarSummaryPlot;

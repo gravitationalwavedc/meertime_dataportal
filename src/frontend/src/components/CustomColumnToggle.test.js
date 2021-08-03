@@ -1,7 +1,7 @@
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react';
-import CustomColumnToggle from './CustomColumnToggle';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 
+import CustomColumnToggle from './CustomColumnToggle';
+import React from 'react';
 
 describe('custom toggle button', () => {
 
@@ -38,22 +38,6 @@ describe('custom toggle button', () => {
         await waitFor(() => {
             expect(getByText('JName')).toBeInTheDocument();
         });
-    });
-
-    it('should call onExport when the export as csv is clicked', () => {
-        expect.hasAssertions();
-        const onExport = jest.fn();
-        const { getByText, getByTestId } = render(
-            <CustomColumnToggle 
-                columns={[]} 
-                onColumnToggle={{}} 
-                toggles={{}} 
-                exportCSVProps={{ onExport: onExport }} />
-        );
-        fireEvent.click(getByTestId('tableOptions')); 
-        const exportBtn = getByText('Export as csv');
-        fireEvent.click(exportBtn);
-        expect(onExport).toHaveBeenCalled(); //eslint-disable-line
     });
 
     it('should show which columns are active', () => {

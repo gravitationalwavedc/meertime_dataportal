@@ -5,16 +5,12 @@ import {
 } from 'relay-runtime';
 import {
     RelayNetworkLayer,
-    urlMiddleware,
-    // batchMiddleware,
-    // loggerMiddleware,
-    // errorMiddleware,
-    // perfMiddleware,
-    retryMiddleware,
     authMiddleware,
     cacheMiddleware,
     progressMiddleware,
+    retryMiddleware,
     uploadMiddleware,
+    urlMiddleware,
 } from 'react-relay-network-modern';
 
 const network = new RelayNetworkLayer(
@@ -24,7 +20,7 @@ const network = new RelayNetworkLayer(
             ttl: 900000, // 15 minutes
         }),
         urlMiddleware({
-            url: () => Promise.resolve('http://localhost:8000/graphql/'),
+            url: () => Promise.resolve(process.env.REACT_APP_GRAPHQL_URL),
         }),
         retryMiddleware({
             fetchTimeout: 15000,
@@ -36,7 +32,7 @@ const network = new RelayNetworkLayer(
             statusCodes: [500, 503, 504],
         }),
         authMiddleware({
-            token: () => sessionStorage.jwt,
+            token: () => localStorage.jwt,
             prefix: 'JWT '
         }),
         progressMiddleware({

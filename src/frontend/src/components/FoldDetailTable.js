@@ -1,60 +1,62 @@
+import { Button, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
-import { Row, Col, Button } from 'react-bootstrap';
-import ListControls from '../components/ListControls';
-import BootstrapTable from 'react-bootstrap-table-next';
-import paginationFactory from 'react-bootstrap-table2-paginator';
-import ToolkitProvider from 'react-bootstrap-table2-toolkit';
-import { HiOutlineViewGrid, HiOutlineViewList } from 'react-icons/hi';
-import DataDisplay from './DataDisplay';
-import JobCardsList from './JobCardsList';
-import sizePerPageRenderer from './CustomSizePerPageBtn';
-import Einstein from '../assets/images/einstein-coloured.png';
-import PulsarSummaryPlot from './PulsarSummaryPlot';
+import { columnsSizeFilter, meerWatchLink } from '../helpers';
 
-const FoldDetailTable = ({ data }) => {
-    const allRows = data.foldObservationDetails.edges.reduce((result, edge) => [...result, { ...edge.node }], []);
-    const [isTableView, setIsTableView] = useState(true);
+import DataView from './DataView';
+import Ephemeris from './Ephemeris';
+import FoldDetailCard from './FoldDetailCard';
+import Link from 'found/Link';
+import { useScreenSize } from '../context/screenSize-context';
+
+const FoldDetailTable = ({ data: { relayObservationDetails } }) => {
+    const { screenSize } = useScreenSize();
+    const allRows = relayObservationDetails.edges.reduce(
+        (result, edge) => [
+            ...result, 
+            { 
+                key: `${edge.node.utc}:${edge.node.beam}`,
+                jname: relayObservationDetails.jname,
+                ...edge.node, 
+                plotLink: `${process.env.REACT_APP_BASE_URL}/${relayObservationDetails.jname}/${edge.node.utc}/${edge.node.beam}/`,
+                action: <Link 
+                    to={`${process.env.REACT_APP_BASE_URL}/${relayObservationDetails.jname}/${edge.node.utc}/${edge.node.beam}/`}
+                    size="sm" 
+                    variant="outline-secondary" as={Button}>View</Link> 
+            }
+        ], []
+    );
+
     const [rows, setRows] = useState(allRows);
+    const [ephemerisVisable, setEphemerisVisable] = useState(false);
 
-    const fit10 = { width: '10%', whiteSpace: 'nowrap' };
-    
     const columns = [
-        { dataField: 'utc', text: 'Timestamp', sort: true, headerStyle: fit10 },
-        { dataField: 'proposalShort', text: 'Project', sort: true },
-        { dataField: 'length', text: 'Length [m]', sort: true },
-        { dataField: 'beam', text: 'Beam', sort: true },
-        { dataField: 'bw', text: 'BW', sort: true },
-        { dataField: 'nchan', text: 'Nchan', sort: true },
-        { dataField: 'band', text: 'Band', sort: true },
-        { dataField: 'nbin', text: 'Nbin', sort: true },
-        { dataField: 'nant', text: 'Nant', sort: true },
-        { dataField: 'nantEff', text: 'Nant eff', sort: true },
-        { dataField: 'dmFold', text: 'DM fold', sort: true },
-        { dataField: 'dmPipe', text: 'DM meerpipe', sort: true },
-        { dataField: 'rmPipe', text: 'RM meerpipe', sort: true },
-        { dataField: 'snrSpip', text: 'S/N backend', sort: true },
-        { dataField: 'snrPipe', text: 'S/N meerpipe', sort: true },
+        { dataField: 'key', text: '', sort: false, hidden: true, toggle: false },
+        { dataField: 'plotLink', text: '', sort: false, hidden: true, toggle: false },
+        { dataField: 'utc', text: 'Timestamp', sort: true, headerClasses: 'fold-detail-utc' },
+        { dataField: 'proposalShort', text: 'Project', sort: true, 
+            screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
+        { dataField: 'length', text: 'Length', sort: true, screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'],
+            formatter: (cell) => `${cell} [m]` },
+        { dataField: 'beam', text: 'Beam', sort: true, screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
+        { dataField: 'bw', text: 'BW', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'nchan', text: 'Nchan', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'band', text: 'Band', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'nbin', text: 'Nbin', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'nant', text: 'Nant', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'nantEff', text: 'Nant eff', sort: true, screenSizes: ['xl', 'xxl'] },
+        { dataField: 'dmFold', text: 'DM fold', sort: true, screenSizes: ['xl', 'xxl'] },
+        { dataField: 'dmPipe', text: 'DM meerpipe', sort: true, screenSizes: ['xxl'] },
+        { dataField: 'rmPipe', text: 'RM meerpipe', sort: true, screenSizes: ['xxl'] },
+        { dataField: 'snrSpip', text: 'S/N backend', sort: true, screenSizes: ['xxl'] },
+        { dataField: 'snrPipe', text: 'S/N meerpipe', sort: true, screenSizes: ['xxl'] },
+        { dataField: 'action', text: '', sort: false, align: 'right', headerAlign: 'right' },
     ];
 
-    const options = {
-        sizePerPage: 200,
-        sizePerPageList: [
-            { text: '25', value: 25 },
-            { text: '50', value: 50 },
-            { text: '100', value: 100 },
-            { text: '200', value: 200 }
-
-        ],
-        firstPageText: 'First',
-        prePageText: 'Back',
-        nextPageText: 'Next',
-        lastPageText: 'Last', showTotal: true,
-        disablePageTitle: true, sizePerPageRenderer,
-    };
+    const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
     // totalEstimatedDiskSpace is a human readable formatted byte string in the form of "900.2\u00a0MB".
     // We split on this character so we can use the number and the units separately.
-    const [size, sizeFormat] = data.foldObservationDetails.totalEstimatedDiskSpace.split('\u00a0');
+    const [size, sizeFormat] = relayObservationDetails.totalEstimatedDiskSpace.split('\u00a0');
 
     const handleBandFilter = (band) => {
         if(band === 'All') {
@@ -77,73 +79,52 @@ const FoldDetailTable = ({ data }) => {
 
     };
 
+    const summaryData = [
+        { title: 'Observations', value: relayObservationDetails.totalObservations }, 
+        { title: 'Projects', value: relayObservationDetails.totalProjects }, 
+        { title: 'Timespan [days]', value: relayObservationDetails.totalTimespanDays }, 
+        { title: 'Hours', value: relayObservationDetails.totalObservationHours }, 
+        { title: `Size [${sizeFormat}]`, value: size }, 
+    ];
+
     return (
-        <ToolkitProvider
-            bootstrap4 
-            keyField='id' 
-            columns={columns} 
-            data={rows} 
-            columnToggle
-            search
-            exportCSV
-        >
-            {props => (
-                <React.Fragment>
-                    <Row className="justify-content-end" style={{ marginTop: '-7.8rem' }}>
-                        <DataDisplay title="Observations" value={data.foldObservationDetails.totalObservations} />
-                        <DataDisplay title="Projects" value={data.foldObservationDetails.totalProjects} />
-                        <DataDisplay 
-                            title="Timespan [days]" 
-                            value={data.foldObservationDetails.totalTimespanDays} />
-                        <DataDisplay title="Hours" value={data.foldObservationDetails.totalObservationHours} />
-                        <DataDisplay title={`Size [${sizeFormat}]`} value={size} />
-                        <img src={Einstein} style={{ marginTop: '-2rem' }} alt=""/>
-                    </Row>
-                    <Row className="justify-content-center">
-                        <Col>
-                            <PulsarSummaryPlot {...props.baseProps} />
-                        </Col>
-                    </Row>
-                    <Row className='bg-gray-100' style={{ marginTop: '-4rem' }}>
-                        <Col md={4}>
-                            <ListControls 
-                                searchProps={props.searchProps} 
-                                searchText="Find an observation..."
-                                handleProposalFilter={handleProjectFilter} 
-                                handleBandFilter={handleBandFilter}
-                                columnToggleProps={props.columnToggleProps}
-                                exportCSVProps={props.csvProps}
-                            />
-                        </Col>
-                        <Col md={1} className="d-flex align-items-center">
-                            <Button 
-                                variant="icon" 
-                                className="mr-2" 
-                                active={isTableView} 
-                                onClick={() => setIsTableView(true)}>
-                                <HiOutlineViewList className='h5' />
-                            </Button>
-                            <Button 
-                                variant="icon"
-                                active={!isTableView}
-                                onClick={() => setIsTableView(false)}>
-                                <HiOutlineViewGrid className='h5' />
-                            </Button>
-                        </Col>
-                    </Row>
-                    {
-                        isTableView ? 
-                            <BootstrapTable 
-                                {...props.baseProps} 
-                                pagination={paginationFactory(options)} 
-                                bordered={false}
-                                rowStyle={{ whiteSpace: 'pre', verticalAlign: 'middle' }}
-                                wrapperClasses='bg-gray-100'
-                            /> : 
-                            <JobCardsList {...props.baseProps} />
-                    }
-                </React.Fragment>)}
-        </ToolkitProvider>
+        <div className="fold-detail-table">
+            <Row>
+                <Col>
+                    <Button 
+                        size="sm"
+                        variant="outline-secondary" 
+                        className="mr-2 mb-2"
+                        disabled={relayObservationDetails.ephemeris ? false : true}
+                        onClick={() => setEphemerisVisable(true)}>
+                        { relayObservationDetails.ephemeris ? 
+                            'View folding ephemeris' : 'Folding ephemeris unavailable'}
+                    </Button>
+                    <Button 
+                        size="sm mb-2"
+                        as="a"
+                        href={meerWatchLink(relayObservationDetails.jname)}
+                        variant="outline-secondary"> 
+                        View MeerWatch
+                    </Button>
+                </Col>
+            </Row>
+            {relayObservationDetails.ephemeris && <Ephemeris 
+                ephemeris={relayObservationDetails.ephemeris} 
+                updated={relayObservationDetails.ephemerisUpdatedAt}
+                show={ephemerisVisable} 
+                setShow={setEphemerisVisable} />}
+            <DataView 
+                summaryData={summaryData}
+                columns={columnsSizeFiltered}
+                rows={rows}
+                setProposal={handleProjectFilter}
+                setBand={handleBandFilter}
+                plot
+                keyField="key"
+                card={FoldDetailCard}
+            />
+        </div>
     );
 };
 

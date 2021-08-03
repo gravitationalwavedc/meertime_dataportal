@@ -1,6 +1,6 @@
+import Fold from './Fold';
 import React from 'react';
 import { render } from '@testing-library/react';
-import Fold from './Fold';
 
 /* eslint-disable react/display-name */
 

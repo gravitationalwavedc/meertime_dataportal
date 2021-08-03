@@ -1,8 +1,9 @@
+import { MockPayloadGenerator, createMockEnvironment } from 'relay-test-utils';
+import { QueryRenderer, graphql } from 'react-relay';
+
+import FoldTable from './FoldTable';
 import React from 'react';
 import { render } from '@testing-library/react';
-import { QueryRenderer, graphql } from 'react-relay';
-import { createMockEnvironment, MockPayloadGenerator } from 'relay-test-utils';
-import FoldTable from './FoldTable';
 
 /* eslint-disable react/display-name */
 

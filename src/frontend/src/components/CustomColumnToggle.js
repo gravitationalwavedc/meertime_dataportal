@@ -1,7 +1,7 @@
-import React from 'react';
-import { Dropdown, Button } from 'react-bootstrap';
-import { HiDotsVertical, HiCheck } from 'react-icons/hi';
+import { Button, Dropdown } from 'react-bootstrap';
+import { HiCheck, HiCog } from 'react-icons/hi';
 
+import React from 'react';
 
 /* eslint react/display-name: 0 */
 
@@ -13,11 +13,14 @@ const CustomColumnToggle = ({ columns, onColumnToggle, toggles, exportCSVProps }
                 e.preventDefault();
                 onClick(e);
             }}
-            variant="icon"
+            variant="link"
+            size="sm"
             aria-label="table options"
             data-testid="tableOptions"
+            className="mr-2 ml-2"
         >
-            <HiDotsVertical className="h5"/>
+            <HiCog className="icon"/>
+            Columns 
         </Button>
     ));
 
@@ -25,13 +28,10 @@ const CustomColumnToggle = ({ columns, onColumnToggle, toggles, exportCSVProps }
         <Dropdown>
             <Dropdown.Toggle id="columnToggle" as={CustomToggle}/>
             <Dropdown.Menu>
-                <Dropdown.Header>Download</Dropdown.Header>
-                <Dropdown.Item onClick={() => exportCSVProps.onExport()}>Export as csv</Dropdown.Item>
-                <Dropdown.Divider />
                 <Dropdown.Header style={{ minWidth: '16rem' }}>Columns</Dropdown.Header>
                 {
                     columns
-                        .filter(column => column.dataField !== 'action')
+                        .filter(column => column.dataField !== 'action' && column.toggle !== false)
                         .map(column => ({
                             ...column,
                             toggle: toggles[column.dataField]

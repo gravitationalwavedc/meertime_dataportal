@@ -1,5 +1,18 @@
+.searchbar {
+    @include media-breakpoint-up(md) {
+        margin-top: -20px;
+
+        .btn {
+            margin-top: 2.3rem;
+        }
+    }
+
+}
+
 .form-group {
-    min-height: 98px;
+    @include media-breakpoint-up(md){
+        min-height: 98px;
+    }
 }
 
 .form-control-icon-right {
@@ -10,6 +23,11 @@
     margin-top: -28px;
     pointer-events: none;
     float: right !important;
+}
+
+.btn {
+    position: relative;
+    z-index: 2;
 }
 
 .btn.btn-icon {
@@ -33,4 +51,8 @@
     &:hover {
         color: $primary;
     }
+}
+
+.btn .icon {
+    margin: 0 4px 2px 0;
 }
