@@ -21,8 +21,9 @@ const titles = [
     'utc'
 ];
 
-const SingleObservationTable = ({ data: { relayObservationModel } }) => {
-    const title = `${relayObservationModel.jname}`;  
+const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => {
+    const relayObservationModel = foldObservationDetails.edges[0].node;
+    const title = `${jname}`;  
     const displayDate = formatUTC(relayObservationModel.utc);
 
     const pulsarImages = Object.keys(relayObservationModel)
@@ -45,7 +46,7 @@ const SingleObservationTable = ({ data: { relayObservationModel } }) => {
                         className="mr-2"
                         href={kronosLink(
                             relayObservationModel.beam,
-                            relayObservationModel.jname,
+                            jname,
                             displayDate
                         )}
                         variant="outline-secondary"> 
@@ -56,7 +57,7 @@ const SingleObservationTable = ({ data: { relayObservationModel } }) => {
                         as={Button}
                         to={`${process.env.REACT_APP_BASE_URL}/fold/meertime/${title}/`}
                         variant="outline-secondary"> 
-                      View {relayObservationModel.jname} 
+                      View {jname} 
                     </Link>
                 </Col>
             </Row>
@@ -68,7 +69,7 @@ const SingleObservationTable = ({ data: { relayObservationModel } }) => {
                         key={key}
                         className="mb-3"
                         alt={key}
-                        src={pulsarImages[key].length > 0 ? `${process.env.REACT_APP_MEDIA_URL}${pulsarImages[key]}` : image404}/>                     )}
+                        src={pulsarImages[key] ? `${process.env.REACT_APP_MEDIA_URL}${pulsarImages[key]}` : image404}/>                     )}
                 </Col>
                 <Col md={8} xl={6}>
                     {Object.keys(dataItems).map(key => 

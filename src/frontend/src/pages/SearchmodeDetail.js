@@ -6,30 +6,23 @@ import SearchmodeDetailTable from '../components/SearchmodeDetailTable';
 import environment from '../relayEnvironment';
 
 const query = graphql`
-  query SearchmodeDetailQuery($jname: String!, $getProposalFilters: String) {
-    relaySearchmodeDetails(jname:$jname, getProposalFilters: $getProposalFilters) {
-      jname
+  query SearchmodeDetailQuery($jname: String!, $mainProject: String) {
+    searchmodeObservationDetails(jname:$jname, mainProject: $project) {
       totalObservations
-      totalObservationHours
       totalProjects
       totalTimespanDays
-      ephemeris
-      ephemerisUpdatedAt
       edges {
         node {
           id
            utc
-           proposalShort
+           project
            beam
-           comment
            length
            tsamp
-           bw
            frequency
            nchan
            nbit
            npol
-           nant
            nantEff
            dm
            ra
@@ -39,15 +32,20 @@ const query = graphql`
     }
   }`;
 
+// missing
+// ephemeris 
+// nant
+// bwMhz
+
 const SearchmodeDetail = ({ match }) => {
-    const { jname, project } = match.params;
+    const { jname, mainProject } = match.params;
     return (<MainLayout title={jname}>
         <QueryRenderer
             environment={environment}
             query={query}
             variables={{
                 jname: jname,
-                getProposalFilters: project
+                mainProject: mainProject 
             }}
             fetchPolicy="store-and-network"
             render = {({ props, error }) => {
@@ -60,7 +58,7 @@ const SearchmodeDetail = ({ match }) => {
                 }
 
                 if(props) {
-                    return <SearchmodeDetailTable data={props} />;
+                    return <SearchmodeDetailTable data={props} jname={jname} />;
                 }
 
                 return <h1>Loading...</h1>;

@@ -6,41 +6,44 @@ import React from 'react';
 import environment from '../relayEnvironment';
 
 const query = graphql`
-  query FoldDetailQuery($jname: String!, $getProposalFilters: String) {
-    relayObservationDetails(jname:$jname, getProposalFilters: $getProposalFilters) {
-      jname
+  query FoldDetailQuery($jname: String!, $mainProject: String) {
+    foldObservationDetails(jname:$jname, mainProject: $mainProject) {
       totalObservations
       totalObservationHours
       totalProjects
       totalEstimatedDiskSpace
       totalTimespanDays
-      ephemeris
-      ephemerisUpdatedAt
+      maxPlotLength
+      minPlotLength
       edges {
         node {
           id
           utc
-          proposalShort
+          project
           length
           beam
-          bw
+          bwMhz
           nchan
           band
           nbin
           nant
           nantEff
           dmFold
-          dmPipe
-          rmPipe
-          snrPipe
-          snrSpip
+          dmMeerpipe
+          rmMeerpipe
+          snBackend
+          snMeerpipe
         }
       }
     }
   }`;
 
+// Missing
+// ephemeris
+// ephemerisUpdatedAt
+
 const FoldDetail = ({ match, relayEnvironment }) => {
-    const { jname, project } = match.params;
+    const { jname, mainProject } = match.params;
     return (
         <MainLayout title={jname}>
             <QueryRenderer
@@ -48,7 +51,7 @@ const FoldDetail = ({ match, relayEnvironment }) => {
                 query={query}
                 variables={{
                     jname: jname,
-                    getProposalFilters: project
+                    mainProject: mainProject 
                 }}
                 fetchPolicy="store-and-network"
                 render = {({ props, error }) => {
@@ -59,7 +62,7 @@ const FoldDetail = ({ match, relayEnvironment }) => {
                     }
 
                     if(props) {
-                        return <FoldDetailTable data={props} />;
+                        return <FoldDetailTable data={props} jname={jname} />;
                     }
 
                     return <h1>Loading...</h1>;

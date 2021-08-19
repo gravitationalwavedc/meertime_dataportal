@@ -8,33 +8,33 @@ import Link from 'found/Link';
 import SearchmodeCard from './SearchmodeCard';
 import { useScreenSize } from '../context/screenSize-context';
 
-const SearchTable = ({ data: { relayObservations }, relay }) => {
+const SearchTable = ({ data: { searchmodeObservations }, relay }) => {
     const { screenSize } = useScreenSize();
-    const [project, setProject] = useState('meertime');
-    const [proposal, setProposal] = useState('All');
+    const [mainProject, setMainProject] = useState('meertime');
+    const [project, setProject] = useState('All');
     const [band, setBand] = useState('All');
 
     useEffect(() => {
-        relay.refetch({ mode: 'searchmode', proposal: proposal, band: band, getProposalFilters: project });
-    }, [proposal, band, relay, project]);
+        relay.refetch({ mainProject: mainProject, project: project, band: band });
+    }, [band, relay, mainProject, project]);
 
-    const rows = relayObservations.edges.reduce((result, edge) => { 
+    const rows = searchmodeObservations.edges.reduce((result, edge) => { 
         const row = { ...edge.node };
-        row.last = formatUTC(row.last);
-        row.first = formatUTC(row.first);
-        row.totalTintH = `${row.totalTintH} hours`;
-        row.latestTintM = `${row.latestTintM} minutes`;
-        row.projectKey = project;
+        row.projectKey = mainProject;
+        row.last = formatUTC(row.latetestObservation);
+        row.first = formatUTC(row.firstObservation);
+        row.totalTintH = `${row.totalIntegrationHours} [h]`;
+        row.latestTintM = `${row.lastIntegrationMinutes} [m]`;
         row.action = <ButtonGroup vertical>
             <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/search/${project}/${row.jname}/`} 
+                to={`${process.env.REACT_APP_BASE_URL}/search/${mainProject}/${row.jname}/`} 
                 size='sm' 
                 variant="outline-secondary" 
                 as={Button}>
                   View all
             </Link>
             <Button
-                href={kronosLink(row.lastBeam, row.jname, row.last)} 
+                href={kronosLink(row.beam, row.jname, row.latestObservation)} 
                 as="a"
                 size='sm' 
                 variant="outline-secondary">
@@ -59,8 +59,8 @@ const SearchTable = ({ data: { relayObservations }, relay }) => {
     const columnsForScreenSize = columnsSizeFilter(columns, screenSize);
 
     const summaryData = [
-        { title: 'Observations', value: relayObservations.totalObservations },
-        { title: 'Pulsars', value: relayObservations.totalPulsars }
+        { title: 'Observations', value: searchmodeObservations.totalObservations },
+        { title: 'Pulsars', value: searchmodeObservations.totalPulsars }
     ];
 
     return (
@@ -69,10 +69,11 @@ const SearchTable = ({ data: { relayObservations }, relay }) => {
                 summaryData={summaryData}
                 columns={columnsForScreenSize}
                 rows={rows}
-                setProposal={setProposal}
-                setBand={setBand}
                 setProject={setProject}
                 project={project}
+                mainProject={mainProject}
+                setMainProject={setMainProject}
+                setBand={setBand}
                 card={SearchmodeCard}
             />
         </div>
@@ -84,36 +85,36 @@ export default createRefetchContainer(
     {
         data: graphql`
           fragment SearchTable_data on Query @argumentDefinitions(
-            mode: {type: "String", defaultValue: "searchmode"},
-            proposal: {type: "String", defaultValue: "All"},
+            mainProject: {type: "String", defaultValue: "MEERTIME"}
+            project: {type: "String", defaultValue: "All"},
             band: {type: "String", defaultValue: "All"},
-            getProposalFilters: {type: "String", defaultValue: "meertime"}
           ) {
-          relayObservations(mode: $mode, proposal: $proposal, band: $band, getProposalFilters: $getProposalFilters) {
-              totalObservations
-              totalPulsars
+              searchmodeObservations(mainProject: $mainProject, project: $project, band: $band) {
+                totalObservations
+                totalPulsars
               edges {
                 node {
                   jname
-                  last
-                  lastBeam
-                  first
-                  proposalShort
+                  latestObservation
+                  firstObservation
+                  project
                   timespan
-                  nobs
+                  numberOfObservations
                 }
               }
             }
           }`
     },
     graphql`
-      query SearchTableRefetchQuery($mode: String!, $proposal: String, $band: String, $getProposalFilters: String) {
+      query SearchTableRefetchQuery($mainProject: String, $project: String, $band: String) {
         ...SearchTable_data @arguments(
-          mode: $mode, 
-          proposal: $proposal, 
+          mainProject: $mainProject,
+          project: $project, 
           band: $band, 
-          getProposalFilters: $getProposalFilters
         )
       }
    `
 );
+
+// missing
+// lastBeam

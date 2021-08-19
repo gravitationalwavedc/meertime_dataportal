@@ -1,7 +1,6 @@
 import { Button, ButtonGroup, Image } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { columnsSizeFilter, formatUTC } from '../helpers';
-import { createRefetchContainer, graphql } from 'react-relay';
 
 import DataView from './DataView';
 import LightBox from 'react-image-lightbox';
@@ -11,7 +10,15 @@ import image404 from '../assets/images/image404.png';
 import moment from 'moment';
 import { useScreenSize } from '../context/screenSize-context';
 
-const SessionTable = ({ data: { relaySessions }, relay }) => {
+// import { createRefetchContainer, graphql } from 'react-relay';
+
+
+// real props is { data: { relaySessions }, relay }
+const SessionTable = () => {
+    // Mock data to keep component working
+    const relay = { refetch:{} };
+    const relaySessions = { edges: [] };
+
     const { screenSize } = useScreenSize();
     const [project, setProject] = useState('meertime');
     const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -140,42 +147,43 @@ const SessionTable = ({ data: { relaySessions }, relay }) => {
     );
 };
 
-export default createRefetchContainer(
-    SessionTable,
-    {
-        data: graphql`
-          fragment SessionTable_data on Query @argumentDefinitions(
-            getProposalFilters: {type: "String", defaultValue: "meertime"}
-          ) {
-            relaySessions(getProposalFilters: $getProposalFilters) {
-              first
-              last
-              nobs
-              npsr
-              proposals {
-                name
-                count
-              }
-              edges {
-                node {
-                  jname
-                  utc
-                  proposalShort
-                  snrSpip
-                  length
-                  beam
-                  frequency
-                  profile
-                  phaseVsTime
-                  phaseVsFrequency
-                }
-              }
-            }
-          }`
-    },
-    graphql`
-      query SessionTableRefetchQuery($getProposalFilters: String) {
-        ...SessionTable_data@arguments(getProposalFilters:$getProposalFilters)
-      }
-   `
-);
+export default SessionTable;
+// export default createRefetchContainer(
+//     SessionTable,
+//     {
+//         data: graphql`
+//           fragment SessionTable_data on Query @argumentDefinitions(
+//             getProposalFilters: {type: "String", defaultValue: "meertime"}
+//           ) {
+//             relaySessions(getProposalFilters: $getProposalFilters) {
+//               first
+//               last
+//               nobs
+//               npsr
+//               proposals {
+//                 name
+//                 count
+//               }
+//               edges {
+//                 node {
+//                   jname
+//                   utc
+//                   proposalShort
+//                   snrSpip
+//                   length
+//                   beam
+//                   frequency
+//                   profile
+//                   phaseVsTime
+//                   phaseVsFrequency
+//                 }
+//               }
+//             }
+//           }`
+//     },
+//     graphql`
+//       query SessionTableRefetchQuery($getProposalFilters: String) {
+//         ...SessionTable_data@arguments(getProposalFilters:$getProposalFilters)
+//       }
+//    `
+// );

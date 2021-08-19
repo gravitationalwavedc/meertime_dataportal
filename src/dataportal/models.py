@@ -41,7 +41,15 @@ class Ephemerides(models.Model):
     pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
     created_at = models.DateTimeField()
     created_by = models.CharField(max_length=64)
-    # TODO ephemeris is a bit of a problem. We'd like to have pulsar + ephemeris as a unique constraint. But: if ephemeris is a JSONField then we can't use it as a constraint without specifying which keys are to be used for the constraint (and I don't think we can support that via django). And if it's a Text or Char Field then we need to specify max length and potentially run into issues with long ephemerides. Max is 3072 bytes but we're defaulting to UTF-8 so that's 3 bytes per character and thus we could only use a 1024 character long ephemeris which is not that long at all. For now, leaving as textfield and out of index as I don't know how to work around this problem. To try and ensure this doens't cause issues, we use ephemeris in get_or_create lookup but according to the docs, this does not guarantee there won't be duplicates without a unique constraint here.
+    # TODO ephemeris is a bit of a problem. We'd like to have pulsar + ephemeris as a unique constraint.
+    # But: if ephemeris is a JSONField then we can't use it as a constraint without specifying which keys are to be
+    # used for the constraint (and I don't think we can support that via django). And if it's a Text or Char Field
+    # then we need to specify max length and potentially run into issues with long ephemerides. Max is 3072 bytes
+    # but we're defaulting to UTF-8 so that's 3 bytes per character and thus we could only use a 1024 character long
+    # ephemeris which is not that long at all. For now, leaving as textfield and out of index as I don't know how to
+    # work around this problem. To try and ensure this doens't cause issues, we use ephemeris in get_or_create
+    # lookup but according to the docs, this does not guarantee there won't be duplicates without a unique
+    # constraint here.
     ephemeris = JSONField()
     p0 = models.DecimalField(max_digits=limits["p0"]["max"], decimal_places=limits["p0"]["deci"])
     dm = models.FloatField()
@@ -217,6 +225,7 @@ class Pulsars(models.Model):
     state = models.CharField(max_length=255, blank=True, null=True)
     comment = models.CharField(max_length=255, blank=True, null=True)
 
+    # These look like the Searchmode
     def get_observations_for_pulsar(cls, get_proposal_filters=get_meertime_filters):
         folding_filter = get_proposal_filters(prefix="processing__observation")
 
@@ -237,7 +246,14 @@ class Pulsars(models.Model):
             .annotate(**annotations)
         )
         return folds.order_by("-utc")
+        # Get various related model objects required using the saved folding instance as a base.
+        latest_folding_observation = (
+            Foldings.objects.filter(folding_ephemeris__pulsar=pulsar)
+            .order_by("-processing__observation__utc_start")
+            .last()
+        )
 
+    # These look like the Fold Mode
     @classmethod
     def get_latest_observations(cls, get_proposal_filters=get_meertime_filters):
         folding_filter = get_proposal_filters(prefix="processing__observation")
@@ -245,6 +261,7 @@ class Pulsars(models.Model):
         latest_observation = Foldings.objects.filter(
             folding_ephemeris__pulsar=OuterRef("id"), **folding_filter
         ).order_by("-processing__observation__utc_start")
+
         annotations = {
             "last": Max("pulsartargets__target__observations__utc_start"),
             "first": Min("pulsartargets__target__observations__utc_start"),

@@ -7,18 +7,20 @@ import DataView from './DataView';
 import Ephemeris from './Ephemeris';
 import Row from 'react-bootstrap/Row';
 import SearchmodeDetailCard from './SearchmodeDetailCard';
+import { formatUTC } from '../helpers';
 import { useScreenSize } from '../context/screenSize-context';
 
-const SearchmodeDetailTable = ({ data }) => {
+const SearchmodeDetailTable = ({ data, jname }) => {
     const { screenSize } = useScreenSize();
-    const allRows = data.relaySearchmodeDetails.edges.reduce(
+    const allRows = data.searchmodeObservationDetails.edges.reduce(
         (result, edge) => [...result, 
             { 
-                key: `${edge.node.utc}:${edge.node.beam}`,
                 ...edge.node, 
-                jname: data.relaySearchmodeDetails.jname,
+                key: `${edge.node.utc}:${edge.node.beam}`,
+                jname: jname,
+                utc: formatUTC(edge.node.utc),
                 action: <Button
-                    href={kronosLink(edge.node.beam, data.relaySearchmodeDetails.jname, edge.node.utc)} 
+                    href={kronosLink(edge.node.beam, jname, formatUTC(edge.node.utc))} 
                     as="a"
                     size='sm' 
                     variant="outline-secondary" 
@@ -60,9 +62,9 @@ const SearchmodeDetailTable = ({ data }) => {
     };
 
     const summaryData = [
-        { title: 'Observations', value: data.relaySearchmodeDetails.totalObservations },
-        { title: 'Projects', value: data.relaySearchmodeDetails.totalProjects },
-        { title: 'Timespan', value: data.relaySearchmodeDetails.totalTimespanDays }
+        { title: 'Observations', value: data.searchmodeObservationDetails.totalObservations },
+        { title: 'Projects', value: data.searchmodeObservationDetails.totalProjects },
+        { title: 'Timespan', value: data.searchmodeObservationDetails.totalTimespanDays }
     ];
 
     return <div className="search-detail">
@@ -72,16 +74,16 @@ const SearchmodeDetailTable = ({ data }) => {
                     size="sm"
                     variant="outline-secondary" 
                     className="mr-2"
-                    disabled={data.relaySearchmodeDetails.ephemeris ? false : true}
+                    disabled={data.searchmodeObservationDetails.ephemeris ? false : true}
                     onClick={() => setEphemerisVisable(true)}>
-                    { data.relaySearchmodeDetails.ephemeris ? 
+                    { data.searchmodeObservationDetails.ephemeris ? 
                         'View folding ephemeris' : 'Folding ephemeris unavailable'}
                 </Button>
             </Col>
         </Row>
-        {data.relaySearchmodeDetails.ephemeris && <Ephemeris 
-            ephemeris={data.relaySearchmodeDetails.ephemeris} 
-            updated={data.relaySearchmodeDetails.ephemerisUpdatedAt}
+        {data.searchmodeObservationDetails.ephemeris && <Ephemeris 
+            ephemeris={data.searchmodeObservationDetails.ephemeris} 
+            updated={data.searchmodeObservationDetails.ephemerisUpdatedAt}
             show={ephemerisVisable} 
             setShow={setEphemerisVisable} />}
         <DataView 

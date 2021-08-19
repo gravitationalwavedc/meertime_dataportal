@@ -22,29 +22,18 @@ const scaleValue = (value, from, to) => {
     return ~~(capped * scale + to[0]);
 };
 
-const getDataSizeRange = (results) => results.length > 0 ? results.reduce(
-    (minMax, row) => {
-        const min = minMax[0] < row.length ? minMax[0] : row.length;
-        const max = minMax[1] > row.length ? minMax[1] : row.length;
-        return [ min, max ];
-    }, 
-    [results[0].length, results[0].length] 
-) : [0, 0];
-
-const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocation) => {
+const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocation, maxPlotLength, minPlotLength) => {
     // Pass table data through the search filter to enable searching pulsars on chart.
     const results = search.searchText ? handleSearch(data, columns, search) : data;
-
-    const dataSizeRange = getDataSizeRange(results);
 
     // Process the table data in a way that react-vis understands.
     const plotData = results.map(row => ({ 
         x: moment(row.utc, 'YYYY-MM-DD-HH:mm:ss'), 
-        y: row.snrSpip,
-        value: row.snrSpip,
-        customComponent: row.band === 'L-band' ? 'circle' : 'square',
+        y: row.snBackend,
+        value: row.snBackend,
+        customComponent: row.band === 'L-BAND' ? 'circle' : 'square',
         style: { fill:'#E07761', opacity:'0.4' },
-        size: scaleValue(row.length, dataSizeRange, [5, 50]),
+        size: scaleValue(row.length, [minPlotLength, maxPlotLength], [5, 500]),
         color: '#E07761',
         length: row.length,
         link: row.plotLink
@@ -62,12 +51,20 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
     return plotData;
 };
 
-const PulsarSummaryPlot = ({ data, columns, search }) => { 
+const PulsarSummaryPlot = ({ data, columns, search, maxPlotLength, minPlotLength }) => { 
     const [value, setValue] = useState(false);
     const [lastDrawLocation, setLastDrawLocation] = useState(null);
     const { router } = useRouter();
 
-    const plotData = getPlotData(data, columns, search, lastDrawLocation, setLastDrawLocation);
+    const plotData = getPlotData(
+        data, 
+        columns, 
+        search, 
+        lastDrawLocation, 
+        setLastDrawLocation, 
+        maxPlotLength, 
+        minPlotLength
+    );
 
     const plotLink = () => {
         router.replace(value.link);

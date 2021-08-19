@@ -3,7 +3,7 @@ import Form from 'react-bootstrap/Form';
 import React from 'react';
 import SearchRow from './SearchRow';
 
-const projects = [
+const mainProjects = [
     {
         value: 'meertime',
         title: 'MeerTime',
@@ -30,50 +30,53 @@ const projects = [
 
 const bandOptions = [
     'All',
-    'L-band',
-    'UHF'
+    'L-BAND',
+    'UHF',
+    'S-BAND',
+    'UNKNOWN'
 ];
 
 const ListControls = ({ 
     searchText, 
-    handleProposalFilter, 
+    handleProjectFilter, 
     handleBandFilter, 
-    handleProjectFilter,
-    currentProject,
+    handleMainProjectFilter,
+    mainProject,
+    project,
     searchProps, 
     isTableView,
     setIsTableView,
     columnToggleProps, 
     exportCSVProps }) => {
 
-
-    const subprojectOptions = currentProject ? 
-        projects.find(({ value }) => value === currentProject).subprojects : projects[0].subprojects;
+    const subprojectOptions = mainProject ? 
+        mainProjects.find(({ value }) => value === mainProject).subprojects : mainProjects[0].subprojects;
 
     return (
         <Form>
             <Form.Row>
-                { currentProject && <Col md={3} xl={2}>
+                { mainProject && <Col md={3} xl={2}>
                     <Form.Group controlId="mainProjectSelect">
                         <Form.Label>Main Project</Form.Label>
                         <Form.Control 
                             custom
                             as="select"  
-                            value={currentProject}
-                            onChange={(event) => handleProjectFilter(event.target.value)}>
-                            {projects.map(
+                            value={mainProject}
+                            onChange={(event) => handleMainProjectFilter(event.target.value)}>
+                            {mainProjects.map(
                                 ({ value, title })=> <option value={value} key={value}>{title}</option>)
                             }
                         </Form.Control>
                     </Form.Group>
                 </Col> }
-                { handleProposalFilter && <Col md={3} xl={2}>
+                { handleProjectFilter && <Col md={3} xl={2}>
                     <Form.Group controlId="projectSelect">
                         <Form.Label>Project</Form.Label>
                         <Form.Control 
                             custom
-                            as="select"  
-                            onChange={(event) => handleProposalFilter(event.target.value)}>
+                            as="select" 
+                            value={project}
+                            onChange={(event) => handleProjectFilter(event.target.value)}>
                             {subprojectOptions.map(value => <option value={value} key={value}>{value}</option>)}
                         </Form.Control>
                     </Form.Group>

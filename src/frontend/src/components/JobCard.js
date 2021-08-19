@@ -7,7 +7,7 @@ import { meerWatchLink } from '../helpers';
 const JobCard = ({ row }) => 
     <Card className="mb-3 shadow-md job-card" data-testid="job-card">
         <Card.Body>
-            <Card.Title><span className="mr-3">{row.jname}</span> {row.proposalShort}</Card.Title>
+            <Card.Title><span className="mr-3">{row.jname}</span> {row.project}</Card.Title>
             <Row>
                 <Col md={3}>
                     <p className="subtitle-1 text-primary-600 mb-2">Observations</p>
@@ -43,7 +43,7 @@ const JobCard = ({ row }) =>
                           View all observations 
             </Link>
             <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.last}/${row.lastBeam}/`} 
+                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.latestObservation}/${row.beam}/`} 
                 className='mr-2'
                 size='sm' 
                 variant="link" 

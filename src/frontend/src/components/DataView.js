@@ -16,18 +16,20 @@ const DataView = ({
     summaryData, 
     columns, 
     rows, 
+    mainProject,
     project, 
     setProject, 
-    setProposal, 
+    setMainProject,
     setBand, 
     options, 
     plot, 
+    maxPlotLength,
+    minPlotLength,
     keyField,
     card
   }) => {
     const { screenSize } = useScreenSize();
     const [isTableView, setIsTableView] = useState(["md", "lg", "xl", "xxl"].includes(screenSize));
-
     return (
         <React.Fragment>
             <SummaryDataRow
@@ -52,7 +54,10 @@ const DataView = ({
                         {plot && 
                           <Row className="d-none d-sm-block">
                               <Col>
-                                  <PulsarSummaryPlot {...props.baseProps}/>
+                                  <PulsarSummaryPlot 
+                                    {...props.baseProps} 
+                                    maxPlotLength={maxPlotLength} 
+                                    minPlotLength={minPlotLength} />
                               </Col>
                           </Row>
                         }
@@ -60,10 +65,11 @@ const DataView = ({
                             <Col lg={10} md={12}>
                                 <ListControls 
                                     searchProps={props.searchProps} 
-                                    handleProposalFilter={setProposal} 
                                     handleBandFilter={setBand}
+                                    handleMainProjectFilter={setMainProject}
                                     handleProjectFilter={setProject}
-                                    currentProject={project}
+                                    mainProject={mainProject}
+                                    project={project}
                                     columnToggleProps={props.columnToggleProps}
                                     setIsTableView={setIsTableView}
                                     isTableView={isTableView}

@@ -7,32 +7,32 @@ import DataView from './DataView';
 import Link from 'found/Link';
 import { useScreenSize } from '../context/screenSize-context';
 
-const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
+const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
     const { screenSize } = useScreenSize();
-    const [project, setProject] = useState('meertime');
-    const [proposal, setProposal] = useState('All');
+    const [mainProject, setMainProject] = useState('meertime');
+    const [project, setProject] = useState('All');
     const [band, setBand] = useState('All');
-
+   
     useEffect(() => {
-        relay.refetch({ mode: 'observations', proposal: proposal, band: band, getProposalFilters: project });
-    }, [proposal, band, relay, project]);
+        relay.refetch({ mainProject: mainProject, project: project, band: band });
+    }, [band, relay, project, mainProject]);
 
     const rows = relayData.edges.reduce((result, edge) => { 
         const row = { ...edge.node };
-        row.projectKey = project;
-        row.last = formatUTC(row.last);
-        row.first = formatUTC(row.first);
-        row.totalTintH = `${row.totalTintH} [h]`;
-        row.latestTintM = `${row.latestTintM} [m]`;
+        row.projectKey = mainProject;
+        row.latestObservation = formatUTC(row.latestObservation);
+        row.firstObservation = formatUTC(row.firstObservation);
+        row.totalIntegrationHours = `${row.totalIntegrationHours} [h]`;
+        row.lastIntegrationMinutes= `${row.lastIntegrationMinutes} [m]`;
         row.action = <ButtonGroup vertical>
             <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/fold/${project}/${row.jname}/`} 
+                to={`${process.env.REACT_APP_BASE_URL}/fold/${mainProject}/${row.jname}/`} 
                 size='sm' 
                 variant="outline-secondary" as={Button}>
                   View all
             </Link>
             <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.last}/${row.lastBeam}/`} 
+                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.latestObservation}/${row.beam}/`} 
                 size='sm' 
                 variant="outline-secondary" 
                 as={Button}>
@@ -45,22 +45,22 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
     const columns = [
         { dataField: 'projectKey', hidden: true, toggle: false, sort:false },
         { dataField: 'jname', text: 'JName', sort:true },
-        { dataField: 'proposalShort', text: 'Project', sort: true, screenSizes: ['xl', 'xxl'] },
-        { dataField: 'last', text: 'Last', sort: true },
-        { dataField: 'first', text: 'First', sort: true, screenSizes: ['xxl'] },
+        { dataField: 'project', text: 'Project', sort: true, screenSizes: ['xl', 'xxl'] },
+        { dataField: 'latestObservation', text: 'Last', sort: true },
+        { dataField: 'firstObservation', text: 'First', sort: true, screenSizes: ['xxl'] },
         { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true, 
             screenSizes: ['md', 'lg', 'xl', 'xxl'] },
-        { dataField: 'nobs', text: 'Observations', align: 'right', headerAlign: 'right', 
+        { dataField: 'numberOfObservations', text: 'Observations', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
-        { dataField: 'totalTintH', text: 'Total int [h]', align: 'right', headerAlign: 'right', 
+        { dataField: 'totalIntegrationHours', text: 'Total int [h]', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
-        { dataField: 'avgSnr5min', formatter: nullCellFormatter, text: 'Avg S/N pipe (5 mins)', align: 'right', 
+        { dataField: 'avgSnPipe', formatter: nullCellFormatter, text: 'Avg S/N pipe (5 mins)', align: 'right', 
             headerAlign: 'right', sort: true, hidden: true },
-        { dataField: 'maxSnr5min', formatter: nullCellFormatter, text: 'Max S/N pipe (5 mins)', align: 'right', 
+        { dataField: 'maxSnPipe', formatter: nullCellFormatter, text: 'Max S/N pipe (5 mins)', align: 'right', 
             headerAlign: 'right', sort: true, hidden: true },
-        { dataField: 'latestSnr', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
+        { dataField: 'lastSnRaw', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
-        { dataField: 'latestTintM', text: 'Last int. [m]', align: 'right', headerAlign: 'right', 
+        { dataField: 'lastIntegrationMinutes', text: 'Last int. [m]', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'action', text: '', align: 'right', headerAlign: 'right', 
             sort: false }
@@ -81,7 +81,8 @@ const FoldTable = ({ data: { relayObservations: relayData }, relay }) => {
             rows={rows}
             setProject={setProject}
             project={project}
-            setProposal={setProposal}
+            mainProject={mainProject}
+            setMainProject={setMainProject}
             setBand={setBand}
         />
     );
@@ -92,16 +93,14 @@ export default createRefetchContainer(
     {
         data: graphql`
           fragment FoldTable_data on Query @argumentDefinitions(
-            mode: {type: "String", defaultValue: "observations"},
-            proposal: {type: "String", defaultValue: "All"}
+            mainProject: {type: "String", defaultValue: "MEERTIME"}
+            project: {type: "String", defaultValue: "All"}
             band: {type: "String", defaultValue: "All"}
-            getProposalFilters: {type: "String", defaultValue: "meertime"}
           ) {
-              relayObservations(
-                mode: $mode, 
-                proposal: $proposal, 
+              foldObservations(
+                mainProject: $mainProject,
+                project: $project, 
                 band: $band, 
-                getProposalFilters: $getProposalFilters
               ) {
                 totalObservations
                 totalPulsars
@@ -109,25 +108,28 @@ export default createRefetchContainer(
                 edges {
                   node {
                     jname
-                    last
-                    lastBeam
-                    first
-                    proposalShort
+                    beam
+                    latestObservation
+                    firstObservation
+                    project
                     timespan
-                    nobs
-                    latestSnr
-                    latestTintM
-                    maxSnr5min
-                    avgSnr5min
-                    totalTintH
+                    numberOfObservations
+                    lastSnRaw
+                    lastIntegrationMinutes
+                    maxSnPipe
+                    avgSnPipe
+                    totalIntegrationHours
                   }
                 }
               }
           }`
     },
     graphql`
-      query FoldTableRefetchQuery($mode: String!, $proposal: String, $band: String, $getProposalFilters: String) {
-  ...FoldTable_data @arguments(mode: $mode, proposal: $proposal, band: $band, getProposalFilters:$getProposalFilters)
+      query FoldTableRefetchQuery($mainProject: String, $project: String, $band: String) {
+        ...FoldTable_data @arguments(mainProject: $mainProject, project: $project, band: $band)
       }
    `
 );
+
+// missing
+// lastBeam
