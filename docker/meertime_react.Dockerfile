@@ -1,8 +1,5 @@
-# This Dockerfile builds the MeerTime Django application for deployment on Kubernetes.
-
-FROM python:3.8-slim-buster
-
-ARG DEVELOPMENT_MODE
+# Build the backend to generate the schema.json file
+FROM python:3.8-slim-buster as backend
 
 ENV \
   # python:
@@ -19,7 +16,8 @@ ENV \
   POETRY_NO_INTERACTION=1 \
   POETRY_VIRTUALENVS_CREATE=false \
   POETRY_CACHE_DIR='/var/cache/pypoetry' \
-  PATH="$PATH:/root/.poetry/bin"
+  PATH="$PATH:/root/.poetry/bin" \
+  DEVELOPMENT_MODE=False
 
 # System dependencies:
 RUN apt-get update && apt-get upgrade -y \
@@ -43,11 +41,33 @@ WORKDIR /code
 
 COPY --chown=web:web ./backend/pyproject.toml ./backend/poetry.lock /code/
 
-# support development_mode in docker
-RUN if [ "${DEVELOPMENT_MODE}" = "True" ]; then poetry install --no-interation --no-ansi; else poetry install --no-dev --no-interaction --no-ansi; fi;
+RUN poetry install --no-dev --no-interaction --no-ansi
 
 COPY ./backend /code/
 
-EXPOSE 8000
+RUN python manage.py graphql_schema --out=./schema.json
 
-CMD [ "gunicorn", "-b 0.0.0.0:8000", "meertime.wsgi:application", ]
+
+# Build the react app to generate a clean production build
+FROM node:12.14.1-buster as build
+
+WORKDIR /app
+
+COPY ./frontend/package*.json /app/
+
+RUN npm install
+
+COPY ./frontend /app/
+COPY --from=backend /code/schema.json /app/data/
+
+RUN npm run relay 
+RUN npm run build
+
+
+# Run the app
+FROM nginx:1.17.8
+
+COPY --from=build /app/build /react_app/ 
+ADD ./nginx/react_app.conf /etc/nginx/conf.d/nginx.conf
+
+EXPOSE 3000

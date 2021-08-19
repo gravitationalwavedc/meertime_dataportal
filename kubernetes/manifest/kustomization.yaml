@@ -16,3 +16,4 @@ resources:
   - mysql-bkp-pvc.yaml
   - mysql-bkp-configmap.yaml
   - mysql-bkp-cronjob.yaml
+  - react-deployment.yaml
