@@ -42,7 +42,7 @@ spec:
       serviceAccountName: meertime
       initContainers:
         - name: collectstatic
-          image: nexus.gwdc.org.au/meertime-dev/meertime_django:dev
+          image: nexus.gwdc.org.au/meertime_dev/meertime_django:dev
           imagePullPolicy: Always
           command: ["python", "manage.py", "collectstatic", "--noinput"]
           env:
@@ -61,7 +61,7 @@ spec:
               mountPath: /static
       containers:
         - name: ng-meertime
-          image: nexus.gwdc.org.au/meertime-dev/meertime_nginx:dev
+          image: nexus.gwdc.org.au/meertime_dev/meertime_nginx:dev
           imagePullPolicy: Always
           resources: {}
           volumeMounts:
