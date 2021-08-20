@@ -61,7 +61,7 @@ spec:
               mountPath: /static
       containers:
         - name: ng-meertime
-          image: nexus.gwdc.org.au/meertime_dev/meertime_nginx:dev.0.3
+          image: nexus.gwdc.org.au/meertime_dev/meertime_nginx:dev.0.4
           imagePullPolicy: Always
           resources: {}
           volumeMounts:
@@ -69,19 +69,6 @@ spec:
               name: static-volume-django
             - mountPath: /media
               name: meertime-img-storage-dev
-          livenessProbe:
-            httpGet:
-              path: /accounts/login/
-              port: 80
-              httpHeaders:
-            initialDelaySeconds: 3
-            periodSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /accounts/login/
-              port: 80
-            initialDelaySeconds: 3
-            periodSeconds: 3
       volumes:
         - name: static-volume-django
           emptyDir: {}
