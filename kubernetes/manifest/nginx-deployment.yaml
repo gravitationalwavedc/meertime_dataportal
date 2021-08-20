@@ -61,7 +61,7 @@ spec:
               mountPath: /static
       containers:
         - name: ng-meertime
-          image: nexus.gwdc.org.au/meertime_dev/meertime_nginx:dev.0.1
+          image: nexus.gwdc.org.au/meertime_dev/meertime_nginx:dev.0.2
           imagePullPolicy: Always
           resources: {}
           volumeMounts:
