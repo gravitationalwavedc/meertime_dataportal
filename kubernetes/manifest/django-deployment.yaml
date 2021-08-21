@@ -101,6 +101,21 @@ spec:
             - secretRef:
                 name: db-config
           command: ["python", "manage.py", "migrate"]
+        - name: sync-web-cache 
+          image: nexus.gwdc.org.au/meertime_dev/meertime_django:dev.0.1
+          imagePullPolicy: Always
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: db-conf
+                  key: host
+          envFrom:
+            - secretRef:
+                name: django-multi
+            - secretRef:
+                name: db-config
+          command: ["python", "manage.py", "sync_web_cache"]
       containers:
         - name: django
           image: nexus.gwdc.org.au/meertime_dev/meertime_django:dev.0.1
