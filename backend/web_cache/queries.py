@@ -16,6 +16,9 @@ class FoldPulsarDetailNode(DjangoObjectType):
     class Meta:
         model = FoldPulsarDetail
         interfaces = (relay.Node,)
+        exclude = ["ephemeris"]
+
+    ephemeris = graphene.String()
 
     def resolve_ephemeris(self, instance):
         """Make sure that graphql outputs a valid json string that can be used in JSON.parse"""
