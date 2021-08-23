@@ -21,7 +21,7 @@ const SearchTable = ({ data: { searchmodeObservations }, relay }) => {
     const rows = searchmodeObservations.edges.reduce((result, edge) => { 
         const row = { ...edge.node };
         row.projectKey = mainProject;
-        row.latestObservation = formatUTC(row.latetestObservation);
+        row.latestObservation = formatUTC(row.latestObservation);
         row.firstObservation = formatUTC(row.firstObservation);
         row.totalIntegrationHours = `${row.totalIntegrationHours} [h]`;
         row.lastIntegrationMinutes = `${row.lastIntegrationMinutes} [m]`;
