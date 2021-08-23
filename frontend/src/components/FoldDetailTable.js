@@ -31,6 +31,10 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
     const [rows, setRows] = useState(allRows);
     const [ephemerisVisable, setEphemerisVisable] = useState(false);
 
+    const ephemeris = foldObservationDetails.edges[foldObservationDetails.edges.length -1 ].node.ephemeris;
+    const ephemerisUpdated = 
+        foldObservationDetails.edges[foldObservationDetails.edges.length -1 ].node.ephemerisIsUpdatedAt;
+
     const columns = [
         { dataField: 'key', text: '', sort: false, hidden: true, toggle: false },
         { dataField: 'plotLink', text: '', sort: false, hidden: true, toggle: false },
@@ -97,9 +101,9 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         size="sm"
                         variant="outline-secondary" 
                         className="mr-2 mb-2"
-                        disabled={foldObservationDetails.ephemeris ? false : true}
+                        disabled={ephemeris ? false : true}
                         onClick={() => setEphemerisVisable(true)}>
-                        { foldObservationDetails.ephemeris ? 
+                        { ephemeris ? 
                             'View folding ephemeris' : 'Folding ephemeris unavailable'}
                     </Button>
                     <Button 
@@ -111,9 +115,9 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                     </Button>
                 </Col>
             </Row>
-            {foldObservationDetails.ephemeris && <Ephemeris 
-                ephemeris={foldObservationDetails.ephemeris} 
-                updated={foldObservationDetails.ephemerisUpdatedAt}
+            { ephemeris && <Ephemeris 
+                ephemeris={ephemeris} 
+                updated={ephemerisUpdated}
                 show={ephemerisVisable} 
                 setShow={setEphemerisVisable} />}
             <DataView 

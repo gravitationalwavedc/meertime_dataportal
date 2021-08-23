@@ -20,6 +20,8 @@ const query = graphql`
           id
           utc
           project
+          ephemeris
+          ephemerisIsUpdatedAt
           length
           beam
           bwMhz
@@ -37,10 +39,6 @@ const query = graphql`
       }
     }
   }`;
-
-// Missing
-// ephemeris
-// ephemerisUpdatedAt
 
 const FoldDetail = ({ match, relayEnvironment }) => {
     const { jname, mainProject } = match.params;

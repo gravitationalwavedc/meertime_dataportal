@@ -3,6 +3,6 @@
 
 GRAPHENE = {
     "SCHEMA": "meertime.schema.schema",
-    "SCHEMA_OUTPUT": "./frontend/data/schema.json",
+    "SCHEMA_OUTPUT": "../frontend/data/schema.json",
     "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],
 }

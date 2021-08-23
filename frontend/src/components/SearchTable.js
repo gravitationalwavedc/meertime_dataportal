@@ -21,10 +21,10 @@ const SearchTable = ({ data: { searchmodeObservations }, relay }) => {
     const rows = searchmodeObservations.edges.reduce((result, edge) => { 
         const row = { ...edge.node };
         row.projectKey = mainProject;
-        row.last = formatUTC(row.latetestObservation);
-        row.first = formatUTC(row.firstObservation);
-        row.totalTintH = `${row.totalIntegrationHours} [h]`;
-        row.latestTintM = `${row.lastIntegrationMinutes} [m]`;
+        row.latestObservation = formatUTC(row.latetestObservation);
+        row.firstObservation = formatUTC(row.firstObservation);
+        row.totalIntegrationHours = `${row.totalIntegrationHours} [h]`;
+        row.lastIntegrationMinutes = `${row.lastIntegrationMinutes} [m]`;
         row.action = <ButtonGroup vertical>
             <Link 
                 to={`${process.env.REACT_APP_BASE_URL}/search/${mainProject}/${row.jname}/`} 
@@ -45,12 +45,12 @@ const SearchTable = ({ data: { searchmodeObservations }, relay }) => {
 
     const columns = [
         { dataField: 'jname', text: 'JName', sort:true },
-        { dataField: 'proposalShort', text: 'Project', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
-        { dataField: 'last', text: 'Last', sort: true },
-        { dataField: 'first', text: 'First', sort: true, screenSizes: ['xl', 'xxl'] },
+        { dataField: 'project', text: 'Project', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'latestObservation', text: 'Last', sort: true },
+        { dataField: 'firstObservation', text: 'First', sort: true, screenSizes: ['xl', 'xxl'] },
         { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true, 
             screenSizes: ['md', 'lg', 'xl', 'xxl'] },
-        { dataField: 'nobs', text: 'Observations', align: 'right', headerAlign: 'right', 
+        { dataField: 'numberOfObservations', text: 'Observations', align: 'right', headerAlign: 'right', 
             sort: true },
         { dataField: 'action', text: '', align: 'center', headerAlign: 'center', 
             sort: false }

@@ -1,8 +1,11 @@
 import math
+import ntpath
 from datetime import datetime
 from django.utils.timezone import make_aware
 from django.db import models
 from dataportal.models import Foldings, Observations, Filterbankings
+from django_mysql.models import JSONField
+from dataportal import storage
 from statistics import mean
 
 BAND_CHOICES = (('L-BAND', 'L-Band'), ('S-BAND', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown'))
@@ -214,6 +217,8 @@ class FoldPulsarDetail(models.Model):
     utc = models.DateTimeField()
     project = models.CharField(max_length=50)
     proposal = models.CharField(max_length=40)
+    ephemeris = JSONField()
+    ephemeris_is_updated_at = models.DateTimeField(null=True)
     length = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     beam = models.IntegerField()
     bw_mhz = models.DecimalField(max_digits=12, decimal_places=2)
@@ -244,7 +249,17 @@ class FoldPulsarDetail(models.Model):
         pulsar = folding.folding_ephemeris.pulsar
         fold_pulsar = FoldPulsar.objects.get(jname=pulsar.jname)
         observation = folding.processing.observation
-        images = {image.image_type: image.image.url for image in folding.processing.pipelineimages_set.all()}
+
+        # Images are currently stored in the database with the wrong path. I suspect this is because of the way the
+        # CLI is processing the image itself. We fix this here by manually setting the correct url. This will
+        # break if the way images are stored on the server change.
+        # To get the correct filename we use ntpath to extract it from the path given by the image.name property.
+        images = {
+            pipelineimage.image_type: storage.get_upload_location(
+                pipelineimage, ntpath.basename(pipelineimage.image.name)
+            )
+            for pipelineimage in folding.processing.pipelineimages_set.all()
+        }
 
         # Known image types are 'band', 'snrt', 'freq', 'time', and 'flux'.
         bandpass = images['band'] if 'band' in images else None
@@ -259,6 +274,8 @@ class FoldPulsarDetail(models.Model):
             defaults={
                 "project": observation.project.short,
                 "proposal": observation.project.code,
+                "emphemeris": folding.folding_ephemeris.ephemeris,
+                "emphemeris_is_updated_at": folding.folding_ephemeris.created_at,
                 "length": observation.duration,
                 "beam": observation.instrument_config.beam,
                 "bw_mhz": observation.instrument_config.bandwidth,

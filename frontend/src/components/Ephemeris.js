@@ -5,9 +5,11 @@ import { formatUTC } from '../helpers';
 
 const Ephemeris = ({ ephemeris, updated, show, setShow }) => {
     const ephemerisJSON = JSON.parse(ephemeris);
+
     const EphemerisValue = ({ data }) => 
         <td className="ephemris-item">
-            {data.map((value) => <span key={value}>{value}</span>)}
+            <span >{data['val']}</span>
+            <span >{data['err']}</span>
         </td>;
 
     return (
