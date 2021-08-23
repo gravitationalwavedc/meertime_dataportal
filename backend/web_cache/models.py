@@ -274,8 +274,8 @@ class FoldPulsarDetail(models.Model):
             defaults={
                 "project": observation.project.short,
                 "proposal": observation.project.code,
-                "emphemeris": folding.folding_ephemeris.ephemeris,
-                "emphemeris_is_updated_at": folding.folding_ephemeris.created_at,
+                "ephemeris": folding.folding_ephemeris.ephemeris,
+                "ephemeris_is_updated_at": folding.folding_ephemeris.created_at,
                 "length": observation.duration,
                 "beam": observation.instrument_config.beam,
                 "bw_mhz": observation.instrument_config.bandwidth,
