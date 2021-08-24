@@ -33,7 +33,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
     const columns = [
         { dataField: 'key', text: '', sort: false, hidden: true, toggle: false },
         { dataField: 'utc', text: 'Timestamp', sort: true, headerClasses: 'fold-detail-utc' },
-        { dataField: 'proposalShort', text: 'Project', sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
+        { dataField: 'project', text: 'Project', sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'ra', text: 'RA', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'dec', text: 'DEC', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'length', text: 'Length [m]', sort: true, screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
@@ -56,7 +56,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
             return;
         }
 
-        const newRows = allRows.filter((row) => row.proposalShort === project);
+        const newRows = allRows.filter((row) => row.project === project);
         setRows(newRows);
 
     };

@@ -14,7 +14,7 @@ const FoldDetailCard = ({ row }) =>
                     <p className="overline mb-1">Beam</p>
                     <p>{row.beam}</p>
                     <p className="overline mb-1">BW</p>
-                    <p>{row.bw}</p>
+                    <p>{row.bwMhz}</p>
                 </Col>
                 <Col md={3}>
                     <p className="overline mb-1">Nchan</p>
@@ -30,17 +30,17 @@ const FoldDetailCard = ({ row }) =>
                     <p className="overline mb-1">Nant eff</p>
                     <p>{row.nantEff}</p>
                     <p className="overline mb-1">S/N backend</p>
-                    <p>{row.snrSpip}</p>
+                    <p>{row.snBackend}</p>
                     <p className="overline mb-1">S/N meerpipe</p>
-                    <p>{row.snrPipe ? row.snrPipe : 'null'}</p>
+                    <p>{row.snMeerpipe ? row.snMeerpipe : 'null'}</p>
                 </Col>
                 <Col md={3}>
                     <p className="overline mb-1">DM fold</p>
                     <p>{row.dmFold}</p>
                     <p className="overline mb-1">DM meerpipe</p>
-                    <p>{row.dmPipe ? row.dmPipe : 'null'}</p>
+                    <p>{row.dmMeerpipe ? row.dmMeerpipe : 'null'}</p>
                     <p className="overline mb-1">RM meerpipe</p>
-                    <p>{row.rmPipe ? row.rmPipe : 'null'}</p>
+                    <p>{row.rmMeerpipe ? row.rmMeerpipe : 'null'}</p>
                 </Col>
             </Row>
         </Card.Body>

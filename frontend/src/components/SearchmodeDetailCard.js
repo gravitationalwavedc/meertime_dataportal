@@ -6,7 +6,7 @@ import { kronosLink } from '../helpers';
 const JobCard = ({ row }) => 
     <Card className="mb-3 shadow-md job-card" data-testid="job-card">
         <Card.Body>
-            <Card.Title><span className="mr-3">{row.utc}</span> {row.proposalShort}</Card.Title>
+            <Card.Title><span className="mr-3">{row.utc}</span> {row.project}</Card.Title>
             <Row>
                 <Col>
                     <p className="overline mb-1">RA</p>

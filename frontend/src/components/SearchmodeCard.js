@@ -7,15 +7,15 @@ import { kronosLink } from '../helpers';
 const JobCard = ({ row }) => 
     <Card className="mb-3 shadow-md job-card" data-testid="job-card">
         <Card.Body>
-            <Card.Title><span className="mr-3">{row.jname}</span> {row.proposalShort}</Card.Title>
+            <Card.Title><span className="mr-3">{row.jname}</span> {row.project}</Card.Title>
             <Row>
                 <Col md={3}>
                     <p className="subtitle-1 text-primary-600 mb-2">Observations</p>
-                    <p>{row.nobs} in {row.timespan} days</p>
+                    <p>{row.numberOfObservations} in {row.timespan} days</p>
                     <p className="overline mb-1">Last</p>
-                    <p>{row.last}</p>
+                    <p>{row.latestObservation}</p>
                     <p className="overline mb-1">First</p>
-                    <p>{row.first}</p>
+                    <p>{row.firstObservation}</p>
                 </Col>
             </Row>
         </Card.Body>
