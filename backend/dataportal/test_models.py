@@ -1,7 +1,8 @@
 import pytest
 import random
 import string
-from datetime import datetime, timedelta
+from datetime import datetime
+from django.db.utils import IntegrityError
 
 from .models import (
     Ephemerides,
@@ -71,6 +72,7 @@ def generate_db_entry(psr, utc, config=default_entry_config):
     target, _ = Targets.objects.get_or_create(name=psr, raj=config["raj"], decj=config["decj"])
     psrtarget, _ = Pulsartargets.objects.get_or_create(pulsar=psr, target=target)
     proposal, _ = Projects.objects.get_or_create(code=config["proposal"], short=config["proposal_short"])
+
     instrument = Instrumentconfigs.objects.create(
         name=config["name"],
         bandwidth=config["bandwidth"],
@@ -79,7 +81,8 @@ def generate_db_entry(psr, utc, config=default_entry_config):
         npol=config["npol"],
         beam=config["beam"],
     )
-    telescope = Telescopes.objects.create(name=config["telescope"])
+
+    telescope, _ = Telescopes.objects.get_or_create(name=config["telescope"])
 
     utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
 
@@ -94,9 +97,13 @@ def generate_db_entry(psr, utc, config=default_entry_config):
         valid_from=utc_dt,
         valid_to=utc_dt,
     )
-    pipeline = Pipelines.objects.create(
-        name=config["name"], created_at=utc_dt, revision=config["pipeline_version"], created_by=config["name"]
-    )
+
+    try:
+        pipeline, _ = Pipelines.objects.get_or_create(
+            name=config["name"], created_at=utc_dt, revision=config["pipeline_version"], created_by=config["name"]
+        )
+    except IntegrityError:
+        pipeline = Pipelines.objects.create(name="boo", created_at=utc_dt, revision="D", created_by="boo")
 
     obs = Observations.objects.create(
         target=target,
@@ -110,6 +117,7 @@ def generate_db_entry(psr, utc, config=default_entry_config):
     )
 
     proc = Processings.objects.create(observation=obs, pipeline=pipeline, embargo_end=utc_dt)
+
     Foldings.objects.create(
         processing=proc,
         folding_ephemeris=eph,
@@ -119,6 +127,7 @@ def generate_db_entry(psr, utc, config=default_entry_config):
         dm=config["dm"],
         tsubint=config["tsubint"],
     )
+
     Filterbankings.objects.create(
         processing=proc,
         nbit=config["nbit"],
@@ -127,6 +136,7 @@ def generate_db_entry(psr, utc, config=default_entry_config):
         tsamp=config["tsamp"],
         dm=config["dm"],
     )
+
     return utc_dt
 
 

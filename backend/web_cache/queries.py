@@ -1,6 +1,7 @@
 import graphene
 import json
 from graphene import relay, ObjectType
+from django.template.defaultfilters import filesizeformat
 from graphene_django import DjangoObjectType
 from web_cache.models import FoldPulsar, SearchmodePulsar, FoldPulsarDetail, SearchmodePulsarDetail
 from graphql_jwt.decorators import login_required
@@ -16,13 +17,18 @@ class FoldPulsarDetailNode(DjangoObjectType):
     class Meta:
         model = FoldPulsarDetail
         interfaces = (relay.Node,)
-        exclude = ["ephemeris"]
+        exclude = ['ephemeris']
 
     ephemeris = graphene.String()
+    band = graphene.String()
 
     def resolve_ephemeris(self, instance):
         """Make sure that graphql outputs a valid json string that can be used in JSON.parse"""
         return json.dumps(self.ephemeris)
+
+    def resolve_band(self, instance):
+        """Band should use the display name. This also stops graphene from replacing the - with an _."""
+        return self.get_band_display()
 
 
 class SearchmodePulsarNode(DjangoObjectType):
@@ -35,6 +41,12 @@ class SearchmodePulsarDetailNode(DjangoObjectType):
     class Meta:
         model = SearchmodePulsarDetail
         interfaces = (relay.Node,)
+
+    band = graphene.String()
+
+    def resolve_band(self, instance):
+        """Band should use the display name. This also stops graphene from replacing the - with an _."""
+        return self.get_band_display()
 
 
 class FoldPulsarConnection(relay.Connection):
@@ -71,23 +83,23 @@ class FoldPulsarDetailConnection(relay.Connection):
         return len(self.edges)
 
     def resolve_total_observation_hours(self, instance):
-        return round(sum([observation.length for observation in self.iterable]) / 3600, 1)
+        return round(sum([float(observation.length) for observation in self.iterable]) / 60, 1)
 
     def resolve_total_projects(self, instance):
         return len({observation.project for observation in self.iterable})
 
     def resolve_total_timespan_days(self, instance):
-        max_utc = max([observation.utc for observation in self.iterable]) if self.iterable else 0
-        min_utc = min([observation.utc for observation in self.iterable]) if self.iterable else 0
-        duration = max_utc - min_utc
-        # Add 1 day to the end result because the timespan should show the rounded up number of days
-        return duration.days + 1 if duration else 0
+        if self.iterable:
+            max_utc = max([observation.utc for observation in self.iterable])
+            min_utc = min([observation.utc for observation in self.iterable])
+            duration = max_utc - min_utc
+            # Add 1 day to the end result because the timespan should show the rounded up number of days
+            return duration.days + 1
+        else:
+            return 0
 
     def resolve_total_estimated_disk_space(self, instance):
-        return '0 mb'
-        # return filesizeformat(
-        #     sum([observation.estimated_size for observation in self.iterable if observation.estimated_size])
-        # )
+        return filesizeformat(sum([observation.estimated_size for observation in self.iterable]))
 
     def resolve_max_plot_length(self, instance):
         return FoldPulsarDetail.objects.order_by('length').last().length

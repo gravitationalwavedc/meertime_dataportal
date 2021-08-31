@@ -14,7 +14,7 @@ const FoldDetailCard = ({ row }) =>
                     <p className="overline mb-1">Beam</p>
                     <p>{row.beam}</p>
                     <p className="overline mb-1">BW</p>
-                    <p>{row.bwMhz}</p>
+                    <p>{row.bw}</p>
                 </Col>
                 <Col md={3}>
                     <p className="overline mb-1">Nchan</p>

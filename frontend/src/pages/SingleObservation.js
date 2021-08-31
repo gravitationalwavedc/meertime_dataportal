@@ -13,13 +13,13 @@ const query = graphql`
           utc
           proposal
           frequency
-          bwMhz
+          bw
           ra
           dec
           length
           nbin
           nchan
-          nsubint
+          tsubint
           nant
           profile
           phaseVsTime

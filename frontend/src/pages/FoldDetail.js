@@ -24,7 +24,7 @@ const query = graphql`
           ephemerisIsUpdatedAt
           length
           beam
-          bwMhz
+          bw
           nchan
           band
           nbin

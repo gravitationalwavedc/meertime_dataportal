@@ -80,7 +80,7 @@ def test_fold_query_with_token():
                         'avgSnPipe': None,
                         'maxSnPipe': None,
                         'lastSnRaw': 67.8,
-                        'lastIntegrationMinutes': 4.0,
+                        'lastIntegrationMinutes': 0.1,
                     }
                 }
             ],
@@ -141,7 +141,7 @@ def test_fold_detail_query():
                 project
                 length
                 beam
-                bwMhz
+                bw
                 nchan
                 band
                 nbin
@@ -163,26 +163,26 @@ def test_fold_detail_query():
             'totalObservations': 1,
             'totalObservationHours': 0,
             'totalProjects': 1,
-            'totalEstimatedDiskSpace': '0 mb',
-            'totalTimespanDays': 0,
+            'totalEstimatedDiskSpace': '77.6\xa0KB',
+            'totalTimespanDays': 1,
             'edges': [
                 {
                     'node': {
                         'utc': '2000-01-21T12:59:12+00:00',
                         'project': 'Relbin',
-                        'length': 4.0,
+                        'length': 0.1,
                         'beam': 54,
-                        'bwMhz': 11.0,
+                        'bw': 11.0,
                         'nchan': 21,
                         'band': 'UHF',
                         'nbin': 43,
                         'nant': None,
                         'nantEff': None,
                         'dmFold': None,
-                        'dmMeerpipe': 0.0,
-                        'rmMeerpipe': 0.0,
+                        'dmMeerpipe': None,
+                        'rmMeerpipe': None,
                         'snBackend': 67.8,
-                        'snMeerpipe': 0.0,
+                        'snMeerpipe': None,
                     }
                 }
             ],
@@ -194,7 +194,7 @@ def test_fold_detail_query():
 
 @pytest.mark.django_db
 def test_searchmode_query():
-    client, user, jnam = setup_query_test()
+    client, user, jname = setup_query_test()
     client.authenticate(user)
     response = client.execute(
         """

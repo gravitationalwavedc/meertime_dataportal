@@ -44,7 +44,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
         { dataField: 'length', text: 'Length', sort: true, screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'],
             formatter: (cell) => `${cell} [m]` },
         { dataField: 'beam', text: 'Beam', sort: true, screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
-        { dataField: 'bwMhz', text: 'BW', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'bw', text: 'BW', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'nchan', text: 'Nchan', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'band', text: 'Band', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'nbin', text: 'Nbin', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
@@ -65,12 +65,12 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
     const [size, sizeFormat] = foldObservationDetails.totalEstimatedDiskSpace.split('\u00a0');
 
     const handleBandFilter = (band) => {
-        if(band === 'All') {
+        if(band.toLowerCase() === 'all') {
             setRows(allRows);
             return;
         }
 
-        const newRows = allRows.filter((row) => row.band === band);
+        const newRows = allRows.filter((row) => row.band.toLowerCase() === band.toLowerCase());
         setRows(newRows);
     };
 

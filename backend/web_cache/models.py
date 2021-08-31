@@ -1,14 +1,13 @@
 import math
 import ntpath
 from datetime import datetime
-from django.utils.timezone import make_aware
 from django.db import models
 from dataportal.models import Foldings, Observations, Filterbankings
 from django_mysql.models import JSONField
 from dataportal import storage
 from statistics import mean
 
-BAND_CHOICES = (('L-BAND', 'L-Band'), ('S-BAND', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown'))
+BAND_CHOICES = (('L-Band', 'L-Band'), ('S-Band', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown'))
 
 MAIN_PROJECT_CHOICES = (('MEERTIME', 'MeerTime'), ('TRAPUM', 'Trapum'), ('UNKNOWN', 'UNKNOWN'))
 
@@ -66,15 +65,14 @@ class BasePulsar(models.Model):
         """
         bands = {
             "UHF": {"centre_frequency": 830.0, "allowed_deviation": 200.0},
-            "L-BAND": {"centre_frequency": 1285.0, "allowed_deviation": 200.0},
-            "S-BAND": {"centre_frequency": 2625.0, "allowed_deviation": 200.0},
+            "L-Band": {"centre_frequency": 1285.0, "allowed_deviation": 200.0},
+            "S-Band": {"centre_frequency": 2625.0, "allowed_deviation": 200.0},
         }
 
         # For band check to work the frequency must be either an int or a float.
-        if type(frequency) in [float, int]:
-            for band in bands.keys():
-                if abs(frequency - bands[band]["centre_frequency"]) < bands[band]["allowed_deviation"]:
-                    return band
+        for band in bands.keys():
+            if abs(float(frequency) - bands[band]["centre_frequency"]) < bands[band]["allowed_deviation"]:
+                return band
 
         return 'UNKNOWN'
 
@@ -154,10 +152,11 @@ class FoldPulsar(BasePulsar):
                     if folding.processing.observation.duration
                 ]
             )
-            / 120
+            / 60
+            / 60
         )
         last_sn_raw = results['snr'] if 'snr' in results else 0
-        last_integration_minutes = latest_folding_observation.processing.observation.duration
+        last_integration_minutes = latest_folding_observation.processing.observation.duration / 60
 
         FoldPulsar.objects.update_or_create(
             main_project=cls.get_main_project(latest_folding_observation.processing.observation.project.code),
@@ -221,7 +220,7 @@ class FoldPulsarDetail(models.Model):
     ephemeris_is_updated_at = models.DateTimeField(null=True)
     length = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     beam = models.IntegerField()
-    bw_mhz = models.DecimalField(max_digits=12, decimal_places=2)
+    bw = models.DecimalField(max_digits=12, decimal_places=2)
     nchan = models.IntegerField()
     band = models.CharField(choices=BAND_CHOICES, max_length=7)
     nbin = models.IntegerField()
@@ -234,7 +233,7 @@ class FoldPulsarDetail(models.Model):
     sn_meerpipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     ra = models.CharField(max_length=16, null=True)
     dec = models.CharField(max_length=16, null=True)
-    nsubint = models.DecimalField(max_digits=12, decimal_places=1, null=True)
+    tsubint = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     schedule = models.CharField(max_length=16, null=True)
     phaseup = models.CharField(max_length=16, null=True)
     phase_vs_time = models.URLField(null=True)
@@ -243,6 +242,15 @@ class FoldPulsarDetail(models.Model):
     snr_vs_time = models.URLField(null=True)
     profile = models.URLField(null=True)
     frequency = models.DecimalField(null=True, max_digits=15, decimal_places=9)
+    npol = models.IntegerField(null=True)
+
+    @property
+    def estimated_size(self):
+        """Estimated size of the observation data stored on disk in bytes."""
+        try:
+            return math.ceil(self.length / self.tsubint) * self.nbin * self.nchan * self.npol * 2
+        except ZeroDivisionError:
+            return 0
 
     @classmethod
     def update_or_create(cls, folding):
@@ -267,6 +275,7 @@ class FoldPulsarDetail(models.Model):
         phase_vs_frequency = images['freq'] if 'freq' in images else None
         snr_vs_time = images['snrt'] if 'snrt' in images else None
         profile = images['flux'] if 'flux' in images else None
+        results = folding.processing.results if folding.processing.results else []
 
         FoldPulsarDetail.objects.update_or_create(
             fold_pulsar=fold_pulsar,
@@ -276,22 +285,22 @@ class FoldPulsarDetail(models.Model):
                 "proposal": observation.project.code,
                 "ephemeris": folding.folding_ephemeris.ephemeris,
                 "ephemeris_is_updated_at": folding.folding_ephemeris.created_at,
-                "length": observation.duration,
+                "length": observation.duration / 60,
                 "beam": observation.instrument_config.beam,
-                "bw_mhz": observation.instrument_config.bandwidth,
+                "bw": observation.instrument_config.bandwidth,
                 "ra": observation.target.raj,
                 "dec": observation.target.decj,
                 "nchan": folding.nchan,
-                "nsubint": folding.tsubint,
+                "tsubint": folding.tsubint,
                 "band": fold_pulsar.get_band(observation.instrument_config.frequency),
                 "nbin": folding.nbin,
                 "nant": observation.nant,
                 "nant_eff": observation.nant_eff,
                 "dm_fold": folding.dm,
-                "dm_meerpipe": 0,
-                "rm_meerpipe": 0,
-                "sn_backend": folding.processing.results['snr'],
-                "sn_meerpipe": 0,
+                "dm_meerpipe": results['dm_meerpipe'] if 'dm_meerpipe' in results else None,
+                "rm_meerpipe": results['rm_meerpipe'] if 'rm_meerpipe' in results else None,
+                "sn_backend": results['snr'] if 'snr' in results else None,
+                "sn_meerpipe": results['sn_meerpipe'] if 'sn_meerpipe' in results else None,
                 "schedule": "12",
                 "phaseup": "12",
                 "phase_vs_time": phase_vs_time,
@@ -300,6 +309,7 @@ class FoldPulsarDetail(models.Model):
                 "snr_vs_time": snr_vs_time,
                 "profile": profile,
                 "frequency": observation.instrument_config.frequency,
+                "npol": observation.instrument_config.npol,
             },
         )
 
@@ -344,7 +354,7 @@ class SearchmodePulsarDetail(models.Model):
                 "project": observation.project,
                 "ra": observation.target.raj,
                 "dec": observation.target.decj,
-                "length": observation.duration,
+                "length": observation.duration / 60,
                 "beam": observation.instrument_config.beam,
                 "frequency": 0,
                 "nchan": filter_bankings.nchan,

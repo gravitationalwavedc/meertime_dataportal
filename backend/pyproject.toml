@@ -43,6 +43,7 @@ django-cors-headers = "^3.5.0"
 xenon = "^0.7.1"
 django-extensions = "^3.0.9"
 model_bakery = "^1.2.1"
+django-stubs = "^1.8.0"
 
 [tool.black]
 line-length = 119

@@ -130,7 +130,7 @@ def test_graphql_targets_query_with_token(client, django_user_model):
 
 mutation_target = """
 mutation ($name: String!, $raj: String!, $decj: String!) {
-  createTarget(name: $name, raj: $raj, decj: $decj) {
+  createTarget(input:{name: $name, raj: $raj, decj: $decj}) {
     target {
       name,      
     }
