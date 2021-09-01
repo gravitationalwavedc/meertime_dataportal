@@ -97,25 +97,33 @@ class Targets(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing targets")
-        parser_list.add_argument("--id", type=int, help="list targets matching the id")
-        parser_list.add_argument("--name", type=str, help="list targets matching the name")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list targets matching the id [int]")
+        parser_list.add_argument("--name", metavar="NAME", type=str, help="list targets matching the name [str]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new target")
-        parser_create.add_argument("name", type=str, help="name of the target")
-        parser_create.add_argument("raj", type=str, help="right ascension string in J2000 coordinates")
-        parser_create.add_argument("decj", type=str, help="declincation string in J2000 coordnates")
+        parser_create.add_argument("name", metavar="NAME", type=str, help="name of the target [str]")
+        parser_create.add_argument(
+            "raj", metavar="RAJ", type=str, help="right ascension string in J2000 coordinates [str]"
+        )
+        parser_create.add_argument(
+            "decj", metavar="DECJ", type=str, help="declincation string in J2000 coordnates [str]"
+        )
 
         # create the parser for the "update" command
-        parse_update = subs.add_parser("update", help="update the values of an existing target")
-        parse_update.add_argument("id", type=int, help="database id of the target")
-        parse_update.add_argument("name", type=str, help="name of the target")
-        parse_update.add_argument("raj", type=str, help="right ascension string in J2000 coordinates")
-        parse_update.add_argument("decj", type=str, help="declincation string in J2000 coordnates")
+        parser_update = subs.add_parser("update", help="update the values of an existing target")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the target [int]")
+        parser_update.add_argument("name", metavar="NAME", type=str, help="name of the target [str]")
+        parser_update.add_argument(
+            "raj", metavar="RAJ", type=str, help="right ascension string in J2000 coordinates [str]"
+        )
+        parser_update.add_argument(
+            "decj", metavar="DECJ", type=str, help="declincation string in J2000 coordnates [str]"
+        )
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing target")
-        parser_delete.add_argument("id", type=int, help="id of the target")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the target [int]")
 
 
 if __name__ == "__main__":

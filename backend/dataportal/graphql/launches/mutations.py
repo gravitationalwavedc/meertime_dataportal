@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Launches
+from .types import LaunchesInput, LaunchesType
 
 
 class CreateLaunch(graphene.Mutation):
@@ -12,8 +14,8 @@ class CreateLaunch(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_launches")
     def mutate(cls, self, info, input):
-        _launch, _ = Launches.objects.get_or_create(**input.__dict__)
-        return CreateLaunch(launch=_launch)
+        launch, _ = Launches.objects.get_or_create(**input.__dict__)
+        return CreateLaunch(launch=launch)
 
 
 class UpdateLaunch(graphene.Mutation):
@@ -26,13 +28,14 @@ class UpdateLaunch(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_launches")
     def mutate(cls, self, info, id, input):
-        _launch = Launches.objects.get(pk=id)
-        if _launch:
+        try:
+            launch = Launches.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_launch, key, val)
-            _launch.save()
-            return UpdateLaunch(launch=_launch)
-        return UpdateLaunch(launch=None)
+                setattr(launch, key, val)
+            launch.save()
+            return UpdateLaunch(launch=launch)
+        except:
+            return UpdateLaunch(launch=None)
 
 
 class DeleteLaunch(graphene.Mutation):
@@ -45,8 +48,7 @@ class DeleteLaunch(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_launchs")
     def mutate(cls, self, info, id):
-        _launch = Launches.objects.get(pk=id)
-        _launch.delete()
+        Launches.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

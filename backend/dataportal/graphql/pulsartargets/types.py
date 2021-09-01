@@ -1,6 +1,7 @@
 from graphene_django import DjangoObjectType
 import graphene
-from ...models import Pulsartargets
+
+from dataportal.models import Pulsartargets
 
 
 class PulsartargetsType(DjangoObjectType):

@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from ...models import Basebandings
+from dataportal.models import Basebandings
 
 
 class BasebandingsType(DjangoObjectType):

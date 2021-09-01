@@ -80,12 +80,7 @@ class Pipelines(GraphQLTable):
         """Parse the arguments collected by the CLI."""
         if args.subcommand == "create":
             return self.create(
-                args.name,
-                args.description,
-                args.revision,
-                args.created_at,
-                args.created_by,
-                args.configuration,
+                args.name, args.description, args.revision, args.created_at, args.created_by, args.configuration,
             )
         elif args.subcommand == "update":
             self.update_variables = {
@@ -129,31 +124,39 @@ class Pipelines(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing pipelines")
-        parser_list.add_argument("--id", type=int, help="list pipelines matching the id")
-        parser_list.add_argument("--name", type=str, help="list pipelines matching the name")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list pipelines matching the id [int]")
+        parser_list.add_argument("--name", metavar="NAME", type=str, help="list pipelines matching the name [str]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new pipeline")
-        parser_create.add_argument("name", type=str, help="name of the pipeline")
-        parser_create.add_argument("description", type=str, help="description of the pipeline")
-        parser_create.add_argument("revision", type=str, help="distinguishing version for the pipeline")
-        parser_create.add_argument("created_at", type=str, help="date of the pipeline creation")
-        parser_create.add_argument("created_by", type=str, help="author of the pipeline")
-        parser_create.add_argument("configuration", type=str, help="json config of the pipeline")
+        parser_create.add_argument("name", metavar="NAME", type=str, help="name of the pipeline [str]")
+        parser_create.add_argument("description", metavar="DESC", type=str, help="description of the pipeline [str]")
+        parser_create.add_argument(
+            "revision", metavar="REV", type=str, help="distinguishing version for the pipeline [str]"
+        )
+        parser_create.add_argument(
+            "created_at", metavar="DATE", type=str, help="date of the pipeline creation [YYYY-MM-DDTHH:MM:SS+HH:MM]"
+        )
+        parser_create.add_argument("created_by", metavar="AUTHOR", type=str, help="author of the pipeline [str]")
+        parser_create.add_argument("configuration", metavar="CFG", type=str, help="json config of the pipeline [str]")
 
         # create the parser for the "update" command
-        parse_update = subs.add_parser("update", help="update the values of an existing pipeline")
-        parse_update.add_argument("id", type=int, help="database id of the pipeline")
-        parse_update.add_argument("name", type=str, help="name of the pipeline")
-        parse_update.add_argument("description", type=str, help="description of the pipeline")
-        parse_update.add_argument("revision", type=str, help="distinguishing version for the pipeline")
-        parse_update.add_argument("created_at", type=str, help="date of the pipeline creation")
-        parse_update.add_argument("created_by", type=str, help="author of the pipeline")
-        parse_update.add_argument("configuration", type=str, help="json config of the pipeline")
+        parser_update = subs.add_parser("update", help="update the values of an existing pipeline")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the pipeline [int]")
+        parser_update.add_argument("name", metavar="NAME", type=str, help="name of the pipeline [str]")
+        parser_update.add_argument("description", metavar="DESC", type=str, help="description of the pipeline [str]")
+        parser_update.add_argument(
+            "revision", metavar="REV", type=str, help="distinguishing version for the pipeline [str]"
+        )
+        parser_update.add_argument(
+            "created_at", metavar="DATE", type=str, help="date of the pipeline creation [YYYY-MM-DDTHH:MM:SS+HH:MM]"
+        )
+        parser_update.add_argument("created_by", metavar="AUTHOR", type=str, help="author of the pipeline [str]")
+        parser_update.add_argument("configuration", metavar="CFG", type=str, help="json config of the pipeline [str]")
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing pipeline")
-        parser_delete.add_argument("id", type=int, help="id of the pipeline")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the pipeline [int]")
 
 
 if __name__ == "__main__":

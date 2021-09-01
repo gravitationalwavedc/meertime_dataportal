@@ -101,23 +101,23 @@ class Collections(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing collections")
-        parser_list.add_argument("--id", type=int, help="list collections matching the id")
-        parser_list.add_argument("--name", type=str, help="list collections matching the name")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list collections matching the id [int]")
+        parser_list.add_argument("--name", metavar="NAME", type=str, help="list collections matching the name [str]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new collection")
-        parser_create.add_argument("name", type=str, help="name of the collection")
-        parser_create.add_argument("description", type=str, help="description of the collection")
+        parser_create.add_argument("name", metavar="NAME", type=str, help="name of the collection [str]")
+        parser_create.add_argument("description", metavar="DESC", type=str, help="description of the collection [str]")
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update an existing collection")
-        parser_update.add_argument("id", type=int, help="id of the collection")
-        parser_update.add_argument("name", type=str, help="name of the collection")
-        parser_update.add_argument("description", type=str, help="description of the collection")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the collection [int]")
+        parser_update.add_argument("name", metavar="NAME", type=str, help="name of the collection [str]")
+        parser_update.add_argument("description", metavar="DESC", type=str, help="description of the collection [str]")
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing collection")
-        parser_delete.add_argument("id", type=int, help="id of the collection")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the collection [int]")
 
 
 if __name__ == "__main__":

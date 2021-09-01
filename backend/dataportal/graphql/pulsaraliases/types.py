@@ -1,6 +1,6 @@
 from graphene_django import DjangoObjectType
 
-from ...models import Pulsaraliases
+from dataportal.models import Pulsaraliases
 
 
 class PulsaraliasesType(DjangoObjectType):

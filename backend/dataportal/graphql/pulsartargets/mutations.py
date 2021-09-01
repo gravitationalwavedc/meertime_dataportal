@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Pulsartargets
+from .types import PulsartargetsInput, PulsartargetsType
 
 
 class CreatePulsartarget(graphene.Mutation):
@@ -12,8 +14,8 @@ class CreatePulsartarget(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_pulsartargets")
     def mutate(cls, self, info, input):
-        _pulsartarget, _ = Pulsartargets.objects.get_or_create(**input.__dict__)
-        return CreatePulsartarget(pulsartarget=_pulsartarget)
+        pulsartarget, _ = Pulsartargets.objects.get_or_create(**input.__dict__)
+        return CreatePulsartarget(pulsartarget=pulsartarget)
 
 
 class UpdatePulsartarget(graphene.Mutation):
@@ -26,13 +28,14 @@ class UpdatePulsartarget(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_pulsartargets")
     def mutate(cls, self, info, id, input):
-        _pulsartarget = Pulsartargets.objects.get(pk=id)
-        if _pulsartarget:
+        try:
+            pulsartarget = Pulsartargets.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_pulsartarget, key, val)
-            _pulsartarget.save()
-            return UpdatePulsartarget(pulsartarget=_pulsartarget)
-        return UpdatePulsartarget(pulsartarget=None)
+                setattr(pulsartarget, key, val)
+            pulsartarget.save()
+            return UpdatePulsartarget(pulsartarget=pulsartarget)
+        except:
+            return UpdatePulsartarget(pulsartarget=None)
 
 
 class DeletePulsartarget(graphene.Mutation):
@@ -40,13 +43,11 @@ class DeletePulsartarget(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    pulsartarget = graphene.Field(PulsartargetsType)
 
     @classmethod
     @permission_required("dataportal.add_pulsartargets")
     def mutate(cls, self, info, id):
-        _pulsartarget = Pulsartargets.objects.get(pk=id)
-        _pulsartarget.delete()
+        Pulsartargets.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

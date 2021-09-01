@@ -32,8 +32,10 @@ if __name__ == "__main__":
         tables.Pulsartargets,
         tables.Pipelineimages,
         tables.Pipelines,
-        tables.Telescopes,
         tables.Targets,
+        tables.Telescopes,
+        tables.Templates,
+        tables.Toas,
     ]
 
     joins = [

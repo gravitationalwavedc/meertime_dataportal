@@ -125,32 +125,58 @@ class Instrumentconfigs(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing instrument configurations")
-        parser_list.add_argument("--id", type=int, help="list instrument configuration matching the id")
-        parser_list.add_argument("--name", type=str, help="list instrument configuration matching the name")
-        parser_list.add_argument("--beam", type=str, help="list instrument configuration matching the beam")
+        parser_list.add_argument(
+            "--id", metavar="ID", type=int, help="list instrument configuration matching the id [int]"
+        )
+        parser_list.add_argument(
+            "--name", metavar="NAME", type=str, help="list instrument configuration matching the name [str]"
+        )
+        parser_list.add_argument(
+            "--beam", metavar="BEAM", type=str, help="list instrument configuration matching the beam [str]"
+        )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new instrument configuration")
-        parser_create.add_argument("name", type=str, help="name of the instrument configuration")
-        parser_create.add_argument("frequency", type=float, help="frequency of the instrument configuration")
-        parser_create.add_argument("bandwidth", type=float, help="bandwidth of the instrument configuration")
-        parser_create.add_argument("nchan", type=int, help="number of channels of the instrument configuration")
-        parser_create.add_argument("npol", type=int, help="number of polarisation of the instrument configuration")
-        parser_create.add_argument("beam", type=str, help="beam description of the instrument configuration")
+        parser_create.add_argument("name", metavar="NAME", type=str, help="name of the instrument configuration [str]")
+        parser_create.add_argument(
+            "frequency", metavar="FREQ", type=float, help="frequency of the instrument configuration [float]"
+        )
+        parser_create.add_argument(
+            "bandwidth", metavar="BW", type=float, help="bandwidth of the instrument configuration [float]"
+        )
+        parser_create.add_argument(
+            "nchan", metavar="NCHAN", type=int, help="number of channels of the instrument configuration [int]"
+        )
+        parser_create.add_argument(
+            "npol", metavar="NPOL", type=int, help="number of polarisation of the instrument configuration [int]"
+        )
+        parser_create.add_argument(
+            "beam", metavar="BEAM", type=str, help="beam description of the instrument configuration [str]"
+        )
 
         # create the parser for the "create" command
-        parser_create = subs.add_parser("update", help="update an existing instrument configuration")
-        parser_create.add_argument("id", type=int, help="database id of the instrument configuration")
-        parser_create.add_argument("name", type=str, help="name of the instrument configuration")
-        parser_create.add_argument("frequency", type=float, help="frequency of the instrument configuration")
-        parser_create.add_argument("bandwidth", type=float, help="bandwidth of the instrument configuration")
-        parser_create.add_argument("nchan", type=int, help="number of channels of the instrument configuration")
-        parser_create.add_argument("npol", type=int, help="number of polarisation of the instrument configuration")
-        parser_create.add_argument("beam", type=str, help="beam description of the instrument configuration")
+        parser_update = subs.add_parser("update", help="update an existing instrument configuration")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the instrument configuration [int]")
+        parser_update.add_argument("name", metavar="NAME", type=str, help="name of the instrument configuration [str]")
+        parser_update.add_argument(
+            "frequency", metavar="FREQ", type=float, help="frequency of the instrument configuration [float]"
+        )
+        parser_update.add_argument(
+            "bandwidth", metavar="BW", type=float, help="bandwidth of the instrument configuration [float]"
+        )
+        parser_update.add_argument(
+            "nchan", metavar="NCHAN", type=int, help="number of channels of the instrument configuration [int]"
+        )
+        parser_update.add_argument(
+            "npol", metavar="NPOL", type=int, help="number of polarisation of the instrument configuration [int]"
+        )
+        parser_update.add_argument(
+            "beam", metavar="BEAM", type=str, help="beam description of the instrument configuration [str]"
+        )
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing instrument configuration")
-        parser_delete.add_argument("id", type=int, help="id of the instrument configuration")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the instrument configuration [id]")
 
 
 if __name__ == "__main__":

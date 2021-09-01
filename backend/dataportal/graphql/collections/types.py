@@ -1,6 +1,7 @@
 from graphene_django import DjangoObjectType
 import graphene
-from ...models import Collections
+
+from dataportal.models import Collections
 
 
 class CollectionsType(DjangoObjectType):

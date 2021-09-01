@@ -18,3 +18,5 @@ from .pulsars import Pulsars
 from .pulsartargets import Pulsartargets
 from .targets import Targets
 from .telescopes import Telescopes
+from .templates import Templates
+from .toas import Toas

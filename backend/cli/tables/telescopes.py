@@ -95,20 +95,20 @@ class Telescopes(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing telescopes")
-        parser_list.add_argument("--id", type=int, help="list telescopes matching the id")
-        parser_list.add_argument("--name", type=str, help="list telescopes matching the name")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list telescopes matching the id [int]")
+        parser_list.add_argument("--name", metavar="NAME", type=str, help="list telescopes matching the name [str]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new telescope")
-        parser_create.add_argument("name", type=str, help="name of the telescope")
+        parser_create.add_argument("name", metavar="NAME", type=str, help="name of the telescope [str]")
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update an existing telescope")
-        parser_update.add_argument("id", type=int, help="database id of an existing telescope")
-        parser_update.add_argument("name", type=str, help="name of the telescope")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of an existing telescope [int]")
+        parser_update.add_argument("name", metavar="NAME", type=str, help="name of the telescope [str]")
 
         parser_delete = subs.add_parser("delete", help="delete an existing telescope")
-        parser_delete.add_argument("id", type=int, help="id of the telescope")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of an existing telescope [int]")
 
 
 if __name__ == "__main__":

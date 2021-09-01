@@ -1,6 +1,7 @@
 from graphene_django import DjangoObjectType
 import graphene
-from ...models import Launches
+
+from dataportal.models import Launches
 
 
 class LaunchesType(DjangoObjectType):

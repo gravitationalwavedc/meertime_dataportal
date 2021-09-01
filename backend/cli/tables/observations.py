@@ -272,63 +272,113 @@ class Observations(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing observations")
-        parser_list.add_argument("--id", type=int, help="list observations matching the id")
-        parser_list.add_argument("--target_id", type=int, help="list observations matching the target id")
-        parser_list.add_argument("--target_name", type=str, help="list observations matching the target Name")
-        parser_list.add_argument("--telescope_id", type=int, help="list observations matching the telescope id")
-        parser_list.add_argument("--telescope_name", type=str, help="list observations matching the telescope name")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list observations matching the id [int]")
         parser_list.add_argument(
-            "--instrumentconfig_id", type=int, help="list observations matching the instrument_config id"
+            "--target_id", metavar="TGTID", type=int, help="list observations matching the target id [int]"
         )
         parser_list.add_argument(
-            "--instrumentconfig_name", type=str, help="list observations matching the instrument_config name"
-        )
-        parser_list.add_argument("--project_id", type=int, help="list observations matching the project id")
-        parser_list.add_argument("--project_code", type=str, help="list observations matching the project code")
-        parser_list.add_argument(
-            "--utcstart_gte", type=str, help="list observations with utc_start greater than or equal to the timestamp"
+            "--target_name", metavar="TGTNAME", type=str, help="list observations matching the target name [str]"
         )
         parser_list.add_argument(
-            "--utcstart_lte", type=str, help="list observations with utc_start less than or equal to the timestamp"
+            "--telescope_id", metavar="TELID", type=int, help="list observations matching the telescope id [int]"
+        )
+        parser_list.add_argument(
+            "--telescope_name", metavar="TELNAME", type=str, help="list observations matching the telescope name [int]"
+        )
+        parser_list.add_argument(
+            "--instrumentconfig_id",
+            metavar="ICID",
+            type=int,
+            help="list observations matching the instrument_config id [int]",
+        )
+        parser_list.add_argument(
+            "--instrumentconfig_name",
+            metavar="ICNAME",
+            type=str,
+            help="list observations matching the instrument_config name [str]",
+        )
+        parser_list.add_argument(
+            "--project_id", metavar="PROJID", type=int, help="list observations matching the project id [id]"
+        )
+        parser_list.add_argument(
+            "--project_code", metavar="PROJCODE", type=str, help="list observations matching the project code [str]"
+        )
+        parser_list.add_argument(
+            "--utcstart_gte",
+            metavar="UTCGTE",
+            type=str,
+            help="list observations with utc_start greater than or equal to the timestamp [YYYY-MM-DDTHH:MM:SS+HH:MM]",
+        )
+        parser_list.add_argument(
+            "--utcstart_lte",
+            metavar="UTCLET",
+            type=str,
+            help="list observations with utc_start less than or equal to the timestamp [YYYY-MM-DDTHH:MM:SS+HH:MM]",
         )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new observation")
-        parser_create.add_argument("target", type=int, help="target id of the observation")
-        parser_create.add_argument("calibration", type=int, help="calibration id of the observation")
-        parser_create.add_argument("telescope", type=int, help="telescope id of the observation")
-        parser_create.add_argument("instrument_config", type=int, help="instrument config id of the observation")
-        parser_create.add_argument("project", type=int, help="project id of the observation")
-        parser_create.add_argument("config", type=str, help="json config of the observation")
-        parser_create.add_argument("utc", type=str, help="start utc of the observation")
-        parser_create.add_argument("duration", type=float, help="duration of the observation in seconds")
-        parser_create.add_argument("nant", type=int, help="number of antennas used during the observation")
+        parser_create.add_argument("target", metavar="TGT", type=int, help="target id of the observation [int]")
         parser_create.add_argument(
-            "nanteff", type=int, help="effective number of antennas used during the observation"
+            "calibration", metavar="CAL", type=int, help="calibration id of the observation [int]"
         )
-        parser_create.add_argument("suspect", type=bool, help="status of the observation")
-        parser_create.add_argument("comment", type=str, help="any comment on the observation")
+        parser_create.add_argument("telescope", metavar="TEL", type=int, help="telescope id of the observation [int]")
+        parser_create.add_argument(
+            "instrument_config", metavar="IC", type=int, help="instrument config id of the observation [int]"
+        )
+        parser_create.add_argument("project", metavar="PROJ", type=int, help="project id of the observation [int]")
+        parser_create.add_argument("config", metavar="CFG", type=str, help="json config of the observation [json]")
+        parser_create.add_argument(
+            "utc", metavar="UTC", type=str, help="start utc of the observation [YYYY-MM-DDTHH:MM:SS+00:00]"
+        )
+        parser_create.add_argument(
+            "duration", metavar="DUR", type=float, help="duration of the observation in seconds [float]"
+        )
+        parser_create.add_argument(
+            "nant", metavar="NANT", type=int, help="number of antennas used during the observation [int]"
+        )
+        parser_create.add_argument(
+            "nanteff",
+            metavar="NANTEFF",
+            type=int,
+            help="effective number of antennas used during the observation [int]",
+        )
+        parser_create.add_argument("suspect", metavar="SUS", type=bool, help="status of the observation [bool]")
+        parser_create.add_argument("comment", metavar="COM", type=str, help="any comment on the observation [str]")
 
         parser_update = subs.add_parser("update", help="create a new observation")
-        parser_update.add_argument("id", type=int, help="database id of the existing observation")
-        parser_update.add_argument("target", type=int, help="target id of the observation")
-        parser_update.add_argument("calibration", type=int, help="calibration id of the observation")
-        parser_update.add_argument("telescope", type=int, help="telescope id of the observation")
-        parser_update.add_argument("instrument_config", type=int, help="instrument config id of the observation")
-        parser_update.add_argument("project", type=int, help="project id of the observation")
-        parser_update.add_argument("config", type=str, help="json config of the observation")
-        parser_update.add_argument("utc", type=str, help="start utc of the observation")
-        parser_update.add_argument("duration", type=float, help="duration of the observation in seconds")
-        parser_update.add_argument("nant", type=int, help="number of antennas used during the observation")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the existing observation [int]")
+        parser_update.add_argument("target", metavar="TGT", type=int, help="target id of the observation [int]")
         parser_update.add_argument(
-            "nanteff", type=int, help="effective number of antennas used during the observation"
+            "calibration", metavar="CAL", type=int, help="calibration id of the observation [int]"
         )
-        parser_update.add_argument("suspect", type=bool, help="status of the observation")
-        parser_update.add_argument("comment", type=str, help="any comment on the observation")
+        parser_update.add_argument("telescope", metavar="TEL", type=int, help="telescope id of the observation [int]")
+        parser_update.add_argument(
+            "instrument_config", metavar="IC", type=int, help="instrument config id of the observation [int]"
+        )
+        parser_update.add_argument("project", metavar="PROJ", type=int, help="project id of the observation [int]")
+        parser_update.add_argument("config", metavar="CFG", type=str, help="json config of the observation [json]")
+        parser_update.add_argument(
+            "utc", metavar="UTC", type=str, help="start utc of the observation [YYYY-MM-DDTHH:MM:SS+00:00]"
+        )
+        parser_update.add_argument(
+            "duration", metavar="DUR", type=float, help="duration of the observation in seconds [float]"
+        )
+        parser_update.add_argument(
+            "nant", metavar="NANT", type=int, help="number of antennas used during the observation [int]"
+        )
+        parser_update.add_argument(
+            "nanteff",
+            metavar="NANTEFF",
+            type=int,
+            help="effective number of antennas used during the observation [int]",
+        )
+        parser_update.add_argument("suspect", metavar="SUS", type=bool, help="status of the observation [bool]")
+        parser_update.add_argument("comment", metavar="COM", type=str, help="any comment on the observation [str]")
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing observation")
-        parser_delete.add_argument("id", type=int, help="id of the observation")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the existing observation [int]")
 
 
 if __name__ == "__main__":

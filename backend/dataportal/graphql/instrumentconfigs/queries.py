@@ -2,7 +2,8 @@ from graphene import relay, ObjectType
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from ...models import Instrumentconfigs
+
+from dataportal.models import Instrumentconfigs
 
 
 class InstrumentconfigsNode(DjangoObjectType):

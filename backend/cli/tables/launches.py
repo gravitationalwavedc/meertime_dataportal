@@ -106,29 +106,37 @@ class Launches(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing launches")
-        parser_list.add_argument("--id", type=int, help="list launches matching the id")
-        parser_list.add_argument("--pipeline_id", type=int, help="list launches matching the pipeline id")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list launches matching the id [int]")
         parser_list.add_argument(
-            "--parent_pipeline_id", type=int, help="list launches matching the parent pipeline id"
+            "--pipeline_id", metavar="PL", type=int, help="list launches matching the pipeline id [int]"
         )
-        parser_list.add_argument("--pulsar_id", type=int, help="list launches matching the pulsar id")
+        parser_list.add_argument(
+            "--parent_pipeline_id", metavar="PPL", type=int, help="list launches matching the parent pipeline id [int]"
+        )
+        parser_list.add_argument(
+            "--pulsar_id", metavar="PSR", type=int, help="list launches matching the pulsar id [int]"
+        )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new launches")
-        parser_create.add_argument("pipeline_id", type=int, help="id of the pipeline")
-        parser_create.add_argument("parent_pipeline_id", type=int, help="id of the parent pipeline")
-        parser_create.add_argument("pulsar_id", type=int, help="id of the pulsar")
+        parser_create.add_argument("pipeline_id", metavar="PL", type=int, help="id of the pipeline [int]")
+        parser_create.add_argument(
+            "parent_pipeline_id", metavar="PPL", type=int, help="id of the parent pipeline [int]"
+        )
+        parser_create.add_argument("pulsar_id", metavar="PSR", type=int, help="id of the pulsar [int]")
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update an existing launches")
-        parser_update.add_argument("id", type=int, help="id of the launch")
-        parser_update.add_argument("pipeline_id", type=int, help="id of the pipeline")
-        parser_update.add_argument("parent_pipeline_id", type=int, help="id of the parent pipeline")
-        parser_update.add_argument("pulsar_id", type=int, help="id of the pulsar")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the launch [int]")
+        parser_update.add_argument("pipeline_id", metavar="PL", type=int, help="id of the pipeline [int]")
+        parser_update.add_argument(
+            "parent_pipeline_id", metavar="PPL", type=int, help="id of the parent pipeline [int]"
+        )
+        parser_update.add_argument("pulsar_id", metavar="PSR", type=int, help="id of the pulsar [int]")
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing launch")
-        parser_delete.add_argument("id", type=int, help="id of the launch")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the launch [int]")
 
 
 if __name__ == "__main__":

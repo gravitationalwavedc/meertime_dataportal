@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Collections
+from .types import CollectionsInput, CollectionsType
 
 
 class CreateCollection(graphene.Mutation):
@@ -12,8 +14,8 @@ class CreateCollection(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_collections")
     def mutate(cls, self, info, input):
-        _collection, _ = Collections.objects.get_or_create(**input.__dict__)
-        return CreateCollection(collection=_collection)
+        collection, _ = Collections.objects.get_or_create(**input.__dict__)
+        return CreateCollection(collection=collection)
 
 
 class UpdateCollection(graphene.Mutation):
@@ -26,13 +28,14 @@ class UpdateCollection(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_collections")
     def mutate(cls, self, info, id, input):
-        _collection = Collections.objects.get(pk=id)
-        if _collection:
+        try:
+            collection = Collections.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_collection, key, val)
-            _collection.save()
-            return UpdateCollection(collection=_collection)
-        return UpdateCollection(collection=None)
+                setattr(collection, key, val)
+            collection.save()
+            return UpdateCollection(collection=collection)
+        except:
+            return UpdateCollection(collection=None)
 
 
 class DeleteCollection(graphene.Mutation):
@@ -40,13 +43,11 @@ class DeleteCollection(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    collection = graphene.Field(CollectionsType)
 
     @classmethod
     @permission_required("dataportal.add_collections")
     def mutate(cls, self, info, id):
-        _collection = Collections.objects.get(pk=id)
-        _collection.delete()
+        Collections.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

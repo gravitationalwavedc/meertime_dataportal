@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from ...models import Instrumentconfigs
+from dataportal.models import Instrumentconfigs
 
 
 class InstrumentconfigsType(DjangoObjectType):

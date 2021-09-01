@@ -136,34 +136,46 @@ class Foldings(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing foldings")
-        parser_list.add_argument("--id", type=int, help="list foldings matching the id")
-        parser_list.add_argument("--processing", type=int, help="list foldings matching the processing id")
-        parser_list.add_argument("--eph", type=int, help="list foldings matching the ephemeris id")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list foldings matching the id [int]")
+        parser_list.add_argument(
+            "--processing", metavar="PROC", type=int, help="list foldings matching the processing id [int]"
+        )
+        parser_list.add_argument(
+            "--eph", type=int, metavar="EPH", help="list foldings matching the ephemeris id [int]"
+        )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new folding")
-        parser_create.add_argument("processing", type=int, help="processing id of the folding")
-        parser_create.add_argument("eph", type=str, help="ephemeris id of the folding")
-        parser_create.add_argument("nbin", type=int, help="Number of bins in the folding")
-        parser_create.add_argument("npol", type=int, help="Number of polarisations in the folding")
-        parser_create.add_argument("nchan", type=int, help="Number of channels in the folding")
-        parser_create.add_argument("dm", type=float, help="DM of the folding")
-        parser_create.add_argument("tsubint", type=float, help="subintegration time of the folding")
+        parser_create.add_argument("processing", metavar="PROC", type=int, help="processing id of the folding [int]")
+        parser_create.add_argument("eph", metavar="EPH", type=int, help="ephemeris id of the folding [int]")
+        parser_create.add_argument("nbin", metavar="NBIN", type=int, help="Number of bins in the folding [int]")
+        parser_create.add_argument(
+            "npol", metavar="NPOL", type=int, help="Number of polarisations in the folding [int]"
+        )
+        parser_create.add_argument("nchan", metavar="NCHAN", type=int, help="Number of channels in the folding [int]")
+        parser_create.add_argument("dm", metavar="DM", type=float, help="DM of the folding [float]")
+        parser_create.add_argument(
+            "tsubint", metavar="TSUBINT", type=float, help="subintegration time of the folding [float]"
+        )
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update the values of an existing folding")
-        parser_update.add_argument("id", type=int, help="database id of the folding")
-        parser_update.add_argument("processing", type=int, help="processing id of the folding")
-        parser_update.add_argument("eph", type=str, help="ephemeris id of the folding")
-        parser_update.add_argument("nbin", type=int, help="Number o bins in the folding")
-        parser_update.add_argument("npol", type=int, help="Number o polarisations in the folding")
-        parser_update.add_argument("nchan", type=int, help="Number o channels in the folding")
-        parser_update.add_argument("dm", type=float, help="DM of the folding")
-        parser_update.add_argument("tsubint", type=float, help="subintegration time of the folding")
+        parser_update.add_argument("id", metavar="ID", type=int, help="database id of the folding [int]")
+        parser_update.add_argument("processing", metavar="PROC", type=int, help="processing id of the folding [int]")
+        parser_update.add_argument("eph", metavar="EPH", type=int, help="ephemeris id of the folding [int]")
+        parser_update.add_argument("nbin", metavar="NBIN", type=int, help="Number of bins in the folding [int]")
+        parser_update.add_argument(
+            "npol", metavar="NPOL", type=int, help="Number of polarisations in the folding [int]"
+        )
+        parser_update.add_argument("nchan", metavar="NCHAN", type=int, help="Number of channels in the folding [int]")
+        parser_update.add_argument("dm", metavar="DM", type=float, help="DM of the folding [float]")
+        parser_update.add_argument(
+            "tsubint", metavar="TSUBINT", type=float, help="subintegration time of the folding [float]"
+        )
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing folding")
-        parser_delete.add_argument("id", type=int, help="id of the folding")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the folding [int]")
 
 
 if __name__ == "__main__":

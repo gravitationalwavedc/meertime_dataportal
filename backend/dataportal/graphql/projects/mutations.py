@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Projects
+from .types import ProjectsInput, ProjectsType
 from datetime import timedelta
 
 
@@ -13,13 +15,13 @@ class CreateProject(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_projects")
     def mutate(cls, self, info, input):
-        _project, _ = Projects.objects.get_or_create(
+        project, _ = Projects.objects.get_or_create(
             code=input.code,
             short=input.short,
             embargo_period=timedelta(days=input.embargo_period),
             description=input.description,
         )
-        return CreateProject(project=_project)
+        return CreateProject(project=project)
 
 
 class UpdateProject(graphene.Mutation):
@@ -32,15 +34,16 @@ class UpdateProject(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_projects")
     def mutate(cls, self, info, id, input):
-        _project = Projects.objects.get(pk=id)
-        if _project:
-            _project.code = input.code
-            _project.short = input.short
-            _project.embargo_period = timedelta(days=input.embargo_period)
-            _project.description = input.description
-            _project.save()
-            return UpdateProject(project=_project)
-        return UpdateProject(project=None)
+        try:
+            project = Projects.objects.get(pk=id)
+            project.code = input.code
+            project.short = input.short
+            project.embargo_period = timedelta(days=input.embargo_period)
+            project.description = input.description
+            project.save()
+            return UpdateProject(project=project)
+        except:
+            return UpdateProject(project=None)
 
 
 class DeleteProject(graphene.Mutation):
@@ -53,8 +56,7 @@ class DeleteProject(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_projects")
     def mutate(cls, self, info, id):
-        _project = Projects.objects.get(pk=id)
-        _project.delete()
+        Projects.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

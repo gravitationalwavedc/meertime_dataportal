@@ -2,7 +2,8 @@ from graphene import relay, ObjectType
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from ...models import Foldings
+
+from dataportal.models import Foldings
 
 DATETIME_FILTERS = ['exact', 'isnull', 'lt', 'lte', 'gt', 'gte', 'month', 'year', 'date']
 NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']

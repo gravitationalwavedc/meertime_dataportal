@@ -129,31 +129,49 @@ class Filterbankings(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing pipelines")
-        parser_list.add_argument("--id", type=int, help="list pipelines matching the id")
-        parser_list.add_argument("--processing", type=str, help="list pipelines matching the processing id")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list pipelines matching the id [int]")
+        parser_list.add_argument(
+            "--processing", metavar="PROCID", type=str, help="list pipelines matching the processing id [int]"
+        )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new filterbanking")
-        parser_create.add_argument("processing", type=int, help="processing id of the filterbanking")
-        parser_create.add_argument("nbit", type=int, help="Number of bits in the filterbanking")
-        parser_create.add_argument("npol", type=int, help="Number of polarisations in the filterbanking")
-        parser_create.add_argument("nchan", type=int, help="Number of channels in the filterbanking")
-        parser_create.add_argument("dm", type=float, help="DM of the filterbanking")
-        parser_create.add_argument("tsamp", type=float, help="sampling interval of the filterbanking")
+        parser_create.add_argument(
+            "processing", metavar="PROC", type=int, help="processing id of the filterbanking [int]"
+        )
+        parser_create.add_argument("nbit", metavar="NBIT", type=int, help="Number of bits in the filterbanking [int]")
+        parser_create.add_argument(
+            "npol", metavar="NPOL", type=int, help="Number of polarisations in the filterbanking [int]"
+        )
+        parser_create.add_argument(
+            "nchan", metavar="NCHAN", type=int, help="Number of channels in the filterbanking [int]"
+        )
+        parser_create.add_argument("dm", metavar="DM", type=float, help="DM of the filterbanking [float]")
+        parser_create.add_argument(
+            "tsamp", metavar="TSAMP", type=float, help="sampling interval of the filterbanking [float]"
+        )
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update the values of an existing filterbanking")
-        parser_update.add_argument("id", type=int, help="database id of the filterbanking")
-        parser_update.add_argument("processing", type=int, help="processing id of the filterbanking")
-        parser_update.add_argument("nbit", type=int, help="Number o bins in the filterbanking")
-        parser_update.add_argument("npol", type=int, help="Number o polarisations in the filterbanking")
-        parser_update.add_argument("nchan", type=int, help="Number o channels in the filterbanking")
-        parser_update.add_argument("dm", type=float, help="DM of the filterbanking")
-        parser_update.add_argument("tsamp", type=float, help="sampling interval of the filterbanking")
+        parser_update.add_argument("id", metavar="ID", type=int, help="database id of the filterbanking [int]")
+        parser_update.add_argument(
+            "processing", metavar="PROC", type=int, help="processing id of the filterbanking [int]"
+        )
+        parser_update.add_argument("nbit", metavar="NBIT", type=int, help="Number of bits in the filterbanking [int]")
+        parser_update.add_argument(
+            "npol", metavar="NPOL", type=int, help="Number of polarisations in the filterbanking [int]"
+        )
+        parser_update.add_argument(
+            "nchan", metavar="NCHAN", type=int, help="Number of channels in the filterbanking [int]"
+        )
+        parser_update.add_argument("dm", metavar="DM", type=float, help="DM of the filterbanking [float]")
+        parser_update.add_argument(
+            "tsamp", metavar="TSAMP", type=float, help="sampling interval of the filterbanking [float]"
+        )
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing filterbanking")
-        parser_delete.add_argument("id", type=int, help="id of the filterbanking")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the filterbanking [int]")
 
 
 if __name__ == "__main__":

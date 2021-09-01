@@ -1,6 +1,7 @@
 from graphene_django import DjangoObjectType
 import graphene
-from ...models import Targets
+
+from dataportal.models import Targets
 
 
 class TargetsType(DjangoObjectType):

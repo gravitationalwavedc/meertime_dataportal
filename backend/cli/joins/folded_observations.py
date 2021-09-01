@@ -26,7 +26,7 @@ class FoldedObservations(GraphQLJoin):
                     calibration { id }
                     project { id }
                     instrumentConfig { id }
-                    utc_start
+                    utcStart
                 }
                 location
             }

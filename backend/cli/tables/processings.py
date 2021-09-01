@@ -163,41 +163,70 @@ class Processings(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing processings")
-        parser_list.add_argument("--id", type=int, help="list processing matching the id")
-        parser_list.add_argument("--observation", type=int, help="list processing matching the observation id")
-        parser_list.add_argument("--utc_start", type=str, help="list processing matching the observation utc_start")
-        parser_list.add_argument("--location", type=str, help="list processing matching the processing location")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list processing matching the id [int]")
+        parser_list.add_argument(
+            "--observation", metavar="OBS", type=int, help="list processing matching the observation id [int]"
+        )
+        parser_list.add_argument(
+            "--utc_start",
+            metavar="UTC",
+            type=str,
+            help="list processing matching the observation utc_start [YYYY-MM-DDTHH:MM:SS+00:00]",
+        )
+        parser_list.add_argument(
+            "--location", metavar="LOC", type=str, help="list processing matching the processing location [str]"
+        )
 
         # create the parser for the "create" command
-        parser_create = subs.add_parser("create", help="create a new pipeline")
-        parser_create.add_argument("observation", type=int, help="observation id for the processing")
-        parser_create.add_argument("pipeline", type=int, help="pipeline id for the processing")
-        parser_create.add_argument("parent", type=int, help="parent id for the processing")
+        parser_create = subs.add_parser("create", help="create a new processing")
         parser_create.add_argument(
-            "embargo_end", type=str, help="end of embargo of the processing (YYYY-MM-DDTHH:MM:SS+0000)"
+            "observation", metavar="OBS", type=int, help="observation id for the processing [int]"
         )
-        parser_create.add_argument("location", type=str, help="location (on disk) of the processing")
-        parser_create.add_argument("job_state", type=str, help="JSON with the state of the processing")
-        parser_create.add_argument("job_output", type=str, help="JSON with output of the processing")
-        parser_create.add_argument("results", type=str, help="JSON with results of the processing")
+        parser_create.add_argument("pipeline", metavar="PL", type=int, help="pipeline id for the processing [int]")
+        parser_create.add_argument("parent", metavar="PAR", type=int, help="parent id for the processing int]")
+        parser_create.add_argument(
+            "location", metavar="LOC", type=str, help="location (on disk) of the processing [str]"
+        )
+        parser_create.add_argument(
+            "embargo_end", metavar="EMB", type=str, help="end of embargo of the processing [YYYY-MM-DDTHH:MM:SS+00:00]"
+        )
+        parser_create.add_argument(
+            "job_state", metavar="JOBS", type=str, help="JSON with the state of the processing [json]"
+        )
+        parser_create.add_argument(
+            "job_output", metavar="JOBO", type=str, help="JSON with output of the processing [json]"
+        )
+        parser_create.add_argument(
+            "results", metavar="RES", type=str, help="JSON with results of the processing [json]"
+        )
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update the values of an existing processing")
-        parser_update.add_argument("id", type=int, help="id of the processing")
-        parser_update.add_argument("observation", type=int, help="observation id for the processing")
-        parser_update.add_argument("pipeline", type=int, help="pipeline id for the processing")
-        parser_update.add_argument("parent", type=int, help="parent id for the processing")
-        parser_update.add_argument("location", type=str, help="location (on disk) of the processing")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the processing [int]")
         parser_update.add_argument(
-            "embargo_end", type=str, help="end of embargo of the processing (YYYY-MM-DDTHH:MM:SS+0000)"
+            "observation", metavar="OBS", type=int, help="observation id for the processing [int]"
         )
-        parser_update.add_argument("job_state", type=str, help="JSON with the state of the processing")
-        parser_update.add_argument("job_output", type=str, help="JSON with output of the processing")
-        parser_update.add_argument("results", type=str, help="JSON with results of the processing")
+        parser_update.add_argument("pipeline", metavar="PL", type=int, help="pipeline id for the processing [int]")
+        parser_update.add_argument("parent", metavar="PAR", type=int, help="parent id for the processing int]")
+        parser_update.add_argument(
+            "location", metavar="LOC", type=str, help="location (on disk) of the processing [str]"
+        )
+        parser_update.add_argument(
+            "embargo_end", metavar="EMB", type=str, help="end of embargo of the processing [YYYY-MM-DDTHH:MM:SS+00:00]"
+        )
+        parser_update.add_argument(
+            "job_state", metavar="JOBS", type=str, help="JSON with the state of the processing [json]"
+        )
+        parser_update.add_argument(
+            "job_output", metavar="JOBO", type=str, help="JSON with output of the processing [json]"
+        )
+        parser_update.add_argument(
+            "results", metavar="RES", type=str, help="JSON with results of the processing [json]"
+        )
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing processing")
-        parser_delete.add_argument("id", type=int, help="id of the processing")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the processing [int]")
 
 
 if __name__ == "__main__":

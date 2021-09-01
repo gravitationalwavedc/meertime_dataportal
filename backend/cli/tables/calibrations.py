@@ -101,18 +101,22 @@ class Calibrations(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing calibrations")
-        parser_list.add_argument("--id", type=int, help="list calibrations matching the id")
+        parser_list.add_argument("--id", type=int, help="list calibrations matching the id [int]")
         parser_list.add_argument("--type", type=str, help="list calibrations matching the type [pre, post or none]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new calibration")
-        parser_create.add_argument("type", type=str, help="type of the calibration [pre, post or none]")
-        parser_create.add_argument("location", type=str, help="location of the calibration on the filesystem")
+        parser_create.add_argument("type", type=str, metavar="TYPE", help="type of the calibration [pre, post, none]")
+        parser_create.add_argument(
+            "location", type=str, metavar="LOCATION", help="location of the calibration on the filesystem [str]"
+        )
 
         parser_udpate = subs.add_parser("update", help="update the values of an existing calibration")
-        parser_udpate.add_argument("id", type=int, help="database id of the calibration")
-        parser_udpate.add_argument("type", type=str, help="type of the calibration [pre, post or none]")
-        parser_udpate.add_argument("location", type=str, help="location of the calibration on the filesystem")
+        parser_udpate.add_argument("id", type=int, metavar="ID", help="database id of the calibration [int]")
+        parser_udpate.add_argument("type", type=str, metavar="TYPE", help="type of the calibration [pre, post, none]")
+        parser_udpate.add_argument(
+            "location", type=str, metavar="LOCATION", help="location of the calibration on the filesystem [int]"
+        )
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing calibration")

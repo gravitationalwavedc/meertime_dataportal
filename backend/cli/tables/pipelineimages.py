@@ -131,35 +131,53 @@ class Pipelineimages(GraphQLTable):
 
         # create the parser for the "list" command
         parser_list = subs.add_parser("list", help="list existing Pipelineimages")
-        parser_list.add_argument("--id", type=int, help="list Pipelineimages matching the id")
-        parser_list.add_argument("--processing_id", type=int, help="list Pipelineimages matching the processing id")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list Pipelineimages matching the id [int]")
+        parser_list.add_argument(
+            "--processing_id", metavar="PROC", type=int, help="list Pipelineimages matching the processing id [int]"
+        )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new pipelineimage")
         parser_create.add_argument(
-            "image_type", type=str, help='description of image type, e.g., "flux" or "snr" or "bandpass"'
+            "image_type",
+            metavar="TYPE",
+            type=str,
+            help='description of image type, e.g., "flux" or "snr" or "bandpass" [str]',
         )
-        parser_create.add_argument("processing_id", type=int, help="id of the related processing")
         parser_create.add_argument(
-            "rank", type=int, help="rank of the image, used to indicate the order of displaing the image"
+            "processing_id", metavar="PROC", type=int, help="id of the related processing [int]"
         )
-        parser_create.add_argument("image", type=str, help="path to the image to be uploaded")
+        parser_create.add_argument(
+            "rank",
+            metavar="RANK",
+            type=int,
+            help="rank of the image, used to indicate the order of displaing the image [int]",
+        )
+        parser_create.add_argument("image", metavar="IMG", type=str, help="path to the image to be uploaded [str]")
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update a new pipelineimage")
-        parser_update.add_argument("id", type=id, help="database id of the existing pipeline image")
+        parser_update.add_argument("id", metavar="ID", type=id, help="id of the existing pipeline image [id]")
         parser_update.add_argument(
-            "image_type", type=str, help='description of image type, e.g., "flux" or "snr" or "bandpass"'
+            "image_type",
+            metavar="TYPE",
+            type=str,
+            help='description of image type, e.g., "flux" or "snr" or "bandpass" [str]',
         )
-        parser_update.add_argument("processing_id", type=int, help="id of the related processing")
         parser_update.add_argument(
-            "rank", type=int, help="rank of the image, used to indicate the order of displaing the image"
+            "processing_id", metavar="PROC", type=int, help="id of the related processing [int]"
         )
-        parser_update.add_argument("image", type=str, help="path to the image to be uploaded")
+        parser_update.add_argument(
+            "rank",
+            metavar="RANK",
+            type=int,
+            help="rank of the image, used to indicate the order of displaing the image [int]",
+        )
+        parser_update.add_argument("image", metavar="IMG", type=str, help="path to the image to be uploaded [str]")
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing pipelineimage")
-        parser_delete.add_argument("id", type=int, help="id of the pipelineimage")
+        parser_delete.add_argument("id", metavar="ID", type=id, help="id of the existing pipeline image [id]")
 
 
 if __name__ == "__main__":

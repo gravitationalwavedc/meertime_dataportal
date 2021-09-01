@@ -2,13 +2,16 @@ from graphene import relay, ObjectType
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from ...models import Templates
+
+from dataportal.models import Templates
+
+NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']
 
 
 class TemplatesNode(DjangoObjectType):
     class Meta:
         model = Templates
-        filter_fields = "__all__"
+        filter_fields = {"pulsar__id": ["exact"], "frequency": NUMERIC_FILTERS, "bandwidth": NUMERIC_FILTERS}
         interfaces = (relay.Node,)
 
     @classmethod

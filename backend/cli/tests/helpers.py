@@ -28,6 +28,8 @@ from dataportal.models import (
     Pulsartargets,
     Targets,
     Telescopes,
+    Templates,
+    Toas,
 )
 
 
@@ -149,6 +151,14 @@ def creator(django_user_model):
 
     content_type = ContentType.objects.get_for_model(Telescopes)
     permission = Permission.objects.get(content_type=content_type, codename="add_telescopes")
+    creator.user_permissions.add(permission)
+
+    content_type = ContentType.objects.get_for_model(Templates)
+    permission = Permission.objects.get(content_type=content_type, codename="add_templates")
+    creator.user_permissions.add(permission)
+
+    content_type = ContentType.objects.get_for_model(Toas)
+    permission = Permission.objects.get(content_type=content_type, codename="add_toas")
     creator.user_permissions.add(permission)
 
     return creator

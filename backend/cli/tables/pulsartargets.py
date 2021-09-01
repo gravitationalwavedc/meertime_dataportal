@@ -98,26 +98,34 @@ class Pulsartargets(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing pulsartargets")
-        parser_list.add_argument("--id", type=int, help="list pulsartargets matching the id")
-        parser_list.add_argument("--pulsar", type=int, help="list pulsartargets matching the pulsar id")
-        parser_list.add_argument("--pulsar_jname", type=str, help="list pulsartargets matching the pulsar Jname")
-        parser_list.add_argument("--target", type=int, help="list pulsartargets matching the target id")
-        parser_list.add_argument("--target_name", type=str, help="list pulsartargets matching the target name")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list pulsartargets matching the id [int]")
+        parser_list.add_argument(
+            "--pulsar", metavar="PSRID", type=int, help="list pulsartargets matching the pulsar id [int]"
+        )
+        parser_list.add_argument(
+            "--pulsar_jname", metavar="PSRJNAME", type=str, help="list pulsartargets matching the pulsar Jname [str]"
+        )
+        parser_list.add_argument(
+            "--target", metavar="TGTID", type=int, help="list pulsartargets matching the target id [int]"
+        )
+        parser_list.add_argument(
+            "--target_name", metavar="TGTNAME", type=str, help="list pulsartargets matching the target name [str]"
+        )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new pulsartarget")
-        parser_create.add_argument("pulsar", type=int, help="id of the pulsar")
-        parser_create.add_argument("target", type=int, help="id of the target")
+        parser_create.add_argument("pulsar", metavar="PSRID", type=int, help="id of the pulsar [int]")
+        parser_create.add_argument("target", metavar="TGTID", type=int, help="id of the target [int]")
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update an existing pulsartarget")
-        parser_update.add_argument("id", type=int, help="id of the pulsartarget")
-        parser_update.add_argument("pulsar", type=int, help="id of the pulsar")
-        parser_update.add_argument("target", type=int, help="id of the target")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the pulsartarget [int]")
+        parser_update.add_argument("pulsar", metavar="PSRID", type=int, help="id of the pulsar [int]")
+        parser_update.add_argument("target", metavar="TGTID", type=int, help="id of the target [int]")
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing pulsartarget")
-        parser_delete.add_argument("id", type=int, help="id of the pulsartarget")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the pulsartarget [int]")
 
 
 if __name__ == "__main__":

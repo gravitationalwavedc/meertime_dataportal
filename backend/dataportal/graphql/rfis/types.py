@@ -1,6 +1,6 @@
 from graphene_django import DjangoObjectType
 
-from ...models import Rfis
+from dataportal.models import Rfis
 
 
 class RfisType(DjangoObjectType):

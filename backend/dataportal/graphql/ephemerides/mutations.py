@@ -1,7 +1,9 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
 from decimal import Decimal
+
+from dataportal.models import Ephemerides
+from .types import EphemeridesInput, EphemeridesType
 
 
 class CreateEphemeris(graphene.Mutation):

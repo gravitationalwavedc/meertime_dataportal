@@ -3,7 +3,7 @@ from django.db.models.fields import DurationField
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 
-from ...models import Projects
+from dataportal.models import Projects
 
 
 @convert_django_field.register(DurationField)

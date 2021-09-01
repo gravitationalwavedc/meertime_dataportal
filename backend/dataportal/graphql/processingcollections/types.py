@@ -1,6 +1,7 @@
 from graphene_django import DjangoObjectType
 import graphene
-from ...models import Processingcollections
+
+from dataportal.models import Processingcollections
 
 
 class ProcessingcollectionsType(DjangoObjectType):

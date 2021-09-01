@@ -335,5 +335,5 @@ class Toas(models.Model):
     mjd = models.CharField(max_length=32, blank=True, null=True)
     site = models.IntegerField(blank=True, null=True)
     uncertainty = models.FloatField(blank=True, null=True)
-    quality = models.IntegerField(blank=True, null=True, choices=QUALITY_CHOICES)
+    quality = models.CharField(max_length=7, blank=True, null=True, choices=QUALITY_CHOICES)
     comment = models.CharField(max_length=255, blank=True, null=True)

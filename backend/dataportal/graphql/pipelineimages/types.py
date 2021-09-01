@@ -1,6 +1,7 @@
 from graphene_django import DjangoObjectType
 import graphene
-from ...models import Pipelineimages
+
+from dataportal.models import Pipelineimages
 
 
 class PipelineimagesType(DjangoObjectType):

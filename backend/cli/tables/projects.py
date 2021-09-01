@@ -113,26 +113,30 @@ class Projects(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing projects")
-        parser_list.add_argument("--id", type=int, help="list projects matching the id")
-        parser_list.add_argument("--code", type=str, help="list projects matching the code")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list projects matching the id [int]")
+        parser_list.add_argument("--code", metavar="CODE", type=str, help="list projects matching the code [str]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new project")
-        parser_create.add_argument("code", type=str, help="code of the project")
-        parser_create.add_argument("short", type=str, help="short name of the project")
-        parser_create.add_argument("embargo_period", type=int, help="emabrgo period of the project in days")
-        parser_create.add_argument("description", type=str, help="description of the project")
+        parser_create.add_argument("code", metavar="CODE", type=str, help="code of the project [str]")
+        parser_create.add_argument("short", metavar="SHORT", type=str, help="short name of the project [str]")
+        parser_create.add_argument(
+            "embargo_period", metavar="EMB", type=int, help="emabrgo period of the project in days [int]"
+        )
+        parser_create.add_argument("description", metavar="DESC", type=str, help="description of the project [str]")
 
         parser_update = subs.add_parser("update", help="update an existing project")
-        parser_update.add_argument("id", type=int, help="database id of existing project")
-        parser_update.add_argument("code", type=str, help="code of the project")
-        parser_update.add_argument("short", type=str, help="short name of the project")
-        parser_update.add_argument("embargo_period", type=int, help="emabrgo period of the project in days")
-        parser_update.add_argument("description", type=str, help="description of the project")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of existing project [int]")
+        parser_update.add_argument("code", metavar="CODE", type=str, help="code of the project [str]")
+        parser_update.add_argument("short", metavar="SHORT", type=str, help="short name of the project [str]")
+        parser_update.add_argument(
+            "embargo_period", metavar="EMB", type=int, help="emabrgo period of the project in days [int]"
+        )
+        parser_update.add_argument("description", metavar="DESC", type=str, help="description of the project [str]")
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing project")
-        parser_delete.add_argument("id", type=int, help="id of the project")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of existing project [int]")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Targets
+from .types import TargetsInput, TargetsType
 
 
 class CreateTarget(graphene.Mutation):
@@ -14,8 +16,8 @@ class CreateTarget(graphene.Mutation):
     @permission_required("dataportal.add_targets")
     def mutate(cls, self, info, input):
         ok = True
-        _target, _ = Targets.objects.get_or_create(**input.__dict__)
-        return CreateTarget(ok=ok, target=_target)
+        target, _ = Targets.objects.get_or_create(**input.__dict__)
+        return CreateTarget(ok=ok, target=target)
 
 
 class UpdateTarget(graphene.Mutation):
@@ -29,13 +31,14 @@ class UpdateTarget(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_targets")
     def mutate(cls, self, info, id, input):
-        _target = Targets.objects.get(pk=id)
-        if _target:
+        try:
+            target = Targets.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_target, key, val)
-            _target.save()
-            return UpdateTarget(target=_target)
-        return UpdateTarget(target=None)
+                setattr(target, key, val)
+            target.save()
+            return UpdateTarget(target=target)
+        except:
+            return UpdateTarget(target=None)
 
 
 class DeleteTarget(graphene.Mutation):
@@ -43,13 +46,11 @@ class DeleteTarget(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    target = graphene.Field(TargetsType)
 
     @classmethod
     @permission_required("dataportal.add_targets")
     def mutate(cls, self, info, id):
-        _target = Targets.objects.get(pk=id)
-        _target.delete()
+        Targets.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

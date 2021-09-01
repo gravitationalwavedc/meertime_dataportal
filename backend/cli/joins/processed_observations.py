@@ -17,8 +17,8 @@ class ProcessedObservations(GraphQLJoin):
                 telescope { id } 
                 calibration { id } 
                 project { id } 
-                instrument_config { id } 
-                utc_start
+                instrumentConfig { id } 
+                utcStart
             }
             """
             "pipeline { id }",

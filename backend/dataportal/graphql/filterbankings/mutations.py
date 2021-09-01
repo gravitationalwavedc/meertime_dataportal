@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Filterbankings
+from .types import FilterbankingsInput, FilterbankingsType
 
 
 class CreateFilterbanking(graphene.Mutation):
@@ -12,8 +14,8 @@ class CreateFilterbanking(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_filterbankings")
     def mutate(cls, self, info, input):
-        _filterbanking, _ = Filterbankings.objects.get_or_create(**input.__dict__)
-        return CreateFilterbanking(filterbanking=_filterbanking)
+        filterbanking, _ = Filterbankings.objects.get_or_create(**input.__dict__)
+        return CreateFilterbanking(filterbanking=filterbanking)
 
 
 class UpdateFilterbanking(graphene.Mutation):
@@ -26,13 +28,14 @@ class UpdateFilterbanking(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_filterbankings")
     def mutate(cls, self, info, id, input):
-        _filterbanking = Filterbankings.objects.get(pk=id)
-        if _filterbanking:
+        try:
+            filterbanking = Filterbankings.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_filterbanking, key, val)
-            _filterbanking.save()
-            return UpdateFilterbanking(filterbanking=_filterbanking)
-        return UpdateFilterbanking(filterbanking=None)
+                setattr(filterbanking, key, val)
+            filterbanking.save()
+            return UpdateFilterbanking(filterbanking=filterbanking)
+        except:
+            return UpdateFilterbanking(filterbanking=None)
 
 
 class DeleteFilterbanking(graphene.Mutation):
@@ -40,13 +43,11 @@ class DeleteFilterbanking(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    filterbanking = graphene.Field(FilterbankingsType)
 
     @classmethod
     @permission_required("dataportal.add_filterbankings")
     def mutate(cls, self, info, id):
-        _filterbanking = Filterbankings.objects.get(pk=id)
-        _filterbanking.delete()
+        Filterbankings.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

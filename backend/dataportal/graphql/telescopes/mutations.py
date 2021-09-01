@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Telescopes
+from .types import TelescopesInput, TelescopesType
 
 
 class CreateTelescope(graphene.Mutation):
@@ -12,8 +14,8 @@ class CreateTelescope(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_telescopes")
     def mutate(cls, self, info, input):
-        _telescope, _ = Telescopes.objects.get_or_create(**input.__dict__)
-        return CreateTelescope(telescope=_telescope)
+        telescope, _ = Telescopes.objects.get_or_create(**input.__dict__)
+        return CreateTelescope(telescope=telescope)
 
 
 class UpdateTelescope(graphene.Mutation):
@@ -26,13 +28,14 @@ class UpdateTelescope(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_telescopes")
     def mutate(cls, self, info, id, input):
-        _telescope = Telescopes.objects.get(pk=id)
-        if _telescope:
+        try:
+            telescope = Telescopes.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_telescope, key, val)
-            _telescope.save()
-            return UpdateTelescope(telescope=_telescope)
-        return UpdateTelescope(telescope=None)
+                setattr(telescope, key, val)
+            telescope.save()
+            return UpdateTelescope(telescope=telescope)
+        except:
+            return UpdateTelescope(telescope=None)
 
 
 class DeleteTelescope(graphene.Mutation):
@@ -40,13 +43,11 @@ class DeleteTelescope(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    telescope = graphene.Field(TelescopesType)
 
     @classmethod
     @permission_required("dataportal.add_telescopes")
     def mutate(cls, self, info, id):
-        _telescope = Telescopes.objects.get(pk=id)
-        _telescope.delete()
+        Telescopes.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

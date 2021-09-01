@@ -3,7 +3,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from django_mysql.models import JSONField
 
-from ...models import Pipelines
+from dataportal.models import Pipelines
 
 
 @convert_django_field.register(JSONField)

@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from ...models import Filterbankings
+from dataportal.models import Filterbankings
 
 
 class FilterbankingsType(DjangoObjectType):

@@ -78,10 +78,10 @@ class Basebandings(GraphQLTable):
             return self.update_graphql()
         elif parser_args.subcommand == "list":
             return self.list_graphql(parser_args.id, parser_args.processing)
-        elif args.subcommand == "delete":
-            return self.delete(args.id)
+        elif parser_args.subcommand == "delete":
+            return self.delete(parser_args.id)
         else:
-            raise RuntimeError(args.subcommand + " command is not implemented")
+            raise RuntimeError(parser_args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -108,21 +108,27 @@ class Basebandings(GraphQLTable):
         subs.required = True
 
         parser_list = subs.add_parser("list", help="list existing pipelines")
-        parser_list.add_argument("--id", type=int, help="list pipelines matching the id")
-        parser_list.add_argument("--processing", type=int, help="list pipelines matching the processing id")
+        parser_list.add_argument("--id", type=int, help="list pipelines matching the id [int]")
+        parser_list.add_argument(
+            "--processing", type=int, metavar='PROCID', help="list pipelines matching the processing id [int]"
+        )
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new basebanding")
-        parser_create.add_argument("processing", type=int, help="processing id of the basebanding")
+        parser_create.add_argument(
+            "processing", type=int, metavar="PROCID", help="processing id of the basebanding [int]"
+        )
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update the values of an existing basebanding")
-        parser_update.add_argument("id", type=int, help="database id of the basebanding")
-        parser_update.add_argument("processing", type=int, help="processing id of the basebanding")
+        parser_update.add_argument("id", type=int, metavar="ID", help="id of the basebanding [int]")
+        parser_update.add_argument(
+            "processing", type=int, metavar="PROCID", help="processing id of the basebanding [int]"
+        )
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing basebanding")
-        parser_delete.add_argument("id", type=int, help="id of the basebanding")
+        parser_delete.add_argument("id", type=int, metavar="ID", help="id of the basebanding [int]")
 
 
 if __name__ == "__main__":

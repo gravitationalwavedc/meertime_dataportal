@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Basebandings
+from .types import BasebandingsInput, BasebandingsType
 
 
 class CreateBasebanding(graphene.Mutation):
@@ -12,8 +14,8 @@ class CreateBasebanding(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_basebandings")
     def mutate(cls, self, info, input):
-        _basebanding, _ = Basebandings.objects.get_or_create(**input.__dict__)
-        return CreateBasebanding(basebanding=_basebanding)
+        basebanding, _ = Basebandings.objects.get_or_create(**input.__dict__)
+        return CreateBasebanding(basebanding=basebanding)
 
 
 class UpdateBasebanding(graphene.Mutation):
@@ -26,13 +28,14 @@ class UpdateBasebanding(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_basebandings")
     def mutate(cls, self, info, id, input):
-        _basebanding = Basebandings.objects.get(pk=id)
-        if _basebanding:
+        try:
+            basebanding = Basebandings.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_basebanding, key, val)
-            _basebanding.save()
-            return UpdateBasebanding(basebanding=_basebanding)
-        return UpdateBasebanding(basebanding=None)
+                setattr(basebanding, key, val)
+            basebanding.save()
+            return UpdateBasebanding(basebanding=basebanding)
+        except:
+            return UpdateBasebanding(basebanding=None)
 
 
 class DeleteBasebanding(graphene.Mutation):
@@ -40,13 +43,11 @@ class DeleteBasebanding(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    basebanding = graphene.Field(BasebandingsType)
 
     @classmethod
     @permission_required("dataportal.add_basebandings")
     def mutate(cls, self, info, id):
-        _basebanding = Basebandings.objects.get(pk=id)
-        _basebanding.delete()
+        Basebandings.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

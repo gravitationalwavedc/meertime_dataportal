@@ -91,26 +91,31 @@ class Processingcollections(GraphQLTable):
         subs = parser.add_subparsers(dest="subcommand")
         subs.required = True
 
-        parser_list = subs.add_parser("list", help="list existing processingcollections")
-        parser_list.add_argument("--id", type=int, help="list processingcollections matching the id")
+        parser_list = subs.add_parser("list", help="list existing processing collections")
         parser_list.add_argument(
-            "--processing", type=int, help="list processingcollections matching the processing id"
+            "--id", metavar="ID", type=int, help="list processing collections matching the id [int]"
+        )
+        parser_list.add_argument(
+            "--processing",
+            metavar="PROC",
+            type=int,
+            help="list processing collections matching the processing id [int]",
         )
 
         # create the parser for the "create" command
-        parser_create = subs.add_parser("create", help="create a new processingcollection")
-        parser_create.add_argument("processing", type=int, help="id of the processing")
-        parser_create.add_argument("collection", type=int, help="id of the collection")
+        parser_create = subs.add_parser("create", help="create a new processing collection")
+        parser_create.add_argument("processing", metavar="PROC", type=int, help="id of the processing [int]")
+        parser_create.add_argument("collection", metavar="COLL", type=int, help="id of the collection [int]")
 
         # create the parser for the "update" command
-        parser_update = subs.add_parser("update", help="update an existing processingcollection")
-        parser_update.add_argument("id", type=int, help="id of the processingcollection")
-        parser_update.add_argument("processing", type=int, help="id of the processing")
-        parser_update.add_argument("collection", type=int, help="id of the collection")
+        parser_update = subs.add_parser("update", help="update an existing processing collection")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the processingcollection [int]")
+        parser_update.add_argument("processing", metavar="PROC", type=int, help="id of the processing [int]")
+        parser_update.add_argument("collection", metavar="COLL", type=int, help="id of the collection [int]")
 
         # create the parser for the "delete" command
-        parser_delete = subs.add_parser("delete", help="delete an existing processingcollection")
-        parser_delete.add_argument("id", type=int, help="id of the processingcollection")
+        parser_delete = subs.add_parser("delete", help="delete an existing processing collection")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the processingcollection [int]")
 
 
 if __name__ == "__main__":

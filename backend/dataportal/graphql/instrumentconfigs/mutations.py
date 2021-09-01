@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Instrumentconfigs
+from .types import InstrumentconfigsInput, InstrumentconfigsType
 from decimal import Decimal
 
 
@@ -17,8 +19,8 @@ class CreateInstrumentconfig(graphene.Mutation):
         for field, limits in InstrumentconfigsInput.limits.items():
             deci_str = "1.".ljust(limits["deci"] + 2, "0")
             input.__dict__[field] = input.__dict__[field].quantize(Decimal(deci_str))
-        _instrumentconfig, _ = Instrumentconfigs.objects.get_or_create(**input.__dict__)
-        return CreateInstrumentconfig(instrumentconfig=_instrumentconfig)
+        instrumentconfig, _ = Instrumentconfigs.objects.get_or_create(**input.__dict__)
+        return CreateInstrumentconfig(instrumentconfig=instrumentconfig)
 
 
 class UpdateInstrumentconfig(graphene.Mutation):
@@ -31,13 +33,14 @@ class UpdateInstrumentconfig(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_instrumentconfigs")
     def mutate(cls, self, info, id, input):
-        _instrumentconfig = Instrumentconfigs.objects.get(pk=id)
-        if _instrumentconfig:
+        try:
+            instrumentconfig = Instrumentconfigs.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_instrumentconfig, key, val)
-            _instrumentconfig.save()
-            return UpdateInstrumentconfig(instrumentconfig=_instrumentconfig)
-        return UpdateInstrumentconfig(instrumentconfig=None)
+                setattr(instrumentconfig, key, val)
+            instrumentconfig.save()
+            return UpdateInstrumentconfig(instrumentconfig=instrumentconfig)
+        except:
+            return UpdateInstrumentconfig(instrumentconfig=None)
 
 
 class DeleteInstrumentconfig(graphene.Mutation):
@@ -45,13 +48,11 @@ class DeleteInstrumentconfig(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    instrumentconfig = graphene.Field(InstrumentconfigsType)
 
     @classmethod
     @permission_required("dataportal.add_instrumentconfigs")
     def mutate(cls, self, info, id):
-        _instrumentconfig = Instrumentconfigs.objects.get(pk=id)
-        _instrumentconfig.delete()
+        Instrumentconfigs.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

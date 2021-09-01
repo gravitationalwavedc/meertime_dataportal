@@ -3,8 +3,8 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 
-# from ..jsonfield_filter import JSONFieldFilter
-from ...models import Processings
+# from dataportal.graphql.jsonfield_filter import JSONFieldFilter
+from dataportal.models import Processings
 
 DATETIME_FILTERS = ['exact', 'isnull', 'lt', 'lte', 'gt', 'gte', 'month', 'year', 'date']
 NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']

@@ -20,6 +20,8 @@ from . import (
     pulsartargets,
     targets,
     telescopes,
+    templates,
+    toas,
 )
 
 
@@ -42,6 +44,8 @@ class Mutation(
     pulsartargets.Mutation,
     targets.Mutation,
     telescopes.Mutation,
+    templates.Mutation,
+    toas.Mutation,
     graphene.ObjectType,
 ):
     pass

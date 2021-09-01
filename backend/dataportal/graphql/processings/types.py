@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from ...models import Processings
+from dataportal.models import Processings
 
 
 class ProcessingsType(DjangoObjectType):

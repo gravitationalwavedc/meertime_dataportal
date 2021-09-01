@@ -79,9 +79,7 @@ class GraphQLTable:
         self.delete_variables = {"id": id}
         return self.delete_graphql()
 
-    def create_graphql(
-        self,
-    ):
+    def create_graphql(self,):
 
         logging.debug(f"Using mutation {self.create_mutation}")
         logging.debug(f"Using mutation vars in a dict {self.create_variables}")
@@ -166,9 +164,7 @@ class GraphQLTable:
                     if self.record_name in record_set.keys():
                         print(record_set[self.record_name]["id"])
                     else:
-                        logging.warning(f"Record {self.record_name} did not exist in returned json")
-            else:
-                logging.warning(f"Errors returned in content {content['errors']}")
+                        logging.debug(f"Record {self.record_name} did not exist in returned json")
         else:
             logging.warning(f"Bad response status_code={response.status_code}")
         return response

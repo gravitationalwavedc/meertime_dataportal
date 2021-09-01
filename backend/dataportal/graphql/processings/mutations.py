@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Processings
+from .types import ProcessingInput, ProcessingsType
 
 
 class CreateProcessing(graphene.Mutation):
@@ -28,13 +30,14 @@ class UpdateProcessing(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_processings")
     def mutate(cls, self, info, id, input=None):
-        _processing = Processings.objects.get(pk=id)
-        if _processing:
+        try:
+            processing = Processings.objects.get(pk=id)
             for val, key in input.__dict__.items():
-                setattr(_processing, val, key)
-            _processing.save()
-            return UpdateProcessing(processing=_processing)
-        return UpdateProcessing(processing=None)
+                setattr(processing, val, key)
+            processing.save()
+            return UpdateProcessing(processing=processing)
+        except:
+            return UpdateProcessing(processing=None)
 
 
 class DeleteProcessing(graphene.Mutation):
@@ -46,8 +49,7 @@ class DeleteProcessing(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_processings")
     def mutate(cls, self, info, id):
-        _processing = Processings.objects.get(pk=id)
-        _processing.delete()
+        Processings.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

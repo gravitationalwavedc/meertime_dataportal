@@ -95,25 +95,29 @@ class Pulsars(GraphQLTable):
 
         # create the parser for the "list" command
         parser_list = subs.add_parser("list", help="list existing Pulsars")
-        parser_list.add_argument("--id", type=int, help="list Pulsars matching the id")
-        parser_list.add_argument("--jname", type=str, help="list Pulsars matching the jname")
+        parser_list.add_argument("--id", metavar="ID", type=int, help="list Pulsars matching the id [int]")
+        parser_list.add_argument("--jname", metavar="JNAME", type=str, help="list Pulsars matching the jname [str]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new pulsar")
-        parser_create.add_argument("jname", type=str, help="jname of the pulsar")
-        parser_create.add_argument("state", type=str, help=",")
-        parser_create.add_argument("comment", type=str, help="description of the pulsar")
+        parser_create.add_argument("jname", metavar="JNAME", type=str, help="jname of the pulsar [str]")
+        parser_create.add_argument(
+            "state", metavar="STATE", type=str, help="state of the pulsar, e.g. new, solved [str]"
+        )
+        parser_create.add_argument("comment", metavar="COMMENT", type=str, help="description of the pulsar [str]")
 
         # create the parser for the "update" command
-        parser_udpate = subs.add_parser("update", help="update the values of an existing pulsar")
-        parser_udpate.add_argument("id", type=int, help="database id of the pulsar")
-        parser_udpate.add_argument("jname", type=str, help="jname of the pulsar")
-        parser_udpate.add_argument("state", type=str, help="state of the pulsar, e.g. new, solved")
-        parser_udpate.add_argument("comment", type=str, help="description of the pulsar")
+        parser_update = subs.add_parser("update", help="update the values of an existing pulsar")
+        parser_update.add_argument("id", metavar="ID", type=int, help="database id of the pulsar [int]")
+        parser_update.add_argument("jname", metavar="JNAME", type=str, help="jname of the pulsar [str]")
+        parser_update.add_argument(
+            "state", metavar="STATE", type=str, help="state of the pulsar, e.g. new, solved [str]"
+        )
+        parser_update.add_argument("comment", metavar="COMMENT", type=str, help="description of the pulsar [str]")
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing pulsar")
-        parser_delete.add_argument("id", type=int, help="id of the pulsar")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="database id of the pulsar [int]")
 
 
 if __name__ == "__main__":

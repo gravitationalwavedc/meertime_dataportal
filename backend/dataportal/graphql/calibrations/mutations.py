@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Calibrations
+from .types import CalibrationsInput, CalibrationsType
 
 
 class CreateCalibration(graphene.Mutation):
@@ -12,8 +14,8 @@ class CreateCalibration(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_calibrations")
     def mutate(cls, self, info, input):
-        _calibration, _ = Calibrations.objects.get_or_create(**input.__dict__)
-        return CreateCalibration(calibration=_calibration)
+        calibration, _ = Calibrations.objects.get_or_create(**input.__dict__)
+        return CreateCalibration(calibration=calibration)
 
 
 class UpdateCalibration(graphene.Mutation):
@@ -26,13 +28,14 @@ class UpdateCalibration(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_calibrations")
     def mutate(cls, self, info, id, input):
-        _calibration = Calibrations.objects.get(pk=id)
-        if _calibration:
+        try:
+            calibration = Calibrations.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_calibration, key, val)
-            _calibration.save()
-            return UpdateCalibration(calibration=_calibration)
-        return UpdateCalibration(calibration=None)
+                setattr(calibration, key, val)
+            calibration.save()
+            return UpdateCalibration(calibration=calibration)
+        except:
+            return UpdateCalibration(calibration=None)
 
 
 class DeleteCalibration(graphene.Mutation):
@@ -40,13 +43,11 @@ class DeleteCalibration(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    calibration = graphene.Field(CalibrationsType)
 
     @classmethod
     @permission_required("dataportal.add_calibrations")
     def mutate(cls, self, info, id):
-        _calibration = Calibrations.objects.get(pk=id)
-        _calibration.delete()
+        Calibrations.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

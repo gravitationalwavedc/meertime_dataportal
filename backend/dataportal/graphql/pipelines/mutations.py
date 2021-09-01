@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Pipelines
+from .types import PipelinesInput, PipelinesType
 
 
 class CreatePipeline(graphene.Mutation):
@@ -12,10 +14,10 @@ class CreatePipeline(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_pipelines")
     def mutate(cls, self, info, input=None):
-        _pipeline, _ = Pipelines.objects.get_or_create(
+        pipeline, _ = Pipelines.objects.get_or_create(
             name=input.name, revision=input.revision, defaults=input.__dict__
         )
-        return CreatePipeline(pipeline=_pipeline)
+        return CreatePipeline(pipeline=pipeline)
 
 
 class UpdatePipeline(graphene.Mutation):
@@ -28,13 +30,14 @@ class UpdatePipeline(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_pipelines")
     def mutate(cls, self, info, id, input=None):
-        _pipeline = Pipelines.objects.get(pk=id)
-        if _pipeline:
+        try:
+            pipeline = Pipelines.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_pipeline, key, val)
-            _pipeline.save()
-            return UpdatePipeline(pipeline=_pipeline)
-        return UpdatePipeline(pipeline=None)
+                setattr(pipeline, key, val)
+            pipeline.save()
+            return UpdatePipeline(pipeline=pipeline)
+        except:
+            return UpdatePipeline(pipeline=None)
 
 
 class DeletePipeline(graphene.Mutation):
@@ -42,13 +45,11 @@ class DeletePipeline(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    pipeline = graphene.Field(PipelinesType)
 
     @classmethod
     @permission_required("dataportal.add_pipelines")
     def mutate(cls, self, info, id):
-        _pipeline = Pipelines.objects.get(pk=id)
-        _pipeline.delete()
+        Pipelines.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

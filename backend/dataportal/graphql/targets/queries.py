@@ -2,8 +2,9 @@ from graphene import relay, ObjectType
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from .types import *
-from ...models import Targets
+
+# from .types import *
+from dataportal.models import Targets
 
 
 class TargetsNode(DjangoObjectType):

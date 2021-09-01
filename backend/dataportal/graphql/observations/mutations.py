@@ -1,6 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from .types import *
+
+from dataportal.models import Observations
+from .types import ObservationsInput, ObservationsType
 
 
 class CreateObservation(graphene.Mutation):
@@ -12,8 +14,8 @@ class CreateObservation(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_observations")
     def mutate(cls, self, info, input=None):
-        _observation, _ = Observations.objects.get_or_create(**input.__dict__)
-        return CreateObservation(observation=_observation)
+        observation, _ = Observations.objects.get_or_create(**input.__dict__)
+        return CreateObservation(observation=observation)
 
 
 class UpdateObservation(graphene.Mutation):
@@ -26,13 +28,14 @@ class UpdateObservation(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_observations")
     def mutate(cls, self, info, id, input=None):
-        _observation = Observations.objects.get(pk=id)
-        if _observation:
+        try:
+            observation = Observations.objects.get(pk=id)
             for key, val in input.__dict__.items():
-                setattr(_observation, key, val)
-            _observation.save()
-            return UpdateObservation(observation=_observation)
-        return UpdateObservation(observation=None)
+                setattr(observation, key, val)
+            observation.save()
+            return UpdateObservation(observation=observation)
+        except:
+            return UpdateObservation(observation=None)
 
 
 class DeleteObservation(graphene.Mutation):
@@ -44,8 +47,7 @@ class DeleteObservation(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_observations")
     def mutate(cls, self, info, id):
-        _observation = Observations.objects.get(pk=id)
-        _observation.delete()
+        Observations.objects.get(pk=id).delete()
         return cls(ok=True)
 
 

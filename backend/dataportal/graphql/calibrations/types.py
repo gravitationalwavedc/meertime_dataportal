@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from ...models import Calibrations
+from dataportal.models import Calibrations
 
 
 class CalibrationsType(DjangoObjectType):

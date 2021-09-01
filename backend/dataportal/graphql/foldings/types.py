@@ -1,7 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from ...models import Foldings
+from dataportal.models import Foldings
 
 
 class FoldingsType(DjangoObjectType):
