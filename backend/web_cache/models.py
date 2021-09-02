@@ -258,24 +258,12 @@ class FoldPulsarDetail(models.Model):
         fold_pulsar = FoldPulsar.objects.get(jname=pulsar.jname)
         observation = folding.processing.observation
 
-        # Images are currently stored in the database with the wrong path. I suspect this is because of the way the
-        # CLI is processing the image itself. We fix this here by manually setting the correct url. This will
-        # break if the way images are stored on the server change.
-        # To get the correct filename we use ntpath to extract it from the path given by the image.name property.
         images = {
-            pipelineimage.image_type: storage.get_upload_location(
-                pipelineimage, ntpath.basename(pipelineimage.image.name)
-            )
+            pipelineimage.image_type: pipelineimage.image.name
             for pipelineimage in folding.processing.pipelineimages_set.all()
         }
 
-        # Known image types are 'band', 'snrt', 'freq', 'time', and 'flux'.
-        bandpass = images['band'] if 'band' in images else None
-        phase_vs_time = images['time'] if 'time' in images else None
-        phase_vs_frequency = images['freq'] if 'freq' in images else None
-        snr_vs_time = images['snrt'] if 'snrt' in images else None
-        profile = images['flux'] if 'flux' in images else None
-        results = folding.processing.results if folding.processing.results else []
+        results = folding.processing.results if folding.processing.results else {}
 
         FoldPulsarDetail.objects.update_or_create(
             fold_pulsar=fold_pulsar,
@@ -297,17 +285,17 @@ class FoldPulsarDetail(models.Model):
                 "nant": observation.nant,
                 "nant_eff": observation.nant_eff,
                 "dm_fold": folding.dm,
-                "dm_meerpipe": results['dm_meerpipe'] if 'dm_meerpipe' in results else None,
-                "rm_meerpipe": results['rm_meerpipe'] if 'rm_meerpipe' in results else None,
-                "sn_backend": results['snr'] if 'snr' in results else None,
-                "sn_meerpipe": results['sn_meerpipe'] if 'sn_meerpipe' in results else None,
+                "dm_meerpipe": results.get('dm_meerpipe', None),
+                "rm_meerpipe": results.get('rm_meerpipe', None),
+                "sn_backend": results.get('snr', None),
+                "sn_meerpipe": results.get('sn_meerpipe', None),
                 "schedule": "12",
                 "phaseup": "12",
-                "phase_vs_time": phase_vs_time,
-                "phase_vs_frequency": phase_vs_frequency,
-                "bandpass": bandpass,
-                "snr_vs_time": snr_vs_time,
-                "profile": profile,
+                "phase_vs_time": images.get('time.hi', None),
+                "phase_vs_frequency": images.get('freq.hi', None),
+                "bandpass": images.get('band.hi', None),
+                "snr_vs_time": images.get('snrt.hi', None),
+                "profile": images.get('flux.hi', None),
                 "frequency": observation.instrument_config.frequency,
                 "npol": observation.instrument_config.npol,
             },
