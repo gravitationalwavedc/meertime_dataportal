@@ -36,6 +36,10 @@ class UpdateEphemeris(graphene.Mutation):
         _ephemeris = Ephemerides.objects.get(pk=id)
         if _ephemeris:
             for key, val in input.__dict__.items():
+                limits = EphemeridesInput.limits.get(key)
+                if limits:
+                    deci_str = "1.".ljust(limits["deci"] + 2, "0")
+                    val = val.quantize(Decimal(deci_str))
                 setattr(_ephemeris, key, val)
             _ephemeris.save()
             return UpdateEphemeris(ephemeris=_ephemeris)

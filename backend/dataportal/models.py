@@ -6,7 +6,7 @@ from django_mysql.models import JSONField
 from .logic import get_meertime_filters, get_band
 from json import loads
 from datetime import timedelta
-from .storage import OverwriteStorage, get_upload_location
+from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location
 
 
 class Basebandings(models.Model):
@@ -156,6 +156,7 @@ class Observations(models.Model):
 
 
 class Projects(models.Model):
+    program = models.ForeignKey("Programs", models.DO_NOTHING, null=True)
     default_embargo = timedelta(days=548)  # 18 months default embargo
 
     code = models.CharField(max_length=255, unique=True)
@@ -174,6 +175,12 @@ class Pipelineimages(models.Model):
         constraints = [
             UniqueConstraint(fields=["processing", "image_type"], name="unique image type for a processing")
         ]
+
+
+class Pipelinefiles(models.Model):
+    processing = models.ForeignKey("Processings", models.DO_NOTHING)
+    file = models.FileField(null=True, upload_to=get_pipeline_upload_location, storage=OverwriteStorage())
+    file_type = models.CharField(max_length=32, blank=True, null=True)
 
 
 class Pipelines(models.Model):
@@ -208,6 +215,11 @@ class Processings(Model):
         constraints = [
             UniqueConstraint(fields=["observation", "pipeline", "location", "parent"], name="unique processing")
         ]
+
+
+class Programs(Model):
+    telescope = models.ForeignKey("Telescopes", models.DO_NOTHING)
+    name = models.CharField(max_length=64)
 
 
 class Pulsaraliases(models.Model):
@@ -296,6 +308,12 @@ class Rfis(models.Model):
     processing = models.ForeignKey(Processings, models.DO_NOTHING)
     folding = models.ForeignKey(Foldings, models.DO_NOTHING)
     percent_zapped = models.FloatField()
+
+
+class Sessions(models.Model):
+    telescope = models.ForeignKey("Telescopes", models.DO_NOTHING)
+    start = models.DateTimeField()
+    end = models.DateTimeField()
 
 
 class Targets(models.Model):

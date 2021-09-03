@@ -11,11 +11,14 @@ from .launches import Launches
 from .observations import Observations
 from .pipelineimages import Pipelineimages
 from .pipelines import Pipelines
+from .pipelinefiles import Pipelinefiles
 from .processingcollections import Processingcollections
 from .processings import Processings
+from .programs import Programs
 from .projects import Projects
 from .pulsars import Pulsars
 from .pulsartargets import Pulsartargets
+from .sessions import Sessions
 from .targets import Targets
 from .telescopes import Telescopes
 from .templates import Templates

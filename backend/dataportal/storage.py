@@ -20,6 +20,24 @@ def get_upload_location(instance, filename):
     return f"{telescope}/{psr}/{utc}/{beam}/{filename}"
 
 
+def get_pipeline_upload_location(instance, filename):
+    """
+    This method provides a filename to store an uploaded file produced by a pipeline.
+    Inputs:
+    instance: instance of a Pipelinefiles class
+    filename: string
+
+    returns:
+    string:
+    """
+    telescope = instance.processing.observation.telescope.name
+    pipeline = instance.processing.pipeline.name
+    psr = instance.processing.observation.target.name
+    beam = instance.processing.observation.instrument_config.beam
+    utc = instance.processing.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+    return f"{telescope}/{pipeline}/{psr}/{utc}/{beam}/{filename}"
+
+
 class OverwriteStorage(FileSystemStorage):
     """
     Provide a storage which will overwrite files if file with the same name is uploaded

@@ -91,7 +91,7 @@ class GraphQLTable:
             if not "errors" in content.keys():
                 for key in content["data"].keys():
                     record_set = content["data"][key]
-                    if self.record_name in record_set.keys():
+                    if record_set.get(self.record_name):
                         print(record_set[self.record_name]["id"])
                     else:
                         logging.warning(f"Record {self.record_name} did not exist in returned json")
@@ -115,10 +115,10 @@ class GraphQLTable:
                     record_set = content["data"][key]
                     if "edges" in record_set.keys():
                         record_set = record_set["edges"]
-                    if self.record_name in record_set.keys():
+                    if record_set.get(self.record_name):
                         self.print_record_set(record_set[self.record_name], delim)
                     else:
-                        logging.warning(f"Record {self.record_name} did not exist in returned json")
+                        logging.warning(f"No record matching the update query was found, check the primary ID")
         return response
 
     def list_graphql(self, graphql_query, delim="\t"):

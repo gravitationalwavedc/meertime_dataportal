@@ -66,6 +66,47 @@ def get_calibration(utc_start):
         return ("pre", "None")
 
 
+def regenerate_pngs(in_dir):
+    """ regenerate the PNG files for this fold mode observation """
+
+    freq_file = in_dir + "/freq.sum"
+    time_file = in_dir + "/time.sum"
+    band_file = in_dir + "/band.last"
+
+    timestamp = datetime.today().strftime("%Y-%m-%d-%H:%M:%S")
+    lo_res = " -g 240x180 -c x:view=0:1 -c y:view=0:1"
+    hi_res = " -g 1024x768"
+    opts = " -c above:l= -c above:c= -D " + in_dir + "/"
+
+    if os.path.exists(freq_file):
+        for png in glob.glob("%s/*.freq.*.png" % (in_dir)):
+            os.remove(png)
+        for png in glob.glob("%s/*.flux.*.png" % (in_dir)):
+            os.remove(png)
+
+        os.system("psrplot -p freq " + freq_file + " -jDp -j 'r 0.5'" + lo_res + opts + timestamp + ".freq.lo.png/png")
+        os.system("psrplot -p freq " + freq_file + " -jDp -j 'r 0.5'" + hi_res + opts + timestamp + ".freq.hi.png/png")
+        os.system(
+            "psrplot -p flux " + freq_file + " -jFDp -j 'r 0.5'" + lo_res + opts + timestamp + ".flux.lo.png/png"
+        )
+        os.system(
+            "psrplot -p flux " + freq_file + " -jFDp -j 'r 0.5'" + hi_res + opts + timestamp + ".flux.hi.png/png"
+        )
+
+    if os.path.exists(time_file):
+        for png in glob.glob("%s/*.time.*.png" % (in_dir)):
+            os.remove(png)
+        os.system("psrplot -p time " + time_file + " -jDp -j 'r 0.5'" + lo_res + opts + timestamp + ".time.lo.png/png")
+        os.system("psrplot -p time " + time_file + " -jDp -j 'r 0.5'" + hi_res + opts + timestamp + ".time.hi.png/png")
+
+    if os.path.exists(band_file):
+        for png in glob.glob("%s/*.band.*.png" % (in_dir)):
+            os.remove(png)
+        os.system(
+            "psrplot -p b -x -lpol=0,1 -O -c log=1 " + band_file + lo_res + opts + timestamp + ".band.lo.png/png"
+        )
+
+
 def main(beam, utc_start, source, freq, client, url, token):
 
     obs_type = "fold"
@@ -100,8 +141,8 @@ def main(beam, utc_start, source, freq, client, url, token):
     hdr.set("BEAM", beam)
     hdr.parse()
 
-    if not hdr.mode == "PSR":
-        error = Exception("Observing mode [%s] was not PSR." % s(hdr.mode))
+    if not hdr.fold_mode == "PSR":
+        error = Exception("Observing mode [%s] was not PSR." % (hdr.fold_mode))
         logging.error(str(error))
         raise error
 
@@ -273,14 +314,31 @@ def main(beam, utc_start, source, freq, client, url, token):
     folding_id = get_id(response, "folding")
     logging.info("folding_id=%d" % (folding_id))
 
+    # force regeneration of PNG images
+    regenerate_pngs(results_dir)
+
+    image_ranks = {
+        "flux.hi": 0,
+        "freq.hi": 1,
+        "time.hi": 2,
+        "band.hi": 3,
+        "snrt.hi": 4,
+        "flux.lo": 5,
+        "freq.lo": 6,
+        "time.lo": 7,
+        "band.lo": 8,
+        "snrt.lo": 9,
+    }
+
     # process image results for this observations
     pipelineimages = Pipelineimages(client, url, token)
-    # TODO check existing / understand why gein the mutation always creates
-    rank = 0
+    # TODO check existing / understand why the mutation always creates
     for png in glob.glob("%s/*.*.png" % (results_dir)):
+        image_type = png[-11:-4]
         # check image size
-        if os.stat(png).st_size > 0:
-            image_type = png[-11:-4]  # clunky!
+        if os.stat(png).st_size > 0 and image_type in image_ranks.keys():
+            rank = image_ranks[image_type]
+            logging.debug("processing file=%s image_type=%s rank=%d" % (png, image_type, rank))
             response = pipelineimages.create(png, image_type, rank, processing_id)
             pipeline_image_id = get_id(response, "pipelineimage")
             rank += 1
@@ -323,8 +381,10 @@ if __name__ == "__main__":
     freq = args.freq
 
     format = "%(asctime)s : %(levelname)s : " + "%s/%s/%s/%s" % (beam, utc_start, source, freq) + " : %(msg)s"
-    # logging.basicConfig(format=format,filename=LOG_FILE,level=logging.INFO)
-    # logging.basicConfig(format=format, level=logging.DEBUG)
+    if args.verbose:
+        logging.basicConfig(format=format, level=logging.DEBUG)
+    else:
+        logging.basicConfig(format=format, filename=LOG_FILE, level=logging.INFO)
 
     client = GraphQLClient(args.url, args.verbose_client)
 

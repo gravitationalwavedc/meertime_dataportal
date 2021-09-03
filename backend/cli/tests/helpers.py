@@ -19,13 +19,16 @@ from dataportal.models import (
     Instrumentconfigs,
     Launches,
     Observations,
+    Pipelinefiles,
     Pipelineimages,
     Pipelines,
     Processingcollections,
     Processings,
+    Programs,
     Projects,
     Pulsars,
     Pulsartargets,
+    Sessions,
     Targets,
     Telescopes,
     Templates,
@@ -121,6 +124,10 @@ def creator(django_user_model):
     permission = Permission.objects.get(content_type=content_type, codename="add_pipelineimages")
     creator.user_permissions.add(permission)
 
+    content_type = ContentType.objects.get_for_model(Pipelinefiles)
+    permission = Permission.objects.get(content_type=content_type, codename="add_pipelinefiles")
+    creator.user_permissions.add(permission)
+
     content_type = ContentType.objects.get_for_model(Pipelines)
     permission = Permission.objects.get(content_type=content_type, codename="add_pipelines")
     creator.user_permissions.add(permission)
@@ -133,6 +140,10 @@ def creator(django_user_model):
     permission = Permission.objects.get(content_type=content_type, codename="add_processings")
     creator.user_permissions.add(permission)
 
+    content_type = ContentType.objects.get_for_model(Programs)
+    permission = Permission.objects.get(content_type=content_type, codename="add_programs")
+    creator.user_permissions.add(permission)
+
     content_type = ContentType.objects.get_for_model(Projects)
     permission = Permission.objects.get(content_type=content_type, codename="add_projects")
     creator.user_permissions.add(permission)
@@ -143,6 +154,10 @@ def creator(django_user_model):
 
     content_type = ContentType.objects.get_for_model(Pulsartargets)
     permission = Permission.objects.get(content_type=content_type, codename="add_pulsartargets")
+    creator.user_permissions.add(permission)
+
+    content_type = ContentType.objects.get_for_model(Sessions)
+    permission = Permission.objects.get(content_type=content_type, codename="add_sessions")
     creator.user_permissions.add(permission)
 
     content_type = ContentType.objects.get_for_model(Targets)

@@ -1,7 +1,9 @@
 import re
 import datetime
 from model_bakery import baker
+from dataportal.models import Ephemerides
 from cli.tests.helpers import *
+from cli.util.decimal import get_decimal_from_limits
 from cli.tables.ephemerides import Ephemerides as CliEphemerides
 
 
@@ -91,9 +93,9 @@ def test_cli_ephemeris_update_with_token(client, creator, args, jwt_token, debug
         + '",'
         + '"ephemeris":'
         + '"{\\"F0\\": \\"2345.6\\"}",'
-        + '"p0":'
-        + str(args.p0)
-        + ','
+        + '"p0":"'
+        + str(get_decimal_from_limits("p0", args.p0, Ephemerides.limits))
+        + '",'
         + '"dm":'
         + str(args.dm)
         + ','

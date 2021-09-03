@@ -157,7 +157,7 @@ class Pipelineimages(GraphQLTable):
 
         # create the parser for the "update" command
         parser_update = subs.add_parser("update", help="update a new pipelineimage")
-        parser_update.add_argument("id", metavar="ID", type=id, help="id of the existing pipeline image [id]")
+        parser_update.add_argument("id", metavar="ID", type=int, help="id of the existing pipeline image [int]")
         parser_update.add_argument(
             "image_type",
             metavar="TYPE",
@@ -177,7 +177,7 @@ class Pipelineimages(GraphQLTable):
 
         # create the parser for the "delete" command
         parser_delete = subs.add_parser("delete", help="delete an existing pipelineimage")
-        parser_delete.add_argument("id", metavar="ID", type=id, help="id of the existing pipeline image [id]")
+        parser_delete.add_argument("id", metavar="ID", type=int, help="id of the existing pipeline image [int]")
 
 
 if __name__ == "__main__":

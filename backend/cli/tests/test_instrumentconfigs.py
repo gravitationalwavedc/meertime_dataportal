@@ -1,5 +1,7 @@
 import re
 from model_bakery import baker
+from dataportal.models import Instrumentconfigs
+from cli.util.decimal import get_decimal_from_limits
 from cli.tests.helpers import *
 from cli.tables.instrumentconfigs import Instrumentconfigs as CliInstrumentconfigs
 
@@ -68,12 +70,12 @@ def test_cli_instrumentconfig_update_with_token(client, creator, args, jwt_token
         + '"name":"'
         + args.name
         + '",'
-        + '"bandwidth":'
-        + str(args.bandwidth)
-        + ','
-        + '"frequency":'
-        + str(args.frequency)
-        + ','
+        + '"bandwidth":"'
+        + str(get_decimal_from_limits("bandwidth", args.bandwidth, Instrumentconfigs.limits))
+        + '",'
+        + '"frequency":"'
+        + str(get_decimal_from_limits("frequency", args.frequency, Instrumentconfigs.limits))
+        + '",'
         + '"nchan":'
         + str(args.nchan)
         + ','

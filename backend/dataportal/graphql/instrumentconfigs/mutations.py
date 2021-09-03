@@ -36,6 +36,10 @@ class UpdateInstrumentconfig(graphene.Mutation):
         try:
             instrumentconfig = Instrumentconfigs.objects.get(pk=id)
             for key, val in input.__dict__.items():
+                limits = InstrumentconfigsInput.limits.get(key)
+                if limits is not None:
+                    deci_str = "1.".ljust(limits["deci"] + 2, "0")
+                    val = val.quantize(Decimal(deci_str))
                 setattr(instrumentconfig, key, val)
             instrumentconfig.save()
             return UpdateInstrumentconfig(instrumentconfig=instrumentconfig)

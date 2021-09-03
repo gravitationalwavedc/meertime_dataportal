@@ -56,7 +56,7 @@ def test_cli_pipelineimage_update_with_token(client, creator, args, jwt_token, d
         processing__observation__telescope__name="test",
         processing__observation__target__name="test",
         processing__observation__instrument_config__beam="test",
-        processing__observation__utc_start=datetime.strptime("2020-10-10-10:10:10", "%Y-%m-%d-%H:%M:%S"),
+        processing__observation__utc_start=datetime.strptime("2020-10-10-10:10:10+00:00", "%Y-%m-%d-%H:%M:%S%z"),
     )
 
     # then update the record we just created

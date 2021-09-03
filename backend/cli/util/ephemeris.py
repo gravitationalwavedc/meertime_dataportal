@@ -66,17 +66,10 @@ class Ephemeris:
         self.ephem[key] = {"val": val, "err": err}
 
     def get(self, key):
-        if key in self.ephem.keys():
-            if "err" in self.ephem[key].keys():
-                return (self.ephem[key]["val"], self.ephem[key]["err"])
-            else:
-                return self.ephem[key]["val"]
+        if key in self.ephem:
+            return (self.ephem[key].get("val"), self.ephem[key].get("err"))
         else:
-            return None
+            return (None, None)
 
     def get_val(self, key):
-        tup = self.get(key)
-        val = None
-        if tup is not None:
-            val = tup[0]
-        return val
+        tup = self.get(key)[0]
