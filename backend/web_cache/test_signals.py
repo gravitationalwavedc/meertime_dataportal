@@ -73,7 +73,7 @@ def create_pulsar_with_observations():
         dm=12,
         rm=12,
         valid_from=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
-        valid_to=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
+        valid_to=datetime.strptime("2000-01-03-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
     )
 
     Pulsartargets.objects.create(target=target, pulsar=pulsar)

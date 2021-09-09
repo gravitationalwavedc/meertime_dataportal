@@ -1,7 +1,9 @@
+import hashlib
+import json
 import pytest
 import random
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.db.utils import IntegrityError
 
 from .models import (
@@ -56,7 +58,31 @@ default_entry_config = {
     "proposal": "SCI-MB",
     "proposal_short": "test",
     "telescope": "MK",
-    "ephemeris": "",
+    "ephemeris": {
+        "A1": {"val": "1.65284000000000000000"},
+        "DM": {"val": "71.800000"},
+        "F0": {"val": "273.9479176155999767"},
+        "F1": {"val": "-1.2600000000000000e-14"},
+        "OM": {"val": "0"},
+        "PB": {"val": "1.35405939000000000000"},
+        "T0": {"val": "58858.52917739550000000000"},
+        "CLK": {"val": "UTC(NIST)"},
+        "ECC": {"val": "0"},
+        "RAJ": {"val": "17:40:44.5890000"},
+        "DECJ": {"val": "-53:40:40.900000"},
+        "PSRJ": {"val": "J1740-5340A"},
+        "EPHEM": {"val": "DE421"},
+        "UNITS": {"val": "TDB"},
+        "BINARY": {"val": "BT"},
+        "PEPOCH": {"val": "51917.00000000000000000000"},
+        "TZRFRQ": {"val": "1273.83100000000000000000"},
+        "TZRMJD": {"val": "59074.79479912067542000000"},
+        "SOLARN0": {"val": "10.00000000000000000000"},
+        "TIMEEPH": {"val": "FB90"},
+        "TZRSITE": {"val": "MK"},
+        "T2CMETHOD": {"val": "TEMPO"},
+        "CORRECT_TROPOSPHERE": {"val": "N"},
+    },
     "pipeline_version": "A",
     "tsubint": 8.0,
 }
@@ -64,7 +90,8 @@ default_entry_config = {
 
 def generate_db_entry(psr, utc, config=default_entry_config):
     """
-    Helper method to populate the database with a test entry for a pulsar with name specified by psr and at the time of utc. Optionally, all parameters can be modifed by providing a entry config dictionary.
+    Helper method to populate the database with a test entry for a pulsar with name specified by psr and at the time of
+    utc. Optionally, all parameters can be modified by providing a entry config dictionary.
 
     Return the utc as datetime with timezone set
     """
@@ -95,7 +122,7 @@ def generate_db_entry(psr, utc, config=default_entry_config):
         dm=config["dm"],
         rm=config["rm"],
         valid_from=utc_dt,
-        valid_to=utc_dt,
+        valid_to=utc_dt + timedelta(days=2),
     )
 
     try:
@@ -199,3 +226,19 @@ def test_get_observation_details():
     assert obs.duration == default_entry_config["duration"]
     assert obs.nant == default_entry_config["nant"]
     assert obs.nant_eff == default_entry_config["nant_eff"]
+
+
+@pytest.mark.django_db
+def test_ephemeris_hash():
+
+    ephemeris = default_entry_config['ephemeris']
+    expected = hashlib.md5(json.dumps(ephemeris, sort_keys=True, indent=2).encode("utf-8")).hexdigest()
+
+    utc = "2000-01-01-12:59:12"
+
+    utc_dt = generate_db_entry("J0437-4715", utc)
+    psr = Pulsars.objects.get(jname="J0437-4715")
+
+    ephemerides = Ephemerides.objects.get(pulsar=psr)
+
+    assert ephemerides.ephemeris_hash == expected

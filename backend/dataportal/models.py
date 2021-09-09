@@ -1,6 +1,11 @@
+import hashlib
+import json
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F, OuterRef, Subquery, Max, Min, ExpressionWrapper, Count, Sum
 from django.db.models.constraints import UniqueConstraint
+from django.utils.translation import ugettext_lazy as _
 from django_mysql.models import Model
 from django_mysql.models import JSONField
 from .logic import get_meertime_filters, get_band
@@ -51,6 +56,7 @@ class Ephemerides(models.Model):
     # lookup but according to the docs, this does not guarantee there won't be duplicates without a unique
     # constraint here.
     ephemeris = JSONField()
+    ephemeris_hash = models.CharField(max_length=32, editable=False, null=True)
     p0 = models.DecimalField(max_digits=limits["p0"]["max"], decimal_places=limits["p0"]["deci"])
     dm = models.FloatField()
     rm = models.FloatField()
@@ -58,6 +64,21 @@ class Ephemerides(models.Model):
     valid_from = models.DateTimeField()
     # we should be making sure valid_to is later than valid_from
     valid_to = models.DateTimeField()
+
+    class Meta:
+        unique_together = [['pulsar', 'ephemeris_hash']]
+
+    def clean(self, *args, **kwargs):
+        # checking valid_to is later than valid_from
+        if self.valid_from >= self.valid_to:
+            raise ValidationError(_('valid_to must be later than valid_from'))
+
+    def save(self, *args, **kwargs):
+        Ephemerides.clean(self)
+        self.ephemeris_hash = hashlib.md5(
+            json.dumps(self.ephemeris, sort_keys=True, indent=2).encode("utf-8")
+        ).hexdigest()
+        super(Ephemerides, self).save(*args, **kwargs)
 
 
 class Filterbankings(models.Model):
@@ -259,11 +280,11 @@ class Pulsars(models.Model):
         )
         return folds.order_by("-utc")
         # Get various related model objects required using the saved folding instance as a base.
-        latest_folding_observation = (
-            Foldings.objects.filter(folding_ephemeris__pulsar=pulsar)
-            .order_by("-processing__observation__utc_start")
-            .last()
-        )
+        # latest_folding_observation = (
+        #     Foldings.objects.filter(folding_ephemeris__pulsar=pulsar)
+        #     .order_by("-processing__observation__utc_start")
+        #     .last()
+        # )
 
     # These look like the Fold Mode
     @classmethod
@@ -292,8 +313,10 @@ class Pulsars(models.Model):
         }
 
         pulsar_proposal_filter = get_proposal_filters(prefix="pulsartargets__target__observations")
-        # since ingest is now done in stages, it can happen that an observation won't have the beam set properly so we need to filter empty beams not to trip up the obs_detail url lookup
-        # this can happen if an observation is created, is the latest observation, but no corresponding processing/folding was created yet
+        # since ingest is now done in stages, it can happen that an observation won't have the beam set properly so we
+        # need to filter empty beams not to trip up the obs_detail url lookup
+        # this can happen if an observation is created, is the latest observation, but no corresponding
+        # processing/folding was created yet
         return (
             cls.objects.values("jname", "id")
             .filter(**pulsar_proposal_filter)

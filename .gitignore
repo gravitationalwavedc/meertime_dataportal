@@ -188,3 +188,5 @@ __generated__
 
 # Relay schema
 schema.json
+
+.idea
