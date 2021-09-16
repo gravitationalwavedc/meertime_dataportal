@@ -1,10 +1,8 @@
 import math
-import ntpath
 from datetime import datetime
 from django.db import models
 from dataportal.models import Foldings, Observations, Filterbankings
 from django_mysql.models import JSONField
-from dataportal import storage
 from statistics import mean
 
 BAND_CHOICES = (('L-Band', 'L-Band'), ('S-Band', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown'))
@@ -29,6 +27,7 @@ class BasePulsar(models.Model):
 
     class Meta:
         abstract = True
+        ordering = ["-latest_observation"]
 
     @classmethod
     def get_query(cls, **kwargs):
@@ -244,6 +243,9 @@ class FoldPulsarDetail(models.Model):
     frequency = models.DecimalField(null=True, max_digits=15, decimal_places=9)
     npol = models.IntegerField(null=True)
 
+    class Meta:
+        ordering = ["-utc"]
+
     @property
     def estimated_size(self):
         """Estimated size of the observation data stored on disk in bytes."""
@@ -330,6 +332,9 @@ class SearchmodePulsarDetail(models.Model):
     npol = models.IntegerField()
     dm = models.DecimalField(max_digits=12, decimal_places=2)
     tsamp = models.DecimalField(max_digits=12, decimal_places=2)
+
+    class Meta:
+        ordering = ["-utc"]
 
     @classmethod
     def update_or_create(cls, filter_bankings):

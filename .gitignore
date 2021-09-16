@@ -167,6 +167,9 @@ dmypy.json
 # pytype static type analyzer
 .pytype/
 
+# pyright settings
+pyrightconfig.json
+
 # Cython debug symbols
 cython_debug/
 

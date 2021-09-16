@@ -30,10 +30,9 @@ def get_random_string(length):
 
 @pytest.mark.django_db
 def test_foldings_band():
-    utc_later_str = "2000-01-01-12:59:12"
-    utc_earlier_str = "1999-01-01-12:59:12"
-    _, _ = generate_two_db_entries("J1234-5678", utc_later_str, utc_earlier_str)
-    folding = Foldings.objects.all().first()
+    folding = Foldings(
+        processing=Processings(observation=Observations(instrument_config=Instrumentconfigs(frequency=1421.0)))
+    )
     assert folding.band == "L-band"
 
 
@@ -113,17 +112,56 @@ def generate_db_entry(psr, utc, config=default_entry_config):
 
     utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
 
-    eph = Ephemerides.objects.create(
-        pulsar=psr,
-        created_at=utc_dt,
-        created_by=config["name"],
-        ephemeris=config["ephemeris"],
-        p0=config["p0"],
-        dm=config["dm"],
-        rm=config["rm"],
-        valid_from=utc_dt,
-        valid_to=utc_dt + timedelta(days=2),
-    )
+    try:
+        eph, _ = Ephemerides.objects.get_or_create(
+            pulsar=psr,
+            created_at=utc_dt,
+            created_by=config["name"],
+            ephemeris=config["ephemeris"],
+            p0=config["p0"],
+            dm=config["dm"],
+            rm=config["rm"],
+            valid_from=utc_dt,
+            valid_to=utc_dt + timedelta(days=2),
+        )
+        print("First one is fine")
+    except IntegrityError:
+        eph = Ephemerides.objects.create(
+            pulsar=psr,
+            created_at=utc_dt,
+            created_by=config["name"],
+            ephemeris={
+                "A1": {"val": "1.2"},
+                "DM": {"val": "2"},
+                "F0": {"val": "273.9479176155999767"},
+                "F1": {"val": "-1.2600000000000000e-14"},
+                "OM": {"val": "0"},
+                "PB": {"val": "1.35405939000000000000"},
+                "T0": {"val": "58858.52917739550000000000"},
+                "CLK": {"val": "UTC(NIST)"},
+                "ECC": {"val": "0"},
+                "RAJ": {"val": "17:40:44.5890000"},
+                "DECJ": {"val": "-53:40:40.900000"},
+                "PSRJ": {"val": "J1740-5340A"},
+                "EPHEM": {"val": "DE421"},
+                "UNITS": {"val": "TDB"},
+                "BINARY": {"val": "BT"},
+                "PEPOCH": {"val": "51917.00000000000000000000"},
+                "TZRFRQ": {"val": "1273.83100000000000000000"},
+                "TZRMJD": {"val": "59074.79479912067542000000"},
+                "SOLARN0": {"val": "10.00000000000000000000"},
+                "TIMEEPH": {"val": "FB90"},
+                "TZRSITE": {"val": "MK"},
+                "T2CMETHOD": {"val": "TEMPO"},
+                "CORRECT_TROPOSPHERE": {"val": "N"},
+            },
+            p0=1,
+            dm=2,
+            rm=3,
+            valid_from=utc_dt,
+            valid_to=utc_dt + timedelta(days=2),
+        )
+        print("Second one created")
 
     try:
         pipeline, _ = Pipelines.objects.get_or_create(

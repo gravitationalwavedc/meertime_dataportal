@@ -35,6 +35,12 @@ def remove_duplicate_hash_for_pulsars(apps, schema_editor):
                 folding.save()
             except Foldings.DoesNotExist:
                 pass
+            except Foldings.MultipleObjectsReturned:
+                foldings = Foldings.objects.filter(folding_ephemeris=eph)
+                [folding.delete() for folding in foldings if folding.id != foldings.last().id] 
+                foldings = Foldings.objects.get(folding_ephemeris=eph)
+                foldings.folding_ephemeris = min_eph
+                foldings.save()
 
             # replace ref to the ephimeris to the one which will not be deleted
             try:
