@@ -31,36 +31,42 @@ describe('observationTimeView component', () => {
     it('should render the page with images', () => {
         expect.hasAssertions();
         const data = {
-            'relayObservationModel': {
-                'jname': 'J1715-3903',
-                'beam': 4,
-                'utc': '2020-09-29 17:13:32+00:00',
-                'proposal': 'SCI-20180516-MB-02',
-                'frequency': 1283.58203125,
-                'bw': 856,
-                'ra': null,
-                'dec': null,
-                'length': 299.466701,
-                'snrSpip': 38.669903,
-                'nbin': 1024,
-                'nchan': 1024,
-                'tsubint': null,
-                'nant': 58,
-                'profile': '',
-                'phaseVsTime': 'phasevstime.mock.png',
-                'phaseVsFrequency': 'phasevsfrequency.mock.png',
-                'bandpass': '',
-                'snrVsTime': '',
-                'schedule': null,
-                'phaseup': null
+            foldObservationDetails: {
+                edges: [
+                    {
+                        node: {
+                            beam: 1,
+                            utc: '2020-02-04T00:21:21+00:00',
+                            proposal: 'SCI-20180516-MB-02',
+                            frequency: 1283.582031,
+                            bw: 775.75,
+                            ra: '14:24:12.76',
+                            dec: '-55:56:13.9',
+                            length: 13.4,
+                            nbin: 1024,
+                            nchan: 928,
+                            tsubint: 8,
+                            nant: 53,
+                            profile: null,
+                            phaseVsTime: 'phaseVsTime.mock.png',
+                            phaseVsFrequency: 'phaseVsFrequency.mock.png',
+                            bandpass: null,
+                            snrVsTime: '',
+                            schedule: '12',
+                            phaseup: '12',
+                            id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY='
+                        }
+                    }
+                ]
             }
         };
+
         const { getByAltText } = render(<ObservationTimeView data={data} />);
         expect(getByAltText('profile')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('phaseVsTime')).toHaveAttribute('src', expect.stringContaining('phasevstime.mock.png'));
+        expect(getByAltText('phaseVsTime')).toHaveAttribute('src', expect.stringContaining('phaseVsTime.mock.png'));
         expect(
             getByAltText('phaseVsFrequency'))
-            .toHaveAttribute('src', expect.stringContaining('phasevsfrequency.mock.png')
+            .toHaveAttribute('src', expect.stringContaining('phaseVsFrequency.mock.png')
             );
         expect(getByAltText('bandpass')).toHaveAttribute('src', expect.stringContaining('image404.png'));
         expect(getByAltText('snrVsTime')).toHaveAttribute('src', expect.stringContaining('image404.png'));
@@ -69,28 +75,33 @@ describe('observationTimeView component', () => {
     it('should render the page with no images available', () => {
         expect.hasAssertions();
         const data = {
-            'relayObservationModel': {
-                'jname': 'J1715-3903',
-                'beam': 4,
-                'utc': '2020-09-29 17:13:32+00:00',
-                'proposal': 'SCI-20180516-MB-02',
-                'frequency': 1283.58203125,
-                'bw': 856,
-                'ra': null,
-                'dec': null,
-                'length': 299.466701,
-                'snrSpip': 38.669903,
-                'nbin': 1024,
-                'nchan': 1024,
-                'tsubint': null,
-                'nant': 58,
-                'profile': '',
-                'phaseVsTime': '',
-                'phaseVsFrequency': '',
-                'bandpass': '',
-                'snrVsTime': '',
-                'schedule': null,
-                'phaseup': null
+            foldObservationDetails: {
+                edges: [
+                    {
+                        node: {
+                            beam: 1,
+                            utc: '2020-02-04T00:21:21+00:00',
+                            proposal: 'SCI-20180516-MB-02',
+                            frequency: 1283.582031,
+                            bw: 775.75,
+                            ra: '14:24:12.76',
+                            dec: '-55:56:13.9',
+                            length: 13.4,
+                            nbin: 1024,
+                            nchan: 928,
+                            tsubint: 8,
+                            nant: 53,
+                            profile: null,
+                            phaseVsTime: '',
+                            phaseVsFrequency: '',
+                            bandpass: null,
+                            snrVsTime: '',
+                            schedule: '12',
+                            phaseup: '12',
+                            id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY='
+                        }
+                    }
+                ]
             }
         };
         const { getByAltText } = render(<ObservationTimeView data={data} />);

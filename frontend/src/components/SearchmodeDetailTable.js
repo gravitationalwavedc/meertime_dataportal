@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import { columnsSizeFilter, kronosLink } from '../helpers';
 
 import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
 import DataView from './DataView';
-import Ephemeris from './Ephemeris';
-import Row from 'react-bootstrap/Row';
 import SearchmodeDetailCard from './SearchmodeDetailCard';
 import { formatUTC } from '../helpers';
 import { useScreenSize } from '../context/screenSize-context';
@@ -28,7 +25,6 @@ const SearchmodeDetailTable = ({ data, jname }) => {
         []);
 
     const [rows, setRows] = useState(allRows);
-    const [ephemerisVisable, setEphemerisVisable] = useState(false);
 
     const columns = [
         { dataField: 'key', text: '', sort: false, hidden: true, toggle: false },
@@ -78,29 +74,11 @@ const SearchmodeDetailTable = ({ data, jname }) => {
     ];
 
     return <div className="search-detail">
-        <Row>
-            <Col className="emphemeris-col">
-                <Button 
-                    size="sm"
-                    variant="outline-secondary" 
-                    className="mr-2"
-                    disabled={data.searchmodeObservationDetails.ephemeris ? false : true}
-                    onClick={() => setEphemerisVisable(true)}>
-                    { data.searchmodeObservationDetails.ephemeris ? 
-                        'View folding ephemeris' : 'Folding ephemeris unavailable'}
-                </Button>
-            </Col>
-        </Row>
-        {data.searchmodeObservationDetails.ephemeris && <Ephemeris 
-            ephemeris={data.searchmodeObservationDetails.ephemeris} 
-            updated={data.searchmodeObservationDetails.ephemerisUpdatedAt}
-            show={ephemerisVisable} 
-            setShow={setEphemerisVisable} />}
         <DataView 
             summaryData={summaryData}
             columns={columnsSizeFiltered}
             rows={rows}
-            setProposal={handleProjectFilter}
+            setProject={handleProjectFilter}
             keyField='key'
             card={SearchmodeDetailCard}
         />

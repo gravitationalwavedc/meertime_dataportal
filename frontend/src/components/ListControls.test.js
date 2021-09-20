@@ -7,10 +7,10 @@ describe('list controls component', () => {
 
     it('should handle changes to proposals', () => {
         expect.hasAssertions();
-        const handleProposalFilter = jest.fn();
+        const handleProjectFilter = jest.fn();
         const { getByLabelText } = render(
             <ListControls
-                handleProposalFilter={handleProposalFilter}
+                handleProjectFilter={handleProjectFilter}
                 handleBandFilter={jest.fn()}
                 searchProps={{ onSearch: jest.fn() }}
                 columnToggleProps={{ columns: [] }}
@@ -18,7 +18,7 @@ describe('list controls component', () => {
             />
         );
         fireEvent.change(getByLabelText('Project'), { target: { value: 'TPA' } });
-        expect(handleProposalFilter).toHaveBeenCalledWith('TPA');
+        expect(handleProjectFilter).toHaveBeenCalledWith('TPA');
     });
 
     it('should handle changes to band', () => {
@@ -26,7 +26,7 @@ describe('list controls component', () => {
         const handleBandFilter = jest.fn();
         const { getByLabelText } = render(
             <ListControls
-                handleProposalFilter={jest.fn()}
+                handleProjectFilter={jest.fn()}
                 handleBandFilter={handleBandFilter}
                 searchProps={{ onSearch: jest.fn() }}
                 columnToggleProps={{ columns: [] }}

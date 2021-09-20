@@ -22,8 +22,6 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
         row.projectKey = mainProject;
         row.latestObservation = formatUTC(row.latestObservation);
         row.firstObservation = formatUTC(row.firstObservation);
-        row.totalIntegrationHours = `${row.totalIntegrationHours} [h]`;
-        row.lastIntegrationMinutes= `${row.lastIntegrationMinutes} [m]`;
         row.action = <ButtonGroup vertical>
             <Link 
                 to={`${process.env.REACT_APP_BASE_URL}/fold/${mainProject}/${row.jname}/`} 
@@ -49,19 +47,19 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
         { dataField: 'latestObservation', text: 'Last', sort: true },
         { dataField: 'firstObservation', text: 'First', sort: true, screenSizes: ['xxl'] },
         { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true, 
-            screenSizes: ['md', 'lg', 'xl', 'xxl'] },
+            screenSizes: ['md', 'lg', 'xl', 'xxl'], formatter: cell => `${cell} [m]` },
         { dataField: 'numberOfObservations', text: 'Observations', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
-        { dataField: 'totalIntegrationHours', text: 'Total int [h]', align: 'right', headerAlign: 'right', 
-            sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'totalIntegrationHours', text: 'Total int', align: 'right', headerAlign: 'right', 
+            sort: true, screenSizes: ['lg', 'xl', 'xxl'], formatter: cell => `${cell} [h]` },
         { dataField: 'avgSnPipe', formatter: nullCellFormatter, text: 'Avg S/N pipe (5 mins)', align: 'right', 
             headerAlign: 'right', sort: true, hidden: true },
         { dataField: 'maxSnPipe', formatter: nullCellFormatter, text: 'Max S/N pipe (5 mins)', align: 'right', 
             headerAlign: 'right', sort: true, hidden: true },
         { dataField: 'lastSnRaw', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
-        { dataField: 'lastIntegrationMinutes', text: 'Last int. [m]', align: 'right', headerAlign: 'right', 
-            sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
+        { dataField: 'lastIntegrationMinutes', text: 'Last int.', align: 'right', headerAlign: 'right', 
+            sort: true, screenSizes: ['lg', 'xl', 'xxl'], formatter: cell => `${cell} [m]` },
         { dataField: 'action', text: '', align: 'right', headerAlign: 'right', 
             sort: false }
     ];

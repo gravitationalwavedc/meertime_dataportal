@@ -344,7 +344,7 @@ class SearchmodePulsarDetail(models.Model):
             searchmode_pulsar=searchmode_pulsar,
             utc=filter_bankings.processing.observation.utc_start,
             defaults={
-                "project": observation.project,
+                "project": observation.project.short,
                 "ra": observation.target.raj,
                 "dec": observation.target.decj,
                 "length": observation.duration / 60,

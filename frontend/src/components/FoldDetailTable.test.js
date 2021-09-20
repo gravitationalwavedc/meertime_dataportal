@@ -3,7 +3,7 @@ import { fireEvent, render, waitFor } from '@testing-library/react';
 import FoldDetailTable from './FoldDetailTable';
 import React from 'react';
 
-/* eslint-disable react/display-name */
+/* eslint-disable react/display-name,  max-len */
 jest.mock('found/Link',() => ({ children }) => <div>{children}</div>);
 
 jest.mock('found', () => ({
@@ -26,114 +26,173 @@ jest.mock('found', () => ({
 }));
 
 describe('the fold table component', () => {
-    const data = { 
-        relayObservationDetails: { 
-            jname:'J0255-5304',
-            totalObservations:5,
-            totalObservationHours:0.3,
-            totalProjects:1,
-            totalEstimatedDiskSpace:'900.2\u00a0MB',
-            totalTimespanDays:291,
-            ephemeris: '{"PSRJ":["J1909-3744"],"RAJ":["19:09:47.4346749","1.095e-6"],"DECJ":["-37:44:14.46674","4.538e-5"],"F0":["339.31568728824460432","2.647e-13"],"DM":["10.389056","1.046e-4"],"F1":["-1.6148169107285210e-15","5.198e-21"],"PEPOCH":["54500"],"POSEPOCH":["54500"],"DMEPOCH":["58998.25449720000324305147"],"DM1":["-2.972632617752220e-4","6.024e-6"],"PMRA":["-9.5165787955766117e+0","4.808e-3"],"PMDEC":["-3.5797294377431698e+1","1.688e-2"],"PX":["0.80987819271039196509","2.786e-2"],"SINI":["KIN"],"BINARY":["T2"],"PB":["1.5334494744065780190","1.282e-11"],"T0":["53631.3878301270990220","3.315e-2"],"A1":["1.89799117755602654630","3.137e-8"],"OM":["156.028279496019787910","7.7817"],"ECC":["1.1466363595259235e-7","9.556e-9"],"PBDOT":["5.0346071923954097e-13","5.254e-15"],"M2":["0.20668310617996794669","1.905e-3"],"KOM":["38.5719901001811527330","9.6955"],"KIN":["93.5224409525142085090","8.386e-2"],"EPHVER":["5"],"CLK":["TT(BIPM2013)"],"UNITS":["TCB"],"TIMEEPH":["IF99"],"T2CMETHOD":["IAU2000B"],"CORRECT_TROPOSPHERE":["N"],"EPHEM":["DE421"]}',
-            ephemerisUpdatedAt: '2020-05-29T06:33:45+00:00',
-            edges:[ 
-                { 
-                    node:{ 
-                        id:'Rm9sZE9ic2VydmF0aW9uRGV0YWlsTm9kZTo4MDE3',
-                        utc:'2020-08-03-23:36:45',
-                        proposalShort:'TPA',
-                        length:1.5,
-                        beam:2,
-                        bw:544.0,
-                        nchan:1024,
-                        band:'UHF',
-                        nbin:1024,
-                        nant:28,
-                        nantEff:28,
-                        dmFold:15.9,
-                        dmPipe:null,
-                        rmPipe:null,
-                        snrPipe:null,
-                        snrSpip:355.2
-                    } 
+    const data = {
+        foldObservationDetails: {
+            totalObservations: 4,
+            totalObservationHours: 0,
+            totalProjects: 1,
+            totalEstimatedDiskSpace: '26.5 MB',
+            totalTimespanDays: 53,
+            maxPlotLength: 360,
+            minPlotLength: 0,
+            edges: [
+                {
+                    node: {
+                        id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY=',
+                        utc: '2020-02-04T00:21:21+00:00',
+                        project: 'Relbin',
+                        ephemeris: '{"DM": {"err": "2.0000", "val": "198.7"}, "F0": {"err": "3.000e-11", "val": "1.29806938188"}, "F1": {"err": "4.000e-18", "val": "-1.3150000000000000e-15"}, "RAJ": {"err": "3.000e-2", "val": "14:24:12.76"}, "DECJ": {"err": "0.3000", "val": "-55:56:13.9"}, "PSRJ": {"val": "J1424-5556"}, "UNITS": {"val": "TDB"}, "EPHVER": {"val": "5"}, "PEPOCH": {"val": "52260.00000000000000000000"}, "T2CMETHOD": {"val": "TEMPO"}, "CORRECT_TROPOSPHERE": {"val": "N"}}',
+                        ephemerisIsUpdatedAt: '2020-12-15T11:19:22+00:00',
+                        length: 13.4,
+                        beam: 1,
+                        bw: 775.75,
+                        nchan: 928,
+                        band: 'UHF',
+                        nbin: 1024,
+                        nant: 53,
+                        nantEff: 53,
+                        dmFold: -1,
+                        dmMeerpipe: null,
+                        rmMeerpipe: null,
+                        snBackend: 134.5,
+                        snMeerpipe: null
+                    }
                 },
-                { 
-                    node:{ 
-                        id:'Rm9sZE9ic2VydmF0aW9uRGV0YWlsTm9kZTo3MTU0',
-                        utc:'2020-07-04-01:10:51',
-                        proposalShort:'Relbin',
-                        length:1.5,
-                        beam:2,
-                        bw:856.0, 
-                        nchan:1024,
-                        band:'L-band',
-                        nbin:1024,
-                        nant:28,
-                        nantEff:28,
-                        dmFold:15.9,
-                        dmPipe:null,
-                        rmPipe:null,
-                        snrPipe:null,
-                        snrSpip:1923.9 
-                    } 
+                {
+                    node: {
+                        id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6MTA0MjQ2',
+                        utc: '2020-01-08T10:38:34+00:00',
+                        project: 'Relbin',
+                        ephemeris: '{"DM": {"err": "2.0000", "val": "198.7"}, "F0": {"err": "3.000e-11", "val": "1.29806938188"}, "F1": {"err": "4.000e-18", "val": "-1.3150000000000000e-15"}, "RAJ": {"err": "3.000e-2", "val": "14:24:12.76"}, "DECJ": {"err": "0.3000", "val": "-55:56:13.9"}, "PSRJ": {"val": "J1424-5556"}, "UNITS": {"val": "TDB"}, "EPHVER": {"val": "5"}, "PEPOCH": {"val": "52260.00000000000000000000"}, "T2CMETHOD": {"val": "TEMPO"}, "CORRECT_TROPOSPHERE": {"val": "N"}}',
+                        ephemerisIsUpdatedAt: '2021-05-24T13:44:39+00:00',
+                        length: 13.4,
+                        beam: 1,
+                        bw: 775.75,
+                        nchan: 928,
+                        band: 'UHF',
+                        nbin: 1024,
+                        nant: 53,
+                        nantEff: 53,
+                        dmFold: -1,
+                        dmMeerpipe: null,
+                        rmMeerpipe: null,
+                        snBackend: 66.6,
+                        snMeerpipe: null
+                    }
+                },
+                {
+                    node: {
+                        id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6MTA0MjQ3',
+                        utc: '2020-02-14T03:21:11+00:00',
+                        project: 'TPA',
+                        ephemeris: '{"DM": {"err": "2.0000", "val": "198.7"}, "F0": {"err": "3.000e-11", "val": "1.29806938188"}, "F1": {"err": "4.000e-18", "val": "-1.3150000000000000e-15"}, "RAJ": {"err": "3.000e-2", "val": "14:24:12.76"}, "DECJ": {"err": "0.3000", "val": "-55:56:13.9"}, "PSRJ": {"val": "J1424-5556"}, "UNITS": {"val": "TDB"}, "EPHVER": {"val": "5"}, "PEPOCH": {"val": "52260.00000000000000000000"}, "T2CMETHOD": {"val": "TEMPO"}, "CORRECT_TROPOSPHERE": {"val": "N"}}',
+                        ephemerisIsUpdatedAt: '2021-05-24T13:44:39+00:00',
+                        length: 13.3,
+                        beam: 1,
+                        bw: 856,
+                        nchan: 1024,
+                        band: 'L-Band',
+                        nbin: 1024,
+                        nant: 60,
+                        nantEff: 62,
+                        dmFold: -1,
+                        dmMeerpipe: null,
+                        rmMeerpipe: null,
+                        snBackend: 83.3,
+                        snMeerpipe: null
+                    }
+                },
+                {
+                    node: {
+                        id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6MTA0MjQ4',
+                        utc: '2020-03-01T04:51:19+00:00',
+                        project: 'TPA',
+                        ephemeris: '{"DM": {"err": "2.0000", "val": "198.7"}, "F0": {"err": "3.000e-11", "val": "1.29806938188"}, "F1": {"err": "4.000e-18", "val": "-1.3150000000000000e-15"}, "RAJ": {"err": "3.000e-2", "val": "14:24:12.76"}, "DECJ": {"err": "0.3000", "val": "-55:56:13.9"}, "PSRJ": {"val": "J1424-5556"}, "UNITS": {"val": "TDB"}, "EPHVER": {"val": "5"}, "PEPOCH": {"val": "52260.00000000000000000000"}, "T2CMETHOD": {"val": "TEMPO"}, "CORRECT_TROPOSPHERE": {"val": "N"}}',
+                        ephemerisIsUpdatedAt: '2021-05-24T13:44:39+00:00',
+                        length: 5.3,
+                        beam: 2,
+                        bw: 856,
+                        nchan: 1024,
+                        band: 'L-Band',
+                        nbin: 1024,
+                        nant: 29,
+                        nantEff: 29,
+                        dmFold: -1,
+                        dmMeerpipe: null,
+                        rmMeerpipe: null,
+                        snBackend: 38.4,
+                        snMeerpipe: null
+                    }
                 }
-            ] 
+            ]
         }
     }; 
         
+    const dataNoEphemeris = { 
+        'foldObservationDetails': {
+            'totalObservations': 4,
+            'totalObservationHours': 0,
+            'totalProjects': 1,
+            'totalEstimatedDiskSpace': '26.5 MB',
+            'totalTimespanDays': 53,
+            'maxPlotLength': 360,
+            'minPlotLength': 0,
+            'edges': [
+                {
+                    'node': {
+                        'id': 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY=',
+                        'utc': '2020-02-04T00:21:21+00:00',
+                        'project': 'TPA',
+                        'ephemeris': null,
+                        'ephemerisIsUpdatedAt': '2020-12-15T11:19:22+00:00',
+                        'length': 13.4,
+                        'beam': 1,
+                        'bw': 775.75,
+                        'nchan': 928,
+                        'band': 'L-Band',
+                        'nbin': 1024,
+                        'nant': 53,
+                        'nantEff': 53,
+                        'dmFold': -1,
+                        'dmMeerpipe': null,
+                        'rmMeerpipe': null,
+                        'snBackend': 134.5,
+                        'snMeerpipe': null
+                    }
+                },
+            ]
+        }
+    }; 
+
     it('should render data onto the table', () => {
         expect.hasAssertions();
         const { getByText, getAllByText } = render(<FoldDetailTable data={data} />);
         expect(getByText('Observations')).toBeInTheDocument();
         expect(getByText('Drag to zoom. Click empty area to reset. Double click to view utc.')).toBeInTheDocument();
-        expect(getAllByText('2')).toHaveLength(2);
+        expect(getAllByText('2')).toHaveLength(1);
     });
 
-    it('should update the table when the project filter is changed', async () => {
-        expect.hasAssertions();
-        const { getAllByText, getByLabelText } = render(<FoldDetailTable data={data} />);
-        expect(getAllByText('Relbin')).toHaveLength(2);
-        expect(getAllByText('TPA')).toHaveLength(2);
-        fireEvent.change(getByLabelText('Project'), { target: { value: 'TPA' } });
-        await waitFor(() => {
-            // There should only be 1 left as an option in the dropdown.
-            expect(getAllByText('Relbin')).toHaveLength(1);
-            expect(getAllByText('TPA')).toHaveLength(2);
-        });
-        fireEvent.change(getByLabelText('Project'), { target: { value: 'All' } });
-        await waitFor(() => {
-            // There should only be 1 left as an option in the dropdown.
-            expect(getAllByText('Relbin')).toHaveLength(2);
-            expect(getAllByText('TPA')).toHaveLength(2);
-        });
-    });
-    
     it('should update the table when the band filter is changed', async () => {
         expect.hasAssertions();
-        const { getAllByText, getByLabelText } = render(<FoldDetailTable data={data}/>);
+        const { queryByText, getAllByText, getByLabelText } = render(<FoldDetailTable data={data} jname='J123-123'/>);
         const bandFilter = getByLabelText('Band'); 
-        expect(getAllByText('UHF')).toHaveLength(2);
-        expect(getAllByText('L-band')).toHaveLength(2);
+        expect(getAllByText('UHF')).toHaveLength(3);
+        expect(getAllByText('L-Band')).toHaveLength(2);
+
         fireEvent.change(bandFilter, { target: { value: 'UHF' } });
-        await waitFor(() => {
-            // There should only be 1 left as an option in the dropdown.
-            expect(getAllByText('L-band')).toHaveLength(1);
-            expect(getAllByText('UHF')).toHaveLength(2);
-        });
+        expect(queryByText('L-Band')).not.toBeInTheDocument();
 
         fireEvent.change(bandFilter, { target: { value: 'All' } });
         await waitFor(() => {
             // There should only be 1 left as an option in the dropdown.
-            expect(getAllByText('L-band')).toHaveLength(2);
-            expect(getAllByText('UHF')).toHaveLength(2);
+            expect(getAllByText('L-Band')).toHaveLength(2);
+            expect(getAllByText('UHF')).toHaveLength(3);
         });
     });
 
     it('should disable the view ephemeris button if the data is missing', () => {
         expect.hasAssertions();
-        const modifiedData = { relayObservationDetails: { ...data.relayObservationDetails } };
-        modifiedData.relayObservationDetails.ephemeris = null;
-        const { getByText } = render(<FoldDetailTable data={modifiedData}/>);
+        const { getByText } = render(<FoldDetailTable data={dataNoEphemeris}/>);
         expect(getByText('Folding ephemeris unavailable')).toBeDisabled();
     });
 

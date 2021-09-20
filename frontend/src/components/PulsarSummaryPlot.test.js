@@ -27,29 +27,32 @@ describe('pulsar Summary Plot component', () => {
 
     it('should render a circle for each data point', () => {
         expect.hasAssertions();
+
         const data = [{
-            action: {},
-            band: 'L-band',
-            beam: 4,
-            bw: 856,
-            dmFold: 314,
-            dmPipe: null,
-            id: 'T2JzZXJ2YXRpb25EZXRhaWxOb2RlOjE4MDgz',
-            key: '2020-09-29-17:13:32:4',
-            length: 5,
-            nant: 58,
-            nantEff: 58,
+            id: '1',
+            utc: '2020-02-04-00:21:21',
+            project: 'Relbin',
+            length: 13.4,
+            beam: 1,
+            bw: 775.75,
+            nchan: 928,
+            band: 'UHF',
             nbin: 1024,
-            nchan: 1024,
-            proposalShort: 'TPA',
-            rmPipe: null,
-            snrPipe: null,
-            snrSpip: 38.7,
-            utc: '2020-09-29-17:13:32'
+            nant: 53,
+            nantEff: 53,
+            dmFold: -1,
+            dmMeerpipe: null,
+            rmMeerpipe: null,
+            snBackend: 134.5,
+            snMeerpipe: null,
+            key: '2020-02-04T00:21:21+00:00:1',
+            jname: undefined,
+            plotLink: '/undefined/2020-02-04-00:21:21/1/'
         }];
+
         const { container } = render(
             <PulsarSummaryPlot search={{ searchText: '' }} data={data} columns={{}} />
         ); 
-        expect(container.querySelector('circle')).not.toBeNull();
+        expect(container.querySelector('rect')).not.toBeNull();
     }); 
 });
