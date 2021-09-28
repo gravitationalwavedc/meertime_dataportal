@@ -56,32 +56,37 @@ class Basebandings(GraphQLTable):
 
         self.field_names = ["id", "processing { id }"]
 
-    def list_graphql(self, id, processing_id):
+    def list(self, id=None, processing_id=None):
+        """ Return a list of records matching the id and/or the processing id. """
         filters = [
             {"field": "processing", "value": processing_id, "join": "Processings"},
         ]
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)
 
-    def process(self, parser_args):
+    def create(self, processing):
+        """ Create a record using the processing id. """
+        self.create_variables = {"processing_id": processing}
+        return self.create_graphql()
+
+    def update(self, id, processing):
+        """ Update a record matching the id with the processing id. """
+        self.update_variables = {"id": id, "processing_id": processing}
+        return self.update_graphql()
+
+    def process(self, args):
         """Parse the arguments collected by the CLI."""
-        if parser_args.subcommand == "create":
-            self.create_variables = {
-                "processing_id": parser_args.processing,
-            }
-            return self.create_graphql()
-        elif parser_args.subcommand == "update":
-            self.update_variables = {
-                "id": parser_args.id,
-                "processing_id": parser_args.processing,
-            }
-            return self.update_graphql()
-        elif parser_args.subcommand == "list":
-            return self.list_graphql(parser_args.id, parser_args.processing)
-        elif parser_args.subcommand == "delete":
-            return self.delete(parser_args.id)
+        self.print_stdout = True
+        if args.subcommand == "create":
+            return self.create(args.processing)
+        elif args.subcommand == "update":
+            return self.update(args.id, args.processing)
+        elif args.subcommand == "list":
+            return self.list(args.id, args.processing)
+        elif args.subcommand == "delete":
+            return self.delete(args.id)
         else:
-            raise RuntimeError(parser_args.subcommand + " command is not implemented")
+            raise RuntimeError(args.subcommand + " command is not implemented")
 
     @classmethod
     def get_name(cls):
@@ -141,5 +146,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Basebandings(client, args.url, args.token)
-    t.process(args)
+    b = Basebandings(client, args.url, args.token)
+    b.process(args)

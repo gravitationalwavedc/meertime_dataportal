@@ -45,7 +45,8 @@ class Collections(GraphQLTable):
 
         self.field_names = ["id", "name", "description"]
 
-    def list_graphql(self, id, name):
+    def list(self, id=None, name=None):
+        """ Return a list of records matching the id and/or the name. """
         filters = [
             {"field": "name", "value": name, "join": None},
         ]
@@ -66,12 +67,13 @@ class Collections(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.name, args.description)
         elif args.subcommand == "update":
             return self.update(args.id, args.name, args.description)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.name)
+            return self.list(args.id, args.name)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -130,5 +132,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Collections(client, args.url, args.token)
-    t.process(args)
+    c = Collections(client, args.url, args.token)
+    c.process(args)

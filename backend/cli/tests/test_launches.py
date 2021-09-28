@@ -77,7 +77,5 @@ def test_cli_launch_update_with_token(client, creator, args, jwt_token):
         + t.encode_table_id("Pulsars", args.pulsar_id)
         + '"}}}}}'
     )
-    print(response.content)
-    print(expected_content.encode('utf-8'))
 
     assert response.content == expected_content.encode('utf-8')

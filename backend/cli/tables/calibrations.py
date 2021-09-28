@@ -46,7 +46,8 @@ class Calibrations(GraphQLTable):
 
         self.field_names = ["id", "calibrationType", "location"]
 
-    def list_graphql(self, id, type):
+    def list(self, id=None, type=None):
+        """ Return a list of records matching the id and/or the type. """
         filters = [
             {"field": "type", "value": type, "join": None},
         ]
@@ -61,11 +62,9 @@ class Calibrations(GraphQLTable):
         self.update_variables = {"id": id, "calibration_type": type, "location": location}
         return self.update_graphql()
 
-    def list(self, id, type):
-        return self.list_graphql(id, type)
-
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.type, args.location)
         elif args.subcommand == "list":
@@ -134,5 +133,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Calibrations(client, args.url, args.token)
-    t.process(args)
+    c = Calibrations(client, args.url, args.token)
+    c.process(args)

@@ -48,7 +48,8 @@ class Targets(GraphQLTable):
 
         self.field_names = ["id", "name", "raj", "decj"]
 
-    def list_graphql(self, id, name):
+    def list(self, id=None, name=None):
+        """ Return a list of records matching the id and/or the name. """
         filters = [
             {"field": "name", "value": name, "join": None},
         ]
@@ -59,15 +60,19 @@ class Targets(GraphQLTable):
         self.create_variables = {"name": name, "raj": raj, "decj": decj}
         return self.create_graphql()
 
+    def update(self, id, name, raj, decj):
+        self.update_variables = {"id": id, "name": name, "raj": raj, "decj": decj}
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.name, args.raj, args.decj)
         elif args.subcommand == "update":
-            self.update_variables = {"id": args.id, "name": args.name, "raj": args.raj, "decj": args.decj}
-            return self.update_graphql()
+            return self.update(args.id, args.name, args.raj, args.decj)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.name)
+            return self.list(args.id, args.name)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:

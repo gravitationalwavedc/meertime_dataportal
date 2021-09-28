@@ -38,8 +38,6 @@ def test_cli_pipelinefile_create_with_token(client, creator, args, jwt_token):
     args.file = __file__
     args.file_type = "test"
 
-    print(args.file)
-
     t = CliPipelinefiles(client, "/graphql/", jwt_token)
     response = t.process(args)
 

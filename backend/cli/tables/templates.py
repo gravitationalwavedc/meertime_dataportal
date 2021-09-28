@@ -90,7 +90,8 @@ class Templates(GraphQLTable):
             "comment",
         ]
 
-    def list_graphql(self, id, pulsar_id, frequency, bandwidth):
+    def list(self, id=None, pulsar_id=None, frequency=None, bandwidth=None):
+        """ Return a list of records matching the id and/or the pulsar id, frequency, bandwidth. """
         filters = [
             {"field": "pulsar_Id", "value": pulsar_id, "join": "Pulsars"},
             {"field": "frequency", "value": frequency, "join": None},
@@ -130,6 +131,7 @@ class Templates(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(
                 args.pulsar,
@@ -156,7 +158,7 @@ class Templates(GraphQLTable):
                 args.comment,
             )
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.pulsar, args.frequency, args.bandwidth)
+            return self.list(args.id, args.pulsar, args.frequency, args.bandwidth)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:

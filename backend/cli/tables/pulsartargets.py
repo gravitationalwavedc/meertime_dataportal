@@ -46,7 +46,8 @@ class Pulsartargets(GraphQLTable):
         self.literal_field_names = ["id", "pulsar {id}", "target {id}"]
         self.field_names = ["id", "pulsar {jname}", "target {name}"]
 
-    def list_graphql(self, id, target_id, target_name, pulsar_id, pulsar_jname):
+    def list(self, id=None, target_id=None, target_name=None, pulsar_id=None, pulsar_jname=None):
+        """ Return a list of records matching the id and/or the provided arguments. """
         filters = [
             {"field": "target_Id", "value": target_id, "join": "Targets"},
             {"field": "target_Name", "value": target_name, "join": "Targets"},
@@ -60,15 +61,19 @@ class Pulsartargets(GraphQLTable):
         self.create_variables = {"pulsar": pulsar, "target": target}
         return self.create_graphql()
 
+    def update(self, id, pulsar, target):
+        self.update_variables = {"id": id, "pulsar": pulsar, "target": target}
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.pulsar, args.target)
         elif args.subcommand == "update":
-            self.update_variables = {"id": args.id, "pulsar": args.pulsar, "target": args.target}
-            return self.update_graphql()
+            return self.update(args.id, args.pulsar, args.target)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.target, args.target_name, args.pulsar, args.pulsar_jname)
+            return self.list(args.id, args.target, args.target_name, args.pulsar, args.pulsar_jname)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -138,5 +143,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Pulsartargets(client, args.url, args.token)
-    t.process(args)
+    pt = Pulsartargets(client, args.url, args.token)
+    pt.process(args)

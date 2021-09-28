@@ -103,20 +103,21 @@ class Observations(GraphQLTable):
             "comment",
         ]
 
-    def list_graphql(
+    def list(
         self,
-        id,
-        target_id,
-        target_name,
-        telescope_id,
-        telescope_name,
-        project_id,
-        project_code,
-        instrumentconfig_id,
-        instrumentconfig_name,
-        utcstart_gte,
-        utcstart_lte,
+        id=None,
+        target_id=None,
+        target_name=None,
+        telescope_id=None,
+        telescope_name=None,
+        project_id=None,
+        project_code=None,
+        instrumentconfig_id=None,
+        instrumentconfig_name=None,
+        utcstart_gte=None,
+        utcstart_lte=None,
     ):
+        """ Return a list of records matching the id and/or any of the arguments. """
         filters = [
             {"field": "target_Id", "value": target_id, "join": "Targets"},
             {"field": "target_Name", "value": target_name, "join": "Targets"},
@@ -198,6 +199,7 @@ class Observations(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(
                 args.target,
@@ -230,7 +232,7 @@ class Observations(GraphQLTable):
                 args.comment,
             )
         elif args.subcommand == "list":
-            return self.list_graphql(
+            return self.list(
                 args.id,
                 args.target_id,
                 args.target_name,
@@ -391,5 +393,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Observations(client, args.url, args.token)
-    t.process(args)
+    o = Observations(client, args.url, args.token)
+    o.process(args)

@@ -66,7 +66,8 @@ class Pipelineimages(GraphQLTable):
 
         self.field_names = ["id", "image", "imageType", "rank", "processing {id}"]
 
-    def list_graphql(self, id, processing_id):
+    def list(self, id=None, processing_id=None):
+        """ Return a list of records matching the id and/or the processing id. """
         filters = [
             {"field": "processing", "value": processing_id, "join": "Processings"},
         ]
@@ -96,12 +97,13 @@ class Pipelineimages(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.image, args.image_type, args.rank, args.processing_id)
         elif args.subcommand == "update":
             return self.update(args.id, args.image, args.image_type, args.rank, args.processing_id)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.processing_id)
+            return self.list(args.id, args.processing_id)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -191,4 +193,4 @@ if __name__ == "__main__":
     client = GraphQLClient(args.url, args.very_verbose)
 
     p = Pipelineimages(client, args.url, args.token)
-    response = p.process(args)
+    p.process(args)

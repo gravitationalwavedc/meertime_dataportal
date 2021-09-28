@@ -46,7 +46,8 @@ class Pulsars(GraphQLTable):
 
         self.field_names = ["id", "jname", "state", "comment"]
 
-    def list_graphql(self, id, jname):
+    def list(self, id=None, jname=None):
+        """ Return a list of records matching the id and/or the pulsar jname. """
         filters = [
             {"field": "jname", "value": jname, "join": None},
         ]
@@ -57,15 +58,19 @@ class Pulsars(GraphQLTable):
         self.create_variables = {"jname": jname, "state": state, "comment": comment}
         return self.create_graphql()
 
+    def update(self, id, jname, state, comment):
+        self.update_variables = {"id": id, "jname": jname, "state": state, "comment": comment}
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.jname, args.state, args.comment)
         elif args.subcommand == "update":
-            self.update_variables = {"id": args.id, "jname": args.jname, "state": args.state, "comment": args.comment}
-            return self.update_graphql()
+            return self.update(args.id, args.jname, args.state, args.comment)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.jname)
+            return self.list(args.id, args.jname)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -132,4 +137,4 @@ if __name__ == "__main__":
     client = GraphQLClient(args.url, args.very_verbose)
 
     p = Pulsars(client, args.url, args.token)
-    response = p.process(args)
+    p.process(args)

@@ -69,7 +69,8 @@ class Foldings(GraphQLTable):
             "tsubint",
         ]
 
-    def list_graphql(self, id, processing_id, folding_ephemeris_id):
+    def list(self, id=None, processing_id=None, folding_ephemeris_id=None):
+        """ Return a list of records matching the id and/or the processing id, folding ephemeris id """
         filters = [
             {"field": "processingId", "value": processing_id, "join": "Processings"},
             {"field": "foldingEphemerisId", "value": folding_ephemeris_id, "join": "Ephemerides"},
@@ -89,24 +90,30 @@ class Foldings(GraphQLTable):
         }
         return self.create_graphql()
 
+    def update(self, id, processing, eph, nbin, npol, nchan, dm, tsubint):
+        self.update_variables = {
+            "id": id,
+            "processing_id": processing,
+            "folding_ephemeris_id": eph,
+            "nbin": nbin,
+            "npol": npol,
+            "nchan": nchan,
+            "dm": dm,
+            "tsubint": tsubint,
+        }
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.processing, args.eph, args.nbin, args.npol, args.nchan, args.dm, args.tsubint)
         elif args.subcommand == "update":
-            self.update_variables = {
-                "id": args.id,
-                "processing_id": args.processing,
-                "folding_ephemeris_id": args.eph,
-                "nbin": args.nbin,
-                "npol": args.npol,
-                "nchan": args.nchan,
-                "dm": args.dm,
-                "tsubint": args.tsubint,
-            }
-            return self.update_graphql()
+            return self.update(
+                args.id, args.processing, args.eph, args.nbin, args.npol, args.nchan, args.dm, args.tsubint
+            )
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.processing, args.eph)
+            return self.list(args.id, args.processing, args.eph)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -188,5 +195,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Foldings(client, args.url, args.token)
-    t.process(args)
+    f = Foldings(client, args.url, args.token)
+    f.process(args)

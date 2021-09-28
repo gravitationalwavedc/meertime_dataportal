@@ -20,6 +20,7 @@ class GraphQLTable:
         else:
             self.header = {"HTTP_AUTHORIZATION": f"JWT {token}"}
 
+        self.print_stdout = False
         self.create_mutation = None
         self.create_variables = {}
         self.update_mutation = None
@@ -92,7 +93,8 @@ class GraphQLTable:
                 for key in content["data"].keys():
                     record_set = content["data"][key]
                     if record_set.get(self.record_name):
-                        print(record_set[self.record_name]["id"])
+                        if self.print_stdout:
+                            print(record_set[self.record_name]["id"])
                     else:
                         logging.warning(f"Record {self.record_name} did not exist in returned json")
             else:
@@ -124,6 +126,7 @@ class GraphQLTable:
     def list_graphql(self, graphql_query, delim="\t"):
         graphql_query.set_field_list(self.field_names)
         graphql_query.set_use_pagination(self.paginate)
+        print_headers = True
         cursor = None
         has_next_page = True
         while has_next_page:
@@ -146,7 +149,8 @@ class GraphQLTable:
                                     has_next_page = True
                             if "edges" in record_set.keys():
                                 record_set = record_set["edges"]
-                            self.print_record_set(record_set, delim, print_headers=(cursor is None))
+                            self.print_record_set(record_set, delim, print_headers=print_headers)
+                            print_headers = cursor is None
 
         return response
 
@@ -184,7 +188,7 @@ class GraphQLTable:
                     fields.append(str(k))
                 else:
                     fields.append(prefix + "_" + str(k))
-        if prefix is None:
+        if prefix is None and self.print_stdout:
             print(delim.join(fields))
         return fields
 
@@ -214,7 +218,7 @@ class GraphQLTable:
                     values.extend(self.print_record_set_values(k + "_" + prefix, record_set[k], delim))
             else:
                 values.append(self.get_record_set_value(k, record_set[k]))
-        if prefix is None:
+        if prefix is None and self.print_stdout:
             print(delim.join(values))
         return values
 

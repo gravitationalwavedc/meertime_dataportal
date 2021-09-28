@@ -8,6 +8,7 @@ def test_cli_processing_list_with_token(client, creator, args, jwt_token):
     args.subcommand = "list"
     args.id = None
     args.location = None
+    args.parent = None
     args.utc_start = None
     args.observation = None
 

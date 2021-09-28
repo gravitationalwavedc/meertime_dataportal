@@ -45,7 +45,8 @@ class Programs(GraphQLTable):
         self.literal_field_names = ["id", "telescope {id} ", "name"]
         self.field_names = ["id", "telescope {name} ", "name"]
 
-    def list_graphql(self, id, telescope, name):
+    def list(self, id=None, telescope=None, name=None):
+        """ Return a list of records matching the id and/or the telescope id, name. """
         filters = [
             {"field": "telescope", "value": telescope, "join": "Telescopes"},
             {"field": "name", "value": name, "join": None},
@@ -70,12 +71,13 @@ class Programs(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.telescope, args.name)
         elif args.subcommand == "update":
             return self.update(args.id, args.telescope, args.name)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.telescope, args.name)
+            return self.list(args.id, args.telescope, args.name)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -136,5 +138,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Programs(client, args.url, args.token)
-    t.process(args)
+    p = Programs(client, args.url, args.token)
+    p.process(args)

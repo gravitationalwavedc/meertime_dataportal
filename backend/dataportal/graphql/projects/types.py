@@ -17,6 +17,7 @@ class ProjectsType(DjangoObjectType):
 
 
 class ProjectsInput(graphene.InputObjectType):
+    program_id = graphene.Int(name="program_id", required="True")
     code = graphene.String()
     short = graphene.String()
     embargo_period = graphene.Int()

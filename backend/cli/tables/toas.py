@@ -100,12 +100,13 @@ class Toas(GraphQLTable):
             "comment",
         ]
 
-    def list_graphql(self, id, processing_id, input_folding_id, timing_ephemeris_id, template_id):
+    def list(self, id=None, processing_id=None, input_folding_id=None, timing_ephemeris_id=None, template_id=None):
+        """ Return a list of records matching the id and/or the provided arguments. """
         filters = [
-            {"field": "processing_Id", "value": processing_id, "join": "Processings"},
-            {"field": "input_folding_Id", "value": input_folding_id, "join": "Foldings"},
-            {"field": "timing_ephemeris_Id", "value": timing_ephemeris_id, "join": "Ephemerides"},
-            {"field": "template_Id", "value": template_id, "join": "Templates"},
+            {"field": "processingId", "value": processing_id, "join": "Processings"},
+            {"field": "inputFoldingId", "value": input_folding_id, "join": "Foldings"},
+            {"field": "timingEphemerisId", "value": timing_ephemeris_id, "join": "Ephemerides"},
+            {"field": "templateId", "value": template_id, "join": "Templates"},
         ]
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)
@@ -172,6 +173,7 @@ class Toas(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(
                 args.processing,
@@ -202,7 +204,7 @@ class Toas(GraphQLTable):
                 args.comment,
             )
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.processing, args.folding, args.ephemeris, args.template)
+            return self.list(args.id, args.processing, args.folding, args.ephemeris, args.template)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -265,7 +267,7 @@ class Toas(GraphQLTable):
         parser_create.add_argument(
             "mjd", metavar="MJD", type=str, help="modified julian data for this toa in days [str]"
         )
-        parser_create.add_argument("site", metavar="SITE", type=int, help="site of code of this toa [int]")
+        parser_create.add_argument("site", metavar="SITE", type=str, help="site of code of this toa [str[1]]")
         parser_create.add_argument("uncertainty", metavar="ERR", type=float, help="uncertainty of this toa [float]")
         parser_create.add_argument("quality", metavar="QUAL", type=str, help="quality of this toa [nominal, bad]")
         parser_create.add_argument("comment", metavar="COMMENT", type=str, help="comment about the toa [str]")
@@ -292,7 +294,7 @@ class Toas(GraphQLTable):
         parser_update.add_argument(
             "mjd", metavar="MJD", type=str, help="modified julian data for this toa in days [str]"
         )
-        parser_update.add_argument("site", metavar="SITE", type=int, help="site of code of this toa [int]")
+        parser_update.add_argument("site", metavar="SITE", type=str, help="site of code of this toa [str[1]]")
         parser_update.add_argument("uncertainty", metavar="ERR", type=float, help="uncertainty of this toa [float]")
         parser_update.add_argument("quality", metavar="QUAL", type=str, help="quality of this toa [nominal, bad]")
         parser_update.add_argument("comment", metavar="COMMENT", type=str, help="comment about the toa [str]")

@@ -46,23 +46,31 @@ class Processingcollections(GraphQLTable):
         self.literal_field_names = ["id", "processing {id}", "collection {id}"]
         self.field_names = ["id", "processing {id}", "collection {name}"]
 
-    def list_graphql(self, id, processing):
+    def list(self, id=None, processing=None):
+        """ Return a list of records matching the id and/or the processing id. """
         filters = [
             {"field": "processing", "value": processing, "join": None},
         ]
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)
 
+    def create(self, processing, collection):
+        self.create_variables = {"processing": processing, "collection": collection}
+        return self.create_graphql()
+
+    def update(self, id, processing, collection):
+        self.update_variables = {"id": id, "processing": processing, "collection": collection}
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
-            self.create_variables = {"processing": args.processing, "collection": args.collection}
-            return self.create_graphql()
+            return self.create(args.processing, args.collection)
         elif args.subcommand == "update":
-            self.update_variables = {"id": args.id, "processing": args.processing, "collection": args.collection}
-            return self.update_graphql()
+            return self.update(args.id, args.processing, args.collection)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.processing)
+            return self.list(args.id, args.processing)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -128,5 +136,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Processingcollections(client, args.url, args.token)
-    t.process(args)
+    pc = Processingcollections(client, args.url, args.token)
+    pc.process(args)

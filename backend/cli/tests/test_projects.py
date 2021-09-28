@@ -7,6 +7,7 @@ from cli.tables.projects import Projects as CliProjects
 def test_cli_project_list_with_token(client, creator, args, jwt_token):
     args.subcommand = "list"
     args.id = None
+    args.program = None
     args.code = None
 
     t = CliProjects(client, "/graphql/", jwt_token)
@@ -21,7 +22,10 @@ def test_cli_project_list_with_token(client, creator, args, jwt_token):
 def test_cli_project_create_with_token(client, creator, args, jwt_token):
     assert creator.has_perm("dataportal.add_projects")
 
+    program = baker.make("dataportal.Programs")
+
     args.subcommand = "create"
+    args.program = program.id
     args.code = "updated"
     args.short = "updated"
     args.embargo_period = 1800
@@ -42,10 +46,12 @@ def test_cli_project_update_with_token(client, creator, args, jwt_token):
 
     # first create a record
     project = baker.make("dataportal.Projects")
+    program = baker.make("dataportal.Programs")
 
     # then update the record we just created
     args.subcommand = "update"
     args.id = project.id
+    args.program = program.id
     args.code = "updated"
     args.short = "updated"
     args.embargo_period = 1801
@@ -61,6 +67,9 @@ def test_cli_project_update_with_token(client, creator, args, jwt_token):
         + '"id":"'
         + str(project.id)
         + '",'
+        + '"program":{"id":"'
+        + t.encode_table_id("Programs", args.program)
+        + '"},'
         + '"code":"'
         + args.code
         + '",'

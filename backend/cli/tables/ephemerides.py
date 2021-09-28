@@ -67,11 +67,35 @@ class Ephemerides(GraphQLTable):
         }
         """
 
-        self.field_names = ["id", "pulsar {jname}", "createdAt", "createdBy", "p0", "dm", "rm", "ephemeris"]
-        self.literal_field_names = ["id", "pulsar {id}", "createdAt", "createdBy", "p0", "dm", "rm", "ephemeris"]
+        self.field_names = [
+            "id",
+            "pulsar {jname}",
+            "createdAt",
+            "createdBy",
+            "ephemeris",
+            "p0",
+            "dm",
+            "rm",
+            "comment",
+            "validFrom",
+            "validTo",
+        ]
+        self.literal_field_names = [
+            "id",
+            "pulsar {id}",
+            "createdAt",
+            "createdBy",
+            "ephemeris",
+            "p0",
+            "dm",
+            "rm",
+            "comment",
+            "validFrom",
+            "validTo",
+        ]
 
-    def list_graphql(self, id, pulsar_id, p0, dm, rm):
-
+    def list(self, id=None, pulsar_id=None, p0=None, dm=None, rm=None):
+        """ Return a list of records matching the id and/or the pulsar id, p0, dm, rm. """
         # P0 is stored with a maximum of 8 decimal places only
         m = 10 ** 8
         if p0 is None:
@@ -120,6 +144,7 @@ class Ephemerides(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(
                 args.pulsar,
@@ -148,7 +173,7 @@ class Ephemerides(GraphQLTable):
                 args.valid_to,
             )
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.pulsar, args.p0, args.dm, args.rm)
+            return self.list(args.id, args.pulsar, args.p0, args.dm, args.rm)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -257,5 +282,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Ephemerides(client, args.url, args.token)
-    t.process(args)
+    e = Ephemerides(client, args.url, args.token)
+    e.process(args)

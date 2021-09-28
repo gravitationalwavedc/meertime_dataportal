@@ -57,7 +57,8 @@ class Filterbankings(GraphQLTable):
 
         self.field_names = ["id", "processing { id }", "nbit", "npol", "nchan", "dm", "tsamp"]
 
-    def list_graphql(self, id, processing):
+    def list(self, id=None, processing=None):
+        """ Return a list of records matching the id and/or the processing id. """
         filters = [
             {"field": "processing", "value": processing, "join": "Processings"},
         ]
@@ -75,31 +76,27 @@ class Filterbankings(GraphQLTable):
         }
         return self.create_graphql()
 
+    def update(self, id, processing, nbit, npol, nchan, dm, tsamp):
+        self.update_variables = {
+            "id": id,
+            "processing_id": processing,
+            "nbit": nbit,
+            "npol": npol,
+            "nchan": nchan,
+            "dm": dm,
+            "tsamp": tsamp,
+        }
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
-            self.create_variables = {
-                "processing_id": args.processing,
-                "nbit": args.nbit,
-                "npol": args.npol,
-                "nchan": args.nchan,
-                "dm": args.dm,
-                "tsamp": args.tsamp,
-            }
-            return self.create_graphql()
+            return self.create(args.processing, args.nbit, args.npol, args.nchan, args.dm, args.tsamp)
         elif args.subcommand == "update":
-            self.update_variables = {
-                "id": args.id,
-                "processing_id": args.processing,
-                "nbit": args.nbit,
-                "npol": args.npol,
-                "nchan": args.nchan,
-                "dm": args.dm,
-                "tsamp": args.tsamp,
-            }
-            return self.update_graphql()
+            return self.update(args.id, args.processing, args.nbit, args.npol, args.nchan, args.dm, args.tsamp)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.processing)
+            return self.list(args.id, args.processing)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -184,5 +181,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Filterbankings(client, args.url, args.token)
-    t.process(args)
+    f = Filterbankings(client, args.url, args.token)
+    f.process(args)

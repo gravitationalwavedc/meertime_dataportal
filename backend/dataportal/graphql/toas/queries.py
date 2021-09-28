@@ -3,14 +3,18 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 
-from dataportal.graphql.jsonfield_filter import JSONFieldFilter
 from dataportal.models import Toas
 
 
 class ToasNode(DjangoObjectType):
     class Meta:
         model = Toas
-        filterset_class = JSONFieldFilter
+        filter_fields = {
+            "processing_id": ["exact"],
+            "input_folding_id": ["exact"],
+            "timing_ephemeris_id": ["exact"],
+            "template_id": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     @classmethod

@@ -83,9 +83,11 @@ class Processings(GraphQLTable):
             "results",
         ]
 
-    def list_graphql(self, id, observation_id, location, utc_start):
+    def list(self, id=None, observation_id=None, parent_id=None, location=None, utc_start=None):
+        """ Return a list of records matching the id and/or the provided arguments. """
         filters = [
             {"field": "observationId", "value": observation_id, "join": "Observations"},
+            {"field": "parentId", "value": parent_id, "join": "Processings"},
             {"field": "location", "value": location, "join": None},
             {"field": "observation_UtcStart_Gte", "value": utc_start, "join": "Observations"},
             {"field": "observation_UtcStart_Lte", "value": utc_start, "join": "Observations"},
@@ -106,8 +108,23 @@ class Processings(GraphQLTable):
         }
         return self.create_graphql()
 
+    def update(self, id, observation, pipeline, parent, embargo_end, location, job_state, job_output, results):
+        self.update_variables = {
+            "id": id,
+            "observation_id": observation,
+            "pipeline_id": pipeline,
+            "parent_id": parent,
+            "embargo_end": embargo_end,
+            "location": location,
+            "job_state": job_state,
+            "job_output": job_output,
+            "results": results,
+        }
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(
                 args.observation,
@@ -120,20 +137,19 @@ class Processings(GraphQLTable):
                 args.results,
             )
         elif args.subcommand == "update":
-            self.update_variables = {
-                "id": args.id,
-                "observation_id": args.observation,
-                "pipeline_id": args.pipeline,
-                "parent_id": args.parent,
-                "embargo_end": args.embargo_end,
-                "location": args.location,
-                "job_state": args.job_state,
-                "job_output": args.job_output,
-                "results": args.results,
-            }
-            return self.update_graphql()
+            return self.update(
+                args.id,
+                args.observation,
+                args.pipeline,
+                args.parent,
+                args.embargo_end,
+                args.location,
+                args.job_state,
+                args.job_output,
+                args.results,
+            )
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.observation, args.location, args.utc_start)
+            return self.list(args.id, args.observation, args.parent, args.location, args.utc_start)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -166,6 +182,9 @@ class Processings(GraphQLTable):
         parser_list.add_argument("--id", metavar="ID", type=int, help="list processing matching the id [int]")
         parser_list.add_argument(
             "--observation", metavar="OBS", type=int, help="list processing matching the observation id [int]"
+        )
+        parser_list.add_argument(
+            "--parent", metavar="PAR", type=int, help="list processing matching the parent processing id [int]"
         )
         parser_list.add_argument(
             "--utc_start",
@@ -207,7 +226,9 @@ class Processings(GraphQLTable):
             "observation", metavar="OBS", type=int, help="observation id for the processing [int]"
         )
         parser_update.add_argument("pipeline", metavar="PL", type=int, help="pipeline id for the processing [int]")
-        parser_update.add_argument("parent", metavar="PAR", type=int, help="parent id for the processing int]")
+        parser_update.add_argument(
+            "--parent", metavar="PAR", default=None, type=int, help="parent id for the processing [int]"
+        )
         parser_update.add_argument(
             "location", metavar="LOC", type=str, help="location (on disk) of the processing [str]"
         )
@@ -238,5 +259,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Processings(client, args.url, args.token)
-    t.process(args)
+    p = Processings(client, args.url, args.token)
+    p.process(args)

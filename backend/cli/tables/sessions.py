@@ -48,7 +48,17 @@ class Sessions(GraphQLTable):
         self.literal_field_names = ["id", "telescope {id} ", "start", "end"]
         self.field_names = ["id", "telescope {name} ", "start", "end"]
 
-    def list_graphql(self, id, telescope_id, telescope_name, start_lte, start_gte, end_lte, end_gte):
+    def list(
+        self,
+        id=None,
+        telescope_id=None,
+        telescope_name=None,
+        start_lte=None,
+        start_gte=None,
+        end_lte=None,
+        end_gte=None,
+    ):
+        """ Return a list of records matching the id and/or the provided arguments. """
         filters = [
             {"field": "telescope_Id", "value": telescope_id, "join": "Telescopes"},
             {"field": "telescope_Name", "value": telescope_name, "join": "Telescopes"},
@@ -79,12 +89,13 @@ class Sessions(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.telescope, args.start, args.end)
         elif args.subcommand == "update":
             return self.update(args.id, args.telescope, args.start, args.end)
         elif args.subcommand == "list":
-            return self.list_graphql(
+            return self.list(
                 args.id,
                 args.telescope,
                 args.telescope_name,
@@ -183,5 +194,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Sessions(client, args.url, args.token)
-    t.process(args)
+    s = Sessions(client, args.url, args.token)
+    s.process(args)

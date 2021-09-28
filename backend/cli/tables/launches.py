@@ -49,7 +49,8 @@ class Launches(GraphQLTable):
         self.literal_field_names = ["id", "pipeline {id}", "parentPipeline {id}", "pulsar {id}"]
         self.field_names = ["id", "pipeline {name}", "parentPipeline {name}", "pulsar {jname}"]
 
-    def list_graphql(self, id, pipeline, parentPipeline, pulsar):
+    def list(self, id=None, pipeline=None, parentPipeline=None, pulsar=None):
+        """ Return a list of records matching the id and/or the pipeline id, parent pipeline id, pulsar id. """
         filters = [
             {"field": "pipeline", "value": pipeline, "join": "Pipelines"},
             {"field": "parentPipeline", "value": parentPipeline, "join": "Pipelines"},
@@ -58,25 +59,32 @@ class Launches(GraphQLTable):
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)
 
+    def create(self, pipeline_id, parent_pipeline_id, pulsar_id):
+        self.create_variables = {
+            "pipeline_id": pipeline_id,
+            "parent_pipeline_id": parent_pipeline_id,
+            "pulsar_id": pulsar_id,
+        }
+        return self.create_graphql()
+
+    def update(self, id, pipeline_id, parent_pipeline_id, pulsar_id):
+        self.update_variables = {
+            "id": id,
+            "pipeline_id": pipeline_id,
+            "parent_pipeline_id": parent_pipeline_id,
+            "pulsar_id": pulsar_id,
+        }
+        return self.update_graphql()
+
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
-            self.create_variables = {
-                "pipeline_id": args.pipeline_id,
-                "parent_pipeline_id": args.parent_pipeline_id,
-                "pulsar_id": args.pulsar_id,
-            }
-            return self.create_graphql()
+            return self.create(args.pipeline_id, args.parent_pipeline_id, args.pulsar_id)
         elif args.subcommand == "update":
-            self.update_variables = {
-                "id": args.id,
-                "pipeline_id": args.pipeline_id,
-                "parent_pipeline_id": args.parent_pipeline_id,
-                "pulsar_id": args.pulsar_id,
-            }
-            return self.update_graphql()
+            return self.update(args.id, args.pipeline_id, args.parent_pipeline_id, args.pulsar_id)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.pipeline_id, args.parent_pipeline_id, args.pulsar_id)
+            return self.list(args.id, args.pipeline_id, args.parent_pipeline_id, args.pulsar_id)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -149,5 +157,5 @@ if __name__ == "__main__":
 
     client = GraphQLClient(args.url, args.very_verbose)
 
-    t = Launches(client, args.url, args.token)
-    t.process(args)
+    l = Launches(client, args.url, args.token)
+    l.process(args)

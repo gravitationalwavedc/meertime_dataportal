@@ -302,7 +302,9 @@ def main(beam, utc_start, source, freq, client, url, token):
     embargo_end_dt = utc_dt + timedelta(microseconds=embargo_us)
     embargo_end = embargo_end_dt.strftime("%Y-%m-%dT%H:%M:%S")
 
-    response = processings.create(observation_id, pipeline_id, parent_id, embargo_end, location, "{}", "{}", results)
+    response = processings.create(
+        observation_id, pipeline_id, parent_processing_id, embargo_end, location, "{}", "{}", results
+    )
     processing_id = get_id(response, "processing")
     logging.info("processing_id=%d" % (processing_id))
 

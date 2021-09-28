@@ -70,7 +70,8 @@ class Pipelinefiles(GraphQLTable):
 
         self.field_names = ["id", "file", "fileType", "processing {id}"]
 
-    def list_graphql(self, id, processing_id, file_type):
+    def list(self, id=None, processing_id=None, file_type=None):
+        """ Return a list of records matching the id and/or the file type. """
         filters = [
             {"field": "processing", "value": processing_id, "join": "Processings"},
             {"field": "filetype", "value": file_type, "join": None},
@@ -101,12 +102,13 @@ class Pipelinefiles(GraphQLTable):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "create":
             return self.create(args.file, args.file_type, args.processing_id)
         elif args.subcommand == "update":
             return self.update(args.id, args.file, args.file_type, args.processing_id)
         elif args.subcommand == "list":
-            return self.list_graphql(args.id, args.file_type, args.processing_id)
+            return self.list(args.id, args.file_type, args.processing_id)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -179,4 +181,4 @@ if __name__ == "__main__":
     client = GraphQLClient(args.url, args.very_verbose)
 
     p = Pipelinefiles(client, args.url, args.token)
-    response = p.process(args)
+    p.process(args)

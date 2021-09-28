@@ -63,36 +63,58 @@ class FoldedObservations(GraphQLJoin):
             """,
         ]
 
-    def list_graphql(self, args):
-
+    def list(
+        self,
+        pulsar_id=None,
+        pulsar_jname=None,
+        telescope_id=None,
+        telescope_name=None,
+        project_id=None,
+        project_code=None,
+        instrument_config_id=None,
+        instrument_config_name=None,
+        utc_start_gte=None,
+        utc_start_lte=None,
+    ):
         filters = [
-            {"field": "foldingEphemeris_Pulsar_Id", "value": args.pulsar_id, "join": "Pulsars"},
-            {"field": "foldingEphemeris_Pulsar_Jname", "value": args.pulsar_jname, "join": "Pulsars"},
-            {"field": "processing_Observation_Telescope_Id", "value": args.telescope_id, "join": "Telescopes"},
-            {"field": "processing_Observation_Telescope_Name", "value": args.telescope_name, "join": "Telescopes"},
-            {"field": "processing_Observation_Project_Id", "value": args.project_id, "join": "Projects"},
-            {"field": "processing_Observation_Project_Code", "value": args.project_code, "join": "Projects"},
+            {"field": "foldingEphemeris_Pulsar_Id", "value": pulsar_id, "join": "Pulsars"},
+            {"field": "foldingEphemeris_Pulsar_Jname", "value": pulsar_jname, "join": "Pulsars"},
+            {"field": "processing_Observation_Telescope_Id", "value": telescope_id, "join": "Telescopes"},
+            {"field": "processing_Observation_Telescope_Name", "value": telescope_name, "join": "Telescopes"},
+            {"field": "processing_Observation_Project_Id", "value": project_id, "join": "Projects"},
+            {"field": "processing_Observation_Project_Code", "value": project_code, "join": "Projects"},
             {
                 "field": "processing_Observation_InstrumentConfig_Id",
-                "value": args.instrument_config_id,
+                "value": instrument_config_id,
                 "join": "InstrumentConfigs",
             },
             {
                 "field": "processing_Observation_InstrumentConfig_Name",
-                "value": args.instrument_config_name,
+                "value": instrument_config_name,
                 "join": "InstrumentConfigs",
             },
-            {"field": "processing_Observation_UtcStart_Gte", "value": args.utc_start_gte, "join": None},
-            {"field": "processing_Observation_UtcStart_Lte", "value": args.utc_start_lte, "join": None},
+            {"field": "processing_Observation_UtcStart_Gte", "value": utc_start_gte, "join": None},
+            {"field": "processing_Observation_UtcStart_Lte", "value": utc_start_lte, "join": None},
         ]
-
         graphql_query = graphql_query_factory(self.table_name, self.record_name, None, filters)
         return GraphQLJoin.list_graphql(self, graphql_query)
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "list":
-            return self.list_graphql(args)
+            return self.list(
+                args.pulsar_id,
+                args.pulsar_jname,
+                args.telescope_id,
+                args.telescope_name,
+                args.project_id,
+                args.project_code,
+                args.instrument_config_id,
+                args.instrument_config_name,
+                args.utc_start_gte,
+                args.utc_start_lte,
+            )
 
     @classmethod
     def get_name(cls):

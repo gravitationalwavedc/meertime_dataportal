@@ -72,4 +72,4 @@ class Ephemeris:
             return (None, None)
 
     def get_val(self, key):
-        tup = self.get(key)[0]
+        return self.get(key)[0]

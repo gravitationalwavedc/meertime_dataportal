@@ -16,6 +16,7 @@ class CreateProject(graphene.Mutation):
     @permission_required("dataportal.add_projects")
     def mutate(cls, self, info, input):
         project, _ = Projects.objects.get_or_create(
+            program_id=input.program_id,
             code=input.code,
             short=input.short,
             embargo_period=timedelta(days=input.embargo_period),
@@ -36,6 +37,7 @@ class UpdateProject(graphene.Mutation):
     def mutate(cls, self, info, id, input):
         try:
             project = Projects.objects.get(pk=id)
+            project.program_id = input.program_id
             project.code = input.code
             project.short = input.short
             project.embargo_period = timedelta(days=input.embargo_period)

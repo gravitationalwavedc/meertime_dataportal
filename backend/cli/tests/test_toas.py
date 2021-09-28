@@ -29,6 +29,58 @@ def test_cli_toa_list_with_token(client, creator, args, jwt_token):
     assert compiled_pattern.match(response.content)
 
 
+def test_cli_toa_list_clauses(client, creator, args, jwt_token):
+
+    toa = baker.make("dataportal.Toas")
+
+    t = CliToas(client, "/graphql/", jwt_token)
+    expected_content = (
+        '{"data":{"allToas":{"edges":[{"node":{'
+        + '"id":"'
+        + t.encode_table_id("Toas", toa.id)
+        + '",'
+        + '"processing":{"id":"'
+        + t.encode_table_id("Processings", toa.processing.id)
+        + '"},'
+        + '"inputFolding":{"id":"'
+        + t.encode_table_id("Foldings", toa.input_folding_id)
+        + '"},'
+        + '"timingEphemeris":null,'
+        + '"template":{"id":"'
+        + t.encode_table_id("Templates", toa.template_id)
+        + '"},'
+        + '"flags":"'
+        + str(toa.flags)
+        + '",'
+        + '"frequency":'
+        + str(toa.frequency)
+        + ','
+        + '"mjd":null,'
+        + '"site":null,'
+        + '"uncertainty":null,'
+        + '"quality":null,'
+        + '"comment":null'
+        + '}}]}}}'
+    )
+
+    response = t.list(processing_id=toa.processing.id)
+    assert response.status_code == 200
+    assert response.content == expected_content.encode("utf-8")
+
+    response = t.list(input_folding_id=toa.input_folding_id)
+    assert response.status_code == 200
+    assert response.content == expected_content.encode("utf-8")
+
+    response = t.list(template_id=toa.template_id)
+    assert response.status_code == 200
+    assert response.content == expected_content.encode("utf-8")
+
+    response = t.list(timing_ephemeris_id=1)
+    assert response.status_code == 200
+    expected_content = '{"data":{"allToas":{"edges":[]}}}'
+    assert response.content == expected_content.encode("utf-8")
+
+
 def test_cli_toa_create_with_token(client, creator, args, jwt_token):
     assert creator.has_perm("dataportal.add_toas")
 
@@ -45,7 +97,7 @@ def test_cli_toa_create_with_token(client, creator, args, jwt_token):
     args.flags = "{}"
     args.frequency = 11.11
     args.mjd = "12345.6789"
-    args.site = 1
+    args.site = "1"
     args.uncertainty = 22.22
     args.quality = "nominal"
     args.comment = "comment"
@@ -81,7 +133,7 @@ def test_cli_toa_update_with_token(client, creator, args, jwt_token, debug_log):
     args.flags = "{}"
     args.frequency = 33.33
     args.mjd = "23456.7890"
-    args.site = 2
+    args.site = "2"
     args.uncertainty = 44.44
     args.quality = "bad"
     args.comment = "updated comment"
@@ -117,9 +169,9 @@ def test_cli_toa_update_with_token(client, creator, args, jwt_token, debug_log):
         + '"mjd":"'
         + args.mjd
         + '",'
-        + '"site":'
-        + str(args.site)
-        + ','
+        + '"site":"'
+        + args.site
+        + '",'
         + '"uncertainty":'
         + str(args.uncertainty)
         + ','

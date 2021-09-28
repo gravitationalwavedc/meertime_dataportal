@@ -50,26 +50,34 @@ class ProcessedObservations(GraphQLJoin):
             "results",
         ]
 
-    def list_graphql(self, args):
+    def list(
+        self,
+        target_id=None,
+        target_name=None,
+        telescope_id=None,
+        telescope_name=None,
+        project_id=None,
+        project_code=None,
+        instrument_config_id=None,
+        instrument_config_name=None,
+        utc_start_gte=None,
+        utc_start_lte=None,
+    ):
         filters = [
-            {"value": args.target_id, "field": "observation_Target_Id", "join": "Targets"},
-            {"value": args.target_name, "field": "observation_Target_Name", "join": "Targets"},
-            {"value": args.telescope_id, "field": "observation_Telescope_Id", "join": "Telescopes"},
-            {"value": args.telescope_name, "field": "observation_Telescope_Name", "join": "Telescopes"},
-            {"value": args.project_id, "field": "observation_Project_Id", "join": "Projects"},
-            {"value": args.project_code, "field": "observation_Project_Code", "join": "Projects"},
+            {"value": target_id, "field": "observation_Target_Id", "join": "Targets"},
+            {"value": target_name, "field": "observation_Target_Name", "join": "Targets"},
+            {"value": telescope_id, "field": "observation_Telescope_Id", "join": "Telescopes"},
+            {"value": telescope_name, "field": "observation_Telescope_Name", "join": "Telescopes"},
+            {"value": project_id, "field": "observation_Project_Id", "join": "Projects"},
+            {"value": project_code, "field": "observation_Project_Code", "join": "Projects"},
+            {"value": instrument_config_id, "field": "observation_InstrumentConfig_Id", "join": "InstrumentConfigs",},
             {
-                "value": args.instrument_config_id,
-                "field": "observation_InstrumentConfig_Id",
-                "join": "InstrumentConfigs",
-            },
-            {
-                "value": args.instrument_config_name,
+                "value": instrument_config_name,
                 "field": "observation_InstrumentConfig_Name",
                 "join": "InstrumentConfigs",
             },
-            {"value": args.utc_start_gte, "field": "observation_UtcStart_Gte", "join": None},
-            {"value": args.utc_start_lte, "field": "observation_UtcStart_Lte", "join": None},
+            {"value": utc_start_gte, "field": "observation_UtcStart_Gte", "join": None},
+            {"value": utc_start_lte, "field": "observation_UtcStart_Lte", "join": None},
         ]
 
         graphql_query = graphql_query_factory(self.table_name, self.record_name, None, filters)
@@ -77,8 +85,20 @@ class ProcessedObservations(GraphQLJoin):
 
     def process(self, args):
         """Parse the arguments collected by the CLI."""
+        self.print_stdout = True
         if args.subcommand == "list":
-            return self.list_graphql(args)
+            return self.list(
+                args.target_id,
+                args.target_name,
+                args.telescope_id,
+                args.telescope_name,
+                args.project_id,
+                args.project_code,
+                args.instrument_config_id,
+                args.instrument_config_name,
+                args.utc_start_gte,
+                args.utc_start_lte,
+            )
 
     @classmethod
     def get_name(cls):
