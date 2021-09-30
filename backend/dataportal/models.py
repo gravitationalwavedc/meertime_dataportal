@@ -66,7 +66,7 @@ class Ephemerides(models.Model):
     valid_to = models.DateTimeField()
 
     class Meta:
-        unique_together = [['pulsar', 'ephemeris_hash']]
+        unique_together = [['pulsar', 'ephemeris_hash', 'dm', 'rm']]
 
     def clean(self, *args, **kwargs):
         # checking valid_to is later than valid_from

@@ -24,7 +24,7 @@ class ToasInput(graphene.InputObjectType):
     flags = graphene.JSONString(required=True)
     frequency = graphene.Float(required=True)
     mjd = graphene.String(required=True)
-    site = graphene.Int(required=True)
+    site = graphene.String(required=True)
     uncertainty = graphene.Float(required=True)
     quality = graphene.String(required=True)
     comment = graphene.String(required=True)

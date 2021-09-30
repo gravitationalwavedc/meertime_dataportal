@@ -9,7 +9,7 @@ class Toas(GraphQLTable):
 
         # create a new record
         self.create_mutation = """
-        mutation ($processing: Int!, $inputFolding: Int!, $timingEphemeris: Int!, $template: Int!, $flags: JSONString!, $frequency: Float!, $mjd: String!, $site: Int!, $uncertainty: Float!, $quality: String!, $comment: String!) {
+        mutation ($processing: Int!, $inputFolding: Int!, $timingEphemeris: Int!, $template: Int!, $flags: JSONString!, $frequency: Float!, $mjd: String!, $site: String!, $uncertainty: Float!, $quality: String!, $comment: String!) {
             createToa (input: {
                 processing_id: $processing,
                 input_folding_id: $inputFolding,
@@ -31,7 +31,7 @@ class Toas(GraphQLTable):
         """
 
         self.update_mutation = """
-        mutation ($id: Int!, $processing: Int!, $inputFolding: Int!, $timingEphemeris: Int!, $template: Int!, $flags: JSONString!, $frequency: Float!, $mjd: String!, $site: Int!, $uncertainty: Float!, $quality: String!, $comment: String!) {
+        mutation ($id: Int!, $processing: Int!, $inputFolding: Int!, $timingEphemeris: Int!, $template: Int!, $flags: JSONString!, $frequency: Float!, $mjd: String!, $site: String!, $uncertainty: Float!, $quality: String!, $comment: String!) {
             updateToa (id: $id, input: {
                 processing_id: $processing,
                 input_folding_id: $inputFolding,
