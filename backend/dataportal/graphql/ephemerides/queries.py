@@ -11,7 +11,13 @@ NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']
 class EphemeridesNode(DjangoObjectType):
     class Meta:
         model = Ephemerides
-        filter_fields = {"pulsar__id": ["exact"], "p0": NUMERIC_FILTERS, "dm": NUMERIC_FILTERS, "rm": NUMERIC_FILTERS}
+        filter_fields = {
+            "pulsar__id": ["exact"],
+            "p0": NUMERIC_FILTERS,
+            "dm": NUMERIC_FILTERS,
+            "rm": NUMERIC_FILTERS,
+            "ephemeris_hash": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     @classmethod

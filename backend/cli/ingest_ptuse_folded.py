@@ -129,9 +129,8 @@ def main(beam, utc_start, source, freq, client, url, token):
 
     # Get the parent pipeline ID
     pipelines = Pipelines(client, url, token)
-    parent_id = pipelines.decode_id(
-        json.loads(pipelines.list_graphql(None, "None").content)["data"]["allPipelines"]["edges"][0]["node"]["id"]
-    )
+    response = pipelines.list(None, "None")
+    parent_id = pipelines.decode_id(json.loads(response.content)["data"]["allPipelines"]["edges"][0]["node"]["id"])
 
     try:
         hdr = header.PTUSEHeader(obs_header)
@@ -157,7 +156,7 @@ def main(beam, utc_start, source, freq, client, url, token):
 
     targets = Targets(client, url, token)
     targets.set_field_names(literal, quiet)
-    response = targets.list_graphql(None, hdr.source)
+    response = targets.list(None, hdr.source)
     encoded_target_id = get_id_from_listing(response, "target")
     if encoded_target_id:
         target_id = int(targets.decode_id(encoded_target_id))
@@ -169,7 +168,7 @@ def main(beam, utc_start, source, freq, client, url, token):
 
     pulsars = Pulsars(client, url, token)
     pulsars.set_field_names(literal, quiet)
-    response = pulsars.list_graphql(None, hdr.source)
+    response = pulsars.list(None, hdr.source)
     encoded_pulsar_id = get_id_from_listing(response, "pulsar")
     if encoded_target_id:
         pulsar_id = int(targets.decode_id(encoded_pulsar_id))
@@ -198,22 +197,26 @@ def main(beam, utc_start, source, freq, client, url, token):
 
     calibrations = Calibrations(client, url, token)
     (calibration_type, calibration_location) = get_calibration(utc_start)
-    calibration_id = get_id
     response = calibrations.create(calibration_type, calibration_location)
     calibration_id = get_id(response, "calibration")
     logging.info("calibration_id=%d" % (calibration_id))
+
+    programs = Programs(client, url, token)
+    response = programs.create(telescope_id, "MeerTIME")
+    program_id = get_id(response, "program")
 
     projects = Projects(client, url, token)
     projects.set_field_names(literal, quiet)
     # 18 months (548 days) embargo in us:
     embargo_days = 548
-    response = projects.list_graphql(None, hdr.proposal_id)
+    response = projects.list(None, program_id, hdr.proposal_id)
     encoded_project_id = get_id_from_listing(response, "project")
     if encoded_project_id:
         project_id = int(projects.decode_id(encoded_project_id))
         logging.info("project_id=%d (pre-existing)" % project_id)
     else:
-        response = projects.create(hdr.proposal_id, "unknown", embargo_days, "")
+        response = projects.create(program_id, hdr.proposal_id, "unknown", embargo_days, "")
+        print(response.content)
         project_id = get_id(response, "project")
         logging.info("project_id=%d" % project_id)
 
@@ -266,7 +269,7 @@ def main(beam, utc_start, source, freq, client, url, token):
     # TODO filter on the actual ephemeris, but JSONfield filtering doesn't seem to work
     ephemerides = Ephemerides(client, url, token)
     ephemerides.set_field_names(literal, quiet)
-    response = ephemerides.list_graphql(None, pulsar_id, eph.p0, eph.dm, eph.rm)
+    response = ephemerides.list(None, pulsar_id, None, eph.dm, eph.rm, json.dumps(eph.ephem))
     encoded_ephemeris_id = get_id_from_listing(response, "ephemeris", listing="allEphemerides")
     if encoded_ephemeris_id:
         ephemeris_id = int(ephemerides.decode_id(encoded_ephemeris_id))
@@ -297,7 +300,7 @@ def main(beam, utc_start, source, freq, client, url, token):
 
     processings = Processings(client, url, token)
     # TODO check existing / understand why the mutation always creates
-    parent_processing_id = None
+    parent_processing_id = 3
     utc_dt = datetime.strptime(f"{utc_start} +0000", "%Y-%m-%d-%H:%M:%S %z")
     embargo_end_dt = utc_dt + timedelta(microseconds=embargo_us)
     embargo_end = embargo_end_dt.strftime("%Y-%m-%dT%H:%M:%S")
@@ -305,6 +308,7 @@ def main(beam, utc_start, source, freq, client, url, token):
     response = processings.create(
         observation_id, pipeline_id, parent_processing_id, embargo_end, location, "{}", "{}", results
     )
+
     processing_id = get_id(response, "processing")
     logging.info("processing_id=%d" % (processing_id))
 

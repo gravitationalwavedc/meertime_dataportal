@@ -1,3 +1,6 @@
+import hashlib
+import json
+
 from tables.graphql_table import GraphQLTable
 from tables.graphql_query import graphql_query_factory
 
@@ -94,7 +97,7 @@ class Ephemerides(GraphQLTable):
             "validTo",
         ]
 
-    def list(self, id=None, pulsar_id=None, p0=None, dm=None, rm=None):
+    def list(self, id=None, pulsar_id=None, p0=None, dm=None, rm=None, eph=None):
         """ Return a list of records matching the id and/or the pulsar id, p0, dm, rm. """
         # P0 is stored with a maximum of 8 decimal places only
         m = 10 ** 8
@@ -102,11 +105,19 @@ class Ephemerides(GraphQLTable):
             p0_filtered = None
         else:
             p0_filtered = round(p0 * m) / m
+
+        eph_hash = None
+        if eph:
+            # convert string to json dict, to ensure the hash matches
+            eph_json = json.loads(eph)
+            eph_hash = hashlib.md5(json.dumps(eph_json, sort_keys=True, indent=2).encode("utf-8")).hexdigest()
+
         filters = [
             {"field": "pulsar_Id", "value": pulsar_id, "join": "Pulsars"},
             {"field": "p0", "value": p0_filtered, "join": None},
             {"field": "dm", "value": dm, "join": None},
             {"field": "rm", "value": rm, "join": None},
+            {"field": "ephemerisHash", "value": eph_hash, "join": None},
         ]
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)
@@ -173,7 +184,7 @@ class Ephemerides(GraphQLTable):
                 args.valid_to,
             )
         elif args.subcommand == "list":
-            return self.list(args.id, args.pulsar, args.p0, args.dm, args.rm)
+            return self.list(args.id, args.pulsar, args.p0, args.dm, args.rm, args.eph)
         elif args.subcommand == "delete":
             return self.delete(args.id)
         else:
@@ -216,6 +227,7 @@ class Ephemerides(GraphQLTable):
         parser_list.add_argument(
             "--rm", metavar="RM", type=float, help="list ephemeris matching the pulsar RM [float]"
         )
+        parser_list.add_argument("--eph", metavar="EPH", type=str, help="list ephemeris matching the ephemeris [JSON]")
 
         # create the parser for the "create" command
         parser_create = subs.add_parser("create", help="create a new ephemeris")

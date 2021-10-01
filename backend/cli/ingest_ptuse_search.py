@@ -78,7 +78,7 @@ def main(beam, utc_start, source, freq, client, url, token):
 
     location = None
     for dir in SEARCH_DIRS:
-        trial_dir = "%s/%s/%s/%s" % (dir, source, utc_start, freq)
+        trial_dir = "%s/%s/%s/%s/%s" % (dir, source, utc_start, beam, freq)
         if os.path.exists(trial_dir):
             location = trial_dir
     if location is None:
@@ -87,7 +87,7 @@ def main(beam, utc_start, source, freq, client, url, token):
     # Get the parent pipeline ID
     pipelines = Pipelines(client, url, token)
     parent_id = pipelines.decode_id(
-        json.loads(pipelines.list_graphql(None, "None").content)["data"]["allPipelines"]["edges"][0]["node"]["id"]
+        json.loads(pipelines.list(None, "None").content)["data"]["allPipelines"]["edges"][0]["node"]["id"]
     )
 
     try:
@@ -103,7 +103,7 @@ def main(beam, utc_start, source, freq, client, url, token):
 
     targets = Targets(client, url, token)
     targets.set_field_names(literal, quiet)
-    response = targets.list_graphql(None, hdr.source)
+    response = targets.list(None, hdr.source)
     encoded_target_id = get_id_from_listing(response, "target")
     if encoded_target_id:
         target_id = int(targets.decode_id(encoded_target_id))
@@ -132,11 +132,15 @@ def main(beam, utc_start, source, freq, client, url, token):
     calibration_id = get_id(response, "calibration")
     logging.info("calibration_id=%d" % (calibration_id))
 
+    programs = Programs(client, url, token)
+    response = programs.create(telescope_id, "MeerTIME")
+    program_id = get_id(response, "program")
+
     projects = Projects(client, url, token)
     projects.set_field_names(literal, quiet)
     # 18 months (548 days) embargo in us:
     embargo_days = 548
-    response = projects.list_graphql(None, hdr.proposal_id)
+    response = projects.list(None, program_id, hdr.proposal_id)
     encoded_project_id = get_id_from_listing(response, "project")
     if encoded_project_id:
         project_id = int(projects.decode_id(encoded_project_id))
