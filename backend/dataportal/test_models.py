@@ -3,7 +3,9 @@ import json
 import pytest
 import random
 import string
+import pytz
 from datetime import datetime, timedelta
+from django.utils import timezone
 from django.db.utils import IntegrityError
 
 from .models import (
@@ -19,6 +21,7 @@ from .models import (
     Projects,
     Targets,
     Telescopes,
+    Sessions,
 )
 
 
@@ -280,3 +283,28 @@ def test_ephemeris_hash():
     ephemerides = Ephemerides.objects.get(pulsar=psr)
 
     assert ephemerides.ephemeris_hash == expected
+
+
+@pytest.mark.django_db
+def test_get_last_session():
+    telescope = Telescopes.objects.create(name="TestScope")
+    Sessions.objects.create(
+        telescope=telescope, start=datetime(2021, 1, 15, 8, 45, 23), end=datetime(2021, 1, 15, 15, 0, 0)
+    )
+    expected_last_session = Sessions.objects.create(
+        telescope=telescope, start=datetime(2021, 2, 23, 7, 45), end=datetime(2021, 2, 23, 16, 30)
+    )
+    assert Sessions.get_last_session() == expected_last_session
+
+
+@pytest.mark.django_db
+def test_get_session():
+    telescope = Telescopes.objects.create(name="TestScope")
+    Sessions.objects.create(
+        telescope=telescope, start=datetime(2021, 1, 15, 8, 45, 23), end=datetime(2021, 1, 15, 15, 0, 0)
+    )
+    expected_session = Sessions.objects.create(
+        telescope=telescope, start=datetime(2021, 2, 23, 7, 45), end=datetime(2021, 2, 23, 16, 30)
+    )
+    utc = timezone.make_aware(datetime(2021, 2, 23, 8, 30), timezone=pytz.UTC)
+    assert Sessions.get_session(utc) == expected_session

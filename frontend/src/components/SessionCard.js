@@ -13,11 +13,11 @@ const SessionCard = ({ row }) =>
                     <p className="overline mb-1">UTC</p>
                     <p>{row.utc}</p>
                     <p className="overline mb-1">Backend S/N</p>
-                    <p>{row.snrSpip}</p>
+                    <p>{row.backendSN}</p>
                 </Col>
                 <Col md={3}>
                     <p className="overline mb-1">Integration</p>
-                    <p>{row.length}</p>
+                    <p>{row.intergrations}</p>
                     <p className="overline mb-1">Frequency</p>
                     <p>{row.frequency}</p>
                 </Col>

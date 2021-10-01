@@ -9,7 +9,6 @@ from django.utils.translation import ugettext_lazy as _
 from django_mysql.models import Model
 from django_mysql.models import JSONField
 from .logic import get_meertime_filters, get_band
-from json import loads
 from datetime import timedelta
 from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location
 
@@ -337,6 +336,17 @@ class Sessions(models.Model):
     telescope = models.ForeignKey("Telescopes", models.DO_NOTHING)
     start = models.DateTimeField()
     end = models.DateTimeField()
+
+    @classmethod
+    def get_last_session(cls):
+        return cls.objects.order_by("end").last()
+
+    @classmethod
+    def get_session(cls, utc):
+        try:
+            return cls.objects.get(start__lte=utc, end__gte=utc)
+        except Sessions.DoesNotExist:
+            return None
 
 
 class Targets(models.Model):

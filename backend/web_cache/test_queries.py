@@ -2,6 +2,8 @@ import pytest
 from django.contrib.auth import get_user_model
 from graphql_jwt.testcases import JSONWebTokenClient
 from web_cache.test_signals import create_pulsar_with_observations
+from web_cache.models import FoldPulsarDetail
+from dataportal.models import Telescopes, Sessions
 
 
 def setup_query_test():
@@ -194,7 +196,7 @@ def test_fold_detail_query():
 
 @pytest.mark.django_db
 def test_searchmode_query():
-    client, user, jname = setup_query_test()
+    client, user, _ = setup_query_test()
     client.authenticate(user)
     response = client.execute(
         """
@@ -230,6 +232,64 @@ def test_searchmode_query():
                         'firstObservation': '2000-01-01T12:59:12+00:00',
                         'timespan': 21,
                         'numberOfObservations': 2,
+                    }
+                }
+            ],
+        }
+    }
+    assert not response.errors
+    assert response.data == expected
+
+
+@pytest.mark.django_db
+def test_session_query():
+    client, user, _ = setup_query_test()
+    client.authenticate(user)
+    t = Telescopes.objects.create(name="MeerKat")
+    Sessions.objects.create(
+        telescope=t, start=FoldPulsarDetail.objects.first().utc, end=FoldPulsarDetail.objects.last().utc
+    )
+
+    response = client.execute(
+        """
+        query {
+            lastSession {
+                start
+                end
+                numberOfObservations
+                numberOfPulsars
+                edges {
+                    node {
+                        jname
+                        project
+                        utc
+                        frequency
+                        profile
+                        phaseVsTime
+                        phaseVsFrequency
+                    }
+                }
+            }
+        }
+        """
+    )
+
+    expected = {
+        'lastSession': {
+            'start': '2000-01-21T12:59:12+00:00',
+            'end': '2000-01-21T12:59:12+00:00',
+            'numberOfObservations': 1,
+            'numberOfPulsars': 1,
+            'edges': [
+                {
+                    'node': {
+                        'jname': 'J0125-2327',
+                        'project': 'Relbin',
+                        'utc': '2000-01-21T12:59:12+00:00',
+                        'frequency': 839.0,
+                        'profile': None,
+                        'phaseVsTime': None,
+                        'phaseVsFrequency': None,
                     }
                 }
             ],

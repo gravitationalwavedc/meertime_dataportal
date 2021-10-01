@@ -3,7 +3,7 @@ import json
 from graphene import relay, ObjectType
 from django.template.defaultfilters import filesizeformat
 from graphene_django import DjangoObjectType
-from web_cache.models import FoldPulsar, SearchmodePulsar, FoldPulsarDetail, SearchmodePulsarDetail
+from web_cache.models import FoldPulsar, SearchmodePulsar, FoldPulsarDetail, SearchmodePulsarDetail, SessionPulsar
 from graphql_jwt.decorators import login_required
 
 
@@ -21,6 +21,7 @@ class FoldPulsarDetailNode(DjangoObjectType):
 
     ephemeris = graphene.String()
     band = graphene.String()
+    jname = graphene.String()
 
     def resolve_ephemeris(self, instance):
         """Make sure that graphql outputs a valid json string that can be used in JSON.parse"""
@@ -47,6 +48,14 @@ class SearchmodePulsarDetailNode(DjangoObjectType):
     def resolve_band(self, instance):
         """Band should use the display name. This also stops graphene from replacing the - with an _."""
         return self.get_band_display()
+
+
+class SessionPulsarNode(DjangoObjectType):
+    class Meta:
+        model = SessionPulsar
+        interfaces = (relay.Node,)
+
+    jname = graphene.String()
 
 
 class FoldPulsarConnection(relay.Connection):
@@ -144,6 +153,31 @@ class SearchmodePulsarDetailConnection(relay.Connection):
         return duration.days + 1 if duration else 0
 
 
+class LastSessionConnection(relay.Connection):
+    class Meta:
+        node = SessionPulsarNode
+
+    start = graphene.DateTime()
+    end = graphene.DateTime()
+    number_of_observations = graphene.Int()
+    number_of_pulsars = graphene.Int()
+
+    def resolve_start(self, instance):
+        return self.iterable.first().session.start if self.iterable else None
+
+    def resolve_end(self, instance):
+        return self.iterable.first().session.end if self.iterable else None
+
+    def resolve_number_of_observations(self, instance):
+        total = 0
+        for pulsar in self.iterable:
+            total += pulsar.fold_pulsar.foldpulsardetail_set.count()
+        return total
+
+    def resolve_number_of_pulsars(self, instance):
+        return len(self.edges)
+
+
 class Query(ObjectType):
     fold_observations = relay.ConnectionField(
         FoldPulsarConnection, main_project=graphene.String(), project=graphene.String(), band=graphene.String()
@@ -169,6 +203,8 @@ class Query(ObjectType):
         project=graphene.String(),
     )
 
+    last_session = relay.ConnectionField(LastSessionConnection, project=graphene.String())
+
     @login_required
     def resolve_fold_observations(self, info, **kwargs):
         return FoldPulsar.get_query(**kwargs)
@@ -184,3 +220,7 @@ class Query(ObjectType):
     @login_required
     def resolve_searchmode_observation_details(self, info, **kwargs):
         return SearchmodePulsarDetail.get_query(**kwargs)
+
+    @login_required
+    def resolve_last_session(self, info, **kwargs):
+        return SessionPulsar.get_last_session_query(**kwargs)

@@ -1,7 +1,7 @@
 import math
 from datetime import datetime
 from django.db import models
-from dataportal.models import Foldings, Observations, Filterbankings
+from dataportal.models import Foldings, Observations, Filterbankings, Sessions
 from django_mysql.models import JSONField
 from statistics import mean
 
@@ -95,7 +95,7 @@ class SearchmodePulsar(BasePulsar):
         timespan = (latest_observation - first_observation).days + 1
         number_of_observations = pulsar_observations.count()
 
-        SearchmodePulsar.objects.update_or_create(
+        return SearchmodePulsar.objects.update_or_create(
             main_project=cls.get_main_project(latest_filterbankings_observation.project.code),
             project=latest_filterbankings_observation.project.short,
             jname=pulsar.jname,
@@ -114,6 +114,10 @@ class FoldPulsar(BasePulsar):
     avg_sn_pipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     max_sn_pipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     last_integration_minutes = models.DecimalField(max_digits=12, decimal_places=1)
+
+    @property
+    def session(self):
+        return Sessions.get_session(self.latest_observation)
 
     @classmethod
     def update_or_create(cls, pulsar):
@@ -157,7 +161,7 @@ class FoldPulsar(BasePulsar):
         last_sn_raw = results['snr'] if 'snr' in results else 0
         last_integration_minutes = latest_folding_observation.processing.observation.duration / 60
 
-        FoldPulsar.objects.update_or_create(
+        return FoldPulsar.objects.update_or_create(
             main_project=cls.get_main_project(latest_folding_observation.processing.observation.project.code),
             project=latest_folding_observation.processing.observation.project.short,
             jname=pulsar.jname,
@@ -209,6 +213,10 @@ class FoldPulsar(BasePulsar):
 
         return max([(o['snr'] / math.sqrt(o['length']) * sqrt_300) for o in observation_results])
 
+    @classmethod
+    def get_by_session(cls, session):
+        return cls.objects.filter(first_observation__range=(session.start, session.end))
+
 
 class FoldPulsarDetail(models.Model):
     fold_pulsar = models.ForeignKey(FoldPulsar, on_delete=models.CASCADE)
@@ -254,6 +262,14 @@ class FoldPulsarDetail(models.Model):
         except ZeroDivisionError:
             return 0
 
+    @property
+    def jname(self):
+        return self.fold_pulsar.jname
+
+    @property
+    def session(self):
+        return Sessions.get_session(self.utc)
+
     @classmethod
     def update_or_create(cls, folding):
         pulsar = folding.folding_ephemeris.pulsar
@@ -267,7 +283,7 @@ class FoldPulsarDetail(models.Model):
 
         results = folding.processing.results if folding.processing.results else {}
 
-        FoldPulsarDetail.objects.update_or_create(
+        return FoldPulsarDetail.objects.update_or_create(
             fold_pulsar=fold_pulsar,
             utc=observation.utc_start,
             defaults={
@@ -340,7 +356,7 @@ class SearchmodePulsarDetail(models.Model):
     def update_or_create(cls, filter_bankings):
         observation = filter_bankings.processing.observation
         searchmode_pulsar = SearchmodePulsar.objects.get(jname=observation.target.name)
-        SearchmodePulsarDetail.objects.update_or_create(
+        return cls.objects.update_or_create(
             searchmode_pulsar=searchmode_pulsar,
             utc=filter_bankings.processing.observation.utc_start,
             defaults={
@@ -368,3 +384,50 @@ class SearchmodePulsarDetail(models.Model):
             kwargs['searchmode_pulsar__main_project'] = kwargs.pop('project')
 
         return cls.objects.filter(**kwargs)
+
+
+class SessionPulsar(models.Model):
+    session = models.ForeignKey(Sessions, on_delete=models.CASCADE)
+    fold_pulsar = models.ForeignKey(FoldPulsar, on_delete=models.CASCADE)
+    utc = models.DateTimeField()
+    project = models.CharField(max_length=50)
+    backendSN = models.IntegerField()
+    integrations = models.IntegerField()
+    beam = models.IntegerField()
+    frequency = models.DecimalField(max_digits=50, decimal_places=8)
+    phase_vs_time = models.URLField(null=True)
+    phase_vs_frequency = models.URLField(null=True)
+    profile = models.URLField(null=True)
+
+    class Meta:
+        ordering = ["-session__start"]
+
+    @property
+    def jname(self):
+        return self.fold_pulsar.jname
+
+    @classmethod
+    def update_or_create(cls, fold_pulsar, session):
+        last_observation = fold_pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end)).last()
+        return cls.objects.update_or_create(
+            session=session,
+            fold_pulsar=fold_pulsar,
+            defaults={
+                "utc": last_observation.utc,
+                "project": last_observation.project,
+                "backendSN": last_observation.sn_backend,
+                "integrations": last_observation.length,
+                "beam": last_observation.beam,
+                "frequency": last_observation.frequency,
+                "phase_vs_frequency": last_observation.phase_vs_frequency,
+                "phase_vs_time": last_observation.phase_vs_time,
+                "profile": last_observation.profile,
+            },
+        )
+
+    @classmethod
+    def get_last_session_query(cls, **kwargs):
+        if 'project' in kwargs and kwargs['project'] == 'All':
+            kwargs.pop('project')
+
+        return SessionPulsar.objects.filter(session=Sessions.get_last_session(), **kwargs)
