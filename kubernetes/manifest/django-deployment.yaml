@@ -87,7 +87,7 @@ spec:
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
         - name: migrate
-          image: nexus.gwdc.org.au/meertime_dev/meertime_django:dev.0.9
+          image: nexus.gwdc.org.au/meertime_dev/meertime_django:dev.1.0
           imagePullPolicy: Always
           env:
             - name: DB_HOST
