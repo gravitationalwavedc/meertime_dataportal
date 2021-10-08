@@ -215,7 +215,7 @@ class FoldPulsar(BasePulsar):
 
     @classmethod
     def get_by_session(cls, session):
-        return cls.objects.filter(last_observation__range=(session.start, session.end))
+        return cls.objects.filter(latest_observation__range=(session.start, session.end))
 
 
 class FoldPulsarDetail(models.Model):
