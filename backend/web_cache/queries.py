@@ -12,6 +12,9 @@ class FoldPulsarNode(DjangoObjectType):
         model = FoldPulsar
         interfaces = (relay.Node,)
 
+    def resolve_last_integration_minutes(self, instance):
+        return round(self.last_integration_minutes, 1)
+
 
 class FoldPulsarDetailNode(DjangoObjectType):
     class Meta:
@@ -30,6 +33,9 @@ class FoldPulsarDetailNode(DjangoObjectType):
     def resolve_band(self, instance):
         """Band should use the display name. This also stops graphene from replacing the - with an _."""
         return self.get_band_display()
+
+    def resolve_length(self, instance):
+        return round(self.length / 60)
 
 
 class SearchmodePulsarNode(DjangoObjectType):
@@ -56,6 +62,12 @@ class SessionPulsarNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
     jname = graphene.String()
+
+    def resolve_frequency(self, instance):
+        return round(self.frequency, 1)
+
+    def resolve_integrations(self, instance):
+        return round(self.integrations)
 
 
 class FoldPulsarConnection(relay.Connection):

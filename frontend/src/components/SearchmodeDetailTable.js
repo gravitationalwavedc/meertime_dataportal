@@ -27,7 +27,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
     const [rows, setRows] = useState(allRows);
 
     const columns = [
-        { dataField: 'key', text: '', sort: false, hidden: true, toggle: false },
+        { dataField: 'key', text: '', sort: false, hidden: true, toggle: false, csvExport: false },
         { dataField: 'utc', text: 'Timestamp', sort: true, headerClasses: 'fold-detail-utc' },
         { dataField: 'project', text: 'Project', sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'ra', text: 'RA', sort: true, screenSizes: ['lg', 'xl', 'xxl'], align: 'right', 
@@ -51,7 +51,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
         { dataField: 'dm', text: 'DM', sort: true, screenSizes: ['xxl'], align: 'right', headerAlign: 'right' },
         { dataField: 'tsamp', text: 'tSamp', sort: true, screenSizes: ['xxl'], align: 'right', 
             headerAlign: 'right', formatter: cell => `${cell} [μs]` },
-        { dataField: 'action', text: '', align: 'right', headerAlign: 'right', sort: false }
+        { dataField: 'action', text: '', align: 'right', headerAlign: 'right', sort: false, csvExport: false }
     ];
 
     const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);

@@ -8,11 +8,11 @@ import React from 'react';
 import image404 from '../assets/images/image404.png';
 
 const imageNames = [
-    'profile',
-    'bandpass',
-    'phaseVsTime',
-    'phaseVsFrequency',
-    'snrVsTime'
+    'profileHi',
+    'bandpassHi',
+    'phaseVsTimeHi',
+    'phaseVsFrequencyHi',
+    'snrVsTimeHi'
 ];
 
 const titles = [

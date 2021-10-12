@@ -41,13 +41,13 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
     }, []);
 
     const columns = [
-        { dataField: 'projectKey', hidden: true, toggle: false, sort:false },
+        { dataField: 'projectKey', hidden: true, toggle: false, sort:false, csvExport: false },
         { dataField: 'jname', text: 'JName', sort:true },
         { dataField: 'project', text: 'Project', sort: true, screenSizes: ['xl', 'xxl'] },
         { dataField: 'latestObservation', text: 'Last', sort: true },
         { dataField: 'firstObservation', text: 'First', sort: true, screenSizes: ['xxl'] },
         { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true, 
-            screenSizes: ['md', 'lg', 'xl', 'xxl'], formatter: cell => `${cell} [m]` },
+            screenSizes: ['md', 'lg', 'xl', 'xxl'], formatter: cell => `${cell} [d]` },
         { dataField: 'numberOfObservations', text: 'Observations', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'totalIntegrationHours', text: 'Total int', align: 'right', headerAlign: 'right', 
@@ -60,7 +60,7 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
             sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'lastIntegrationMinutes', text: 'Last int.', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['lg', 'xl', 'xxl'], formatter: cell => `${cell} [m]` },
-        { dataField: 'action', text: '', align: 'right', headerAlign: 'right', 
+        { dataField: 'action', text: '', align: 'right', headerAlign: 'right', csvExport: false,
             sort: false }
     ];
 

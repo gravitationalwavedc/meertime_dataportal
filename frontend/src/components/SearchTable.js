@@ -23,8 +23,6 @@ const SearchTable = ({ data: { searchmodeObservations }, relay }) => {
         row.projectKey = mainProject;
         row.latestObservation = formatUTC(row.latestObservation);
         row.firstObservation = formatUTC(row.firstObservation);
-        row.totalIntegrationHours = `${row.totalIntegrationHours} [h]`;
-        row.lastIntegrationMinutes = `${row.lastIntegrationMinutes} [m]`;
         row.action = <ButtonGroup vertical>
             <Link 
                 to={`${process.env.REACT_APP_BASE_URL}/search/${mainProject}/${row.jname}/`} 
@@ -49,7 +47,7 @@ const SearchTable = ({ data: { searchmodeObservations }, relay }) => {
         { dataField: 'latestObservation', text: 'Last', sort: true },
         { dataField: 'firstObservation', text: 'First', sort: true, screenSizes: ['xl', 'xxl'] },
         { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true, 
-            screenSizes: ['md', 'lg', 'xl', 'xxl'] },
+            formatter: cell => `${cell} [d]`, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'numberOfObservations', text: 'Observations', align: 'right', headerAlign: 'right', 
             sort: true },
         { dataField: 'action', text: '', align: 'center', headerAlign: 'center', 

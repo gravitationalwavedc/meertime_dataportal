@@ -113,7 +113,7 @@ class FoldPulsar(BasePulsar):
     last_sn_raw = models.DecimalField(max_digits=12, decimal_places=1)
     avg_sn_pipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     max_sn_pipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
-    last_integration_minutes = models.DecimalField(max_digits=12, decimal_places=1)
+    last_integration_minutes = models.FloatField(null=True)
 
     @property
     def session(self):
@@ -225,7 +225,7 @@ class FoldPulsarDetail(models.Model):
     proposal = models.CharField(max_length=40)
     ephemeris = JSONField()
     ephemeris_is_updated_at = models.DateTimeField(null=True)
-    length = models.DecimalField(max_digits=12, decimal_places=1, null=True)
+    length = models.FloatField(null=True)
     beam = models.IntegerField()
     bw = models.DecimalField(max_digits=12, decimal_places=2)
     nchan = models.IntegerField()
@@ -243,11 +243,17 @@ class FoldPulsarDetail(models.Model):
     tsubint = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     schedule = models.CharField(max_length=16, null=True)
     phaseup = models.CharField(max_length=16, null=True)
-    phase_vs_time = models.URLField(null=True)
-    phase_vs_frequency = models.URLField(null=True)
-    bandpass = models.URLField(null=True)
-    snr_vs_time = models.URLField(null=True)
-    profile = models.URLField(null=True)
+    phase_vs_time_hi = models.URLField(null=True)
+    phase_vs_frequency_hi = models.URLField(null=True)
+    bandpass_hi = models.URLField(null=True)
+    snr_vs_time_hi = models.URLField(null=True)
+    profile_hi = models.URLField(null=True)
+    frequency_hi = models.DecimalField(null=True, max_digits=15, decimal_places=9)
+    phase_vs_time_lo = models.URLField(null=True)
+    phase_vs_frequency_lo = models.URLField(null=True)
+    bandpass_lo = models.URLField(null=True)
+    snr_vs_time_lo = models.URLField(null=True)
+    profile_lo = models.URLField(null=True)
     frequency = models.DecimalField(null=True, max_digits=15, decimal_places=9)
     npol = models.IntegerField(null=True)
 
@@ -258,7 +264,7 @@ class FoldPulsarDetail(models.Model):
     def estimated_size(self):
         """Estimated size of the observation data stored on disk in bytes."""
         try:
-            return math.ceil(self.length / self.tsubint) * self.nbin * self.nchan * self.npol * 2
+            return math.ceil(self.length / float(self.tsubint)) * self.nbin * self.nchan * self.npol * 2
         except ZeroDivisionError:
             return 0
 
@@ -291,7 +297,7 @@ class FoldPulsarDetail(models.Model):
                 "proposal": observation.project.code,
                 "ephemeris": folding.folding_ephemeris.ephemeris,
                 "ephemeris_is_updated_at": folding.folding_ephemeris.created_at,
-                "length": observation.duration / 60,
+                "length": observation.duration,
                 "beam": observation.instrument_config.beam,
                 "bw": observation.instrument_config.bandwidth,
                 "ra": observation.target.raj,
@@ -309,11 +315,16 @@ class FoldPulsarDetail(models.Model):
                 "sn_meerpipe": results.get('sn_meerpipe', None),
                 "schedule": "12",
                 "phaseup": "12",
-                "phase_vs_time": images.get('time.hi', None),
-                "phase_vs_frequency": images.get('freq.hi', None),
-                "bandpass": images.get('band.hi', None),
-                "snr_vs_time": images.get('snrt.hi', None),
-                "profile": images.get('flux.hi', None),
+                "phase_vs_time_hi": images.get('time.hi', None),
+                "phase_vs_frequency_hi": images.get('freq.hi', None),
+                "bandpass_hi": images.get('band.hi', None),
+                "snr_vs_time_hi": images.get('snrt.hi', None),
+                "profile_hi": images.get('flux.hi', None),
+                "phase_vs_time_lo": images.get('time.hi', None),
+                "phase_vs_frequency_lo": images.get('freq.hi', None),
+                "bandpass_lo": images.get('band.hi', None),
+                "snr_vs_time_lo": images.get('snrt.hi', None),
+                "profile_lo": images.get('flux.hi', None),
                 "frequency": observation.instrument_config.frequency,
                 "npol": observation.instrument_config.npol,
             },
@@ -339,7 +350,7 @@ class SearchmodePulsarDetail(models.Model):
     project = models.CharField(max_length=50)
     ra = models.CharField(max_length=16)
     dec = models.CharField(max_length=16)
-    length = models.DecimalField(max_digits=12, decimal_places=1)
+    length = models.FloatField(null=True)
     beam = models.IntegerField()
     frequency = models.DecimalField(max_digits=50, decimal_places=8)
     nchan = models.IntegerField()
@@ -363,7 +374,7 @@ class SearchmodePulsarDetail(models.Model):
                 "project": observation.project.short,
                 "ra": observation.target.raj,
                 "dec": observation.target.decj,
-                "length": observation.duration / 60,
+                "length": observation.duration,
                 "beam": observation.instrument_config.beam,
                 "frequency": 0,
                 "nchan": filter_bankings.nchan,
@@ -395,9 +406,12 @@ class SessionPulsar(models.Model):
     integrations = models.IntegerField()
     beam = models.IntegerField()
     frequency = models.DecimalField(max_digits=50, decimal_places=8)
-    phase_vs_time = models.URLField(null=True)
-    phase_vs_frequency = models.URLField(null=True)
-    profile = models.URLField(null=True)
+    phase_vs_time_hi = models.URLField(null=True)
+    phase_vs_frequency_hi = models.URLField(null=True)
+    profile_hi = models.URLField(null=True)
+    phase_vs_time_lo = models.URLField(null=True)
+    phase_vs_frequency_lo = models.URLField(null=True)
+    profile_lo = models.URLField(null=True)
 
     class Meta:
         ordering = ["-session__start"]
@@ -419,9 +433,12 @@ class SessionPulsar(models.Model):
                 "integrations": last_observation.length,
                 "beam": last_observation.beam,
                 "frequency": last_observation.frequency,
-                "phase_vs_frequency": last_observation.phase_vs_frequency,
-                "phase_vs_time": last_observation.phase_vs_time,
-                "profile": last_observation.profile,
+                "phase_vs_frequency_hi": last_observation.phase_vs_frequency_hi,
+                "phase_vs_time_hi": last_observation.phase_vs_time_hi,
+                "profile_hi": last_observation.profile_hi,
+                "phase_vs_frequency_lo": last_observation.phase_vs_frequency_lo,
+                "phase_vs_time_lo": last_observation.phase_vs_time_lo,
+                "profile_lo": last_observation.profile_lo,
             },
         )
 

@@ -172,7 +172,7 @@ def test_fold_detail_query():
                     'node': {
                         'utc': '2000-01-21T12:59:12+00:00',
                         'project': 'Relbin',
-                        'length': 0.1,
+                        'length': 0,
                         'beam': 54,
                         'bw': 11.0,
                         'nchan': 21,
@@ -264,9 +264,12 @@ def test_session_query():
                         project
                         utc
                         frequency
-                        profile
-                        phaseVsTime
-                        phaseVsFrequency
+                        profileHi
+                        phaseVsTimeHi
+                        phaseVsFrequencyHi
+                        profileLo
+                        phaseVsTimeLo
+                        phaseVsFrequencyLo
                     }
                 }
             }
@@ -287,9 +290,12 @@ def test_session_query():
                         'project': 'Relbin',
                         'utc': '2000-01-21T12:59:12+00:00',
                         'frequency': 839.0,
-                        'profile': None,
-                        'phaseVsTime': None,
-                        'phaseVsFrequency': None,
+                        'profileHi': None,
+                        'phaseVsTimeHi': None,
+                        'phaseVsFrequencyHi': None,
+                        'profileLo': None,
+                        'phaseVsTimeLo': None,
+                        'phaseVsFrequencyLo': None,
                     }
                 }
             ],

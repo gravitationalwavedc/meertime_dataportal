@@ -47,11 +47,11 @@ describe('observationTimeView component', () => {
                             nchan: 928,
                             tsubint: 8,
                             nant: 53,
-                            profile: null,
-                            phaseVsTime: 'phaseVsTime.mock.png',
-                            phaseVsFrequency: 'phaseVsFrequency.mock.png',
-                            bandpass: null,
-                            snrVsTime: '',
+                            profileHi: null,
+                            phaseVsTimeHi: 'phaseVsTime.mock.png',
+                            phaseVsFrequencyHi: 'phaseVsFrequency.mock.png',
+                            bandpassHi: null,
+                            snrVsTimeHi: '',
                             schedule: '12',
                             phaseup: '12',
                             id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY='
@@ -62,14 +62,14 @@ describe('observationTimeView component', () => {
         };
 
         const { getByAltText } = render(<ObservationTimeView data={data} />);
-        expect(getByAltText('profile')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('phaseVsTime')).toHaveAttribute('src', expect.stringContaining('phaseVsTime.mock.png'));
+        expect(getByAltText('profileHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        expect(getByAltText('phaseVsTimeHi')).toHaveAttribute('src', expect.stringContaining('phaseVsTime.mock.png'));
         expect(
-            getByAltText('phaseVsFrequency'))
+            getByAltText('phaseVsFrequencyHi'))
             .toHaveAttribute('src', expect.stringContaining('phaseVsFrequency.mock.png')
             );
-        expect(getByAltText('bandpass')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('snrVsTime')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        expect(getByAltText('bandpassHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        expect(getByAltText('snrVsTimeHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
     });
 
     it('should render the page with no images available', () => {
@@ -91,11 +91,11 @@ describe('observationTimeView component', () => {
                             nchan: 928,
                             tsubint: 8,
                             nant: 53,
-                            profile: null,
-                            phaseVsTime: '',
-                            phaseVsFrequency: '',
-                            bandpass: null,
-                            snrVsTime: '',
+                            profileHi: null,
+                            phaseVsTimeHi: '',
+                            phaseVsFrequencyHi: '',
+                            bandpassHi: null,
+                            snrVsTimeHi: '',
                             schedule: '12',
                             phaseup: '12',
                             id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY='
@@ -105,11 +105,11 @@ describe('observationTimeView component', () => {
             }
         };
         const { getByAltText } = render(<ObservationTimeView data={data} />);
-        expect(getByAltText('profile')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('phaseVsTime')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('phaseVsFrequency')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('bandpass')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('snrVsTime')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        expect(getByAltText('profileHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        expect(getByAltText('phaseVsTimeHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        expect(getByAltText('phaseVsFrequencyHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        expect(getByAltText('bandpassHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        expect(getByAltText('snrVsTimeHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
     });
 
 });

@@ -36,8 +36,8 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
         foldObservationDetails.edges[foldObservationDetails.edges.length -1 ].node.ephemerisIsUpdatedAt;
 
     const columns = [
-        { dataField: 'key', text: '', sort: false, hidden: true, toggle: false },
-        { dataField: 'plotLink', text: '', sort: false, hidden: true, toggle: false },
+        { dataField: 'key', text: '', sort: false, hidden: true, toggle: false, csvExport: false },
+        { dataField: 'plotLink', text: '', sort: false, hidden: true, toggle: false, csvExport: false },
         { dataField: 'utc', text: 'Timestamp', sort: true, headerClasses: 'fold-detail-utc' },
         { dataField: 'project', text: 'Project', sort: true, 
             screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
@@ -66,7 +66,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
             align: 'right', headerAlign: 'right' },
         { dataField: 'snMeerpipe', text: 'S/N meerpipe', sort: true, screenSizes: ['xxl'], 
             align: 'right', headerAlign: 'right' },
-        { dataField: 'action', text: '', sort: false, align: 'right', headerAlign: 'right' },
+        { dataField: 'action', text: '', sort: false, align: 'right', headerAlign: 'right', csvExport: false },
     ];
 
     const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);

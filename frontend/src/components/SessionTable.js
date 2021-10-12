@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Image } from 'react-bootstrap';
+import { Button, ButtonGroup } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { columnsSizeFilter, formatUTC } from '../helpers';
 import { createRefetchContainer, graphql } from 'react-relay';
@@ -7,7 +7,7 @@ import DataView from './DataView';
 import LightBox from 'react-image-lightbox';
 import Link from 'found/Link';
 import SessionCard from './SessionCard';
-import image404 from '../assets/images/image404.png';
+import SessionImage from './SessionImage';
 import moment from 'moment';
 import { useScreenSize } from '../context/screenSize-context';
 
@@ -35,26 +35,35 @@ const SessionTable = ({ data: { lastSession }, relay }) => {
         row.projectKey = project;
         
         const images = [
-            `${process.env.REACT_APP_MEDIA_URL}${row.profile}`,
-            `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsTime}`,
-            `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsFrequency}`
+            `${process.env.REACT_APP_MEDIA_URL}${row.profileHi}`,
+            `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsTimeHi}`,
+            `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsFrequencyHi}`
         ];
 
-        row.profile = row.profile.length ? 
-            <Image rounded onClick={() => openLightBox(images, 0)} fluid src={images[0]}/> : 
-            <Image rounded fluid src={image404}/>;
-        row.phaseVsTime = row.phaseVsTime.length ?
-            <Image rounded onClick={() => openLightBox(images, 1)} fluid src={images[1]}/> : 
-            <Image rounded fluid src={image404}/>;
-        row.phaseVsFrequency = row.phaseVsFrequency.length ? 
-            <Image rounded onClick={() => openLightBox(images, 1)} fluid src={images[2]}/> : 
-            <Image rounded fluid src={image404}/>;
+        row.profile = <SessionImage 
+            imageHi={row.profileHi} 
+            imageLo={row.profileLo}
+            images={images}
+            imageIndex={0}
+            openLightBox={openLightBox} />;
+        row.phaseVsTime = <SessionImage
+            imageHi={row.phaseVsTimeHi}
+            imageLo={row.phaseVsTimeLo}
+            images={images}
+            imageIndex={1}
+            openLightBox={openLightBox} />;
+        row.phaseVsFrequency = <SessionImage
+            imageHi={row.phaseVsFrequencyHi}
+            imageLo={row.phaseVsFrequencyLo}
+            images={images}
+            imageIndex={2}
+            openLightBox={openLightBox} />;
         row.action = <ButtonGroup vertical>
             <Link 
                 to={`${process.env.REACT_APP_BASE_URL}/fold/meertime/${row.jname}/`} 
                 size='sm' 
                 variant="outline-secondary" as={Button}>
-                  View
+                  View all
             </Link>
             <Link 
                 to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.utc}/${row.beam}/`} 
@@ -115,7 +124,7 @@ const SessionTable = ({ data: { lastSession }, relay }) => {
 
     return(
         <div className="session-table">
-            <h5 style={{ marginTop: '-12rem', marginBottom: '10rem' }}>{startDate} - {endDate}</h5>
+            <h5 style={{ marginTop: '-12rem', marginBottom: '10rem' }}>{startDate} UTC - {endDate} UTC</h5>
             <DataView
                 summaryData={summaryData}
                 columns={columnsSizeFiltered}
@@ -171,9 +180,12 @@ export default createRefetchContainer(
                   integrations
                   frequency
                   backendSN
-                  profile
-                  phaseVsTime
-                  phaseVsFrequency
+                  profileHi
+                  phaseVsTimeHi
+                  phaseVsFrequencyHi
+                  profileLo
+                  phaseVsTimeLo
+                  phaseVsFrequencyLo
                 }
               }
             }

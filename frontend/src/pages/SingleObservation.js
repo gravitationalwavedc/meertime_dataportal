@@ -21,11 +21,11 @@ const query = graphql`
           nchan
           tsubint
           nant
-          profile
-          phaseVsTime
-          phaseVsFrequency
-          bandpass
-          snrVsTime
+          profileHi
+          phaseVsTimeHi
+          phaseVsFrequencyHi
+          bandpassHi
+          snrVsTimeHi
           schedule
           phaseup
         }
