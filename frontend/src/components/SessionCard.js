@@ -17,9 +17,9 @@ const SessionCard = ({ row }) =>
                 </Col>
                 <Col md={3}>
                     <p className="overline mb-1">Integration</p>
-                    <p>{row.intergrations}</p>
+                    <p>{row.integrations} [s]</p>
                     <p className="overline mb-1">Frequency</p>
-                    <p>{row.frequency}</p>
+                    <p>{row.frequency} Mhz</p>
                 </Col>
                 <Col>
                     {row.profile}
