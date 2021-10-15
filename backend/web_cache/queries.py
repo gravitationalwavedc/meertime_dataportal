@@ -181,9 +181,10 @@ class LastSessionConnection(relay.Connection):
         return self.iterable.first().session.end if self.iterable else None
 
     def resolve_number_of_observations(self, instance):
+        session = self.iterable.first().session
         total = 0
         for pulsar in self.iterable:
-            total += pulsar.fold_pulsar.foldpulsardetail_set.count()
+            total += pulsar.fold_pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end)).count()
         return total
 
     def resolve_number_of_pulsars(self, instance):
