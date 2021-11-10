@@ -60,7 +60,7 @@ const SessionTable = ({ data: { lastSession }, relay }) => {
             openLightBox={openLightBox} />;
         row.action = <ButtonGroup vertical>
             <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/fold/meertime/${row.jname}/`} 
+                to={`${process.env.REACT_APP_BASE_URL}/${row.pulsarType}/meertime/${row.jname}/`} 
                 size='sm' 
                 variant="outline-secondary" as={Button}>
                   View all
@@ -86,12 +86,12 @@ const SessionTable = ({ data: { lastSession }, relay }) => {
             formatter: cell => `${cell} [s]`, screenSizes: ['xl', 'xxl'] },
         { dataField: 'frequency', text: 'Frequency', align: 'right', headerAlign: 'right', sort: true, 
             formatter: cell => `${cell} Mhz`, screenSizes: ['xxl'] },
-        { dataField: 'profile', text: 'Profile', align: 'center', headerAlign: 'center', sort: false },
-        { dataField: 'phaseVsTime', text: 'Phase vs time', align: 'center', headerAlign: 'center', sort: false, 
+        { dataField: 'profile', text: '', align: 'center', headerAlign: 'center', sort: false },
+        { dataField: 'phaseVsTime', text: '', align: 'center', headerAlign: 'center', sort: false, 
             screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
         { 
             dataField: 'phaseVsFrequency', 
-            text: 'Phase vs frequency', 
+            text: '', 
             align: 'center', 
             headerAlign: 'center', 
             sort: false,
@@ -174,6 +174,7 @@ export default createRefetchContainer(
               edges {
                 node {
                   jname
+                  pulsarType
                   project
                   utc
                   beam

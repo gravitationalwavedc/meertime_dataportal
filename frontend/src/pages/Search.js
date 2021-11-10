@@ -11,7 +11,7 @@ const query = graphql`
   }`;
 
 const Search = () =>
-    <MainLayout title='Searchmode Observations'>
+    <MainLayout title='Search mode Observations'>
         <QueryRenderer
             environment={environment}
             query={query}

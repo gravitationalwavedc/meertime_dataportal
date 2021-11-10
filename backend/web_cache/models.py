@@ -75,30 +75,36 @@ class BasePulsar(models.Model):
 
         return 'UNKNOWN'
 
+    @classmethod
+    def get_by_session(cls, session):
+        return cls.objects.filter(latest_observation__range=(session.start, session.end))
+
 
 class SearchmodePulsar(BasePulsar):
     @classmethod
-    def update_or_create(cls, pulsar):
-        pulsar_targets = pulsar.pulsartargets_set.all()
-        targets = [p.target for p in pulsar_targets]
-        pulsar_observations = Observations.objects.filter(target__in=targets)
+    def update_or_create(cls, target):
+        raw_observations = Observations.objects.filter(target=target)
 
-        latest_filterbankings = (
-            Filterbankings.objects.filter(processing__observation__in=pulsar_observations)
-            .order_by("-processing__observation__utc_start")
-            .last()
+        filterbankings = Filterbankings.objects.filter(processing__observation__in=raw_observations).order_by(
+            "-processing__observation__utc_start"
         )
+
+        observation_ids = [f.processing.observation.id for f in filterbankings]
+        target_observations = raw_observations.filter(id__in=observation_ids)
+
+        latest_filterbankings = filterbankings.last()
+
         latest_filterbankings_observation = latest_filterbankings.processing.observation
 
-        latest_observation = pulsar_observations.order_by('-utc_start').first().utc_start
-        first_observation = pulsar_observations.order_by('-utc_start').last().utc_start
+        latest_observation = target_observations.order_by('-utc_start').first().utc_start
+        first_observation = target_observations.order_by('-utc_start').last().utc_start
         timespan = (latest_observation - first_observation).days + 1
-        number_of_observations = pulsar_observations.count()
+        number_of_observations = target_observations.count()
 
         return SearchmodePulsar.objects.update_or_create(
             main_project=cls.get_main_project(latest_filterbankings_observation.project.code),
             project=latest_filterbankings_observation.project.short,
-            jname=pulsar.jname,
+            jname=target.name,
             defaults={
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
@@ -212,10 +218,6 @@ class FoldPulsar(BasePulsar):
         sqrt_300 = 17.3205080757
 
         return max([(o['snr'] / math.sqrt(o['length']) * sqrt_300) for o in observation_results])
-
-    @classmethod
-    def get_by_session(cls, session):
-        return cls.objects.filter(latest_observation__range=(session.start, session.end))
 
 
 class FoldPulsarDetail(models.Model):
@@ -376,7 +378,7 @@ class SearchmodePulsarDetail(models.Model):
                 "dec": observation.target.decj,
                 "length": observation.duration,
                 "beam": observation.instrument_config.beam,
-                "frequency": 0,
+                "frequency": observation.instrument_config.frequency,
                 "nchan": filter_bankings.nchan,
                 "nbit": filter_bankings.nbit,
                 "nant_eff": observation.nant_eff,
@@ -399,10 +401,11 @@ class SearchmodePulsarDetail(models.Model):
 
 class SessionPulsar(models.Model):
     session = models.ForeignKey(Sessions, on_delete=models.CASCADE)
-    fold_pulsar = models.ForeignKey(FoldPulsar, on_delete=models.CASCADE)
+    fold_pulsar = models.ForeignKey(FoldPulsar, null=True, on_delete=models.CASCADE)
+    search_pulsar = models.ForeignKey(SearchmodePulsar, null=True, on_delete=models.CASCADE)
     utc = models.DateTimeField()
     project = models.CharField(max_length=50)
-    backendSN = models.IntegerField()
+    backendSN = models.IntegerField(null=True)
     integrations = models.IntegerField()
     beam = models.IntegerField()
     frequency = models.DecimalField(max_digits=50, decimal_places=8)
@@ -420,25 +423,41 @@ class SessionPulsar(models.Model):
     def jname(self):
         return self.fold_pulsar.jname
 
+    @property
+    def pulsar_type(self):
+        return 'search' if self.search_pulsar else 'fold'
+
     @classmethod
-    def update_or_create(cls, fold_pulsar, session):
-        last_observation = fold_pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end)).last()
+    def update_or_create(cls, session, pulsar):
+        if isinstance(pulsar, SearchmodePulsar):
+            last_observation = pulsar.searchmodepulsardetail_set.filter(utc__range=(session.start, session.end)).last()
+            fold_pulsar = None
+            search_pulsar = pulsar
+        else:
+            last_observation = pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end)).last()
+            search_pulsar = None
+            fold_pulsar = pulsar
+
+        if not last_observation:
+            return False, None
+
         return cls.objects.update_or_create(
             session=session,
             fold_pulsar=fold_pulsar,
+            search_pulsar=search_pulsar,
             defaults={
                 "utc": last_observation.utc,
                 "project": last_observation.project,
-                "backendSN": last_observation.sn_backend,
+                "backendSN": getattr(last_observation, 'sn_backend', None),
                 "integrations": last_observation.length,
                 "beam": last_observation.beam,
                 "frequency": last_observation.frequency,
-                "phase_vs_frequency_hi": last_observation.phase_vs_frequency_hi,
-                "phase_vs_time_hi": last_observation.phase_vs_time_hi,
-                "profile_hi": last_observation.profile_hi,
-                "phase_vs_frequency_lo": last_observation.phase_vs_frequency_lo,
-                "phase_vs_time_lo": last_observation.phase_vs_time_lo,
-                "profile_lo": last_observation.profile_lo,
+                "phase_vs_frequency_hi": getattr(last_observation, 'phase_vs_frequency_hi', None),
+                "phase_vs_time_hi": getattr(last_observation, 'phase_vs_time_hi', None),
+                "profile_hi": getattr(last_observation, 'profile_hi', None),
+                "phase_vs_frequency_lo": getattr(last_observation, 'phase_vs_frequency_lo', None),
+                "phase_vs_time_lo": getattr(last_observation, 'phase_vs_time_lo', None),
+                "profile_lo": getattr(last_observation, 'profile_lo', None),
             },
         )
 
@@ -447,4 +466,4 @@ class SessionPulsar(models.Model):
         if 'project' in kwargs and kwargs['project'] == 'All':
             kwargs.pop('project')
 
-        return SessionPulsar.objects.filter(session=Sessions.get_last_session(), **kwargs)
+        return SessionPulsar.objects.filter(session=Sessions.get_last_session(not_empty=True), **kwargs)
