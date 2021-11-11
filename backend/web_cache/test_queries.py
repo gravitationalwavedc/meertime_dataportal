@@ -221,7 +221,7 @@ def test_searchmode_query():
 
     expected = {
         'searchmodeObservations': {
-            'totalObservations': 2,
+            'totalObservations': 1,
             'totalPulsars': 1,
             'edges': [
                 {
@@ -229,9 +229,9 @@ def test_searchmode_query():
                         'jname': 'J0125-2327',
                         'project': 'Relbin',
                         'latestObservation': '2000-01-21T12:59:12+00:00',
-                        'firstObservation': '2000-01-01T12:59:12+00:00',
-                        'timespan': 21,
-                        'numberOfObservations': 2,
+                        'firstObservation': '2000-01-21T12:59:12+00:00',
+                        'timespan': 1,
+                        'numberOfObservations': 1,
                     }
                 }
             ],
@@ -276,13 +276,12 @@ def test_session_query():
         }
         """
     )
-
     expected = {
         'lastSession': {
             'start': '2000-01-21T12:59:12+00:00',
             'end': '2000-01-21T12:59:12+00:00',
-            'numberOfObservations': 1,
-            'numberOfPulsars': 1,
+            'numberOfObservations': 2,
+            'numberOfPulsars': 2,
             'edges': [
                 {
                     'node': {
@@ -297,7 +296,21 @@ def test_session_query():
                         'phaseVsTimeLo': None,
                         'phaseVsFrequencyLo': None,
                     }
-                }
+                },
+                {
+                    'node': {
+                        'jname': None,
+                        'project': 'Relbin',
+                        'utc': '2000-01-21T12:59:12+00:00',
+                        'frequency': 839.0,
+                        'profileHi': None,
+                        'phaseVsTimeHi': None,
+                        'phaseVsFrequencyHi': None,
+                        'profileLo': None,
+                        'phaseVsTimeLo': None,
+                        'phaseVsFrequencyLo': None,
+                    }
+                },
             ],
         }
     }
