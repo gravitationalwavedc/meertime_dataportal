@@ -1,5 +1,6 @@
 import math
 from datetime import datetime
+from dateutil import parser
 from django.db import models
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions
 from django_mysql.models import JSONField
@@ -399,8 +400,140 @@ class SearchmodePulsarDetail(models.Model):
         return cls.objects.filter(**kwargs)
 
 
+class SessionDisplay(models.Model):
+    start = models.DateTimeField()
+    end = models.DateTimeField()
+    number_of_observations = models.IntegerField()
+    number_of_pulsars = models.IntegerField()
+    list_of_pulsars = models.TextField(null=True)
+    frequency = models.FloatField(null=True)
+    projects = models.CharField(max_length=2000, null=True)
+    total_integration = models.IntegerField()
+    n_dish_min = models.IntegerField(null=True)
+    n_dish_max = models.IntegerField(null=True)
+    zap_fraction = models.FloatField(null=True)
+
+    class Meta:
+        ordering = ["-start"]
+
+    @classmethod
+    def update_or_create(cls, session):
+        session_pulsars = SessionPulsar.objects.filter(
+            session_display__start=session.start, session_display__end=session.end
+        )
+
+        number_of_observations = 0
+
+        n_dish_max = None
+        n_dish_min = None
+
+        for session_pulsar in session_pulsars.all():
+            if session_pulsar.fold_pulsar:
+                number_of_observations += session_pulsar.fold_pulsar.foldpulsardetail_set.filter(
+                    utc__range=(session.start, session.end)
+                ).count()
+                min_nant_eff, max_nant_eff = (
+                    session_pulsar.fold_pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end))
+                    .aggregate(models.Min('nant_eff'), models.Max('nant_eff'))
+                    .values()
+                )
+
+                if n_dish_min:
+                    n_dish_min = min_nant_eff if n_dish_min > min_nant_eff else n_dish_min
+                else:
+                    n_dish_min = min_nant_eff
+
+                if n_dish_max:
+                    n_dish_max = max_nant_eff if n_dish_max < max_nant_eff else n_dish_max
+                else:
+                    n_dish_max = max_nant_eff
+
+            if session_pulsar.search_pulsar:
+                number_of_observations += session_pulsar.search_pulsar.searchmodepulsardetail_set.filter(
+                    utc__range=(session.start, session.end)
+                ).count()
+                min_nant_eff, max_nant_eff = (
+                    session_pulsar.search_pulsar.searchmodepulsardetail_set.filter(
+                        utc__range=(session.start, session.end)
+                    )
+                    .aggregate(models.Min('nant_eff'), models.Max('nant_eff'))
+                    .values()
+                )
+
+                if n_dish_min:
+                    n_dish_min = min_nant_eff if n_dish_min > min_nant_eff else n_dish_min
+                else:
+                    n_dish_min = min_nant_eff
+
+                if n_dish_max:
+                    n_dish_max = max_nant_eff if n_dish_max < max_nant_eff else n_dish_max
+                else:
+                    n_dish_max = max_nant_eff
+
+        projects = ', '.join({session_pulsar.project for session_pulsar in session_pulsars})
+
+        list_of_pulsars = ', '.join(
+            set.union(
+                {session_pulsar.fold_pulsar.jname for session_pulsar in session_pulsars if session_pulsar.fold_pulsar},
+                {
+                    session_pulsar.search_pulsar.jname
+                    for session_pulsar in session_pulsars
+                    if session_pulsar.search_pulsar
+                },
+            )
+        )
+
+        total_integration = sum([session.integrations for session in session_pulsars])
+
+        return cls.objects.update_or_create(
+            start=session.start,
+            end=session.end,
+            defaults={
+                "number_of_observations": number_of_observations,
+                "frequency": getattr(session_pulsars.filter(frequency__isnull=False).first(), 'frequency', None),
+                "number_of_pulsars": session_pulsars.count(),
+                "list_of_pulsars": list_of_pulsars,
+                "projects": projects,
+                "total_integration": total_integration,
+                "n_dish_min": n_dish_min,
+                "n_dish_max": n_dish_max,
+                "zap_fraction": 0,
+            },
+        )
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(number_of_observations__gt=0, **kwargs)
+
+    @classmethod
+    def get_last_session(cls):
+        return cls.objects.first()
+
+    @classmethod
+    def get_query_instance(cls, **kwargs):
+        if 'project' in kwargs and kwargs['project'] == 'All':
+            kwargs.pop('project')
+
+        if 'start' in kwargs and 'end' in kwargs:
+            kwargs['start'] = parser.parse(kwargs.get('start', ''))
+            kwargs['end'] = parser.parse(kwargs.get('end', ''))
+            return cls.objects.get(**kwargs)
+        elif 'utc' in kwargs:
+            utc = parser.parse(kwargs.pop('utc'))
+            print("It's me", utc, type(utc))
+            return cls.objects.get(start__lte=utc, end__gte=utc)
+        else:
+            return cls.get_last_session()
+
+    def get_session_pulsars(self, **kwargs):
+        if 'project' in kwargs and kwargs['project'] == 'All':
+            kwargs.pop('project')
+
+        return self.sessionpulsar_set.filter(**kwargs)
+
+
 class SessionPulsar(models.Model):
-    session = models.ForeignKey(Sessions, on_delete=models.CASCADE)
+    session_display = models.ForeignKey(SessionDisplay, on_delete=models.CASCADE)
     fold_pulsar = models.ForeignKey(FoldPulsar, null=True, on_delete=models.CASCADE)
     search_pulsar = models.ForeignKey(SearchmodePulsar, null=True, on_delete=models.CASCADE)
     utc = models.DateTimeField()
@@ -417,7 +550,7 @@ class SessionPulsar(models.Model):
     profile_lo = models.URLField(null=True)
 
     class Meta:
-        ordering = ["-session__start"]
+        ordering = ["-session_display__start"]
 
     @property
     def jname(self):
@@ -442,7 +575,7 @@ class SessionPulsar(models.Model):
             return False, None
 
         return cls.objects.update_or_create(
-            session=session,
+            session_display=session,
             fold_pulsar=fold_pulsar,
             search_pulsar=search_pulsar,
             defaults={
@@ -460,10 +593,3 @@ class SessionPulsar(models.Model):
                 "profile_lo": getattr(last_observation, 'profile_lo', None),
             },
         )
-
-    @classmethod
-    def get_last_session_query(cls, **kwargs):
-        if 'project' in kwargs and kwargs['project'] == 'All':
-            kwargs.pop('project')
-
-        return SessionPulsar.objects.filter(session=Sessions.get_last_session(not_empty=True), **kwargs)

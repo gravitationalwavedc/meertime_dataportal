@@ -3,7 +3,14 @@ import json
 from graphene import relay, ObjectType
 from django.template.defaultfilters import filesizeformat
 from graphene_django import DjangoObjectType
-from web_cache.models import FoldPulsar, SearchmodePulsar, FoldPulsarDetail, SearchmodePulsarDetail, SessionPulsar
+from web_cache.models import (
+    FoldPulsar,
+    SearchmodePulsar,
+    FoldPulsarDetail,
+    SearchmodePulsarDetail,
+    SessionDisplay,
+    SessionPulsar,
+)
 from graphql_jwt.decorators import login_required
 
 
@@ -175,7 +182,7 @@ class SearchmodePulsarDetailConnection(relay.Connection):
         return duration.days + 1 if duration else 0
 
 
-class LastSessionConnection(relay.Connection):
+class SessionPulsarConnection(relay.Connection):
     class Meta:
         node = SessionPulsarNode
 
@@ -185,27 +192,49 @@ class LastSessionConnection(relay.Connection):
     number_of_pulsars = graphene.Int()
 
     def resolve_start(self, instance):
-        return self.iterable.first().session.start if self.iterable else None
+        return self.iterable.first().session_display.start if self.iterable else None
 
     def resolve_end(self, instance):
-        return self.iterable.first().session.end if self.iterable else None
+        return self.iterable.first().session_display.end if self.iterable else None
 
     def resolve_number_of_observations(self, instance):
-        session = self.iterable.first().session
+        session_display = self.iterable.first().session_display
         total = 0
         for pulsar in self.iterable:
             if pulsar.fold_pulsar:
                 total += pulsar.fold_pulsar.foldpulsardetail_set.filter(
-                    utc__range=(session.start, session.end)
+                    utc__range=(session_display.start, session_display.end)
                 ).count()
             if pulsar.search_pulsar:
                 total += pulsar.search_pulsar.searchmodepulsardetail_set.filter(
-                    utc__range=(session.start, session.end)
+                    utc__range=(session_display.start, session_display.end)
                 ).count()
         return total
 
     def resolve_number_of_pulsars(self, instance):
         return len(self.edges)
+
+
+class SessionListNode(DjangoObjectType):
+    class Meta:
+        model = SessionDisplay
+        interfaces = (relay.Node,)
+
+    session_pulsars = relay.ConnectionField(SessionPulsarConnection, project=graphene.String())
+
+    def resolve_frequency(self, instance):
+        return round(self.frequency, 1) if self.frequency else None
+
+    def resolve_total_integration(self, instance):
+        return self.total_integration
+
+    def resolve_session_pulsars(self, instance, **kwargs):
+        return self.get_session_pulsars(**kwargs)
+
+
+class SessionListConnection(relay.Connection):
+    class Meta:
+        node = SessionListNode
 
 
 class Query(ObjectType):
@@ -233,7 +262,15 @@ class Query(ObjectType):
         project=graphene.String(),
     )
 
-    last_session = relay.ConnectionField(LastSessionConnection, project=graphene.String())
+    session_display = graphene.Field(
+        SessionListNode,
+        start=graphene.String(),
+        end=graphene.String(),
+        utc=graphene.String(),
+        project=graphene.String(),
+    )
+
+    session_list = relay.ConnectionField(SessionListConnection)
 
     @login_required
     def resolve_fold_observations(self, info, **kwargs):
@@ -252,5 +289,9 @@ class Query(ObjectType):
         return SearchmodePulsarDetail.get_query(**kwargs)
 
     @login_required
-    def resolve_last_session(self, info, **kwargs):
-        return SessionPulsar.get_last_session_query(**kwargs)
+    def resolve_session_list(self, info, **kwargs):
+        return SessionDisplay.get_query(**kwargs)
+
+    @login_required
+    def resolve_session_display(self, info, **kwargs):
+        return SessionDisplay.get_query_instance(**kwargs)

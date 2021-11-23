@@ -1,6 +1,13 @@
 from tqdm import tqdm
-from web_cache.models import FoldPulsar, FoldPulsarDetail, SearchmodePulsar, SearchmodePulsarDetail, SessionPulsar
-from dataportal.models import Pulsars, Foldings, Filterbankings, Sessions, Targets
+from web_cache.models import (
+    FoldPulsar,
+    FoldPulsarDetail,
+    SearchmodePulsar,
+    SearchmodePulsarDetail,
+    SessionPulsar,
+    SessionDisplay,
+)
+from dataportal.models import Foldings, Filterbankings, Sessions, Pulsars, Targets
 
 
 def sync_foldmode():
@@ -32,8 +39,10 @@ def sync_searchmode():
 
 
 def sync_sessions():
+    SessionDisplay.objects.all().delete()
     SessionPulsar.objects.all().delete()
 
     print("Syncing SessionPulsar")
     for session in tqdm(Sessions.objects.all()):
+        SessionDisplay.update_or_create(session)
         session.save()

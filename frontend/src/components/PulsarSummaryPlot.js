@@ -32,8 +32,8 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
         y: row.snBackend,
         value: row.snBackend,
         customComponent: row.band === 'L-BAND' ? 'circle' : 'square',
-        style: { fill:'#E07761', opacity:'0.4' },
-        size: scaleValue(row.length, [minPlotLength, maxPlotLength], [5, 500]),
+        style: { fill:'#E07761', opacity:'0.7' },
+        size: scaleValue(Math.log(row.length), [0, Math.log(maxPlotLength)], [1, 100]),
         color: '#E07761',
         length: row.length,
         link: row.plotLink

@@ -32,11 +32,6 @@ const query = graphql`
     }
   }`;
 
-// missing
-// ephemeris 
-// nant
-// bwMhz
-
 const SearchmodeDetail = ({ match }) => {
     const { jname, mainProject } = match.params;
     return (<MainLayout title={jname}>

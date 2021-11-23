@@ -22,20 +22,19 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
         row.projectKey = mainProject;
         row.latestObservation = formatUTC(row.latestObservation);
         row.firstObservation = formatUTC(row.firstObservation);
-        row.action = <ButtonGroup vertical>
-            <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/fold/${mainProject}/${row.jname}/`} 
-                size='sm' 
-                variant="outline-secondary" as={Button}>
+        row.action = <ButtonGroup vertical> <Link 
+            to={`${process.env.REACT_APP_BASE_URL}/fold/${mainProject}/${row.jname}/`} 
+            size='sm' 
+            variant="outline-secondary" as={Button}>
                   View all
-            </Link>
-            <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.latestObservation}/${row.beam}/`} 
-                size='sm' 
-                variant="outline-secondary" 
-                as={Button}>
+        </Link>
+        <Link 
+            to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.latestObservation}/${row.beam}/`} 
+            size='sm' 
+            variant="outline-secondary" 
+            as={Button}>
                   View last
-            </Link>
+        </Link>
         </ButtonGroup>;
         return [...result, { ...row }];
     }, []);

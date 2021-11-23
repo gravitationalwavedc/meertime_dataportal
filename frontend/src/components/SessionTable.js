@@ -11,25 +11,25 @@ import SessionImage from './SessionImage';
 import moment from 'moment';
 import { useScreenSize } from '../context/screenSize-context';
 
-const SessionTable = ({ data: { lastSession }, relay }) => {
+const SessionTable = ({ data: { sessionDisplay }, relay }) => {
     const { screenSize } = useScreenSize();
     const [project, setProject] = useState('All');
     const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
     const [lightBoxImages, setLightBoxImages] = useState({ images: [], imagesIndex: 0 });
 
     useEffect(() => {
-        relay.refetch({ project: project });
-    }, [project, relay]);
+        relay.refetch({ start: sessionDisplay.start, end: sessionDisplay.end, project: project });
+    }, [project, relay, sessionDisplay.end, sessionDisplay.start]);
 
-    const startDate = moment.parseZone(lastSession.start, moment.ISO_8601).format('h:mma DD/MM/YYYY');
-    const endDate = moment.parseZone(lastSession.end, moment.ISO_8601).format('h:mma DD/MM/YYYY');
+    const startDate = moment.parseZone(sessionDisplay.start, moment.ISO_8601).format('h:mma DD/MM/YYYY');
+    const endDate = moment.parseZone(sessionDisplay.end, moment.ISO_8601).format('h:mma DD/MM/YYYY');
 
     const openLightBox = (images, imageIndex) => {
         setIsLightBoxOpen(true);
         setLightBoxImages({ images: images, imagesIndex: imageIndex });
     };
 
-    const rows = lastSession.edges.reduce((result, edge) => { 
+    const rows = sessionDisplay.sessionPulsars.edges.reduce((result, edge) => { 
         const row = { ...edge.node };
         row.utc = formatUTC(row.utc);
         row.projectKey = project;
@@ -97,18 +97,20 @@ const SessionTable = ({ data: { lastSession }, relay }) => {
             sort: false,
             screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl']
         },
-        { dataField: 'action', text: '', align: 'center', headerAlign: 'center', sort: false }
+        { dataField: 'action', text: '', align: 'right', headerAlign: 'right', sort: false }
     ];
 
     const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
-    const projectData = lastSession.edges.reduce((result, edge) => {
+    const projectData = sessionDisplay.sessionPulsars.edges.reduce((result, edge) => {
         if (result.filter((project) => project.title === edge.node.project).length === 0) {
             return [
                 ...result, 
                 { 
                     title: edge.node.project, 
-                    value: lastSession.edges.filter((newEdge) => newEdge.node.project === edge.node.project).length 
+                    value: sessionDisplay.sessionPulsars.edges.filter(
+                        (newEdge) => newEdge.node.project === edge.node.project
+                    ).length 
                 }
             ];
         }
@@ -117,8 +119,8 @@ const SessionTable = ({ data: { lastSession }, relay }) => {
     }, []);
 
     const summaryData = [
-        { title: 'Observations', value: lastSession.numberOfObservations },
-        { title: 'Pulsars', value: lastSession.numberOfPulsars },
+        { title: 'Observations', value: sessionDisplay.numberOfObservations },
+        { title: 'Pulsars', value: sessionDisplay.numberOfPulsars },
         ...projectData
     ]; 
 
@@ -165,12 +167,18 @@ export default createRefetchContainer(
     SessionTable,
     {
         data: graphql`
-          fragment SessionTable_data on Query @argumentDefinitions(project: {type:"String", defaultValue: "All"}) {
-            lastSession(project: $project) {
+          fragment SessionTable_data on Query @argumentDefinitions(
+              start: {type:"String"},
+              end: {type:"String"},
+              utc: {type:"String"},
+              project: {type:"String", defaultValue: "All"}
+          ) {
+            sessionDisplay(start: $start, end: $end) {
               start 
               end
               numberOfObservations
               numberOfPulsars
+              sessionPulsars(project: $project){
               edges {
                 node {
                   jname
@@ -188,13 +196,14 @@ export default createRefetchContainer(
                   phaseVsTimeLo
                   phaseVsFrequencyLo
                 }
+                }
               }
             }
           }`
     },
     graphql`
-      query SessionTableRefetchQuery($project: String) {
-        ...SessionTable_data @arguments(project: $project)
+      query SessionTableRefetchQuery($start: String, $end: String, $project: String) {
+        ...SessionTable_data @arguments(start: $start, end: $end, project: $project)
       }
    `
 );

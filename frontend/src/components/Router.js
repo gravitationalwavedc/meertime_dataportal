@@ -10,6 +10,7 @@ import { Resolver } from 'found-relay';
 import Search from '../pages/Search';
 import SearchmodeDetail from '../pages/SearchmodeDetail';
 import Session from '../pages/Session';
+import SessionList from '../pages/SessionList';
 import SingleObservation from '../pages/SingleObservation';
 import environment from '../relayEnvironment';
 
@@ -34,6 +35,21 @@ const routeConfig = () => makeRouteConfig(
         <Route
             path="/last-session/"
             Component={Session}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        />
+        <Route
+            path="/session/:utc/"
+            Component={Session}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        />
+        <Route
+            path="/session/:start/:end/"
+            Component={Session}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        />
+        <Route
+            path="/sessions/"
+            Component={SessionList}
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route

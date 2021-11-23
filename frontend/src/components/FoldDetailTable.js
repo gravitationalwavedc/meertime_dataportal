@@ -1,4 +1,4 @@
-import { Button, Col, Row } from 'react-bootstrap';
+import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
 import { columnsSizeFilter, meerWatchLink } from '../helpers';
 
@@ -20,10 +20,16 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                 jname: jname,
                 utc: formatUTC(edge.node.utc),
                 plotLink: `${process.env.REACT_APP_BASE_URL}/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`,
-                action: <Link 
-                    to={`${process.env.REACT_APP_BASE_URL}/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`}
-                    size="sm" 
-                    variant="outline-secondary" as={Button}>View</Link> 
+                action: <ButtonGroup vertical>
+                    <Link 
+                        to={`${process.env.REACT_APP_BASE_URL}/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`}
+                        size="sm" 
+                        variant="outline-secondary" as={Button}>View</Link> 
+                    <Link 
+                        to={`${process.env.REACT_APP_BASE_URL}/session/${formatUTC(edge.node.utc)}/`}
+                        size="sm" 
+                        variant="outline-secondary" as={Button}>View session</Link> 
+                </ButtonGroup>
             }
         ], []
     );
@@ -91,7 +97,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
             return;
         }
 
-        const newRows = allRows.filter((row) => row.proposalShort === project);
+        const newRows = allRows.filter((row) => row.project.toLowerCase() === project.toLowerCase());
         setRows(newRows);
 
     };
@@ -135,7 +141,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                 summaryData={summaryData}
                 columns={columnsSizeFiltered}
                 rows={rows}
-                setProposal={handleProjectFilter}
+                setProject={handleProjectFilter}
                 setBand={handleBandFilter}
                 plot
                 maxPlotLength={foldObservationDetails.maxPlotLength}

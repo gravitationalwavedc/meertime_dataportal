@@ -338,10 +338,7 @@ class Sessions(models.Model):
     end = models.DateTimeField()
 
     @classmethod
-    def get_last_session(cls, not_empty=False):
-        if not_empty:
-            return cls.objects.filter(sessionpulsar__isnull=False).last()
-
+    def get_last_session(cls):
         return cls.objects.order_by("end").last()
 
     @classmethod

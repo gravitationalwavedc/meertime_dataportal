@@ -50,7 +50,7 @@ const SearchTable = ({ data: { searchmodeObservations }, relay }) => {
             formatter: cell => `${cell} [d]`, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'numberOfObservations', text: 'Observations', align: 'right', headerAlign: 'right', 
             sort: true },
-        { dataField: 'action', text: '', align: 'center', headerAlign: 'center', 
+        { dataField: 'action', text: '', align: 'right', headerAlign: 'right', 
             sort: false }
     ];
 

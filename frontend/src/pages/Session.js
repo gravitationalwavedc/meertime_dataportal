@@ -6,31 +6,44 @@ import SessionTable from '../components/SessionTable';
 import environment from '../relayEnvironment';
 
 const query = graphql`
-  query SessionQuery {
-    ...SessionTable_data
+  query SessionQuery($start: String, $end: String, $utc: String) {
+      ...SessionTable_data @arguments (start: $start, end: $end, utc: $utc)
   }`;
 
-const Session = () => (
-    <MainLayout title='Last Session' >
-        <QueryRenderer
-            environment={environment}
-            query={query}
-            fetchPolicy="store-and-network"
-            render = {({ props, error }) => {
-                if (error) {
-                    return <React.Fragment>
-                        <h1>404</h1> 
-                    </React.Fragment>;
-                }
+const getTitle = (start, utc) => {
+    if (start || utc) return 'Session';
+    return 'Last Session';
+};
 
-                if(props) {
-                    return <SessionTable data={props}/>;
-                }
+const Session = ({ match }) => {
+    const { start, end, utc } = match.params;
+    return(
+        <MainLayout title={getTitle(start, utc)}>
+            <QueryRenderer
+                environment={environment}
+                query={query}
+                variables={{
+                    start: start ? start : null,
+                    end: end ? end : null,
+                    utc: utc ? utc : null
+                }}
+                fetchPolicy="store-and-network"
+                render = {({ props, error }) => {
+                    if (error) {
+                        return <React.Fragment>
+                            <h1>404</h1> 
+                        </React.Fragment>;
+                    }
 
-                return <h1>Loading...</h1>;
-            }}
-        />
-    </MainLayout>
-);
+                    if(props) {
+                        return <SessionTable data={props}/>;
+                    }
+
+                    return <h1>Loading...</h1>;
+                }}
+            />
+        </MainLayout>
+    );
+};
 
 export default Session;

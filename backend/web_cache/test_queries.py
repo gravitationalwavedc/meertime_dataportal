@@ -2,7 +2,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from graphql_jwt.testcases import JSONWebTokenClient
 from web_cache.test_signals import create_pulsar_with_observations
-from web_cache.models import FoldPulsarDetail
+from web_cache.models import FoldPulsarDetail, SessionDisplay
 from dataportal.models import Telescopes, Sessions
 
 
@@ -11,6 +11,13 @@ def setup_query_test():
     user = get_user_model().objects.create(username="buffy")
     jname = create_pulsar_with_observations()
     return client, user, jname
+
+
+def create_test_session():
+    t = Telescopes.objects.create(name="MeerKat")
+    return Sessions.objects.create(
+        telescope=t, start=FoldPulsarDetail.objects.first().utc, end=FoldPulsarDetail.objects.last().utc
+    )
 
 
 @pytest.mark.django_db
@@ -242,34 +249,32 @@ def test_searchmode_query():
 
 
 @pytest.mark.django_db
-def test_session_query():
+def test_last_session_query():
     client, user, _ = setup_query_test()
     client.authenticate(user)
-    t = Telescopes.objects.create(name="MeerKat")
-    Sessions.objects.create(
-        telescope=t, start=FoldPulsarDetail.objects.first().utc, end=FoldPulsarDetail.objects.last().utc
-    )
-
+    create_test_session()
     response = client.execute(
         """
         query {
-            lastSession {
+            sessionDisplay {
                 start
                 end
                 numberOfObservations
                 numberOfPulsars
-                edges {
-                    node {
-                        jname
-                        project
-                        utc
-                        frequency
-                        profileHi
-                        phaseVsTimeHi
-                        phaseVsFrequencyHi
-                        profileLo
-                        phaseVsTimeLo
-                        phaseVsFrequencyLo
+                sessionPulsars {
+                    edges {
+                        node {
+                            jname
+                            project
+                            utc
+                            frequency
+                            profileHi
+                            phaseVsTimeHi
+                            phaseVsFrequencyHi
+                            profileLo
+                            phaseVsTimeLo
+                            phaseVsFrequencyLo
+                        }
                     }
                 }
             }
@@ -277,41 +282,96 @@ def test_session_query():
         """
     )
     expected = {
-        'lastSession': {
+        'sessionDisplay': {
             'start': '2000-01-21T12:59:12+00:00',
             'end': '2000-01-21T12:59:12+00:00',
             'numberOfObservations': 2,
             'numberOfPulsars': 2,
+            'sessionPulsars': {
+                'edges': [
+                    {
+                        'node': {
+                            'jname': 'J0125-2327',
+                            'project': 'Relbin',
+                            'utc': '2000-01-21T12:59:12+00:00',
+                            'frequency': 839.0,
+                            'profileHi': None,
+                            'phaseVsTimeHi': None,
+                            'phaseVsFrequencyHi': None,
+                            'profileLo': None,
+                            'phaseVsTimeLo': None,
+                            'phaseVsFrequencyLo': None,
+                        }
+                    },
+                    {
+                        'node': {
+                            'jname': None,
+                            'project': 'Relbin',
+                            'utc': '2000-01-21T12:59:12+00:00',
+                            'frequency': 839.0,
+                            'profileHi': None,
+                            'phaseVsTimeHi': None,
+                            'phaseVsFrequencyHi': None,
+                            'profileLo': None,
+                            'phaseVsTimeLo': None,
+                            'phaseVsFrequencyLo': None,
+                        }
+                    },
+                ]
+            },
+        }
+    }
+    assert not response.errors
+    assert response.data == expected
+
+
+@pytest.mark.django_db
+def test_session_list_query():
+    client, user, _ = setup_query_test()
+    client.authenticate(user)
+    session = create_test_session()
+    SessionDisplay.update_or_create(session)
+
+    response = client.execute(
+        """
+        query {
+            sessionList {
+                edges {
+                    node {
+                        start
+                        end
+                        numberOfPulsars
+                        numberOfObservations
+                        frequency
+                        projects
+                        totalIntegration
+                        nDishMin
+                        nDishMax
+                        zapFraction
+                    }
+                }
+            }
+        }
+        """
+    )
+    expected = {
+        'sessionList': {
             'edges': [
                 {
                     'node': {
-                        'jname': 'J0125-2327',
-                        'project': 'Relbin',
-                        'utc': '2000-01-21T12:59:12+00:00',
+                        'start': '2000-01-21T12:59:12+00:00',
+                        'end': '2000-01-21T12:59:12+00:00',
+                        'numberOfPulsars': 2,
+                        'numberOfObservations': 2,
                         'frequency': 839.0,
-                        'profileHi': None,
-                        'phaseVsTimeHi': None,
-                        'phaseVsFrequencyHi': None,
-                        'profileLo': None,
-                        'phaseVsTimeLo': None,
-                        'phaseVsFrequencyLo': None,
+                        'projects': 'Relbin',
+                        'totalIntegration': 8,
+                        'nDishMin': None,
+                        'nDishMax': None,
+                        'zapFraction': 0.0,
                     }
-                },
-                {
-                    'node': {
-                        'jname': None,
-                        'project': 'Relbin',
-                        'utc': '2000-01-21T12:59:12+00:00',
-                        'frequency': 839.0,
-                        'profileHi': None,
-                        'phaseVsTimeHi': None,
-                        'phaseVsFrequencyHi': None,
-                        'profileLo': None,
-                        'phaseVsTimeLo': None,
-                        'phaseVsFrequencyLo': None,
-                    }
-                },
-            ],
+                }
+            ]
         }
     }
     assert not response.errors

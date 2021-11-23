@@ -27,6 +27,7 @@ const TopNav = () => {
                             as={Nav.Link}>
                                 Last session
                         </Link>
+                        <Link to={`${process.env.REACT_APP_BASE_URL}/sessions/`} exact as={Nav.Link}>Sessions</Link>
                     </Nav>
                     <Nav>
                         <Nav.Link onClick={logout}>Log out</Nav.Link>
