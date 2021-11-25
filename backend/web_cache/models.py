@@ -19,7 +19,7 @@ class BasePulsar(models.Model):
     main_project = models.CharField(choices=MAIN_PROJECT_CHOICES, max_length=8)
     project = models.CharField(max_length=50)
     band = models.CharField(choices=BAND_CHOICES, max_length=7)
-    jname = models.CharField(max_length=64, unique=True)
+    jname = models.CharField(max_length=64)
     latest_observation = models.DateTimeField()
     first_observation = models.DateTimeField()
     timespan = models.IntegerField()
@@ -107,6 +107,7 @@ class SearchmodePulsar(BasePulsar):
             project=latest_filterbankings_observation.project.short,
             jname=target.name,
             defaults={
+                "project": latest_filterbankings_observation.project.short,
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
                 "timespan": timespan,
@@ -170,9 +171,9 @@ class FoldPulsar(BasePulsar):
 
         return FoldPulsar.objects.update_or_create(
             main_project=cls.get_main_project(latest_folding_observation.processing.observation.project.code),
-            project=latest_folding_observation.processing.observation.project.short,
             jname=pulsar.jname,
             defaults={
+                "project": latest_folding_observation.processing.observation.project.short,
                 "band": cls.get_band(latest_folding_observation.processing.observation.instrument_config.frequency),
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
@@ -520,7 +521,6 @@ class SessionDisplay(models.Model):
             return cls.objects.get(**kwargs)
         elif 'utc' in kwargs:
             utc = parser.parse(kwargs.pop('utc'))
-            print("It's me", utc, type(utc))
             return cls.objects.get(start__lte=utc, end__gte=utc)
         else:
             return cls.get_last_session()
