@@ -104,7 +104,6 @@ class SearchmodePulsar(BasePulsar):
 
         return SearchmodePulsar.objects.update_or_create(
             main_project=cls.get_main_project(latest_filterbankings_observation.project.code),
-            project=latest_filterbankings_observation.project.short,
             jname=target.name,
             defaults={
                 "project": latest_filterbankings_observation.project.short,
