@@ -36,7 +36,7 @@ const Session = ({ match }) => {
                     }
 
                     if(props) {
-                        return <SessionTable data={props}/>;
+                        return <SessionTable data={props} utc={utc}/>;
                     }
 
                     return <h1>Loading...</h1>;

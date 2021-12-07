@@ -11,15 +11,19 @@ import SessionImage from './SessionImage';
 import moment from 'moment';
 import { useScreenSize } from '../context/screenSize-context';
 
-const SessionTable = ({ data: { sessionDisplay }, relay }) => {
+const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
     const { screenSize } = useScreenSize();
     const [project, setProject] = useState('All');
     const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
     const [lightBoxImages, setLightBoxImages] = useState({ images: [], imagesIndex: 0 });
 
     useEffect(() => {
-        relay.refetch({ start: sessionDisplay.start, end: sessionDisplay.end, project: project });
-    }, [project, relay, sessionDisplay.end, sessionDisplay.start]);
+        if(utc !== undefined) {
+            relay.refetch({ start: null, end: null, utc: utc, project: project });
+        } else {
+            relay.refetch({ start: sessionDisplay.start, end: sessionDisplay.end, utc: null, project: project });
+        }
+    }, [project, relay, sessionDisplay.end, sessionDisplay.start, utc]);
 
     const startDate = moment.parseZone(sessionDisplay.start, moment.ISO_8601).format('h:mma DD/MM/YYYY');
     const endDate = moment.parseZone(sessionDisplay.end, moment.ISO_8601).format('h:mma DD/MM/YYYY');
@@ -173,7 +177,7 @@ export default createRefetchContainer(
               utc: {type:"String"},
               project: {type:"String", defaultValue: "All"}
           ) {
-            sessionDisplay(start: $start, end: $end) {
+            sessionDisplay(start: $start, end: $end, utc: $utc) {
               start 
               end
               numberOfObservations
@@ -202,8 +206,8 @@ export default createRefetchContainer(
           }`
     },
     graphql`
-      query SessionTableRefetchQuery($start: String, $end: String, $project: String) {
-        ...SessionTable_data @arguments(start: $start, end: $end, project: $project)
+      query SessionTableRefetchQuery($start: String, $end: String, $utc: String, $project: String) {
+          ...SessionTable_data @arguments(start: $start, end: $end, utc: $utc, project: $project)
       }
    `
 );

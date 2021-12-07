@@ -485,10 +485,18 @@ class SessionDisplay(models.Model):
 
         total_integration = sum([session.integrations for session in session_pulsars])
 
+        # Because we only create a new session per start time we need to work out if we need to keep the old end or use
+        # the new one based on which is later. This is fixes an issue with the way Sessions are created in the ingest.
+        try:
+            current_end = cls.objects.get(start=session.start).end
+            end = current_end if current_end > session.end else session.end
+        except cls.DoesNotExist:
+            end = session.end
+
         return cls.objects.update_or_create(
             start=session.start,
-            end=session.end,
             defaults={
+                "end": end,
                 "number_of_observations": number_of_observations,
                 "frequency": getattr(session_pulsars.filter(frequency__isnull=False).first(), 'frequency', None),
                 "number_of_pulsars": session_pulsars.count(),
@@ -518,9 +526,11 @@ class SessionDisplay(models.Model):
             kwargs['start'] = parser.parse(kwargs.get('start', ''))
             kwargs['end'] = parser.parse(kwargs.get('end', ''))
             return cls.objects.get(**kwargs)
+
         elif 'utc' in kwargs:
             utc = parser.parse(kwargs.pop('utc'))
             return cls.objects.get(start__lte=utc, end__gte=utc)
+
         else:
             return cls.get_last_session()
 
