@@ -94,9 +94,9 @@ def test_cli_ephemeris_update_with_token(client, creator, args, jwt_token, debug
         + '",'
         + '"ephemeris":'
         + '"{\\"F0\\": \\"2345.6\\"}",'
-        + '"p0":"'
-        + str(get_decimal_from_limits("p0", args.p0, Ephemerides.limits))
-        + '",'
+        + '"p0":'
+        + str(args.p0)
+        + ','
         + '"dm":'
         + str(args.dm)
         + ','
@@ -114,4 +114,6 @@ def test_cli_ephemeris_update_with_token(client, creator, args, jwt_token, debug
         + '"}}}}'
     )
 
+    print(response.content)
+    print(expected_content.encode("utf-8"))
     assert response.content == expected_content.encode("utf-8")

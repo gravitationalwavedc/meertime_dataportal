@@ -100,4 +100,8 @@ class PTUSEHeader(Header):
             self.search_nchan = int(self.get("SEARCH_OUTNCHAN"))
             self.search_tsamp = float(self.get("SEARCH_OUTTSAMP"))
             self.search_dm = float(self.get("SEARCH_DM"))
-            self.search_tsubint = float(self.get("SEARCH_OUTTSUBINT"))
+            self.search_tsubint = float(10)
+            try:
+                self.search_tsubint = float(self.get("SEARCH_OUTTSUBINT"))
+            except:
+                self.search_tsubint = float(10)

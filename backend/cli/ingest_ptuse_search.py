@@ -132,8 +132,21 @@ def main(beam, utc_start, source, freq, client, url, token):
     calibration_id = get_id(response, "calibration")
     logging.info("calibration_id=%d" % (calibration_id))
 
+    if (
+        hdr.proposal_id.startswith("SCI-20180516-MB")
+        or hdr.proposal_id.startswith("SCI-20200222-MB")
+        or hdr.proposal_id.startswith("SCI-2018-0516-MB")
+    ):
+        program = "MeerTIME"
+    elif hdr.proposal_id.startswith("SCI-20180923-MK") or hdr.proposal_id.startswith("DDT-20200506-BS"):
+        program = "Trapum"
+    elif hdr.proposal_id.startswith("COM-"):
+        program = "Commissioning"
+    else:
+        program = "Unknown"
+
     programs = Programs(client, url, token)
-    response = programs.create(telescope_id, "MeerTIME")
+    response = programs.create(telescope_id, program)
     program_id = get_id(response, "program")
 
     projects = Projects(client, url, token)
@@ -146,7 +159,7 @@ def main(beam, utc_start, source, freq, client, url, token):
         project_id = int(projects.decode_id(encoded_project_id))
         logging.info("project_id=%d (pre-existing)" % project_id)
     else:
-        response = projects.create(hdr.proposal_id, "unknown", embargo_days, "")
+        response = projects.create(program_id, hdr.proposal_id, "unknown", embargo_days, "")
         project_id = get_id(response, "project")
         logging.info("project_id=%d" % project_id)
 
@@ -177,7 +190,6 @@ def main(beam, utc_start, source, freq, client, url, token):
     created_at = util_time.get_current_time()
     created_by = getpass.getuser()
 
-    # TODO check existing / understand why gein the mutation always creates
     response = pipelines.create(hdr.machine, "None", hdr.machine_version, created_at, created_by, hdr.machine_config)
     pipeline_id = get_id(response, "pipeline")
     logging.info("pipeline_id=%d" % (pipeline_id))
@@ -186,7 +198,6 @@ def main(beam, utc_start, source, freq, client, url, token):
     results = "{}"
 
     processings = Processings(client, url, token)
-    # TODO check existing / understand why the mutation always creates
     parent_processing_id = None
     utc_dt = datetime.strptime(f"{utc_start} +0000", "%Y-%m-%d-%H:%M:%S %z")
     embargo_end_dt = utc_dt + timedelta(microseconds=embargo_us)
@@ -197,9 +208,8 @@ def main(beam, utc_start, source, freq, client, url, token):
     logging.info("processing_id=%d" % (processing_id))
 
     filterbankings = Filterbankings(client, url, token)
-    # TODO check existing / understand why gein the mutation always creates
     response = filterbankings.create(
-        processing_id, hdr.search_nbit, hdr.search_npol, hdr.search_nchan, hdr.search_tsamp, hdr.search_dm
+        processing_id, hdr.search_nbit, hdr.search_npol, hdr.search_nchan, hdr.search_dm, hdr.search_tsamp
     )
     filterbanking_id = get_id(response, "filterbanking")
     logging.info("filterbanking_id=%d" % (filterbanking_id))
@@ -212,9 +222,10 @@ def main(beam, utc_start, source, freq, client, url, token):
     if len(pngs) == 0:
         # generate pngs from the first search mode file
         os.chdir(results_dir)
-        search_file = location + "/" + utc_start + ".sf"
-        if os.path.exists(search_file):
-            cmd = "pfits_plotsearch -f " + search_file + " -t1 0 -t2 5"
+        search_files = sorted(glob.glob("%s/*.sf" % (location)), reverse=True)
+        if len(search_files) > 0 and os.path.exists(search_files[0]):
+            cmd = "pfits_plotsearch -f " + search_files[0] + " -t1 0 -t2 1"
+            logging.info(cmd)
             os.system(cmd)
 
     rank = 0
@@ -228,6 +239,49 @@ def main(beam, utc_start, source, freq, client, url, token):
             logging.info("pipeline_image_id=%d" % (pipeline_image_id))
         else:
             logging.info("Ignoring empty pipeline image %s" % (png))
+
+    # trigger the web-cache to update with the newly uploaded images
+    filterbankings.update(
+        filterbanking_id,
+        processing_id,
+        hdr.search_nbit,
+        hdr.search_npol,
+        hdr.search_nchan,
+        hdr.search_dm,
+        hdr.search_tsamp,
+    )
+
+    # update sessions
+    sessions = Sessions(client, url, token)
+    sessions.get_dicts = True
+
+    # find any session in which the utc_start of this observation is within 2hrs of the end of the sesion
+    end_lte = utc_start_dt
+    end_gte = end_lte - timedelta(0, 7200)
+    matching_sessions = sessions.list(
+        None,
+        telescope_id,
+        None,
+        None,
+        None,
+        end_lte.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        end_gte.strftime("%Y-%m-%dT%H:%M:%S%z"),
+    )
+    latest_session = None
+    for s in matching_sessions:
+        if latest_session is None:
+            latest_session = s["node"]
+        if s["node"]["end"] > latest_session["end"]:
+            latest_session = s["node"]
+
+    utc_end = utc_start_dt + timedelta(0, duration)
+    if latest_session is None:
+        session_id = sessions.create(
+            telescope_id, utc_start_dt.strftime("%Y-%m-%dT%H:%M:%S%z"), utc_end.strftime("%Y-%m-%dT%H:%M:%S%z")
+        )
+    else:
+        session_id = sessions.decode_id(latest_session["id"])
+        sessions.update(session_id, telescope_id, latest_session["start"], utc_end.strftime("%Y-%m-%dT%H:%M:%S%z"))
 
 
 if __name__ == "__main__":
@@ -264,8 +318,13 @@ if __name__ == "__main__":
     freq = args.freq
 
     format = "%(asctime)s : %(levelname)s : " + "%s/%s/%s/%s" % (beam, utc_start, source, freq) + " : %(msg)s"
-    # logging.basicConfig(format=format,filename=LOG_FILE,level=logging.INFO)
-    # logging.basicConfig(format=format, level=logging.DEBUG)
+    if args.verbose:
+        logging.basicConfig(format=format, level=logging.INFO)
+    else:
+        logging.basicConfig(format=format, filename=LOG_FILE, level=logging.INFO)
+
+    if args.verbose_client:
+        logging.basicConfig(format=format, level=logging.DEBUG)
 
     client = GraphQLClient(args.url, args.verbose_client)
 

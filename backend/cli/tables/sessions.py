@@ -63,9 +63,9 @@ class Sessions(GraphQLTable):
             {"field": "telescope_Id", "value": telescope_id, "join": "Telescopes"},
             {"field": "telescope_Name", "value": telescope_name, "join": "Telescopes"},
             {"field": "start_Lte", "value": start_lte, "join": None},
-            {"field": "start_Lte", "value": start_gte, "join": None},
+            {"field": "start_Gte", "value": start_gte, "join": None},
             {"field": "end_Lte", "value": end_lte, "join": None},
-            {"field": "end_Lte", "value": end_gte, "join": None},
+            {"field": "end_Gte", "value": end_gte, "join": None},
         ]
         graphql_query = graphql_query_factory(self.table_name, self.record_name, id, filters)
         return GraphQLTable.list_graphql(self, graphql_query)

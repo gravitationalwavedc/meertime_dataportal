@@ -201,8 +201,21 @@ def main(beam, utc_start, source, freq, client, url, token):
     calibration_id = get_id(response, "calibration")
     logging.info("calibration_id=%d" % (calibration_id))
 
+    if (
+        hdr.proposal_id.startswith("SCI-20180516-MB")
+        or hdr.proposal_id.startswith("SCI-20200222-MB")
+        or hdr.proposal_id.startswith("SCI-2018-0516-MB")
+    ):
+        program = "MeerTIME"
+    elif hdr.proposal_id.startswith("SCI-20180923-MK"):
+        program = "Trapum"
+    elif hdr.proposal_id.startswith("COM-"):
+        program = "Commissioning"
+    else:
+        program = "Unknown"
+
     programs = Programs(client, url, token)
-    response = programs.create(telescope_id, "MeerTIME")
+    response = programs.create(telescope_id, program)
     program_id = get_id(response, "program")
 
     projects = Projects(client, url, token)
@@ -269,7 +282,7 @@ def main(beam, utc_start, source, freq, client, url, token):
     # TODO filter on the actual ephemeris, but JSONfield filtering doesn't seem to work
     ephemerides = Ephemerides(client, url, token)
     ephemerides.set_field_names(literal, quiet)
-    response = ephemerides.list(None, pulsar_id, None, eph.dm, eph.rm, json.dumps(eph.ephem))
+    response = ephemerides.list(None, pulsar_id, None, eph.dm, eph.rm)
     encoded_ephemeris_id = get_id_from_listing(response, "ephemeris", listing="allEphemerides")
     if encoded_ephemeris_id:
         ephemeris_id = int(ephemerides.decode_id(encoded_ephemeris_id))
@@ -351,6 +364,50 @@ def main(beam, utc_start, source, freq, client, url, token):
             logging.info("pipeline_image_id=%d" % (pipeline_image_id))
         else:
             logging.info("Ignoring empty pipeline image %s" % (png))
+
+    # update the foldings, to ensure the web cache is triggered with the new pipeline images
+    foldings.update(
+        folding_id,
+        processing_id,
+        ephemeris_id,
+        hdr.fold_nbin,
+        hdr.fold_npol,
+        hdr.fold_nchan,
+        hdr.fold_dm,
+        hdr.fold_tsubint,
+    )
+
+    # update sessions
+    sessions = Sessions(client, url, token)
+    sessions.get_dicts = True
+
+    # find any session in which the utc_start of this observation is within 2hrs of the end of the sesion
+    end_lte = utc_start_dt
+    end_gte = end_lte - timedelta(0, 7200)
+    matching_sessions = sessions.list(
+        None,
+        telescope_id,
+        None,
+        None,
+        None,
+        end_lte.strftime("%Y-%m-%dT%H:%M:%S%z"),
+        end_gte.strftime("%Y-%m-%dT%H:%M:%S%z"),
+    )
+    latest_session = None
+    for s in matching_sessions:
+        if latest_session is None:
+            latest_session = s["node"]
+        if s["node"]["end"] > latest_session["end"]:
+            latest_session = s["node"]
+
+    utc_end = utc_start_dt + timedelta(0, duration)
+    if latest_session is None:
+        session_id = sessions.create(
+            telescope_id, utc_start_dt.strftime("%Y-%m-%dT%H:%M:%S%z"), utc_end.strftime("%Y-%m-%dT%H:%M:%S%z")
+        )
+    else:
+        session_id = sessions.decode_id(latest_session["id"])
+        sessions.update(session_id, telescope_id, latest_session["start"], utc_end.strftime("%Y-%m-%dT%H:%M:%S%z"))
 
 
 if __name__ == "__main__":

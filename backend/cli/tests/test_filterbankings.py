@@ -18,6 +18,7 @@ def test_cli_filterbanking_list_with_token(client, creator, args, jwt_token):
     assert compiled_pattern.match(response.content)
 
 
+@disable_signals
 def test_cli_filterbanking_create_with_token(client, creator, args, jwt_token):
     assert creator.has_perm("dataportal.add_filterbankings")
 
@@ -31,6 +32,7 @@ def test_cli_filterbanking_create_with_token(client, creator, args, jwt_token):
     args.dm = 12.12
     args.tsamp = 0.00064
 
+    client.verbose = True
     t = CliFilterbankings(client, "/graphql/", jwt_token)
     response = t.process(args)
 
@@ -41,6 +43,7 @@ def test_cli_filterbanking_create_with_token(client, creator, args, jwt_token):
     assert compiled_pattern.match(response.content)
 
 
+@disable_signals
 def test_cli_filterbanking_update_with_token(client, creator, args, jwt_token):
     assert creator.has_perm("dataportal.add_filterbankings")
 

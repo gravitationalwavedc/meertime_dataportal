@@ -1,6 +1,7 @@
 import pytest
 import json
 import logging
+from functools import wraps
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 
@@ -182,3 +183,14 @@ def creator(django_user_model):
 @pytest.fixture
 def debug_log(caplog):
     caplog.set_level(logging.DEBUG)
+
+
+def disable_signals(func):
+    @wraps(func)
+    def inner_function(*args, **kwargs):
+        from django.db.models import signals
+
+        signals.post_save.receivers = []
+        return func(*args, **kwargs)
+
+    return inner_function

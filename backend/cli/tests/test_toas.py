@@ -29,6 +29,7 @@ def test_cli_toa_list_with_token(client, creator, args, jwt_token):
     assert compiled_pattern.match(response.content)
 
 
+@disable_signals
 def test_cli_toa_list_clauses(client, creator, args, jwt_token):
 
     toa = baker.make("dataportal.Toas")
@@ -81,6 +82,7 @@ def test_cli_toa_list_clauses(client, creator, args, jwt_token):
     assert response.content == expected_content.encode("utf-8")
 
 
+@disable_signals
 def test_cli_toa_create_with_token(client, creator, args, jwt_token):
     assert creator.has_perm("dataportal.add_toas")
 
@@ -112,6 +114,7 @@ def test_cli_toa_create_with_token(client, creator, args, jwt_token):
     assert compiled_pattern.match(response.content)
 
 
+@disable_signals
 def test_cli_toa_update_with_token(client, creator, args, jwt_token, debug_log):
     assert creator.has_perm("dataportal.add_toas")
 

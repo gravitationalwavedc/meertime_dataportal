@@ -5,6 +5,9 @@ from graphql_jwt.decorators import login_required
 
 from dataportal.models import Toas
 
+DATETIME_FILTERS = ['exact', 'isnull', 'lt', 'lte', 'gt', 'gte', 'month', 'year', 'date']
+NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']
+
 
 class ToasNode(DjangoObjectType):
     class Meta:
@@ -14,6 +17,20 @@ class ToasNode(DjangoObjectType):
             "input_folding_id": ["exact"],
             "timing_ephemeris_id": ["exact"],
             "template_id": ["exact"],
+            "input_folding__folding_ephemeris_id": ["exact"],
+            "input_folding__folding_ephemeris__pulsar__id": ["exact"],
+            "input_folding__folding_ephemeris__pulsar__jname": ["exact"],
+            "processing__observation__utc_start": DATETIME_FILTERS,
+            "processing__observation__duration": NUMERIC_FILTERS,
+            "processing__observation__suspect": ["exact"],
+            "processing__observation__telescope__id": ["exact"],
+            "processing__observation__telescope__name": ["exact"],
+            "processing__observation__project__id": ["exact"],
+            "processing__observation__project__code": ["exact"],
+            "processing__observation__instrument_config__id": ["exact"],
+            "processing__observation__instrument_config__name": ["exact"],
+            "processing__pipeline__id": ["exact"],
+            "processing__pipeline__name": ["exact"],
         }
         interfaces = (relay.Node,)
 

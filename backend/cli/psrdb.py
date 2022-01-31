@@ -44,6 +44,7 @@ if __name__ == "__main__":
     joins = [
         joins.FoldedObservations,
         joins.ProcessedObservations,
+        joins.ToaedObservations,
     ]
 
     configured = []

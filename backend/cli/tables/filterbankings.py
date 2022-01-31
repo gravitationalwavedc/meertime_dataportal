@@ -128,7 +128,7 @@ class Filterbankings(GraphQLTable):
         parser_list = subs.add_parser("list", help="list existing pipelines")
         parser_list.add_argument("--id", metavar="ID", type=int, help="list pipelines matching the id [int]")
         parser_list.add_argument(
-            "--processing", metavar="PROCID", type=str, help="list pipelines matching the processing id [int]"
+            "--processing", metavar="PROCID", type=int, help="list pipelines matching the processing id [int]"
         )
 
         # create the parser for the "create" command

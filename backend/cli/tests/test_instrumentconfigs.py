@@ -70,12 +70,12 @@ def test_cli_instrumentconfig_update_with_token(client, creator, args, jwt_token
         + '"name":"'
         + args.name
         + '",'
-        + '"bandwidth":"'
-        + str(get_decimal_from_limits("bandwidth", args.bandwidth, Instrumentconfigs.limits))
-        + '",'
-        + '"frequency":"'
-        + str(get_decimal_from_limits("frequency", args.frequency, Instrumentconfigs.limits))
-        + '",'
+        + '"bandwidth":'
+        + str(args.bandwidth)
+        + ','
+        + '"frequency":'
+        + str(args.frequency)
+        + ','
         + '"nchan":'
         + str(args.nchan)
         + ','
@@ -86,5 +86,8 @@ def test_cli_instrumentconfig_update_with_token(client, creator, args, jwt_token
         + args.beam
         + '"}}}}'
     )
+
+    print(response.content)
+    print(expected_content.encode("utf-8"))
 
     assert response.content == expected_content.encode("utf-8")

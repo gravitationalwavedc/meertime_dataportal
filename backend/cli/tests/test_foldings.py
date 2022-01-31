@@ -19,10 +19,11 @@ def test_cli_folding_list_with_token(client, creator, args, jwt_token):
     assert compiled_pattern.match(response.content)
 
 
+@disable_signals
 def test_cli_folding_create_with_token(client, creator, args, jwt_token):
     assert creator.has_perm("dataportal.add_foldings")
 
-    processing = baker.make("dataportal.Processings")
+    processing = baker.make("dataportal.Processings", observation__duration=10)
     eph = baker.make("dataportal.Ephemerides")
 
     args.subcommand = "create"
@@ -41,14 +42,17 @@ def test_cli_folding_create_with_token(client, creator, args, jwt_token):
 
     expected_content_pattern = b'{"data":{"createFolding":{"folding":{"id":"\\d+"}}}}'
     compiled_pattern = re.compile(expected_content_pattern)
+
     assert compiled_pattern.match(response.content)
 
 
+@disable_signals
 def test_cli_folding_update_with_token(client, creator, args, jwt_token):
+
     assert creator.has_perm("dataportal.add_foldings")
 
     # first create a record
-    folding = baker.make("dataportal.Foldings")
+    folding = baker.make("dataportal.Foldings", processing__observation__duration=10)
     processing = baker.make("dataportal.Processings")
     ephemeris = baker.make("dataportal.Ephemerides")
 

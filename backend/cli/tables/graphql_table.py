@@ -20,6 +20,7 @@ class GraphQLTable:
         else:
             self.header = {"HTTP_AUTHORIZATION": f"JWT {token}"}
 
+        self.get_dicts = False
         self.print_stdout = False
         self.create_mutation = None
         self.create_variables = {}
@@ -129,6 +130,7 @@ class GraphQLTable:
         print_headers = True
         cursor = None
         has_next_page = True
+        result = []
         while has_next_page:
             query = graphql_query.paginate(cursor)
             logging.debug(f"Using query {query}")
@@ -149,10 +151,45 @@ class GraphQLTable:
                                     has_next_page = True
                             if "edges" in record_set.keys():
                                 record_set = record_set["edges"]
+                            if self.get_dicts:
+                                result = result + record_set
                             self.print_record_set(record_set, delim, print_headers=print_headers)
                             print_headers = cursor is None
 
-        return response
+        if self.get_dicts:
+            return result
+        else:
+            return response
+
+    def get_graphql(self, graphql_query):
+        graphql_query.set_field_list(self.field_names)
+        graphql_query.set_use_pagination(self.paginate)
+        print_headers = True
+        cursor = None
+        has_next_page = True
+        result = {}
+        while has_next_page:
+            query = graphql_query.paginate(cursor)
+            logging.debug(f"Using query {query}")
+            payload = {"query": query}
+            response = self.client.post(self.url, payload, **self.header)
+            has_next_page = False
+            if response.status_code == 200:
+                content = json.loads(response.content)
+                result.update(content)
+                if not "errors" in content.keys():
+                    for key in content["data"].keys():
+                        record_set = content["data"][key]
+                        if record_set is None:
+                            continue
+                        if type(record_set) == dict:
+                            if "pageInfo" in record_set.keys():
+                                if content["data"][key]["pageInfo"]["hasNextPage"]:
+                                    cursor = content["data"][key]["pageInfo"]["endCursor"]
+                                    has_next_page = True
+                            if "edges" in record_set.keys():
+                                record_set = record_set["edges"]
+        return result
 
     def delete_graphql(self):
         logging.debug(f"Using mutation {self.delete_mutation}")
