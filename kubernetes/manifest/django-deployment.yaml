@@ -103,7 +103,7 @@ spec:
           command: ["python", "manage.py", "migrate"]
         - name: sync-web-cache 
           image: nexus.gwdc.org.au/meertime/meertime_django:dev.1.8
-          imagePullPolicy: Alway
+          imagePullPolicy: Always
           env:
             - name: DB_HOST
               valueFrom:
