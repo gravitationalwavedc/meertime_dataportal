@@ -180,7 +180,7 @@ def create_fold_mode(
 
         # post to slack if this was a new obs
         if count == 0:
-            url = "https://pulsars.org.au" + reverse(
+            url = "https://dev.pulsars.org.au" + reverse(
                 "obs_detail", kwargs={"psr": f"{psr}", "beam": f"{beam}", "utc": f"{utc}",}
             )
             msg = f"An observation of {psr}  in beam {beam} at UTC of {utc} was just added to the portal. The S/N as determined by the backend was {snr:.1f}. See more at {url}."
