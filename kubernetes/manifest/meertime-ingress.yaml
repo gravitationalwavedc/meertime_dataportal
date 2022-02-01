@@ -17,7 +17,7 @@ spec:
             backend:
               serviceName: nginx
               servicePort: 80
-    - host: pulsars.org.au
+    - host: dev.pulsars.org.au
       http:
         paths:
           - path: /
