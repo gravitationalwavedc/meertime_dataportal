@@ -6,6 +6,7 @@ from dataportal.models import (
     Observations,
     Telescopes,
     Projects,
+    Programs,
     Instrumentconfigs,
     Pipelines,
     Ephemerides,
@@ -26,7 +27,9 @@ def create_pulsar_with_observations():
 
     telescope = Telescopes.objects.create(name='my first telescope')
 
-    project = Projects.objects.create(code='SCI_thinga_MB', short='Relbin')
+    program = Programs.objects.create(name="MeerTime", telescope=telescope)
+
+    project = Projects.objects.create(code='SCI_thinga_MB', short='Relbin', program=program)
 
     instrument_config = Instrumentconfigs.objects.create(
         name='my config', bandwidth=11, frequency=839, nchan=42, npol=44, beam=54

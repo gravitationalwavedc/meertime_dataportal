@@ -5,6 +5,7 @@ import Fold from '../pages/Fold';
 import FoldDetail from '../pages/FoldDetail';
 import Login from '../pages/Login';
 import React from 'react';
+import ReactGA from 'react-ga';
 import { RedirectException } from 'found';
 import { Resolver } from 'found-relay';
 import Search from '../pages/Search';
@@ -14,11 +15,25 @@ import SessionList from '../pages/SessionList';
 import SingleObservation from '../pages/SingleObservation';
 import environment from '../relayEnvironment';
 
-const renderPrivateRoute = (Component, props) => {
+
+//Initialise Google Analytics
+const trackingID = 'UA-217876641-1';
+ReactGA.initialize(trackingID);
+ReactGA.set({
+    username: localStorage.getItem('username')
+});
+
+const renderTrackingRoute = (Component, props) => {
+    ReactGA.pageview(props.match.location.pathname);
+    return <Component {...props} />;
+};
+
+const renderPrivateRoute = (Component, props) => { 
     if (localStorage.getItem('jwt') === null) {
         throw new RedirectException(`${process.env.REACT_APP_BASE_URL}/login/`, 401);
     }
-    return <Component {...props}/>;
+    // Send data to google analytics
+    return renderTrackingRoute(Component, props);
 };
 
 const routeConfig = () => makeRouteConfig(
@@ -26,6 +41,7 @@ const routeConfig = () => makeRouteConfig(
         <Route
             path="/login/:next?"
             Component={Login}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
         />
         <Route
             path="/search/"

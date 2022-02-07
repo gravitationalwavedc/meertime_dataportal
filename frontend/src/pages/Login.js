@@ -14,6 +14,7 @@ const mutation = graphql`
     {
       token
       meerWatchKey
+      payload
     }
   }`;
 
@@ -42,6 +43,7 @@ const Login = ({ router, match }) => {
                     } else if(tokenAuth){
                         localStorage.jwt = tokenAuth.token;
                         localStorage.meerWatchKey = tokenAuth.meerWatchKey;
+                        localStorage.username = tokenAuth.payload['username'];
                         const nextPath = match.params['next'] === undefined ? 
                             process.env.REACT_APP_BASE_URL : `${process.env.REACT_APP_BASE_URL}/${match.params['next']}/`;
                         router.replace(nextPath);

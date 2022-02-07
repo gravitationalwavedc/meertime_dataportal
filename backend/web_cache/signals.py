@@ -13,7 +13,9 @@ from web_cache.models import (
 
 @receiver(post_save, sender=Foldings)
 def handle_foldings_save(sender, instance, **kwargs):
-    FoldPulsar.update_or_create(instance.folding_ephemeris.pulsar)
+    FoldPulsar.update_or_create(
+        instance.folding_ephemeris.pulsar, program_name=instance.processing.observation.project.program.name
+    )
     FoldPulsarDetail.update_or_create(instance)
 
 

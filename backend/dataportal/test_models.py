@@ -19,6 +19,7 @@ from .models import (
     Pulsartargets,
     Processings,
     Projects,
+    Programs,
     Targets,
     Telescopes,
     Sessions,
@@ -100,7 +101,11 @@ def generate_db_entry(psr, utc, config=default_entry_config):
     psr, _ = Pulsars.objects.get_or_create(jname=psr)
     target, _ = Targets.objects.get_or_create(name=psr, raj=config["raj"], decj=config["decj"])
     psrtarget, _ = Pulsartargets.objects.get_or_create(pulsar=psr, target=target)
-    proposal, _ = Projects.objects.get_or_create(code=config["proposal"], short=config["proposal_short"])
+    telescope, _ = Telescopes.objects.get_or_create(name=config["telescope"])
+    program, _ = Programs.objects.get_or_create(name="MeerTime", telescope=telescope)
+    proposal, _ = Projects.objects.get_or_create(
+        code=config["proposal"], short=config["proposal_short"], program=program
+    )
 
     instrument = Instrumentconfigs.objects.create(
         name=config["name"],
@@ -110,8 +115,6 @@ def generate_db_entry(psr, utc, config=default_entry_config):
         npol=config["npol"],
         beam=config["beam"],
     )
-
-    telescope, _ = Telescopes.objects.get_or_create(name=config["telescope"])
 
     utc_dt = datetime.strptime(f"{utc} +0000", "%Y-%m-%d-%H:%M:%S %z")
 
@@ -127,7 +130,6 @@ def generate_db_entry(psr, utc, config=default_entry_config):
             valid_from=utc_dt,
             valid_to=utc_dt + timedelta(days=2),
         )
-        print("First one is fine")
     except IntegrityError:
         eph = Ephemerides.objects.create(
             pulsar=psr,
@@ -164,7 +166,6 @@ def generate_db_entry(psr, utc, config=default_entry_config):
             valid_from=utc_dt,
             valid_to=utc_dt + timedelta(days=2),
         )
-        print("Second one created")
 
     try:
         pipeline, _ = Pipelines.objects.get_or_create(
@@ -288,11 +289,16 @@ def test_ephemeris_hash():
 @pytest.mark.django_db
 def test_get_last_session():
     telescope = Telescopes.objects.create(name="TestScope")
+    my_timezone = pytz.UTC
     Sessions.objects.create(
-        telescope=telescope, start=datetime(2021, 1, 15, 8, 45, 23), end=datetime(2021, 1, 15, 15, 0, 0)
+        telescope=telescope,
+        start=timezone.make_aware(datetime(2021, 1, 15, 8, 45, 23), timezone=my_timezone),
+        end=timezone.make_aware(datetime(2021, 1, 15, 15, 0, 0), timezone=my_timezone),
     )
     expected_last_session = Sessions.objects.create(
-        telescope=telescope, start=datetime(2021, 2, 23, 7, 45), end=datetime(2021, 2, 23, 16, 30)
+        telescope=telescope,
+        start=timezone.make_aware(datetime(2021, 2, 23, 7, 45), timezone=my_timezone),
+        end=timezone.make_aware(datetime(2021, 2, 23, 16, 30), timezone=my_timezone),
     )
     assert Sessions.get_last_session() == expected_last_session
 
@@ -300,11 +306,16 @@ def test_get_last_session():
 @pytest.mark.django_db
 def test_get_session():
     telescope = Telescopes.objects.create(name="TestScope")
+    my_timezone = pytz.UTC
     Sessions.objects.create(
-        telescope=telescope, start=datetime(2021, 1, 15, 8, 45, 23), end=datetime(2021, 1, 15, 15, 0, 0)
+        telescope=telescope,
+        start=timezone.make_aware(datetime(2021, 1, 15, 8, 45, 23), timezone=my_timezone),
+        end=timezone.make_aware(datetime(2021, 1, 15, 15, 0, 0), timezone=my_timezone),
     )
     expected_session = Sessions.objects.create(
-        telescope=telescope, start=datetime(2021, 2, 23, 7, 45), end=datetime(2021, 2, 23, 16, 30)
+        telescope=telescope,
+        start=timezone.make_aware(datetime(2021, 2, 23, 7, 45), timezone=my_timezone),
+        end=timezone.make_aware(datetime(2021, 2, 23, 16, 30), timezone=my_timezone),
     )
     utc = timezone.make_aware(datetime(2021, 2, 23, 8, 30), timezone=pytz.UTC)
     assert Sessions.get_session(utc) == expected_session

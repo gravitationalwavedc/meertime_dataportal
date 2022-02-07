@@ -8,15 +8,13 @@ from statistics import mean
 
 BAND_CHOICES = (('L-Band', 'L-Band'), ('S-Band', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown'))
 
-MAIN_PROJECT_CHOICES = (('MEERTIME', 'MeerTime'), ('TRAPUM', 'Trapum'), ('UNKNOWN', 'UNKNOWN'))
-
 
 class BasePulsar(models.Model):
     """
     Abstract class to store common methods and attributes that Searchmode and Foldings share.
     """
 
-    main_project = models.CharField(choices=MAIN_PROJECT_CHOICES, max_length=8)
+    main_project = models.CharField(max_length=64)
     project = models.CharField(max_length=50)
     band = models.CharField(choices=BAND_CHOICES, max_length=7)
     jname = models.CharField(max_length=64)
@@ -42,16 +40,6 @@ class BasePulsar(models.Model):
             kwargs.pop('main_project')
 
         return cls.objects.filter(**kwargs)
-
-    @classmethod
-    def get_main_project(cls, project_code):
-        if project_code.startswith('SCI') and 'MK' in project_code:
-            return 'TRAPUM'
-
-        if project_code.startswith('SCI') and 'MB' in project_code:
-            return 'MEERTIME'
-
-        return 'UNKNOWN'
 
     @classmethod
     def get_band(cls, frequency):
@@ -102,8 +90,13 @@ class SearchmodePulsar(BasePulsar):
         timespan = (latest_observation - first_observation).days + 1
         number_of_observations = target_observations.count()
 
+        try:
+            main_project = latest_filterbankings_observation.project.program.name
+        except AttributeError:
+            main_project = 'UNKNOWN'
+
         return SearchmodePulsar.objects.update_or_create(
-            main_project=cls.get_main_project(latest_filterbankings_observation.project.code),
+            main_project=main_project,
             jname=target.name,
             defaults={
                 "project": latest_filterbankings_observation.project.short,
@@ -127,7 +120,7 @@ class FoldPulsar(BasePulsar):
         return Sessions.get_session(self.latest_observation)
 
     @classmethod
-    def update_or_create(cls, pulsar):
+    def update_or_create(cls, pulsar, program_name):
         """
         Processes data from multiple tables into a single source that can be consumed directly
         by the web application through graphql.
@@ -137,7 +130,13 @@ class FoldPulsar(BasePulsar):
         """
 
         # Get various related model objects required using the saved folding instance as a base.
-        foldings = Foldings.objects.filter(folding_ephemeris__pulsar=pulsar)
+        foldings = Foldings.objects.filter(
+            folding_ephemeris__pulsar=pulsar, processing__observation__project__program__name=program_name
+        )
+
+        if not foldings:
+            return
+
         folding_observations = [folding.processing.observation for folding in foldings]
         latest_folding_observation = foldings.order_by("-processing__observation__utc_start").first()
 
@@ -169,7 +168,7 @@ class FoldPulsar(BasePulsar):
         last_integration_minutes = latest_folding_observation.processing.observation.duration / 60
 
         return FoldPulsar.objects.update_or_create(
-            main_project=cls.get_main_project(latest_folding_observation.processing.observation.project.code),
+            main_project=program_name,
             jname=pulsar.jname,
             defaults={
                 "project": latest_folding_observation.processing.observation.project.short,
@@ -282,8 +281,18 @@ class FoldPulsarDetail(models.Model):
     @classmethod
     def update_or_create(cls, folding):
         pulsar = folding.folding_ephemeris.pulsar
-        fold_pulsar = FoldPulsar.objects.get(jname=pulsar.jname)
         observation = folding.processing.observation
+
+        if not observation.project.program:
+            return
+
+        main_project = observation.project.program.name
+
+        try:
+            fold_pulsar = FoldPulsar.objects.get(jname=pulsar.jname, main_project=main_project)
+        except FoldPulsar.DoesNotExist:
+            print("FoldPulsar ", pulsar.jname, main_project, " does not exist")
+            return
 
         images = {
             pipelineimage.image_type: pipelineimage.image.name
