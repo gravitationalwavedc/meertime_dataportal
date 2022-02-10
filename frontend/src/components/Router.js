@@ -18,7 +18,7 @@ import environment from '../relayEnvironment';
 
 //Initialise Google Analytics
 const trackingID = 'UA-217876641-1';
-ReactGA.initialize(trackingID);
+ReactGA.initialize(trackingID, { testMode: process.env.NODE_ENV === 'test' });
 ReactGA.set({
     username: localStorage.getItem('username')
 });

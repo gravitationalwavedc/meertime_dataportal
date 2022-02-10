@@ -31,7 +31,7 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
         x: moment(row.utc, 'YYYY-MM-DD-HH:mm:ss'), 
         y: row.snBackend,
         value: row.snBackend,
-        customComponent: row.band === 'L-BAND' ? 'circle' : 'square',
+        customComponent: row.band.toLowerCase() === 'l-band' ? 'square' : 'circle',
         style: { fill:'#E07761', opacity:'0.7' },
         size: scaleValue(Math.log(row.length), [0, Math.log(maxPlotLength)], [1, 100]),
         color: '#E07761',
