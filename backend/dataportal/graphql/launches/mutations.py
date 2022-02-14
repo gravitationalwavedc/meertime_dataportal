@@ -46,7 +46,7 @@ class DeleteLaunch(graphene.Mutation):
     launch = graphene.Field(LaunchesType)
 
     @classmethod
-    @permission_required("dataportal.add_launchs")
+    @permission_required("dataportal.add_launches")
     def mutate(cls, self, info, id):
         Launches.objects.get(pk=id).delete()
         return cls(ok=True)
