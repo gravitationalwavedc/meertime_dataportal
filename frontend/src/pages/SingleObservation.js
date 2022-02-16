@@ -12,6 +12,7 @@ const query = graphql`
           beam
           utc
           proposal
+          project
           frequency
           bw
           ra
@@ -28,6 +29,16 @@ const query = graphql`
           snrVsTimeHi
           schedule
           phaseup
+          images {
+            edges {
+              node {
+                plotType
+                resolution
+                process
+                url
+              }
+            }
+          }
         }
       }
     }

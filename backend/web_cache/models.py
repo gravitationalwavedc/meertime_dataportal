@@ -220,6 +220,31 @@ class FoldPulsar(BasePulsar):
         return max([(o['snr'] / math.sqrt(o['length']) * sqrt_300) for o in observation_results])
 
 
+class FoldDetailImage(models.Model):
+    fold_pulsar_detail = models.ForeignKey("FoldPulsarDetail", related_name='images', on_delete=models.CASCADE)
+    image_type = models.CharField(max_length=64, null=True)
+    url = models.URLField()
+
+    @property
+    def plot_type(self):
+        return self.image_type.split('.')[-2]
+
+    @property
+    def resolution(self):
+        # Resolution is either 'hi', 'lo' or size in the form '300x240'
+        # We will assume anything with a height lower than 600 is 'lo' res
+        try:
+            resolution = self.image_type.split('.')[-1]
+            return 'lo' if int(resolution.split('x')[0]) < 600 else 'hi'
+        except ValueError:
+            return self.image_type.split('.')[-1]
+
+    @property
+    def process(self):
+        image_details = self.image_type.split('.')
+        return image_details[0] if len(image_details) > 2 else 'raw'
+
+
 class FoldPulsarDetail(models.Model):
     fold_pulsar = models.ForeignKey(FoldPulsar, on_delete=models.CASCADE)
     utc = models.DateTimeField()
@@ -245,19 +270,19 @@ class FoldPulsarDetail(models.Model):
     tsubint = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     schedule = models.CharField(max_length=16, null=True)
     phaseup = models.CharField(max_length=16, null=True)
+    frequency = models.DecimalField(null=True, max_digits=15, decimal_places=9)
+    npol = models.IntegerField(null=True)
+
     phase_vs_time_hi = models.URLField(null=True)
     phase_vs_frequency_hi = models.URLField(null=True)
     bandpass_hi = models.URLField(null=True)
     snr_vs_time_hi = models.URLField(null=True)
     profile_hi = models.URLField(null=True)
-    frequency_hi = models.DecimalField(null=True, max_digits=15, decimal_places=9)
     phase_vs_time_lo = models.URLField(null=True)
     phase_vs_frequency_lo = models.URLField(null=True)
     bandpass_lo = models.URLField(null=True)
     snr_vs_time_lo = models.URLField(null=True)
     profile_lo = models.URLField(null=True)
-    frequency = models.DecimalField(null=True, max_digits=15, decimal_places=9)
-    npol = models.IntegerField(null=True)
 
     class Meta:
         ordering = ["-utc"]
@@ -301,7 +326,7 @@ class FoldPulsarDetail(models.Model):
 
         results = folding.processing.results if folding.processing.results else {}
 
-        return FoldPulsarDetail.objects.update_or_create(
+        new_fold_pulsar_detail, created = FoldPulsarDetail.objects.update_or_create(
             fold_pulsar=fold_pulsar,
             utc=observation.utc_start,
             defaults={
@@ -327,6 +352,8 @@ class FoldPulsarDetail(models.Model):
                 "sn_meerpipe": results.get('sn_meerpipe', None),
                 "schedule": "12",
                 "phaseup": "12",
+                "frequency": observation.instrument_config.frequency,
+                "npol": observation.instrument_config.npol,
                 "phase_vs_time_hi": images.get('time.hi', None),
                 "phase_vs_frequency_hi": images.get('freq.hi', None),
                 "bandpass_hi": images.get('band.hi', None),
@@ -337,10 +364,21 @@ class FoldPulsarDetail(models.Model):
                 "bandpass_lo": images.get('band.lo', None),
                 "snr_vs_time_lo": images.get('snrt.lo', None),
                 "profile_lo": images.get('flux.lo', None),
-                "frequency": observation.instrument_config.frequency,
-                "npol": observation.instrument_config.npol,
             },
         )
+
+        # Find all TOA entries with a matching fold_id. These TOA entries should each link back to an entry in
+        # processings, with only one processing per pipeline (i.e. project code). Those processing entries than link
+        # forwards to the pipelineimages table.
+        for toas in folding.toas_set.all():
+            for image in toas.processing.pipelineimages_set.all():
+                FoldDetailImage.objects.update_or_create(
+                    fold_pulsar_detail=new_fold_pulsar_detail,
+                    image_type=image.image_type,
+                    defaults={"url": image.image.name},
+                )
+
+        return new_fold_pulsar_detail, created
 
     @classmethod
     def get_query(cls, **kwargs):

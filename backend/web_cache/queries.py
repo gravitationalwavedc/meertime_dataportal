@@ -7,11 +7,24 @@ from web_cache.models import (
     FoldPulsar,
     SearchmodePulsar,
     FoldPulsarDetail,
+    FoldDetailImage,
     SearchmodePulsarDetail,
     SessionDisplay,
     SessionPulsar,
 )
 from graphql_jwt.decorators import login_required
+
+
+class FoldDetailImageNode(DjangoObjectType):
+    class Meta:
+        model = FoldDetailImage
+        interfaces = (relay.Node,)
+        exclude = ["FoldPulsarDetail"]
+
+    # These attributes map to FoldDetailImage properties
+    process = graphene.String()
+    resolution = graphene.String()
+    plot_type = graphene.String()
 
 
 class FoldPulsarNode(DjangoObjectType):

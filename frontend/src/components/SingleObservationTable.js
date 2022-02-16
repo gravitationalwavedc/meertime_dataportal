@@ -1,19 +1,12 @@
-import { Button, Col, Image, Row } from 'react-bootstrap';
+import { Button, Col, Row } from 'react-bootstrap';
 import { formatUTC, kronosLink } from '../helpers';
 
 import DataDisplay from './DataDisplay';
+import ImageGrid from './ImageGrid';
 import Link from 'found/Link';
 import MainLayout from './MainLayout';
 import React from 'react';
-import image404 from '../assets/images/image404.png';
 
-const imageNames = [
-    'profileHi',
-    'bandpassHi',
-    'phaseVsTimeHi',
-    'phaseVsFrequencyHi',
-    'snrVsTimeHi'
-];
 
 const titles = [
     'jname',
@@ -26,13 +19,10 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
     const title = `${jname}`;  
     const displayDate = formatUTC(relayObservationModel.utc);
 
-    const pulsarImages = Object.keys(relayObservationModel)
-        .filter(key => imageNames.includes(key))
+    const dataItems = Object.keys(relayObservationModel)
+        .filter(key => !titles.includes(key) && key !== 'images')
         .reduce((result, key) => ({ ...result, [key]: relayObservationModel[key] }), {});
 
-    const dataItems = Object.keys(relayObservationModel)
-        .filter(key => !imageNames.includes(key) && !titles.includes(key))
-        .reduce((result, key) => ({ ...result, [key]: relayObservationModel[key] }), {});
 
     return (
         <MainLayout title={title}>
@@ -62,15 +52,7 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                 </Col>
             </Row>
             <Row className="single-observation-data">
-                <Col sm={12} md={4} xl={6}>
-                    {Object.keys(pulsarImages).map(key => <Image 
-                        rounded
-                        fluid
-                        key={key}
-                        className="mb-3"
-                        alt={key}
-                        src={pulsarImages[key] ? `${process.env.REACT_APP_MEDIA_URL}${pulsarImages[key]}` : image404}/>                     )}
-                </Col>
+                <ImageGrid images={relayObservationModel.images} />
                 <Col md={8} xl={6}>
                     {Object.keys(dataItems).map(key => 
                         <DataDisplay key={key} title={key} value={dataItems[key]} full/> 

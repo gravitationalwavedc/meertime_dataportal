@@ -15,7 +15,7 @@ const TopNav = () => {
     return (
         <Navbar bg="dark" variant="dark" className="mb-5" expand="md">
             <Container>
-                <Navbar.Brand href="#home">MEERTIME</Navbar.Brand>
+                <Link to={`${process.env.REACT_APP_BASE_URL}/`} exact as ={Navbar.Brand}>MEERTIME</Link>
                 <Navbar.Toggle aria-controls="top-navbar"/>
                 <Navbar.Collapse id="top-navbar">
                     <Nav className="mr-auto">

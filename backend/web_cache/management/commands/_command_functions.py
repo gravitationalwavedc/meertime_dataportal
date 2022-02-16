@@ -20,8 +20,8 @@ def sync_foldmode():
     """
     # Delete everything and start fresh. There might be a way to update instead but this is simplier and should only be
     # run if the code base has changed.
-    FoldPulsarDetail.objects.all().delete()
-    FoldPulsar.objects.all().delete()
+    # FoldPulsarDetail.objects.all().delete()
+    # FoldPulsar.objects.all().delete()
 
     # We need to do the FoldPulsars first so that they're ready when the FoldPulsarDetail needs them.
     print("Syncing FoldPulsars")
