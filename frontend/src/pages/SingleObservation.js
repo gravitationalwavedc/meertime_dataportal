@@ -22,13 +22,6 @@ const query = graphql`
           nchan
           tsubint
           nant
-          profileHi
-          phaseVsTimeHi
-          phaseVsFrequencyHi
-          bandpassHi
-          snrVsTimeHi
-          schedule
-          phaseup
           images {
             edges {
               node {

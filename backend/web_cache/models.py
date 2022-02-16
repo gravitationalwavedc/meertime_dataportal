@@ -273,17 +273,6 @@ class FoldPulsarDetail(models.Model):
     frequency = models.DecimalField(null=True, max_digits=15, decimal_places=9)
     npol = models.IntegerField(null=True)
 
-    phase_vs_time_hi = models.URLField(null=True)
-    phase_vs_frequency_hi = models.URLField(null=True)
-    bandpass_hi = models.URLField(null=True)
-    snr_vs_time_hi = models.URLField(null=True)
-    profile_hi = models.URLField(null=True)
-    phase_vs_time_lo = models.URLField(null=True)
-    phase_vs_frequency_lo = models.URLField(null=True)
-    bandpass_lo = models.URLField(null=True)
-    snr_vs_time_lo = models.URLField(null=True)
-    profile_lo = models.URLField(null=True)
-
     class Meta:
         ordering = ["-utc"]
 
@@ -319,11 +308,6 @@ class FoldPulsarDetail(models.Model):
             print("FoldPulsar ", pulsar.jname, main_project, " does not exist")
             return
 
-        images = {
-            pipelineimage.image_type: pipelineimage.image.name
-            for pipelineimage in folding.processing.pipelineimages_set.all()
-        }
-
         results = folding.processing.results if folding.processing.results else {}
 
         new_fold_pulsar_detail, created = FoldPulsarDetail.objects.update_or_create(
@@ -354,16 +338,6 @@ class FoldPulsarDetail(models.Model):
                 "phaseup": "12",
                 "frequency": observation.instrument_config.frequency,
                 "npol": observation.instrument_config.npol,
-                "phase_vs_time_hi": images.get('time.hi', None),
-                "phase_vs_frequency_hi": images.get('freq.hi', None),
-                "bandpass_hi": images.get('band.hi', None),
-                "snr_vs_time_hi": images.get('snrt.hi', None),
-                "profile_hi": images.get('flux.hi', None),
-                "phase_vs_time_lo": images.get('time.lo', None),
-                "phase_vs_frequency_lo": images.get('freq.lo', None),
-                "bandpass_lo": images.get('band.lo', None),
-                "snr_vs_time_lo": images.get('snrt.lo', None),
-                "profile_lo": images.get('flux.lo', None),
             },
         )
 
@@ -377,6 +351,13 @@ class FoldPulsarDetail(models.Model):
                     image_type=image.image_type,
                     defaults={"url": image.image.name},
                 )
+        # Also process the raw images
+        for image in folding.processing.pipelineimages_set.all():
+            FoldDetailImage.objects.update_or_create(
+                fold_pulsar_detail=new_fold_pulsar_detail,
+                image_type=image.image_type,
+                defaults={"url": image.image.name},
+            )
 
         return new_fold_pulsar_detail, created
 

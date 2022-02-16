@@ -87,7 +87,7 @@ spec:
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
         - name: migrate
-          image: nexus.gwdc.org.au/meertime/django:dev.1.9.3
+          image: nexus.gwdc.org.au/meertime/django:dev.1.9.4
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -102,7 +102,7 @@ spec:
                 name: db-config
           command: ["python", "manage.py", "migrate"]
         - name: sync-web-cache 
-          image: nexus.gwdc.org.au/meertime/django:dev.1.9.3
+          image: nexus.gwdc.org.au/meertime/django:dev.1.9.4
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -118,7 +118,7 @@ spec:
           command: ["python", "manage.py", "sync_web_cache"]
       containers:
         - name: django
-          image: nexus.gwdc.org.au/meertime/django:dev.1.9.3
+          image: nexus.gwdc.org.au/meertime/django:dev.1.9.4
           resources: {}
           imagePullPolicy: Always
           env:
