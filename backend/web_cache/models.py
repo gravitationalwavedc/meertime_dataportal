@@ -601,12 +601,14 @@ class SessionPulsar(models.Model):
     def update_or_create(cls, session, pulsar):
         if isinstance(pulsar, SearchmodePulsar):
             last_observation = pulsar.searchmodepulsardetail_set.filter(utc__range=(session.start, session.end)).last()
+            images = {}
             fold_pulsar = None
             search_pulsar = pulsar
         else:
             last_observation = pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end)).last()
-            search_pulsar = None
+            images = {i.image_type: i.url for i in last_observation.images.all()}
             fold_pulsar = pulsar
+            search_pulsar = None
 
         if not last_observation:
             return False, None
@@ -622,11 +624,11 @@ class SessionPulsar(models.Model):
                 "integrations": last_observation.length,
                 "beam": last_observation.beam,
                 "frequency": last_observation.frequency,
-                "phase_vs_frequency_hi": getattr(last_observation, 'phase_vs_frequency_hi', None),
-                "phase_vs_time_hi": getattr(last_observation, 'phase_vs_time_hi', None),
-                "profile_hi": getattr(last_observation, 'profile_hi', None),
-                "phase_vs_frequency_lo": getattr(last_observation, 'phase_vs_frequency_lo', None),
-                "phase_vs_time_lo": getattr(last_observation, 'phase_vs_time_lo', None),
-                "profile_lo": getattr(last_observation, 'profile_lo', None),
+                "phase_vs_frequency_hi": images.get('freq.hi', None),
+                "phase_vs_time_hi": images.get('time.hi', None),
+                "profile_hi": images.get('profile.hi', None),
+                "phase_vs_frequency_lo": images.get('freq.lo', None),
+                "phase_vs_time_lo": images.get('time.lo', None),
+                "profile_lo": images.get('profile.lo', None),
             },
         )
