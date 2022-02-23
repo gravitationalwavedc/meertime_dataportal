@@ -83,7 +83,7 @@ const DataView = ({
                                     {...props.baseProps} 
                                     pagination={paginationFactory(options)} 
                                     bordered={false}
-                                    rowStyle={{ whiteSpace: 'pre', verticalAlign: 'middle' }}
+                                    rowStyle={{ verticalAlign: 'middle' }}
                                     wrapperClasses='bg-gray-100'
                                 /> : 
                                 <JobCardsList {...props.baseProps} as={card} />

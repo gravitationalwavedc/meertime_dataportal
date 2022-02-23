@@ -15,7 +15,7 @@ class BasePulsar(models.Model):
     """
 
     main_project = models.CharField(max_length=64)
-    project = models.CharField(max_length=50)
+    project = models.CharField(max_length=500)
     band = models.CharField(choices=BAND_CHOICES, max_length=7)
     jname = models.CharField(max_length=64)
     latest_observation = models.DateTimeField()
@@ -35,6 +35,8 @@ class BasePulsar(models.Model):
 
         if 'project' in kwargs and kwargs['project'] == 'All':
             kwargs.pop('project')
+        elif 'project' in kwargs:
+            kwargs["project__icontains"] = kwargs.pop('project')
 
         if 'main_project' in kwargs and kwargs['main_project'] == 'All':
             kwargs.pop('main_project')
@@ -81,17 +83,15 @@ class SearchmodePulsar(BasePulsar):
         observation_ids = [f.processing.observation.id for f in filterbankings]
         target_observations = raw_observations.filter(id__in=observation_ids)
 
-        latest_filterbankings = filterbankings.last()
-
-        latest_filterbankings_observation = latest_filterbankings.processing.observation
-
         latest_observation = target_observations.order_by('-utc_start').first().utc_start
         first_observation = target_observations.order_by('-utc_start').last().utc_start
         timespan = (latest_observation - first_observation).days + 1
         number_of_observations = target_observations.count()
 
+        projects = ", ".join({observation.project.short for observation in target_observations})
+
         try:
-            main_project = latest_filterbankings_observation.project.program.name
+            main_project = latest_observation.project.program.name
         except AttributeError:
             main_project = 'UNKNOWN'
 
@@ -99,7 +99,7 @@ class SearchmodePulsar(BasePulsar):
             main_project=main_project,
             jname=target.name,
             defaults={
-                "project": latest_filterbankings_observation.project.short,
+                "project": projects,
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
                 "timespan": timespan,
@@ -167,11 +167,13 @@ class FoldPulsar(BasePulsar):
         last_sn_raw = results['snr'] if 'snr' in results else 0
         last_integration_minutes = latest_folding_observation.processing.observation.duration / 60
 
+        projects = ", ".join({observation.project.short for observation in folding_observations})
+
         return FoldPulsar.objects.update_or_create(
             main_project=program_name,
             jname=pulsar.jname,
             defaults={
-                "project": latest_folding_observation.processing.observation.project.short,
+                "project": projects,
                 "band": cls.get_band(latest_folding_observation.processing.observation.instrument_config.frequency),
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
