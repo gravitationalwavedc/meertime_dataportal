@@ -93,7 +93,7 @@ class SearchmodePulsar(BasePulsar):
         try:
             main_project = latest_observation.project.program.name
         except AttributeError:
-            main_project = 'UNKNOWN'
+            main_project = 'meertime'
 
         return SearchmodePulsar.objects.update_or_create(
             main_project=main_project,
