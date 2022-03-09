@@ -1,4 +1,0 @@
-{
-  "load": [".pinterest-linters"],
-  "phabricator.uri" : "https://phab.adacs.org.au/source/gw-arcanist-library/"
-}
