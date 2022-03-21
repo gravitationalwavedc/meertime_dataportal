@@ -29,7 +29,7 @@ def create_pulsar_with_observations():
 
     program = Programs.objects.create(name="MeerTime", telescope=telescope)
 
-    project = Projects.objects.create(code='SCI_thinga_MB', short='Relbin', program=program)
+    project = Projects.objects.create(code='SCI_thinga_MB', short='RelBin', program=program)
 
     instrument_config = Instrumentconfigs.objects.create(
         name='my config', bandwidth=11, frequency=839, nchan=42, npol=44, beam=54
@@ -60,6 +60,13 @@ def create_pulsar_with_observations():
         created_by="Buffy Summers",
     )
 
+    relbin_pipeline = Pipelines.objects.create(
+        name='MeerPIPE_RelBin',
+        revision=1,
+        created_at=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
+        created_by="Buffy Summers",
+    )
+
     processing = Processings.objects.create(
         observation=observation,
         pipeline=pipeline,
@@ -68,13 +75,23 @@ def create_pulsar_with_observations():
         results={'snr': 67.800},
     )
 
+    # Create a parent processing for the sn_meerpipe
+    Processings.objects.create(
+        observation=observation,
+        parent=processing,
+        pipeline=relbin_pipeline,
+        embargo_end=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
+        location="me",
+        results={'snr': 42.1},
+    )
+
     ephemerides = Ephemerides.objects.create(
         pulsar=pulsar,
         created_at=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
         created_by="Buffy Summers",
         p0=12,
-        dm=12,
-        rm=12,
+        dm=24,
+        rm=25,
         valid_from=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
         valid_to=datetime.strptime("2000-01-03-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
     )
