@@ -16,3 +16,7 @@ MIDDLEWARE.append("corsheaders.middleware.CorsMiddleware")
 CORS_ORIGIN_ALLOW_ALL = True
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+SITE_URL = 'http://localhost:3000/'  # with a trailing slash
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import { commitMutation, graphql } from 'react-relay';
 
 import { HiOutlineLockClosed } from 'react-icons/hi';
+import { Link } from 'found';
 import environment from '../relayEnvironment';
 
 const mutation = graphql`
@@ -113,6 +114,10 @@ const Login = ({ router, match }) => {
                                             <Button 
                                                 className="text-uppercase shadow-md mt-2" 
                                                 type="submit">Sign in</Button>
+                                            <Link
+                                                className="text-uppercase shadow-md mt-2"
+                                                to={`${process.env.REACT_APP_BASE_URL}/register/`}
+                                            >Register</Link>
                                         </Form>}
                                 </Formik>
                             </Card.Body>

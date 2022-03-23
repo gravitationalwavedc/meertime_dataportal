@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "web_cache",
     "mathfilters",
     "graphene_django",
+    "user_manage",
 ]
 
 MIDDLEWARE = [
@@ -80,3 +81,9 @@ STATIC_URL = "/static/"
 
 MEDIA_ROOT = "/media/"
 MEDIA_URL = "/media/"
+
+SITE_URL = 'https://pulsars.org.au/'  # with a trailing slash
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+DEFAULT_EMAIL_FROM = 'ssaleheen@swin.edu.au'

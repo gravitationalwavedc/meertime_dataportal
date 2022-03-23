@@ -7,6 +7,8 @@ import Login from '../pages/Login';
 import React from 'react';
 import ReactGA from 'react-ga';
 import { RedirectException } from 'found';
+import Register from '../pages/Register';
+import RegisterVerify from '../pages/RegisterVerify';
 import { Resolver } from 'found-relay';
 import Search from '../pages/Search';
 import SearchmodeDetail from '../pages/SearchmodeDetail';
@@ -41,6 +43,16 @@ const routeConfig = () => makeRouteConfig(
         <Route
             path="/login/:next?"
             Component={Login}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/register/"
+            Component={Register}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/verify/:code/"
+            Component={RegisterVerify}
             render={({ Component, props }) => renderTrackingRoute(Component, props)}
         />
         <Route
