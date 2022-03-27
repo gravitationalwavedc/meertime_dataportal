@@ -82,7 +82,7 @@ def test_fold_query_with_token():
                         'jname': 'J0125-2327',
                         'latestObservation': '2000-01-21T12:59:12+00:00',
                         'firstObservation': '2000-01-21T12:59:12+00:00',
-                        'project': 'Relbin',
+                        'project': 'RelBin',
                         'timespan': 1,
                         'numberOfObservations': 1,
                         'totalIntegrationHours': 0.0,
@@ -178,8 +178,8 @@ def test_fold_detail_query():
                 {
                     'node': {
                         'utc': '2000-01-21T12:59:12+00:00',
-                        'project': 'Relbin',
-                        'length': 0,
+                        'project': 'RelBin',
+                        'length': 0.0,
                         'beam': 54,
                         'bw': 11.0,
                         'nchan': 21,
@@ -188,10 +188,10 @@ def test_fold_detail_query():
                         'nant': None,
                         'nantEff': None,
                         'dmFold': None,
-                        'dmMeerpipe': None,
-                        'rmMeerpipe': None,
+                        'dmMeerpipe': 24.0,
+                        'rmMeerpipe': 25.0,
                         'snBackend': 67.8,
-                        'snMeerpipe': None,
+                        'snMeerpipe': 42.1,
                     }
                 }
             ],
@@ -234,7 +234,7 @@ def test_searchmode_query():
                 {
                     'node': {
                         'jname': 'J0125-2327',
-                        'project': 'Relbin',
+                        'project': 'RelBin',
                         'latestObservation': '2000-01-21T12:59:12+00:00',
                         'firstObservation': '2000-01-21T12:59:12+00:00',
                         'timespan': 1,
@@ -292,7 +292,7 @@ def test_last_session_query():
                     {
                         'node': {
                             'jname': 'J0125-2327',
-                            'project': 'Relbin',
+                            'project': 'RelBin',
                             'utc': '2000-01-21T12:59:12+00:00',
                             'frequency': 839.0,
                             'profileHi': None,
@@ -306,7 +306,7 @@ def test_last_session_query():
                     {
                         'node': {
                             'jname': None,
-                            'project': 'Relbin',
+                            'project': 'RelBin',
                             'utc': '2000-01-21T12:59:12+00:00',
                             'frequency': 839.0,
                             'profileHi': None,
@@ -364,7 +364,7 @@ def test_session_list_query():
                         'numberOfPulsars': 2,
                         'numberOfObservations': 2,
                         'frequency': 839.0,
-                        'projects': 'Relbin',
+                        'projects': 'RelBin',
                         'totalIntegration': 8,
                         'nDishMin': None,
                         'nDishMax': None,

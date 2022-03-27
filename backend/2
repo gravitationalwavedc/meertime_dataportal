@@ -2,7 +2,7 @@ import math
 from datetime import datetime
 from dateutil import parser
 from django.db import models
-from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings
+from dataportal.models import Foldings, Observations, Filterbankings, Sessions
 from django_mysql.models import JSONField
 from statistics import mean
 
@@ -318,6 +318,7 @@ class FoldPulsarDetail(models.Model):
             sn_meerpipe = folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('snr', None)
         except Processings.DoesNotExist:
             sn_meerpipe = None
+            
 
         new_fold_pulsar_detail, created = FoldPulsarDetail.objects.update_or_create(
             fold_pulsar=fold_pulsar,
