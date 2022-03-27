@@ -32,12 +32,12 @@ class Registration(models.Model):
         if not self.pk:
             if User.objects.filter(username=self.email).exists():
                 raise ValidationError({'email': ['Email address already is in use.']})
-
-        # we are going to update the satus to 'verified'.
-        old_instance = Registration.objects.get(id=self.pk)
-        if old_instance.status == Registration.UNVERIFIED and self.status == Registration.VERIFIED:
-            if timezone.now() > self.verification_expiry:
-                raise ValidationError({'verification_code': ['Verification code expired.']})
+        else:
+            # we are going to update the satus to 'verified'.
+            old_instance = Registration.objects.get(id=self.pk)
+            if old_instance.status == Registration.UNVERIFIED and self.status == Registration.VERIFIED:
+                if timezone.now() > self.verification_expiry:
+                    raise ValidationError({'verification_code': ['Verification code expired.']})
 
     def save(self, *args, **kwargs):
         self.full_clean()
