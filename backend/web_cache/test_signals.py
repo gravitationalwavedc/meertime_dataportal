@@ -9,6 +9,7 @@ from dataportal.models import (
     Programs,
     Instrumentconfigs,
     Pipelines,
+    Pipelineimages,
     Ephemerides,
     Foldings,
     Targets,
@@ -104,6 +105,8 @@ def create_pulsar_with_observations():
 
     filter_bankings = Filterbankings.objects.create(processing=processing, nbit=1, npol=2, nchan=3, tsamp=1.2, dm=2.1)
 
+    Pipelineimages.objects.create(processing=processing, rank=1)
+
     pulsar.save()
     folding.save()
     filter_bankings.save()
@@ -145,4 +148,4 @@ def test_filterbanking_save():
 @pytest.mark.django_db
 def test_handle_image_save_is_fired():
     jname = create_pulsar_with_observations()
-    assert FoldDetailImage.objects.get(fold_pulsar_detail__fold_pulsar__jname=jname).exists()
+    assert FoldDetailImage.objects.filter(fold_pulsar_detail__fold_pulsar__jname=jname).exists()
