@@ -100,6 +100,44 @@ def test_fold_query_with_token():
 
 
 @pytest.mark.django_db
+def test_fold_query_with_token():
+    client, user, _ = setup_query_test()
+    client.authenticate(user)
+    response = client.execute(
+        """
+        query {
+            foldObservations(band: "UHF") {
+                totalObservations
+                totalPulsars
+                totalObservationTime
+                edges {
+                    node {
+                        jname
+                    }
+                }
+            }
+        }
+    """
+    )
+    expected = {
+        'foldObservations': {
+            'totalObservations': 1,
+            'totalPulsars': 1,
+            'totalObservationTime': 0,
+            'edges': [
+                {
+                    'node': {
+                        'jname': 'J0125-2327',
+                    }
+                }
+            ],
+        }
+    }
+    assert not response.errors
+    assert response.data == expected
+
+
+@pytest.mark.django_db
 def test_fold_query_with_proposal_and_band():
     client, user, _ = setup_query_test()
     client.authenticate(user)

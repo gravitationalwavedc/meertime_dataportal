@@ -30,8 +30,11 @@ class BasePulsar(models.Model):
 
     @classmethod
     def get_query(cls, **kwargs):
-        if 'band' in kwargs and kwargs['band'] == 'All':
-            kwargs.pop('band')
+        if 'band' in kwargs:
+            if kwargs['band'] == 'All':
+                kwargs.pop('band')
+            else:
+                kwargs["band__icontains"] = kwargs.pop('band')
 
         if 'project' in kwargs:
             if kwargs['project'] == 'All':
@@ -170,12 +173,16 @@ class FoldPulsar(BasePulsar):
 
         projects = ", ".join({observation.project.short for observation in folding_observations})
 
+        bands = ", ".join({
+            cls.get_band(observation.instrument_config.frequency) for observation in folding_observations
+        })
+
         return FoldPulsar.objects.update_or_create(
             main_project=program_name,
             jname=pulsar.jname,
             defaults={
                 "project": projects,
-                "band": cls.get_band(latest_folding_observation.processing.observation.instrument_config.frequency),
+                "band": bands,
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
                 "timespan": timespan,
