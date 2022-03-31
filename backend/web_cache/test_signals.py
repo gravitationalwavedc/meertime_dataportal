@@ -9,13 +9,14 @@ from dataportal.models import (
     Programs,
     Instrumentconfigs,
     Pipelines,
+    Pipelineimages,
     Ephemerides,
     Foldings,
     Targets,
     Pulsartargets,
     Filterbankings,
 )
-from web_cache.models import FoldPulsar, FoldPulsarDetail, SearchmodePulsar, SearchmodePulsarDetail
+from web_cache.models import FoldPulsar, FoldPulsarDetail, SearchmodePulsar, SearchmodePulsarDetail, FoldDetailImage
 
 
 def create_pulsar_with_observations():
@@ -104,6 +105,8 @@ def create_pulsar_with_observations():
 
     filter_bankings = Filterbankings.objects.create(processing=processing, nbit=1, npol=2, nchan=3, tsamp=1.2, dm=2.1)
 
+    Pipelineimages.objects.create(processing=processing, rank=1)
+
     pulsar.save()
     folding.save()
     filter_bankings.save()
@@ -112,7 +115,7 @@ def create_pulsar_with_observations():
 
 
 @pytest.mark.django_db
-def test_pulsar_save_signal_is_fired():
+def test_pulsar_save_signal():
     jname = create_pulsar_with_observations()
     assert FoldPulsar.objects.filter(jname=jname).exists()
 
@@ -125,7 +128,7 @@ def test_pulsar_save_signal_can_update():
 
 
 @pytest.mark.django_db
-def test_folding_save_signal_is_fired():
+def test_folding_save_signal():
     jname = create_pulsar_with_observations()
     assert FoldPulsarDetail.objects.filter(fold_pulsar__jname=jname).exists()
 
@@ -140,3 +143,9 @@ def test_searchmode_save():
 def test_filterbanking_save():
     jname = create_pulsar_with_observations()
     assert SearchmodePulsarDetail.objects.filter(searchmode_pulsar__jname=jname).exists()
+
+
+@pytest.mark.django_db
+def test_handle_image_save_is_fired():
+    jname = create_pulsar_with_observations()
+    assert FoldDetailImage.objects.filter(fold_pulsar_detail__fold_pulsar__jname=jname).exists()
