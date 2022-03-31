@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from dataportal.models import Foldings, Filterbankings, Sessions
+from dataportal.models import Foldings, Filterbankings, Sessions, Pipelineimages
 from web_cache.models import (
     FoldPulsar,
     FoldPulsarDetail,
@@ -40,6 +40,12 @@ def handle_session_save(sender, instance, **kwargs):
     # Run this again so that we can make sure the data is accurate.
     # It requires all the SessionPulsars to be processed first, but they also need a reference to a SessionDisplay
     session_display, _ = SessionDisplay.update_or_create(instance)
+
+
+@receiver(post_save, sender=Pipelineimages)
+def handle_image_save(sender, instance, **kwargs):
+    for folding in instance.processing.foldings_set.all():
+        FoldPulsarDetail.update_or_create(folding)
 
 
 @receiver(post_delete, sender=Sessions)
