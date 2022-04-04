@@ -6,7 +6,6 @@ import React from 'react';
 /* eslint react/display-name: 0 */
 
 const CustomColumnToggle = ({ columns, onColumnToggle, toggles }) => {
-    console.log('Columns bitches', columns);
     const CustomToggle = React.forwardRef(({ onClick }, ref) => (
         <Button
             ref={ref}
