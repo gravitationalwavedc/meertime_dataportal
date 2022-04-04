@@ -41,8 +41,9 @@ const DataView = ({
                 data={rows} 
                 exportCSV={{
                     fileName: 'pulsars-data.csv',
+                    noAutoBOM: false,
                     exportAll: false,
-                    onlyExportFiltered: true
+                    onlyExportFiltered: true,
                 }}
                 columnToggle
                 search

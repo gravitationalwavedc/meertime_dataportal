@@ -5,12 +5,11 @@ import React from 'react';
 
 /* eslint react/display-name: 0 */
 
-const CustomColumnToggle = ({ columns, onColumnToggle, toggles, exportCSVProps }) => {
+const CustomColumnToggle = ({ columns, onColumnToggle, toggles }) => {
     const CustomToggle = React.forwardRef(({ onClick }, ref) => (
         <Button
             ref={ref}
             onClick={(e) => {
-                e.preventDefault();
                 onClick(e);
             }}
             variant="link"

@@ -53,7 +53,7 @@ const ListControls = ({
         mainProjects.find(({ value }) => value === mainProject).subprojects : mainProjects[0].subprojects;
 
     return (
-        <Form>
+        <>
             <Form.Row>
                 { mainProject && <Col md={3} xl={2}>
                     <Form.Group controlId="mainProjectSelect">
@@ -100,9 +100,8 @@ const ListControls = ({
                 searchProps={searchProps}
                 columnToggleProps={columnToggleProps}
                 exportCSVProps={exportCSVProps}/>
-        </Form>);
+        </>);
 };
-// <Dropdown.Item onClick={() => exportCSVProps.onExport()}>Export as csv</Dropdown.Item>
 
 ListControls.defaultProps = {
     searchText: 'Find a pulsar...'

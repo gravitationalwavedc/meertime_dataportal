@@ -1,6 +1,6 @@
 import ObservationTimeView from './SingleObservationTable';
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 
 /* global mockRouter */
 /* eslint-disable react/display-name */
@@ -47,14 +47,38 @@ describe('observationTimeView component', () => {
                             nchan: 928,
                             tsubint: 8,
                             nant: 53,
-                            profileHi: null,
-                            phaseVsTimeHi: 'phaseVsTime.mock.png',
-                            phaseVsFrequencyHi: 'phaseVsFrequency.mock.png',
-                            bandpassHi: null,
-                            snrVsTimeHi: '',
                             schedule: '12',
                             phaseup: '12',
-                            id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY='
+                            id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY=',
+                            images: {
+                                edges: [
+                                    {
+                                        node: {
+                                            plotType: 'time',
+                                            process: 'raw',
+                                            resolution: 'hi',
+                                            url: 'phaseVsTime.mock.png'
+                                        }
+                                    },
+                                    {
+                                        node: {
+                                            plotType: 'profile',
+                                            process: 'raw',
+                                            resolution: 'hi',
+                                            url: 'profile.mock.png'
+                                        }
+                                    },
+                                    {
+                                        node: {
+                                            plotType: 'phase',
+                                            process: 'raw',
+                                            resolution: 'hi',
+                                            url: 'phaseVsFrequency.mock.png'
+                                        }
+                                    },
+
+                                ]
+                            }
                         }
                     }
                 ]
@@ -62,14 +86,12 @@ describe('observationTimeView component', () => {
         };
 
         const { getByAltText } = render(<ObservationTimeView data={data} />);
-        expect(getByAltText('profileHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('phaseVsTimeHi')).toHaveAttribute('src', expect.stringContaining('phaseVsTime.mock.png'));
+        expect(getByAltText('Plot profile using raw data.')).toHaveAttribute('src', expect.stringContaining('profile.mock.png'));
+        expect(getByAltText('Plot time using raw data.')).toHaveAttribute('src', expect.stringContaining('phaseVsTime.mock.png'));
         expect(
-            getByAltText('phaseVsFrequencyHi'))
+            getByAltText('Plot phase using raw data.'))
             .toHaveAttribute('src', expect.stringContaining('phaseVsFrequency.mock.png')
             );
-        expect(getByAltText('bandpassHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('snrVsTimeHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
     });
 
     it('should render the page with no images available', () => {
@@ -98,18 +120,18 @@ describe('observationTimeView component', () => {
                             snrVsTimeHi: '',
                             schedule: '12',
                             phaseup: '12',
-                            id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY='
+                            id: 'Rm9sZFB1bHNhckRldGFpbE5vZGU6OTA3NzY=',
+                            images: {
+                                edges: []
+                            }
                         }
                     }
                 ]
             }
         };
-        const { getByAltText } = render(<ObservationTimeView data={data} />);
-        expect(getByAltText('profileHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('phaseVsTimeHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('phaseVsFrequencyHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('bandpassHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
-        expect(getByAltText('snrVsTimeHi')).toHaveAttribute('src', expect.stringContaining('image404.png'));
+        render(<ObservationTimeView data={data} />);
+        expect(screen.getByText('2020-02-04-00:21:21')).toBeInTheDocument();
     });
 
 });
+

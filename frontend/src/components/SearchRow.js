@@ -47,7 +47,7 @@ const SearchRow = ({ setIsTableView, isTableView, searchText, searchProps, colum
                     </ToggleButton>
                 </ToggleButtonGroup>
             </Form.Group>
-            { isTableView && <CustomColumnToggle {...columnToggleProps} exportCSVProps={exportCSVProps}/>}
+            { isTableView && <CustomColumnToggle {...columnToggleProps} />}
             { isTableView && <Form.Group>
                 <Button 
                     variant="link" 
