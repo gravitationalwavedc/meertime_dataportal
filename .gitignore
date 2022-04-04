@@ -1,8 +1,8 @@
 # don't track test-data unless explicitly added
-src/ingest-ajameson/test-data/
+backend/ingest-ajameson/test-data/
 
 # don't track local settings:
-src/meertime/settings/local.py
+backend/meertime/settings/local.py
 
 # macos stuff
 .DS_Store
@@ -11,10 +11,10 @@ src/meertime/settings/local.py
 .pinterest-linters
 
 # django static
-src/static
+backend/static
 
 # django media
-src/media
+backend/media
 
 # VS code:
 .vscode
