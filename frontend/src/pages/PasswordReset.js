@@ -4,33 +4,25 @@ import { Alert, Button, Card, Col, Container, Form, Row } from 'react-bootstrap'
 import { Field, Formik } from 'formik';
 import React, { useState } from 'react';
 import { commitMutation, graphql } from 'react-relay';
-
 import { HiOutlineLockClosed } from 'react-icons/hi';
 import { Link } from 'found';
 import environment from '../relayEnvironment';
 
+
 const mutation = graphql`
-  mutation RegisterMutation($first_name: String!, $last_name: String!, $email: String!, $password: String!) {
-    createRegistration(input: {
-      firstName: $first_name, 
-      lastName: $last_name, 
-      email: $email, 
-      password: $password,
-      })
+  mutation PasswordResetMutation($verification_code: String!, $password: String!) {
+    passwordReset(verificationCode: $verification_code, password: $password)
     {
       ok,
-      registration {
+      passwordResetRequest {
         id,
-        verificationExpiry,
+        status,
       },
       errors,
     }
   }`;
 
 const validationSchema = Yup.object().shape({
-    first_name: Yup.string().required('Please include a first name.'),
-    last_name: Yup.string().required('Please include a last name.'),
-    email: Yup.string().email('Invalid email format.').required('Please include an email.'),
     password: Yup.string()
         .required('Please include a password.')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/,
@@ -40,15 +32,13 @@ const validationSchema = Yup.object().shape({
     confirm_password: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match'),
 });
 
-const Register = ({ router, match }) => {
+const PasswordReset = ({ router, match }) => {
     const [formErrors, setFormErrors] = useState([]);
     const [success, setSuccess] = useState(false);
 
-    const register = (first_name, last_name, email, password, confirm_password) => {
+    const passwordReset = (verification_code, password, confirm_password) => {
         const variables = {
-            first_name: first_name,
-            last_name: last_name,
-            email: email,
+            verification_code: verification_code,
             password: password,
             confirm_password: confirm_password,
         };
@@ -58,12 +48,12 @@ const Register = ({ router, match }) => {
             {
                 mutation,
                 variables,
-                onCompleted: ({ createRegistration }) => {
-                    if (createRegistration.errors) {
+                onCompleted: ({ passwordReset }) => {
+                    if (passwordReset.errors) {
                         // uncomment the following line to see the errors
-                        // console.log(createRegistration.errors); // eslint-disable-line no-console
-                        setFormErrors(createRegistration.errors);
-                    } else if (createRegistration.registration) {
+                        // console.log(createPasswordReset.errors); // eslint-disable-line no-console
+                        setFormErrors(passwordReset.errors);
+                    } else if (passwordReset.passwordResetRequest) {
                         setSuccess(true);
                     }
                 },
@@ -89,12 +79,12 @@ const Register = ({ router, match }) => {
                     <Col xl={{ span: 8, offset: 2 }} md={{ span: 8, offset: 2 }} className="login-form">
                         <Card className="shadow-2xl text-left">
                             <Card.Body className="m-4">
-                                <h4 className="text-primary-600 mb-4">Register</h4>
-                                { success &&
+                                <h4 className="text-primary-600 mb-4">Password Reset Request</h4>
+                                {success &&
                                     <div>
-                                        <h5>Registration Successful</h5>
-                                        <div>You will receive an email with the verification link soon. You need to
-                                        verify your email address within 48 hours.
+                                        <h5>Password Reset Successful</h5>
+                                        <div>Your password has been reset successfully. You need to login using your
+                                            new password via the login page.
                                         </div>
                                         <Link
                                             className="shadow-md mt-2"
@@ -105,55 +95,23 @@ const Register = ({ router, match }) => {
                                 {!success &&
                                     <Formik
                                         initialValues={{
-                                            first_name: '',
-                                            last_name: '',
+                                            verification_code: '',
                                             password: '',
                                             confirm_password: '',
-                                            email: '',
-
                                         }}
                                         validationSchema={validationSchema}
-                                        onSubmit={(values) => register(
-                                            values.first_name,
-                                            values.last_name,
-                                            values.email,
+                                        onSubmit={(values) => passwordReset(
+                                            values.verification_code,
                                             values.password,
+                                            values.confirm_password,
                                         )}
                                     >
                                         {({ handleSubmit }) =>
                                             <Form onSubmit={handleSubmit}>
-                                                <Field name="first_name">
+                                                <Field name="verification_code">
                                                     {({ field, meta }) =>
-                                                        <Form.Group controlId="first_name">
-                                                            <Form.Label>First Name</Form.Label>
-                                                            <Form.Control
-                                                                {...field}
-                                                                isInvalid={meta.touched && meta.error}/>
-                                                            <Form.Control.Feedback
-                                                                type='invalid'>
-                                                                {meta.error}
-                                                            </Form.Control.Feedback>
-                                                        </Form.Group>
-                                                    }
-                                                </Field>
-                                                <Field name="last_name">
-                                                    {({ field, meta }) =>
-                                                        <Form.Group controlId="last_name">
-                                                            <Form.Label>Last Name</Form.Label>
-                                                            <Form.Control
-                                                                {...field}
-                                                                isInvalid={meta.touched && meta.error}/>
-                                                            <Form.Control.Feedback
-                                                                type='invalid'>
-                                                                {meta.error}
-                                                            </Form.Control.Feedback>
-                                                        </Form.Group>
-                                                    }
-                                                </Field>
-                                                <Field name="email">
-                                                    {({ field, meta }) =>
-                                                        <Form.Group controlId="email">
-                                                            <Form.Label>Email</Form.Label>
+                                                        <Form.Group controlId="verification_cde">
+                                                            <Form.Label>Verification Code</Form.Label>
                                                             <Form.Control
                                                                 {...field}
                                                                 isInvalid={meta.touched && meta.error}/>
@@ -167,7 +125,7 @@ const Register = ({ router, match }) => {
                                                 <Field name="password">
                                                     {({ field, meta }) =>
                                                         <Form.Group controlId="password">
-                                                            <Form.Label>Password</Form.Label>
+                                                            <Form.Label>New Password</Form.Label>
                                                             <Form.Control
                                                                 type="password"
                                                                 {...field}
@@ -183,7 +141,7 @@ const Register = ({ router, match }) => {
                                                 <Field name="confirm_password">
                                                     {({ field, meta }) =>
                                                         <Form.Group controlId="confirm_password">
-                                                            <Form.Label>Confirm Password</Form.Label>
+                                                            <Form.Label>Confirm New Password</Form.Label>
                                                             <Form.Control
                                                                 type="password"
                                                                 {...field}
@@ -200,7 +158,7 @@ const Register = ({ router, match }) => {
                                                     formErrors.map((e) => <Alert variant='danger' key={e}>{e}</Alert>)}
                                                 <Button
                                                     className="text-uppercase shadow-md mt-2"
-                                                    type="submit">Register</Button>
+                                                    type="submit">Password Reset Request</Button>
                                                 <Link
                                                     className="shadow-md mt-2"
                                                     to={`${process.env.REACT_APP_BASE_URL}/login/`}
@@ -216,4 +174,4 @@ const Register = ({ router, match }) => {
     );
 };
 
-export default Register;
+export default PasswordReset;

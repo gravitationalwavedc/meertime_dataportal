@@ -41,3 +41,35 @@ def send_verification_email(
     )
     msg.attach_alternative(html_content, "text/html")
     msg.send(fail_silently=False)
+
+
+def send_password_reset_email(
+    first_name,
+    last_name,
+    to,
+    verification_code,
+    from_email=None,
+):
+    from_email = settings.DEFAULT_FROM_EMAIL if from_email is None else from_email
+    subject = 'Your password reset code for Meertime account.'
+
+    text_content = f'Dear {first_name} {last_name}, You have requested to reset your password for the Meertime ' \
+                   f'account. Here is the verification code for your password reset: {verification_code} . ' \
+                   f'If you believe this email is sent to you by mistake please contact us at ' \
+                   f'support@hpc.swin.edu.au . Kind Regards, Meertime Support Team'
+    html_content = f'<p>Dear {first_name} {last_name},</p>' \
+                   f'<p>You have requested to reset your password for the Meertime account. Here is the verification ' \
+                   f'code for your password reset: </p>' \
+                   f'<p>{verification_code}</p>' \
+                   f'<p>If you believe this email is sent to you by mistake please contact us at ' \
+                   f'support@hpc.swin.edu.au</p>' \
+                   f'<p>Kind Regards,<br/>Meertime Support Team</p>'
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=from_email,
+        to=[to],
+        reply_to=[to],
+    )
+    msg.attach_alternative(html_content, "text/html")
+    msg.send(fail_silently=False)

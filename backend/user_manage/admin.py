@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from .models import Registration
+from .models import (
+    Registration,
+    PasswordResetRequest,
+)
 
 
 @admin.register(Registration)
@@ -14,16 +17,17 @@ class RegistrationAdmin(admin.ModelAdmin):
         'verification_code',
         'verification_expiry',
         'created',
+        'last_updated',
     ]
 
-    # def save_model(self, request, obj, form, change):
-    #     update_fields = []
-    #
-    #     if change:
-    #         if form.initial['status'] != form.cleaned_data['status']:
-    #             update_fields.append('status')
-    #
-    #     obj.save(update_fields=update_fields)
 
-
-# admin.site.register(Registration)
+@admin.register(PasswordResetRequest)
+class PasswordResetRequestAdmin(admin.ModelAdmin):
+    list_display = [
+        'email',
+        'status',
+        'verification_code',
+        'verification_expiry',
+        'created',
+        'last_updated',
+    ]

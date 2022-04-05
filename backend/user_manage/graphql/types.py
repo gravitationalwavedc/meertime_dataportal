@@ -2,7 +2,10 @@ import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
 
-from ..models import Registration
+from ..models import (
+    Registration,
+    PasswordResetRequest,
+)
 
 
 class RegistrationType(DjangoObjectType):
@@ -17,3 +20,10 @@ class RegistrationInput(graphene.InputObjectType):
     last_name = graphene.String(required=True)
     email = graphene.String(required=True)
     password = graphene.String(required=True)
+
+
+class PasswordResetRequestType(DjangoObjectType):
+    class Meta:
+        model = PasswordResetRequest
+        interfaces = (relay.Node,)
+        exclude = ['verification_code']
