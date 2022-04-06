@@ -79,7 +79,7 @@ const PasswordReset = ({ router, match }) => {
                     <Col xl={{ span: 8, offset: 2 }} md={{ span: 8, offset: 2 }} className="login-form">
                         <Card className="shadow-2xl text-left">
                             <Card.Body className="m-4">
-                                <h4 className="text-primary-600 mb-4">Password Reset Request</h4>
+                                <h4 className="text-primary-600 mb-4">Password Reset</h4>
                                 {success &&
                                     <div>
                                         <h5>Password Reset Successful</h5>
@@ -110,7 +110,7 @@ const PasswordReset = ({ router, match }) => {
                                             <Form onSubmit={handleSubmit}>
                                                 <Field name="verification_code">
                                                     {({ field, meta }) =>
-                                                        <Form.Group controlId="verification_cde">
+                                                        <Form.Group controlId="verification_code">
                                                             <Form.Label>Verification Code</Form.Label>
                                                             <Form.Control
                                                                 {...field}
@@ -156,13 +156,13 @@ const PasswordReset = ({ router, match }) => {
                                                 </Field>
                                                 {formErrors &&
                                                     formErrors.map((e) => <Alert variant='danger' key={e}>{e}</Alert>)}
-                                                <Button
-                                                    className="text-uppercase shadow-md mt-2"
-                                                    type="submit">Password Reset Request</Button>
-                                                <Link
-                                                    className="shadow-md mt-2"
-                                                    to={`${process.env.REACT_APP_BASE_URL}/login/`}
-                                                >Already Have an Account (Login)</Link>
+                                                <Row className="buttons-row">
+                                                    <Col xl={{ span: 12 }} md={{ span: 12 }}>
+                                                        <Button
+                                                            className="text-uppercase shadow-md mt-2 float-right"
+                                                            type="submit">Password Reset</Button>
+                                                    </Col>
+                                                </Row>
                                             </Form>}
                                     </Formik>}
                             </Card.Body>

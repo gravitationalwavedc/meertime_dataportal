@@ -34,7 +34,7 @@ const validationSchema = Yup.object().shape({
     password: Yup.string()
         .required('Please include a password.')
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/,
-            'One Uppercase, One Lowercase, One Number and One Special Case Character')
+            'Must have uppercase, lowercase, number and special character')
         .matches(/^(?=.{8,})/,
             'Must Contain 8 Characters'),
     confirm_password: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match'),
@@ -78,7 +78,7 @@ const Register = ({ router, match }) => {
 
     return (
         <Container fluid className="login-page h-100">
-            <Col xl={{ span: 6, offset: 5 }} md={{ span: 10, offset: 1 }} className="login-col h-100">
+            <Col xl={{ span: 10, offset: 1 }} md={{ span: 10, offset: 1 }} className="login-col h-100">
                 <Row>
                     <h1 className="text-gray-100 w-100 mt-5 text-center d-none d-sm-block"
                         style={{ marginBottom: '-3rem' }}>
@@ -86,15 +86,16 @@ const Register = ({ router, match }) => {
                     <h2 className="text-gray-100 w-100 mt-5 text-center d-block d-sm-none"
                         style={{ marginBottom: '-3rem' }}>
                         MEERTIME</h2>
-                    <Col xl={{ span: 8, offset: 2 }} md={{ span: 8, offset: 2 }} className="login-form">
+                    <Col xl={{ span: 8, offset: 2 }} md={{ span: 8, offset: 2 }} lg={{ span: 8, offset: 2 }}
+                        className="login-form">
                         <Card className="shadow-2xl text-left">
                             <Card.Body className="m-4">
                                 <h4 className="text-primary-600 mb-4">Register</h4>
-                                { success &&
+                                {success &&
                                     <div>
                                         <h5>Registration Successful</h5>
                                         <div>You will receive an email with the verification link soon. You need to
-                                        verify your email address within 48 hours.
+                                            verify your email address within 48 hours.
                                         </div>
                                         <Link
                                             className="shadow-md mt-2"
@@ -122,89 +123,116 @@ const Register = ({ router, match }) => {
                                     >
                                         {({ handleSubmit }) =>
                                             <Form onSubmit={handleSubmit}>
-                                                <Field name="first_name">
-                                                    {({ field, meta }) =>
-                                                        <Form.Group controlId="first_name">
-                                                            <Form.Label>First Name</Form.Label>
-                                                            <Form.Control
-                                                                {...field}
-                                                                isInvalid={meta.touched && meta.error}/>
-                                                            <Form.Control.Feedback
-                                                                type='invalid'>
-                                                                {meta.error}
-                                                            </Form.Control.Feedback>
-                                                        </Form.Group>
-                                                    }
-                                                </Field>
-                                                <Field name="last_name">
-                                                    {({ field, meta }) =>
-                                                        <Form.Group controlId="last_name">
-                                                            <Form.Label>Last Name</Form.Label>
-                                                            <Form.Control
-                                                                {...field}
-                                                                isInvalid={meta.touched && meta.error}/>
-                                                            <Form.Control.Feedback
-                                                                type='invalid'>
-                                                                {meta.error}
-                                                            </Form.Control.Feedback>
-                                                        </Form.Group>
-                                                    }
-                                                </Field>
-                                                <Field name="email">
-                                                    {({ field, meta }) =>
-                                                        <Form.Group controlId="email">
-                                                            <Form.Label>Email</Form.Label>
-                                                            <Form.Control
-                                                                {...field}
-                                                                isInvalid={meta.touched && meta.error}/>
-                                                            <Form.Control.Feedback
-                                                                type='invalid'>
-                                                                {meta.error}
-                                                            </Form.Control.Feedback>
-                                                        </Form.Group>
-                                                    }
-                                                </Field>
-                                                <Field name="password">
-                                                    {({ field, meta }) =>
-                                                        <Form.Group controlId="password">
-                                                            <Form.Label>Password</Form.Label>
-                                                            <Form.Control
-                                                                type="password"
-                                                                {...field}
-                                                                isInvalid={meta.touched && meta.error}/>
-                                                            {!meta.error
-                                                                &&
-                                                                <HiOutlineLockClosed
-                                                                    className="form-control-icon-right"/>}
-                                                            <Form.Control.Feedback
-                                                                type='invalid'>{meta.error}</Form.Control.Feedback>
-                                                        </Form.Group>}
-                                                </Field>
-                                                <Field name="confirm_password">
-                                                    {({ field, meta }) =>
-                                                        <Form.Group controlId="confirm_password">
-                                                            <Form.Label>Confirm Password</Form.Label>
-                                                            <Form.Control
-                                                                type="password"
-                                                                {...field}
-                                                                isInvalid={meta.touched && meta.error}/>
-                                                            {!meta.error
-                                                                &&
-                                                                <HiOutlineLockClosed
-                                                                    className="form-control-icon-right"/>}
-                                                            <Form.Control.Feedback
-                                                                type='invalid'>{meta.error}</Form.Control.Feedback>
-                                                        </Form.Group>}
-                                                </Field>
+                                                <Form.Row>
+                                                    <Field name="first_name">
+                                                        {({ field, meta }) =>
+                                                            <Form.Group
+                                                                controlId="first_name"
+                                                                as={Col} sm={6} md={6} xl={6}>
+                                                                <Form.Label>First Name</Form.Label>
+                                                                <Form.Control
+                                                                    {...field}
+                                                                    isInvalid={meta.touched && meta.error}/>
+                                                                <Form.Control.Feedback
+                                                                    type='invalid'>
+                                                                    {meta.error}
+                                                                </Form.Control.Feedback>
+                                                            </Form.Group>
+                                                        }
+                                                    </Field>
+                                                    <Field name="last_name">
+                                                        {({ field, meta }) =>
+                                                            <Form.Group
+                                                                controlId="last_name"
+                                                                as={Col} sm={6} md={6} xl={6}>
+                                                                <Form.Label>Last Name</Form.Label>
+                                                                <Form.Control
+                                                                    {...field}
+                                                                    isInvalid={meta.touched && meta.error}/>
+                                                                <Form.Control.Feedback
+                                                                    type='invalid'>
+                                                                    {meta.error}
+                                                                </Form.Control.Feedback>
+                                                            </Form.Group>
+                                                        }
+                                                    </Field>
+                                                </Form.Row>
+                                                <Form.Row>
+                                                    <Field name="email">
+                                                        {({ field, meta }) =>
+                                                            <Form.Group
+                                                                controlId="email"
+                                                                as={Col} sm={12} md={12} xl={12}>
+                                                                <Form.Label>Email</Form.Label>
+                                                                <Form.Control
+                                                                    {...field}
+                                                                    isInvalid={meta.touched && meta.error}/>
+                                                                <Form.Control.Feedback
+                                                                    type='invalid'>
+                                                                    {meta.error}
+                                                                </Form.Control.Feedback>
+                                                            </Form.Group>
+                                                        }
+                                                    </Field>
+                                                </Form.Row>
+                                                <Form.Row>
+                                                    <Field name="password">
+                                                        {({ field, meta }) =>
+                                                            <Form.Group
+                                                                controlId="password"
+                                                                as={Col} sm={6} md={6} xl={6}>
+                                                                <Form.Label>Password</Form.Label>
+                                                                <Form.Control
+                                                                    type="password"
+                                                                    {...field}
+                                                                    isInvalid={meta.touched && meta.error}/>
+                                                                {!meta.error
+                                                                    &&
+                                                                    <HiOutlineLockClosed
+                                                                        className="form-control-icon-right"/>}
+                                                                <Form.Control.Feedback
+                                                                    type='invalid'>{meta.error}</Form.Control.Feedback>
+                                                            </Form.Group>}
+                                                    </Field>
+                                                    <Field name="confirm_password">
+                                                        {({ field, meta }) =>
+                                                            <Form.Group
+                                                                controlId="confirm_password"
+                                                                as={Col} sm={6} md={6} xl={6}>
+                                                                <Form.Label>Confirm Password</Form.Label>
+                                                                <Form.Control
+                                                                    type="password"
+                                                                    {...field}
+                                                                    isInvalid={meta.touched && meta.error}/>
+                                                                {!meta.error
+                                                                    &&
+                                                                    <HiOutlineLockClosed
+                                                                        className="form-control-icon-right"/>}
+                                                                <Form.Control.Feedback
+                                                                    type='invalid'>{meta.error}</Form.Control.Feedback>
+                                                            </Form.Group>}
+                                                    </Field>
+                                                </Form.Row>
                                                 {formErrors &&
                                                     formErrors.map((e) => <Alert variant='danger' key={e}>{e}</Alert>)}
-                                                <Button
-                                                    className="text-uppercase shadow-md mt-2"
-                                                    type="submit">Register</Button>
-                                                <Link
-                                                    className="shadow-md mt-2"
-                                                    to={`${process.env.REACT_APP_BASE_URL}/login/`}
-                                                >Already Have an Account (Login)</Link>
+                                                <Row className="buttons-row">
+                                                    <Col xl={{ span: 6 }} md={{ span: 6 }}>
+                                                        <Button
+                                                            className="text-uppercase shadow-md mt-2"
+                                                            type="submit">Register</Button>
+                                                    </Col>
+                                                    <Col sm={{ span: 12 }} className="d-block d-md-none">
+                                                        &nbsp;
+                                                    </Col>
+                                                    <Col xl={{ span: 6 }} md={{ span: 6 }}>
+                                                        <span className="float-right">
+                                                            Have an account?&nbsp;
+                                                            <Link
+                                                                to={`${process.env.REACT_APP_BASE_URL}/login/`}
+                                                            >Login</Link>
+                                                        </span>
+                                                    </Col>
+                                                </Row>
                                             </Form>}
                                     </Formik>}
                             </Card.Body>

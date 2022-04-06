@@ -97,13 +97,31 @@ const PasswordResetRequest = ({ router, match }) => {
                                             </Field>
                                             {formErrors &&
                                                 formErrors.map((e) => <Alert variant='danger' key={e}>{e}</Alert>)}
-                                            <Button
-                                                className="text-uppercase shadow-md mt-2"
-                                                type="submit">Password Reset Request</Button>
-                                            <Link
-                                                className="shadow-md mt-2"
-                                                to={`${process.env.REACT_APP_BASE_URL}/login/`}
-                                            >Already Have an Account (Login)</Link>
+                                            <Row className="buttons-row">
+                                                <Col xl={{ span: 12 }} md={{ span: 12 }}>
+                                                    <Button
+                                                        className="text-uppercase shadow-md mt-2"
+                                                        type="submit">Password Reset Request</Button>
+                                                </Col>
+                                                <Col sm={{ span: 12 }}>
+                                                    &nbsp;
+                                                </Col>
+                                                <Col xl={{ span: 12 }} md={{ span: 12 }}>
+                                                    <span className="float-right">
+                                                        Have an account?&nbsp;
+                                                        <Link
+                                                            to={`${process.env.REACT_APP_BASE_URL}/login/`}
+                                                        >Login</Link>
+                                                    </span>
+                                                </Col>
+                                                {/*<Col xl={{ span: 12 }} md={{ span: 12 }}>*/}
+                                                {/*    Already have an account?*/}
+                                                {/*    <Link className="text-uppercase shadow-md mt-2*/}
+                                                {/*        btn btn-secondary float-right"*/}
+                                                {/*          to={`${process.env.REACT_APP_BASE_URL}/login/`}*/}
+                                                {/*    >Login</Link>*/}
+                                                {/*</Col>*/}
+                                            </Row>
                                         </Form>}
                                 </Formik>
                             </Card.Body>
