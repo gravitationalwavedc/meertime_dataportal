@@ -13,6 +13,7 @@ from .types import (
     RegistrationInput,
     RegistrationType,
     PasswordResetRequestType,
+    UserType,
 )
 
 UserModel = django.contrib.auth.get_user_model()
@@ -193,8 +194,67 @@ class PasswordReset(graphene.Mutation):
             )
 
 
+class PasswordChange(graphene.Mutation):
+    class Arguments:
+        username = graphene.String(required=True)
+        old_password = graphene.String(required=True)
+        password = graphene.String(required=True)
+
+    ok = graphene.Boolean()
+    user = graphene.Field(UserType)
+    errors = graphene.List(graphene.String)
+
+    @classmethod
+    def mutate(cls, self, info, username, old_password, password):
+        try:
+            if old_password == password:
+                return PasswordChange(
+                    ok=False,
+                    user=None,
+                    errors=['New and current passwords cannot be same.'],
+                )
+
+            user = UserModel.objects.get(username=username)
+
+            if not user.is_authenticated:
+                return PasswordChange(
+                    ok=False,
+                    user=None,
+                    errors=['You must be logged in to change the password.'],
+                )
+
+            if user.check_password(old_password):
+                user.set_password(password)
+                user.save()
+            else:
+                return PasswordChange(
+                    ok=False,
+                    user=None,
+                    errors=['Current password is incorrect.'],
+                )
+
+            return PasswordChange(
+                ok=True,
+                user=user,
+                errors=None,
+            )
+        except UserModel.DoesNotExist:
+            return PasswordChange(
+                ok=False,
+                user=None,
+                errors=['User does not exist.'],
+            )
+        except Exception as exp:
+            return PasswordChange(
+                ok=False,
+                user=None,
+                errors=exp.messages,
+            )
+
+
 class Mutation(graphene.ObjectType):
     create_registration = CreateRegistration.Field()
     verify_registration = VerifyRegistration.Field()
     create_password_reset_request = CreatePasswordResetRequest.Field()
     password_reset = PasswordReset.Field()
+    password_change = PasswordChange.Field()

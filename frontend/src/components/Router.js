@@ -4,6 +4,7 @@ import { Route, createFarceRouter, createRender, makeRouteConfig } from 'found';
 import Fold from '../pages/Fold';
 import FoldDetail from '../pages/FoldDetail';
 import Login from '../pages/Login';
+import PasswordChange from '../pages/PasswordChange';
 import PasswordReset from '../pages/PasswordReset';
 import PasswordResetRequest from '../pages/PasswordResetRequest';
 import React from 'react';
@@ -66,6 +67,11 @@ const routeConfig = () => makeRouteConfig(
             path="/verify/:code/"
             Component={RegisterVerify}
             render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/password_change/"
+            Component={PasswordChange}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
             path="/search/"
