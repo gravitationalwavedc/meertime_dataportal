@@ -16,13 +16,16 @@ const titles = [
 
 const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => {
     const relayObservationModel = foldObservationDetails.edges[0].node;
-    const title = `${jname}`;  
+    const title = <Link
+        size="sm"
+        to={`${process.env.REACT_APP_BASE_URL}/fold/meertime/${jname}/`}>
+        {jname} 
+    </Link>;
     const displayDate = formatUTC(relayObservationModel.utc);
 
     const dataItems = Object.keys(relayObservationModel)
         .filter(key => !titles.includes(key) && key !== 'images')
         .reduce((result, key) => ({ ...result, [key]: relayObservationModel[key] }), {});
-
 
     return (
         <MainLayout title={title}>
@@ -42,13 +45,6 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                         variant="outline-secondary"> 
                       View Kronos
                     </Button>
-                    <Link
-                        size="sm"
-                        as={Button}
-                        to={`${process.env.REACT_APP_BASE_URL}/fold/meertime/${title}/`}
-                        variant="outline-secondary"> 
-                      View {jname} 
-                    </Link>
                 </Col>
             </Row>
             <Row className="single-observation-data">
