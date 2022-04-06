@@ -23,6 +23,7 @@ const ImageGrid = ({ images }) => {
 
     const openLightBox = (images, imageIndex) => {
         console.log(images, imageIndex);
+        console.log(lightBoxImages.images[lightBoxImages.imagesIndex]);
         setIsLightBoxOpen(true);
         setLightBoxImages({ images: images, imagesIndex: imageIndex });
     };
@@ -63,7 +64,7 @@ const ImageGrid = ({ images }) => {
         </Col>}
         {isLightBoxOpen && 
             <LightBox
-                mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
+                mainSrc={`${process.env.REACT_APP_MEDIA_URL}${lightBoxImages.images[lightBoxImages.imagesIndex]}`}
                 nextSrc={lightBoxImages.images[(lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length]}
                 prevSrc={
                     lightBoxImages.images[(
