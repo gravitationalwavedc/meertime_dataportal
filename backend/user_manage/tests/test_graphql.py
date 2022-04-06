@@ -352,7 +352,7 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertEqual(content['data']['passwordReset']['errors'][0],
                          'No user found. Please contact support regarding this.')
 
-    def test_password_reset_verification_user_not_found(self):
+    def test_password_reset_verification_verification_code_does_not_exist(self):
         user_details = dict({
             'username': 'testing@test.com',
             'email': 'testing@test.com',
@@ -360,7 +360,7 @@ class PasswordResetTestCase(GraphQLTestCase):
             'last_name': 'test last name',
             'password': 'testing@password',
         })
-        user = UserModel.objects.create_user(**user_details)
+        UserModel.objects.create_user(**user_details)
 
         # create password reset request
         prr = PasswordResetRequest.objects.create(email=user_details.get('email'))
