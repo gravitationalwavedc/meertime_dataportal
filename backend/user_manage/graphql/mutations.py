@@ -216,13 +216,6 @@ class PasswordChange(graphene.Mutation):
 
             user = UserModel.objects.get(username=username)
 
-            if not user.is_authenticated:
-                return PasswordChange(
-                    ok=False,
-                    user=None,
-                    errors=['You must be logged in to change the password.'],
-                )
-
             if user.check_password(old_password):
                 user.set_password(password)
                 user.save()

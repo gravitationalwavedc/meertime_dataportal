@@ -6,7 +6,7 @@ from django.core import mail
 from django.utils import timezone
 from graphene_django.utils.testing import GraphQLTestCase
 
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from ..models import Registration, PasswordResetRequest
 
 UserModel = get_user_model()
@@ -397,3 +397,156 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertIsNone(content['data']['passwordReset']['passwordResetRequest'])
         self.assertIsNotNone(content['data']['passwordReset']['errors'])
         self.assertEqual(content['data']['passwordReset']['errors'][0], 'Verification code does not exist.')
+
+
+class PasswordChangeTestCase(GraphQLTestCase):
+
+    def setUp(self) -> None:
+        self.user_details = dict({
+            'username': 'test@test.com',
+            'email': 'test@test.com',
+            'first_name': 'test first name',
+            'last_name': 'test last name',
+            'password': 'test@password',
+        })
+        self.user = UserModel.objects.create_user(**self.user_details)
+
+        self.new_password = 'Abcdefgh#123'
+
+    def test_password_change(self):
+
+        response = self.query(
+            '''
+            mutation PasswordChangeMutation($username: String!, $old_password: String!, $password: String!) {
+                passwordChange(username: $username, oldPassword: $old_password, password: $password)
+                {
+                    ok,
+                    user {
+                        id,
+                        username,
+                        email,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='PasswordChangeMutation',
+            variables={
+                'username': self.user_details.get('username'),
+                'old_password': self.user_details.get('password'),
+                'password': self.new_password,
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertTrue(content['data']['passwordChange']['ok'])
+        self.assertIsNotNone(content['data']['passwordChange']['user'])
+
+        self.assertIsNone(authenticate(username=self.user.username, password=self.user_details.get('password')))
+        self.assertIsNotNone(authenticate(username=self.user.username, password=self.new_password))
+
+    def test_password_change_same_password(self):
+
+        response = self.query(
+            '''
+            mutation PasswordChangeMutation($username: String!, $old_password: String!, $password: String!) {
+                passwordChange(username: $username, oldPassword: $old_password, password: $password)
+                {
+                    ok,
+                    user {
+                        id,
+                        username,
+                        email,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='PasswordChangeMutation',
+            variables={
+                'username': self.user_details.get('username'),
+                'old_password': self.user_details.get('password'),
+                'password': self.user_details.get('password'),
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['passwordChange']['ok'])
+        self.assertIsNone(content['data']['passwordChange']['user'])
+        self.assertIsNotNone(content['data']['passwordChange']['errors'])
+        self.assertEqual(content['data']['passwordChange']['errors'][0], 'New and current passwords cannot be same.')
+
+    def test_password_change_incorrect_current_password(self):
+
+        response = self.query(
+            '''
+            mutation PasswordChangeMutation($username: String!, $old_password: String!, $password: String!) {
+                passwordChange(username: $username, oldPassword: $old_password, password: $password)
+                {
+                    ok,
+                    user {
+                        id,
+                        username,
+                        email,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='PasswordChangeMutation',
+            variables={
+                'username': self.user_details.get('username'),
+                'old_password': 'incorrect_password',
+                'password': self.new_password,
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['passwordChange']['ok'])
+        self.assertIsNone(content['data']['passwordChange']['user'])
+        self.assertIsNotNone(content['data']['passwordChange']['errors'])
+        self.assertEqual(content['data']['passwordChange']['errors'][0], 'Current password is incorrect.')
+
+    def test_password_change_user_does_not_exist(self):
+
+        response = self.query(
+            '''
+            mutation PasswordChangeMutation($username: String!, $old_password: String!, $password: String!) {
+                passwordChange(username: $username, oldPassword: $old_password, password: $password)
+                {
+                    ok,
+                    user {
+                        id,
+                        username,
+                        email,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='PasswordChangeMutation',
+            variables={
+                'username': 'non_existent_user',
+                'old_password': 'non_existent_password',
+                'password': self.new_password,
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['passwordChange']['ok'])
+        self.assertIsNone(content['data']['passwordChange']['user'])
+        self.assertIsNotNone(content['data']['passwordChange']['errors'])
+        self.assertEqual(content['data']['passwordChange']['errors'][0], 'User does not exist.')
+
