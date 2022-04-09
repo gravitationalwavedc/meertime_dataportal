@@ -114,13 +114,6 @@ const PasswordResetRequest = ({ router, match }) => {
                                                         >Login</Link>
                                                     </span>
                                                 </Col>
-                                                {/*<Col xl={{ span: 12 }} md={{ span: 12 }}>*/}
-                                                {/*    Already have an account?*/}
-                                                {/*    <Link className="text-uppercase shadow-md mt-2*/}
-                                                {/*        btn btn-secondary float-right"*/}
-                                                {/*          to={`${process.env.REACT_APP_BASE_URL}/login/`}*/}
-                                                {/*    >Login</Link>*/}
-                                                {/*</Col>*/}
                                             </Row>
                                         </Form>}
                                 </Formik>

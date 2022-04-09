@@ -86,4 +86,8 @@ SITE_URL = 'https://pulsars.org.au/'  # with a trailing slash
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-DEFAULT_EMAIL_FROM = 'ssaleheen@swin.edu.au'
+DEFAULT_FROM_EMAIL = env("MEERTIME_EMAIL")
+
+EMAIL_HOST = 'mail.swin.edu.au'
+
+EMAIL_PORT = 25

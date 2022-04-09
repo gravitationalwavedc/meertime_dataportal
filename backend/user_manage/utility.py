@@ -37,7 +37,7 @@ def send_verification_email(
         body=text_content,
         from_email=from_email,
         to=[to],
-        reply_to=[to],
+        reply_to=[from_email],
     )
     msg.attach_alternative(html_content, "text/html")
     msg.send(fail_silently=False)

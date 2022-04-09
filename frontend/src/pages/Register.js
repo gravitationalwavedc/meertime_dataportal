@@ -97,10 +97,19 @@ const Register = ({ router, match }) => {
                                         <div>You will receive an email with the verification link soon. You need to
                                             verify your email address within 48 hours.
                                         </div>
-                                        <Link
-                                            className="shadow-md mt-2"
-                                            to={`${process.env.REACT_APP_BASE_URL}/login/`}
-                                        >Login</Link>
+                                        <Row className="buttons-row">
+                                            <Col sm={{ span: 12 }} xl={{ span: 12 }} md={{ span: 12 }}>
+                                                &nbsp;
+                                            </Col>
+                                            <Col xl={{ span: 12 }} md={{ span: 12 }}>
+                                                <span>
+                                                    Have an account?&nbsp;
+                                                    <Link
+                                                        to={`${process.env.REACT_APP_BASE_URL}/login/`}
+                                                    >Login</Link>
+                                                </span>
+                                            </Col>
+                                        </Row>
                                     </div>
                                 }
                                 {!success &&

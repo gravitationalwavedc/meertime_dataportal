@@ -86,10 +86,19 @@ const PasswordReset = ({ router, match }) => {
                                         <div>Your password has been reset successfully. You need to login using your
                                             new password via the login page.
                                         </div>
-                                        <Link
-                                            className="shadow-md mt-2"
-                                            to={`${process.env.REACT_APP_BASE_URL}/login/`}
-                                        >Login</Link>
+                                        <Row className="buttons-row">
+                                            <Col sm={{ span: 12 }}>
+                                                &nbsp;
+                                            </Col>
+                                            <Col xl={{ span: 12 }} md={{ span: 12 }}>
+                                                <span>
+                                                    Have an account?&nbsp;
+                                                    <Link
+                                                        to={`${process.env.REACT_APP_BASE_URL}/login/`}
+                                                    >Login</Link>
+                                                </span>
+                                            </Col>
+                                        </Row>
                                     </div>
                                 }
                                 {!success &&
@@ -111,7 +120,8 @@ const PasswordReset = ({ router, match }) => {
                                                 <Field name="verification_code">
                                                     {({ field, meta }) =>
                                                         <Form.Group controlId="verification_code">
-                                                            <Form.Label>Verification Code</Form.Label>
+                                                            <Form.Label>Verification Code (Sent to your email)
+                                                            </Form.Label>
                                                             <Form.Control
                                                                 {...field}
                                                                 isInvalid={meta.touched && meta.error}/>
