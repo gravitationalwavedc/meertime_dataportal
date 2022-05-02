@@ -29,8 +29,9 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
     // Process the table data in a way that react-vis understands.
     const plotData = results.map(row => ({ 
         x: moment(row.utc, 'YYYY-MM-DD-HH:mm:ss'), 
-        y: row.snBackend,
-        value: row.snBackend,
+        y: row.snMeerpipe ? row.snMeerpipe : row.snBackend,
+        value: row.snMeerpipe ? row.snMeerpipe : row.snBackend,
+        type: row.snMeerpipe ? 'Meerpipe S/N' : 'raw S/N',
         customComponent: row.band.toLowerCase() === 'l-band' ? 'square' : 'circle',
         style: { fill:'#E07761', opacity:'0.7' },
         size: scaleValue(Math.log(row.length), [0, Math.log(maxPlotLength)], [1, 100]),
@@ -109,7 +110,7 @@ const PulsarSummaryPlot = ({ data, columns, search, maxPlotLength, minPlotLength
                         <Hint 
                             value={value} 
                             format={(value) => [
-                                { title: 'raw S/N', value: value.y },
+                                { title: value.type, value: value.y },
                                 { title: 'integration time', value: `${value.length} [m]` },
                                 { title: 'UTC', value: value.x.format('YYYY-MM-DD-HH:mm:ss') }
                             ]} 
