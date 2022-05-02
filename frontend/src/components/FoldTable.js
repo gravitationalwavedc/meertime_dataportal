@@ -1,6 +1,6 @@
 import { Button, ButtonGroup } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
-import { columnsSizeFilter, formatUTC, nullCellFormatter } from '../helpers';
+import { columnsSizeFilter, formatUTC } from '../helpers';
 import { createRefetchContainer, graphql } from 'react-relay';
 
 import DataView from './DataView';
@@ -51,10 +51,6 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
             sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'totalIntegrationHours', text: 'Total int', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['lg', 'xl', 'xxl'], formatter: cell => `${cell} [h]` },
-        { dataField: 'avgSnPipe', formatter: nullCellFormatter, text: 'Avg S/N pipe (5 mins)', align: 'right', 
-            headerAlign: 'right', sort: true, hidden: true },
-        { dataField: 'maxSnPipe', formatter: nullCellFormatter, text: 'Max S/N pipe (5 mins)', align: 'right', 
-            headerAlign: 'right', sort: true, hidden: true },
         { dataField: 'lastSnRaw', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
             sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
         { dataField: 'lastIntegrationMinutes', text: 'Last int.', align: 'right', headerAlign: 'right', 
