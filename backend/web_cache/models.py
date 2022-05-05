@@ -16,7 +16,7 @@ class BasePulsar(models.Model):
 
     main_project = models.CharField(max_length=64)
     project = models.CharField(max_length=500)
-    band = models.CharField(choices=BAND_CHOICES, max_length=12)
+    band = models.CharField(choices=BAND_CHOICES, max_length=50)
     jname = models.CharField(max_length=64)
     latest_observation = models.DateTimeField()
     first_observation = models.DateTimeField()
