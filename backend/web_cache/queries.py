@@ -134,7 +134,7 @@ class FoldPulsarDetailConnection(relay.Connection):
         return len(self.edges)
 
     def resolve_total_observation_hours(self, instance):
-        return round(sum([float(observation.length) for observation in self.iterable]) / 60, 1)
+        return round(sum([float(observation.length) for observation in self.iterable]) / 3600, 1)
 
     def resolve_total_projects(self, instance):
         return len({observation.project for observation in self.iterable})
