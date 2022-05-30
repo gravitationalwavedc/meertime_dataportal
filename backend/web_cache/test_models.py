@@ -1,4 +1,5 @@
 from web_cache.models import FoldPulsarDetail, FoldDetailImage
+from dataportal.models import Foldings, Processings
 
 
 def test_estimated_size():

@@ -12,7 +12,7 @@ import React, { useState } from 'react';
 
 import { Col } from 'react-bootstrap';
 import { HiOutlineQuestionMarkCircle } from 'react-icons/hi';
-import { handleSearch } from '../helpers';
+import { handleSearch } from '../../helpers';
 import moment from 'moment';
 import { useRouter } from 'found';
 
@@ -29,9 +29,8 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
     // Process the table data in a way that react-vis understands.
     const plotData = results.map(row => ({ 
         x: moment(row.utc, 'YYYY-MM-DD-HH:mm:ss'), 
-        y: row.snMeerpipe ? row.snMeerpipe : row.snBackend,
-        value: row.snMeerpipe ? row.snMeerpipe : row.snBackend,
-        type: row.snMeerpipe ? 'Meerpipe S/N' : 'raw S/N',
+        y: row.flux,
+        value: row.flux,
         customComponent: row.band.toLowerCase() === 'l-band' ? 'square' : 'circle',
         style: { fill:'#E07761', opacity:'0.7' },
         size: scaleValue(Math.log(row.length), [0, Math.log(maxPlotLength)], [1, 100]),
@@ -52,7 +51,7 @@ const getPlotData = (data, columns, search, lastDrawLocation, setLastDrawLocatio
     return plotData;
 };
 
-const PulsarSummaryPlot = ({ data, columns, search, maxPlotLength, minPlotLength }) => { 
+const FluxPlot = ({ data, columns, search, maxPlotLength, minPlotLength }) => { 
     const [value, setValue] = useState(false);
     const [lastDrawLocation, setLastDrawLocation] = useState(null);
     const { router } = useRouter();
@@ -77,7 +76,7 @@ const PulsarSummaryPlot = ({ data, columns, search, maxPlotLength, minPlotLength
                 <HiOutlineQuestionMarkCircle className="mb-1" /> 
                 Drag to zoom. Click empty area to reset. Double click to view utc.
             </p>
-            <p className="y-label">S/N</p>
+            <p className="y-label">Flux Density (mJy)</p>
             <div className="pulsar-plot-wrapper">
                 <FlexibleXYPlot 
                     margin={{ left: 60, right: 60, top: 60, bottom: 60 }}
@@ -110,7 +109,7 @@ const PulsarSummaryPlot = ({ data, columns, search, maxPlotLength, minPlotLength
                         <Hint 
                             value={value} 
                             format={(value) => [
-                                { title: value.type, value: value.y },
+                                { title: 'flux density', value: value.y },
                                 { title: 'integration time', value: `${value.length} [m]` },
                                 { title: 'UTC', value: value.x.format('YYYY-MM-DD-HH:mm:ss') }
                             ]} 
@@ -135,4 +134,4 @@ const PulsarSummaryPlot = ({ data, columns, search, maxPlotLength, minPlotLength
     );
 };
 
-export default PulsarSummaryPlot;
+export default FluxPlot;

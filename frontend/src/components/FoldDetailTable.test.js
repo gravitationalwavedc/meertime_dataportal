@@ -55,7 +55,8 @@ describe('the fold table component', () => {
                         dmMeerpipe: null,
                         rmMeerpipe: null,
                         snBackend: 134.5,
-                        snMeerpipe: null
+                        snMeerpipe: null,
+                        flux: 12
                     }
                 },
                 {
@@ -77,7 +78,8 @@ describe('the fold table component', () => {
                         dmMeerpipe: null,
                         rmMeerpipe: null,
                         snBackend: 66.6,
-                        snMeerpipe: null
+                        snMeerpipe: null,
+                        flux: 1.2
                     }
                 },
                 {
@@ -99,7 +101,8 @@ describe('the fold table component', () => {
                         dmMeerpipe: null,
                         rmMeerpipe: null,
                         snBackend: 83.3,
-                        snMeerpipe: null
+                        snMeerpipe: null,
+                        flux: 3.4
                     }
                 },
                 {
@@ -121,7 +124,8 @@ describe('the fold table component', () => {
                         dmMeerpipe: null,
                         rmMeerpipe: null,
                         snBackend: 38.4,
-                        snMeerpipe: null
+                        snMeerpipe: null,
+                        flux: null
                     }
                 }
             ]
@@ -157,7 +161,8 @@ describe('the fold table component', () => {
                         'dmMeerpipe': null,
                         'rmMeerpipe': null,
                         'snBackend': 134.5,
-                        'snMeerpipe': null
+                        'snMeerpipe': null,
+                        'flux': null
                     }
                 },
             ]
