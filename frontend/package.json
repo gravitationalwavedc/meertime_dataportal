@@ -78,7 +78,6 @@
     "react-relay": "^10.1.0",
     "react-relay-network-modern": "^5.0.1",
     "react-vis": "^1.11.7",
-    "recharts": "^2.1.10",
     "regenerator-runtime": "^0.13.7",
     "relay-compiler": "^10.1.0",
     "relay-config": "^10.0.1",
