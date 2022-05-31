@@ -35,6 +35,7 @@ const query = graphql`
           rmMeerpipe
           snBackend
           snMeerpipe
+          flux
         }
       }
     }

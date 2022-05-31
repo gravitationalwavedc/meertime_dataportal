@@ -73,7 +73,7 @@ def create_pulsar_with_observations():
         pipeline=pipeline,
         embargo_end=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
         location="me",
-        results={'snr': 67.800},
+        results={'snr': 67.800, 'flux': 1.46},
     )
 
     # Create a parent processing for the sn_meerpipe
@@ -83,7 +83,7 @@ def create_pulsar_with_observations():
         pipeline=relbin_pipeline,
         embargo_end=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
         location="me",
-        results={'snr': 42.1},
+        results={'snr': 42.1, 'flux': 1.22},
     )
 
     ephemerides = Ephemerides.objects.create(

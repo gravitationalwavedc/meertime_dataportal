@@ -55,7 +55,8 @@ describe('the fold table component', () => {
                         dmMeerpipe: null,
                         rmMeerpipe: null,
                         snBackend: 134.5,
-                        snMeerpipe: null
+                        snMeerpipe: null,
+                        flux: 12
                     }
                 },
                 {
@@ -77,7 +78,8 @@ describe('the fold table component', () => {
                         dmMeerpipe: null,
                         rmMeerpipe: null,
                         snBackend: 66.6,
-                        snMeerpipe: null
+                        snMeerpipe: null,
+                        flux: 1.2
                     }
                 },
                 {
@@ -99,7 +101,8 @@ describe('the fold table component', () => {
                         dmMeerpipe: null,
                         rmMeerpipe: null,
                         snBackend: 83.3,
-                        snMeerpipe: null
+                        snMeerpipe: null,
+                        flux: 3.4
                     }
                 },
                 {
@@ -121,7 +124,8 @@ describe('the fold table component', () => {
                         dmMeerpipe: null,
                         rmMeerpipe: null,
                         snBackend: 38.4,
-                        snMeerpipe: null
+                        snMeerpipe: null,
+                        flux: null
                     }
                 }
             ]
@@ -157,7 +161,8 @@ describe('the fold table component', () => {
                         'dmMeerpipe': null,
                         'rmMeerpipe': null,
                         'snBackend': 134.5,
-                        'snMeerpipe': null
+                        'snMeerpipe': null,
+                        'flux': null
                     }
                 },
             ]
@@ -168,8 +173,8 @@ describe('the fold table component', () => {
         expect.hasAssertions();
         const { getByText, getAllByText } = render(<FoldDetailTable data={data} />);
         expect(getByText('Observations')).toBeInTheDocument();
-        expect(getByText('Drag to zoom. Click empty area to reset. Double click to view utc.')).toBeInTheDocument();
-        expect(getAllByText('2')).toHaveLength(1);
+        expect(getByText('Drag to zoom, click empty area to reset, double click to view utc.')).toBeInTheDocument();
+        expect(getAllByText('2')).toHaveLength(2);
     });
 
     it('should update the table when the band filter is changed', async () => {

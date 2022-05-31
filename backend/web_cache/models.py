@@ -275,6 +275,7 @@ class FoldPulsarDetail(models.Model):
     rm_meerpipe = models.DecimalField(max_digits=12, decimal_places=2, null=True)
     sn_backend = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     sn_meerpipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
+    flux = models.DecimalField(max_digits=12, decimal_places=6, null=True)
     ra = models.CharField(max_length=16, null=True)
     dec = models.CharField(max_length=16, null=True)
     tsubint = models.DecimalField(max_digits=12, decimal_places=1, null=True)
@@ -303,6 +304,37 @@ class FoldPulsarDetail(models.Model):
         return Sessions.get_session(self.utc)
 
     @classmethod
+    def get_sn_meerpipe(cls, folding, pipeline_name):
+        try:
+            return folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('snr', None)
+        except Processings.DoesNotExist:
+            return None
+
+    @classmethod
+    def get_flux(cls, folding, pipeline_name):
+        """Get the flux value for a folding observation."""
+        # The order to try projects as set by the science team.
+        project_priority_order = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']
+        # Remove the actual folding observation project because we try that first.
+        project_priority_order.remove(pipeline_name)
+
+        try:
+            # We want the flux value set to the real project if there is one. 
+            flux = folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('flux', None)
+            
+            if flux is not None:
+                return flux
+
+            # Its better to have a value from another project than no value at all. 
+            for project in project_priority_order:
+                flux = folding.processing.processings_set.get(pipeline__name=project).results.get('flux', None)
+                if flux is not None:
+                    return flux
+
+        except Processings.DoesNotExist:
+            return None
+
+    @classmethod
     def update_or_create(cls, folding):
         pulsar = folding.folding_ephemeris.pulsar
         observation = folding.processing.observation
@@ -319,12 +351,9 @@ class FoldPulsarDetail(models.Model):
             return
 
         results = folding.processing.results if folding.processing.results else {}
-
-        try:
-            pipeline_name = f"MeerPIPE_{observation.project.short}"
-            sn_meerpipe = folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('snr', None)
-        except Processings.DoesNotExist:
-            sn_meerpipe = None
+        pipeline_name = f"MeerPIPE_{observation.project.short}"
+        sn_meerpipe = cls.get_sn_meerpipe(folding, pipeline_name)
+        flux = cls.get_flux(folding, pipeline_name)
 
         new_fold_pulsar_detail, created = FoldPulsarDetail.objects.update_or_create(
             fold_pulsar=fold_pulsar,
@@ -349,6 +378,7 @@ class FoldPulsarDetail(models.Model):
                 "dm_meerpipe": folding.folding_ephemeris.dm,
                 "rm_meerpipe": folding.folding_ephemeris.rm,
                 "sn_backend": results.get('snr', None),
+                "flux": flux,
                 "sn_meerpipe": sn_meerpipe,
                 "schedule": "12",
                 "phaseup": "12",

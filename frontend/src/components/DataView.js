@@ -6,11 +6,13 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import CustomSizePerPageBtn from './CustomSizePerPageBtn';
 import JobCardsList from './JobCardsList';
 import ListControls from './ListControls';
-import PulsarSummaryPlot from './PulsarSummaryPlot';
+import PulsarSummaryPlot from './plots/PulsarSummaryPlot';
+import FluxPlot from './plots/FluxPlot';
 import SummaryDataRow from './SummaryDataRow';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit';
 import paginationFactory from 'react-bootstrap-table2-paginator';
 import { useScreenSize } from '../context/screenSize-context';
+import PlotContainer from './plots/PlotContainer';
 
 const DataView = ({ 
     summaryData, 
@@ -54,12 +56,7 @@ const DataView = ({
                     <React.Fragment>
                         {plot && 
                           <Row className="d-none d-sm-block">
-                              <Col>
-                                  <PulsarSummaryPlot 
-                                    {...props.baseProps} 
-                                    maxPlotLength={maxPlotLength} 
-                                    minPlotLength={minPlotLength} />
-                              </Col>
+                            <PlotContainer maxPlotLength={maxPlotLength} {...props.baseProps} />
                           </Row>
                         }
                         <Row className='bg-gray-100'>

@@ -1,17 +1,16 @@
 .pulsar-plot-wrapper {
     height: 24rem;
-    padding: 0 50px 0 0;
+    padding: 2rem 0rem;
+    margin-bottom: 2rem;
 }
 
 .pulsar-plot-display {
-    background-color: white;
-    border-radius: 0.75rem;
-    box-shadow: $shadow-base;
+    background-color: $gray-100;
 }
 
-.y-label {
-    position: absolute;
-    transform: rotate(270deg);
-    top: 50%;
-    color: $primary-600;
+div.pulsar-plot-wrapper .rv-xy-plot__axis__title text {
+    fill: $primary;
+    font-size: 15px;
+    font-weight: 600;
 }
+

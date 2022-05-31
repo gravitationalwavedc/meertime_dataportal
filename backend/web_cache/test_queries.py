@@ -199,6 +199,7 @@ def test_fold_detail_query():
                 rmMeerpipe
                 snBackend
                 snMeerpipe
+                flux
               }}
             }}
           }}
@@ -230,6 +231,7 @@ def test_fold_detail_query():
                         'rmMeerpipe': 25.0,
                         'snBackend': 67.8,
                         'snMeerpipe': 42.1,
+                        'flux': 1.22 
                     }
                 }
             ],
