@@ -31,7 +31,7 @@ const PulsarSummaryPlot = ({ data, columns, search, maxPlotLength }) => {
     );
 
     const plotLink = () => {
-        router.replace(value.link);
+        router.push(value.link);
     };
 
     return (

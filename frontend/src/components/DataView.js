@@ -6,8 +6,6 @@ import BootstrapTable from 'react-bootstrap-table-next';
 import CustomSizePerPageBtn from './CustomSizePerPageBtn';
 import JobCardsList from './JobCardsList';
 import ListControls from './ListControls';
-import PulsarSummaryPlot from './plots/PulsarSummaryPlot';
-import FluxPlot from './plots/FluxPlot';
 import SummaryDataRow from './SummaryDataRow';
 import ToolkitProvider from 'react-bootstrap-table2-toolkit';
 import paginationFactory from 'react-bootstrap-table2-paginator';
@@ -28,7 +26,7 @@ const DataView = ({
     maxPlotLength,
     minPlotLength,
     keyField,
-    card
+    card,
   }) => {
     const { screenSize } = useScreenSize();
     const [isTableView, setIsTableView] = useState(["md", "lg", "xl", "xxl"].includes(screenSize));
