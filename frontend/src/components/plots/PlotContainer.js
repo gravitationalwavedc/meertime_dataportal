@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Col } from 'react-bootstrap';
 import FluxPlot from './FluxPlot';
 import Form from 'react-bootstrap/Form';
-import SNRPlot from './newPlot';
+import SNRPlot from './SNRPlot';
 
 const PlotContainer = ({ maxPlotLength, ...rest }) => {
     const [activePlot, setActivePlot] = useState('flux');

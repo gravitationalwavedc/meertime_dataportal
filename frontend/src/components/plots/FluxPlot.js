@@ -2,6 +2,7 @@ import {
     CartesianGrid,
     Label,
     Legend,
+    ReferenceArea,
     ResponsiveContainer,
     Scatter,
     ScatterChart,
@@ -10,12 +11,16 @@ import {
     YAxis,
     ZAxis,
 } from 'recharts';
-import React from 'react';
+import React, { useState } from 'react';
 import { fluxPlotData } from './plotData';
 import moment from 'moment';
 import { useRouter } from 'found';
 
+
 const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
+    const [ zoomArea, setZoomArea ] = useState({ x1: null, y1: null, x2: null, y2: null });
+    const [isZooming, setIsZooming] = useState(false);
+
     const { lBandData, UHFData } = fluxPlotData(data, columns, search, maxPlotLength);
     const { router } = useRouter();
 
@@ -23,8 +28,31 @@ const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
         router.push(symbolData.link);
     };
 
+    const handleMouseDown = (e) => {
+        setIsZooming(true);
+        const { xValue, yValue } = e || {};
+        setZoomArea({ x1: xValue, y1: yValue, x2: xValue, y2: yValue });
+    };
+
+    const handleMouseMove = (e) => {
+        if(isZooming) {
+            setZoomArea((prev) => ({ ...prev, x2: e ? e.xValue : null, y2: e ? e.yValue : null }));
+        }
+    };
+
+    const handleMouseUp = (e) => {
+        setIsZooming(false);
+        let { x1, y1, x2, y2 } = zoomArea;
+        
+        // ensure x1 <= x2 and y1 <= y2
+        if (x1 > x2) [x1, x2] = [x2, x1];
+        if (y1 > y2) [y1, y2] = [y2, y1];
+        
+        // setZoomArea({ x1: null, y1: null, x2: null, y2: null });
+    };
+
     return (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer>
             <ScatterChart
                 margin={{
                     top: 20,
@@ -32,6 +60,9 @@ const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
                     bottom: 20,
                     left: 20,
                 }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
             >
                 <CartesianGrid />
                 <XAxis 
@@ -58,6 +89,12 @@ const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
                 />
                 <Scatter name="L-Band" data={lBandData} fill="#8884d8" shape="circle" onClick={handleSymbolClick} />
                 <Scatter name="UHF" data={UHFData} fill="#e07761" shape="square" onClick={handleSymbolClick} />
+                <ReferenceArea
+                    x1={zoomArea.x1 ? zoomArea.x1 : null}
+                    x2={zoomArea.x2 ? zoomArea.x2 : null}
+                    y1={zoomArea.y1 ? zoomArea.y1 : null}
+                    y2={zoomArea.y2 ? zoomArea.y2 : null}
+                />
             </ScatterChart>
         </ResponsiveContainer>
     );

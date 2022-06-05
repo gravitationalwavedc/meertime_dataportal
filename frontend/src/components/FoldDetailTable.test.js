@@ -174,7 +174,7 @@ describe('the fold table component', () => {
         const { getByText, getAllByText } = render(<FoldDetailTable data={data} />);
         expect(getByText('Observations')).toBeInTheDocument();
         expect(getByText('Drag to zoom, click empty area to reset, double click to view utc.')).toBeInTheDocument();
-        expect(getAllByText('2')).toHaveLength(2);
+        expect(getAllByText('2')).toHaveLength(1);
     });
 
     it('should update the table when the band filter is changed', async () => {

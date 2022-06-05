@@ -24,7 +24,7 @@ const SNRPlot= ({ data, columns, search, maxPlotLength }) => {
     };
 
     return (
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer>
             <ScatterChart
                 margin={{
                     top: 20,
