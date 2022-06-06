@@ -1,6 +1,5 @@
 .pulsar-plot-wrapper {
-    height: 24rem;
-    padding: 2rem 0rem;
+    height: 30rem;
     margin-bottom: 2rem;
 }
 
@@ -8,9 +7,18 @@
     background-color: $gray-100;
 }
 
-div.pulsar-plot-wrapper .rv-xy-plot__axis__title text {
-    fill: $primary;
-    font-size: 15px;
-    font-weight: 600;
+.recharts-text.recharts-label {
+    text-anchor: middle;
 }
 
+.recharts-xAxis.xAxis,
+.recharts-yAxis.yAxis,
+.recharts-legend-item {
+    user-select: none;
+}
+
+.zoom-btn {
+    position: absolute;
+    top: 2.3rem;
+    left: 26rem;
+}

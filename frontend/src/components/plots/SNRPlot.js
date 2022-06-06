@@ -9,11 +9,11 @@ import {
 } from 'recharts';
 import React from 'react';
 import ZoomPlot from './ZoomPlot';
-import { fluxPlotData } from './plotData';
 import moment from 'moment';
+import { snrPlotData } from './plotData';
 
-const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
-    const { lBandData, UHFData } = fluxPlotData(data, columns, search, maxPlotLength);
+const SNRPlot= ({ data, columns, search, maxPlotLength }) => {
+    const { lBandData, UHFData } = snrPlotData(data, columns, search, maxPlotLength);
 
     const toolTipFormatter = (value, name) => {
         if (name === 'UTC') {
@@ -32,30 +32,28 @@ const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
             <CartesianGrid />
             <XAxis 
                 type="number" 
-                dataKey="time" 
-                name="UTC" 
+                dataKey="time"
                 tickCount={8}
+                name="UTC" 
                 domain={['auto', 'auto']} 
                 tickFormatter={(unixTime) => moment(unixTime).format('DD/MM/YY')}>
                 <Label value="UTC" position="bottom"/>
             </XAxis>
-            <YAxis type="number" dataKey="value" name="Flux">
-                <Label value="Flux Density" position="left" angle="-90"/>
+            <YAxis type="number" dataKey="value" name="S/N">
+                <Label value="S/N" position="left" angle="-90"/>
             </YAxis>
             <ZAxis type="number" dataKey="size" name="Size" range={[60, 400]} />
-            <Tooltip cursor={{ strokeDasharray: '3 3' }} formatter={toolTipFormatter}/>
+            <Tooltip cursor={{ strokeDasharray: '3 3' }} formatter={toolTipFormatter} />
             <Legend 
                 align="right" 
                 verticalAlign="top"
                 payload={[
                     { id:'1', type: 'circle', value: 'L-Band', color: '#8884d8' },
-                    { id:'1', type: 'square', value: 'UHF', color: '#e07761' }
+                    { id:'1', type: 'square', value: 'UHF', color: '#82ca9d' }
                 ]}
             />
         </ZoomPlot>
     );
 };
 
-export default FluxPlot;
-
-
+export default SNRPlot;

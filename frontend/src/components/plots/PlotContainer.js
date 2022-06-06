@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Col } from 'react-bootstrap';
 import FluxPlot from './FluxPlot';
 import Form from 'react-bootstrap/Form';
-import PulsarSummaryPlot from './PulsarSummaryPlot';
+import SNRPlot from './SNRPlot';
 
 const PlotContainer = ({ maxPlotLength, ...rest }) => {
     const [activePlot, setActivePlot] = useState('flux');
@@ -26,7 +26,7 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
         </Form.Row>
         <div className="pulsar-plot-wrapper">
             { activePlot === 'snr' ? 
-                <PulsarSummaryPlot maxPlotLength={maxPlotLength} {...rest} /> :
+                <SNRPlot maxPlotLength={maxPlotLength} {...rest} /> :
                 <FluxPlot maxPlotLength={maxPlotLength} {...rest} />
             }
         </div>
