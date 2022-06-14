@@ -317,9 +317,10 @@ class FoldPulsarDetail(models.Model):
     def get_flux(cls, folding, pipeline_name):
         """Get the flux value for a folding observation."""
         # The order to try projects as set by the science team.
-        project_priority_order = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']
+        project_priority = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']
         # Remove the actual folding observation project because we try that first.
-        project_priority_order.remove(pipeline_name)
+
+        project_priority_order = [project for project in project_priority if project is not pipeline_name]
 
         try:
             # We want the flux value set to the real project if there is one. 
