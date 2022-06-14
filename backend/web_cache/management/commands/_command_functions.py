@@ -18,10 +18,6 @@ def sync_foldmode():
     objects by looping through all the Pulsars and adding a FoldPulsar if it has a related folding ephmeris. We want to
     create one for each program so that we have a FoldPulsar object to attach observations to.
     """
-    # Delete everything and start fresh. There might be a way to update instead but this is simplier and should only be
-    # run if the code base has changed.
-    # FoldPulsarDetail.objects.all().delete()
-    # FoldPulsar.objects.all().delete()
 
     # We need to do the FoldPulsars first so that they're ready when the FoldPulsarDetail needs them.
     print("Syncing FoldPulsars")
