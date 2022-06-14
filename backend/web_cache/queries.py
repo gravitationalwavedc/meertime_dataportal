@@ -129,6 +129,10 @@ class FoldPulsarDetailConnection(relay.Connection):
     total_timespan_days = graphene.Int()
     max_plot_length = graphene.Int()
     min_plot_length = graphene.Int()
+    description = graphene.String()
+
+    def resolve_description(self, instance):
+        return self.iterable.first().fold_pulsar.comment
 
     def resolve_total_observations(self, instance):
         return len(self.edges)

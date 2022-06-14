@@ -23,6 +23,7 @@ class BasePulsar(models.Model):
     timespan = models.IntegerField()
     number_of_observations = models.IntegerField()
     beam = models.CharField(max_length=16)
+    comment = models.TextField(null=True)
 
     class Meta:
         abstract = True
@@ -108,6 +109,7 @@ class SearchmodePulsar(BasePulsar):
                 "first_observation": first_observation,
                 "timespan": timespan,
                 "number_of_observations": number_of_observations,
+                "comment": target.comment
             },
         )
 
@@ -193,6 +195,7 @@ class FoldPulsar(BasePulsar):
                 "avg_sn_pipe": cls.get_average_snr_over_5min(folding_observations),
                 "max_sn_pipe": cls.get_max_snr_over_5min(folding_observations),
                 "beam": latest_folding_observation.processing.observation.instrument_config.beam,
+                "comment": pulsar.comment
             },
         )
 

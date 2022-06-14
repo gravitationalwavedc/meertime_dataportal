@@ -1,11 +1,11 @@
 import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
 import { columnsSizeFilter, meerWatchLink } from '../helpers';
-
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
 import FoldDetailCard from './FoldDetailCard';
 import Link from 'found/Link';
+import ReactMarkdown from 'react-markdown';
 import { formatUTC } from '../helpers';
 import { useScreenSize } from '../context/screenSize-context';
 
@@ -112,6 +112,11 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
 
     return (
         <div className="fold-detail-table">
+            <Row className="mb-3">
+                <Col>
+                    <ReactMarkdown>{foldObservationDetails.description}</ReactMarkdown>
+                </Col>
+            </Row>
             <Row>
                 <Col>
                     <Button 

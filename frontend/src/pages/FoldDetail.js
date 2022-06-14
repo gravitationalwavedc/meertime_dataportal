@@ -15,6 +15,7 @@ const query = graphql`
       totalTimespanDays
       maxPlotLength
       minPlotLength
+      description
       edges {
         node {
           id

@@ -59,7 +59,7 @@ class Ephemerides(models.Model):
     p0 = models.DecimalField(max_digits=limits["p0"]["max"], decimal_places=limits["p0"]["deci"])
     dm = models.FloatField()
     rm = models.FloatField()
-    comment = models.CharField(max_length=255, blank=True, null=True)
+    comment = models.TextField(null=True)
     valid_from = models.DateTimeField()
     # we should be making sure valid_to is later than valid_from
     valid_to = models.DateTimeField()
@@ -172,7 +172,7 @@ class Observations(models.Model):
     nant = models.IntegerField(blank=True, null=True)
     nant_eff = models.IntegerField(blank=True, null=True)
     suspect = models.BooleanField(default=False)
-    comment = models.CharField(max_length=255, blank=True, null=True)
+    comment = models.TextField(null=True)
 
 
 class Projects(models.Model):
@@ -228,7 +228,8 @@ class Processings(Model):
     location = models.CharField(max_length=255)
     job_state = models.CharField(max_length=255, blank=True, null=True)
     job_output = JSONField(blank=True, null=True)
-    # TODO we would like to use results as part of the unique constraint but same problem as in the ephemeris class (see the comment there)
+    # TODO we would like to use results as part of the unique constraint but same problem as in the 
+    # ephemeris class (see the comment there)
     results = JSONField(blank=True, null=True)
 
     class Meta:
@@ -255,7 +256,7 @@ class Pulsartargets(models.Model):
 class Pulsars(models.Model):
     jname = models.CharField(max_length=64, unique=True)
     state = models.CharField(max_length=255, blank=True, null=True)
-    comment = models.CharField(max_length=255, blank=True, null=True)
+    comment = models.TextField(null=True)
 
     # These look like the Searchmode
     def get_observations_for_pulsar(cls, get_proposal_filters=get_meertime_filters):
@@ -371,7 +372,7 @@ class Templates(models.Model):
     location = models.CharField(max_length=255)
     method = models.CharField(max_length=255, blank=True, null=True)
     type = models.CharField(max_length=255, blank=True, null=True)
-    comment = models.CharField(max_length=255, blank=True, null=True)
+    comment = models.TextField(null=True)
 
 
 class Toas(models.Model):
@@ -387,4 +388,4 @@ class Toas(models.Model):
     site = models.CharField(max_length=1, blank=True, null=True)
     uncertainty = models.FloatField(blank=True, null=True)
     quality = models.CharField(max_length=7, blank=True, null=True, choices=QUALITY_CHOICES)
-    comment = models.CharField(max_length=255, blank=True, null=True)
+    comment = models.TextField(null=True)
