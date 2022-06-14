@@ -49,7 +49,7 @@ const SNRPlot= ({ data, columns, search, maxPlotLength }) => {
                 verticalAlign="top"
                 payload={[
                     { id:'1', type: 'circle', value: 'L-Band', color: '#8884d8' },
-                    { id:'1', type: 'square', value: 'UHF', color: '#82ca9d' }
+                    { id:'1', type: 'square', value: 'UHF', color: '#e07761' }
                 ]}
             />
         </ZoomPlot>
