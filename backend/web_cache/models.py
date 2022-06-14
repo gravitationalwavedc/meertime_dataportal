@@ -109,7 +109,6 @@ class SearchmodePulsar(BasePulsar):
                 "first_observation": first_observation,
                 "timespan": timespan,
                 "number_of_observations": number_of_observations,
-                "comment": target.comment
             },
         )
 
