@@ -11,14 +11,14 @@ describe('login page', () => {
     it('should have a username and password field', () => {
         expect.hasAssertions();
         const { getByLabelText } = render(<Login router={{}} match={{}}/>);
-        expect(getByLabelText('Username')).toBeInTheDocument();
+        expect(getByLabelText('Username/Email')).toBeInTheDocument();
         expect(getByLabelText('Password')).toBeInTheDocument();
     });
 
     it('should submit when there is a username and password', async () => {
         expect.hasAssertions();
         const { getAllByText, getByLabelText } = render(<Login router={mockRouter} match={{ params: { next: null } }}/>);
-        const usernameField = getByLabelText('Username');
+        const usernameField = getByLabelText('Username/Email');
         const passwordField = getByLabelText('Password');
         fireEvent.change(usernameField, { target: { value: 'asher' } });
         fireEvent.change(passwordField, { target: { value: 'password' } });
@@ -36,7 +36,7 @@ describe('login page', () => {
         const { getAllByText, getByLabelText } = render(
             <Login router={mockRouter} match={{ params: { next: 'search' } }}/>
         );
-        const usernameField = getByLabelText('Username');
+        const usernameField = getByLabelText('Username/Email');
         const passwordField = getByLabelText('Password');
         fireEvent.change(usernameField, { target: { value: 'asher' } });
         fireEvent.change(passwordField, { target: { value: 'password' } });
@@ -53,7 +53,7 @@ describe('login page', () => {
         expect.hasAssertions();
         const { getAllByText, getByLabelText, getByText } = 
           render(<Login router={mockRouter} match={{ params: { next: null } }}/>);
-        const usernameField = getByLabelText('Username');
+        const usernameField = getByLabelText('Username/Email');
         const passwordField = getByLabelText('Password');
         fireEvent.change(usernameField, { target: { value: 'asher' } });
         fireEvent.change(passwordField, { target: { value: 'password' } });

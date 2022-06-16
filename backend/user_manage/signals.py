@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from .models import Registration, PasswordResetRequest
+from .models import Registration, PasswordResetRequest, UserRole
 from .utility import send_verification_email
 from .utility import send_password_reset_email
 
@@ -37,6 +37,11 @@ def handle_registration_save(sender, instance, **kwargs):
             # forcefully update the password of the user to make sure the hash is correct
             new_user.password = instance.password
             new_user.save()
+
+            # creating a role for the user
+            UserRole.objects.create(
+                user=new_user,
+            )
 
             instance.user = new_user
 

@@ -2,7 +2,7 @@ from django.contrib import admin
 
 from .models import (
     Registration,
-    PasswordResetRequest,
+    PasswordResetRequest, UserRole,
 )
 
 
@@ -28,6 +28,16 @@ class PasswordResetRequestAdmin(admin.ModelAdmin):
         'status',
         'verification_code',
         'verification_expiry',
+        'created',
+        'last_updated',
+    ]
+
+
+@admin.register(UserRole)
+class UserRoleAdmin(admin.ModelAdmin):
+    list_display = [
+        'user',
+        'role',
         'created',
         'last_updated',
     ]

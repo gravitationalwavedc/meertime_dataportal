@@ -3,9 +3,12 @@ import datetime
 
 from django.utils import timezone
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
+
+
+User = get_user_model()
 
 
 class Registration(models.Model):
@@ -43,7 +46,7 @@ class Registration(models.Model):
         self.full_clean()
         # set verification_expiry date
         if self.verification_expiry is None:
-            self.verification_expiry = timezone.now() + datetime.timedelta(days=2)
+            self.verification_expiry = timezone.now() + datetime.timedelta(hours=48)
 
         return super(Registration, self).save(*args, **kwargs)
 
@@ -71,3 +74,22 @@ class PasswordResetRequest(models.Model):
             self.verification_expiry = timezone.now() + datetime.timedelta(minutes=30)
 
         return super(PasswordResetRequest, self).save(*args, **kwargs)
+
+
+class UserRole(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=False, null=False)
+
+    RESTRICTED = 'RESTRICTED'  # restricted role can have no access to the embargoed data
+    UNRESTRICTED = 'UNRESTRICTED'  # unrestricted should be able to view any data
+    ADMIN = 'ADMIN'  # admin to get additional access, ex: change restricted to unrestricted
+
+    ROLE_CHOICES = [
+        (ADMIN, ADMIN),
+        (RESTRICTED, RESTRICTED),
+        (UNRESTRICTED, UNRESTRICTED),
+    ]
+
+    role = models.CharField(max_length=55, choices=ROLE_CHOICES, default=RESTRICTED)
+    created = models.DateTimeField(auto_now_add=True)
+    last_updated = models.DateTimeField(auto_now=True)

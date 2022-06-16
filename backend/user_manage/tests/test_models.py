@@ -9,7 +9,7 @@ from uuid import UUID
 from django.contrib.auth.hashers import check_password
 from django.test import TestCase
 
-from ..models import Registration
+from ..models import Registration, UserRole
 
 
 class RegistrationTest(TestCase):
@@ -67,9 +67,14 @@ class RegistrationTest(TestCase):
         registration.save()
 
         try:
-            User.objects.get(username=registration.email)
+            user = User.objects.get(username=registration.email)
+            # the user exists
             assert True
-        except User.DoesNotExist:
+
+            # the user has been assigned a role (public)
+            user_role = UserRole.objects.get(user=user)
+
+            self.assertEqual(user_role.role, UserRole.RESTRICTED)
+
+        except (User.DoesNotExist, UserRole.DoesNotExist):
             assert False
-
-

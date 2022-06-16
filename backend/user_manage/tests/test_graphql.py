@@ -2,12 +2,13 @@ import json
 import datetime
 from unittest.mock import patch
 
+from django.contrib.auth.models import User
 from django.core import mail
 from django.utils import timezone
 from graphene_django.utils.testing import GraphQLTestCase
 
 from django.contrib.auth import get_user_model, authenticate
-from ..models import Registration, PasswordResetRequest
+from ..models import Registration, PasswordResetRequest, UserRole
 
 UserModel = get_user_model()
 
@@ -100,6 +101,193 @@ class RegistrationTestCase(GraphQLTestCase):
             content['data']['createRegistration']['errors'][0],
             'Registration with this Email already exists.'
         )
+
+
+class VerifyRegistrationTestCase(GraphQLTestCase):
+
+    def setUp(self) -> None:
+        self.user_details = dict({
+            'email': 'test@test.com',
+            'first_name': 'test first name',
+            'last_name': 'test last name',
+            'password': 'test@password',
+        })
+        self.registration = Registration.objects.create(**self.user_details)
+
+    def test_verify_registration(self):
+        response = self.query(
+            '''
+            mutation VerifyRegistrationMutation($verification_code: String!) {
+                verifyRegistration(verificationCode: $verification_code)
+                {
+                    ok,
+                    registration {
+                        email,
+                        status,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='VerifyRegistrationMutation',
+            variables={
+                'verification_code': f'{self.registration.verification_code}',
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertTrue(content['data']['verifyRegistration']['ok'])
+        self.assertIsNotNone(content['data']['verifyRegistration']['registration'])
+        self.assertIsNotNone(content['data']['verifyRegistration']['registration']['email'])
+        self.assertEqual(content['data']['verifyRegistration']['registration']['status'], Registration.VERIFIED)
+
+        # check user created and role assigned
+        try:
+            user = User.objects.get(username=self.registration.email)
+            # the user exists
+            assert True
+
+            # the user has been assigned a role (public)
+            user_role = UserRole.objects.get(user=user)
+
+            self.assertEqual(user_role.role, UserRole.RESTRICTED)
+
+        except (User.DoesNotExist, UserRole.DoesNotExist):
+            assert False
+
+    def test_verify_registration_invalid_code(self):
+        response = self.query(
+            '''
+            mutation VerifyRegistrationMutation($verification_code: String!) {
+                verifyRegistration(verificationCode: $verification_code)
+                {
+                    ok,
+                    registration {
+                        email,
+                        status,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='VerifyRegistrationMutation',
+            variables={
+                'verification_code': 'invalid_code',
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['verifyRegistration']['ok'])
+        self.assertIsNone(content['data']['verifyRegistration']['registration'])
+        self.assertIsNotNone(content['data']['verifyRegistration']['errors'])
+        self.assertEqual(content['data']['verifyRegistration']['errors'][0], 'Invalid verification code.')
+
+    def test_verify_registration_already_verified(self):
+
+        self.registration.status = Registration.VERIFIED
+        self.registration.save()
+
+        response = self.query(
+            '''
+            mutation VerifyRegistrationMutation($verification_code: String!) {
+                verifyRegistration(verificationCode: $verification_code)
+                {
+                    ok,
+                    registration {
+                        email,
+                        status,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='VerifyRegistrationMutation',
+            variables={
+                'verification_code': f'{self.registration.verification_code}',
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['verifyRegistration']['ok'])
+        self.assertIsNone(content['data']['verifyRegistration']['registration'])
+        self.assertIsNotNone(content['data']['verifyRegistration']['errors'])
+        self.assertEqual(content['data']['verifyRegistration']['errors'][0], 'Email already verified.')
+
+    def test_verify_registration_verification_code_does_not_exist(self):
+
+        self.registration.delete()
+
+        response = self.query(
+            '''
+            mutation VerifyRegistrationMutation($verification_code: String!) {
+                verifyRegistration(verificationCode: $verification_code)
+                {
+                    ok,
+                    registration {
+                        email,
+                        status,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='VerifyRegistrationMutation',
+            variables={
+                'verification_code': f'{self.registration.verification_code}',
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['verifyRegistration']['ok'])
+        self.assertIsNone(content['data']['verifyRegistration']['registration'])
+        self.assertIsNotNone(content['data']['verifyRegistration']['errors'])
+        self.assertEqual(content['data']['verifyRegistration']['errors'][0], 'Verification code does not exist.')
+
+    def test_verify_registration_verification_code_expired(self):
+
+        forty_eight_hours_later = timezone.now() + timezone.timedelta(hours=48)
+
+        with patch.object(timezone, 'now', return_value=forty_eight_hours_later):
+            response = self.query(
+                '''
+                mutation VerifyRegistrationMutation($verification_code: String!) {
+                    verifyRegistration(verificationCode: $verification_code)
+                    {
+                        ok,
+                        registration {
+                            email,
+                            status,
+                        },
+                        errors,
+                    }
+                }
+                ''',
+                op_name='VerifyRegistrationMutation',
+                variables={
+                    'verification_code': f'{self.registration.verification_code}',
+                }
+            )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['verifyRegistration']['ok'])
+        self.assertIsNone(content['data']['verifyRegistration']['registration'])
+        self.assertIsNotNone(content['data']['verifyRegistration']['errors'])
+        self.assertEqual(content['data']['verifyRegistration']['errors'][0], 'Verification code expired.')
 
 
 class PasswordResetRequestTestCase(GraphQLTestCase):
@@ -398,6 +586,39 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertIsNotNone(content['data']['passwordReset']['errors'])
         self.assertEqual(content['data']['passwordReset']['errors'][0], 'Verification code does not exist.')
 
+    def test_password_reset_verification_code_expired(self):
+
+        thirty_minutes_later = timezone.now() + timezone.timedelta(minutes=30)
+
+        with patch.object(timezone, 'now', return_value=thirty_minutes_later):
+            response = self.query(
+                '''
+                mutation PasswordResetMutation($verification_code: String!, $password: String!) {
+                   passwordReset(verificationCode: $verification_code, password: $password)
+                    {
+                        ok,
+                        passwordResetRequest {
+                            id,
+                            status,
+                        },
+                        errors,
+                    }
+                }
+                ''',
+                op_name='PasswordResetMutation',
+                variables={
+                    'verification_code': f'{self.prr.verification_code}',
+                    'password': self.new_password,
+                }
+            )
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['passwordReset']['ok'])
+        self.assertIsNone(content['data']['passwordReset']['passwordResetRequest'])
+        self.assertIsNotNone(content['data']['passwordReset']['errors'])
+        self.assertEqual(content['data']['passwordReset']['errors'][0], 'The verification code has been expired.')
+
 
 class PasswordChangeTestCase(GraphQLTestCase):
 
@@ -414,7 +635,6 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.new_password = 'Abcdefgh#123'
 
     def test_password_change(self):
-
         response = self.query(
             '''
             mutation PasswordChangeMutation($username: String!, $old_password: String!, $password: String!) {
@@ -449,7 +669,6 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertIsNotNone(authenticate(username=self.user.username, password=self.new_password))
 
     def test_password_change_same_password(self):
-
         response = self.query(
             '''
             mutation PasswordChangeMutation($username: String!, $old_password: String!, $password: String!) {
@@ -483,7 +702,6 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertEqual(content['data']['passwordChange']['errors'][0], 'New and current passwords cannot be same.')
 
     def test_password_change_incorrect_current_password(self):
-
         response = self.query(
             '''
             mutation PasswordChangeMutation($username: String!, $old_password: String!, $password: String!) {
@@ -517,7 +735,6 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertEqual(content['data']['passwordChange']['errors'][0], 'Current password is incorrect.')
 
     def test_password_change_user_does_not_exist(self):
-
         response = self.query(
             '''
             mutation PasswordChangeMutation($username: String!, $old_password: String!, $password: String!) {
@@ -549,4 +766,3 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertIsNone(content['data']['passwordChange']['user'])
         self.assertIsNotNone(content['data']['passwordChange']['errors'])
         self.assertEqual(content['data']['passwordChange']['errors'][0], 'User does not exist.')
-
