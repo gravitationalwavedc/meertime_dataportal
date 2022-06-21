@@ -1,8 +1,15 @@
+from datetime import datetime
+
 import graphene
 import json
+
+import pytz
 from graphene import relay, ObjectType
 from django.template.defaultfilters import filesizeformat
 from graphene_django import DjangoObjectType
+
+from user_manage.models import UserRole
+
 from web_cache.models import (
     FoldPulsar,
     SearchmodePulsar,
@@ -45,6 +52,7 @@ class FoldPulsarDetailNode(DjangoObjectType):
     ephemeris = graphene.String()
     band = graphene.String()
     jname = graphene.String()
+    restricted = graphene.Boolean()
 
     def resolve_ephemeris(self, instance):
         """Make sure that graphql outputs a valid json string that can be used in JSON.parse"""
@@ -56,6 +64,25 @@ class FoldPulsarDetailNode(DjangoObjectType):
 
     def resolve_length(self, instance):
         return round(self.length / 60)
+
+    def resolve_restricted(self, info):
+        # by default, we assume that the user is restricted
+        restricted = True
+        try:
+
+            # checking whether the user is restricted or not
+            restricted = UserRole.RESTRICTED.casefold() == info.context.user.user_role.role.casefold()
+
+            if restricted:
+                # if the user is restricted, then we check this Pulsar's embargo date
+                return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
+            else:
+                # if the user is not restricted, we return False (restricted)
+                return restricted
+        except:
+
+            # default fallback to restricted (True)
+            return restricted
 
 
 class SearchmodePulsarNode(DjangoObjectType):

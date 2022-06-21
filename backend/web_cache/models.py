@@ -262,8 +262,9 @@ class FoldDetailImage(models.Model):
 
 class FoldPulsarDetail(models.Model):
     fold_pulsar = models.ForeignKey(FoldPulsar, on_delete=models.CASCADE)
-    utc = models.DateTimeField()
+    utc = models.DateTimeField()  # start time
     project = models.CharField(max_length=50)
+    embargo_end_date = models.DateTimeField(null=True)
     proposal = models.CharField(max_length=40)
     ephemeris = JSONField()
     ephemeris_is_updated_at = models.DateTimeField(null=True)
@@ -356,6 +357,11 @@ class FoldPulsarDetail(models.Model):
             print("FoldPulsar ", pulsar.jname, main_project, " does not exist")
             return
 
+        # calculate and set the embargo end date from observation and main project.
+        # at this stage, we use the observation utc_start and main_project's embargo_period to do the calculation
+        # later we will apply the processing.embargo_end as well
+        embargo_end_date = observation.utc_start + observation.project.embargo_period
+
         results = folding.processing.results if folding.processing.results else {}
         pipeline_name = f"MeerPIPE_{observation.project.short}"
         sn_meerpipe = cls.get_sn_meerpipe(folding, pipeline_name)
@@ -366,6 +372,7 @@ class FoldPulsarDetail(models.Model):
             utc=observation.utc_start,
             defaults={
                 "project": observation.project.short,
+                "embargo_end_date": embargo_end_date,
                 "proposal": observation.project.code,
                 "ephemeris": folding.folding_ephemeris.ephemeris,
                 "ephemeris_is_updated_at": folding.folding_ephemeris.created_at,
@@ -430,6 +437,7 @@ class FoldPulsarDetail(models.Model):
 class SearchmodePulsarDetail(models.Model):
     searchmode_pulsar = models.ForeignKey(SearchmodePulsar, on_delete=models.CASCADE)
     utc = models.DateTimeField()
+    embargo_end_date = models.DateTimeField(null=True)
     project = models.CharField(max_length=50)
     ra = models.CharField(max_length=16)
     dec = models.CharField(max_length=16)
@@ -450,11 +458,18 @@ class SearchmodePulsarDetail(models.Model):
     def update_or_create(cls, filter_bankings):
         observation = filter_bankings.processing.observation
         searchmode_pulsar = SearchmodePulsar.objects.get(jname=observation.target.name)
+
+        # calculate and set the embargo end date from observation and main project(observation.project??).
+        # at this stage, we use the observation utc_start and main_project's embargo_period to do the calculation
+        # later we will apply the processing.embargo_end as well
+        embargo_end_date = observation.utc_start + observation.project.embargo_period
+
         return cls.objects.update_or_create(
             searchmode_pulsar=searchmode_pulsar,
             utc=filter_bankings.processing.observation.utc_start,
             defaults={
                 "project": observation.project.short,
+                "embargo_end_date": embargo_end_date,
                 "ra": observation.target.raj,
                 "dec": observation.target.decj,
                 "length": observation.duration,

@@ -20,7 +20,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                 jname: jname,
                 utc: formatUTC(edge.node.utc),
                 plotLink: `${process.env.REACT_APP_BASE_URL}/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`,
-                action: <ButtonGroup vertical>
+                action: !edge.node.restricted ? <ButtonGroup vertical>
                     <Link 
                         to={`${process.env.REACT_APP_BASE_URL}/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`}
                         size="sm" 
@@ -29,6 +29,13 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         to={`${process.env.REACT_APP_BASE_URL}/session/${formatUTC(edge.node.utc)}/`}
                         size="sm" 
                         variant="outline-secondary" as={Button}>View session</Link> 
+                </ButtonGroup> : <ButtonGroup vertical>
+                    <Button
+                        size="sm"
+                        variant="outline-dark">View</Button>
+                    <Button
+                        size="sm"
+                        variant="outline-dark">View session</Button>
                 </ButtonGroup>
             }
         ], []
