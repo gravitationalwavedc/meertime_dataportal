@@ -1,7 +1,8 @@
 from datetime import datetime
 import pytest
 from web_cache.management.commands import _command_functions as commands
-from web_cache.models import FoldPulsar, FoldPulsarDetail, SearchmodePulsar, SearchmodePulsarDetail
+from web_cache.models import FoldPulsar, FoldPulsarDetail, SearchmodePulsar, SearchmodePulsarDetail, \
+    SessionPulsar, SessionDisplay
 from dataportal.models import (
     Pulsars,
     Processings,
@@ -17,6 +18,7 @@ from dataportal.models import (
     Targets,
     Pulsartargets,
     Filterbankings,
+    Sessions
 )
 
 def create_dataportal_objects():
@@ -49,10 +51,7 @@ def create_dataportal_objects():
         target=target,
         telescope=telescope,
         project=project,
-        instrument_config=instrument_config,
-        utc_start=datetime.strptime("2000-01-21-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
-        duration=4,
-    )
+        instrument_config=instrument_config, utc_start=datetime.strptime("2000-01-21-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"), duration=4,)
 
     pipeline = Pipelines.objects.create(
         name='ye pipeline',
@@ -107,6 +106,14 @@ def create_dataportal_objects():
 
     Pipelineimages.objects.create(processing=processing, rank=1)
 
+    Sessions.objects.create(
+        telescope=telescope, 
+        start=datetime.strptime("1996-01-01-1:00:00 +0000", "%Y-%m-%d-%H:%M:%S %z"),
+        end=datetime.strptime("2060-01-04-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z")
+    )
+
+    return folding, ephemerides, filter_bankings
+
 @pytest.mark.django_db
 def test_sync_foldmode():
     create_dataportal_objects()
@@ -115,9 +122,36 @@ def test_sync_foldmode():
     assert FoldPulsarDetail.objects.exists()
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_sync_foldmode_no_ephemeris():
+    _, ephemerides, _ = create_dataportal_objects()
+    ephemerides.pulsar = Pulsars.objects.create(jname="x22")
+    ephemerides.save()
+    commands.sync_foldmode()
+    assert FoldPulsar.objects.count() == 2
+    assert FoldPulsarDetail.objects.count() == 2
+    
+@pytest.mark.django_db
 def test_sync_searchmode():
     create_dataportal_objects()
     commands.sync_searchmode()
     assert SearchmodePulsar.objects.exists()
     assert SearchmodePulsarDetail.objects.exists()
 
+@pytest.mark.django_db
+def test_sync_searchmode_no_target():
+    _, _, filter_bankings = create_dataportal_objects()
+    filter_bankings.processing.observation.target = Targets.objects.create(name='x22', raj='0', decj='0')
+    filter_bankings.save()
+    commands.sync_searchmode()
+    print(SearchmodePulsar.objects.count(), SearchmodePulsarDetail.objects.count())
+    assert SearchmodePulsar.objects.count() == 1
+    assert SearchmodePulsarDetail.objects.count() == 1
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_sync_sessions():
+    create_dataportal_objects()
+    commands.sync_sessions()
+    assert SessionDisplay.objects.exists()
+    assert SessionPulsar.objects.exists()

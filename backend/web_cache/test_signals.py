@@ -115,12 +115,14 @@ def create_pulsar_with_observations():
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_pulsar_save_signal():
     jname = create_pulsar_with_observations()
     assert FoldPulsar.objects.filter(jname=jname).exists()
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_pulsar_save_signal_can_update():
     jname = create_pulsar_with_observations()
     Foldings.objects.get(folding_ephemeris__pulsar__jname=jname).save()
@@ -128,24 +130,28 @@ def test_pulsar_save_signal_can_update():
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_folding_save_signal():
     jname = create_pulsar_with_observations()
     assert FoldPulsarDetail.objects.filter(fold_pulsar__jname=jname).exists()
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_searchmode_save():
     jname = create_pulsar_with_observations()
     assert SearchmodePulsar.objects.filter(jname=jname).exists()
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_filterbanking_save():
     jname = create_pulsar_with_observations()
     assert SearchmodePulsarDetail.objects.filter(searchmode_pulsar__jname=jname).exists()
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_handle_image_save_is_fired():
     jname = create_pulsar_with_observations()
     assert FoldDetailImage.objects.filter(fold_pulsar_detail__fold_pulsar__jname=jname).exists()
