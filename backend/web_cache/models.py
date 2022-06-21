@@ -88,9 +88,6 @@ class SearchmodePulsar(BasePulsar):
         observation_ids = [f.processing.observation.id for f in filterbankings]
         target_observations = raw_observations.filter(id__in=observation_ids)
 
-        if not target_observations:
-            return
-
         latest_observation = target_observations.order_by('-utc_start').first().utc_start
         first_observation = target_observations.order_by('-utc_start').last().utc_start
         timespan = (latest_observation - first_observation).days + 1
@@ -449,12 +446,7 @@ class SearchmodePulsarDetail(models.Model):
     @classmethod
     def update_or_create(cls, filter_bankings):
         observation = filter_bankings.processing.observation
-
-        try:
-            searchmode_pulsar = SearchmodePulsar.objects.get(jname=observation.target.name)
-        except SearchmodePulsar.DoesNotExist:
-            return
-
+        searchmode_pulsar = SearchmodePulsar.objects.get(jname=observation.target.name)
         return cls.objects.update_or_create(
             searchmode_pulsar=searchmode_pulsar,
             utc=filter_bankings.processing.observation.utc_start,

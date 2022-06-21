@@ -69,8 +69,6 @@ class SearchmodePulsarDetailNode(DjangoObjectType):
         model = SearchmodePulsarDetail
         interfaces = (relay.Node,)
 
-    band = graphene.String()
-
     def resolve_ra(self, instance):
         return self.ra[:-5]
 
@@ -79,10 +77,6 @@ class SearchmodePulsarDetailNode(DjangoObjectType):
 
     def resolve_length(self, instance):
         return round(self.length / 60)
-
-    def resolve_band(self, instance):
-        """Band should use the display name. This also stops graphene from replacing the - with an _."""
-        return self.get_band_display()
 
 
 class SessionPulsarNode(DjangoObjectType):
