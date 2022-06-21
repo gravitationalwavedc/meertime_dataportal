@@ -28,7 +28,7 @@ SITE_URL = 'http://localhost:3000/'  # with a trailing slash
 GMAIL_SMTP = env("GMAIL_SMTP", None)
 
 # gmail smtp settings
-if GMAIL_SMTP:
+if GMAIL_SMTP == "True":
     EMAIL_HOST = 'smtp.gmail.com'
     EMAIL_USE_TLS = True
     EMAIL_PORT = 587
