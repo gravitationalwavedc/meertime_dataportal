@@ -1,5 +1,6 @@
 import 'regenerator-runtime/runtime';
 import '@testing-library/jest-dom/extend-expect';
+import React from 'react';
 
 // jest-dom adds custom jest matchers for asserting on DOM nodes.
 // allows you to do things like:
@@ -42,4 +43,11 @@ global.mockRouter = {
 jest.mock('./relayEnvironment', () => {
     const { createMockEnvironment } = require('relay-test-utils');
     return createMockEnvironment();
+});
+
+// Jest doesn't support ESM yet apparently, which ReactMarkdown relies on. We don't actually care about testing 
+// the markdown render so mocking it works for now.
+jest.mock('react-markdown', () => {
+    const ReactMarkdown = ({ children }) => <>{children}</>;
+    return ReactMarkdown;
 });
