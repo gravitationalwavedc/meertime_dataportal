@@ -78,7 +78,7 @@ class PasswordResetRequest(models.Model):
 
 class UserRole(models.Model):
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=False, null=False)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=False, null=False, related_name='user_role')
 
     RESTRICTED = 'RESTRICTED'  # restricted role can have no access to the embargoed data
     UNRESTRICTED = 'UNRESTRICTED'  # unrestricted should be able to view any data
