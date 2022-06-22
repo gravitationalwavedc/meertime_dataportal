@@ -10,7 +10,7 @@ from web_cache.models import (
     SessionDisplay,
 )
 
-@receiver(post_save, sender=Foldings)
+@receiver(post_save, sender=Pulsars)
 def handle_pulsar_comment_update(sender, instance, **kwargs):
     try:
         fold_pulsar = FoldPulsar.objects.get(jname=instance.jname)
