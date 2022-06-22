@@ -42,7 +42,7 @@ const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
             <YAxis type="number" dataKey="value" name="Flux">
                 <Label value="Flux Density" position="left" angle="-90"/>
             </YAxis>
-            <ZAxis type="number" dataKey="size" name="Size" range={[60, 400]} />
+            <ZAxis type="number" dataKey="size" name="Size" range={[40, 600]} />
             <Tooltip cursor={{ strokeDasharray: '3 3' }} formatter={toolTipFormatter}/>
             <Legend 
                 align="right" 

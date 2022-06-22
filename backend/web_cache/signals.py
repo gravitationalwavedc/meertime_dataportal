@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from dataportal.models import Foldings, Filterbankings, Sessions, Pipelineimages
+from dataportal.models import Foldings, Filterbankings, Sessions, Pipelineimages, Pulsars
 from web_cache.models import (
     FoldPulsar,
     FoldPulsarDetail,
@@ -10,6 +10,14 @@ from web_cache.models import (
     SessionDisplay,
 )
 
+@receiver(post_save, sender=Pulsars)
+def handle_pulsar_comment_update(sender, instance, **kwargs):
+    try:
+        fold_pulsar = FoldPulsar.objects.get(jname=instance.jname)
+        fold_pulsar.comment = instance.comment
+        fold_pulsar.save()
+    except FoldPulsar.DoesNotExist:
+        pass
 
 @receiver(post_save, sender=Foldings)
 def handle_foldings_save(sender, instance, **kwargs):

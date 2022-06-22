@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     ReferenceArea,
     ResponsiveContainer,
@@ -18,6 +18,11 @@ const ZoomPlot = ({ dataOne, dataTwo, children }) => {
     const [isDrag, setIsDrag] = useState(false); 
     
     const { router } = useRouter();
+
+    useEffect(() => {
+        setFilteredDataOne(dataOne);
+        setFilteredDataTwo(dataTwo);
+    }, [dataOne, dataTwo]);
 
     const handleSymbolClick = (symbolData) => {
         if(!isDrag) {

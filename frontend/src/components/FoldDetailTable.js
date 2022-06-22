@@ -113,7 +113,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
     return (
         <div className="fold-detail-table">
             <Row className="mb-3">
-                <Col>
+                <Col md={5}>
                     <ReactMarkdown>{foldObservationDetails.description}</ReactMarkdown>
                 </Col>
             </Row>
