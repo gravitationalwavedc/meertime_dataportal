@@ -101,21 +101,22 @@ spec:
             - secretRef:
                 name: db-config
           command: ["python", "manage.py", "migrate"]
-        - name: sync-web-cache 
-          image: nexus.gwdc.org.au/meertime/django:dev.1.9.84
-          imagePullPolicy: Always
-          env:
-            - name: DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: db-conf
-                  key: host
-          envFrom:
-            - secretRef:
-                name: django-multi
-            - secretRef:
-                name: db-config
-          command: ["python", "manage.py", "sync_web_cache"]
+# This block will auto sync the web_cache database with the dataportal database on deploy. This opperation takes approx. 40mins.
+#        - name: sync-web-cache 
+#          image: nexus.gwdc.org.au/meertime/django:dev.1.9.84
+#          imagePullPolicy: Always
+#          env:
+#            - name: DB_HOST
+#              valueFrom:
+#                configMapKeyRef:
+#                  name: db-conf
+#                  key: host
+#          envFrom:
+#            - secretRef:
+#                name: django-multi
+#            - secretRef:
+#                name: db-config
+#          command: ["python", "manage.py", "sync_web_cache"]
       containers:
         - name: django
           image: nexus.gwdc.org.au/meertime/django:dev.1.9.84
