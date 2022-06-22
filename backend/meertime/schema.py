@@ -1,7 +1,6 @@
 import graphene
 import graphql_jwt
 import dataportal.graphql
-import web_cache.mutations
 import web_cache.queries
 from django.conf import settings
 
@@ -18,7 +17,7 @@ class ObtainJSONWebToken(graphql_jwt.relay.JSONWebTokenMutation):
         return cls(meer_watch_key=settings.KRONOS_PAYLOAD)
 
 
-class Mutation(dataportal.graphql.Mutation, web_cache.mutations.Mutation, graphene.ObjectType):
+class Mutation(dataportal.graphql.Mutation, graphene.ObjectType):
     token_auth = ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.relay.Verify.Field()
     refresh_token = graphql_jwt.relay.Refresh.Field()

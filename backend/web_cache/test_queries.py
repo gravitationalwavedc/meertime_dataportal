@@ -21,6 +21,7 @@ def create_test_session():
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_fold_query_no_token():
     client, _, _ = setup_query_test()
     response = client.execute(
@@ -42,6 +43,7 @@ def test_fold_query_no_token():
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_fold_query_with_token():
     client, user, _ = setup_query_test()
     client.authenticate(user)
@@ -98,46 +100,8 @@ def test_fold_query_with_token():
     assert not response.errors
     assert response.data == expected
 
-
 @pytest.mark.django_db
-def test_fold_query_with_token():
-    client, user, _ = setup_query_test()
-    client.authenticate(user)
-    response = client.execute(
-        """
-        query {
-            foldObservations(band: "UHF") {
-                totalObservations
-                totalPulsars
-                totalObservationTime
-                edges {
-                    node {
-                        jname
-                    }
-                }
-            }
-        }
-    """
-    )
-    expected = {
-        'foldObservations': {
-            'totalObservations': 1,
-            'totalPulsars': 1,
-            'totalObservationTime': 0,
-            'edges': [
-                {
-                    'node': {
-                        'jname': 'J0125-2327',
-                    }
-                }
-            ],
-        }
-    }
-    assert not response.errors
-    assert response.data == expected
-
-
-@pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_fold_query_with_proposal_and_band():
     client, user, _ = setup_query_test()
     client.authenticate(user)
@@ -170,6 +134,7 @@ def test_fold_query_with_proposal_and_band():
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_fold_detail_query():
     client, user, jname = setup_query_test()
     client.authenticate(user)
@@ -182,6 +147,9 @@ def test_fold_detail_query():
             totalProjects
             totalEstimatedDiskSpace
             totalTimespanDays
+            description
+            maxPlotLength
+            minPlotLength
             edges {{
               node {{
                 utc
@@ -200,6 +168,7 @@ def test_fold_detail_query():
                 snBackend
                 snMeerpipe
                 flux
+                ephemeris
               }}
             }}
           }}
@@ -213,6 +182,9 @@ def test_fold_detail_query():
             'totalProjects': 1,
             'totalEstimatedDiskSpace': '77.6\xa0KB',
             'totalTimespanDays': 1,
+            'description': None,
+            'maxPlotLength': 4,
+            'minPlotLength': 4,
             'edges': [
                 {
                     'node': {
@@ -231,7 +203,8 @@ def test_fold_detail_query():
                         'rmMeerpipe': 25.0,
                         'snBackend': 67.8,
                         'snMeerpipe': 42.1,
-                        'flux': 1.22 
+                        'flux': 1.22,
+                        'ephemeris': '{}'
                     }
                 }
             ],
@@ -242,6 +215,7 @@ def test_fold_detail_query():
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_searchmode_query():
     client, user, _ = setup_query_test()
     client.authenticate(user)
@@ -287,8 +261,68 @@ def test_searchmode_query():
     assert not response.errors
     assert response.data == expected
 
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_searchmode_details_query():
+    client, user, _ = setup_query_test()
+    client.authenticate(user)
+    response = client.execute(
+        """
+        query {
+            searchmodeObservationDetails(jname: "J0125-2327") {
+                totalObservations
+                totalProjects
+                totalTimespanDays
+                edges {
+                    node {
+                        beam
+                        dec
+                        dm
+                        frequency
+                        length
+                        nantEff
+                        nbit
+                        nchan
+                        project
+                        ra
+                        tsamp
+                        utc
+                    }
+                }
+            }
+        }
+        """
+    )
+    expected = {
+        'searchmodeObservationDetails': {
+            'totalObservations': 1, 
+            'totalProjects': 1, 
+            'totalTimespanDays': 0,
+            'edges': [
+                {'node': 
+                    {
+                        'beam': 54,
+                        'dec': '-23:27',
+                        'dm': 2.1,
+                        'frequency': 839.0,
+                        'length': 0.0,
+                        'nantEff': None,
+                        'nbit': 1,
+                        'nchan': 3,
+                        'project': 'RelBin',
+                        'ra': '1:25:',
+                        'tsamp': 1.2,
+                        'utc': '2000-01-21T12:59:12+00:00',
+                    }
+                }
+            ]
+        }
+    }
+    assert not response.errors
+    assert response.data == expected
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_last_session_query():
     client, user, _ = setup_query_test()
     client.authenticate(user)
@@ -366,6 +400,7 @@ def test_last_session_query():
 
 
 @pytest.mark.django_db
+@pytest.mark.enable_signals
 def test_session_list_query():
     client, user, _ = setup_query_test()
     client.authenticate(user)
@@ -414,5 +449,62 @@ def test_session_list_query():
             ]
         }
     }
+    assert not response.errors
+    assert response.data == expected
+
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_session_display_query():
+    client, user, _ = setup_query_test()
+    client.authenticate(user)
+    session = create_test_session()
+    SessionDisplay.update_or_create(session)
+
+    response = client.execute(
+        """
+        query {
+            sessionDisplay {
+                start
+                end
+                sessionPulsars {
+                    start
+                    end
+                    numberOfObservations
+                    numberOfPulsars
+                    edges {
+                        node {
+                            integrations
+                        }
+                    }
+                }
+            }
+        }
+        """
+    )
+
+    expected = {
+        'sessionDisplay': {
+            'start': '2000-01-21T12:59:12+00:00',
+            'end': '2000-01-21T12:59:12+00:00',
+            'sessionPulsars': {
+                'start': '2000-01-21T12:59:12+00:00',
+                'end': '2000-01-21T12:59:12+00:00',
+                'numberOfObservations': 2,
+                'numberOfPulsars': 2,
+                'edges': [{
+                        'node': {
+                            'integrations': 4
+                        }
+                    },
+                    {
+                        'node': {
+                            'integrations': 4
+                        }
+                }]
+            }
+        }
+    }
+
     assert not response.errors
     assert response.data == expected
