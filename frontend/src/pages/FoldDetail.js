@@ -38,6 +38,7 @@ const query = graphql`
           snMeerpipe
           flux
           restricted
+          embargoEndDate
         }
       }
     }

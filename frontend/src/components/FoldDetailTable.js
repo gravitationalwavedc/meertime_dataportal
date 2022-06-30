@@ -1,12 +1,11 @@
 import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
-import { columnsSizeFilter, meerWatchLink } from '../helpers';
+import { columnsSizeFilter, formatDDMMYYYY, formatUTC, meerWatchLink } from '../helpers';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
 import FoldDetailCard from './FoldDetailCard';
 import Link from 'found/Link';
 import ReactMarkdown from 'react-markdown';
-import { formatUTC } from '../helpers';
 import { useScreenSize } from '../context/screenSize-context';
 
 const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
@@ -29,14 +28,14 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         to={`${process.env.REACT_APP_BASE_URL}/session/${formatUTC(edge.node.utc)}/`}
                         size="sm" 
                         variant="outline-secondary" as={Button}>View session</Link> 
-                </ButtonGroup> : <ButtonGroup vertical>
+                </ButtonGroup> :
                     <Button
                         size="sm"
-                        variant="outline-dark">View</Button>
-                    <Button
-                        size="sm"
-                        variant="outline-dark">View session</Button>
-                </ButtonGroup>
+                        variant="outline-dark">
+                        <span className='small'>Embargoed<br/>until<br/>{formatDDMMYYYY(edge.node.embargoEndDate) }
+                        </span>
+                    </Button>
+
             }
         ], []
     );
