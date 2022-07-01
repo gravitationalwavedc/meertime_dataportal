@@ -28,7 +28,7 @@ export const handleSearch = (data, columns, search) => {
     });
 };
 
-export const formatDDMMYYYY = (utc) => moment.parseZone(utc, moment.ISO_8601).format('DDMMYYYY');
+export const formatDDMonYYYY = (utc) => moment.parseZone(utc, moment.ISO_8601).format('DD MMM YYYY');
 
 export const formatUTC = (utc) => moment.parseZone(utc, moment.ISO_8601).format('YYYY-MM-DD-HH:mm:ss');
 

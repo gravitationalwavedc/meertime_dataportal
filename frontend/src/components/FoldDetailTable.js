@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
-import { columnsSizeFilter, formatDDMMYYYY, formatUTC, meerWatchLink } from '../helpers';
+import { columnsSizeFilter, formatDDMonYYYY, formatUTC, meerWatchLink } from '../helpers';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
 import FoldDetailCard from './FoldDetailCard';
@@ -32,7 +32,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                     <Button
                         size="sm"
                         variant="outline-dark">
-                        <span className='small'>Embargoed<br/>until<br/>{formatDDMMYYYY(edge.node.embargoEndDate) }
+                        <span className='small'>Embargoed<br/>until<br/>{formatDDMonYYYY(edge.node.embargoEndDate) }
                         </span>
                     </Button>
 
