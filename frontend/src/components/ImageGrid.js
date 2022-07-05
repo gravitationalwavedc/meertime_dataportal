@@ -11,26 +11,28 @@ const ImageGrid = ({ images }) => {
     );
 
     const processedImages = images.edges.filter(
-        ({ node }) => node.process.toLowerCase() !== 'raw' 
+        ({ node }) => node.process.toLowerCase() !== 'raw' && node.process === 'relbin'
     );
 
-    const [lightBoxImages, setLightBoxImages] = useState({ images: [
-        ...rawImages.map(({ node }) => node.url), 
-        ...processedImages.map(({ node }) => node.url)
-    ], imagesIndex: 0 });
+    const [lightBoxImages, setLightBoxImages] = useState({
+        images: [
+            ...rawImages.map(({ node }) => node.url),
+            ...processedImages.map(({ node }) => node.url)
+        ], imagesIndex: 0
+    });
 
-    const sizes = processedImages.length > 0 ? { sm:6, md:2, xl:3 } : { sm:12, md:4, xl:6 };
+    const sizes = processedImages.length > 0 ? { sm: 6, md: 2, xl: 3 } : { sm: 12, md: 4, xl: 6 };
 
-    const openLightBox = (images, imageIndex) => {
-        console.log(images, imageIndex);
-        console.log(lightBoxImages.images[lightBoxImages.imagesIndex]);
+    const openLightBox = (images, imageUrl) => {
+        const imageIndex = images.indexOf(imageUrl);
         setIsLightBoxOpen(true);
         setLightBoxImages({ images: images, imagesIndex: imageIndex });
     };
 
     return <React.Fragment>
         <Col {...sizes}>
-            {rawImages.map(({ node }, index) => 
+            <h4>Raw</h4>
+            {rawImages.map(({ node }) =>
                 <Image
                     rounded
                     fluid
@@ -38,16 +40,17 @@ const ImageGrid = ({ images }) => {
                     alt={`Plot ${node.plotType} using ${node.process} data.`}
                     key={node.url}
                     src={`${process.env.REACT_APP_MEDIA_URL}${node.url}`}
-                    onError={({ currentTarget }) => { 
-                        currentTarget.onError = null; 
+                    onError={({ currentTarget }) => {
+                        currentTarget.onError = null;
                         currentTarget.src = image404;
                     }}
-                    onClick={() => openLightBox(lightBoxImages.images, index)}
+                    onClick={() => openLightBox(lightBoxImages.images, node.url)}
                 />
             )}
         </Col>
         {processedImages.length > 0 && <Col sm={6} md={2} xl={3}>
-            {processedImages.map(({ node }) => 
+            <h4>Cleaned</h4>
+            {processedImages.map(({ node }) =>
                 <Image
                     rounded
                     fluid
@@ -55,14 +58,15 @@ const ImageGrid = ({ images }) => {
                     alt={`Plot ${node.plotType} using ${node.process} data.`}
                     key={node.url}
                     src={`${process.env.REACT_APP_MEDIA_URL}${node.url}`}
-                    onError={({ currentTarget }) => { 
-                        currentTarget.onError = null; 
+                    onError={({ currentTarget }) => {
+                        currentTarget.onError = null;
                         currentTarget.src = image404;
                     }}
+                    onClick={() => openLightBox(lightBoxImages.images, node.url)}
                 />
             )}
         </Col>}
-        {isLightBoxOpen && 
+        {isLightBoxOpen &&
             <LightBox
                 mainSrc={`${process.env.REACT_APP_MEDIA_URL}${lightBoxImages.images[lightBoxImages.imagesIndex]}`}
                 nextSrc={lightBoxImages.images[(lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length]}

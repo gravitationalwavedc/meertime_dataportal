@@ -2,6 +2,8 @@ import math
 from datetime import datetime
 from dateutil import parser
 from django.db import models
+from django.db.models import Max, Value
+from django.db.models.functions import Coalesce
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings
 from django_mysql.models import JSONField
 from statistics import mean
@@ -288,6 +290,10 @@ class FoldPulsarDetail(models.Model):
 
     class Meta:
         ordering = ["-utc"]
+
+    @property
+    def max_tsubint(self):
+        return FoldPulsarDetail.objects.filter(fold_pulsar=self.fold_pulsar).aggregate(max_tsubint=Coalesce(Max('tsubint'), Value(0)))['max_tsubint']
 
     @property
     def estimated_size(self):
