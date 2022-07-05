@@ -18,7 +18,7 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
     const [lightBoxImages, setLightBoxImages] = useState({ images: [], imagesIndex: 0 });
 
     useEffect(() => {
-        if(utc !== undefined) {
+        if (utc !== undefined) {
             relay.refetch({ start: null, end: null, utc: utc, project: project });
         } else {
             relay.refetch({ start: sessionDisplay.start, end: sessionDisplay.end, utc: null, project: project });
@@ -33,19 +33,19 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
         setLightBoxImages({ images: images, imagesIndex: imageIndex });
     };
 
-    const rows = sessionDisplay.sessionPulsars.edges.reduce((result, edge) => { 
+    const rows = sessionDisplay.sessionPulsars.edges.reduce((result, edge) => {
         const row = { ...edge.node };
         row.utc = formatUTC(row.utc);
         row.projectKey = project;
-        
+
         const images = [
             `${process.env.REACT_APP_MEDIA_URL}${row.profileHi}`,
             `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsTimeHi}`,
             `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsFrequencyHi}`
         ];
 
-        row.profile = <SessionImage 
-            imageHi={row.profileHi} 
+        row.profile = <SessionImage
+            imageHi={row.profileHi}
             imageLo={row.profileLo}
             images={images}
             imageIndex={0}
@@ -63,41 +63,49 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
             imageIndex={2}
             openLightBox={openLightBox} />;
         row.action = <ButtonGroup vertical>
-            <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/${row.pulsarType}/meertime/${row.jname}/`} 
-                size='sm' 
+            <Link
+                to={`${process.env.REACT_APP_BASE_URL}/${row.pulsarType}/meertime/${row.jname}/`}
+                size='sm'
                 variant="outline-secondary" as={Button}>
-                  View all
+                View all
             </Link>
-            <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.utc}/${row.beam}/`} 
-                size='sm' 
-                variant="outline-secondary" 
+            <Link
+                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.utc}/${row.beam}/`}
+                size='sm'
+                variant="outline-secondary"
                 as={Button}>
-                  View last
+                View last
             </Link>
         </ButtonGroup>;
-        return [ ...result, { ...row }];
+        return [...result, { ...row }];
     }, []);
 
     const columns = [
-        { dataField: 'jname', text: 'JName', sort:true },
+        { dataField: 'jname', text: 'JName', sort: true },
         { dataField: 'project', text: 'Project', sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
         { dataField: 'utc', text: 'UTC', sort: true, screenSizes: ['xl', 'xxl'] },
-        { dataField: 'backendSN', text: 'Backend S/N', align: 'right', headerAlign: 'right', sort: true, 
-            screenSizes: ['xl', 'xxl'] },
-        { dataField: 'integrations', text: 'Integration', align: 'right', headerAlign: 'right', sort: true, 
-            formatter: cell => `${cell} [s]`, screenSizes: ['xl', 'xxl'] },
-        { dataField: 'frequency', text: 'Frequency', align: 'right', headerAlign: 'right', sort: true, 
-            formatter: cell => `${cell} Mhz`, screenSizes: ['xxl'] },
+        {
+            dataField: 'backendSN', text: 'Backend S/N', align: 'right', headerAlign: 'right', sort: true,
+            screenSizes: ['xl', 'xxl']
+        },
+        {
+            dataField: 'integrations', text: 'Integration', align: 'right', headerAlign: 'right', sort: true,
+            formatter: cell => `${cell} [s]`, screenSizes: ['xl', 'xxl']
+        },
+        {
+            dataField: 'frequency', text: 'Frequency', align: 'right', headerAlign: 'right', sort: true,
+            formatter: cell => `${cell} Mhz`, screenSizes: ['xxl']
+        },
         { dataField: 'profile', text: '', align: 'center', headerAlign: 'center', sort: false },
-        { dataField: 'phaseVsTime', text: '', align: 'center', headerAlign: 'center', sort: false, 
-            screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
-        { 
-            dataField: 'phaseVsFrequency', 
-            text: '', 
-            align: 'center', 
-            headerAlign: 'center', 
+        {
+            dataField: 'phaseVsTime', text: '', align: 'center', headerAlign: 'center', sort: false,
+            screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl']
+        },
+        {
+            dataField: 'phaseVsFrequency',
+            text: '',
+            align: 'center',
+            headerAlign: 'center',
             sort: false,
             screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl']
         },
@@ -109,12 +117,12 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
     const projectData = sessionDisplay.sessionPulsars.edges.reduce((result, edge) => {
         if (result.filter((project) => project.title === edge.node.project).length === 0) {
             return [
-                ...result, 
-                { 
-                    title: edge.node.project, 
+                ...result,
+                {
+                    title: edge.node.project,
                     value: sessionDisplay.sessionPulsars.edges.filter(
                         (newEdge) => newEdge.node.project === edge.node.project
-                    ).length 
+                    ).length
                 }
             ];
         }
@@ -126,9 +134,9 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
         { title: 'Observations', value: sessionDisplay.numberOfObservations },
         { title: 'Pulsars', value: sessionDisplay.numberOfPulsars },
         ...projectData
-    ]; 
+    ];
 
-    return(
+    return (
         <div className="session-table">
             <h5 style={{ marginTop: '-12rem', marginBottom: '10rem' }}>{startDate} UTC - {endDate} UTC</h5>
             <DataView
@@ -137,30 +145,32 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
                 rows={rows}
                 project={project}
                 setProject={setProject}
-                card={SessionCard}/>
-            {isLightBoxOpen && 
-            <LightBox
-                mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
-                nextSrc={lightBoxImages.images[(lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length]}
-                prevSrc={
-                    lightBoxImages.images[(
-                        lightBoxImages.imagesIndex + lightBoxImages.images.length - 1) % lightBoxImages.images.length]}
-                onCloseRequest={() => setIsLightBoxOpen(false)}
-                onMovePrevRequest={() =>
-                    setLightBoxImages({
-                        images: lightBoxImages.images,
-                        imagesIndex: (
-                            lightBoxImages.imagesIndex + lightBoxImages.images.length - 1
-                        ) % lightBoxImages.images.length,
-                    })
-                }
-                onMoveNextRequest={() =>
-                    setLightBoxImages({
-                        images: lightBoxImages.images,
-                        imagesIndex: (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length,
-                    })
-                }
-            />
+                card={SessionCard} />
+            {isLightBoxOpen &&
+                <LightBox
+                    mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
+                    nextSrc={lightBoxImages.images[(lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length]}
+                    prevSrc={
+                        lightBoxImages.images[(
+                            lightBoxImages.imagesIndex + lightBoxImages.images.length - 1)
+                        % lightBoxImages.images.length
+                        ]}
+                    onCloseRequest={() => setIsLightBoxOpen(false)}
+                    onMovePrevRequest={() =>
+                        setLightBoxImages({
+                            images: lightBoxImages.images,
+                            imagesIndex: (
+                                lightBoxImages.imagesIndex + lightBoxImages.images.length - 1
+                            ) % lightBoxImages.images.length,
+                        })
+                    }
+                    onMoveNextRequest={() =>
+                        setLightBoxImages({
+                            images: lightBoxImages.images,
+                            imagesIndex: (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length,
+                        })
+                    }
+                />
             }
 
         </div>

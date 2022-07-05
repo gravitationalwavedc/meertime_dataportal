@@ -148,7 +148,8 @@ class FoldPulsarDetailConnection(relay.Connection):
             return 0
 
     def resolve_total_estimated_disk_space(self, instance):
-        return filesizeformat(sum([observation.estimated_size for observation in self.iterable]))
+        total_bytes = sum(observation.estimated_size for observation in self.iterable)
+        return filesizeformat(total_bytes)
 
     def resolve_max_plot_length(self, instance):
         return FoldPulsarDetail.objects.order_by('length').last().length

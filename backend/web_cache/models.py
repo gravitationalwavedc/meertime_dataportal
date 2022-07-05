@@ -292,10 +292,6 @@ class FoldPulsarDetail(models.Model):
         ordering = ["-utc"]
 
     @property
-    def max_tsubint(self):
-        return FoldPulsarDetail.objects.filter(fold_pulsar=self.fold_pulsar).aggregate(max_tsubint=Coalesce(Max('tsubint'), Value(0)))['max_tsubint']
-
-    @property
     def estimated_size(self):
         """Estimated size of the observation data stored on disk in bytes."""
         try:
@@ -392,7 +388,7 @@ class FoldPulsarDetail(models.Model):
                 "schedule": "12",
                 "phaseup": "12",
                 "frequency": observation.instrument_config.frequency,
-                "npol": observation.instrument_config.npol,
+                "npol": folding.npol,
             },
         )
 
