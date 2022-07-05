@@ -76,7 +76,7 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
 
     const summaryData = [
         { title: 'Observations', value: relayData.totalObservations },
-        { title: 'Pulsars', value: relayData.totalPulsars },
+        { title: 'Unique Pulsars', value: relayData.totalPulsars },
         { title: 'Hours', value: relayData.totalObservationTime },
     ];
 
@@ -136,6 +136,3 @@ export default createRefetchContainer(
       }
    `
 );
-
-// missing
-// lastBeam
