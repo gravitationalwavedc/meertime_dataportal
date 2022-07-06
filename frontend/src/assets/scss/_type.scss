@@ -1,20 +1,28 @@
 //Typeface
-h1, .h1 {
+h1,
+.h1 {
     line-height: 118px;
     letter-spacing: -1.5px;
 }
 
-h2, .h2 {
+h2,
+.h2 {
     line-height: 74px;
     letter-spacing: -0.5px;
 }
 
-h3, h4, h5, h6
-.h3, .h4, .h5, h6 {
+h3,
+h4,
+h5,
+h6 .h3,
+.h4,
+.h5,
+h6 {
     font-weight: 400;
 }
 
-h6, .h6 {
+h6,
+.h6 {
     letter-spacing: 0.15px;
 }
 
@@ -38,4 +46,8 @@ h6, .h6 {
 
 .text-primary-800 {
     color: $primary-800;
+}
+
+.capitalize {
+    text-transform: capitalize;
 }

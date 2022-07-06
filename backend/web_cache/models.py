@@ -2,6 +2,8 @@ import math
 from datetime import datetime
 from dateutil import parser
 from django.db import models
+from django.db.models import Max, Value
+from django.db.models.functions import Coalesce
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings
 from django_mysql.models import JSONField
 from statistics import mean
@@ -386,7 +388,7 @@ class FoldPulsarDetail(models.Model):
                 "schedule": "12",
                 "phaseup": "12",
                 "frequency": observation.instrument_config.frequency,
-                "npol": observation.instrument_config.npol,
+                "npol": folding.npol,
             },
         )
 

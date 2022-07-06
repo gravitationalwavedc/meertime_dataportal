@@ -180,7 +180,7 @@ def test_fold_detail_query():
             'totalObservations': 1,
             'totalObservationHours': 0,
             'totalProjects': 1,
-            'totalEstimatedDiskSpace': '77.6\xa0KB',
+            'totalEstimatedDiskSpace': '74.1\xa0KB',
             'totalTimespanDays': 1,
             'description': None,
             'maxPlotLength': 4,

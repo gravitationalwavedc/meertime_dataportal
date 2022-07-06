@@ -12,58 +12,71 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
     const [mainProject, setMainProject] = useState('meertime');
     const [project, setProject] = useState('All');
     const [band, setBand] = useState('All');
-   
+
     useEffect(() => {
         relay.refetch({ mainProject: mainProject, project: project, band: band });
     }, [band, relay, project, mainProject]);
 
-    const rows = relayData.edges.reduce((result, edge) => { 
+    const rows = relayData.edges.reduce((result, edge) => {
         const row = { ...edge.node };
         row.projectKey = mainProject;
         row.latestObservation = formatUTC(row.latestObservation);
         row.firstObservation = formatUTC(row.firstObservation);
-        row.action = <ButtonGroup vertical> <Link 
-            to={`${process.env.REACT_APP_BASE_URL}/fold/${mainProject}/${row.jname}/`} 
-            size='sm' 
-            variant="outline-secondary" as={Button}>
-                  View all
-        </Link>
-        <Link 
-            to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.latestObservation}/${row.beam}/`} 
-            size='sm' 
-            variant="outline-secondary" 
-            as={Button}>
-                  View last
-        </Link>
+        row.action = <ButtonGroup vertical>
+            <Link
+                to={`${process.env.REACT_APP_BASE_URL}/fold/${mainProject}/${row.jname}/`}
+                size='sm'
+                variant="outline-secondary" as={Button}>
+                View all
+            </Link>
+            <Link
+                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.latestObservation}/${row.beam}/`}
+                size='sm'
+                variant="outline-secondary"
+                as={Button}>
+                View last
+            </Link>
         </ButtonGroup>;
         return [...result, { ...row }];
     }, []);
 
     const columns = [
-        { dataField: 'projectKey', hidden: true, toggle: false, sort:false, csvExport: false },
-        { dataField: 'jname', text: 'JName', sort:true },
+        { dataField: 'projectKey', hidden: true, toggle: false, sort: false, csvExport: false },
+        { dataField: 'jname', text: 'JName', sort: true },
         { dataField: 'project', text: 'Project', sort: true, screenSizes: ['xl', 'xxl'] },
         { dataField: 'latestObservation', text: 'Last', sort: true },
         { dataField: 'firstObservation', text: 'First', sort: true, screenSizes: ['xxl'] },
-        { dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true, 
-            screenSizes: ['md', 'lg', 'xl', 'xxl'], formatter: cell => `${cell} [d]` },
-        { dataField: 'numberOfObservations', text: 'Observations', align: 'right', headerAlign: 'right', 
-            sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl'] },
-        { dataField: 'totalIntegrationHours', text: 'Total int', align: 'right', headerAlign: 'right', 
-            sort: true, screenSizes: ['lg', 'xl', 'xxl'], formatter: cell => `${cell} [h]` },
-        { dataField: 'lastSnRaw', text: 'Last S/N raw', align: 'right', headerAlign: 'right', 
-            sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
-        { dataField: 'lastIntegrationMinutes', text: 'Last int.', align: 'right', headerAlign: 'right', 
-            sort: true, screenSizes: ['lg', 'xl', 'xxl'], formatter: cell => `${cell} [m]` },
-        { dataField: 'action', text: '', align: 'right', headerAlign: 'right', csvExport: false,
-            sort: false }
+        {
+            dataField: 'timespan', text: 'Timespan', align: 'right', headerAlign: 'right', sort: true,
+            screenSizes: ['md', 'lg', 'xl', 'xxl'], formatter: cell => `${cell} [d]`
+        },
+        {
+            dataField: 'numberOfObservations', text: 'Observations', align: 'right', headerAlign: 'right',
+            sort: true, screenSizes: ['md', 'lg', 'xl', 'xxl']
+        },
+        {
+            dataField: 'totalIntegrationHours', text: 'Total int', align: 'right', headerAlign: 'right',
+            sort: true, screenSizes: ['lg', 'xl', 'xxl'], formatter: cell => `${cell} [h]`
+        },
+        {
+            dataField: 'lastSnRaw', text: 'Last S/N raw', align: 'right', headerAlign: 'right',
+            sort: true, screenSizes: ['lg', 'xl', 'xxl']
+        },
+        {
+            dataField: 'lastIntegrationMinutes', text: 'Last int.', align: 'right', headerAlign: 'right',
+            sort: true, screenSizes: ['lg', 'xl', 'xxl'], formatter: cell => `${cell} [m]`
+        },
+        {
+            dataField: 'action', text: '', align: 'right', headerAlign: 'right', csvExport: false,
+            sort: false
+        }
     ];
 
     const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
     const summaryData = [
         { title: 'Observations', value: relayData.totalObservations },
-        { title: 'Pulsars', value: relayData.totalPulsars },
+        { title: 'Unique Pulsars', value: relayData.totalPulsars },
         { title: 'Hours', value: relayData.totalObservationTime },
     ];
 
@@ -123,6 +136,3 @@ export default createRefetchContainer(
       }
    `
 );
-
-// missing
-// lastBeam
