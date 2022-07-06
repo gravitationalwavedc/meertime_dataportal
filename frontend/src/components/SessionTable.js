@@ -39,14 +39,14 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
         row.projectKey = project;
 
         const images = [
-            `${process.env.REACT_APP_MEDIA_URL}${row.profileHi}`,
+            `${process.env.REACT_APP_MEDIA_URL}${row.fluxHi}`,
             `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsTimeHi}`,
             `${process.env.REACT_APP_MEDIA_URL}${row.phaseVsFrequencyHi}`
         ];
 
-        row.profile = <SessionImage
-            imageHi={row.profileHi}
-            imageLo={row.profileLo}
+        row.flux = <SessionImage
+            imageHi={row.fluxHi}
+            imageLo={row.fluxLo}
             images={images}
             imageIndex={0}
             openLightBox={openLightBox} />;
@@ -96,7 +96,7 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
             dataField: 'frequency', text: 'Frequency', align: 'right', headerAlign: 'right', sort: true,
             formatter: cell => `${cell} Mhz`, screenSizes: ['xxl']
         },
-        { dataField: 'profile', text: '', align: 'center', headerAlign: 'center', sort: false },
+        { dataField: 'flux', text: '', align: 'center', headerAlign: 'center', sort: false },
         {
             dataField: 'phaseVsTime', text: '', align: 'center', headerAlign: 'center', sort: false,
             screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl']
@@ -203,10 +203,10 @@ export default createRefetchContainer(
                   integrations
                   frequency
                   backendSN
-                  profileHi
+                  fluxHi
                   phaseVsTimeHi
                   phaseVsFrequencyHi
-                  profileLo
+                  fluxLo
                   phaseVsTimeLo
                   phaseVsFrequencyLo
                 }

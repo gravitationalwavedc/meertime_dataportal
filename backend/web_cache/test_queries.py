@@ -342,10 +342,10 @@ def test_last_session_query():
                             project
                             utc
                             frequency
-                            profileHi
+                            fluxHi
                             phaseVsTimeHi
                             phaseVsFrequencyHi
-                            profileLo
+                            fluxLo 
                             phaseVsTimeLo
                             phaseVsFrequencyLo
                         }
@@ -369,10 +369,10 @@ def test_last_session_query():
                             'project': 'RelBin',
                             'utc': '2000-01-21T12:59:12+00:00',
                             'frequency': 839.0,
-                            'profileHi': None,
+                            'fluxHi': None,
                             'phaseVsTimeHi': None,
                             'phaseVsFrequencyHi': None,
-                            'profileLo': None,
+                            'fluxLo': None,
                             'phaseVsTimeLo': None,
                             'phaseVsFrequencyLo': None,
                         }
@@ -383,10 +383,10 @@ def test_last_session_query():
                             'project': 'RelBin',
                             'utc': '2000-01-21T12:59:12+00:00',
                             'frequency': 839.0,
-                            'profileHi': None,
+                            'fluxHi': None,
                             'phaseVsTimeHi': None,
                             'phaseVsFrequencyHi': None,
-                            'profileLo': None,
+                            'fluxLo': None,
                             'phaseVsTimeLo': None,
                             'phaseVsFrequencyLo': None,
                         }
