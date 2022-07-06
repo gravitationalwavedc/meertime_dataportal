@@ -7,6 +7,7 @@ from django.db.models.functions import Coalesce
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings
 from django_mysql.models import JSONField
 from statistics import mean
+from web_cache.plot_types import PLOT_NAMES
 
 BAND_CHOICES = (('L-Band', 'L-Band'), ('S-Band', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown'))
 
@@ -630,12 +631,12 @@ class SessionPulsar(models.Model):
     integrations = models.IntegerField()
     beam = models.IntegerField()
     frequency = models.DecimalField(max_digits=50, decimal_places=8)
-    phase_vs_time_hi = models.URLField(null=True)
+    flux_hi = models.URLField(null=True)
+    flux_lo = models.URLField(null=True)
     phase_vs_frequency_hi = models.URLField(null=True)
-    profile_hi = models.URLField(null=True)
-    phase_vs_time_lo = models.URLField(null=True)
     phase_vs_frequency_lo = models.URLField(null=True)
-    profile_lo = models.URLField(null=True)
+    phase_vs_time_hi = models.URLField(null=True)
+    phase_vs_time_lo = models.URLField(null=True)
 
     class Meta:
         ordering = ["-session_display__start"]
@@ -649,15 +650,39 @@ class SessionPulsar(models.Model):
         return 'search' if self.search_pulsar else 'fold'
 
     @classmethod
+    def get_session_image(cls, images, plot_type, resolution="hi"):
+        # Make sure there are images to process.
+        if images is None:
+            return None
+
+        # Try and find a cleaned image favouring this order: relbin, tpa, pta.
+        # Skip if it's a bad plot type by setting [] as the default.
+        for name in PLOT_NAMES.get(plot_type, []):
+            if images.filter(image_type=f"relbin.{name}.{resolution}").exists():
+                return images.get(image_type=f"relbin.{name}.{resolution}").url
+
+            if images.filter(image_type=f"tpa.{name}.{resolution}").exists():
+                return images.get(image_type=f"tpa.{name}.{resolution}").url
+
+            if images.filter(image_type=f"pta.{name}.{resolution}").exists():
+                return images.get(image_type=f"pta.{name}.{resolution}").url
+
+        # If there's no cleaned image try and get a raw image.
+        try:
+            return images.get(image_type=f"{plot_type}.{resolution}").url
+        except FoldDetailImage.DoesNotExist:
+            return None
+
+    @classmethod
     def update_or_create(cls, session, pulsar):
         if isinstance(pulsar, SearchmodePulsar):
             last_observation = pulsar.searchmodepulsardetail_set.filter(utc__range=(session.start, session.end)).last()
-            images = {}
+            images = None 
             fold_pulsar = None
             search_pulsar = pulsar
         else:
             last_observation = pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end)).last()
-            images = {i.image_type: i.url for i in last_observation.images.all()}
+            images = last_observation.images.all() 
             fold_pulsar = pulsar
             search_pulsar = None
 
@@ -675,11 +700,11 @@ class SessionPulsar(models.Model):
                 "integrations": last_observation.length,
                 "beam": last_observation.beam,
                 "frequency": last_observation.frequency,
-                "phase_vs_frequency_hi": images.get('freq.hi', None),
-                "phase_vs_time_hi": images.get('time.hi', None),
-                "profile_hi": images.get('profile.hi', None),
-                "phase_vs_frequency_lo": images.get('freq.lo', None),
-                "phase_vs_time_lo": images.get('time.lo', None),
-                "profile_lo": images.get('profile.lo', None),
+                "flux_hi": cls.get_session_image(images, 'flux'),
+                "flux_lo": cls.get_session_image(images, 'flux', 'lo'),
+                "phase_vs_frequency_hi": cls.get_session_image(images, 'freq'),
+                "phase_vs_frequency_lo": cls.get_session_image(images, 'freq', 'lo'),
+                "phase_vs_time_hi": cls.get_session_image(images, 'time'),
+                "phase_vs_time_lo": cls.get_session_image(images,'time', 'lo'),
             },
         )

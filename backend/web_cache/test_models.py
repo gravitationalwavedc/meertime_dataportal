@@ -1,6 +1,7 @@
 import pytest
 from datetime import datetime
-from web_cache.models import FoldPulsar, FoldPulsarDetail, FoldDetailImage
+from web_cache.models import FoldPulsar, FoldPulsarDetail, FoldDetailImage, SessionPulsar 
+from web_cache.test_signals import create_pulsar_with_observations
 from dataportal.models import Sessions, Telescopes 
 
 def create_fold_pulsar():
@@ -79,3 +80,37 @@ def test_fold_pulsar_session_property():
    Sessions.objects.create(start=start, end=end, telescope=telescope)
    assert fold_pulsar.session
 
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_get_session_image():
+    flux_url = 'http://test.flux-url.hi.com'
+    freq_url = 'http://test.freq-url.hi.com'
+    time_url = 'http://test.time-url.hi.com'
+    flux_url_lo = 'http://test.flux-url.lo.com'
+    freq_url_lo = 'http://test.freq-url.lo.com'
+    time_url_lo = 'http://test.time-url.lo.com'
+    bad_url = 'http://bad.wrong.com'
+
+    create_pulsar_with_observations()
+    fold_pulsar_detail = FoldPulsarDetail.objects.last()
+
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='flux.hi', url=flux_url)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='relbin.phase-freq.hi', url=freq_url)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='freq.hi', url=bad_url)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='tpa.phase-time.hi', url=time_url)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='time.hi', url=bad_url)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='flux.lo', url=flux_url_lo)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='relbin.phase-freq.lo', url=freq_url_lo)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='freq.lo', url=bad_url)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='tpa.phase-time.lo', url=time_url_lo)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type='time.lo', url=bad_url)
+
+    images = fold_pulsar_detail.images.all()
+
+    assert SessionPulsar.get_session_image(images, 'bad_type') is None
+    assert SessionPulsar.get_session_image(images, 'flux') == flux_url 
+    assert SessionPulsar.get_session_image(images, 'freq') == freq_url
+    assert SessionPulsar.get_session_image(images, 'time') == time_url 
+    assert SessionPulsar.get_session_image(images, 'flux', 'lo') == flux_url_lo 
+    assert SessionPulsar.get_session_image(images, 'freq', 'lo') == freq_url_lo
+    assert SessionPulsar.get_session_image(images, 'time', 'lo') == time_url_lo 
