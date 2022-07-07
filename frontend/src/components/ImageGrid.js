@@ -10,18 +10,22 @@ const ImageGrid = ({ images }) => {
         ({ node }) => node.process.toLowerCase() === 'raw' && node.resolution === 'hi'
     );
 
-    const processedImages = images.edges.filter(
-        ({ node }) => node.process.toLowerCase() !== 'raw' && node.process === 'relbin'
+    const processedImages = images.edges.filter(({ node }) => node.process.toLowerCase() !== 'raw');
+
+    const processedImageTypes = processedImages.map(({ node }) => node.plotType);
+
+    const uniqueProcessedImages = processedImages.filter(
+        ({ node }, index) => !processedImageTypes.includes(node.plotType, index + 1)
     );
 
     const [lightBoxImages, setLightBoxImages] = useState({
         images: [
             ...rawImages.map(({ node }) => node.url),
-            ...processedImages.map(({ node }) => node.url)
+            ...uniqueProcessedImages.map(({ node }) => node.url)
         ], imagesIndex: 0
     });
 
-    const sizes = processedImages.length > 0 ? { sm: 6, md: 2, xl: 3 } : { sm: 12, md: 4, xl: 6 };
+    const sizes = uniqueProcessedImages.length > 0 ? { sm: 6, md: 2, xl: 3 } : { sm: 12, md: 4, xl: 6 };
 
     const openLightBox = (images, imageUrl) => {
         const imageIndex = images.indexOf(imageUrl);
@@ -48,9 +52,9 @@ const ImageGrid = ({ images }) => {
                 />
             )}
         </Col>
-        {processedImages.length > 0 && <Col sm={6} md={2} xl={3}>
+        {uniqueProcessedImages.length > 0 && <Col sm={6} md={2} xl={3}>
             <h4>Cleaned</h4>
-            {processedImages.map(({ node }) =>
+            {uniqueProcessedImages.map(({ node }) =>
                 <Image
                     rounded
                     fluid
