@@ -55,6 +55,26 @@ export const scaleValue = (value, from, to) => {
     return ~~(capped * scale + to[0]);
 };
 
+export const formatProjectName = (projectName) => {
+    const projectDisplayNames = {
+        relbin: 'RelBin',
+        gc: 'GC',
+        pta: 'PTA',
+        tpa: 'TPA',
+        phaseups: 'Phaseups',
+        ngc6440: 'NGC6440',
+        unknown: 'Unknown',
+        meertime: 'MeerTime',
+        flux: 'Flux'
+    };
+
+    if (projectName.toLowerCase() in projectDisplayNames) {
+        return projectDisplayNames[projectName.toLowerCase()];
+    }
+
+    return projectName;
+};
+
 export const formatSingleObservationData = (data) => {
 
     const excludeTitles = [
@@ -92,7 +112,8 @@ export default {
     meerWatchLink,
     nullCellFormatter,
     scaleValue,
-    formatSingleObservationData,
+    formatProjectName,
+    formatSingleObservationData
 };
 
 

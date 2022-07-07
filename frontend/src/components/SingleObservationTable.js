@@ -1,16 +1,16 @@
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
+import { formatProjectName, formatSingleObservationData } from '../helpers';
 import { formatUTC, kronosLink } from '../helpers';
 
 import DataDisplay from './DataDisplay';
 import ImageGrid from './ImageGrid';
 import Link from 'found/Link';
 import MainLayout from './MainLayout';
-import { formatSingleObservationData } from '../helpers';
 
 
 const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => {
-    const [ project, setProject ] = useState('relbin');
+    const [project, setProject] = useState('relbin');
 
     const relayObservationModel = foldObservationDetails.edges[0].node;
 
@@ -25,8 +25,8 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
     const dataItems = formatSingleObservationData(relayObservationModel);
 
     const projects = Array.from(relayObservationModel.images.edges.reduce(
-        (plotTypesSet, { node }) => plotTypesSet.add(node.process.toUpperCase()), new Set()
-    )).filter(process => process !== 'RAW');
+        (plotTypesSet, { node }) => plotTypesSet.add(node.process), new Set()
+    )).filter(process => process.toLowerCase() !== 'raw');
 
     return (
         <MainLayout title={title}>
@@ -48,22 +48,22 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                     </Button>
                 </Col>
             </Row>
-            {projects.length > 1 ? 
+            {projects.length > 1 ?
                 <Row className="mt-2">
                     <Col md={2}>
                         <Form.Group controlId="mainProjectSelect">
                             <Form.Label>Cleaned Data Project</Form.Label>
-                            <Form.Control 
+                            <Form.Control
                                 custom
-                                as="select"  
+                                as="select"
                                 value={project}
                                 onChange={(event) => setProject(event.target.value)}>
                                 {projects.map(
-                                    value => 
-                                        <option 
+                                    value =>
+                                        <option
                                             value={value}
                                             key={value}>
-                                            {value}
+                                            {formatProjectName(value)}
                                         </option>)
                                 }
                             </Form.Control>

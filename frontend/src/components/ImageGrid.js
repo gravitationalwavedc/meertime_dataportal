@@ -1,6 +1,7 @@
 import { Col, Image } from 'react-bootstrap';
 import React, { useState } from 'react';
 import LightBox from 'react-image-lightbox';
+import { formatProjectName } from '../helpers';
 import image404 from '../assets/images/image404.png';
 
 const ImageGrid = ({ images, project }) => {
@@ -49,7 +50,7 @@ const ImageGrid = ({ images, project }) => {
             )}
         </Col>
         {processedImages.length > 0 && <Col sm={6} md={2} xl={3}>
-            <h4>Cleaned by <span style={{ 'text-transform':'capitalize' }}>{project}</span></h4>
+            <h4>Cleaned by {formatProjectName(project)}</h4>
             {processedImages.map(({ node }) =>
                 <Image
                     rounded
