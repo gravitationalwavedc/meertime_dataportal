@@ -25,8 +25,8 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
     const dataItems = formatSingleObservationData(relayObservationModel);
 
     const projects = Array.from(relayObservationModel.images.edges.reduce(
-        (plotTypesSet, { node }) => plotTypesSet.add(node.process), new Set()
-    )).filter(process => process !== 'raw');
+        (plotTypesSet, { node }) => plotTypesSet.add(node.process.toUpperCase()), new Set()
+    )).filter(process => process !== 'RAW');
 
     return (
         <MainLayout title={title}>
@@ -57,7 +57,6 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                                 custom
                                 as="select"  
                                 value={project}
-                                style={{ 'text-transform': 'capitalize' }}
                                 onChange={(event) => setProject(event.target.value)}>
                                 {projects.map(
                                     value => 
