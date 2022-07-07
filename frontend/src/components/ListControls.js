@@ -10,14 +10,14 @@ const mainProjects = [
         subprojects: [
             'All',
             'TPA',
-            'Relbin',
+            'RelBin',
             'PTA',
             'GC',
             'NGC6440',
             'MeerTime',
             'Flux',
             'Unknown'
-        ] 
+        ]
     },
     {
         value: 'trapum',
@@ -36,70 +36,70 @@ const bandOptions = [
     'UNKNOWN'
 ];
 
-const ListControls = ({ 
-    searchText, 
-    handleProjectFilter, 
-    handleBandFilter, 
+const ListControls = ({
+    searchText,
+    handleProjectFilter,
+    handleBandFilter,
     handleMainProjectFilter,
     mainProject,
     project,
-    searchProps, 
+    searchProps,
     isTableView,
     setIsTableView,
-    columnToggleProps, 
+    columnToggleProps,
     exportCSVProps }) => {
 
-    const subprojectOptions = mainProject ? 
+    const subprojectOptions = mainProject ?
         mainProjects.find(({ value }) => value === mainProject).subprojects : mainProjects[0].subprojects;
 
     return (
         <>
             <Form.Row>
-                { mainProject && <Col md={3} xl={2}>
+                {mainProject && <Col md={3} xl={2}>
                     <Form.Group controlId="mainProjectSelect">
                         <Form.Label>Main Project</Form.Label>
-                        <Form.Control 
+                        <Form.Control
                             custom
-                            as="select"  
+                            as="select"
                             value={mainProject}
                             onChange={(event) => handleMainProjectFilter(event.target.value)}>
                             {mainProjects.map(
-                                ({ value, title })=> <option value={value} key={value}>{title}</option>)
+                                ({ value, title }) => <option value={value} key={value}>{title}</option>)
                             }
                         </Form.Control>
                     </Form.Group>
-                </Col> }
-                { handleProjectFilter && <Col md={3} xl={2}>
+                </Col>}
+                {handleProjectFilter && <Col md={3} xl={2}>
                     <Form.Group controlId="projectSelect">
                         <Form.Label>Project</Form.Label>
-                        <Form.Control 
+                        <Form.Control
                             custom
-                            as="select" 
+                            as="select"
                             value={project}
                             onChange={(event) => handleProjectFilter(event.target.value)}>
                             {subprojectOptions.map(value => <option value={value} key={value}>{value}</option>)}
                         </Form.Control>
                     </Form.Group>
                 </Col>}
-                { handleBandFilter && <Col md={3} xl={2}>
+                {handleBandFilter && <Col md={3} xl={2}>
                     <Form.Group controlId="bandSelect">
                         <Form.Label>Band</Form.Label>
-                        <Form.Control 
-                            custom 
-                            as="select" 
+                        <Form.Control
+                            custom
+                            as="select"
                             onChange={(event) => handleBandFilter(event.target.value)}>
                             {bandOptions.map(value => <option value={value} key={value}>{value}</option>)}
                         </Form.Control>
                     </Form.Group>
                 </Col>}
             </Form.Row>
-            <SearchRow 
+            <SearchRow
                 setIsTableView={setIsTableView}
                 isTableView={isTableView}
                 searchText={searchText}
                 searchProps={searchProps}
                 columnToggleProps={columnToggleProps}
-                exportCSVProps={exportCSVProps}/>
+                exportCSVProps={exportCSVProps} />
         </>);
 };
 

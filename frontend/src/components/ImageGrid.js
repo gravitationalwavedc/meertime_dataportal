@@ -1,31 +1,28 @@
 import { Col, Image } from 'react-bootstrap';
 import React, { useState } from 'react';
 import LightBox from 'react-image-lightbox';
+import { formatProjectName } from '../helpers';
 import image404 from '../assets/images/image404.png';
 
-const ImageGrid = ({ images }) => {
+const ImageGrid = ({ images, project }) => {
     const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
 
     const rawImages = images.edges.filter(
         ({ node }) => node.process.toLowerCase() === 'raw' && node.resolution === 'hi'
     );
 
-    const processedImages = images.edges.filter(({ node }) => node.process.toLowerCase() !== 'raw');
-
-    const processedImageTypes = processedImages.map(({ node }) => node.plotType);
-
-    const uniqueProcessedImages = processedImages.filter(
-        ({ node }, index) => !processedImageTypes.includes(node.plotType, index + 1)
+    const processedImages = images.edges.filter(
+        ({ node }) => node.process.toLowerCase() !== 'raw' && node.process.toLowerCase() === project.toLowerCase()
     );
 
     const [lightBoxImages, setLightBoxImages] = useState({
         images: [
             ...rawImages.map(({ node }) => node.url),
-            ...uniqueProcessedImages.map(({ node }) => node.url)
+            ...processedImages.map(({ node }) => node.url)
         ], imagesIndex: 0
     });
 
-    const sizes = uniqueProcessedImages.length > 0 ? { sm: 6, md: 2, xl: 3 } : { sm: 12, md: 4, xl: 6 };
+    const sizes = processedImages.length > 0 ? { sm: 6, md: 2, xl: 3 } : { sm: 12, md: 4, xl: 6 };
 
     const openLightBox = (images, imageUrl) => {
         const imageIndex = images.indexOf(imageUrl);
@@ -52,9 +49,9 @@ const ImageGrid = ({ images }) => {
                 />
             )}
         </Col>
-        {uniqueProcessedImages.length > 0 && <Col sm={6} md={2} xl={3}>
-            <h4>Cleaned</h4>
-            {uniqueProcessedImages.map(({ node }) =>
+        {processedImages.length > 0 && <Col sm={6} md={2} xl={3}>
+            <h4>Cleaned by {formatProjectName(project)}</h4>
+            {processedImages.map(({ node }) =>
                 <Image
                     rounded
                     fluid
