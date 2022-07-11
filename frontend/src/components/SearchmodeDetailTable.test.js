@@ -5,7 +5,7 @@ import SearchmodeDetailTable from './SearchmodeDetailTable';
 
 /* eslint-disable react/display-name */
 
-jest.mock('found/Link',() => ({ children }) => <div>{children}</div>);
+jest.mock('found/Link', () => ({ children }) => <div>{children}</div>);
 
 describe('searhmode detail table', () => {
     const data = {
@@ -54,7 +54,7 @@ describe('searhmode detail table', () => {
                     node: {
                         id: '3',
                         utc: '2021-01-02T03:34:32+00:00',
-                        project: 'Relbin',
+                        project: 'RelBin',
                         beam: 4,
                         length: 4,
                         tsamp: 316.8,
@@ -72,7 +72,7 @@ describe('searhmode detail table', () => {
                     node: {
                         id: '4',
                         utc: '2021-01-11T03:34:32+00:00',
-                        project: 'Relbin',
+                        project: 'RelBin',
                         beam: 4,
                         length: 4,
                         tsamp: 316.8,
@@ -92,27 +92,27 @@ describe('searhmode detail table', () => {
 
     it('should render data onto the table', () => {
         expect.hasAssertions();
-        const { getByText } = render(<SearchmodeDetailTable data={data}/>);
+        const { getByText } = render(<SearchmodeDetailTable data={data} />);
         expect(getByText('Observations')).toBeInTheDocument();
         expect(getByText('2021-03-02-03:34:32')).toBeInTheDocument();
     });
- 
+
     it('should update the table when the project filter is changed', async () => {
         expect.hasAssertions();
-        const { getAllByText, getByLabelText } = render(<SearchmodeDetailTable data={data}/>);
+        const { getAllByText, getByLabelText } = render(<SearchmodeDetailTable data={data} />);
         expect(getAllByText('TPA')).toHaveLength(3);
-        expect(getAllByText('Relbin')).toHaveLength(3);
+        expect(getAllByText('RelBin')).toHaveLength(3);
 
         fireEvent.change(getByLabelText('Project'), { target: { value: 'TPA' } });
         await waitFor(() => {
             // There should only be 1 left as an option in the dropdown.
-            expect(getAllByText('Relbin')).toHaveLength(1);
+            expect(getAllByText('RelBin')).toHaveLength(1);
             expect(getAllByText('TPA')).toHaveLength(3);
         });
         fireEvent.change(getByLabelText('Project'), { target: { value: 'All' } });
         await waitFor(() => {
             // There should only be 1 left as an option in the dropdown.
-            expect(getAllByText('Relbin')).toHaveLength(3);
+            expect(getAllByText('RelBin')).toHaveLength(3);
             expect(getAllByText('TPA')).toHaveLength(3);
         });
     });
