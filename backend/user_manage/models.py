@@ -2,13 +2,62 @@ import uuid
 import datetime
 
 from django.utils import timezone
-
-from django.contrib.auth import get_user_model
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.contrib.auth.models import AbstractUser
+
+from utils.constants import UserRole
 
 
-User = get_user_model()
+class User(AbstractUser):
+    email = models.EmailField(
+        _('email address'),
+        max_length=150,
+        blank=False,
+        null=False,
+        unique=True,
+        help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+        error_messages={
+            'unique': _("A user with that email already exists."),
+        },
+    )
+
+    role = models.CharField(
+        max_length=55,
+        choices=[(r.name, r.value) for r in UserRole],
+        default=UserRole.RESTRICTED.value
+    )
+
+
+class ProvisionalUser(models.Model):
+    email = models.EmailField(
+        _('email address'),
+        max_length=150,
+        blank=False,
+        null=False,
+        unique=True,
+        help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+        error_messages={
+            'unique': _("A user with that email already exists."),
+        },
+    )
+
+    role = models.CharField(
+        max_length=55,
+        choices=[(r.name, r.value) for r in UserRole],
+        default=UserRole.RESTRICTED.value
+    )
+
+    activation_code = models.UUIDField(editable=False, default=uuid.uuid4)
+    activation_expiry = models.DateTimeField(blank=True, null=True)
+    activated = models.BooleanField(default=False)
+    activated_on = models.DateTimeField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True)
+    email_sent = models.BooleanField(default=False)
+    email_sent_on = models.DateTimeField(null=True, blank=True)
+
+    user = models.ForeignKey(User, blank=True, on_delete=models.CASCADE)
 
 
 class Registration(models.Model):
@@ -74,22 +123,3 @@ class PasswordResetRequest(models.Model):
             self.verification_expiry = timezone.now() + datetime.timedelta(minutes=30)
 
         return super(PasswordResetRequest, self).save(*args, **kwargs)
-
-
-class UserRole(models.Model):
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=False, null=False, related_name='user_role')
-
-    RESTRICTED = 'RESTRICTED'  # restricted role can have no access to the embargoed data
-    UNRESTRICTED = 'UNRESTRICTED'  # unrestricted should be able to view any data
-    ADMIN = 'ADMIN'  # admin to get additional access, ex: change restricted to unrestricted
-
-    ROLE_CHOICES = [
-        (ADMIN, ADMIN),
-        (RESTRICTED, RESTRICTED),
-        (UNRESTRICTED, UNRESTRICTED),
-    ]
-
-    role = models.CharField(max_length=55, choices=ROLE_CHOICES, default=RESTRICTED)
-    created = models.DateTimeField(auto_now_add=True)
-    last_updated = models.DateTimeField(auto_now=True)

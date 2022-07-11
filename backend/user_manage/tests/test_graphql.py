@@ -1,16 +1,15 @@
 import json
-import datetime
 from unittest.mock import patch
 
-from django.contrib.auth.models import User
 from django.core import mail
 from django.utils import timezone
 from graphene_django.utils.testing import GraphQLTestCase
 
 from django.contrib.auth import get_user_model, authenticate
-from ..models import Registration, PasswordResetRequest, UserRole
+from utils.constants import UserRole
+from ..models import Registration, PasswordResetRequest
 
-UserModel = get_user_model()
+User = get_user_model()
 
 
 class RegistrationTestCase(GraphQLTestCase):
@@ -150,12 +149,9 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
             # the user exists
             assert True
 
-            # the user has been assigned a role (public)
-            user_role = UserRole.objects.get(user=user)
+            self.assertEqual(user.role, UserRole.RESTRICTED.value)
 
-            self.assertEqual(user_role.role, UserRole.RESTRICTED)
-
-        except (User.DoesNotExist, UserRole.DoesNotExist):
+        except User.DoesNotExist:
             assert False
 
     def test_verify_registration_invalid_code(self):
@@ -300,7 +296,7 @@ class PasswordResetRequestTestCase(GraphQLTestCase):
             'last_name': 'test last name',
             'password': 'test@password',
         })
-        UserModel.objects.create_user(**self.user_details)
+        User.objects.create_user(**self.user_details)
 
     def test_create_password_reset_request(self):
         response = self.query(
@@ -375,7 +371,7 @@ class PasswordResetTestCase(GraphQLTestCase):
             'last_name': 'test last name',
             'password': 'test@password',
         })
-        self.user = UserModel.objects.create_user(**self.user_details)
+        self.user = User.objects.create_user(**self.user_details)
 
         # create password reset request
         self.prr = PasswordResetRequest.objects.create(email=self.user_details.get('email'))
@@ -454,7 +450,7 @@ class PasswordResetTestCase(GraphQLTestCase):
             'last_name': 'test last name',
             'password': 'testing@password',
         })
-        UserModel.objects.create_user(**user_details)
+        User.objects.create_user(**user_details)
 
         # create password reset request
         prr = PasswordResetRequest.objects.create(email=user_details.get('email'))
@@ -501,7 +497,7 @@ class PasswordResetTestCase(GraphQLTestCase):
             'last_name': 'test last name',
             'password': 'testing@password',
         })
-        user = UserModel.objects.create_user(**user_details)
+        user = User.objects.create_user(**user_details)
 
         # create password reset request
         prr = PasswordResetRequest.objects.create(email=user_details.get('email'))
@@ -548,7 +544,7 @@ class PasswordResetTestCase(GraphQLTestCase):
             'last_name': 'test last name',
             'password': 'testing@password',
         })
-        UserModel.objects.create_user(**user_details)
+        User.objects.create_user(**user_details)
 
         # create password reset request
         prr = PasswordResetRequest.objects.create(email=user_details.get('email'))
@@ -630,7 +626,7 @@ class PasswordChangeTestCase(GraphQLTestCase):
             'last_name': 'test last name',
             'password': 'test@password',
         })
-        self.user = UserModel.objects.create_user(**self.user_details)
+        self.user = User.objects.create_user(**self.user_details)
 
         self.new_password = 'Abcdefgh#123'
 

@@ -4,11 +4,11 @@ import graphene
 import json
 
 import pytz
+from django.contrib.auth import get_user_model
 from graphene import relay, ObjectType
 from django.template.defaultfilters import filesizeformat
 from graphene_django import DjangoObjectType
-
-from user_manage.models import UserRole
+from graphql_jwt.decorators import login_required
 
 from web_cache.models import (
     FoldPulsar,
@@ -19,7 +19,10 @@ from web_cache.models import (
     SessionDisplay,
     SessionPulsar,
 )
-from graphql_jwt.decorators import login_required
+
+from utils import constants
+
+User = get_user_model()
 
 
 class FoldDetailImageNode(DjangoObjectType):
@@ -71,7 +74,7 @@ class FoldPulsarDetailNode(DjangoObjectType):
         try:
 
             # checking whether the user is restricted or not
-            restricted = UserRole.RESTRICTED.casefold() == info.context.user.user_role.role.casefold()
+            restricted = info.context.user.role.casefold() == constants.UserRole.RESTRICTED.value.casefold()
 
             if restricted:
                 # if the user is restricted, then we check this Pulsar's embargo date

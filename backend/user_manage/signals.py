@@ -1,11 +1,16 @@
+import datetime
+
+from django.utils import timezone
 from django.contrib.auth.hashers import make_password
-from django.contrib.auth.models import User
 from django.db.models import Q
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from .models import Registration, PasswordResetRequest, UserRole
-from .utility import send_verification_email
-from .utility import send_password_reset_email
+from .models import Registration, PasswordResetRequest, User, ProvisionalUser
+from .utility import (
+    send_verification_email,
+    send_password_reset_email,
+    send_activation_email,
+)
 
 
 @receiver(pre_save, sender=Registration, dispatch_uid='handle_registration_save')
@@ -38,11 +43,6 @@ def handle_registration_save(sender, instance, **kwargs):
             new_user.password = instance.password
             new_user.save()
 
-            # creating a role for the user
-            UserRole.objects.create(
-                user=new_user,
-            )
-
             instance.user = new_user
 
 
@@ -62,3 +62,34 @@ def handle_password_reset_request_save(sender, instance, raw, **kwargs):
             to=user.email,
             verification_code=instance.verification_code,
         )
+
+
+@receiver(pre_save, sender=ProvisionalUser, dispatch_uid='handle_provisional_user_save')
+def handle_provisional_user_save(sender, instance, **kwargs):
+    if not instance.pk:
+        # create a new user and refer it
+        new_user = User.objects.create_user(
+            username=instance.email,
+            email=instance.email,
+            is_active=False,
+        )
+        instance.user = new_user
+
+    # send activation email whenever we see that email hasn't been sent
+    # this can be used to resend emails
+    if not instance.email_sent:
+        now = timezone.now()
+        # update expiry
+        instance.activation_expiry = now + datetime.timedelta(days=30)
+
+        try:
+            send_activation_email(
+                to=instance.email,
+                activation_code=instance.activation_code,
+            )
+        except Exception as ex:
+            print('Email was not sent due to an error')
+            print(ex)
+        else:
+            instance.email_sent = True
+            instance.email_sent_on = now

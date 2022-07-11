@@ -1,6 +1,6 @@
 from datetime import timedelta
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.utils import timezone
@@ -9,7 +9,10 @@ from uuid import UUID
 from django.contrib.auth.hashers import check_password
 from django.test import TestCase
 
-from ..models import Registration, UserRole
+from utils.constants import UserRole
+from ..models import Registration
+
+User = get_user_model()
 
 
 class RegistrationTest(TestCase):
@@ -72,9 +75,7 @@ class RegistrationTest(TestCase):
             assert True
 
             # the user has been assigned a role (public)
-            user_role = UserRole.objects.get(user=user)
+            self.assertEqual(user.role, UserRole.RESTRICTED.value)
 
-            self.assertEqual(user_role.role, UserRole.RESTRICTED)
-
-        except (User.DoesNotExist, UserRole.DoesNotExist):
+        except User.DoesNotExist:
             assert False
