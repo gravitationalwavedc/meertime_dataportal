@@ -10,9 +10,13 @@ import MainLayout from './MainLayout';
 
 
 const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => {
-    const [project, setProject] = useState('relbin');
-
     const relayObservationModel = foldObservationDetails.edges[0].node;
+
+    const projectChoices = Array.from(relayObservationModel.images.edges.reduce(
+        (plotTypesSet, { node }) => plotTypesSet.add(node.process), new Set()
+    )).filter(process => process.toLowerCase() !== 'raw');
+
+    const [project, setProject] = useState(projectChoices[0]);
 
     const title = <Link
         size="sm"
@@ -23,10 +27,6 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
     const displayDate = formatUTC(relayObservationModel.utc);
 
     const dataItems = formatSingleObservationData(relayObservationModel);
-
-    const projects = Array.from(relayObservationModel.images.edges.reduce(
-        (plotTypesSet, { node }) => plotTypesSet.add(node.process), new Set()
-    )).filter(process => process.toLowerCase() !== 'raw');
 
     return (
         <MainLayout title={title}>
@@ -48,7 +48,7 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                     </Button>
                 </Col>
             </Row>
-            {projects.length > 1 ?
+            {projectChoices.length >= 1 ?
                 <Row className="mt-2">
                     <Col md={2}>
                         <Form.Group controlId="mainProjectSelect">
@@ -58,7 +58,7 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                                 as="select"
                                 value={project}
                                 onChange={(event) => setProject(event.target.value)}>
-                                {projects.map(
+                                {projectChoices.map(
                                     value =>
                                         <option
                                             value={value}

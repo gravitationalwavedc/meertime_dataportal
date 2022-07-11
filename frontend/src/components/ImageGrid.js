@@ -7,28 +7,31 @@ import image404 from '../assets/images/image404.png';
 const ImageGrid = ({ images, project }) => {
     const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
     const [lightBoxImages, setLightBoxImages] = useState({ images: [], imagesIndex: 0 });
-
-    const rawImages = images.edges.filter(
-        ({ node }) => node.process.toLowerCase() === 'raw' && node.resolution === 'hi'
-    );
-
-    const processedImages = images.edges.filter(
-        ({ node }) => node.process.toLowerCase() !== 'raw' && node.process.toLowerCase() === project.toLowerCase()
-    );
+    const [rawImages, setRawImages] = useState([]);
+    const [processedImages, setProcessedImages] = useState([]);
 
     useEffect(() => {
-        setLightBoxImages({
-            images: [
-                ...rawImages.map(({ node }) => node.url),
-                ...processedImages.map(({ node }) => node.url)
-            ], imagesIndex: 0
-        });
-    }, [project]);
+        const newRawImages = images.edges.filter(
+            ({ node }) => node.process.toLowerCase() === 'raw' && node.resolution === 'hi'
+        );
+
+        const newProcessedImages = images.edges.filter(
+            ({ node }) => node.process.toLowerCase() !== 'raw' && node.process.toLowerCase() === project.toLowerCase()
+        );
+
+        const newLightBoxImages = [
+            ...newRawImages.map(({ node }) => node.url),
+            ...newProcessedImages.map(({ node }) => node.url)
+        ];
+
+        setRawImages(newRawImages);
+        setProcessedImages(newProcessedImages);
+        setLightBoxImages({ images: newLightBoxImages, imagesIndex: 0 });
+    }, [project, images.edges]);
 
     const sizes = processedImages.length > 0 ? { sm: 6, md: 2, xl: 3 } : { sm: 12, md: 4, xl: 6 };
 
     const openLightBox = (images, imageUrl) => {
-        console.log(images, imageUrl);
         const imageIndex = images.indexOf(imageUrl);
         setIsLightBoxOpen(true);
         setLightBoxImages({ images: images, imagesIndex: imageIndex });
