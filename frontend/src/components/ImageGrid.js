@@ -1,11 +1,12 @@
 import { Col, Image } from 'react-bootstrap';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LightBox from 'react-image-lightbox';
 import { formatProjectName } from '../helpers';
 import image404 from '../assets/images/image404.png';
 
 const ImageGrid = ({ images, project }) => {
     const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
+    const [lightBoxImages, setLightBoxImages] = useState({ images: [], imagesIndex: 0 });
 
     const rawImages = images.edges.filter(
         ({ node }) => node.process.toLowerCase() === 'raw' && node.resolution === 'hi'
@@ -15,16 +16,19 @@ const ImageGrid = ({ images, project }) => {
         ({ node }) => node.process.toLowerCase() !== 'raw' && node.process.toLowerCase() === project.toLowerCase()
     );
 
-    const [lightBoxImages, setLightBoxImages] = useState({
-        images: [
-            ...rawImages.map(({ node }) => node.url),
-            ...processedImages.map(({ node }) => node.url)
-        ], imagesIndex: 0
-    });
+    useEffect(() => {
+        setLightBoxImages({
+            images: [
+                ...rawImages.map(({ node }) => node.url),
+                ...processedImages.map(({ node }) => node.url)
+            ], imagesIndex: 0
+        });
+    }, [project]);
 
     const sizes = processedImages.length > 0 ? { sm: 6, md: 2, xl: 3 } : { sm: 12, md: 4, xl: 6 };
 
     const openLightBox = (images, imageUrl) => {
+        console.log(images, imageUrl);
         const imageIndex = images.indexOf(imageUrl);
         setIsLightBoxOpen(true);
         setLightBoxImages({ images: images, imagesIndex: imageIndex });
