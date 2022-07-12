@@ -83,7 +83,8 @@ The react frontend is currently only available locally while in developement.
 3. Start the django development server and make sure it's running on http://localhost:8000
 4. Open the frontend directory at meertime-data-portal/src/frontend
 5. Run `nvm use`
-6. Install required packages with `npm install`
+6. Install required packages with `npm install` (if fails due to `package-lock.json` is missing, run 
+`npm i --ignore-scripts && npm i` to create a clean `package-lock.json` file)
 7. Generate the relay schema with `npm run relay`
 8. Run tests to make sure everything is setup correctly with `npm test`
 9. Start the server with `npm start`

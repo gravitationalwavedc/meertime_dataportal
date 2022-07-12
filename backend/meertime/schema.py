@@ -19,8 +19,7 @@ class ObtainJSONWebToken(graphql_jwt.relay.JSONWebTokenMutation):
         return cls(meer_watch_key=settings.KRONOS_PAYLOAD)
 
 
-class Mutation(dataportal.graphql.Mutation, web_cache.mutations.Mutation, user_manage.graphql.mutations.Mutation,
-               graphene.ObjectType):
+class Mutation(dataportal.graphql.Mutation, user_manage.graphql.mutations.Mutation, graphene.ObjectType):
     token_auth = ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.relay.Verify.Field()
     refresh_token = graphql_jwt.relay.Refresh.Field()

@@ -24,7 +24,9 @@ import environment from '../relayEnvironment';
 
 //Initialise Google Analytics
 const trackingID = 'UA-217876641-1';
+// eslint-disable-next-line jest/require-hook
 ReactGA.initialize(trackingID, { testMode: process.env.NODE_ENV === 'test' });
+// eslint-disable-next-line jest/require-hook
 ReactGA.set({
     username: localStorage.getItem('username')
 });
