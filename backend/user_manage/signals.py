@@ -72,6 +72,7 @@ def handle_provisional_user_save(sender, instance, **kwargs):
             username=instance.email,
             email=instance.email,
             is_active=False,
+            role=instance.role,
         )
         instance.user = new_user
 

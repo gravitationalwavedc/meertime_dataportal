@@ -59,6 +59,9 @@ class ProvisionalUser(models.Model):
 
     user = models.ForeignKey(User, blank=True, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f'{self.email} ({self.role})'
+
 
 class Registration(models.Model):
     UNVERIFIED = 'UNVERIFIED'

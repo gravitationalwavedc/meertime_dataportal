@@ -10,9 +10,9 @@ from user_manage.models import ProvisionalUser
 def notify_provisional_users(filename=None, role=None):
 
     # Setting the role of the user(s)
-    if role.casefold() == UserRole.ADMIN.value:
+    if role.casefold() == UserRole.ADMIN.value.casefold():
         role = UserRole.ADMIN.value
-    elif role.casefold() == UserRole.UNRESTRICTED.value:
+    elif role.casefold() == UserRole.UNRESTRICTED.value.casefold():
         role = UserRole.UNRESTRICTED.value
     else:
         role = UserRole.RESTRICTED.value
@@ -37,12 +37,10 @@ def notify_provisional_users(filename=None, role=None):
         email = email.strip()
 
         try:
-            provisional_user = ProvisionalUser(
+            provisional_user = ProvisionalUser.objects.create(
                 email=email,
                 role=role,
             )
-            provisional_user.save()
-            provisional_user.refresh_from_db()
 
         except IntegrityError:
             print(f'Email address {email.strip()} already exists.')
