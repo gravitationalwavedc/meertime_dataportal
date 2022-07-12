@@ -1,3 +1,5 @@
+import datetime
+
 import django.contrib.auth
 import graphene
 
@@ -8,12 +10,14 @@ from django.db.models import Q
 from ..models import (
     Registration,
     PasswordResetRequest,
+    ProvisionalUser,
 )
 from .types import (
     RegistrationInput,
     RegistrationType,
     PasswordResetRequestType,
     UserType,
+    ProvisionalUserType,
 )
 
 UserModel = django.contrib.auth.get_user_model()
@@ -88,6 +92,67 @@ class VerifyRegistration(graphene.Mutation):
             return VerifyRegistration(
                 ok=False,
                 registration=None,
+                errors=exp.messages,
+            )
+
+
+class AccountActivation(graphene.Mutation):
+    class Arguments:
+        user_input = RegistrationInput(required=True)
+        activation_code = graphene.String(required=True)
+
+    ok = graphene.Boolean()
+    provisional_user = graphene.Field(ProvisionalUserType)
+    errors = graphene.List(graphene.String)
+
+    @classmethod
+    def mutate(cls, self, info, activation_code, user_input):
+        try:
+            UUID(str(activation_code), version=4)
+        except ValueError:
+            return AccountActivation(
+                ok=False,
+                provisional_user=None,
+                errors=['Invalid verification code.'],
+            )
+
+        try:
+            provisional_user = ProvisionalUser.objects.get(
+                activation_code=activation_code,
+                email=user_input.get('email'),
+            )
+            if provisional_user.activated:
+                return AccountActivation(
+                    ok=False,
+                    provisional_user=None,
+                    errors=['Account already activated.'],
+                )
+
+            provisional_user.user.set_password(user_input.get('password'))
+            provisional_user.user.first_name = user_input.get('first_name')
+            provisional_user.user.last_name = user_input.get('last_name')
+            provisional_user.user.is_active = True
+            provisional_user.user.save()
+
+            provisional_user.activated = True
+            provisional_user.activated_on = datetime.datetime.now()
+            provisional_user.save()
+
+            return AccountActivation(
+                ok=True,
+                provisional_user=provisional_user,
+                errors=None,
+            )
+        except ProvisionalUser.DoesNotExist:
+            return AccountActivation(
+                ok=False,
+                provisional_user=None,
+                errors=['Activation code for this email do not exist.'],
+            )
+        except Exception as exp:
+            return AccountActivation(
+                ok=False,
+                provisional_user=None,
                 errors=exp.messages,
             )
 
@@ -251,3 +316,4 @@ class Mutation(graphene.ObjectType):
     create_password_reset_request = CreatePasswordResetRequest.Field()
     password_reset = PasswordReset.Field()
     password_change = PasswordChange.Field()
+    account_activation = AccountActivation.Field()

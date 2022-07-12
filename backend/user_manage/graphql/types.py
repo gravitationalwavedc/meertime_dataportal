@@ -6,6 +6,7 @@ from graphene_django import DjangoObjectType
 from ..models import (
     Registration,
     PasswordResetRequest,
+    ProvisionalUser,
 )
 
 
@@ -21,6 +22,13 @@ class RegistrationInput(graphene.InputObjectType):
     last_name = graphene.String(required=True)
     email = graphene.String(required=True)
     password = graphene.String(required=True)
+
+
+class ProvisionalUserType(DjangoObjectType):
+    class Meta:
+        model = ProvisionalUser
+        interfaces = (relay.Node,)
+        exclude = ['user', 'activation_code']
 
 
 class PasswordResetRequestType(DjangoObjectType):

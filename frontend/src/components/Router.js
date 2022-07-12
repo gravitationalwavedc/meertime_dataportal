@@ -1,6 +1,7 @@
 import { BrowserProtocol, queryMiddleware } from 'farce';
 import { Route, createFarceRouter, createRender, makeRouteConfig } from 'found';
 
+import AccountActivation from '../pages/AccountActivation';
 import Fold from '../pages/Fold';
 import FoldDetail from '../pages/FoldDetail';
 import Login from '../pages/Login';
@@ -46,6 +47,11 @@ const routeConfig = () => makeRouteConfig(
         <Route
             path="/login/:next?"
             Component={Login}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/activate/:code/"
+            Component={AccountActivation}
             render={({ Component, props }) => renderTrackingRoute(Component, props)}
         />
         <Route
