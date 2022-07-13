@@ -4,6 +4,7 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.utils import timezone
 from uuid import UUID
 
@@ -11,7 +12,7 @@ from django.contrib.auth.hashers import check_password
 from django.test import TestCase
 
 from utils.constants import UserRole
-from ..models import Registration
+from ..models import Registration, ProvisionalUser
 
 User = get_user_model()
 
@@ -82,3 +83,63 @@ class RegistrationTest(TestCase):
 
         except User.DoesNotExist:
             assert False
+
+
+@pytest.mark.django_db
+class ProvisionalUserTest(TestCase):
+
+    def setUp(self):
+        self.user_details = dict({
+            'username': 'test@test.com',
+            'email': 'test@test.com',
+            'first_name': 'test first name',
+            'last_name': 'test last name',
+            'password': 'test@password',
+        })
+
+        User.objects.create_user(**self.user_details)
+
+    @pytest.mark.enable_signals
+    def test_provisional_user(self):
+        provisional_user = ProvisionalUser.objects.create(
+            email='prvusr@test.com',
+            role=UserRole.UNRESTRICTED.value,
+        )
+        assert provisional_user.role == UserRole.UNRESTRICTED.value
+
+        try:
+            UUID(str(provisional_user.activation_code), version=4)
+        except ValueError:
+            assert False
+
+        assert provisional_user.activation_expiry > timezone.now() + timedelta(days=29, hours=23, minutes=50)
+        assert provisional_user.activation_expiry <= timezone.now() + timedelta(days=30)
+
+        assert provisional_user.email_sent
+        assert len(mail.outbox) == 1
+        assert mail.outbox[0].subject == 'Please activate your Meertime Account'
+
+        assert provisional_user.user.role == UserRole.UNRESTRICTED.value
+        assert not provisional_user.user.is_active
+
+    @pytest.mark.enable_signals
+    def test_existing_user(self):
+        with self.assertRaises(Exception) as raised:
+            ProvisionalUser.objects.create(
+                email='test@test.com',
+                role=UserRole.UNRESTRICTED.value,
+            )
+        self.assertEqual(IntegrityError, type(raised.exception))
+
+    @pytest.mark.enable_signals
+    def test_existing_provisional_user(self):
+        ProvisionalUser.objects.create(
+            email='existing@test.com',
+            role=UserRole.UNRESTRICTED.value,
+        )
+        with self.assertRaises(Exception) as raised:
+            ProvisionalUser.objects.create(
+                email='existing@test.com',
+                role=UserRole.UNRESTRICTED.value,
+            )
+        self.assertEqual(IntegrityError, type(raised.exception))
