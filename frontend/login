@@ -1,0 +1,97 @@
+diff --git a/frontend/src/pages/Login.js b/frontend/src/pages/Login.js
+index fafa8c6..5329d02 100644
+--- a/frontend/src/pages/Login.js
++++ b/frontend/src/pages/Login.js
+@@ -6,7 +6,6 @@ import React, { useState } from 'react';
+ import { commitMutation, graphql } from 'react-relay';
+ 
+ import { HiOutlineLockClosed } from 'react-icons/hi';
+-import { Link } from 'found';
+ import environment from '../relayEnvironment';
+ 
+ const mutation = graphql`
+@@ -39,9 +38,9 @@ const Login = ({ router, match }) => {
+                 mutation,
+                 variables,
+                 onCompleted: ({ tokenAuth }, errors) => {
+-                    if (errors) {
++                    if(errors){
+                         setFormErrors(errors.map(e => e.message));
+-                    } else if (tokenAuth) {
++                    } else if(tokenAuth){
+                         localStorage.jwt = tokenAuth.token;
+                         localStorage.meerWatchKey = tokenAuth.meerWatchKey;
+                         localStorage.username = tokenAuth.payload['username'];
+@@ -63,10 +62,10 @@ const Login = ({ router, match }) => {
+                 <Row>
+                     <h1 className="text-gray-100 w-100 mt-5 text-center d-none d-sm-block"
+                         style={{ marginBottom: '-3rem' }}>
+-                        MEERTIME</h1>
++                  MEERTIME</h1>
+                     <h2 className="text-gray-100 w-100 mt-5 text-center d-block d-sm-none"
+                         style={{ marginBottom: '-3rem' }}>
+-                        MEERTIME</h2>
++                  MEERTIME</h2>
+                     <Col xl={{ span: 8, offset: 2 }} md={{ span: 8, offset: 2 }} className="login-form">
+                         <Card className="shadow-2xl text-left">
+                             <Card.Body className="m-4">
+@@ -84,10 +83,10 @@ const Login = ({ router, match }) => {
+                                             <Field name="username">
+                                                 {({ field, meta }) =>
+                                                     <Form.Group controlId="username">
+-                                                        <Form.Label>Username/Email</Form.Label>
++                                                        <Form.Label>Username</Form.Label>
+                                                         <Form.Control
+                                                             {...field}
+-                                                            isInvalid={meta.touched && meta.error}/>
++                                                            isInvalid={meta.touched && meta.error} />
+                                                         <Form.Control.Feedback
+                                                             type='invalid'>
+                                                             {meta.error}
+@@ -104,40 +103,16 @@ const Login = ({ router, match }) => {
+                                                             {...field}
+                                                             isInvalid={meta.touched && meta.error}/>
+                                                         {!meta.error
+-                                                            &&
+-                                                            <HiOutlineLockClosed className="form-control-icon-right"/>}
++                                                      && <HiOutlineLockClosed className="form-control-icon-right" />}
+                                                         <Form.Control.Feedback
+                                                             type='invalid'>{meta.error}</Form.Control.Feedback>
+                                                     </Form.Group>}
+                                             </Field>
+-                                            {formErrors &&
+-                                                formErrors.map((e) => <Alert variant='danger' key={e}>{e}</Alert>)}
+-                                            <Row className="buttons-row">
+-                                                <Col xl={{ span: 12 }} md={{ span: 12 }}>
+-                                                    <Button
+-                                                        className="text-uppercase shadow-md mt-2"
+-                                                        type="submit">Sign in</Button>
+-                                                </Col>
+-                                                <Col xl={{ span: 12 }} md={{ span: 12 }}>
+-                                                    &nbsp;
+-                                                </Col>
+-                                                <Col xl={{ span: 12 }} md={{ span: 12 }}>
+-                                                    <span className="float-right">
+-                                                        Do not have an account with us?&nbsp;
+-                                                        <Link
+-                                                            to={`${process.env.REACT_APP_BASE_URL}/register/`}
+-                                                        >Register</Link>
+-                                                    </span>
+-                                                </Col>
+-                                                <Col xl={{ span: 12 }} md={{ span: 12 }}>
+-                                                    <span className="float-right">
+-                                                        Forgot your account password?&nbsp;
+-                                                        <Link
+-                                                            to={`${process.env.REACT_APP_BASE_URL}/password_reset_request/`}
+-                                                        >Reset Password</Link>
+-                                                    </span>
+-                                                </Col>
+-                                            </Row>
++                                            { formErrors &&
++                                              formErrors.map((e) => <Alert variant='danger' key={e}>{e}</Alert>)}
++                                            <Button
++                                                className="text-uppercase shadow-md mt-2"
++                                                type="submit">Sign in</Button>
+                                         </Form>}
+                                 </Formik>
+                             </Card.Body>

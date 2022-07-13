@@ -31,7 +31,7 @@ const TopNav = () => {
                     </Nav>
                     <Nav>
                         <Link to={`${process.env.REACT_APP_BASE_URL}/password_change/`} exact as={Nav.Link}>Change Password</Link>
-                        <Nav.Link onClick={logout}>Log out ({localStorage.username})</Nav.Link>
+                        <Nav.Link onClick={logout}>Log out</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
             </Container>

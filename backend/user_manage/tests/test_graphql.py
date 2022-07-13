@@ -1,6 +1,7 @@
 import json
 from unittest.mock import patch
 
+import pytest
 from django.core import mail
 from django.utils import timezone
 from graphene_django.utils.testing import GraphQLTestCase
@@ -12,6 +13,8 @@ from ..models import Registration, PasswordResetRequest
 User = get_user_model()
 
 
+@pytest.mark.django_db
+@pytest.mark.enable_signals
 class RegistrationTestCase(GraphQLTestCase):
 
     def setUp(self) -> None:
@@ -102,6 +105,8 @@ class RegistrationTestCase(GraphQLTestCase):
         )
 
 
+@pytest.mark.django_db
+@pytest.mark.enable_signals
 class VerifyRegistrationTestCase(GraphQLTestCase):
 
     def setUp(self) -> None:
@@ -286,6 +291,8 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertEqual(content['data']['verifyRegistration']['errors'][0], 'Verification code expired.')
 
 
+@pytest.mark.django_db
+@pytest.mark.enable_signals
 class PasswordResetRequestTestCase(GraphQLTestCase):
 
     def setUp(self) -> None:

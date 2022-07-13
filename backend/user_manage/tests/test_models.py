@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.exceptions import ValidationError
@@ -15,6 +16,8 @@ from ..models import Registration
 User = get_user_model()
 
 
+@pytest.mark.django_db
+@pytest.mark.enable_signals
 class RegistrationTest(TestCase):
 
     def setUp(self):

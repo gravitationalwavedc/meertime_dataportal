@@ -84,7 +84,7 @@ const Login = ({ router, match }) => {
                                             <Field name="username">
                                                 {({ field, meta }) =>
                                                     <Form.Group controlId="username">
-                                                        <Form.Label>Username/Email</Form.Label>
+                                                        <Form.Label>Email</Form.Label>
                                                         <Form.Control
                                                             {...field}
                                                             isInvalid={meta.touched && meta.error}/>
