@@ -149,7 +149,7 @@ const PasswordChange = ({ router, match }) => {
                                         <Col xl={{ span: 12 }} md={{ span: 12 }}>
                                             <Button
                                                 className="text-uppercase shadow-md mt-2 float-right"
-                                                type="submit">Password Change</Button>
+                                                type="submit">Change Password</Button>
                                         </Col>
                                     </Row>
                                 </Form>}
