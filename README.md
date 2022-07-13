@@ -24,7 +24,7 @@ This application provides a ReactJS frontend for access to the MeerTime project 
 ### To run on your local machine
 
 1. Clone the repository.
-2. Install python packges using [python poetry](https://python-poetry.org/):
+2. Install python packages using [python poetry](https://python-poetry.org/):
 Run `poetry install --no-dev` for minimum install. This only installs required production packages.  
 Run `poetry install` to also install development packages such as testing tools.
 
@@ -43,7 +43,7 @@ Run `poetry install` to also install development packages such as testing tools.
 3. Run `docker-compose up`.
 
 
-When building the images, we recommmend running:
+When building the images, we recommend running:
 `DOCKER_BUILDKIT=1 COMPOSE_DOCKER_CLI_BUILD=1 docker-compose up --build`
 for optimal image size and build speed.
 
@@ -71,20 +71,19 @@ followed by bringing the images up:
 `docker-compose up`
 
 ### Starting the React Frontend
-The react frontend is currently only available locally while in developement.
+The React frontend is currently only available locally while in development.
 
 #### React Requirements
 - NPM ([installation guide](https://nodejs.org/en/download/))
 - NVM ([installation guide](https://github.com/nvm-sh/nvm#installing-and-updating))
 
 #### Setup React project
-1. Open the django project at meertime-data-portal/src
+1. Open the django project at `meertime-data-portal`
 2. Generate the relay schema by running `poetry run python manage.py graphql_schema`
 3. Start the django development server and make sure it's running on http://localhost:8000
-4. Open the frontend directory at meertime-data-portal/src/frontend
+4. Open the frontend directory at `meertime-data-portal/frontend`
 5. Run `nvm use`
-6. Install required packages with `npm install` (if fails due to `package-lock.json` is missing, run 
-`npm i --ignore-scripts && npm i` to create a clean `package-lock.json` file)
+6. Install required packages with `npm install`
 7. Generate the relay schema with `npm run relay`
 8. Run tests to make sure everything is setup correctly with `npm test`
 9. Start the server with `npm start`
