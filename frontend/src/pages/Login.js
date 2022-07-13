@@ -20,7 +20,7 @@ const mutation = graphql`
   }`;
 
 const validationSchema = Yup.object().shape({
-    username: Yup.string().required('Please include a username.'),
+    username: Yup.string().required('Please include an email.'),
     password: Yup.string().required('Please include a password.')
 });
 
