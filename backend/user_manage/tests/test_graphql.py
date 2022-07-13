@@ -1,3 +1,4 @@
+import datetime
 import json
 from unittest.mock import patch
 
@@ -8,7 +9,7 @@ from graphene_django.utils.testing import GraphQLTestCase
 
 from django.contrib.auth import get_user_model, authenticate
 from utils.constants import UserRole
-from ..models import Registration, PasswordResetRequest
+from ..models import Registration, PasswordResetRequest, ProvisionalUser
 
 User = get_user_model()
 
@@ -590,7 +591,6 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertEqual(content['data']['passwordReset']['errors'][0], 'Verification code does not exist.')
 
     def test_password_reset_verification_code_expired(self):
-
         thirty_minutes_later = timezone.now() + timezone.timedelta(minutes=30)
 
         with patch.object(timezone, 'now', return_value=thirty_minutes_later):
@@ -769,3 +769,273 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertIsNone(content['data']['passwordChange']['user'])
         self.assertIsNotNone(content['data']['passwordChange']['errors'])
         self.assertEqual(content['data']['passwordChange']['errors'][0], 'User does not exist.')
+
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+class VerifyRegistrationTestCase(GraphQLTestCase):
+
+    def setUp(self) -> None:
+        self.user_details = dict({
+            'email': 'test@test.com',
+        })
+        self.provisional_user = ProvisionalUser.objects.create(**self.user_details)
+
+    def test_activate(self):
+        response = self.query(
+            '''
+            mutation AccountActivationMutation(
+                $activation_code: String!, 
+                $first_name: String!, 
+                $last_name: String!, 
+                $email: String!, 
+                $password: String!
+            ){
+                accountActivation(
+                    activationCode: $activation_code, 
+                    userInput: {
+                        firstName: $first_name, 
+                        lastName: $last_name, 
+                        email: $email, 
+                        password: $password,
+                        }
+                )
+                {
+                    ok,
+                    provisionalUser {
+                        id,
+                        activated,
+                        activatedOn,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='AccountActivationMutation',
+            variables={
+                'activation_code': f'{self.provisional_user.activation_code}',
+                'first_name': 'First Name',
+                'last_name': 'Last Name',
+                'email': f'{self.provisional_user.email}',
+                'password': 'MyPasword@123'
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertTrue(content['data']['accountActivation']['ok'])
+        self.assertIsNotNone(content['data']['accountActivation']['provisionalUser'])
+        self.assertTrue(content['data']['accountActivation']['provisionalUser']['activated'])
+        self.assertIsNotNone(content['data']['accountActivation']['provisionalUser']['activatedOn'])
+
+        # check user is active
+        self.provisional_user.refresh_from_db()
+        self.assertTrue(self.provisional_user.user.is_active)
+
+    def test_invalid_code(self):
+        response = self.query(
+            '''
+            mutation AccountActivationMutation(
+                $activation_code: String!, 
+                $first_name: String!, 
+                $last_name: String!, 
+                $email: String!, 
+                $password: String!
+            ){
+                accountActivation(
+                    activationCode: $activation_code, 
+                    userInput: {
+                        firstName: $first_name, 
+                        lastName: $last_name, 
+                        email: $email, 
+                        password: $password,
+                        }
+                )
+                {
+                    ok,
+                    provisionalUser {
+                        id,
+                        activated,
+                        activatedOn,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='AccountActivationMutation',
+            variables={
+                'activation_code': f'invalidcode',
+                'first_name': 'First Name',
+                'last_name': 'Last Name',
+                'email': f'{self.provisional_user.email}',
+                'password': 'MyPasword@123'
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['accountActivation']['ok'])
+        self.assertIsNone(content['data']['accountActivation']['provisionalUser'])
+        self.assertIsNotNone(content['data']['accountActivation']['errors'])
+        self.assertEqual(content['data']['accountActivation']['errors'][0], 'Invalid verification code.')
+
+    def test_already_activated(self):
+
+        self.provisional_user.activated = True
+        self.provisional_user.activated_on = datetime.datetime.now()
+        self.provisional_user.save()
+
+        response = self.query(
+            '''
+            mutation AccountActivationMutation(
+                $activation_code: String!, 
+                $first_name: String!, 
+                $last_name: String!, 
+                $email: String!, 
+                $password: String!
+            ){
+                accountActivation(
+                    activationCode: $activation_code, 
+                    userInput: {
+                        firstName: $first_name, 
+                        lastName: $last_name, 
+                        email: $email, 
+                        password: $password,
+                        }
+                )
+                {
+                    ok,
+                    provisionalUser {
+                        id,
+                        activated,
+                        activatedOn,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='AccountActivationMutation',
+            variables={
+                'activation_code': f'{self.provisional_user.activation_code}',
+                'first_name': 'First Name',
+                'last_name': 'Last Name',
+                'email': f'{self.provisional_user.email}',
+                'password': 'MyPasword@123'
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['accountActivation']['ok'])
+        self.assertIsNone(content['data']['accountActivation']['provisionalUser'])
+        self.assertIsNotNone(content['data']['accountActivation']['errors'])
+        self.assertEqual(content['data']['accountActivation']['errors'][0], 'Account already activated.')
+
+    def test_activation_code_does_not_exist_for_email(self):
+        response = self.query(
+            '''
+            mutation AccountActivationMutation(
+                $activation_code: String!, 
+                $first_name: String!, 
+                $last_name: String!, 
+                $email: String!, 
+                $password: String!
+            ){
+                accountActivation(
+                    activationCode: $activation_code, 
+                    userInput: {
+                        firstName: $first_name, 
+                        lastName: $last_name, 
+                        email: $email, 
+                        password: $password,
+                        }
+                )
+                {
+                    ok,
+                    provisionalUser {
+                        id,
+                        activated,
+                        activatedOn,
+                    },
+                    errors,
+                }
+            }
+            ''',
+            op_name='AccountActivationMutation',
+            variables={
+                'activation_code': f'{self.provisional_user.activation_code}',
+                'first_name': 'First Name',
+                'last_name': 'Last Name',
+                'email': 'different@email.com',
+                'password': 'MyPasword@123'
+            }
+        )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['accountActivation']['ok'])
+        self.assertIsNone(content['data']['accountActivation']['provisionalUser'])
+        self.assertIsNotNone(content['data']['accountActivation']['errors'])
+        self.assertEqual(content['data']['accountActivation']['errors'][0],
+                         'Activation code for this email does not exist.')
+
+    def test_activation_code_expired(self):
+
+        thirty_days_later = timezone.now() + timezone.timedelta(days=30)
+
+        with patch.object(timezone, 'now', return_value=thirty_days_later):
+            response = self.query(
+                '''
+                mutation AccountActivationMutation(
+                    $activation_code: String!, 
+                    $first_name: String!, 
+                    $last_name: String!, 
+                    $email: String!, 
+                    $password: String!
+                ){
+                    accountActivation(
+                        activationCode: $activation_code, 
+                        userInput: {
+                            firstName: $first_name, 
+                            lastName: $last_name, 
+                            email: $email, 
+                            password: $password,
+                            }
+                    )
+                    {
+                        ok,
+                        provisionalUser {
+                            id,
+                            activated,
+                            activatedOn,
+                        },
+                        errors,
+                    }
+                }
+                ''',
+                op_name='AccountActivationMutation',
+                variables={
+                    'activation_code': f'{self.provisional_user.activation_code}',
+                    'first_name': 'First Name',
+                    'last_name': 'Last Name',
+                    'email': f'{self.provisional_user.email}',
+                    'password': 'MyPasword@123'
+                }
+            )
+
+        self.assertResponseNoErrors(response)
+
+        content = json.loads(response.content)
+
+        self.assertFalse(content['data']['accountActivation']['ok'])
+        self.assertIsNone(content['data']['accountActivation']['provisionalUser'])
+        self.assertIsNotNone(content['data']['accountActivation']['errors'])
+        self.assertEqual(content['data']['accountActivation']['errors'][0], 'Activation code expired.')

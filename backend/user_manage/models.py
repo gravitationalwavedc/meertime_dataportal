@@ -62,6 +62,18 @@ class ProvisionalUser(models.Model):
     def __str__(self):
         return f'{self.email} ({self.role})'
 
+    def clean(self):
+        if self.pk:
+            # check this before activating the user
+            old_instance = ProvisionalUser.objects.get(id=self.pk)
+            if not old_instance.activated and self.activated:
+                if timezone.now() > self.activation_expiry:
+                    raise ValidationError({'activation_code': ['Activation code expired.']})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(ProvisionalUser, self).save(*args, **kwargs)
+
 
 class Registration(models.Model):
     UNVERIFIED = 'UNVERIFIED'
@@ -88,7 +100,7 @@ class Registration(models.Model):
             if User.objects.filter(username=self.email).exists():
                 raise ValidationError({'email': ['Email address already is in use.']})
         else:
-            # we are going to update the satus to 'verified'.
+            # we are going to update the status to 'verified'.
             old_instance = Registration.objects.get(id=self.pk)
             if old_instance.status == Registration.UNVERIFIED and self.status == Registration.VERIFIED:
                 if timezone.now() > self.verification_expiry:

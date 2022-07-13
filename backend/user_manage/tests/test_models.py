@@ -142,4 +142,4 @@ class ProvisionalUserTest(TestCase):
                 email='existing@test.com',
                 role=UserRole.UNRESTRICTED.value,
             )
-        self.assertEqual(IntegrityError, type(raised.exception))
+        self.assertEqual(ValidationError, type(raised.exception))

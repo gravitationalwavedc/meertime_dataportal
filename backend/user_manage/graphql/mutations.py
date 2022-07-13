@@ -147,7 +147,7 @@ class AccountActivation(graphene.Mutation):
             return AccountActivation(
                 ok=False,
                 provisional_user=None,
-                errors=['Activation code for this email do not exist.'],
+                errors=['Activation code for this email does not exist.'],
             )
         except Exception as exp:
             return AccountActivation(
