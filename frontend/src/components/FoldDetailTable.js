@@ -1,12 +1,11 @@
 import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
-import { columnsSizeFilter, meerWatchLink } from '../helpers';
+import { columnsSizeFilter, formatDDMonYYYY, formatUTC, meerWatchLink } from '../helpers';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
 import FoldDetailCard from './FoldDetailCard';
 import Link from 'found/Link';
 import ReactMarkdown from 'react-markdown';
-import { formatUTC } from '../helpers';
 import { useScreenSize } from '../context/screenSize-context';
 
 const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
@@ -20,7 +19,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                 jname: jname,
                 utc: formatUTC(edge.node.utc),
                 plotLink: `${process.env.REACT_APP_BASE_URL}/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`,
-                action: <ButtonGroup vertical>
+                action: !edge.node.restricted ? <ButtonGroup vertical>
                     <Link 
                         to={`${process.env.REACT_APP_BASE_URL}/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`}
                         size="sm" 
@@ -29,7 +28,14 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         to={`${process.env.REACT_APP_BASE_URL}/session/${formatUTC(edge.node.utc)}/`}
                         size="sm" 
                         variant="outline-secondary" as={Button}>View session</Link> 
-                </ButtonGroup>
+                </ButtonGroup> :
+                    <Button
+                        size="sm"
+                        variant="outline-dark">
+                        <span className='small'>Embargoed<br/>until<br/>{formatDDMonYYYY(edge.node.embargoEndDate) }
+                        </span>
+                    </Button>
+
             }
         ], []
     );

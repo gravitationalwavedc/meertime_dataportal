@@ -27,7 +27,10 @@ INSTALLED_APPS = [
     "web_cache",
     "mathfilters",
     "graphene_django",
+    "user_manage",
 ]
+
+AUTH_USER_MODEL = 'user_manage.User'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -80,3 +83,13 @@ STATIC_URL = "/static/"
 
 MEDIA_ROOT = "/media/"
 MEDIA_URL = "/media/"
+
+SITE_URL = 'https://pulsars.org.au/'  # with a trailing slash
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+DEFAULT_FROM_EMAIL = env("MEERTIME_EMAIL")
+
+EMAIL_HOST = 'mail.swin.edu.au'
+
+EMAIL_PORT = 25

@@ -1,12 +1,18 @@
 import { BrowserProtocol, queryMiddleware } from 'farce';
 import { Route, createFarceRouter, createRender, makeRouteConfig } from 'found';
 
+import AccountActivation from '../pages/AccountActivation';
 import Fold from '../pages/Fold';
 import FoldDetail from '../pages/FoldDetail';
 import Login from '../pages/Login';
+import PasswordChange from '../pages/PasswordChange';
+import PasswordReset from '../pages/PasswordReset';
+import PasswordResetRequest from '../pages/PasswordResetRequest';
 import React from 'react';
 import ReactGA from 'react-ga';
 import { RedirectException } from 'found';
+import Register from '../pages/Register';
+import RegisterVerify from '../pages/RegisterVerify';
 import { Resolver } from 'found-relay';
 import Search from '../pages/Search';
 import SearchmodeDetail from '../pages/SearchmodeDetail';
@@ -18,6 +24,7 @@ import environment from '../relayEnvironment';
 
 //Initialise Google Analytics
 const trackingID = 'UA-217876641-1';
+
 ReactGA.initialize(trackingID, { testMode: process.env.NODE_ENV === 'test' });
 ReactGA.set({
     username: localStorage.getItem('username')
@@ -42,6 +49,36 @@ const routeConfig = () => makeRouteConfig(
             path="/login/:next?"
             Component={Login}
             render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/activate/:code/"
+            Component={AccountActivation}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/register/"
+            Component={Register}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/password_reset/"
+            Component={PasswordReset}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/password_reset_request/"
+            Component={PasswordResetRequest}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/verify/:code/"
+            Component={RegisterVerify}
+            render={({ Component, props }) => renderTrackingRoute(Component, props)}
+        />
+        <Route
+            path="/password_change/"
+            Component={PasswordChange}
+            render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
             path="/search/"
