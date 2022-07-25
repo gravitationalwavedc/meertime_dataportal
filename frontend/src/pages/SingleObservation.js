@@ -26,6 +26,7 @@ const query = graphql`
             edges {
               node {
                 plotType
+                genericPlotType
                 resolution
                 process
                 url
@@ -37,10 +38,7 @@ const query = graphql`
     }
   }`;
 
-// Missing
-// snrSpip
-
-const SingleObservation = ({ match: { params: { jname, utc, beam } } }) => 
+const SingleObservation = ({ match: { params: { jname, utc, beam } } }) =>
     <QueryRenderer
         environment={environment}
         query={query}
@@ -49,7 +47,7 @@ const SingleObservation = ({ match: { params: { jname, utc, beam } } }) =>
             utc: utc,
             beam: beam
         }}
-        render = {({ props }) => props ? <SingleObservationTable data={props} jname={jname} /> : <h1>Loading...</h1>}
+        render={({ props }) => props ? <SingleObservationTable data={props} jname={jname} /> : <h1>Loading...</h1>}
     />;
 
 export default SingleObservation;

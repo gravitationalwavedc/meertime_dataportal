@@ -71,8 +71,8 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                     </Col>
                 </Row>
                 : null}
-            <Row className="single-observation-data">
-                <ImageGrid images={relayObservationModel.images} project={project} />
+            <ImageGrid images={relayObservationModel.images} project={project} />
+            <Row>
                 <Col md={8} xl={6}>
                     {Object.keys(dataItems).map(key =>
                         <DataDisplay key={key} title={key} value={dataItems[key]} full />

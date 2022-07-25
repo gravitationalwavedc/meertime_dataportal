@@ -25,6 +25,7 @@ class FoldDetailImageNode(DjangoObjectType):
     process = graphene.String()
     resolution = graphene.String()
     plot_type = graphene.String()
+    generic_plot_type = graphene.String()
 
 
 class FoldPulsarNode(DjangoObjectType):

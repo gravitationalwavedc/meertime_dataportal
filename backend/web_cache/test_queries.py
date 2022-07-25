@@ -169,6 +169,18 @@ def test_fold_detail_query():
                 snMeerpipe
                 flux
                 ephemeris
+                images {{
+                    edges {{
+                        node {{
+                            process
+                            resolution
+                            plotType
+                            genericPlotType
+                            imageType
+                            url
+                        }}
+                    }}
+                }}
               }}
             }}
           }}
@@ -204,6 +216,18 @@ def test_fold_detail_query():
                         'snBackend': 67.8,
                         'snMeerpipe': 42.1,
                         'flux': 1.22,
+                        'images': {
+                            'edges': [{
+                                'node': {
+                                    'genericPlotType': None,
+                                    'imageType': None,
+                                    'plotType': None,
+                                    'process': None,
+                                    'resolution': None,
+                                    'url': ''
+                                }
+                            }]
+                        },
                         'ephemeris': '{}'
                     }
                 }
