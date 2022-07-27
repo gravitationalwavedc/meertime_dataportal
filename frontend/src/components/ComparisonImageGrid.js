@@ -6,13 +6,14 @@ import { formatProjectName } from '../helpers';
 
 const ComparisonImageGrid = ({ rawImages, processedImages, openLightBox, project }) => {
     const comparisonImageTypes = [
-        { rawType:'band', processedType: 'bandpass' }, 
-        { rawType:'freq', processedType: 'freq' }, 
         { rawType:'flux', processedType: 'flux' }, 
-        { rawType:'snrt', processedType: 'snr-cumul' }, 
-        { rawType:'time', processedType: 'time' }
+        { rawType:'freq', processedType: 'freq' }, 
+        { rawType:'time', processedType: 'time' },
+        { rawType:'band', processedType: 'bandpass' }, 
+        { rawType:'snrt', processedType: 'snr-cumul' }
     ];
-    const toaImageTypes = ['toa-global', 'toa-single'];
+    
+    const extraImageOrder = ['calib-dynspec', 'profile-pol', 'snr-single', 'toa-single', 'zap-dynspec'];
 
     return <React.Fragment>
         <Row>
@@ -33,25 +34,30 @@ const ComparisonImageGrid = ({ rawImages, processedImages, openLightBox, project
                 openLightBox={openLightBox}
             />
         )}
-        <Row>
-            <Col/>
-            {processedImages.length > 0 && <Col>
-                {processedImages
-                    .filter(({ node }) => !toaImageTypes.includes(node.genericPlotType))
-                    .filter(
-                        ({ node }) => !comparisonImageTypes.some(
-                            imageType => imageType.processedType === node.genericPlotType
-                        )
-                    )
-                    .map(({ node }) =>
-                        <PlotImage 
-                            key={node.url}
-                            imageData={node}
-                            handleClick={() => openLightBox(node.url)} 
-                        />
-                    )}
-            </Col>}
-        </Row>
+        {processedImages.length > 0 && 
+            <React.Fragment>
+                <Row className="mt-5">
+                    <Col>
+                        <h5>
+                            Cleaned by {formatProjectName(project)}
+                        </h5>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        {extraImageOrder.map(imageType => {
+                            const edge = processedImages.find(({ node }) => node.plotType === imageType);
+                            if(edge === undefined) return null;
+                            return <PlotImage 
+                                key={imageType}
+                                imageData={edge.node}
+                                handleClick={() => openLightBox(edge.node.url)} 
+                            />;
+                        })}
+                    </Col>
+                </Row>
+            </React.Fragment>
+        }
     </React.Fragment>;
 };
 
