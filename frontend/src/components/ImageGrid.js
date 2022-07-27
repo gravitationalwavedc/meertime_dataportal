@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ComparisonImageGrid from './ComparisonImageGrid';
 import LightBox from 'react-image-lightbox';
+import PlotImage from './PlotImage';
 import ToaImages from './ToaImages';
 
 const ImageGrid = ({ images, project }) => {
@@ -40,11 +41,19 @@ const ImageGrid = ({ images, project }) => {
             processedImages={processedImages}
             handleLightBox={openLightBox}
         />
-        <ComparisonImageGrid 
+        { processedImages.length > 0 ? <ComparisonImageGrid 
             rawImages={rawImages}
             processedImages={processedImages}
             openLightBox={openLightBox}
-            project={project}/>
+            project={project}/> : 
+            rawImages.map(({ node }) =>
+                <PlotImage 
+                    key={node.url}
+                    imageData={node}
+                    handleClick={() => openLightBox(node.url)} 
+                />
+            )
+        } 
         {isLightBoxOpen &&
                 <LightBox
                     mainSrc={`${process.env.REACT_APP_MEDIA_URL}${lightBoxImages.images[lightBoxImages.imagesIndex]}`}

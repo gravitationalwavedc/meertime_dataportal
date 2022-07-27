@@ -56,6 +56,8 @@ export const scaleValue = (value, from, to) => {
 };
 
 export const formatProjectName = (projectName) => {
+    if(!projectName) return null;    
+
     const projectDisplayNames = {
         relbin: 'RelBin',
         gc: 'GC',
