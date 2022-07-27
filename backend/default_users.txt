@@ -1,0 +1,2 @@
+meertime,<replace-with-password>,meertime@nonexistent.com,UNRESTRICTED
+meertime-svc,<replace-with-password>,meertime-svc@nonexistent.com,RESTRICTED
