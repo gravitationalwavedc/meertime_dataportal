@@ -16,21 +16,21 @@ def send_verification_email(
 ):
 
     from_email = settings.DEFAULT_FROM_EMAIL if from_email is None else from_email
-    subject = 'Please verify your email address'
+    subject = '[MeerTime] Please verify your email address'
     verification_link = get_verification_link(verification_code)
 
-    text_content = f'Dear {first_name} {last_name}, You have requested an account with Meertime using this email ' \
+    text_content = f'Dear {first_name} {last_name}, You have requested an account with MeerTime using this email ' \
                    f'address. Please click on the following link to verify your email address: {verification_link} . ' \
                    f'If you believe this email is sent to you by mistake please contact us at ' \
-                   f'support@hpc.swin.edu.au . Kind Regards, Meertime Support Team'
+                   f'support@hpc.swin.edu.au . Kind Regards, MeerTime Support Team'
     html_content = f'<p>Dear {first_name} {last_name},</p>' \
-                   f'<p>You have requested an account with Meertime using this email address. Please click on the ' \
+                   f'<p>You have requested an account with MeerTime using this email address. Please click on the ' \
                    f'following <a href=\'{verification_link}\' target=\'_blank\'>link</a> to verify your email ' \
                    f'address:</p>' \
                    f'<p><a href=\'{verification_link}\' target=\'_blank\'>{verification_link}</a></p>' \
                    f'<p>If you believe this email is sent to you by mistake please contact us at ' \
                    f'support@hpc.swin.edu.au</p>' \
-                   f'<p>Kind Regards,<br/>Meertime Support Team</p>'
+                   f'<p>Kind Regards,<br/>MeerTime Support Team</p>'
     msg = EmailMultiAlternatives(
         subject=subject,
         body=text_content,
@@ -50,19 +50,19 @@ def send_password_reset_email(
     from_email=None,
 ):
     from_email = settings.DEFAULT_FROM_EMAIL if from_email is None else from_email
-    subject = 'Your password reset code for Meertime account.'
+    subject = '[MeerTime] Your password reset code.'
 
-    text_content = f'Dear {first_name} {last_name}, You have requested to reset your password for the Meertime ' \
+    text_content = f'Dear {first_name} {last_name}, You have requested to reset your password for the MeerTime ' \
                    f'account. Here is the verification code for your password reset: {verification_code} . ' \
                    f'If you believe this email is sent to you by mistake please contact us at ' \
-                   f'support@hpc.swin.edu.au . Kind Regards, Meertime Support Team'
+                   f'support@hpc.swin.edu.au . Kind Regards, MeerTime Support Team'
     html_content = f'<p>Dear {first_name} {last_name},</p>' \
-                   f'<p>You have requested to reset your password for the Meertime account. Here is the verification ' \
+                   f'<p>You have requested to reset your password for the MeerTime account. Here is the verification ' \
                    f'code for your password reset: </p>' \
                    f'<p>{verification_code}</p>' \
                    f'<p>If you believe this email is sent to you by mistake please contact us at ' \
                    f'support@hpc.swin.edu.au</p>' \
-                   f'<p>Kind Regards,<br/>Meertime Support Team</p>'
+                   f'<p>Kind Regards,<br/>MeerTime Support Team</p>'
     msg = EmailMultiAlternatives(
         subject=subject,
         body=text_content,
@@ -84,29 +84,30 @@ def send_activation_email(
         from_email=None,
 ):
     from_email = settings.DEFAULT_FROM_EMAIL if from_email is None else from_email
-    subject = 'Please activate your Meertime Account'
+    subject = '[MeerTime] Please activate your account'
     activation_link = get_activation_link(activation_code)
 
-    text_content = f'Dear Meertime user, We have been upgrading the user management system for the Meertime portal. ' \
-                   f'As part of the upgrade, the current meertime user will be retired in 30 days. ' \
-                   f'To use meertime portal after that, you would require to have your own personal account. We have ' \
-                   f'created a provisional account using this email address \'{to}\'. You would need to activate ' \
-                   f'your account and set a password. Please click on the following link to do that: ' \
-                   f'{activation_link} . ' \
-                   f'If you believe this email is sent to you by mistake please contact us at ' \
-                   f'support@hpc.swin.edu.au . Kind Regards, Meertime Support Team'
-    html_content = f'<p>Dear Meertime user,</p>' \
-                   f'<p>We have been upgrading the user management system for the Meertime portal. As part of the ' \
-                   f'upgrade, the current meertime user will be retired in 30 days. To use meertime portal after ' \
-                   f'that, you would require to have your own personal account. We have created a provisional ' \
-                   f'account using this email address \'{to}\'. You would need to activate your account and set a ' \
-                   f'password.</p>' \
+    text_content = f'Dear MeerTime user, We are upgrading the user management system for the MeerTime portal. As ' \
+                   f'part of this upgrade, the single MeerTime account (meertime) that users have been accessing the ' \
+                   f'system with will be retired on 31st of August 2022. To use the MeerTime portal thereafter, ' \
+                   f'every user will require their own personal account. We have created a provisional account for ' \
+                   f'you using this email address \'{to}\'. You will need to activate it (with the link below) and ' \
+                   f'will be asked to set a password at that time. Please click on the following link to activate ' \
+                   f'your new account: {activation_link} . If you believe this email has been incorrectly sent to ' \
+                   f'you, please let us know at support@hpc.swin.edu.au . Kind Regards, MeerTime Support Team'
+    html_content = f'<p>Dear MeerTime user,</p>' \
+                   f'<p>We are upgrading the user management system for the MeerTime portal. As part of this ' \
+                   f'upgrade, the single MeerTime account (meertime) that users have been accessing the system with ' \
+                   f'will be retired on 31st of August 2022. To use the MeerTime portal thereafter, every user will ' \
+                   f'require their own personal account. We have created a provisional account for you using this ' \
+                   f'email address \'{to}\'. You will need to activate it (with the link below) and will be asked to ' \
+                   f'set a password at that time.</p>' \
                    f'<p>Please click on the following <a href=\'{activation_link}\' target=\'_blank\'>link</a> to ' \
-                   f'do that:</p>' \
+                   f'activate your new account:</p>' \
                    f'<p><a href=\'{activation_link}\' target=\'_blank\'>{activation_link}</a></p>' \
-                   f'<p>If you believe this email is sent to you by mistake please contact us at ' \
+                   f'<p>If you believe this email has been incorrectly sent to you, please let us know at ' \
                    f'support@hpc.swin.edu.au</p>' \
-                   f'<p>Kind Regards,<br/>Meertime Support Team</p>'
+                   f'<p>Kind Regards,<br/>MeerTime Support Team</p>'
     msg = EmailMultiAlternatives(
         subject=subject,
         body=text_content,

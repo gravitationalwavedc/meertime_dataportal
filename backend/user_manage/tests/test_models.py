@@ -66,7 +66,7 @@ class RegistrationTest(TestCase):
     def test_verification_email_sent(self):
         Registration.objects.create(**self.user_details)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, 'Please verify your email address')
+        self.assertEqual(mail.outbox[0].subject, '[MeerTime] Please verify your email address')
 
     def test_verify_user_created(self):
         registration = Registration.objects.create(**self.user_details)
@@ -117,7 +117,7 @@ class ProvisionalUserTest(TestCase):
 
         assert provisional_user.email_sent
         assert len(mail.outbox) == 1
-        assert mail.outbox[0].subject == 'Please activate your Meertime Account'
+        assert mail.outbox[0].subject == '[MeerTime] Please activate your account'
 
         assert provisional_user.user.role == UserRole.UNRESTRICTED.value
         assert not provisional_user.user.is_active
