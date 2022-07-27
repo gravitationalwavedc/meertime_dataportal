@@ -50,7 +50,7 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
             </Row>
             {projectChoices.length >= 1 ?
                 <Row className="mt-2">
-                    <Col md={2}>
+                    <Col sm={4} md={4}>
                         <Form.Group controlId="mainProjectSelect">
                             <Form.Label>Cleaned Data Project</Form.Label>
                             <Form.Control
@@ -71,9 +71,11 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                     </Col>
                 </Row>
                 : null}
-            <Row className="single-observation-data">
-                <ImageGrid images={relayObservationModel.images} project={project} />
-                <Col md={8} xl={6}>
+            <Row>
+                <Col>
+                    <ImageGrid images={relayObservationModel.images} project={project} />
+                </Col>
+                <Col lg={4}>
                     {Object.keys(dataItems).map(key =>
                         <DataDisplay key={key} title={key} value={dataItems[key]} full />
                     )}

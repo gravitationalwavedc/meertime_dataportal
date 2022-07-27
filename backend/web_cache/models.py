@@ -245,6 +245,10 @@ class FoldDetailImage(models.Model):
         return self.image_type.split('.')[-2]
 
     @property
+    def generic_plot_type(self):
+        return next((key for key, values in PLOT_NAMES.items() if self.plot_type in values), self.plot_type)
+
+    @property
     def resolution(self):
         # Resolution is either 'hi', 'lo' or size in the form '300x240'
         # We will assume anything with a height lower than 600 is 'lo' res
