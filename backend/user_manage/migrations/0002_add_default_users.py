@@ -3,53 +3,56 @@ from django.contrib.auth.hashers import make_password
 
 from utils.constants import UserRole
 
+import os
+
+SHARED_MEERTIME_USER_ID = os.environ.get('SHARED_MEERTIME_USER_ID')
+SHARED_MEERTIME_USER_PASS = os.environ.get('SHARED_MEERTIME_USER_PASS')
+SHARED_MEERTIME_USER_EMAIL = os.environ.get('SHARED_MEERTIME_USER_EMAIL')
+SHARED_MEERTIME_USER_ACCESS = os.environ.get('SHARED_MEERTIME_USER_ACCESS')
+
+SERVICE_MEERTIME_USER_ID = os.environ.get('SERVICE_MEERTIME_USER_ID')
+SERVICE_MEERTIME_USER_PASS = os.environ.get('SERVICE_MEERTIME_USER_PASS')
+SERVICE_MEERTIME_USER_EMAIL = os.environ.get('SERVICE_MEERTIME_USER_EMAIL')
+SERVICE_MEERTIME_USER_ACCESS = os.environ.get('SERVICE_MEERTIME_USER_ACCESS')
+
 
 def add_default_users(apps, schema_editor):
-    filename = 'default_users.txt'
-    print('Reading email addresses from the file')
-    try:
-        with open(filename, "r") as f:
-            user_details = f.readlines()
-    except FileNotFoundError:
-        print(f'File not found with name: {filename}')
-    except Exception as ex:
-        print(ex)
-
     User = apps.get_model('user_manage', 'User')
 
-    for details in user_details:
-        credentials = details.split(',')
+    # Setting the role of the user(s)
+    if SHARED_MEERTIME_USER_ACCESS.strip().casefold() == UserRole.ADMIN.value.casefold():
+        role = UserRole.ADMIN.value
+    elif SHARED_MEERTIME_USER_ACCESS.strip().casefold() == UserRole.UNRESTRICTED.value.casefold():
+        role = UserRole.UNRESTRICTED.value
+    else:
+        role = UserRole.RESTRICTED.value
 
-        # Setting the role of the user(s)
-        if credentials[3].strip().casefold() == UserRole.ADMIN.value.casefold():
-            role = UserRole.ADMIN.value
-        elif credentials[3].strip().casefold() == UserRole.UNRESTRICTED.value.casefold():
-            role = UserRole.UNRESTRICTED.value
-        else:
-            role = UserRole.RESTRICTED.value
+    User.objects.create(
+        username=SHARED_MEERTIME_USER_ID.strip(),
+        password=make_password(SHARED_MEERTIME_USER_PASS.strip()),
+        email=SHARED_MEERTIME_USER_EMAIL.strip(),
+        role=role,
+    )
 
-        User.objects.create(
-            username=credentials[0].strip(),
-            password=make_password(credentials[1].strip()),
-            email=credentials[2].strip(),
-            role=role,
-        )
+    if SERVICE_MEERTIME_USER_ACCESS.strip().casefold() == UserRole.ADMIN.value.casefold():
+        role = UserRole.ADMIN.value
+    elif SERVICE_MEERTIME_USER_ACCESS.strip().casefold() == UserRole.UNRESTRICTED.value.casefold():
+        role = UserRole.UNRESTRICTED.value
+    else:
+        role = UserRole.RESTRICTED.value
+
+    User.objects.create(
+        username=SERVICE_MEERTIME_USER_ID.strip(),
+        password=make_password(SERVICE_MEERTIME_USER_PASS.strip()),
+        email=SERVICE_MEERTIME_USER_EMAIL.strip(),
+        role=role,
+    )
 
 
 def remove_default_users(apps, schema_editor):
-    filename = 'default_users.txt'
-    print('Reading email addresses from the file')
-    try:
-        with open(filename, "r") as f:
-            user_details = f.readlines()
-    except FileNotFoundError:
-        print(f'File not found with name: {filename}')
-    except Exception as ex:
-        print(ex)
-
     User = apps.get_model('user_manage', 'User')
 
-    for details in user_details:
+    for details in [SHARED_MEERTIME_USER_ID, SERVICE_MEERTIME_USER_ID]:
         credentials = details.split(',')
         User.objects.get(
             username=credentials[0],
@@ -57,7 +60,6 @@ def remove_default_users(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('user_manage', '0001_initial'),
     ]

@@ -23,6 +23,17 @@ GMAIL_ACCOUNT_PASSWORD=gmail_account_password
 
 # Meertime email for sending email (Swinburne)
 MEERTIME_EMAIL=meertime_email@swin.edu.au
+
+# MeerTime user account details
+SHARED_MEERTIME_USER_ID=meertime
+SHARED_MEERTIME_USER_PASS=<your-password>
+SHARED_MEERTIME_USER_EMAIL=meertime@nonexistent.com
+SHARED_MEERTIME_USER_ACCESS=UNRESTRICTED
+
+SERVICE_MEERTIME_USER_ID=meertime-svc
+SERVICE_MEERTIME_USER_PASS=<your_password>
+SERVICE_MEERTIME_USER_EMAIL=meertime-svc@nonexistent.com
+SERVICE_MEERTIME_USER_ACCESS=RESTRICTED
 ```
 3. To use console backend for testing you can uncomment the following line in `/backend/meertime/settings/development.py`
 ```python
