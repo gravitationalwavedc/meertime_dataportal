@@ -10,7 +10,7 @@ def add_permission(apps, schema_editor):
     permissions = Permission.objects.filter(content_type__app_label='dataportal', codename__iregex=r'^add_')
     for p in permissions:
         svc_user.user_permissions.add(p)
-        print('User {} has been granted the permission Permission {}'.format(svc_user.username, p.codename))
+        print(f'User {svc_user.username} has been granted the permission Permission {p.codename}')
 
 
 def remove_permission(apps, schema_editor):
@@ -20,7 +20,7 @@ def remove_permission(apps, schema_editor):
 
     svc_user.user_permissions.filter(content_type__app_label='dataportal', codename__iregex=r'^add_').delete()
 
-    print('All add permissions of {} user for {} model have been scraped'.format(svc_user.username, 'dataportal'))
+    print(f'All add permissions of {svc_user.username} user for dataportal models have been scraped')
 
 
 class Migration(migrations.Migration):
