@@ -11,7 +11,7 @@ This application provides a ReactJS frontend for access to the MeerTime project 
 * Python VirtualEnv
 
 ### To run on your local machine
-* MySQL server 
+* MySQL server
 
 ### To run in Docker
 * Docker
@@ -25,7 +25,7 @@ This application provides a ReactJS frontend for access to the MeerTime project 
 
 1. Clone the repository.
 2. Install python packages using [python poetry](https://python-poetry.org/):
-Run `poetry install --no-dev` for minimum install. This only installs required production packages.  
+Run `poetry install --no-dev` for minimum install. This only installs required production packages.
 Run `poetry install` to also install development packages such as testing tools.
 
 3. `cd src`
@@ -57,7 +57,7 @@ and execute the following:
 
 `python manage.py createsuperuser`
 
-You likely want to create at least one user via the admin page (available at http://localhost:8000/admin) although the admin user will be able to view the data as well. If you want to mimick the actual setup more closely, you can also setup a second user with permissions to create observations (`dataportal | observations | Can add observations`) and use that user for ingesting data. 
+You likely want to create at least one user via the admin page (available at http://localhost:8000/admin) although the admin user will be able to view the data as well. If you want to mimick the actual setup more closely, you can also setup a second user with permissions to create observations (`dataportal | observations | Can add observations`) and use that user for ingesting data.
 
 
 #### To use development mode in docker-compose
@@ -101,7 +101,7 @@ Contributions can be made to the code base on Phabricator via arcanist. All diff
 
 ### Testing
 
-To manually run tests, execute `poetry run pytest` (or simply `pytest` if running in a shell spawned by `poetry shell`) while in the `src` directory. 
+To manually run tests, execute `poetry run pytest` (or simply `pytest` if running in a shell spawned by `poetry shell`) while in the `src` directory.
 
 ### Arcanist workflow
 

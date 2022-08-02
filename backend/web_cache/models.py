@@ -2,8 +2,6 @@ import math
 from datetime import datetime
 from dateutil import parser
 from django.db import models
-from django.db.models import Max, Value
-from django.db.models.functions import Coalesce
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings
 from django_mysql.models import JSONField
 from statistics import mean
@@ -67,12 +65,10 @@ class BasePulsar(models.Model):
             "S-Band": {"centre_frequency": 2625.0, "allowed_deviation": 200.0},
         }
 
-        # For band check to work the frequency must be either an int or a float.
-        for band in bands.keys():
-            if abs(float(frequency) - bands[band]["centre_frequency"]) < bands[band]["allowed_deviation"]:
-                return band
-
-        return 'UNKNOWN'
+        return next((
+            band for band, frequencies in bands.items()
+            if abs(float(frequency) - frequencies["centre_frequency"]) < frequencies["allowed_deviation"]
+        ), "UNKNOWN")
 
     @classmethod
     def get_by_session(cls, session):
@@ -330,13 +326,13 @@ class FoldPulsarDetail(models.Model):
         project_priority_order = [project for project in project_priority if project is not pipeline_name]
 
         try:
-            # We want the flux value set to the real project if there is one. 
+            # We want the flux value set to the real project if there is one.
             flux = folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('flux', None)
-            
+
             if flux is not None:
                 return flux
 
-            # Its better to have a value from another project than no value at all. 
+            # Its better to have a value from another project than no value at all.
             for project in project_priority_order:
                 flux = folding.processing.processings_set.get(pipeline__name=project).results.get('flux', None)
                 if flux is not None:
@@ -696,16 +692,15 @@ class SessionPulsar(models.Model):
     def update_or_create(cls, session, pulsar):
         if isinstance(pulsar, SearchmodePulsar):
             last_observation = pulsar.searchmodepulsardetail_set.filter(utc__range=(session.start, session.end)).last()
-            images = None 
+            images = None
             fold_pulsar = None
             search_pulsar = pulsar
-        else:
+        elif isinstance(pulsar, FoldPulsar):
             last_observation = pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end)).last()
-            images = last_observation.images.all() 
+            images = last_observation.images.all()
             fold_pulsar = pulsar
             search_pulsar = None
-
-        if not last_observation:
+        else:
             return False, None
 
         return cls.objects.update_or_create(
@@ -720,10 +715,14 @@ class SessionPulsar(models.Model):
                 "beam": last_observation.beam,
                 "frequency": last_observation.frequency,
                 "flux_hi": cls.get_session_image(images, 'flux'),
-                "flux_lo": cls.get_session_image(images, 'flux', 'lo'),
+                "flux_lo": cls.get_session_image(images, 'flux'),
                 "phase_vs_frequency_hi": cls.get_session_image(images, 'freq'),
-                "phase_vs_frequency_lo": cls.get_session_image(images, 'freq', 'lo'),
+                "phase_vs_frequency_lo": cls.get_session_image(images, 'freq'),
                 "phase_vs_time_hi": cls.get_session_image(images, 'time'),
-                "phase_vs_time_lo": cls.get_session_image(images,'time', 'lo'),
+                "phase_vs_time_lo": cls.get_session_image(images, 'time'),
+                # Add the low back in if they get processed
+                # "flux_lo": cls.get_session_image(images, 'flux', 'lo'),
+                # "phase_vs_frequency_lo": cls.get_session_image(images, 'freq', 'lo'),
+                # "phase_vs_time_lo": cls.get_session_image(images, 'time', 'lo'),
             },
         )
