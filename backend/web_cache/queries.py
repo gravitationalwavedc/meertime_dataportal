@@ -73,7 +73,6 @@ class FoldPulsarDetailNode(DjangoObjectType):
         # by default, we assume that the user is restricted
         restricted = True
         try:
-
             # checking whether the user is restricted or not
             restricted = info.context.user.role.casefold() == constants.UserRole.RESTRICTED.value.casefold()
 
@@ -83,8 +82,7 @@ class FoldPulsarDetailNode(DjangoObjectType):
             else:
                 # if the user is not restricted, we return False (restricted)
                 return restricted
-        except:
-
+        except Exception:
             # default fallback to restricted (True)
             return restricted
 
@@ -134,13 +132,13 @@ class FoldPulsarConnection(relay.Connection):
     total_observation_time = graphene.Int()
 
     def resolve_total_observations(self, instance):
-        return sum([edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations])
+        return sum(edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations)
 
     def resolve_total_pulsars(self, instance):
         return len(self.edges)
 
     def resolve_total_observation_time(self, instance):
-        return round(sum([edge.node.total_integration_hours for edge in self.edges]), 1)
+        return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
 
 
 class FoldPulsarDetailConnection(relay.Connection):
@@ -163,15 +161,15 @@ class FoldPulsarDetailConnection(relay.Connection):
         return len(self.edges)
 
     def resolve_total_observation_hours(self, instance):
-        return round(sum([float(observation.length) for observation in self.iterable]) / 3600, 1)
+        return round(sum(float(observation.length) for observation in self.iterable) / 3600, 1)
 
     def resolve_total_projects(self, instance):
         return len({observation.project for observation in self.iterable})
 
     def resolve_total_timespan_days(self, instance):
         if self.iterable:
-            max_utc = max([observation.utc for observation in self.iterable])
-            min_utc = min([observation.utc for observation in self.iterable])
+            max_utc = max(observation.utc for observation in self.iterable)
+            min_utc = min(observation.utc for observation in self.iterable)
             duration = max_utc - min_utc
             # Add 1 day to the end result because the timespan should show the rounded up number of days
             return duration.days + 1
@@ -197,7 +195,7 @@ class SearchmodePulsarConnections(relay.Connection):
     total_pulsars = graphene.Int()
 
     def resolve_total_observations(self, instance):
-        return sum([edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations])
+        return sum(edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations)
 
     def resolve_total_pulsars(self, instance):
         return len(self.edges)
@@ -218,8 +216,8 @@ class SearchmodePulsarDetailConnection(relay.Connection):
         return len({observation.project for observation in self.iterable})
 
     def resolve_total_timespan_days(self, instance):
-        max_utc = max([observation.utc for observation in self.iterable])
-        min_utc = min([observation.utc for observation in self.iterable])
+        max_utc = max(observation.utc for observation in self.iterable)
+        min_utc = min(observation.utc for observation in self.iterable)
         duration = max_utc - min_utc
         # Add 1 day to the end result because the timespan should show the rounded up number of days
         return duration.days + 1 if duration else 0

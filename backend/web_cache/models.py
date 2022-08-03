@@ -2,8 +2,6 @@ import math
 from datetime import datetime
 from dateutil import parser
 from django.db import models
-from django.db.models import Max, Value
-from django.db.models.functions import Coalesce
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings
 from django_mysql.models import JSONField
 from statistics import mean
@@ -67,12 +65,10 @@ class BasePulsar(models.Model):
             "S-Band": {"centre_frequency": 2625.0, "allowed_deviation": 200.0},
         }
 
-        # For band check to work the frequency must be either an int or a float.
-        for band in bands.keys():
-            if abs(float(frequency) - bands[band]["centre_frequency"]) < bands[band]["allowed_deviation"]:
-                return band
-
-        return 'UNKNOWN'
+        return next((
+            band for band, frequencies in bands.items()
+            if abs(float(frequency) - frequencies["centre_frequency"]) < frequencies["allowed_deviation"]
+        ), "UNKNOWN")
 
     @classmethod
     def get_by_session(cls, session):
@@ -232,7 +228,7 @@ class FoldPulsar(BasePulsar):
 
         sqrt_300 = 17.3205080757
 
-        return max([(o['snr'] / math.sqrt(o['length']) * sqrt_300) for o in observation_results])
+        return max((o['snr'] / math.sqrt(o['length']) * sqrt_300) for o in observation_results)
 
 
 class FoldDetailImage(models.Model):
@@ -281,8 +277,8 @@ class FoldPulsarDetail(models.Model):
     nant = models.IntegerField(null=True)
     nant_eff = models.IntegerField(null=True)
     dm_fold = models.DecimalField(max_digits=12, decimal_places=4, null=True)
-    dm_meerpipe = models.DecimalField(max_digits=12, decimal_places=2, null=True)
-    rm_meerpipe = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    dm_meerpipe = models.DecimalField(max_digits=12, decimal_places=4, null=True)
+    rm_meerpipe = models.DecimalField(max_digits=12, decimal_places=4, null=True)
     sn_backend = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     sn_meerpipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     flux = models.DecimalField(max_digits=12, decimal_places=6, null=True)
@@ -330,13 +326,13 @@ class FoldPulsarDetail(models.Model):
         project_priority_order = [project for project in project_priority if project is not pipeline_name]
 
         try:
-            # We want the flux value set to the real project if there is one. 
+            # We want the flux value set to the real project if there is one.
             flux = folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('flux', None)
-            
+
             if flux is not None:
                 return flux
 
-            # Its better to have a value from another project than no value at all. 
+            # Its better to have a value from another project than no value at all.
             for project in project_priority_order:
                 flux = folding.processing.processings_set.get(pipeline__name=project).results.get('flux', None)
                 if flux is not None:
@@ -350,23 +346,23 @@ class FoldPulsarDetail(models.Model):
         pulsar = folding.folding_ephemeris.pulsar
         observation = folding.processing.observation
 
-        if not observation.project.program:
-            return
-
-        main_project = observation.project.program.name
-
         try:
+            main_project = observation.project.program.name
             fold_pulsar = FoldPulsar.objects.get(jname=pulsar.jname, main_project=main_project)
         except FoldPulsar.DoesNotExist:
             print("FoldPulsar ", pulsar.jname, main_project, " does not exist")
             return
+        except AttributeError:
+            # If an observation doesn't have a project or program we want to skip it.
+            # Hopefully this never happens.
+            return
 
-        # calculate and set the embargo end date from observation and main project.
-        # at this stage, we use the observation utc_start and main_project's embargo_period to do the calculation
-        # later we will apply the processing.embargo_end as well
+        # Calculate and set the embargo end date from observation and main project.
+        # At this stage, we use the observation utc_start and main_project's embargo_period to do the calculation,
+        # later we will apply the processing.embargo_end as well.
         embargo_end_date = observation.utc_start + observation.project.embargo_period
 
-        results = folding.processing.results if folding.processing.results else {}
+        results = folding.processing.results or {}
         pipeline_name = f"MeerPIPE_{observation.project.short}"
         sn_meerpipe = cls.get_sn_meerpipe(folding, pipeline_name)
         flux = cls.get_flux(folding, pipeline_name)
@@ -452,7 +448,7 @@ class SearchmodePulsarDetail(models.Model):
     nbit = models.IntegerField()
     nant_eff = models.IntegerField(null=True)
     npol = models.IntegerField()
-    dm = models.DecimalField(max_digits=12, decimal_places=2)
+    dm = models.DecimalField(max_digits=12, decimal_places=4)
     tsamp = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
@@ -582,7 +578,7 @@ class SessionDisplay(models.Model):
             )
         )
 
-        total_integration = sum([session.integrations for session in session_pulsars])
+        total_integration = sum(session.integrations for session in session_pulsars)
 
         # Because we only create a new session per start time we need to work out if we need to keep the old end or use
         # the new one based on which is later. This is fixes an issue with the way Sessions are created in the ingest.
@@ -696,16 +692,15 @@ class SessionPulsar(models.Model):
     def update_or_create(cls, session, pulsar):
         if isinstance(pulsar, SearchmodePulsar):
             last_observation = pulsar.searchmodepulsardetail_set.filter(utc__range=(session.start, session.end)).last()
-            images = None 
+            images = None
             fold_pulsar = None
             search_pulsar = pulsar
-        else:
+        elif isinstance(pulsar, FoldPulsar):
             last_observation = pulsar.foldpulsardetail_set.filter(utc__range=(session.start, session.end)).last()
-            images = last_observation.images.all() 
+            images = last_observation.images.all()
             fold_pulsar = pulsar
             search_pulsar = None
-
-        if not last_observation:
+        else:
             return False, None
 
         return cls.objects.update_or_create(
@@ -720,10 +715,14 @@ class SessionPulsar(models.Model):
                 "beam": last_observation.beam,
                 "frequency": last_observation.frequency,
                 "flux_hi": cls.get_session_image(images, 'flux'),
-                "flux_lo": cls.get_session_image(images, 'flux', 'lo'),
+                "flux_lo": cls.get_session_image(images, 'flux'),
                 "phase_vs_frequency_hi": cls.get_session_image(images, 'freq'),
-                "phase_vs_frequency_lo": cls.get_session_image(images, 'freq', 'lo'),
+                "phase_vs_frequency_lo": cls.get_session_image(images, 'freq'),
                 "phase_vs_time_hi": cls.get_session_image(images, 'time'),
-                "phase_vs_time_lo": cls.get_session_image(images,'time', 'lo'),
+                "phase_vs_time_lo": cls.get_session_image(images, 'time'),
+                # Add the low back in if they get processed
+                # "flux_lo": cls.get_session_image(images, 'flux', 'lo'),
+                # "phase_vs_frequency_lo": cls.get_session_image(images, 'freq', 'lo'),
+                # "phase_vs_time_lo": cls.get_session_image(images, 'time', 'lo'),
             },
         )
