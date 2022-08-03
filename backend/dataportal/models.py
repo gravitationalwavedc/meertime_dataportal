@@ -228,7 +228,7 @@ class Processings(Model):
     location = models.CharField(max_length=255)
     job_state = models.CharField(max_length=255, blank=True, null=True)
     job_output = JSONField(blank=True, null=True)
-    # TODO we would like to use results as part of the unique constraint but same problem as in the 
+    # TODO we would like to use results as part of the unique constraint but same problem as in the
     # ephemeris class (see the comment there)
     results = JSONField(blank=True, null=True)
 

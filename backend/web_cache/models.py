@@ -228,7 +228,7 @@ class FoldPulsar(BasePulsar):
 
         sqrt_300 = 17.3205080757
 
-        return max([(o['snr'] / math.sqrt(o['length']) * sqrt_300) for o in observation_results])
+        return max((o['snr'] / math.sqrt(o['length']) * sqrt_300) for o in observation_results)
 
 
 class FoldDetailImage(models.Model):
@@ -277,8 +277,8 @@ class FoldPulsarDetail(models.Model):
     nant = models.IntegerField(null=True)
     nant_eff = models.IntegerField(null=True)
     dm_fold = models.DecimalField(max_digits=12, decimal_places=4, null=True)
-    dm_meerpipe = models.DecimalField(max_digits=12, decimal_places=2, null=True)
-    rm_meerpipe = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    dm_meerpipe = models.DecimalField(max_digits=12, decimal_places=4, null=True)
+    rm_meerpipe = models.DecimalField(max_digits=12, decimal_places=4, null=True)
     sn_backend = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     sn_meerpipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     flux = models.DecimalField(max_digits=12, decimal_places=6, null=True)
@@ -346,23 +346,23 @@ class FoldPulsarDetail(models.Model):
         pulsar = folding.folding_ephemeris.pulsar
         observation = folding.processing.observation
 
-        if not observation.project.program:
-            return
-
-        main_project = observation.project.program.name
-
         try:
+            main_project = observation.project.program.name
             fold_pulsar = FoldPulsar.objects.get(jname=pulsar.jname, main_project=main_project)
         except FoldPulsar.DoesNotExist:
             print("FoldPulsar ", pulsar.jname, main_project, " does not exist")
             return
+        except AttributeError:
+            # If an observation doesn't have a project or program we want to skip it.
+            # Hopefully this never happens.
+            return
 
-        # calculate and set the embargo end date from observation and main project.
-        # at this stage, we use the observation utc_start and main_project's embargo_period to do the calculation
-        # later we will apply the processing.embargo_end as well
+        # Calculate and set the embargo end date from observation and main project.
+        # At this stage, we use the observation utc_start and main_project's embargo_period to do the calculation,
+        # later we will apply the processing.embargo_end as well.
         embargo_end_date = observation.utc_start + observation.project.embargo_period
 
-        results = folding.processing.results if folding.processing.results else {}
+        results = folding.processing.results or {}
         pipeline_name = f"MeerPIPE_{observation.project.short}"
         sn_meerpipe = cls.get_sn_meerpipe(folding, pipeline_name)
         flux = cls.get_flux(folding, pipeline_name)
@@ -578,7 +578,7 @@ class SessionDisplay(models.Model):
             )
         )
 
-        total_integration = sum([session.integrations for session in session_pulsars])
+        total_integration = sum(session.integrations for session in session_pulsars)
 
         # Because we only create a new session per start time we need to work out if we need to keep the old end or use
         # the new one based on which is later. This is fixes an issue with the way Sessions are created in the ingest.
