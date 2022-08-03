@@ -448,7 +448,7 @@ class SearchmodePulsarDetail(models.Model):
     nbit = models.IntegerField()
     nant_eff = models.IntegerField(null=True)
     npol = models.IntegerField()
-    dm = models.DecimalField(max_digits=12, decimal_places=2)
+    dm = models.DecimalField(max_digits=12, decimal_places=4)
     tsamp = models.DecimalField(max_digits=12, decimal_places=2)
 
     class Meta:
