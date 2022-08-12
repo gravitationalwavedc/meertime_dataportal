@@ -20,6 +20,8 @@ from .types import (
     ProvisionalUserType,
 )
 
+from . import admin_api
+
 UserModel = django.contrib.auth.get_user_model()
 
 
@@ -310,7 +312,7 @@ class PasswordChange(graphene.Mutation):
             )
 
 
-class Mutation(graphene.ObjectType):
+class Mutation(admin_api.Mutation, graphene.ObjectType):
     create_registration = CreateRegistration.Field()
     verify_registration = VerifyRegistration.Field()
     create_password_reset_request = CreatePasswordResetRequest.Field()
