@@ -10,21 +10,24 @@ API_END_POINT = os.environ.get("API_END_POINT")
 
 USAGE = \
     """
-    Usage: delete_user -u '<username>'
+    Usage: update_role -u '<username> -r '<role>'
         
     -u | --user
-        username of the user to be deleted
+        username of the user to be deactivated
+        
+    -r | --role
+        role (restricted/unrestricted) of the user
     """
 
-USAGE_SHORT = "Usage: delete_user -u '<username>'"
+USAGE_SHORT = "Usage: update_role -u '<username>' -r '<role>'"
 
 
-def delete_user(token, username):
+def update_role(token, username, role):
     headers = {"Authorization": f"JWT {token}"}
     query = \
         """
-          mutation DeleteUser($username: String!) {
-            deleteUser(username: $username) {
+          mutation UpdateRole($username: String!, $role: String!) {
+            updateRole(username: $username, role: $role) {
               ok,
               errors,
             }
@@ -33,34 +36,38 @@ def delete_user(token, username):
 
     variables = {
         'username': username,
+        'role': role,
     }
 
     try:
         response = requests.post(url=API_END_POINT, json={"query": query, "variables": variables}, headers=headers)
         json_response = response.json()
 
-        if json_response["data"]["deleteUser"]["ok"]:
-            return f'User with username {username} has been deleted.'
+        if json_response["data"]["updateRole"]["ok"]:
+            return f'Role for the {username} has been updated to {role}.'
         else:
-            return f'User deletion failed for username {username} due to {json_response["data"]["deleteUser"]["errors"][0]}'
+            return f'Updating role for username {username} failed due to {json_response["data"]["updateRole"]["errors"][0]}'
     except Exception as ex:
         print(ex)
-        return f'Exception while deleting user for {username}.'
+        return f'Exception while updating role for the user {username}.'
 
 
 def main(argv):
     username = None
+    role = None
 
     try:
-        opts, args = getopt.getopt(argv, "hu:", ["help", "user="])
+        opts, args = getopt.getopt(argv, "hu:r:", ["help", "user=", "role="])
 
         for opt, opt_val in opts:
             if opt in ("-h", "--help"):
                 print(USAGE)
             elif opt in ("-u", "--user"):
                 username = opt_val
+            elif opt in ("-r", "--role"):
+                role = opt_val
 
-        if not username:
+        if None in (username, role):
             print(USAGE_SHORT)
             sys.exit(1)
     except getopt.GetoptError as ex:
@@ -73,7 +80,7 @@ def main(argv):
         print('Could not obtain a token using these credentials... please check them.')
         sys.exit(1)
     else:
-        result = delete_user(admin_token, username)
+        result = update_role(admin_token, username, role)
         print(result)
 
 

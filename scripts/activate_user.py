@@ -1,58 +1,22 @@
 #!/usr/bin/python
+import os
 import sys
 import getopt
 
 import requests
-from requests.exceptions import ConnectionError, ConnectTimeout
+from get_token import get_token
 
-# Change this before running against the production server
-# API_END_POINT = "https://pulsars.org.au/api/"
-API_END_POINT = "http://localhost:8000/graphql/"
+API_END_POINT = os.environ.get("API_END_POINT")
 
 USAGE = \
     """
-    Usage: activate_user -a '<admin_username>' -p '<password>' -u '<username>'
-    
-    -a | --admin
-        username of the admin user
-       
-    -p | --pass
-        password of the admin user
+    Usage: activate_user -u '<username>'
         
     -u | --user
         username of the user to be activated
     """
 
-USAGE_SHORT = "Usage: activate_user -a '<admin_username>' -p '<password>' -u '<username>'"
-
-
-def __get_token(username, password):
-    query = \
-        """
-          mutation TokenAuth($username: String!, $password: String!) {
-            tokenAuth(input:{username: $username, password: $password}) {
-              token
-              payload 
-              refreshExpiresIn 
-            }
-          }
-        """
-
-    variables = {
-        'username': username,
-        "password": password,
-    }
-
-    try:
-        response = requests.post(url=API_END_POINT, json={"query": query, "variables": variables})
-        json_response = response.json()
-        return json_response["data"]["tokenAuth"]["token"]
-    except (ConnectionError, ConnectTimeout):
-        print(f'API END POINT {API_END_POINT} is not online, please try later')
-        sys.exit(1)
-    except Exception as ex:
-        print(ex)
-        return None
+USAGE_SHORT = "Usage: activate_user -u '<username>'"
 
 
 def activate_user(token, username):
@@ -85,31 +49,25 @@ def activate_user(token, username):
 
 
 def main(argv):
-    admin_user = None
-    password = None
     username = None
 
     try:
-        opts, args = getopt.getopt(argv, "ha:p:u:", ["help", "admin=", "pass=", "user="])
+        opts, args = getopt.getopt(argv, "hu:", ["help", "user="])
 
         for opt, opt_val in opts:
             if opt in ("-h", "--help"):
                 print(USAGE)
-            elif opt in ("-a", "--admin"):
-                admin_user = opt_val
-            elif opt in ("-p", "--pass"):
-                password = opt_val
             elif opt in ("-u", "--user"):
                 username = opt_val
 
-        if None in [admin_user, password, username]:
+        if not username:
             print(USAGE_SHORT)
             sys.exit(1)
     except getopt.GetoptError as ex:
         print(USAGE_SHORT)
         sys.exit(1)
 
-    admin_token = __get_token(admin_user, password)
+    admin_token = get_token(API_END_POINT)
 
     if not admin_token:
         print('Could not obtain a token using these credentials... please check them.')

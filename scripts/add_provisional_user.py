@@ -1,26 +1,18 @@
 #!/usr/bin/python
-import os.path
+import os
 import sys
 import getopt
 from time import sleep
 
 import requests
-from requests.exceptions import ConnectionError, ConnectTimeout
+from get_token import get_token
 
-# Change this before running against the production server
-# API_END_POINT = "https://pulsars.org.au/api/"
-API_END_POINT = "http://localhost:8000/graphql/"
+API_END_POINT = os.environ.get("API_END_POINT")
 
 USAGE = \
     """
-    Usage: add_provisional_user -a '<admin_username>' -p '<password>' -f '<input_file>'
-    
-    -a | --admin
-        username of the admin user
-       
-    -p | --pass
-        password of the admin user
-        
+    Usage: add_provisional_user -f '<input_file>'
+     
     -f | --file
         input file name that contains the email addresses of the provisional users
         Each line in the file should in the following format
@@ -29,36 +21,7 @@ USAGE = \
             where access_restriction can be 'restricted' or 'unrestricted'
     """
 
-USAGE_SHORT = "Usage: add_provisional_user -a '<admin_username>' -p '<password>' -f '<input_file>'"
-
-
-def __get_token(username, password):
-    query = \
-        """
-          mutation TokenAuth($username: String!, $password: String!) {
-            tokenAuth(input:{username: $username, password: $password}) {
-              token
-              payload 
-              refreshExpiresIn 
-            }
-          }
-        """
-
-    variables = {
-        'username': username,
-        "password": password,
-    }
-
-    try:
-        response = requests.post(url=API_END_POINT, json={"query": query, "variables": variables})
-        json_response = response.json()
-        return json_response["data"]["tokenAuth"]["token"]
-    except (ConnectionError, ConnectTimeout):
-        print(f'API END POINT {API_END_POINT} is not online, please try later')
-        sys.exit(1)
-    except Exception as ex:
-        print(ex)
-        return None
+USAGE_SHORT = "Usage: add_provisional_user -f '<input_file>'"
 
 
 def add_provisional_user(token, username, role):
@@ -117,24 +80,18 @@ def add_provisional_users(token, user_data):
 
 
 def main(argv):
-    admin_user = None
-    password = None
     filename = None
 
     try:
-        opts, args = getopt.getopt(argv, "ha:p:f:", ["help", "admin=", "pass=", "file="])
+        opts, args = getopt.getopt(argv, "hf:", ["help", "file="])
 
         for opt, opt_val in opts:
             if opt in ("-h", "--help"):
                 print(USAGE)
-            elif opt in ("-a", "--admin"):
-                admin_user = opt_val
-            elif opt in ("-p", "--pass"):
-                password = opt_val
             elif opt in ("-f", "--file"):
                 filename = opt_val
 
-        if None in [admin_user, password, filename]:
+        if not filename:
             print(USAGE_SHORT)
             sys.exit(1)
     except getopt.GetoptError as ex:
@@ -152,7 +109,7 @@ def main(argv):
         print("Empty file")
         sys.exit(0)
 
-    admin_token = __get_token(admin_user, password)
+    admin_token = get_token(API_END_POINT)
 
     if not admin_token:
         print('Could not obtain a token using these credentials... please check them.')
