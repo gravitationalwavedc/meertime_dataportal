@@ -89,7 +89,7 @@ def send_activation_email(
 
     text_content = f'Dear MeerTime user, We are upgrading the user management system for the MeerTime portal. As ' \
                    f'part of this upgrade, the single MeerTime account (meertime) that users have been accessing the ' \
-                   f'system with will be retired on 31st of August 2022. To use the MeerTime portal thereafter, ' \
+                   f'system with will be retired on September 14, 2022. To use the MeerTime portal thereafter, ' \
                    f'every user will require their own personal account. We have created a provisional account for ' \
                    f'you using this email address \'{to}\'. You will need to activate it (with the link below) and ' \
                    f'will be asked to set a password at that time. Please click on the following link to activate ' \
@@ -98,7 +98,7 @@ def send_activation_email(
     html_content = f'<p>Dear MeerTime user,</p>' \
                    f'<p>We are upgrading the user management system for the MeerTime portal. As part of this ' \
                    f'upgrade, the single MeerTime account (meertime) that users have been accessing the system with ' \
-                   f'will be retired on 31st of August 2022. To use the MeerTime portal thereafter, every user will ' \
+                   f'will be retired on September 14, 2022. To use the MeerTime portal thereafter, every user will ' \
                    f'require their own personal account. We have created a provisional account for you using this ' \
                    f'email address \'{to}\'. You will need to activate it (with the link below) and will be asked to ' \
                    f'set a password at that time.</p>' \
