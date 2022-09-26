@@ -50,4 +50,5 @@ COPY ./backend /code/
 
 EXPOSE 8000
 
-CMD [ "gunicorn", "-b 0.0.0.0:8000", "meertime.wsgi:application", ]
+ENV GUNICORN_PARAMS="-b 0.0.0.0:8000 --workers 8 --timeout 600"
+CMD [ "sh", "-c", "gunicorn ${GUNICORN_PARAMS} meertime.wsgi:application"]
