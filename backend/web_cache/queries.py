@@ -5,6 +5,7 @@ import json
 
 import pytz
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from graphene import relay, ObjectType
 from django.template.defaultfilters import filesizeformat
 from graphene_django import DjangoObjectType
@@ -153,6 +154,14 @@ class FoldPulsarDetailConnection(relay.Connection):
     max_plot_length = graphene.Int()
     min_plot_length = graphene.Int()
     description = graphene.String()
+    ephemeris_link = graphene.String()
+    toas_link = graphene.String()
+
+    def resolve_toas_link(self, instance):
+        return self.iterable.first().fold_pulsar.foldpulsardetail_set.first().toas_download_link
+
+    def resolve_ephemeris_link(self, instance):
+        return self.iterable.first().fold_pulsar.foldpulsardetail_set.first().ephemeris_download_link
 
     def resolve_description(self, instance):
         return self.iterable.first().fold_pulsar.comment
