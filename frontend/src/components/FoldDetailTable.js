@@ -160,7 +160,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         variant="outline-secondary">
                         View MeerWatch
                     </Button>
-                    { localStorage.isStaff && foldObservationDetails.ephemerisLink &&
+                    { localStorage.isStaff === 'true' && foldObservationDetails.ephemerisLink &&
                         <Button
                             size="sm"
                             className="mr-2 mb-2"
@@ -170,7 +170,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                             Download ephemeris
                         </Button>
                     }
-                    { localStorage.isStaff && foldObservationDetails.toasLink &&
+                    { localStorage.isStaff === 'true' && foldObservationDetails.toasLink &&
                         <Button
                             size="sm"
                             className="mr-2 mb-2"
