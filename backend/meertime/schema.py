@@ -5,6 +5,7 @@ import web_cache.queries
 import user_manage.graphql.queries
 import user_manage.graphql.mutations
 from django.conf import settings
+from user_manage.graphql.types import UserType
 
 
 class Query(dataportal.graphql.Query, web_cache.queries.Query, user_manage.graphql.queries.Query, graphene.ObjectType):
@@ -13,10 +14,14 @@ class Query(dataportal.graphql.Query, web_cache.queries.Query, user_manage.graph
 
 class ObtainJSONWebToken(graphql_jwt.relay.JSONWebTokenMutation):
     meer_watch_key = graphene.String()
+    user = graphene.Field(UserType)
 
     @classmethod
     def resolve(cls, root, info, **kwargs):
-        return cls(meer_watch_key=settings.KRONOS_PAYLOAD)
+        return cls(
+            meer_watch_key=settings.KRONOS_PAYLOAD,
+            user=info.context.user,
+        )
 
 
 class Mutation(dataportal.graphql.Mutation, user_manage.graphql.mutations.Mutation, graphene.ObjectType):

@@ -126,7 +126,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
     };
 
 
-    const downloadPTA = async () => {
+    const downloadToas = async () => {
         const link = document.createElement('a');
         link.href = `${process.env.REACT_APP_MEDIA_URL}${foldObservationDetails.toasLink}`;
         document.body.appendChild(link);
@@ -160,7 +160,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         variant="outline-secondary">
                         View MeerWatch
                     </Button>
-                    { foldObservationDetails.ephemerisLink &&
+                    { localStorage.isStaff && foldObservationDetails.ephemerisLink &&
                         <Button
                             size="sm"
                             className="mr-2 mb-2"
@@ -170,17 +170,12 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                             Download ephemeris
                         </Button>
                     }
-                    { foldObservationDetails.toasLink &&
+                    { localStorage.isStaff && foldObservationDetails.toasLink &&
                         <Button
                             size="sm"
                             className="mr-2 mb-2"
                             variant="outline-secondary"
-                            onClick={() => downloadPTA(
-                                // eslint-disable-next-line max-len
-                                // `${process.env.REACT_APP_BASE_URL}/media/MeerKAT/MeerPIPE_PTA/${jname}/${displayDate}/${relayObservationModel.beam}/pta.${jname}_global.tar.gz`
-                                // `https://pulsars.org.au/media/MeerKAT/MeerPIPE_PTA/${jname}/${displayDate}/${relayObservationModel.beam}/pta.${jname}_global.tar.gz`
-                                // 'https://pulsars.org.au/media/MeerKAT/MeerPIPE_PTA/J1843-1448/2022-08-29-18:20:32/3/pta.J1843-1448_global.tar.gz'
-                            )}
+                            onClick={() => downloadToas()}
                         >
                             Download TOAs
                         </Button>
