@@ -22,14 +22,14 @@ def send_verification_email(
     text_content = f'Dear {first_name} {last_name}, You have requested an account with MeerTime using this email ' \
                    f'address. Please click on the following link to verify your email address: {verification_link} . ' \
                    f'If you believe this email is sent to you by mistake please contact us at ' \
-                   f'support@hpc.swin.edu.au . Kind Regards, MeerTime Support Team'
+                   f'hpc-support@swin.edu.au . Kind Regards, MeerTime Support Team'
     html_content = f'<p>Dear {first_name} {last_name},</p>' \
                    f'<p>You have requested an account with MeerTime using this email address. Please click on the ' \
                    f'following <a href=\'{verification_link}\' target=\'_blank\'>link</a> to verify your email ' \
                    f'address:</p>' \
                    f'<p><a href=\'{verification_link}\' target=\'_blank\'>{verification_link}</a></p>' \
                    f'<p>If you believe this email is sent to you by mistake please contact us at ' \
-                   f'support@hpc.swin.edu.au</p>' \
+                   f'hpc-support@swin.edu.au</p>' \
                    f'<p>Kind Regards,<br/>MeerTime Support Team</p>'
     msg = EmailMultiAlternatives(
         subject=subject,
@@ -55,13 +55,13 @@ def send_password_reset_email(
     text_content = f'Dear {first_name} {last_name}, You have requested to reset your password for the MeerTime ' \
                    f'account. Here is the verification code for your password reset: {verification_code} . ' \
                    f'If you believe this email is sent to you by mistake please contact us at ' \
-                   f'support@hpc.swin.edu.au . Kind Regards, MeerTime Support Team'
+                   f'hpc-support@swin.edu.au . Kind Regards, MeerTime Support Team'
     html_content = f'<p>Dear {first_name} {last_name},</p>' \
                    f'<p>You have requested to reset your password for the MeerTime account. Here is the verification ' \
                    f'code for your password reset: </p>' \
                    f'<p>{verification_code}</p>' \
                    f'<p>If you believe this email is sent to you by mistake please contact us at ' \
-                   f'support@hpc.swin.edu.au</p>' \
+                   f'hpc-support@swin.edu.au</p>' \
                    f'<p>Kind Regards,<br/>MeerTime Support Team</p>'
     msg = EmailMultiAlternatives(
         subject=subject,
@@ -94,7 +94,7 @@ def send_activation_email(
                    f'you using this email address \'{to}\'. You will need to activate it (with the link below) and ' \
                    f'will be asked to set a password at that time. Please click on the following link to activate ' \
                    f'your new account: {activation_link} . If you believe this email has been incorrectly sent to ' \
-                   f'you, please let us know at support@hpc.swin.edu.au . Kind Regards, MeerTime Support Team'
+                   f'you, please let us know at hpc-support@swin.edu.au . Kind Regards, MeerTime Support Team'
     html_content = f'<p>Dear MeerTime user,</p>' \
                    f'<p>We are upgrading the user management system for the MeerTime portal. As part of this ' \
                    f'upgrade, the single MeerTime account (meertime) that users have been accessing the system with ' \
@@ -106,7 +106,7 @@ def send_activation_email(
                    f'activate your new account:</p>' \
                    f'<p><a href=\'{activation_link}\' target=\'_blank\'>{activation_link}</a></p>' \
                    f'<p>If you believe this email has been incorrectly sent to you, please let us know at ' \
-                   f'support@hpc.swin.edu.au</p>' \
+                   f'hpc-support@swin.edu.au</p>' \
                    f'<p>Kind Regards,<br/>MeerTime Support Team</p>'
     msg = EmailMultiAlternatives(
         subject=subject,
