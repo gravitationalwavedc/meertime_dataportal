@@ -16,6 +16,8 @@ const query = graphql`
       maxPlotLength
       minPlotLength
       description
+      ephemerisLink
+      toasLink
       edges {
         node {
           id

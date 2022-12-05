@@ -8,6 +8,7 @@ import Link from 'found/Link';
 import ReactMarkdown from 'react-markdown';
 import { useScreenSize } from '../context/screenSize-context';
 
+/* eslint-disable complexity */
 const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
     const { screenSize } = useScreenSize();
     const allRows = foldObservationDetails.edges.reduce(
@@ -41,7 +42,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
     );
 
     const [rows, setRows] = useState(allRows);
-    const [ephemerisVisable, setEphemerisVisable] = useState(false);
+    const [ephemerisVisible, setEphemerisVisible] = useState(false);
 
     const ephemeris = foldObservationDetails.edges[foldObservationDetails.edges.length -1 ].node.ephemeris;
     const ephemerisUpdated = 
@@ -116,6 +117,23 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
         { title: `Size [${sizeFormat}]`, value: size }, 
     ];
 
+    const downloadEphemeris = async () => {
+        const link = document.createElement('a');
+        link.href = `${process.env.REACT_APP_MEDIA_URL}${foldObservationDetails.ephemerisLink}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+
+    const downloadToas = async () => {
+        const link = document.createElement('a');
+        link.href = `${process.env.REACT_APP_MEDIA_URL}${foldObservationDetails.toasLink}`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     return (
         <div className="fold-detail-table">
             <Row className="mb-3">
@@ -130,24 +148,45 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         variant="outline-secondary" 
                         className="mr-2 mb-2"
                         disabled={ephemeris ? false : true}
-                        onClick={() => setEphemerisVisable(true)}>
+                        onClick={() => setEphemerisVisible(true)}>
                         { ephemeris ? 
                             'View folding ephemeris' : 'Folding ephemeris unavailable'}
                     </Button>
-                    <Button 
-                        size="sm mb-2"
+                    <Button
+                        size="sm"
+                        className="mr-2 mb-2"
                         as="a"
                         href={meerWatchLink(jname)}
-                        variant="outline-secondary"> 
+                        variant="outline-secondary">
                         View MeerWatch
                     </Button>
+                    { localStorage.isStaff === 'true' && foldObservationDetails.ephemerisLink &&
+                        <Button
+                            size="sm"
+                            className="mr-2 mb-2"
+                            variant="outline-secondary"
+                            onClick={() => downloadEphemeris()}
+                        >
+                            Download ephemeris
+                        </Button>
+                    }
+                    { localStorage.isStaff === 'true' && foldObservationDetails.toasLink &&
+                        <Button
+                            size="sm"
+                            className="mr-2 mb-2"
+                            variant="outline-secondary"
+                            onClick={() => downloadToas()}
+                        >
+                            Download TOAs
+                        </Button>
+                    }
                 </Col>
             </Row>
             { ephemeris && <Ephemeris 
                 ephemeris={ephemeris} 
                 updated={ephemerisUpdated}
-                show={ephemerisVisable} 
-                setShow={setEphemerisVisable} />}
+                show={ephemerisVisible}
+                setShow={setEphemerisVisible} />}
             <DataView 
                 summaryData={summaryData}
                 columns={columnsSizeFiltered}

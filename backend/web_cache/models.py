@@ -2,7 +2,7 @@ import math
 from datetime import datetime
 from dateutil import parser
 from django.db import models
-from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings
+from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings, Pulsars, Pipelinefiles
 from django_mysql.models import JSONField
 from statistics import mean
 from web_cache.plot_types import PLOT_NAMES
@@ -289,6 +289,8 @@ class FoldPulsarDetail(models.Model):
     phaseup = models.CharField(max_length=16, null=True)
     frequency = models.DecimalField(null=True, max_digits=15, decimal_places=9)
     npol = models.IntegerField(null=True)
+    ephemeris_download_link = models.URLField(null=True)
+    toas_download_link = models.URLField(null=True)
 
     class Meta:
         ordering = ["-utc"]
@@ -315,6 +317,38 @@ class FoldPulsarDetail(models.Model):
             return folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('snr', None)
         except Processings.DoesNotExist:
             return None
+
+    @classmethod
+    def get_ephemeris_link(cls, pulsar):
+        # ex: 'https://pulsars.org.au/media/MeerKAT/MeerPIPE_TPA/J1909-3744/2022-08-29-19:03:27/3/J1909-3744.par
+
+        foldings = Foldings.objects.filter(
+            folding_ephemeris__pulsar=pulsar
+        )
+
+        for folding in foldings:
+            pipeline_files = Pipelinefiles.objects.filter(processing__parent=folding.processing)
+            for pipleline_file in pipeline_files:
+                if str(pipleline_file.file).endswith(f'{pulsar.jname}.par'):
+                    return str(pipleline_file.file)
+
+        return ''
+
+    @classmethod
+    def get_toas_link(cls, pulsar):
+        # ex: 'https://pulsars.org.au/media/MeerKAT/MeerPIPE_PTA/J1843-1448/2022-08-29-18:20:32/3/pta.J1843-1448_global.tar.gz'
+
+        foldings = Foldings.objects.filter(
+            folding_ephemeris__pulsar=pulsar
+        )
+
+        for folding in foldings:
+            pipeline_files = Pipelinefiles.objects.filter(processing__parent=folding.processing)
+            for pipleline_file in pipeline_files:
+                if str(pipleline_file.file).endswith(f'{pulsar.jname}_global.tar.gz'):
+                    return str(pipleline_file.file)
+
+        return ''
 
     @classmethod
     def get_flux(cls, folding, pipeline_name):
@@ -397,6 +431,8 @@ class FoldPulsarDetail(models.Model):
                 "phaseup": "12",
                 "frequency": observation.instrument_config.frequency,
                 "npol": folding.npol,
+                "ephemeris_download_link": cls.get_ephemeris_link(pulsar=pulsar),
+                "toas_download_link": cls.get_toas_link(pulsar=pulsar),
             },
         )
 
