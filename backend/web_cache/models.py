@@ -336,7 +336,7 @@ class FoldPulsarDetail(models.Model):
 
     @classmethod
     def get_toas_link(cls, pulsar):
-        # ex: 'https://pulsars.org.au/media/MeerKAT/MeerPIPE_PTA/J1843-1448/2022-08-29-18:20:32/3/pta.J1843-1448_global.tar.gz'
+        # ex: 'https://pulsars.org.au/media/MeerKAT/MeerPIPE_PTA/J1843-1448/2022-08-29-18:20:32/3/pta.J1843-1448_global.tim.gz'
 
         foldings = Foldings.objects.filter(
             folding_ephemeris__pulsar=pulsar
@@ -345,7 +345,7 @@ class FoldPulsarDetail(models.Model):
         for folding in foldings:
             pipeline_files = Pipelinefiles.objects.filter(processing__parent=folding.processing)
             for pipleline_file in pipeline_files:
-                if str(pipleline_file.file).endswith(f'{pulsar.jname}_global.tar.gz'):
+                if str(pipleline_file.file).endswith(f'{pulsar.jname}_global.tim.gz'):
                     return str(pipleline_file.file)
 
         return ''
