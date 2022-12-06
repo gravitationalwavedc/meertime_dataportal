@@ -119,7 +119,7 @@ spec:
 #          command: ["python", "manage.py", "sync_web_cache"]
       containers:
         - name: django
-          image: nexus.gwdc.org.au/meertime/django:2.0.5
+          image: nexus.gwdc.org.au/meertime/django:2.1.0
           resources: {}
           imagePullPolicy: Always
           env:
