@@ -87,7 +87,7 @@ spec:
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
         - name: migrate
-          image: nexus.gwdc.org.au/meertime/django:2.0.4
+          image: nexus.gwdc.org.au/meertime/django:2.1.0
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -103,7 +103,7 @@ spec:
           command: ["python", "manage.py", "migrate"]
 # This block will auto sync the web_cache database with the dataportal database on deploy. This opperation takes approx. 40mins.
 #        - name: sync-web-cache 
-#          image: nexus.gwdc.org.au/meertime/django:2.0.4
+#          image: nexus.gwdc.org.au/meertime/django:2.1.0
 #          imagePullPolicy: Always
 #          env:
 #            - name: DB_HOST
