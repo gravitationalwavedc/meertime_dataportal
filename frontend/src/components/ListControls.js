@@ -17,6 +17,13 @@ const mainProjects = [
             'MeerTime',
             'Flux',
             'Unknown'
+        ],
+        bandOptions: [
+            'All',
+            'L-BAND',
+            'UHF',
+            'S-BAND',
+            'UNKNOWN'
         ]
     },
     {
@@ -24,6 +31,27 @@ const mainProjects = [
         title: 'Trapum',
         subprojects: [
             'All'
+        ],
+        bandOptions: [
+            'All',
+            'L-BAND',
+            'UHF',
+            'S-BAND',
+            'UNKNOWN'
+        ]
+    },
+    {
+        value: 'MONSPSR',
+        title: 'Molonglo',
+        subprojects: [
+            'All',
+            'Mo-NS',
+            'Mo-EW',
+            'MONSPSR_TIMING'
+        ],
+        bandOptions: [
+            'UHF-NS',
+            'UHF-EW'
         ]
     }
 ];

@@ -157,17 +157,12 @@ class FoldPulsar(BasePulsar):
 
         timespan = (latest_observation - first_observation).days + 1
         number_of_observations = foldings.count()
-        total_integration_hours = (
-            sum(
-                [
-                    folding.processing.observation.duration
-                    for folding in foldings
-                    if folding.processing.observation.duration
-                ]
-            )
-            / 60
-            / 60
-        )
+        total_integration_hours = sum(
+            folding.processing.observation.duration
+            for folding in foldings
+            if folding.processing.observation.duration
+        ) / 60 / 60
+        
         last_sn_raw = results['snr'] if 'snr' in results else 0
         last_integration_minutes = latest_folding_observation.processing.observation.duration / 60
 
