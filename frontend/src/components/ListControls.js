@@ -55,14 +55,6 @@ const mainProjects = [
     }
 ];
 
-const bandOptions = [
-    'All',
-    'L-BAND',
-    'UHF',
-    'S-BAND',
-    'UNKNOWN'
-];
-
 const ListControls = ({
     searchText,
     handleProjectFilter,
@@ -77,10 +69,10 @@ const ListControls = ({
     columnToggleProps,
     exportCSVProps }) => {
 
-    const subprojectOptions = mainProject ?
-        mainProjects.find(({ value }) => value === mainProject).subprojects : mainProjects[0].subprojects;
+    const currentMainProject = mainProjects.find(({ value }) => value === mainProject);
 
-    console.log(mainProject);
+    const subprojectOptions = mainProject ?
+        currentMainProject.subprojects : mainProjects[0].subprojects;
 
     return (
         <>
@@ -118,7 +110,10 @@ const ListControls = ({
                             custom
                             as="select"
                             onChange={(event) => handleBandFilter(event.target.value)}>
-                            {bandOptions.map(value => <option value={value} key={value}>{value}</option>)}
+                            <option value='All'>All</option>
+                            {currentMainProject.bandOptions.map(
+                                value => <option value={value} key={value}>{value}</option>
+                            )}
                         </Form.Control>
                     </Form.Group>
                 </Col>}
