@@ -111,7 +111,7 @@ const routeConfig = () => makeRouteConfig(
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />
         <Route
-            path="/fold/:project/:jname/"
+            path="/fold/:mainProject/:jname/"
             Component={FoldDetail}
             render={({ Component, props }) => renderPrivateRoute(Component, props)}
         />

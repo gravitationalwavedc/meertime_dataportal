@@ -47,7 +47,6 @@ const mainProjects = [
             'All',
             'Mo-NS',
             'Mo-EW',
-            'MONSPSR_TIMING'
         ],
         bandOptions: [
             'UHF-NS',
@@ -70,6 +69,7 @@ const ListControls = ({
     handleBandFilter,
     handleMainProjectFilter,
     mainProject,
+    mainProjectSelect,
     project,
     searchProps,
     isTableView,
@@ -80,10 +80,12 @@ const ListControls = ({
     const subprojectOptions = mainProject ?
         mainProjects.find(({ value }) => value === mainProject).subprojects : mainProjects[0].subprojects;
 
+    console.log(mainProject);
+
     return (
         <>
             <Form.Row>
-                {mainProject && <Col md={3} xl={2}>
+                {mainProjectSelect && <Col md={3} xl={2}>
                     <Form.Group controlId="mainProjectSelect">
                         <Form.Label>Main Project</Form.Label>
                         <Form.Control

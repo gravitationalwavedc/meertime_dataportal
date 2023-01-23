@@ -9,7 +9,7 @@ import ReactMarkdown from 'react-markdown';
 import { useScreenSize } from '../context/screenSize-context';
 
 /* eslint-disable complexity */
-const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
+const FoldDetailTable = ({ data: { foldObservationDetails }, jname, mainProject }) => {
     const { screenSize } = useScreenSize();
     const allRows = foldObservationDetails.edges.reduce(
         (result, edge) => [
@@ -153,14 +153,14 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         { ephemeris ? 
                             'View folding ephemeris' : 'Folding ephemeris unavailable'}
                     </Button>
-                    <Button
+                    { mainProject !== 'MONSPSR' && <Button
                         size="sm"
                         className="mr-2 mb-2"
                         as="a"
                         href={meerWatchLink(jname)}
                         variant="outline-secondary">
                         View MeerWatch
-                    </Button>
+                    </Button> }
                     { localStorage.isStaff === 'true' && foldObservationDetails.ephemerisLink &&
                         <Button
                             size="sm"
@@ -197,6 +197,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                 plot
                 maxPlotLength={foldObservationDetails.maxPlotLength}
                 minPlotLength={foldObservationDetails.minPlotLength}
+                mainProject={mainProject}
                 keyField="key"
                 card={FoldDetailCard}
             />

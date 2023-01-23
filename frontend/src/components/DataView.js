@@ -17,6 +17,7 @@ const DataView = ({
     columns, 
     rows, 
     mainProject,
+    mainProjectSelect,
     project, 
     setProject, 
     setMainProject,
@@ -65,6 +66,7 @@ const DataView = ({
                                     handleMainProjectFilter={setMainProject}
                                     handleProjectFilter={setProject}
                                     mainProject={mainProject}
+                                    mainProjectSelect={mainProjectSelect}
                                     project={project}
                                     columnToggleProps={props.columnToggleProps}
                                     setIsTableView={setIsTableView}
