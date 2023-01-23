@@ -90,6 +90,7 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
             mainProject={mainProject}
             setMainProject={setMainProject}
             setBand={setBand}
+            mainProjectSelect
         />
     );
 };
