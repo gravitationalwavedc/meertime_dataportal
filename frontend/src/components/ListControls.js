@@ -1,59 +1,9 @@
+import { getProject, getSubProjectOptions, projectOptions } from '../telescopes';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import React from 'react';
 import SearchRow from './SearchRow';
 
-const mainProjects = [
-    {
-        value: 'meertime',
-        title: 'MeerTime',
-        subprojects: [
-            'All',
-            'TPA',
-            'RelBin',
-            'PTA',
-            'GC',
-            'NGC6440',
-            'MeerTime',
-            'Flux',
-            'Unknown'
-        ],
-        bandOptions: [
-            'All',
-            'L-BAND',
-            'UHF',
-            'S-BAND',
-            'UNKNOWN'
-        ]
-    },
-    {
-        value: 'trapum',
-        title: 'Trapum',
-        subprojects: [
-            'All'
-        ],
-        bandOptions: [
-            'All',
-            'L-BAND',
-            'UHF',
-            'S-BAND',
-            'UNKNOWN'
-        ]
-    },
-    {
-        value: 'MONSPSR',
-        title: 'Molonglo',
-        subprojects: [
-            'All',
-            'Mo-NS',
-            'Mo-EW',
-        ],
-        bandOptions: [
-            'UHF-NS',
-            'UHF-EW'
-        ]
-    }
-];
 
 const ListControls = ({
     searchText,
@@ -69,10 +19,8 @@ const ListControls = ({
     columnToggleProps,
     exportCSVProps }) => {
 
-    const currentMainProject = mainProjects.find(({ value }) => value === mainProject);
-
-    const subprojectOptions = mainProject ?
-        currentMainProject.subprojects : mainProjects[0].subprojects;
+    const currentProject = getProject(mainProject); 
+    const subprojectOptions = getSubProjectOptions(currentProject.subprojects);
 
     return (
         <>
@@ -85,9 +33,7 @@ const ListControls = ({
                             as="select"
                             value={mainProject}
                             onChange={(event) => handleMainProjectFilter(event.target.value)}>
-                            {mainProjects.map(
-                                ({ value, title }) => <option value={value} key={value}>{title}</option>)
-                            }
+                            {projectOptions}
                         </Form.Control>
                     </Form.Group>
                 </Col>}
@@ -99,7 +45,7 @@ const ListControls = ({
                             as="select"
                             value={project}
                             onChange={(event) => handleProjectFilter(event.target.value)}>
-                            {subprojectOptions.map(value => <option value={value} key={value}>{value}</option>)}
+                            {subprojectOptions}
                         </Form.Control>
                     </Form.Group>
                 </Col>}
@@ -111,7 +57,7 @@ const ListControls = ({
                             as="select"
                             onChange={(event) => handleBandFilter(event.target.value)}>
                             <option value='All'>All</option>
-                            {currentMainProject.bandOptions.map(
+                            {currentProject.bandOptions.map(
                                 value => <option value={value} key={value}>{value}</option>
                             )}
                         </Form.Control>
