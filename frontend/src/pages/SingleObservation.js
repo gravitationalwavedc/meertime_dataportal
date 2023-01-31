@@ -47,7 +47,12 @@ const SingleObservation = ({ match: { params: { jname, utc, beam } } }) =>
             utc: utc,
             beam: beam
         }}
-        render={({ props }) => props ? <SingleObservationTable data={props} jname={jname} /> : <h1>Loading...</h1>}
+        render={
+            ({ props, error, retry }) => {
+                console.log(props, error, retry);
+                return props ? <SingleObservationTable data={props} jname={jname} /> : <h1>Loading...</h1>;
+            }
+        }
     />;
 
 export default SingleObservation;
