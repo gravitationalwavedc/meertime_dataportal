@@ -5,7 +5,6 @@ import json
 
 import pytz
 from django.contrib.auth import get_user_model
-from django.conf import settings
 from graphene import relay, ObjectType
 from django.template.defaultfilters import filesizeformat
 from graphene_django import DjangoObjectType
