@@ -36,11 +36,6 @@ const network = new RelayNetworkLayer(
             token: () => localStorage.jwt,
             prefix: 'JWT '
         }),
-        progressMiddleware({
-            onProgress: (current, total) => {
-                console.log('Downloaded: ' + current + ' B, total: ' + total + ' B');
-            },
-        }),
         uploadMiddleware(),
     ],
 );

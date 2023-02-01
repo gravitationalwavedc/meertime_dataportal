@@ -38,6 +38,7 @@ const query = graphql`
     }
   }`;
 
+
 const SingleObservation = ({ match: { params: { jname, utc, beam } } }) =>
     <QueryRenderer
         environment={environment}
@@ -48,9 +49,14 @@ const SingleObservation = ({ match: { params: { jname, utc, beam } } }) =>
             beam: beam
         }}
         render={
-            ({ props, error, retry }) => {
-                console.log(props, error, retry);
-                return props ? <SingleObservationTable data={props} jname={jname} /> : <h1>Loading...</h1>;
+            ({ error, props }) => {
+                if (error) {
+                    return <h5>{error.message}</h5>;
+                } else if (props) {
+                    return <SingleObservationTable data={props} jname={jname} />;
+                }
+                return <h1>Loading...</h1>;
+
             }
         }
     />;
