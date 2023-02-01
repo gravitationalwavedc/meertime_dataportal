@@ -62,16 +62,12 @@ const AccountActivation = ({ match: { params: { code } } }) => {
                 variables,
                 onCompleted: ({ accountActivation }) => {
                     if (accountActivation.errors) {
-                        // uncomment the following line to see the errors
-                        // console.log(accountActivation.errors); // eslint-disable-line no-console
                         setFormErrors(accountActivation.errors);
                     } else if (accountActivation.provisionalUser) {
                         setSuccess(true);
                     }
                 },
                 onError: errors => {
-                    // this is RelayNetworkLayer Error
-                    // console.log(errors); // eslint-disable-line no-console
                     setFormErrors(['Something went wrong, please try later.']);
                 },
             }

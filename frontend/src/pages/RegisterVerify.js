@@ -37,8 +37,6 @@ const RegisterVerify = ({ match: { params: { code } } }) => {
                 variables,
                 onCompleted: ({ verifyRegistration }) => {
                     if (verifyRegistration.errors) {
-                        // uncomment the following line to see the errors
-                        // console.log(verifyRegistration.errors); // eslint-disable-line no-console
                         setLoadState('error');
                         setErrorMessage(verifyRegistration.errors[0]);
                     } else if (verifyRegistration.registration) {
@@ -46,8 +44,6 @@ const RegisterVerify = ({ match: { params: { code } } }) => {
                     }
                 },
                 onError: errors => {
-                    // this is RelayNetworkLayer Error
-                    // console.log(errors); // eslint-disable-line no-console
                     setLoadState('error');
                     setErrorMessage('Something went wrong, please try later.');
                 },
