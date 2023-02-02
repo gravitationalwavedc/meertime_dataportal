@@ -44,16 +44,21 @@ const FoldDetailCard = ({ row }) =>
                 </Col>
             </Row>
         </Card.Body>
-        <Card.Footer>
-            <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.utc}/${row.beam}/`} 
-                className='mr-2'
-                size='sm' 
-                variant="link" 
-                as={Button}>
-                  View Observation
-            </Link>
-        </Card.Footer>
+        { !row.embargo ?
+            <Card.Footer bg='secondary'>
+                <Link
+                    to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.utc}/${row.beam}/`}
+                    className='mr-2'
+                    size='sm'
+                    variant="link"
+                    as={Button}>
+                      View Observation
+                </Link>
+            </Card.Footer>:
+            <Card.Footer className='embargoed'>
+                {row.embargo}
+            </Card.Footer>
+        }
     </Card>;
 
 export default FoldDetailCard;
