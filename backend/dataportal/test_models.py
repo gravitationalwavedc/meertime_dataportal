@@ -94,12 +94,12 @@ default_entry_config = {
 def generate_db_entry(psr, utc, config=default_entry_config):
     """
     Helper method to populate the database with a test entry for a pulsar with name specified by psr and at the time of
-    utc. Optionally, all parameters can be modified by providing a entry config dictionary.
+    utc. Optionally, all parameters can be modified by providing an entry config dictionary.
 
     Return the utc as datetime with timezone set
     """
     psr, _ = Pulsars.objects.get_or_create(jname=psr)
-    target, _ = Targets.objects.get_or_create(name=psr, raj=config["raj"], decj=config["decj"])
+    target, _ = Targets.objects.get_or_create(name=psr.jname, raj=config["raj"], decj=config["decj"])
     psrtarget, _ = Pulsartargets.objects.get_or_create(pulsar=psr, target=target)
     telescope, _ = Telescopes.objects.get_or_create(name=config["telescope"])
     program, _ = Programs.objects.get_or_create(name="MeerTime", telescope=telescope)
