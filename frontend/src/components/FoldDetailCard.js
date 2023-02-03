@@ -45,7 +45,7 @@ const FoldDetailCard = ({ row }) =>
             </Row>
         </Card.Body>
         { !row.embargo ?
-            <Card.Footer bg='secondary'>
+            <Card.Footer>
                 <Link
                     to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.utc}/${row.beam}/`}
                     className='mr-2'
