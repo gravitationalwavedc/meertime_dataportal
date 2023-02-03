@@ -18,6 +18,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                 ...edge.node, 
                 key: `${edge.node.utc}:${edge.node.beam}`,
                 jname: jname,
+                embargo: edge.node.restricted ? 'Embargoed until ' + formatDDMonYYYY(edge.node.embargoEndDate) : '',
                 utc: formatUTC(edge.node.utc),
                 plotLink: `${process.env.REACT_APP_BASE_URL}/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`,
                 action: !edge.node.restricted ? <ButtonGroup vertical>
