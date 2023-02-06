@@ -12,12 +12,12 @@ ENV \
   PIP_DISABLE_PIP_VERSION_CHECK=on \
   PIP_DEFAULT_TIMEOUT=100 \
   # poetry:
-  POETRY_VERSION=1.1.4 \
+  POETRY_VERSION=1.3.2 \
+  GET_POETRY_IGNORE_DEPRECATION=1 \
   POETRY_NO_INTERACTION=1 \
   POETRY_VIRTUALENVS_CREATE=false \
   POETRY_CACHE_DIR='/var/cache/pypoetry' \
-  PATH="$PATH:/root/.poetry/bin" \
-  DEVELOPMENT_MODE=False
+  PATH="/root/.local/bin:$PATH"
 
 # System dependencies:
 RUN apt-get update && apt-get upgrade -y \
@@ -31,7 +31,8 @@ RUN apt-get update && apt-get upgrade -y \
     libmariadb-dev \
   # Installing `poetry` package manager:
   # https://github.com/python-poetry/poetry
-  && curl -sSL 'https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py' | python \
+#  && curl -sSL 'https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py' | python \
+  && curl -sSL https://install.python-poetry.org | python3 \
   && poetry --version \
   # Cleaning cache:
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
