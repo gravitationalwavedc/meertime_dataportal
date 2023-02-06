@@ -42,7 +42,8 @@ WORKDIR /code
 
 COPY --chown=web:web ./backend/pyproject.toml ./backend/poetry.lock /code/
 
-RUN poetry install --no-dev --no-interaction --no-ansi
+# RUN poetry install --no-dev --no-interaction --no-ansi
+RUN if [ "${DEVELOPMENT_MODE}" = "True" ]; then poetry install --no-interation --no-ansi; else poetry install --no-dev --no-interaction --no-ansi; fi;
 
 COPY ./backend /code/
 
