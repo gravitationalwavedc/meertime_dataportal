@@ -233,7 +233,6 @@ class FoldDetailImage(models.Model):
 
     @property
     def plot_type(self):
-        print(self.image_type)
         return self.image_type.split('.')[-2]
 
     @property
