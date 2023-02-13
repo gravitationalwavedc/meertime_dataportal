@@ -2,7 +2,7 @@ import math
 from datetime import datetime
 from dateutil import parser
 from django.db import models
-from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings, Pulsars, Pipelinefiles
+from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings, Pipelinefiles
 from django_mysql.models import JSONField
 from statistics import mean
 from web_cache.plot_types import PLOT_NAMES
@@ -17,6 +17,7 @@ class BasePulsar(models.Model):
 
     main_project = models.CharField(max_length=64)
     project = models.CharField(max_length=500)
+    all_projects = models.CharField(max_length=500)
     band = models.CharField(choices=BAND_CHOICES, max_length=50)
     jname = models.CharField(max_length=64)
     latest_observation = models.DateTimeField()
@@ -162,11 +163,13 @@ class FoldPulsar(BasePulsar):
             for folding in foldings
             if folding.processing.observation.duration
         ) / 60 / 60
-        
+
         last_sn_raw = results['snr'] if 'snr' in results else 0
         last_integration_minutes = latest_folding_observation.processing.observation.duration / 60
 
-        projects = ", ".join({observation.project.short for observation in folding_observations})
+        all_projects = ", ".join({observation.project.short for observation in folding_observations})
+
+        project_counts = folding_observations.values('project').annotate(project_count=Count('project'))
 
         bands = ", ".join({
             cls.get_band(observation.instrument_config.frequency) for observation in folding_observations
@@ -176,7 +179,7 @@ class FoldPulsar(BasePulsar):
             main_project=program_name,
             jname=pulsar.jname,
             defaults={
-                "project": projects,
+                "all_projects": all_projects,
                 "band": bands,
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
@@ -184,7 +187,7 @@ class FoldPulsar(BasePulsar):
                 "number_of_observations": number_of_observations,
                 "total_integration_hours": total_integration_hours,
                 "last_sn_raw": last_sn_raw,
-                "last_integration_minutes": last_integration_minutes if last_integration_minutes else 0,
+                "last_integration_minutes": last_integration_minutes or 0,
                 "avg_sn_pipe": cls.get_average_snr_over_5min(folding_observations),
                 "max_sn_pipe": cls.get_max_snr_over_5min(folding_observations),
                 "beam": latest_folding_observation.processing.observation.instrument_config.beam,
