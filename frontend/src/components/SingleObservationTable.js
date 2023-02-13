@@ -7,6 +7,7 @@ import DataDisplay from './DataDisplay';
 import ImageGrid from './ImageGrid';
 import Link from 'found/Link';
 import MainLayout from './MainLayout';
+import MolongloImageGrid from './MolongloImageGrid';
 
 
 const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => {
@@ -27,6 +28,8 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
     const displayDate = formatUTC(relayObservationModel.utc);
 
     const dataItems = formatSingleObservationData(relayObservationModel);
+
+    const isMolonglo = relayObservationModel.project.toLowerCase().includes('monspsr');
 
     return (
         <MainLayout title={title}>
@@ -73,7 +76,8 @@ const SingleObservationTable = ({ data: { foldObservationDetails }, jname }) => 
                 : null}
             <Row>
                 <Col>
-                    <ImageGrid images={relayObservationModel.images} project={project} />
+                    {isMolonglo ? <MolongloImageGrid images={relayObservationModel.images} project={project} /> :
+                        <ImageGrid images={relayObservationModel.images} project={project} />}
                 </Col>
                 <Col lg={4}>
                     {Object.keys(dataItems).map(key =>

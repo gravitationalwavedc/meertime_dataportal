@@ -50,16 +50,12 @@ const PasswordReset = ({ router, match }) => {
                 variables,
                 onCompleted: ({ passwordReset }) => {
                     if (passwordReset.errors) {
-                        // uncomment the following line to see the errors
-                        // console.log(createPasswordReset.errors); // eslint-disable-line no-console
                         setFormErrors(passwordReset.errors);
                     } else if (passwordReset.passwordResetRequest) {
                         setSuccess(true);
                     }
                 },
                 onError: errors => {
-                    // this is RelayNetworkLayer Error
-                    // console.log(errors); // eslint-disable-line no-console
                     setFormErrors(['Something went wrong, please try later.']);
                 },
             }

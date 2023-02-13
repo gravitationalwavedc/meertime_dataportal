@@ -751,9 +751,5 @@ class SessionPulsar(models.Model):
                 "phase_vs_frequency_lo": cls.get_session_image(images, 'freq'),
                 "phase_vs_time_hi": cls.get_session_image(images, 'time'),
                 "phase_vs_time_lo": cls.get_session_image(images, 'time'),
-                # Add the low back in if they get processed
-                # "flux_lo": cls.get_session_image(images, 'flux', 'lo'),
-                # "phase_vs_frequency_lo": cls.get_session_image(images, 'freq', 'lo'),
-                # "phase_vs_time_lo": cls.get_session_image(images, 'time', 'lo'),
             },
         )

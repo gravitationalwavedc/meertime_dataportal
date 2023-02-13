@@ -1,6 +1,7 @@
 import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
 import { columnsSizeFilter, formatDDMonYYYY, formatUTC, meerWatchLink } from '../helpers';
+import { meertime, molonglo } from '../telescopes';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
 import FoldDetailCard from './FoldDetailCard';
@@ -9,7 +10,7 @@ import ReactMarkdown from 'react-markdown';
 import { useScreenSize } from '../context/screenSize-context';
 
 /* eslint-disable complexity */
-const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
+const FoldDetailTable = ({ data: { foldObservationDetails }, jname, mainProject }) => {
     const { screenSize } = useScreenSize();
     const allRows = foldObservationDetails.edges.reduce(
         (result, edge) => [
@@ -49,39 +50,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
     const ephemerisUpdated = 
         foldObservationDetails.edges[foldObservationDetails.edges.length -1 ].node.ephemerisIsUpdatedAt;
 
-    const columns = [
-        { dataField: 'key', text: '', sort: false, hidden: true, toggle: false, csvExport: false },
-        { dataField: 'plotLink', text: '', sort: false, hidden: true, toggle: false, csvExport: false },
-        { dataField: 'utc', text: 'Timestamp', sort: true, headerClasses: 'fold-detail-utc' },
-        { dataField: 'project', text: 'Project', sort: true, 
-            screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'] },
-        { dataField: 'length', text: 'Length', sort: true, screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'],
-            formatter: (cell) => `${cell} [m]`, align: 'right', headerAlign: 'right' },
-        { dataField: 'beam', text: 'Beam', sort: true, screenSizes: ['sm', 'md', 'lg', 'xl', 'xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'bw', text: 'BW', sort: true, screenSizes: ['lg', 'xl', 'xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'nchan', text: 'Nchan', sort: true, screenSizes: ['lg', 'xl', 'xxl'],
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'band', text: 'Band', sort: true, screenSizes: ['lg', 'xl', 'xxl'] },
-        { dataField: 'nbin', text: 'Nbin', sort: true, screenSizes: ['lg', 'xl', 'xxl'],
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'nant', text: 'Nant', sort: true, screenSizes: ['lg', 'xl', 'xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'nantEff', text: 'Nant eff', sort: true, screenSizes: ['xl', 'xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'dmFold', text: 'DM fold', sort: true, screenSizes: ['xl', 'xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'dmMeerpipe', text: 'DM meerpipe', sort: true, screenSizes: ['xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'rmMeerpipe', text: 'RM meerpipe', sort: true, screenSizes: ['xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'snBackend', text: 'S/N backend', sort: true, screenSizes: ['xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'snMeerpipe', text: 'S/N meerpipe', sort: true, screenSizes: ['xxl'], 
-            align: 'right', headerAlign: 'right' },
-        { dataField: 'action', text: '', sort: false, align: 'right', headerAlign: 'right', csvExport: false },
-    ];
+    const columns = mainProject === 'MONSPSR' ? molonglo.columns : meertime.columns;
 
     const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
@@ -153,14 +122,14 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                         { ephemeris ? 
                             'View folding ephemeris' : 'Folding ephemeris unavailable'}
                     </Button>
-                    <Button
+                    { mainProject !== 'MONSPSR' && <Button
                         size="sm"
                         className="mr-2 mb-2"
                         as="a"
                         href={meerWatchLink(jname)}
                         variant="outline-secondary">
                         View MeerWatch
-                    </Button>
+                    </Button> }
                     { localStorage.isStaff === 'true' && foldObservationDetails.ephemerisLink &&
                         <Button
                             size="sm"
@@ -197,6 +166,7 @@ const FoldDetailTable = ({ data: { foldObservationDetails }, jname }) => {
                 plot
                 maxPlotLength={foldObservationDetails.maxPlotLength}
                 minPlotLength={foldObservationDetails.minPlotLength}
+                mainProject={mainProject}
                 keyField="key"
                 card={FoldDetailCard}
             />

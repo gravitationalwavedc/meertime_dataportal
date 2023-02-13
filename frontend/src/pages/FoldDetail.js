@@ -66,7 +66,7 @@ const FoldDetail = ({ match, relayEnvironment }) => {
                     }
 
                     if(props) {
-                        return <FoldDetailTable data={props} jname={jname} />;
+                        return <FoldDetailTable data={props} jname={jname} mainProject={mainProject} />;
                     }
 
                     return <h1>Loading...</h1>;

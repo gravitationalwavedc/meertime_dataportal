@@ -1,23 +1,14 @@
 import React, { useState } from 'react';
-import ComparisonImageGrid from './ComparisonImageGrid';
 import LightBox from 'react-image-lightbox';
 import PlotImage from './PlotImage';
-import ToaImages from './ToaImages';
 
-const ImageGrid = ({ images, project }) => {
+const MolongloImageGrid = ({ images, project }) => {
     const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
 
-    const rawImages = images.edges.filter(
-        ({ node }) => node.process.toLowerCase() === 'raw' && node.resolution === 'hi'
-    );
-
-    const processedImages = images.edges.filter(
-        ({ node }) => node.process.toLowerCase() !== 'raw' && node.process.toLowerCase() === project.toLowerCase()
-    );
+    const gridImages = images.edges.filter(({ node }) => node.process === project);
 
     const newlightBoxImages = [
-        ...rawImages.map(({ node }) => node.url),
-        ...processedImages.map(({ node }) => node.url)
+        ...gridImages.map(({ node }) => node.url)
     ];
 
     const [lightBoxImages, setLightBoxImages] = useState({ images: newlightBoxImages, imagesIndex: 0 });
@@ -30,16 +21,8 @@ const ImageGrid = ({ images, project }) => {
     };
 
     return <React.Fragment>
-        <ToaImages
-            processedImages={processedImages}
-            handleLightBox={openLightBox}
-        />
-        {processedImages.length > 0 ? <ComparisonImageGrid
-            rawImages={rawImages}
-            processedImages={processedImages}
-            openLightBox={openLightBox}
-            project={project} /> :
-            rawImages.map(({ node }) =>
+        {
+            gridImages.map(({ node }) =>
                 <PlotImage
                     key={node.url}
                     imageData={node}
@@ -75,4 +58,4 @@ const ImageGrid = ({ images, project }) => {
     </React.Fragment>;
 };
 
-export default ImageGrid;
+export default MolongloImageGrid;
