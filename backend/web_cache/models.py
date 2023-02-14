@@ -94,7 +94,9 @@ class SearchmodePulsar(BasePulsar):
         timespan = (latest_observation - first_observation).days + 1
         number_of_observations = target_observations.count()
 
-        projects = ", ".join({observation.project.short for observation in target_observations})
+        all_projects = ", ".join({observation.project.short for observation in target_observations})
+
+        most_common_project = max(Counter([observation.project.short for observation in target_observations]))
 
         try:
             main_project = latest_observation.project.program.name
@@ -105,7 +107,8 @@ class SearchmodePulsar(BasePulsar):
             main_project=main_project,
             jname=target.name,
             defaults={
-                "project": projects,
+                "all_projects": all_projects,
+                "project": most_common_project,
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
                 "timespan": timespan,
