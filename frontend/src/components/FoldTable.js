@@ -44,6 +44,7 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
         { dataField: 'projectKey', hidden: true, toggle: false, sort: false, csvExport: false },
         { dataField: 'jname', text: 'JName', sort: true },
         { dataField: 'project', text: 'Project', sort: true, screenSizes: ['xl', 'xxl'] },
+        { dataField: 'allProjects', text: 'All Projects', sort: true, screenSizes: ['xxl'] },
         { dataField: 'latestObservation', text: 'Last', sort: true },
         { dataField: 'firstObservation', text: 'First', sort: true, screenSizes: ['xxl'] },
         {
@@ -60,6 +61,14 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
         },
         {
             dataField: 'lastSnRaw', text: 'Last S/N raw', align: 'right', headerAlign: 'right',
+            sort: true, screenSizes: ['lg', 'xl', 'xxl']
+        },
+        {
+            dataField: 'highestSnRaw', text: 'High S/N raw', align: 'right', headerAlign: 'right',
+            sort: true, screenSizes: ['lg', 'xl', 'xxl']
+        },
+        {
+            dataField: 'lowestSnRaw', text: 'Low S/N raw', align: 'right', headerAlign: 'right',
             sort: true, screenSizes: ['lg', 'xl', 'xxl']
         },
         {
@@ -118,10 +127,13 @@ export default createRefetchContainer(
                     beam
                     latestObservation
                     firstObservation
+                    allProjects
                     project
                     timespan
                     numberOfObservations
                     lastSnRaw
+                    highestSnRaw
+                    lowestSnRaw
                     lastIntegrationMinutes
                     maxSnPipe
                     avgSnPipe
