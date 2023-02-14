@@ -1,4 +1,5 @@
 import math
+from collections import Counter
 from datetime import datetime
 from dateutil import parser
 from django.db import models
@@ -169,7 +170,9 @@ class FoldPulsar(BasePulsar):
 
         all_projects = ", ".join({observation.project.short for observation in folding_observations})
 
-        project_counts = folding_observations.values('project').annotate(project_count=Count('project'))
+        # Generate a list of different projects and how many observations belong to them.
+        # Then find the one with the highest count.
+        most_common_project = max(Counter([observation.project.short for observation in folding_observations]))
 
         bands = ", ".join({
             cls.get_band(observation.instrument_config.frequency) for observation in folding_observations
@@ -180,6 +183,7 @@ class FoldPulsar(BasePulsar):
             jname=pulsar.jname,
             defaults={
                 "all_projects": all_projects,
+                "project": most_common_project,
                 "band": bands,
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
