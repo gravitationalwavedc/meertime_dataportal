@@ -120,6 +120,8 @@ class SearchmodePulsar(BasePulsar):
 class FoldPulsar(BasePulsar):
     total_integration_hours = models.DecimalField(max_digits=12, decimal_places=1)
     last_sn_raw = models.DecimalField(max_digits=12, decimal_places=1)
+    highest_sn_raw = models.DecimalField(max_digits=12, decimal_places=1)
+    lowest_sn_raw = models.DecimalField(max_digits=12, decimal_places=1)
     avg_sn_pipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     max_sn_pipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     last_integration_minutes = models.FloatField(null=True)
@@ -168,7 +170,7 @@ class FoldPulsar(BasePulsar):
             if folding.processing.observation.duration
         ) / 60 / 60
 
-        last_sn_raw = results['snr'] if 'snr' in results else 0
+        last_sn_raw = results.get('snr', 0)
         last_integration_minutes = latest_folding_observation.processing.observation.duration / 60
 
         all_projects = ", ".join({observation.project.short for observation in folding_observations})
@@ -176,6 +178,11 @@ class FoldPulsar(BasePulsar):
         # Generate a list of different projects and how many observations belong to them.
         # Then find the one with the highest count.
         most_common_project = max(Counter([observation.project.short for observation in folding_observations]))
+
+        print(foldings.first().processing.results.get('snr', 0))
+
+        highest_sn_raw = max(folding.processing.results.get('snr', 1) for folding in foldings)
+        lowest_sn_raw = min(folding.processing.results.get('snr', 0) for folding in foldings)
 
         bands = ", ".join({
             cls.get_band(observation.instrument_config.frequency) for observation in folding_observations
@@ -194,6 +201,8 @@ class FoldPulsar(BasePulsar):
                 "number_of_observations": number_of_observations,
                 "total_integration_hours": total_integration_hours,
                 "last_sn_raw": last_sn_raw,
+                "highest_sn_raw": highest_sn_raw or 0,
+                "lowest_sn_raw": lowest_sn_raw or 0,
                 "last_integration_minutes": last_integration_minutes or 0,
                 "avg_sn_pipe": cls.get_average_snr_over_5min(folding_observations),
                 "max_sn_pipe": cls.get_max_snr_over_5min(folding_observations),

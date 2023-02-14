@@ -18,6 +18,8 @@ def create_fold_pulsar():
         beam="4",
         total_integration_hours=10,
         last_sn_raw=4,
+        highest_sn_raw=8,
+        lowest_sn_raw=1,
         avg_sn_pipe=3,
         max_sn_pipe=2,
         last_integration_minutes=1
