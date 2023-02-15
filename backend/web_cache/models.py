@@ -96,7 +96,20 @@ class SearchmodePulsar(BasePulsar):
 
         all_projects = ", ".join({observation.project.short for observation in target_observations})
 
-        most_common_project = max(Counter([observation.project.short for observation in target_observations]))
+        project_counts = {}
+
+        for observation in target_observations:
+            # If you like it, then you should have put a key on it.
+            project_short = observation.project.short
+            if project_short in project_counts:
+                # I'm a survivor, I'm not a quitter, I'm gonna increment until I'm a winner.
+                project_counts[project_short] += 1
+            else:
+                project_counts[project_short] = 1
+
+        # To the left, to the left
+        # Find the key with the highest count, to the left
+        most_common_project = max(project_counts, key=project_counts.get)
 
         try:
             main_project = latest_observation.project.program.name
