@@ -190,5 +190,6 @@ __generated__
 
 # Relay schema
 schema.json
+schema.graphql
 
 .idea
