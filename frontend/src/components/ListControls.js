@@ -32,6 +32,7 @@ const ListControls = ({
                     <Form.Group controlId="mainProjectSelect">
                         <Form.Label>Main Project</Form.Label>
                         <Form.Control
+                            role="main-project-select"
                             custom
                             as="select"
                             value={mainProject}
@@ -45,6 +46,7 @@ const ListControls = ({
                         <Form.Label>Project</Form.Label>
                         <Form.Control
                             custom
+                            role="project-select"
                             as="select"
                             value={project}
                             onChange={(event) => handleProjectFilter(event.target.value)}>
@@ -58,6 +60,7 @@ const ListControls = ({
                         <Form.Control
                             custom
                             as="select"
+                            role="band-select"
                             value={band}
                             onChange={(event) => handleBandFilter(event.target.value)}>
                             {currentProject.bandOptions.map(

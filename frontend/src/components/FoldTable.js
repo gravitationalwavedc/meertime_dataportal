@@ -21,6 +21,12 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay, match: { loca
         window.history.pushState({}, '', url);
     }, [band, project, mainProject, query, relay]);
 
+    const handleMainProjectChange = (newMainProject) => {
+        setMainProject(newMainProject);
+        setProject('All');
+        setBand('All');
+    };
+
     const rows = relayData.edges.reduce((result, edge) => {
         const row = { ...edge.node };
         row.projectKey = mainProject;
@@ -101,7 +107,7 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay, match: { loca
             setProject={setProject}
             project={project}
             mainProject={mainProject}
-            setMainProject={setMainProject}
+            setMainProject={handleMainProjectChange}
             band={band}
             setBand={setBand}
             query={query}
