@@ -2,20 +2,24 @@ import { Button, ButtonGroup } from 'react-bootstrap';
 import React, { useEffect, useState } from 'react';
 import { columnsSizeFilter, formatUTC } from '../helpers';
 import { createRefetchContainer, graphql } from 'react-relay';
-
 import DataView from './DataView';
 import Link from 'found/Link';
 import { useScreenSize } from '../context/screenSize-context';
 
-const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
+const FoldTable = ({ data: { foldObservations: relayData }, relay, match: { location: { query } } }) => {
     const { screenSize } = useScreenSize();
-    const [mainProject, setMainProject] = useState('meertime');
-    const [project, setProject] = useState('All');
-    const [band, setBand] = useState('All');
+    const [mainProject, setMainProject] = useState(query.mainProject || 'meertime');
+    const [project, setProject] = useState(query.project || 'All');
+    const [band, setBand] = useState(query.band || 'All');
 
     useEffect(() => {
         relay.refetch({ mainProject: mainProject, project: project, band: band });
-    }, [band, relay, project, mainProject]);
+        const url = new URL(window.location);
+        url.searchParams.set('mainProject', mainProject);
+        url.searchParams.set('project', project);
+        url.searchParams.set('band', band);
+        window.history.pushState({}, '', url);
+    }, [band, project, mainProject, query, relay]);
 
     const rows = relayData.edges.reduce((result, edge) => {
         const row = { ...edge.node };
@@ -98,8 +102,11 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay }) => {
             project={project}
             mainProject={mainProject}
             setMainProject={setMainProject}
+            band={band}
             setBand={setBand}
+            query={query}
             mainProjectSelect
+            rememberSearch={true}
         />
     );
 };

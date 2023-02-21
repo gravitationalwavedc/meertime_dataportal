@@ -6,8 +6,10 @@ import SearchRow from './SearchRow';
 
 
 const ListControls = ({
+    query,
     searchText,
     handleProjectFilter,
+    band,
     handleBandFilter,
     handleMainProjectFilter,
     mainProject,
@@ -17,9 +19,10 @@ const ListControls = ({
     isTableView,
     setIsTableView,
     columnToggleProps,
+    rememberSearch,
     exportCSVProps }) => {
 
-    const currentProject = getProject(mainProject); 
+    const currentProject = getProject(mainProject);
     const subprojectOptions = getSubProjectOptions(currentProject.subprojects);
 
     return (
@@ -55,8 +58,8 @@ const ListControls = ({
                         <Form.Control
                             custom
                             as="select"
+                            value={band}
                             onChange={(event) => handleBandFilter(event.target.value)}>
-                            <option value='All'>All</option>
                             {currentProject.bandOptions.map(
                                 value => <option value={value} key={value}>{value}</option>
                             )}
@@ -65,17 +68,20 @@ const ListControls = ({
                 </Col>}
             </Form.Row>
             <SearchRow
+                query={query}
                 setIsTableView={setIsTableView}
                 isTableView={isTableView}
                 searchText={searchText}
                 searchProps={searchProps}
                 columnToggleProps={columnToggleProps}
-                exportCSVProps={exportCSVProps} />
+                exportCSVProps={exportCSVProps}
+                rememberSearch={rememberSearch}/>
         </>);
 };
 
 ListControls.defaultProps = {
-    searchText: 'Find a pulsar...'
+    searchText: 'Find a pulsar...',
+    rememberSearch: false
 };
 
 export default ListControls;

@@ -381,6 +381,12 @@ class FoldPulsarDetail(models.Model):
     def get_flux(cls, folding, pipeline_name):
         """Get the flux value for a folding observation."""
         # The order to try projects as set by the science team.
+
+        # ToDo: Implement molonglo flux data
+        # Molonglo pipeline name is MONSPSR_CLEAN?
+        # if pipeline_name == 'MONSPSR_CLEAN':
+        #    return folding.processing.processings_set.last().results.get('flux', None)
+
         project_priority = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']
         # Remove the actual folding observation project because we try that first.
 

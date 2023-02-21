@@ -23,7 +23,7 @@
     "babel-preset-react-app": "^9.1.2",
     "bootstrap": "^4.5.3",
     "camelcase": "^5.3.1",
-    "caniuse-lite": "^1.0.30001344",
+    "caniuse-lite": "^1.0.30001452",
     "case-sensitive-paths-webpack-plugin": "2.3.0",
     "css-loader": "3.4.2",
     "dotenv": "8.2.0",
