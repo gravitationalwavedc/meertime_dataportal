@@ -16,6 +16,7 @@ default:
     - python3 -m venv $POETRY_HOME
     - $POETRY_HOME/bin/pip install poetry
     - $POETRY_HOME/bin/poetry --version
+    - cp backend/.env.template backend/.env
 
 
 django-tests:
