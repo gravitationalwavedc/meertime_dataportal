@@ -28,8 +28,8 @@ default:
 
 django-tests:
   variables:
-    MYSQL_USER: "root"
-    MYSQL_PASSWORD: "mysqlrootpassword"
+    MYSQL_USER: "buffy"
+    MYSQL_PASSWORD: "islayvampires"
     DB_HOST: "mysql"
     MYSQL_PORT: "3306"
 
