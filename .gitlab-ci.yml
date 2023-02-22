@@ -4,9 +4,9 @@ services:
 variables:
   POETRY_HOME: "/opt/poetry"
   MYSQL_ROOT_PASSWORD: "mysqlrootpassword"
-  MYSQL_DATABASE: "meertime"
-  MYSQL_USER: "mysql_user"
-  MYSQL_PASSWORD: "mysqlpassword"
+  MYSQL_DATABASE: "test_meertime"
+  MYSQL_USER: "root"
+  MYSQL_PASSWORD: "mysqlrootpassword"
   DB_HOST: "mysql"
   MYSQL_PORT: "3306"
 
@@ -86,8 +86,9 @@ code-quality:
 
 flake8:
   script:
+    - cd backend/
     - pip3 install flake8-gl-codeclimate
-    - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json backend/
+    - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json .
   artifacts:
     reports:
-      codequality: gl-code-quality-report.json
+      codequality: backend/gl-code-quality-report.json
