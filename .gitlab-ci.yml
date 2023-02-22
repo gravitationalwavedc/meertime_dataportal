@@ -14,7 +14,7 @@ default:
     - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
     - echo $POETRY_HOME
     - python3 -m venv $POETRY_HOME
-    - $POETRY_HOME/bin/pip install poetry==1.2.0
+    - $POETRY_HOME/bin/pip install poetry
     - $POETRY_HOME/bin/poetry --version
 
 
