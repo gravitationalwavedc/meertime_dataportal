@@ -34,13 +34,10 @@ django-tests:
   script:
     - cd backend/
     - $POETRY_HOME/bin/poetry install
-    - $POETRY_HOME/bin/poetry run pytest --junit-xml=reports/junit.xml --cov= --cov-report xml:reports/coverage.xml
+    - $POETRY_HOME/bin/poetry run pytest --junit-xml=reports/junit.xml
 
   artifacts:
     reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: backend/reports/coverage.xml
       junit: backend/reports/junit.xml
 
 
