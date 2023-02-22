@@ -40,7 +40,7 @@ npm-tests:
     - eval "[ -f .nvmrc ] && nvm install && nvm use && npm install npm@8.5.5"
     - npm install
     - npm run relay
-    - npm run test-ci
+    - CI=true npm run test
 
   artifacts:
     reports:
