@@ -1,5 +1,5 @@
 variables:
-  POETRY_HOME: "opt/poetry"
+  POETRY_HOME: "/opt/poetry"
 
 default:
   image:
