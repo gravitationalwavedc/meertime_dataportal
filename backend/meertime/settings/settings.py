@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "mathfilters",
     "graphene_django",
     "user_manage",
+    "django_jenkins"
 ]
 
 AUTH_USER_MODEL = 'user_manage.User'

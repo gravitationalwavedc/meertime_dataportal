@@ -25,8 +25,8 @@ django-filter = "^2.4.0"
 django-extensions = "^3.0.9"
 django-cors-headers = "^3.5.0"
 django-debug-toolbar = "^2.2"
-jenkins = "^1.0.2"
 tqdm = "^4.64.1"
+django-jenkins = "^0.110.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.0"
