@@ -5,10 +5,6 @@ variables:
   POETRY_HOME: "/opt/poetry"
   MYSQL_ROOT_PASSWORD: "mysqlrootpassword"
   MYSQL_DATABASE: "meertime"
-  MYSQL_USER: "root"
-  MYSQL_PASSWORD: "mysqlrootpassword"
-  DB_HOST: "mysql"
-  MYSQL_PORT: "3306"
 
 default:
   image:
@@ -29,6 +25,12 @@ default:
 
 
 django-tests:
+  variables:
+    MYSQL_USER: "root"
+    MYSQL_PASSWORD: "mysqlrootpassword"
+    DB_HOST: "mysql"
+    MYSQL_PORT: "3306"
+
   stage: test
   script:
     - cd backend/
