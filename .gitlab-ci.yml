@@ -7,6 +7,8 @@ variables:
   MYSQL_DATABASE: "meertime"
   MYSQL_USER: "buffy"
   MYSQL_PASSWORD: "islayvampires"
+  DB_HOST: "mysql"
+  MYSQL_PORT: "3306"
 
 default:
   image:
@@ -24,15 +26,10 @@ default:
     - $POETRY_HOME/bin/pip install poetry
     - $POETRY_HOME/bin/poetry --version
     - cp backend/.env.template backend/.env
+    - echo "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql
 
 
 django-tests:
-  variables:
-    MYSQL_USER_2: "root"
-    MYSQL_PASSWORD_2: "mysqlrootpassword"
-    DB_HOST: "mysql"
-    MYSQL_PORT: "3306"
-
   stage: test
   script:
     - cd backend/
