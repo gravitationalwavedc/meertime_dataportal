@@ -11,6 +11,24 @@
       "!src/relayEnvironment.js",
       "!src/index.js"
     ],
+    "reporters": [
+      "default",
+      [
+        "jest-junit",
+        {
+          "outputDirectory": "reports/jest",
+          "outputName": "junit.xml"
+        }
+      ]
+    ],
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "lcov",
+      "text",
+      "clover",
+      "cobertura"
+    ],
     "setupFiles": [
       "react-app-polyfill/jsdom",
       "jest-localstorage-mock"

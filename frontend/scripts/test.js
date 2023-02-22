@@ -47,7 +47,9 @@ if (
     // https://github.com/facebook/create-react-app/issues/5210
     const hasSourceControl = isInGitRepository() || isInMercurialRepository();
     argv.push(hasSourceControl ? '--watch' : '--watchAll');
+} else if ( process.env.CI ) {
+    console.log("Running CI tests");
+    argv.push('--ci --reporters=default --reporters=jest-junit');
 }
-
 
 jest.run(argv);

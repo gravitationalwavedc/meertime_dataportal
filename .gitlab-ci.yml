@@ -1,0 +1,79 @@
+default:
+  image:
+    name: ubuntu:20.04
+    entrypoint: ["/usr/bin/env"]
+
+  before_script:
+    - apt -y update
+    - apt -y install apt-utils
+    - apt -y install net-tools python3.8 python3-pip git curl wget
+    - apt -y upgrade
+    - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+    - python3 -m pip install --user pipx
+    - python3 -m pipx ensurepath
+    - pipx install poetry
+
+
+django-tests:
+  stage: test
+  script:
+    - cd backend/
+    - poetry install
+    - poetry run python manage.py jenkins --enable-coverage --coverage-rcfile=.coveragerc
+
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: backend/reports/coverage.xml
+      junit: backend/reports/junit.xml
+
+
+npm-tests:
+  stage: test
+  script:
+    - cd backend/
+    - poetry install
+    - poetry run python manage.py graphql_schema
+    - cd ../frontend
+    - export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" --no-use
+    - eval "[ -f .nvmrc ] && nvm install && nvm use && npm install npm@8.5.5"
+    - npm install
+    - npm run relay
+    - npm run test-ci
+
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: frontend/coverage/cobertura-coverage.xml
+      junit: frontend/reports/jest/junit.xml
+
+
+code-quality:
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+    SP_VERSION: 0.85.26
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  before_script: []
+  script:
+    - docker run
+        --env SOURCE_CODE="$PWD"
+        --volume "$PWD":/code
+        --volume /var/run/docker.sock:/var/run/docker.sock
+        "registry.gitlab.com/gitlab-org/ci-cd/codequality:$SP_VERSION" /code
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+
+
+flake8:
+  script:
+    - pip3 install flake8-gl-codeclimate
+    - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json src/
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
