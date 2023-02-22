@@ -12,6 +12,7 @@ default:
     - python3 -m pip install pipx
     - python3 -m pipx ensurepath
     - pipx install poetry
+    - pipx ensurepath
 
 
 django-tests:
