@@ -9,7 +9,7 @@ default:
     - apt -y install net-tools python3.8 python3-pip git curl wget
     - apt -y upgrade
     - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-    - python3 -m pip install --user pipx
+    - python3 -m pip3 install pipx
     - python3 -m pipx ensurepath
     - pipx install poetry
 
