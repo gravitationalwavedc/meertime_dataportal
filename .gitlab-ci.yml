@@ -4,7 +4,7 @@ services:
 variables:
   POETRY_HOME: "/opt/poetry"
   MYSQL_ROOT_PASSWORD: "mysqlrootpassword"
-  MYSQL_DATABASE: "test_meertime"
+  MYSQL_DATABASE: "meertime"
   MYSQL_USER: "buffy"
   MYSQL_PASSWORD: "islayvampires"
 
@@ -28,8 +28,8 @@ default:
 
 django-tests:
   variables:
-    MYSQL_USER: "buffy"
-    MYSQL_PASSWORD: "islayvampires"
+    MYSQL_USER_2: "root"
+    MYSQL_PASSWORD_2: "mysqlrootpassword"
     DB_HOST: "mysql"
     MYSQL_PORT: "3306"
 
