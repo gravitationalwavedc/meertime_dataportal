@@ -7,7 +7,7 @@ variables:
   MYSQL_DATABASE: "meertime"
   MYSQL_USER: "mysql_user"
   MYSQL_PASSWORD: "mysqlpassword"
-  DB_HOST: $MYSQL_HOST
+  DB_HOST: mysql
   MYSQL_PORT: 3306
 
 default:
