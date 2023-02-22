@@ -5,6 +5,8 @@ variables:
   POETRY_HOME: "/opt/poetry"
   MYSQL_ROOT_PASSWORD: "mysqlrootpassword"
   MYSQL_DATABASE: "meertime"
+  MYSQL_USER: "buffy"
+  MYSQL_PASSWORD: "islayvampires"
 
 default:
   image:
