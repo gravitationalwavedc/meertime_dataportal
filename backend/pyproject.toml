@@ -26,7 +26,6 @@ django-extensions = "^3.0.9"
 django-cors-headers = "^3.5.0"
 django-debug-toolbar = "^2.2"
 tqdm = "^4.62.1"
-setuptools = "^67.3.2"
 jenkins = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
