@@ -7,7 +7,7 @@ variables:
   MYSQL_DATABASE: "meertime"
   MYSQL_USER: "mysql_user"
   MYSQL_PASSWORD: "mysqlpassword"
-  MYSQL_PORT: 3306
+  DB_HOST: MYSQL_HOST
 
 default:
   image:
@@ -86,7 +86,7 @@ code-quality:
 flake8:
   script:
     - pip3 install flake8-gl-codeclimate
-    - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json src/
+    - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json backend/
   artifacts:
     reports:
       codequality: gl-code-quality-report.json
