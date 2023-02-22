@@ -193,3 +193,7 @@ schema.json
 schema.graphql
 
 .idea
+
+# Don't track reports
+frontend/reports/
+backend/reports/

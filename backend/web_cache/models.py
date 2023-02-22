@@ -192,8 +192,6 @@ class FoldPulsar(BasePulsar):
         # Then find the one with the highest count.
         most_common_project = max(Counter([observation.project.short for observation in folding_observations]))
 
-        print(foldings.first().processing.results.get('snr', 0))
-
         highest_sn_raw = max(folding.processing.results.get('snr', 1) for folding in foldings)
         lowest_sn_raw = min(folding.processing.results.get('snr', 0) for folding in foldings)
 
