@@ -291,7 +291,7 @@ class FoldPulsarDetail(models.Model):
     project = models.CharField(max_length=50)
     embargo_end_date = models.DateTimeField(null=True)
     proposal = models.CharField(max_length=40)
-    ephemeris = JSONField()
+    ephemeris = JSONField(null=True)
     ephemeris_is_updated_at = models.DateTimeField(null=True)
     length = models.FloatField(null=True)
     beam = models.IntegerField()
@@ -378,16 +378,15 @@ class FoldPulsarDetail(models.Model):
     @classmethod
     def get_flux(cls, folding, pipeline_name):
         """Get the flux value for a folding observation."""
+
+        # If it's a molonglo observation we can just get the latest flux value.
+        if pipeline_name == 'MONSPSR_CLEAN':
+            return folding.processing.processings_set.get(pipeline_name=pipeline_name).results.get('flux', None)
+
         # The order to try projects as set by the science team.
-
-        # ToDo: Implement molonglo flux data
-        # Molonglo pipeline name is MONSPSR_CLEAN?
-        # if pipeline_name == 'MONSPSR_CLEAN':
-        #    return folding.processing.processings_set.last().results.get('flux', None)
-
         project_priority = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']
-        # Remove the actual folding observation project because we try that first.
 
+        # Remove the actual folding observation project because we try that first.
         project_priority_order = [project for project in project_priority if project is not pipeline_name]
 
         try:
