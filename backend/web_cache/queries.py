@@ -50,7 +50,6 @@ class FoldPulsarDetailNode(DjangoObjectType):
     class Meta:
         model = FoldPulsarDetail
         interfaces = (relay.Node,)
-        exclude = ['ephemeris']
 
     ephemeris = graphene.String()
     band = graphene.String()
