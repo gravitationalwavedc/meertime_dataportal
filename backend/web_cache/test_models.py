@@ -127,7 +127,3 @@ def test_get_session_image():
     assert SessionPulsar.get_session_image(images, 'flux', 'lo') == flux_url_lo
     assert SessionPulsar.get_session_image(images, 'freq', 'lo') == freq_url_lo
     assert SessionPulsar.get_session_image(images, 'time', 'lo') == time_url_lo
-
-@pytest.mark.django_db
-def test_foldpulsar_get_flux():
-    folding = create_pulsar_with_observations()
