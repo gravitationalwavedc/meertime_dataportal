@@ -53,7 +53,7 @@ class Ephemerides(models.Model):
     # work around this problem. To try and ensure this doens't cause issues, we use ephemeris in get_or_create
     # lookup but according to the docs, this does not guarantee there won't be duplicates without a unique
     # constraint here.
-    ephemeris = JSONField()
+    ephemeris = JSONField(null=True)
     ephemeris_hash = models.CharField(max_length=32, editable=False, null=True)
     p0 = models.DecimalField(max_digits=limits["p0"]["max"], decimal_places=limits["p0"]["deci"])
     dm = models.FloatField()
