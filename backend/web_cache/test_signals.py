@@ -70,13 +70,6 @@ def create_pulsar_with_observations():
         created_by="Buffy Summers",
     )
 
-    molonglo_pipeline = Pipelines.objects.create(
-        name='MONSPSR_CLEAN',
-        revision=1,
-        created_at=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
-        created_by="Willow Rosenburg",
-    )
-
     processing = Processings.objects.create(
         observation=observation,
         pipeline=pipeline,
@@ -95,15 +88,6 @@ def create_pulsar_with_observations():
         results={'snr': 42.1, 'flux': 1.22},
     )
 
-    Processings.objects.create(
-        observation=observation,
-        parent=processing,
-        pipeline=molonglo_pipeline,
-        embargo_end=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
-        location="you",
-        results={}
-    )
-
     ephemerides = Ephemerides.objects.create(
         pulsar=pulsar,
         ephemeris={},
@@ -120,10 +104,6 @@ def create_pulsar_with_observations():
 
     folding = Foldings.objects.create(
         processing=processing, folding_ephemeris=ephemerides, nbin=43, npol=42, nchan=21, tsubint=12.2
-    )
-
-    Foldings.objects.create(
-        processing=molonglo_pipeline, folding_ephemeris=ephemerides, nbin=43, npol=42, nchan=21, tsubint=12.2
     )
 
     filter_bankings = Filterbankings.objects.create(processing=processing, nbit=1, npol=2, nchan=3, tsamp=1.2, dm=2.1)
