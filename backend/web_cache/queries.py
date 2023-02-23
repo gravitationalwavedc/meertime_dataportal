@@ -29,7 +29,6 @@ class FoldDetailImageNode(DjangoObjectType):
     class Meta:
         model = FoldDetailImage
         interfaces = (relay.Node,)
-        exclude = ["FoldPulsarDetail"]
 
     # These attributes map to FoldDetailImage properties
     process = graphene.String()

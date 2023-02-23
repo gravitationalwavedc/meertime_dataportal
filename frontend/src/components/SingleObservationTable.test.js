@@ -1,8 +1,7 @@
+import { render, screen } from '@testing-library/react';
 import ObservationTimeView from './SingleObservationTable';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
 
-/* global mockRouter */
 /* eslint-disable react/display-name */
 
 jest.mock('found', () => ({
@@ -39,6 +38,7 @@ describe('observationTimeView component', () => {
                         node: {
                             beam: 1,
                             utc: '2020-02-04T00:21:21+00:00',
+                            project: 'meertime',
                             proposal: 'SCI-20180516-MB-02',
                             frequency: 1283.582031,
                             bw: 775.75,
@@ -88,8 +88,10 @@ describe('observationTimeView component', () => {
         };
 
         const { getByAltText } = render(<ObservationTimeView data={data} />);
-        expect(getByAltText('Plot profile using raw data.')).toHaveAttribute('src', expect.stringContaining('profile.mock.png'));
-        expect(getByAltText('Plot time using raw data.')).toHaveAttribute('src', expect.stringContaining('phaseVsTime.mock.png'));
+        expect(getByAltText('Plot profile using raw data.'))
+            .toHaveAttribute('src', expect.stringContaining('profile.mock.png'));
+        expect(getByAltText('Plot time using raw data.'))
+            .toHaveAttribute('src', expect.stringContaining('phaseVsTime.mock.png'));
         expect(
             getByAltText('Plot phase using raw data.'))
             .toHaveAttribute('src', expect.stringContaining('phaseVsFrequency.mock.png')
@@ -106,6 +108,7 @@ describe('observationTimeView component', () => {
                             beam: 1,
                             utc: '2020-02-04T00:21:21+00:00',
                             proposal: 'SCI-20180516-MB-02',
+                            project: 'meertime',
                             frequency: 1283.582031,
                             bw: 775.75,
                             ra: '14:24:12.76',

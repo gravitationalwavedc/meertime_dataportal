@@ -1,8 +1,9 @@
 import math
+from collections import Counter
 from datetime import datetime
 from dateutil import parser
 from django.db import models
-from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings, Pulsars, Pipelinefiles
+from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings, Pipelinefiles
 from django_mysql.models import JSONField
 from statistics import mean
 from web_cache.plot_types import PLOT_NAMES
@@ -17,6 +18,7 @@ class BasePulsar(models.Model):
 
     main_project = models.CharField(max_length=64)
     project = models.CharField(max_length=500)
+    all_projects = models.CharField(max_length=500)
     band = models.CharField(choices=BAND_CHOICES, max_length=50)
     jname = models.CharField(max_length=64)
     latest_observation = models.DateTimeField()
@@ -92,7 +94,22 @@ class SearchmodePulsar(BasePulsar):
         timespan = (latest_observation - first_observation).days + 1
         number_of_observations = target_observations.count()
 
-        projects = ", ".join({observation.project.short for observation in target_observations})
+        all_projects = ", ".join({observation.project.short for observation in target_observations})
+
+        project_counts = {}
+
+        for observation in target_observations:
+            # If you like it, then you should have put a key on it.
+            project_short = observation.project.short
+            if project_short in project_counts:
+                # I'm a survivor, I'm not a quitter, I'm gonna increment until I'm a winner.
+                project_counts[project_short] += 1
+            else:
+                project_counts[project_short] = 1
+
+        # To the left, to the left
+        # Find the key with the highest count, to the left
+        most_common_project = max(project_counts, key=project_counts.get)
 
         try:
             main_project = latest_observation.project.program.name
@@ -103,7 +120,8 @@ class SearchmodePulsar(BasePulsar):
             main_project=main_project,
             jname=target.name,
             defaults={
-                "project": projects,
+                "all_projects": all_projects,
+                "project": most_common_project,
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
                 "timespan": timespan,
@@ -115,6 +133,8 @@ class SearchmodePulsar(BasePulsar):
 class FoldPulsar(BasePulsar):
     total_integration_hours = models.DecimalField(max_digits=12, decimal_places=1)
     last_sn_raw = models.DecimalField(max_digits=12, decimal_places=1)
+    highest_sn_raw = models.DecimalField(max_digits=12, decimal_places=1)
+    lowest_sn_raw = models.DecimalField(max_digits=12, decimal_places=1)
     avg_sn_pipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     max_sn_pipe = models.DecimalField(max_digits=12, decimal_places=1, null=True)
     last_integration_minutes = models.FloatField(null=True)
@@ -162,11 +182,18 @@ class FoldPulsar(BasePulsar):
             for folding in foldings
             if folding.processing.observation.duration
         ) / 60 / 60
-        
-        last_sn_raw = results['snr'] if 'snr' in results else 0
+
+        last_sn_raw = results.get('snr', 0)
         last_integration_minutes = latest_folding_observation.processing.observation.duration / 60
 
-        projects = ", ".join({observation.project.short for observation in folding_observations})
+        all_projects = ", ".join({observation.project.short for observation in folding_observations})
+
+        # Generate a list of different projects and how many observations belong to them.
+        # Then find the one with the highest count.
+        most_common_project = max(Counter([observation.project.short for observation in folding_observations]))
+
+        highest_sn_raw = max(folding.processing.results.get('snr', 1) for folding in foldings)
+        lowest_sn_raw = min(folding.processing.results.get('snr', 0) for folding in foldings)
 
         bands = ", ".join({
             cls.get_band(observation.instrument_config.frequency) for observation in folding_observations
@@ -176,7 +203,8 @@ class FoldPulsar(BasePulsar):
             main_project=program_name,
             jname=pulsar.jname,
             defaults={
-                "project": projects,
+                "all_projects": all_projects,
+                "project": most_common_project,
                 "band": bands,
                 "latest_observation": latest_observation,
                 "first_observation": first_observation,
@@ -184,7 +212,9 @@ class FoldPulsar(BasePulsar):
                 "number_of_observations": number_of_observations,
                 "total_integration_hours": total_integration_hours,
                 "last_sn_raw": last_sn_raw,
-                "last_integration_minutes": last_integration_minutes if last_integration_minutes else 0,
+                "highest_sn_raw": highest_sn_raw or 0,
+                "lowest_sn_raw": lowest_sn_raw or 0,
+                "last_integration_minutes": last_integration_minutes or 0,
                 "avg_sn_pipe": cls.get_average_snr_over_5min(folding_observations),
                 "max_sn_pipe": cls.get_max_snr_over_5min(folding_observations),
                 "beam": latest_folding_observation.processing.observation.instrument_config.beam,
@@ -349,6 +379,12 @@ class FoldPulsarDetail(models.Model):
     def get_flux(cls, folding, pipeline_name):
         """Get the flux value for a folding observation."""
         # The order to try projects as set by the science team.
+
+        # ToDo: Implement molonglo flux data
+        # Molonglo pipeline name is MONSPSR_CLEAN?
+        # if pipeline_name == 'MONSPSR_CLEAN':
+        #    return folding.processing.processings_set.last().results.get('flux', None)
+
         project_priority = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']
         # Remove the actual folding observation project because we try that first.
 

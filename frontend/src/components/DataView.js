@@ -21,13 +21,15 @@ const DataView = ({
     project, 
     setProject, 
     setMainProject,
-    setBand, 
-    options, 
+    band,
+    setBand,
+    options,
     plot, 
     maxPlotLength,
-    minPlotLength,
     keyField,
     card,
+    query,
+    rememberSearch
   }) => {
     const { screenSize } = useScreenSize();
     const [isTableView, setIsTableView] = useState(["md", "lg", "xl", "xxl"].includes(screenSize));
@@ -60,8 +62,10 @@ const DataView = ({
                         }
                         <Row className='bg-gray-100'>
                             <Col lg={10} md={12}>
-                                <ListControls 
-                                    searchProps={props.searchProps} 
+                                <ListControls
+                                    query={query}
+                                    searchProps={props.searchProps}
+                                    band={band}
                                     handleBandFilter={setBand}
                                     handleMainProjectFilter={setMainProject}
                                     handleProjectFilter={setProject}
@@ -72,6 +76,7 @@ const DataView = ({
                                     setIsTableView={setIsTableView}
                                     isTableView={isTableView}
                                     exportCSVProps={props.csvProps}
+                                    rememberSearch={rememberSearch}
                                 />
                             </Col>
                         </Row>
@@ -111,6 +116,7 @@ DataView.defaultProps = {
         disablePageTitle: true, 
         CustomSizePerPageBtn,
     },
+    rememberSearch: false
 };
 
 export default DataView;

@@ -1,0 +1,92 @@
+services:
+  - mysql:8.0
+
+variables:
+  POETRY_HOME: "/opt/poetry"
+  MYSQL_ROOT_PASSWORD: "mysqlrootpassword"
+  MYSQL_DATABASE: "meertime"
+  MYSQL_USER: "buffy"
+  MYSQL_PASSWORD: "islayvampires"
+  DB_HOST: "mysql"
+  MYSQL_PORT: "3306"
+
+default:
+  image:
+    name: ubuntu:20.04
+    entrypoint: ["/usr/bin/env"]
+
+  before_script:
+    - apt -y update
+    - apt -y install apt-utils
+    - apt -y install net-tools python3.8 python3-pip git curl wget python3.8-venv mysql-client libmysqlclient-dev
+    - apt -y upgrade
+    - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+    - echo $POETRY_HOME
+    - python3 -m venv $POETRY_HOME
+    - $POETRY_HOME/bin/pip install poetry
+    - $POETRY_HOME/bin/poetry --version
+    - cp backend/.env.template backend/.env
+    - echo "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql
+
+
+django-tests:
+  stage: test
+  script:
+    - cd backend/
+    - $POETRY_HOME/bin/poetry install
+    - $POETRY_HOME/bin/poetry run pytest --junit-xml=reports/junit.xml
+
+  artifacts:
+    reports:
+      junit: backend/reports/junit.xml
+
+
+npm-tests:
+  stage: test
+  script:
+    - cd backend/
+    - $POETRY_HOME/bin/poetry install
+    - $POETRY_HOME/bin/poetry run python manage.py graphql_schema
+    - cd ../frontend
+    - export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" --no-use
+    - eval "[ -f .nvmrc ] && nvm install && nvm use && npm install npm@8.5.5"
+    - npm install
+    - npm run relay
+    - CI=true npm run test
+
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: frontend/coverage/cobertura-coverage.xml
+      junit: frontend/reports/jest/junit.xml
+
+
+code-quality:
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+    SP_VERSION: 0.85.26
+  allow_failure: true
+  services:
+    - docker:stable-dind
+  before_script: []
+  script:
+    - docker run
+        --env SOURCE_CODE="$PWD"
+        --volume "$PWD":/code
+        --volume /var/run/docker.sock:/var/run/docker.sock
+        "registry.gitlab.com/gitlab-org/ci-cd/codequality:$SP_VERSION" /code
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+
+
+flake8:
+  script:
+    - cd backend/
+    - pip3 install flake8-gl-codeclimate
+    - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json .
+  artifacts:
+    reports:
+      codequality: backend/gl-code-quality-report.json

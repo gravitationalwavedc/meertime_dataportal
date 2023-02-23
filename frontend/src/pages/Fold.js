@@ -10,13 +10,13 @@ const query = graphql`
     ...FoldTable_data
   }`;
 
-const Fold = () =>
+const Fold = ({ match }) =>
     <MainLayout title='Fold Observations'>
         <QueryRenderer
             environment={environment}
             query={query}
             fetchPolicy="store-and-network"
-            render = {({ props }) => props ? <FoldTable data={props} /> : <h1>Loading...</h1>}
+            render = {({ props }) => props ? <FoldTable data={props} match={match}/> : <h1>Loading...</h1>}
         />
     </MainLayout>;
 

@@ -15,6 +15,7 @@ const molonglo = {
         'Mo-EW',
     ],
     bandOptions: [
+        'All',
         'UHF-NS',
         'UHF-EW'
     ],
