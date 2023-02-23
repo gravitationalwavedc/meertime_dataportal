@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil import parser
 from django.db import models
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings, Pipelinefiles
-from django_mysql.models import JSONField
+from django.db.models import JSONField
 from statistics import mean
 from web_cache.plot_types import PLOT_NAMES
 
