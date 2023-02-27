@@ -381,7 +381,7 @@ class FoldPulsarDetail(models.Model):
 
         # If it's a molonglo observation we can just get the latest flux value.
         if pipeline_name == 'MONSPSR_CLEAN':
-            return folding.processing.processings_set.get(pipeline_name=pipeline_name).results.get('flux', None)
+            return folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('flux', None)
 
         # The order to try projects as set by the science team.
         project_priority = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']

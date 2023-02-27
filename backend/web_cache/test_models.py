@@ -1,8 +1,8 @@
 import pytest
 from datetime import datetime
 from web_cache.models import FoldPulsar, FoldPulsarDetail, FoldDetailImage, SessionPulsar
-from web_cache.test_signals import create_pulsar_with_observations
-from dataportal.models import Sessions, Telescopes
+from web_cache.testing_utils import create_pulsar_with_observations, create_folding_for_molonglo
+from dataportal.models import Sessions, Telescopes, Foldings, Processings
 
 
 def create_fold_pulsar():
@@ -127,3 +127,10 @@ def test_get_session_image():
     assert SessionPulsar.get_session_image(images, 'flux', 'lo') == flux_url_lo
     assert SessionPulsar.get_session_image(images, 'freq', 'lo') == freq_url_lo
     assert SessionPulsar.get_session_image(images, 'time', 'lo') == time_url_lo
+
+
+@pytest.mark.django_db
+def test_get_flux():
+    create_folding_for_molonglo()
+    folding = Foldings.objects.last()
+    assert FoldPulsarDetail.get_flux(folding, "MONSPSR_CLEAN") == 1.22

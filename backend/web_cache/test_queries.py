@@ -1,7 +1,7 @@
 import pytest
 from django.contrib.auth import get_user_model
 from graphql_jwt.testcases import JSONWebTokenClient
-from web_cache.test_signals import create_pulsar_with_observations
+from web_cache.testing_utils import create_pulsar_with_observations
 from web_cache.models import FoldPulsarDetail, SessionDisplay
 from dataportal.models import Telescopes, Sessions
 

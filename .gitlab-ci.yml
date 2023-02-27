@@ -52,6 +52,9 @@ django-tests:
 
   artifacts:
     reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: backend/coverage.xml
       junit: backend/reports/junit.xml
 
 
