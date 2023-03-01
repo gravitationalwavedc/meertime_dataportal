@@ -3,11 +3,10 @@ import json
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, OuterRef, Subquery, Max, Min, ExpressionWrapper, Count, Sum
+from django.db.models import F, OuterRef, Subquery, Max, Min, ExpressionWrapper, Count, Sum, JSONField
 from django.db.models.constraints import UniqueConstraint
 from django.utils.translation import ugettext_lazy as _
 from django_mysql.models import Model
-from django_mysql.models import JSONField
 from .logic import get_meertime_filters, get_band
 from datetime import timedelta
 from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location
@@ -54,7 +53,7 @@ class Ephemerides(models.Model):
     # work around this problem. To try and ensure this doens't cause issues, we use ephemeris in get_or_create
     # lookup but according to the docs, this does not guarantee there won't be duplicates without a unique
     # constraint here.
-    ephemeris = JSONField()
+    ephemeris = JSONField(null=True)
     ephemeris_hash = models.CharField(max_length=32, editable=False, null=True)
     p0 = models.DecimalField(max_digits=limits["p0"]["max"], decimal_places=limits["p0"]["deci"])
     dm = models.FloatField()

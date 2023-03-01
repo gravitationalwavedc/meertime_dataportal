@@ -7,7 +7,7 @@ export const handleSearch = (data, columns, search) => {
     // This search function mirrors the search done by standard BootsrapReactTable minus some of the features
     // that are only applicable to columns. 
     // It allows searching of any of the data values and doesn't care about letter case.
-    const searchText = search.searchText.toLowerCase();
+    const searchText = search.searchText ? search.searchText.toLowerCase() : '';
 
     return data.filter((row) => {
         for (let columnIndex = 0; columnIndex < columns.length; columnIndex += 1) {

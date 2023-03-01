@@ -4,7 +4,7 @@ from datetime import datetime
 from dateutil import parser
 from django.db import models
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings, Pipelinefiles
-from django_mysql.models import JSONField
+from django.db.models import JSONField
 from statistics import mean
 from web_cache.plot_types import PLOT_NAMES
 
@@ -150,7 +150,8 @@ class FoldPulsar(BasePulsar):
         by the web application through graphql.
 
         Parameters:
-            folding: A Foldings model instance.
+            pulsar: A pulsar model instance.
+            program_name: String that represents the program name used for filtering foldings.
         """
 
         # Get various related model objects required using the saved folding instance as a base.
@@ -226,9 +227,11 @@ class FoldPulsar(BasePulsar):
     def get_snr_results(cls, pulsar_observations):
         observation_results = []
         for observation in pulsar_observations:
-            for process in observation.processings_set.all():
-                if 'snr' in process.results and 'length' in process.results:
-                    observation_results.append({'snr': process.results['snr'], 'length': observation.duration})
+            observation_results.extend(
+                {'snr': process.results['snr'], 'length': observation.duration}
+                for process in observation.processings_set.all()
+                if 'snr' in process.results and 'length' in process.results
+            )
         return observation_results
 
     @classmethod
@@ -291,7 +294,7 @@ class FoldPulsarDetail(models.Model):
     project = models.CharField(max_length=50)
     embargo_end_date = models.DateTimeField(null=True)
     proposal = models.CharField(max_length=40)
-    ephemeris = JSONField()
+    ephemeris = JSONField(null=True)
     ephemeris_is_updated_at = models.DateTimeField(null=True)
     length = models.FloatField(null=True)
     beam = models.IntegerField()
@@ -337,8 +340,9 @@ class FoldPulsarDetail(models.Model):
         return Sessions.get_session(self.utc)
 
     @classmethod
-    def get_sn_meerpipe(cls, folding, pipeline_name):
+    def get_sn_meerpipe(cls, folding, project_short):
         try:
+            pipeline_name = f"MeerPIPE_{project_short}"
             return folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('snr', None)
         except Processings.DoesNotExist:
             return None
@@ -376,28 +380,30 @@ class FoldPulsarDetail(models.Model):
         return ''
 
     @classmethod
-    def get_flux(cls, folding, pipeline_name):
+    def get_flux(cls, folding, project_short):
         """Get the flux value for a folding observation."""
-        # The order to try projects as set by the science team.
 
-        # ToDo: Implement molonglo flux data
-        # Molonglo pipeline name is MONSPSR_CLEAN?
-        # if pipeline_name == 'MONSPSR_CLEAN':
-        #    return folding.processing.processings_set.last().results.get('flux', None)
+        # If it's a molonglo observation we can just get the latest flux value.
+        if project_short == 'MONSPSR_TIMING':
+            try:
+                return folding.processing.processings_set.get(pipeline__name='MONSPSR_CLEAN').results.get('flux', None)
+            except Processings.DoesNotExist:
+                return None
 
-        project_priority = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']
-        # Remove the actual folding observation project because we try that first.
-
-        project_priority_order = [project for project in project_priority if project is not pipeline_name]
-
+        pipeline_name = f"MeerPIPE_{project_short}"
         try:
             # We want the flux value set to the real project if there is one.
             flux = folding.processing.processings_set.get(pipeline__name=pipeline_name).results.get('flux', None)
 
             if flux is not None:
                 return flux
+            # The order to try projects as set by the science team.
+            project_priority = ['MeerPIPE_PTA', 'MeerPIPE_TPA', 'MeerPIPE_RelBin']
 
-            # Its better to have a value from another project than no value at all.
+            # Remove the actual folding observation project because we try that first.
+            project_priority_order = [project for project in project_priority if project is not pipeline_name]
+
+            # It's better to have a value from another project than no value at all.
             for project in project_priority_order:
                 flux = folding.processing.processings_set.get(pipeline__name=project).results.get('flux', None)
                 if flux is not None:
@@ -410,9 +416,9 @@ class FoldPulsarDetail(models.Model):
     def update_or_create(cls, folding):
         pulsar = folding.folding_ephemeris.pulsar
         observation = folding.processing.observation
+        main_project = observation.project.program.name
 
         try:
-            main_project = observation.project.program.name
             fold_pulsar = FoldPulsar.objects.get(jname=pulsar.jname, main_project=main_project)
         except FoldPulsar.DoesNotExist:
             print("FoldPulsar ", pulsar.jname, main_project, " does not exist")
@@ -428,9 +434,10 @@ class FoldPulsarDetail(models.Model):
         embargo_end_date = observation.utc_start + observation.project.embargo_period
 
         results = folding.processing.results or {}
-        pipeline_name = f"MeerPIPE_{observation.project.short}"
-        sn_meerpipe = cls.get_sn_meerpipe(folding, pipeline_name)
-        flux = cls.get_flux(folding, pipeline_name)
+        project_short = observation.project.short
+
+        sn_meerpipe = cls.get_sn_meerpipe(folding, project_short)
+        flux = cls.get_flux(folding, project_short)
 
         new_fold_pulsar_detail, created = FoldPulsarDetail.objects.update_or_create(
             fold_pulsar=fold_pulsar,

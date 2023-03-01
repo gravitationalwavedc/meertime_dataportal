@@ -13,3 +13,5 @@ DATABASES = {
         "PORT": env("MYSQL_PORT", default=3306),
     }
 }
+
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

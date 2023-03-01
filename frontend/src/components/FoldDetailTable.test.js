@@ -4,44 +4,47 @@ import FoldDetailTable from './FoldDetailTable';
 import React from 'react';
 
 /* eslint-disable react/display-name,  max-len */
-jest.mock('found/Link',() => ({ children }) => <div>{children}</div>);
+jest.mock('found/Link', () => ({ children }) => <div>{children}</div>);
 
 jest.mock('found', () => ({
     Link: component => <div>{component.children}</div>,
-    useRouter: () => ({ router: {
-        push: jest.fn(),
-        replace: jest.fn(),
-        go: jest.fn(),
-        createHref: jest.fn(),
-        createLocation: jest.fn(),
-        isActive: jest.fn(),
-        matcher: {
-            match: jest.fn(),
-            getRoutes: jest.fn(),
+    useRouter: () => ({
+        router: {
+            push: jest.fn(),
+            replace: jest.fn(),
+            go: jest.fn(),
+            createHref: jest.fn(),
+            createLocation: jest.fn(),
             isActive: jest.fn(),
-            format: jest.fn()
-        },
-        addTransitionHook: jest.fn()
-    } }) 
+            matcher: {
+                match: jest.fn(),
+                getRoutes: jest.fn(),
+                isActive: jest.fn(),
+                format: jest.fn()
+            },
+            addTransitionHook: jest.fn()
+        }
+    })
 }));
 
-const { ResizeObserver } = window;
-
-beforeEach(() => {
-  delete window.ResizeObserver;
-  window.ResizeObserver = jest.fn().mockImplementation(() => ({
-    observe: jest.fn(),
-    unobserve: jest.fn(),
-    disconnect: jest.fn(),
-  }));
-});
-
-afterEach(() => {
-  window.ResizeObserver = ResizeObserver;
-  jest.restoreAllMocks();
-});
 
 describe('the fold table component', () => {
+    const { ResizeObserver } = window;
+
+    const mockResizeObserver = () => {
+        delete window.ResizeObserver;
+        window.ResizeObserver = jest.fn().mockImplementation(() => ({
+            observe: jest.fn(),
+            unobserve: jest.fn(),
+            disconnect: jest.fn(),
+        }));
+    };
+
+    const cleanupMockResizeObserver = () => {
+        window.ResizeObserver = ResizeObserver;
+        jest.restoreAllMocks();
+    };
+
     const data = {
         foldObservationDetails: {
             totalObservations: 4,
@@ -146,9 +149,9 @@ describe('the fold table component', () => {
                 }
             ]
         }
-    }; 
-        
-    const dataNoEphemeris = { 
+    };
+
+    const dataNoEphemeris = {
         'foldObservationDetails': {
             'totalObservations': 4,
             'totalObservationHours': 0,
@@ -183,20 +186,23 @@ describe('the fold table component', () => {
                 },
             ]
         }
-    }; 
+    };
 
     it('should render data onto the table', () => {
         expect.hasAssertions();
-        const { getByText, getAllByText } = render(<FoldDetailTable data={data} />);
+        mockResizeObserver();
+        const { getByText, getAllByText } = render(<FoldDetailTable data={data}/>);
         expect(getByText('Observations')).toBeInTheDocument();
         expect(getByText('Drag to zoom, click empty area to reset, double click to view utc.')).toBeInTheDocument();
         expect(getAllByText('2')).toHaveLength(1);
+        cleanupMockResizeObserver();
     });
 
     it('should update the table when the band filter is changed', async () => {
         expect.hasAssertions();
-        const { queryByText, getAllByText, getByLabelText } = render(<FoldDetailTable data={data} jname='J123-123'/>);
-        const bandFilter = getByLabelText('Band'); 
+        mockResizeObserver();
+        const { queryByText, getAllByText, getByLabelText } = render(<FoldDetailTable data={data} jname="J123-123"/>);
+        const bandFilter = getByLabelText('Band');
         expect(getAllByText('UHF')).toHaveLength(3);
         expect(getAllByText('L-Band')).toHaveLength(2);
 
@@ -209,20 +215,25 @@ describe('the fold table component', () => {
             expect(getAllByText('L-Band')).toHaveLength(2);
             expect(getAllByText('UHF')).toHaveLength(3);
         });
+        cleanupMockResizeObserver();
     });
 
     it('should disable the view ephemeris button if the data is missing', () => {
         expect.hasAssertions();
+        mockResizeObserver();
         const { getByText } = render(<FoldDetailTable data={dataNoEphemeris}/>);
         expect(getByText('Folding ephemeris unavailable')).toBeDisabled();
+        cleanupMockResizeObserver();
     });
 
     it('should toggle the ephemeris modal', () => {
         expect.hasAssertions();
-        const { getByText , queryByRole } = render(<FoldDetailTable data={data}/>);
+        mockResizeObserver();
+        const { getByText, queryByRole } = render(<FoldDetailTable data={data}/>);
         const toggleEphemerisButton = getByText('View folding ephemeris');
         expect(queryByRole('dialog')).not.toBeInTheDocument();
         fireEvent.click(toggleEphemerisButton);
         expect(queryByRole('dialog')).toBeInTheDocument();
+        cleanupMockResizeObserver();
     });
 });

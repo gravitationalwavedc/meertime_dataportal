@@ -25,8 +25,22 @@ default:
     - python3 -m venv $POETRY_HOME
     - $POETRY_HOME/bin/pip install poetry
     - $POETRY_HOME/bin/poetry --version
+    - $POETRY_HOME/bin/poetry config virtualenvs.in-project true 
     - cp backend/.env.template backend/.env
     - echo "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql
+
+cache:
+  - key:
+      files:
+        - backend/poetry.lock
+    paths:
+      - backend/.venv/
+  - key:
+      files:
+        - frontend/package.lock
+    paths:
+        - frontend/node_modules/
+        - frontend/.npm/
 
 
 django-tests:
@@ -38,6 +52,9 @@ django-tests:
 
   artifacts:
     reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: backend/coverage.xml
       junit: backend/reports/junit.xml
 
 

@@ -25,7 +25,9 @@ const handleDebounce = (func, wait, immediate) => {
 };
 
 const SearchBar = ({ query, className, style, placeholder, tableId, srText, delay, onSearch, rememberSearch }) => {
-    const [searchText, setSearchText] = useState(query ? query.search : '');
+    const [searchText, setSearchText] = useState(
+        query !== null && query.search !== undefined ? query.search : ''
+    );
 
     useEffect(() => {
         onSearch(searchText);
