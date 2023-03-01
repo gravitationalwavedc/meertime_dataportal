@@ -133,4 +133,4 @@ def test_get_session_image():
 def test_get_flux():
     create_folding_for_molonglo()
     folding = Foldings.objects.last()
-    assert FoldPulsarDetail.get_flux(folding, "MONSPSR_CLEAN") == 1.22
+    assert FoldPulsarDetail.get_flux(folding, "MONSPSR_TIMING") == 1.22
