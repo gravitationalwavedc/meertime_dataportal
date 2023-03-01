@@ -1,4 +1,8 @@
 .single-observation-subheading {
+    // Make the text selectable. Otherwise, it's covered by the top heading.
+    z-index: 100;
+    position: relative;
+
     @include media-breakpoint-up(md) {
         margin-top: -12rem;
     }
