@@ -1,4 +1,3 @@
-from tqdm import tqdm
 from web_cache.models import (
     FoldPulsar,
     FoldPulsarDetail,
@@ -10,7 +9,7 @@ from web_cache.models import (
 from dataportal.models import Foldings, Filterbankings, Sessions, Pulsars, Targets, Programs
 
 
-def sync_foldmode():
+def sync_foldmode_experimental():
     """
     Sync the web application models with the pulsar database.
 
@@ -21,16 +20,34 @@ def sync_foldmode():
 
     # We need to do the FoldPulsars first so that they're ready when the FoldPulsarDetail needs them.
     print("Syncing FoldPulsars")
-    for pulsar in tqdm(Pulsars.objects.all()):
+    for pulsar in Pulsars.objects.all():
         # This is the way to tell if a Folding object relates to a particular pulsar.
         if Foldings.objects.filter(folding_ephemeris__pulsar=pulsar):
             # We want to create one for each program.
-            # ToDo: Add a special 'All' program that doesn't filter observations by program.
             for program in Programs.objects.all():
                 FoldPulsar.update_or_create(pulsar, program_name=program.name)
 
     print("Syncing FoldPulsarsDetails")
-    for folding in tqdm(Foldings.objects.all()):
+
+    FoldPulsarDetail.bulk_update_or_create(Foldings.objects.select_related(
+        'folding_ephemeris',
+        'processing',
+    ).prefetch_related(
+        'toas_set__processing__pipelineimages_set',
+        'processing__pipelineimages_set'
+    ).all()[:1000])
+
+def sync_foldmode():
+    print("Syncing FoldPulsars")
+    for pulsar in Pulsars.objects.all():
+        # This is the way to tell if a Folding object relates to a particular pulsar.
+        if Foldings.objects.filter(folding_ephemeris__pulsar=pulsar):
+            # We want to create one for each program.
+            for program in Programs.objects.all():
+                FoldPulsar.update_or_create(pulsar, program_name=program.name)
+
+    print("Syncing FoldPulsarsDetails")
+    for folding in Foldings.objects.all():
         FoldPulsarDetail.update_or_create(folding)
 
 
@@ -39,12 +56,12 @@ def sync_searchmode():
     SearchmodePulsarDetail.objects.all().delete()
 
     print("Syncing SearchmodePulsar")
-    for target in tqdm(Targets.objects.all()):
+    for target in Targets.objects.all():
         if Filterbankings.objects.filter(processing__observation__target=target):
             SearchmodePulsar.update_or_create(target)
 
     print("Syncing SearchmodePulsarDetails")
-    for filter_bankings in tqdm(Filterbankings.objects.all()):
+    for filter_bankings in Filterbankings.objects.all():
         SearchmodePulsarDetail.update_or_create(filter_bankings)
 
 
@@ -53,6 +70,6 @@ def sync_sessions():
     SessionPulsar.objects.all().delete()
 
     print("Syncing SessionPulsar")
-    for session in tqdm(Sessions.objects.all()):
+    for session in Sessions.objects.all():
         SessionDisplay.update_or_create(session)
         session.save()

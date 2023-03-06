@@ -1,10 +1,9 @@
 import math
-from collections import Counter
 from datetime import datetime
 from dateutil import parser
 from django.db import models
 from dataportal.models import Foldings, Observations, Filterbankings, Sessions, Processings, Pipelinefiles
-from django.db.models import JSONField
+from django.db.models import JSONField, Q
 from statistics import mean
 from web_cache.plot_types import PLOT_NAMES
 
@@ -76,6 +75,22 @@ class BasePulsar(models.Model):
     def get_by_session(cls, session):
         return cls.objects.filter(latest_observation__range=(session.start, session.end))
 
+    @classmethod
+    def most_common_project(cls, observations):
+        project_counts = {}
+        for observation in observations:
+            # If you like it, then you should have put a key on it.
+            project_short = observation.project.short
+            if project_short in project_counts:
+                # I'm a survivor, I'm not a quitter, I'm gonna increment until I'm a winner.
+                project_counts[project_short] += 1
+            else:
+                project_counts[project_short] = 1
+
+        # To the left, to the left
+        # Find the key with the highest count, to the left
+        return max(project_counts, key=project_counts.get)
+
 
 class SearchmodePulsar(BasePulsar):
     @classmethod
@@ -96,20 +111,7 @@ class SearchmodePulsar(BasePulsar):
 
         all_projects = ", ".join({observation.project.short for observation in target_observations})
 
-        project_counts = {}
-
-        for observation in target_observations:
-            # If you like it, then you should have put a key on it.
-            project_short = observation.project.short
-            if project_short in project_counts:
-                # I'm a survivor, I'm not a quitter, I'm gonna increment until I'm a winner.
-                project_counts[project_short] += 1
-            else:
-                project_counts[project_short] = 1
-
-        # To the left, to the left
-        # Find the key with the highest count, to the left
-        most_common_project = max(project_counts, key=project_counts.get)
+        most_common_project = cls.most_common_project(target_observations)
 
         try:
             main_project = latest_observation.project.program.name
@@ -143,6 +145,7 @@ class FoldPulsar(BasePulsar):
     def session(self):
         return Sessions.get_session(self.latest_observation)
 
+
     @classmethod
     def update_or_create(cls, pulsar, program_name):
         """
@@ -155,7 +158,10 @@ class FoldPulsar(BasePulsar):
         """
 
         # Get various related model objects required using the saved folding instance as a base.
-        foldings = Foldings.objects.filter(
+        foldings = Foldings.objects.select_related(
+            'folding_ephemeris',
+            'processing',
+        ).filter(
             folding_ephemeris__pulsar=pulsar, processing__observation__project__program__name=program_name
         )
 
@@ -189,9 +195,7 @@ class FoldPulsar(BasePulsar):
 
         all_projects = ", ".join({observation.project.short for observation in folding_observations})
 
-        # Generate a list of different projects and how many observations belong to them.
-        # Then find the one with the highest count.
-        most_common_project = max(Counter([observation.project.short for observation in folding_observations]))
+        most_common_project = cls.most_common_project(folding_observations)
 
         highest_sn_raw = max(folding.processing.results.get('snr', 1) for folding in foldings)
         lowest_sn_raw = min(folding.processing.results.get('snr', 0) for folding in foldings)
@@ -411,6 +415,106 @@ class FoldPulsarDetail(models.Model):
 
         except Processings.DoesNotExist:
             return None
+
+    @classmethod
+    def bulk_update_or_create(cls, foldings):
+        to_create = []
+        fold_detail_images = {}
+
+        fold_pulsars = FoldPulsar.objects.filter(
+            Q(jname__in=[f.folding_ephemeris.pulsar.jname for f in foldings]) |
+            Q(main_project__in=[f.processing.observation.project.program.name for f in foldings])
+        )
+
+        for folding in foldings:
+            pulsar = folding.folding_ephemeris.pulsar
+            observation = folding.processing.observation
+            main_project = observation.project.program.name
+
+            def pulsar_check(filter_pulsar):
+                return filter_pulsar.jname == pulsar.jname and filter_pulsar.main_project == main_project
+
+            for fold_pulsar in filter(pulsar_check, fold_pulsars):
+                # Calculate and set the embargo end date from observation and main project.
+                # At this stage, we use the observation utc_start and main_project's
+                # embargo_period to do the calculation,
+                # later we will apply the processing.embargo_end as well.
+                embargo_end_date = observation.utc_start + observation.project.embargo_period
+
+                results = folding.processing.results or {}
+                project_short = observation.project.short
+
+                sn_meerpipe = cls.get_sn_meerpipe(folding, project_short)
+                flux = cls.get_flux(folding, project_short)
+
+                to_create.append(
+                    FoldPulsarDetail(
+                        fold_pulsar=fold_pulsar,
+                        utc=observation.utc_start,
+                        project=observation.project.short,
+                        embargo_end_date=embargo_end_date,
+                        proposal=observation.project.code,
+                        ephemeris=folding.folding_ephemeris.ephemeris,
+                        ephemeris_is_updated_at=folding.folding_ephemeris.created_at,
+                        length=observation.duration,
+                        beam=observation.instrument_config.beam,
+                        bw=observation.instrument_config.bandwidth,
+                        ra=observation.target.raj,
+                        dec=observation.target.decj,
+                        nchan=folding.nchan,
+                        tsubint=folding.tsubint,
+                        band=fold_pulsar.get_band(observation.instrument_config.frequency),
+                        nbin=folding.nbin,
+                        nant=observation.nant,
+                        nant_eff=observation.nant_eff,
+                        dm_fold=folding.dm,
+                        dm_meerpipe=folding.folding_ephemeris.dm,
+                        rm_meerpipe=folding.folding_ephemeris.rm,
+                        sn_backend=results.get('snr', None),
+                        flux=flux,
+                        sn_meerpipe=sn_meerpipe,
+                        schedule="12",
+                        phaseup="12",
+                        frequency=observation.instrument_config.frequency,
+                        npol=folding.npol,
+                        ephemeris_download_link=cls.get_ephemeris_link(pulsar=pulsar),
+                        toas_download_link=cls.get_toas_link(pulsar=pulsar),
+                    )
+                )
+
+                fold_detail_images[len(to_create) -1] = []
+                # Find all TOA entries with a matching fold_id. These TOA entries should each link back to an entry in
+                # processings, with only one processing per pipeline (i.e. project code). Those processing entries than link
+                # forwards to the pipelineimages table.
+                for toas in folding.toas_set.all():
+                    for image in toas.processing.pipelineimages_set.all():
+                        fold_detail_images[len(to_create) -1].append(
+                            FoldDetailImage(
+                                image_type=image.image_type,
+                                url=image.image.name
+                            )
+                        )
+                # Also process the raw images
+                for image in folding.processing.pipelineimages_set.all():
+                    fold_detail_images[len(to_create) -1].append(FoldDetailImage(
+                        image_type=image.image_type,
+                        url=image.image.name
+                    ))
+
+        FoldPulsarDetail.objects.all().delete()
+        FoldPulsarDetail.objects.bulk_create(to_create)
+
+        fold_pulsar_detail_objects = FoldPulsarDetail.objects.all().order_by('id')
+        images_something_else = []
+
+        for index, images in fold_detail_images.items():
+            for image in images:
+                image.fold_pulsar_detail = fold_pulsar_detail_objects[index]
+
+            images_something_else.extend(images)
+
+        FoldDetailImage.objects.bulk_create(images_something_else)
+
 
     @classmethod
     def update_or_create(cls, folding):
