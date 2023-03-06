@@ -9,7 +9,7 @@ from web_cache.models import (
 from dataportal.models import Foldings, Filterbankings, Sessions, Pulsars, Targets, Programs
 
 
-def sync_foldmode():
+def sync_foldmode_experimental():
     """
     Sync the web application models with the pulsar database.
 
@@ -20,12 +20,12 @@ def sync_foldmode():
 
     # We need to do the FoldPulsars first so that they're ready when the FoldPulsarDetail needs them.
     print("Syncing FoldPulsars")
-    # for pulsar in Pulsars.objects.all():
-    #     # This is the way to tell if a Folding object relates to a particular pulsar.
-    #     if Foldings.objects.filter(folding_ephemeris__pulsar=pulsar):
-    #         # We want to create one for each program.
-    #         for program in Programs.objects.all():
-    #             FoldPulsar.update_or_create(pulsar, program_name=program.name)
+    for pulsar in Pulsars.objects.all():
+        # This is the way to tell if a Folding object relates to a particular pulsar.
+        if Foldings.objects.filter(folding_ephemeris__pulsar=pulsar):
+            # We want to create one for each program.
+            for program in Programs.objects.all():
+                FoldPulsar.update_or_create(pulsar, program_name=program.name)
 
     print("Syncing FoldPulsarsDetails")
 
@@ -36,6 +36,20 @@ def sync_foldmode():
         'toas_set__processing__pipelineimages_set',
         'processing__pipelineimages_set'
     ).all()[:1000])
+
+def sync_foldmode():
+    print("Syncing FoldPulsars")
+    for pulsar in Pulsars.objects.all():
+        # This is the way to tell if a Folding object relates to a particular pulsar.
+        if Foldings.objects.filter(folding_ephemeris__pulsar=pulsar):
+            # We want to create one for each program.
+            for program in Programs.objects.all():
+                FoldPulsar.update_or_create(pulsar, program_name=program.name)
+
+    print("Syncing FoldPulsarsDetails")
+    for folding in Foldings.objects.all():
+        FoldPulsarDetail.update_or_create(folding)
+
 
 def sync_searchmode():
     SearchmodePulsar.objects.all().delete()
