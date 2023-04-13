@@ -42,6 +42,13 @@ class FoldPulsarNode(DjangoObjectType):
         model = FoldPulsar
         interfaces = (relay.Node,)
 
+    total_integration_hours = graphene.Float()
+    last_sn_raw = graphene.Float()
+    highest_sn_raw = graphene.Float()
+    lowest_sn_raw = graphene.Float()
+    avg_sn_pipe = graphene.Float()
+    max_sn_pipe = graphene.Float()
+
     def resolve_last_integration_minutes(self, instance):
         return round(self.last_integration_minutes, 1)
 
@@ -50,12 +57,24 @@ class FoldPulsarDetailNode(DjangoObjectType):
     class Meta:
         model = FoldPulsarDetail
         interfaces = (relay.Node,)
-        exclude = ['ephemeris']
+        exclude = ["ephemeris"]
 
     ephemeris = graphene.String()
     band = graphene.String()
     jname = graphene.String()
     restricted = graphene.Boolean()
+
+    # These are stored as decimals which are converted to strings as defaultself.
+    # Strings break the frontend sorting.
+    bw = graphene.Float()
+    dm_fold = graphene.Float()
+    dm_meerpipe = graphene.Float()
+    rm_meerpipe = graphene.Float()
+    sn_backend = graphene.Float()
+    sn_meerpipe = graphene.Float()
+    flux = graphene.Float()
+    tsubint = graphene.Float()
+    frequency = graphene.Float()
 
     def resolve_ephemeris(self, instance):
         """Make sure that graphql outputs a valid json string that can be used in JSON.parse"""
@@ -73,7 +92,10 @@ class FoldPulsarDetailNode(DjangoObjectType):
         restricted = True
         try:
             # checking whether the user is restricted or not
-            restricted = info.context.user.role.casefold() == constants.UserRole.RESTRICTED.value.casefold()
+            restricted = (
+                info.context.user.role.casefold()
+                == constants.UserRole.RESTRICTED.value.casefold()
+            )
 
             if restricted:
                 # if the user is restricted, then we check this Pulsar's embargo date
@@ -97,6 +119,10 @@ class SearchmodePulsarDetailNode(DjangoObjectType):
         model = SearchmodePulsarDetail
         interfaces = (relay.Node,)
 
+    frequency = graphene.Float()
+    dm = graphene.Float()
+    tsamp = graphene.Float()
+
     def resolve_ra(self, instance):
         return self.ra[:-5]
 
@@ -113,7 +139,8 @@ class SessionPulsarNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
     jname = graphene.String()
-    pulsar_type = graphene.String()
+    pulsar_type = graphene.Float()
+    frequency = graphene.Float()
 
     def resolve_frequency(self, instance):
         return round(self.frequency, 1)
@@ -131,7 +158,11 @@ class FoldPulsarConnection(relay.Connection):
     total_observation_time = graphene.Int()
 
     def resolve_total_observations(self, instance):
-        return sum(edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations)
+        return sum(
+            edge.node.number_of_observations
+            for edge in self.edges
+            if edge.node.number_of_observations
+        )
 
     def resolve_total_pulsars(self, instance):
         return len(self.edges)
@@ -156,10 +187,18 @@ class FoldPulsarDetailConnection(relay.Connection):
     toas_link = graphene.String()
 
     def resolve_toas_link(self, instance):
-        return self.iterable.first().fold_pulsar.foldpulsardetail_set.first().toas_download_link
+        return (
+            self.iterable.first()
+            .fold_pulsar.foldpulsardetail_set.first()
+            .toas_download_link
+        )
 
     def resolve_ephemeris_link(self, instance):
-        return self.iterable.first().fold_pulsar.foldpulsardetail_set.first().ephemeris_download_link
+        return (
+            self.iterable.first()
+            .fold_pulsar.foldpulsardetail_set.first()
+            .ephemeris_download_link
+        )
 
     def resolve_description(self, instance):
         return self.iterable.first().fold_pulsar.comment
@@ -168,7 +207,9 @@ class FoldPulsarDetailConnection(relay.Connection):
         return len(self.edges)
 
     def resolve_total_observation_hours(self, instance):
-        return round(sum(float(observation.length) for observation in self.iterable) / 3600, 1)
+        return round(
+            sum(float(observation.length) for observation in self.iterable) / 3600, 1
+        )
 
     def resolve_total_projects(self, instance):
         return len({observation.project for observation in self.iterable})
@@ -188,10 +229,10 @@ class FoldPulsarDetailConnection(relay.Connection):
         return filesizeformat(total_bytes)
 
     def resolve_max_plot_length(self, instance):
-        return FoldPulsarDetail.objects.order_by('length').last().length
+        return FoldPulsarDetail.objects.order_by("length").last().length
 
     def resolve_min_plot_length(self, instance):
-        return FoldPulsarDetail.objects.order_by('-length').last().length
+        return FoldPulsarDetail.objects.order_by("-length").last().length
 
 
 class SearchmodePulsarConnections(relay.Connection):
@@ -202,7 +243,11 @@ class SearchmodePulsarConnections(relay.Connection):
     total_pulsars = graphene.Int()
 
     def resolve_total_observations(self, instance):
-        return sum(edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations)
+        return sum(
+            edge.node.number_of_observations
+            for edge in self.edges
+            if edge.node.number_of_observations
+        )
 
     def resolve_total_pulsars(self, instance):
         return len(self.edges)
@@ -268,7 +313,9 @@ class SessionListNode(DjangoObjectType):
         model = SessionDisplay
         interfaces = (relay.Node,)
 
-    session_pulsars = relay.ConnectionField(SessionPulsarConnection, project=graphene.String())
+    session_pulsars = relay.ConnectionField(
+        SessionPulsarConnection, project=graphene.String()
+    )
 
     def resolve_frequency(self, instance):
         return round(self.frequency, 1) if self.frequency else None
@@ -287,7 +334,10 @@ class SessionListConnection(relay.Connection):
 
 class Query(ObjectType):
     fold_observations = relay.ConnectionField(
-        FoldPulsarConnection, main_project=graphene.String(), project=graphene.String(), band=graphene.String()
+        FoldPulsarConnection,
+        main_project=graphene.String(),
+        project=graphene.String(),
+        band=graphene.String(),
     )
 
     fold_observation_details = relay.ConnectionField(
@@ -300,7 +350,10 @@ class Query(ObjectType):
     )
 
     searchmode_observations = relay.ConnectionField(
-        SearchmodePulsarConnections, main_project=graphene.String(), project=graphene.String(), band=graphene.String()
+        SearchmodePulsarConnections,
+        main_project=graphene.String(),
+        project=graphene.String(),
+        band=graphene.String(),
     )
 
     searchmode_observation_details = relay.ConnectionField(

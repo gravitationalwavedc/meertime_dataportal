@@ -16,7 +16,9 @@ def setup_query_test():
 def create_test_session():
     t = Telescopes.objects.create(name="MeerKat")
     return Sessions.objects.create(
-        telescope=t, start=FoldPulsarDetail.objects.first().utc, end=FoldPulsarDetail.objects.last().utc
+        telescope=t,
+        start=FoldPulsarDetail.objects.first().utc,
+        end=FoldPulsarDetail.objects.last().utc,
     )
 
 
@@ -74,24 +76,24 @@ def test_fold_query_with_token():
     """
     )
     expected = {
-        'foldObservations': {
-            'totalObservations': 1,
-            'totalPulsars': 1,
-            'totalObservationTime': 0,
-            'edges': [
+        "foldObservations": {
+            "totalObservations": 1,
+            "totalPulsars": 1,
+            "totalObservationTime": 0,
+            "edges": [
                 {
-                    'node': {
-                        'jname': 'J0125-2327',
-                        'latestObservation': '2000-01-21T12:59:12+00:00',
-                        'firstObservation': '2000-01-21T12:59:12+00:00',
-                        'project': 'RelBin',
-                        'timespan': 1,
-                        'numberOfObservations': 1,
-                        'totalIntegrationHours': '0.0',
-                        'avgSnPipe': None,
-                        'maxSnPipe': None,
-                        'lastSnRaw': '67.8',
-                        'lastIntegrationMinutes': 0.1,
+                    "node": {
+                        "jname": "J0125-2327",
+                        "latestObservation": "2000-01-21T12:59:12+00:00",
+                        "firstObservation": "2000-01-21T12:59:12+00:00",
+                        "project": "RelBin",
+                        "timespan": 1,
+                        "numberOfObservations": 1,
+                        "totalIntegrationHours": 0.0,
+                        "avgSnPipe": None,
+                        "maxSnPipe": None,
+                        "lastSnRaw": 67.8,
+                        "lastIntegrationMinutes": 0.1,
                     }
                 }
             ],
@@ -99,6 +101,7 @@ def test_fold_query_with_token():
     }
     assert not response.errors
     assert response.data == expected
+
 
 @pytest.mark.django_db
 @pytest.mark.enable_signals
@@ -122,11 +125,11 @@ def test_fold_query_with_proposal_and_band():
     """
     )
     expected = {
-        'foldObservations': {
-            'totalObservations': 1,
-            'totalObservationTime': 0,
-            'totalPulsars': 1,
-            'edges': [{'node': {'jname': 'J0125-2327'}}],
+        "foldObservations": {
+            "totalObservations": 1,
+            "totalObservationTime": 0,
+            "totalPulsars": 1,
+            "edges": [{"node": {"jname": "J0125-2327"}}],
         }
     }
     assert not response.errors
@@ -188,47 +191,49 @@ def test_fold_detail_query():
         """
     )
     expected = {
-        'foldObservationDetails': {
-            'totalObservations': 1,
-            'totalObservationHours': 0,
-            'totalProjects': 1,
-            'totalEstimatedDiskSpace': '74.1\xa0KB',
-            'totalTimespanDays': 1,
-            'description': None,
-            'maxPlotLength': 4,
-            'minPlotLength': 4,
-            'edges': [
+        "foldObservationDetails": {
+            "totalObservations": 1,
+            "totalObservationHours": 0,
+            "totalProjects": 1,
+            "totalEstimatedDiskSpace": "74.1\xa0KB",
+            "totalTimespanDays": 1,
+            "description": None,
+            "maxPlotLength": 4,
+            "minPlotLength": 4,
+            "edges": [
                 {
-                    'node': {
-                        'utc': '2000-01-21T12:59:12+00:00',
-                        'project': 'RelBin',
-                        'length': 0.0,
-                        'beam': 54,
-                        'bw': '11.00',
-                        'nchan': 21,
-                        'band': 'UHF',
-                        'nbin': 43,
-                        'nant': None,
-                        'nantEff': None,
-                        'dmFold': None,
-                        'dmMeerpipe': '24.0000',
-                        'rmMeerpipe': '25.0000',
-                        'snBackend': '67.8',
-                        'snMeerpipe': '42.1',
-                        'flux': '1.220000',
-                        'images': {
-                            'edges': [{
-                                'node': {
-                                    'genericPlotType': None,
-                                    'imageType': None,
-                                    'plotType': None,
-                                    'process': None,
-                                    'resolution': None,
-                                    'url': ''
+                    "node": {
+                        "utc": "2000-01-21T12:59:12+00:00",
+                        "project": "RelBin",
+                        "length": 0.0,
+                        "beam": 54,
+                        "bw": 11.00,
+                        "nchan": 21,
+                        "band": "UHF",
+                        "nbin": 43,
+                        "nant": None,
+                        "nantEff": None,
+                        "dmFold": None,
+                        "dmMeerpipe": 24.00,
+                        "rmMeerpipe": 25.00,
+                        "snBackend": 67.8,
+                        "snMeerpipe": 42.1,
+                        "flux": 1.22,
+                        "images": {
+                            "edges": [
+                                {
+                                    "node": {
+                                        "genericPlotType": None,
+                                        "imageType": None,
+                                        "plotType": None,
+                                        "process": None,
+                                        "resolution": None,
+                                        "url": "",
+                                    }
                                 }
-                            }]
+                            ]
                         },
-                        'ephemeris': '{}'
+                        "ephemeris": "{}",
                     }
                 }
             ],
@@ -265,18 +270,18 @@ def test_searchmode_query():
     )
 
     expected = {
-        'searchmodeObservations': {
-            'totalObservations': 1,
-            'totalPulsars': 1,
-            'edges': [
+        "searchmodeObservations": {
+            "totalObservations": 1,
+            "totalPulsars": 1,
+            "edges": [
                 {
-                    'node': {
-                        'jname': 'J0125-2327',
-                        'project': 'RelBin',
-                        'latestObservation': '2000-01-21T12:59:12+00:00',
-                        'firstObservation': '2000-01-21T12:59:12+00:00',
-                        'timespan': 1,
-                        'numberOfObservations': 1,
+                    "node": {
+                        "jname": "J0125-2327",
+                        "project": "RelBin",
+                        "latestObservation": "2000-01-21T12:59:12+00:00",
+                        "firstObservation": "2000-01-21T12:59:12+00:00",
+                        "timespan": 1,
+                        "numberOfObservations": 1,
                     }
                 }
             ],
@@ -284,6 +289,7 @@ def test_searchmode_query():
     }
     assert not response.errors
     assert response.data == expected
+
 
 @pytest.mark.django_db
 @pytest.mark.enable_signals
@@ -318,32 +324,33 @@ def test_searchmode_details_query():
         """
     )
     expected = {
-        'searchmodeObservationDetails': {
-            'totalObservations': 1, 
-            'totalProjects': 1, 
-            'totalTimespanDays': 0,
-            'edges': [
-                {'node': 
-                    {
-                        'beam': 54,
-                        'dec': '-23:27',
-                        'dm': '2.1000',
-                        'frequency': '839.00000000',
-                        'length': 0.0,
-                        'nantEff': None,
-                        'nbit': 1,
-                        'nchan': 3,
-                        'project': 'RelBin',
-                        'ra': '1:25:',
-                        'tsamp': '1.20',
-                        'utc': '2000-01-21T12:59:12+00:00',
+        "searchmodeObservationDetails": {
+            "totalObservations": 1,
+            "totalProjects": 1,
+            "totalTimespanDays": 0,
+            "edges": [
+                {
+                    "node": {
+                        "beam": 54,
+                        "dec": "-23:27",
+                        "dm": 2.1,
+                        "frequency": 839,
+                        "length": 0.0,
+                        "nantEff": None,
+                        "nbit": 1,
+                        "nchan": 3,
+                        "project": "RelBin",
+                        "ra": "1:25:",
+                        "tsamp": 1.20,
+                        "utc": "2000-01-21T12:59:12+00:00",
                     }
                 }
-            ]
+            ],
         }
     }
     assert not response.errors
     assert response.data == expected
+
 
 @pytest.mark.django_db
 @pytest.mark.enable_signals
@@ -369,7 +376,7 @@ def test_last_session_query():
                             fluxHi
                             phaseVsTimeHi
                             phaseVsFrequencyHi
-                            fluxLo 
+                            fluxLo
                             phaseVsTimeLo
                             phaseVsFrequencyLo
                         }
@@ -380,39 +387,39 @@ def test_last_session_query():
         """
     )
     expected = {
-        'sessionDisplay': {
-            'start': '2000-01-21T12:59:12+00:00',
-            'end': '2000-01-21T12:59:12+00:00',
-            'numberOfObservations': 2,
-            'numberOfPulsars': 2,
-            'sessionPulsars': {
-                'edges': [
+        "sessionDisplay": {
+            "start": "2000-01-21T12:59:12+00:00",
+            "end": "2000-01-21T12:59:12+00:00",
+            "numberOfObservations": 2,
+            "numberOfPulsars": 2,
+            "sessionPulsars": {
+                "edges": [
                     {
-                        'node': {
-                            'jname': 'J0125-2327',
-                            'project': 'RelBin',
-                            'utc': '2000-01-21T12:59:12+00:00',
-                            'frequency': '839.0',
-                            'fluxHi': None,
-                            'phaseVsTimeHi': None,
-                            'phaseVsFrequencyHi': None,
-                            'fluxLo': None,
-                            'phaseVsTimeLo': None,
-                            'phaseVsFrequencyLo': None,
+                        "node": {
+                            "jname": "J0125-2327",
+                            "project": "RelBin",
+                            "utc": "2000-01-21T12:59:12+00:00",
+                            "frequency": 839.0,
+                            "fluxHi": None,
+                            "phaseVsTimeHi": None,
+                            "phaseVsFrequencyHi": None,
+                            "fluxLo": None,
+                            "phaseVsTimeLo": None,
+                            "phaseVsFrequencyLo": None,
                         }
                     },
                     {
-                        'node': {
-                            'jname': None,
-                            'project': 'RelBin',
-                            'utc': '2000-01-21T12:59:12+00:00',
-                            'frequency': '839.0',
-                            'fluxHi': None,
-                            'phaseVsTimeHi': None,
-                            'phaseVsFrequencyHi': None,
-                            'fluxLo': None,
-                            'phaseVsTimeLo': None,
-                            'phaseVsFrequencyLo': None,
+                        "node": {
+                            "jname": None,
+                            "project": "RelBin",
+                            "utc": "2000-01-21T12:59:12+00:00",
+                            "frequency": 839,
+                            "fluxHi": None,
+                            "phaseVsTimeHi": None,
+                            "phaseVsFrequencyHi": None,
+                            "fluxLo": None,
+                            "phaseVsTimeLo": None,
+                            "phaseVsFrequencyLo": None,
                         }
                     },
                 ]
@@ -454,20 +461,20 @@ def test_session_list_query():
         """
     )
     expected = {
-        'sessionList': {
-            'edges': [
+        "sessionList": {
+            "edges": [
                 {
-                    'node': {
-                        'start': '2000-01-21T12:59:12+00:00',
-                        'end': '2000-01-21T12:59:12+00:00',
-                        'numberOfPulsars': 2,
-                        'numberOfObservations': 2,
-                        'frequency': 839.0,
-                        'projects': 'RelBin',
-                        'totalIntegration': 8,
-                        'nDishMin': None,
-                        'nDishMax': None,
-                        'zapFraction': 0.0,
+                    "node": {
+                        "start": "2000-01-21T12:59:12+00:00",
+                        "end": "2000-01-21T12:59:12+00:00",
+                        "numberOfPulsars": 2,
+                        "numberOfObservations": 2,
+                        "frequency": 839.0,
+                        "projects": "RelBin",
+                        "totalIntegration": 8,
+                        "nDishMin": None,
+                        "nDishMax": None,
+                        "zapFraction": 0.0,
                     }
                 }
             ]
@@ -508,25 +515,16 @@ def test_session_display_query():
     )
 
     expected = {
-        'sessionDisplay': {
-            'start': '2000-01-21T12:59:12+00:00',
-            'end': '2000-01-21T12:59:12+00:00',
-            'sessionPulsars': {
-                'start': '2000-01-21T12:59:12+00:00',
-                'end': '2000-01-21T12:59:12+00:00',
-                'numberOfObservations': 2,
-                'numberOfPulsars': 2,
-                'edges': [{
-                        'node': {
-                            'integrations': 4
-                        }
-                    },
-                    {
-                        'node': {
-                            'integrations': 4
-                        }
-                }]
-            }
+        "sessionDisplay": {
+            "start": "2000-01-21T12:59:12+00:00",
+            "end": "2000-01-21T12:59:12+00:00",
+            "sessionPulsars": {
+                "start": "2000-01-21T12:59:12+00:00",
+                "end": "2000-01-21T12:59:12+00:00",
+                "numberOfObservations": 2,
+                "numberOfPulsars": 2,
+                "edges": [{"node": {"integrations": 4}}, {"node": {"integrations": 4}}],
+            },
         }
     }
 
