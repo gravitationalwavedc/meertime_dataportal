@@ -2,19 +2,13 @@ from django.db.models.signals import pre_save, post_save, pre_delete, post_delet
 import pytest
 
 
-@pytest.fixture(autouse=True) # Automatically use in tests.
+@pytest.fixture(autouse=True)  # Automatically use in tests.
 def mute_signals(request):
     # Skip applying, if marked with `enabled_signals`
-    if 'enable_signals' in request.keywords:
+    if "enable_signals" in request.keywords:
         return
 
-    signals = [
-        pre_save,
-        post_save,
-        pre_delete,
-        post_delete,
-        m2m_changed
-    ]
+    signals = [pre_save, post_save, pre_delete, post_delete, m2m_changed]
     restore = {}
     for signal in signals:
         # Temporally remove the signal's receivers (a.k.a attached functions)

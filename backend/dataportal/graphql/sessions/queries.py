@@ -5,7 +5,7 @@ from graphql_jwt.decorators import login_required
 
 from dataportal.models import Sessions
 
-DATETIME_FILTERS = ['exact', 'isnull', 'lt', 'lte', 'gt', 'gte', 'month', 'year', 'date']
+DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
 
 
 class SessionsNode(DjangoObjectType):

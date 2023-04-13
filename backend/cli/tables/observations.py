@@ -117,7 +117,7 @@ class Observations(GraphQLTable):
         utcstart_gte=None,
         utcstart_lte=None,
     ):
-        """ Return a list of records matching the id and/or any of the arguments. """
+        """Return a list of records matching the id and/or any of the arguments."""
         filters = [
             {"field": "target_Id", "value": target_id, "join": "Targets"},
             {"field": "target_Name", "value": target_name, "join": "Targets"},

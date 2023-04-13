@@ -6,8 +6,8 @@ from graphql_jwt.decorators import login_required
 from dataportal.graphql.jsonfield_filter import JSONFieldFilter
 from dataportal.models import Observations
 
-DATETIME_FILTERS = ['exact', 'isnull', 'lt', 'lte', 'gt', 'gte', 'month', 'year', 'date']
-NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']
+DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
+NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
 
 
 class ObservationsNode(DjangoObjectType):

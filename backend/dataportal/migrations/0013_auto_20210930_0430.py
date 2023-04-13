@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0012_auto_20210928_0220'),
+        ("dataportal", "0012_auto_20210928_0220"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='ephemerides',
-            unique_together={('pulsar', 'ephemeris_hash', 'dm', 'rm')},
+            name="ephemerides",
+            unique_together={("pulsar", "ephemeris_hash", "dm", "rm")},
         ),
     ]

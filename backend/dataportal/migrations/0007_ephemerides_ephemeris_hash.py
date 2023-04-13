@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0006_auto_20210829_0722'),
+        ("dataportal", "0006_auto_20210829_0722"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ephemerides',
-            name='ephemeris_hash',
+            model_name="ephemerides",
+            name="ephemeris_hash",
             field=models.CharField(editable=False, max_length=32, null=True),
         ),
     ]

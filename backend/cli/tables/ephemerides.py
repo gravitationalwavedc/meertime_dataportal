@@ -98,7 +98,7 @@ class Ephemerides(GraphQLTable):
         ]
 
     def list(self, id=None, pulsar_id=None, p0=None, dm=None, rm=None, eph=None):
-        """ Return a list of records matching the id and/or the pulsar id, p0, dm, rm. """
+        """Return a list of records matching the id and/or the pulsar id, p0, dm, rm."""
         # P0 is stored with a maximum of 8 decimal places only
         m = 10 ** 8
         if p0 is None:

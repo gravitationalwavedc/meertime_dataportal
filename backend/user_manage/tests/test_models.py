@@ -20,19 +20,20 @@ User = get_user_model()
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 class RegistrationTest(TestCase):
-
     def setUp(self):
-        self.user_details = dict({
-            'email': 'test@test.com',
-            'first_name': 'test first name',
-            'last_name': 'test last name',
-            'password': 'test@password',
-        })
+        self.user_details = dict(
+            {
+                "email": "test@test.com",
+                "first_name": "test first name",
+                "last_name": "test last name",
+                "password": "test@password",
+            }
+        )
 
     def test_registration(self):
         registration = Registration.objects.create(**self.user_details)
         assert registration.status == Registration.UNVERIFIED
-        assert check_password(self.user_details.get('password'), registration.password)
+        assert check_password(self.user_details.get("password"), registration.password)
 
         try:
             UUID(str(registration.verification_code), version=4)
@@ -43,12 +44,14 @@ class RegistrationTest(TestCase):
         assert registration.verification_expiry <= timezone.now() + timedelta(days=2)
 
     def test_registration_existing_email(self):
-        user_details = dict({
-            'email': 'test2@test.com',
-            'first_name': 'test first name',
-            'last_name': 'test last name',
-            'password': 'test2@password',
-        })
+        user_details = dict(
+            {
+                "email": "test2@test.com",
+                "first_name": "test first name",
+                "last_name": "test last name",
+                "password": "test2@password",
+            }
+        )
         Registration.objects.create(**user_details)
         with self.assertRaises(Exception) as raised:
             Registration.objects.create(**user_details)
@@ -56,7 +59,7 @@ class RegistrationTest(TestCase):
 
     def test_registration_email_exists_in_user_model(self):
         modified_user_details = self.user_details.copy()
-        modified_user_details.update({'username': self.user_details.get('email')})
+        modified_user_details.update({"username": self.user_details.get("email")})
 
         User.objects.create_user(**modified_user_details)
         with self.assertRaises(Exception) as raised:
@@ -66,7 +69,7 @@ class RegistrationTest(TestCase):
     def test_verification_email_sent(self):
         Registration.objects.create(**self.user_details)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, '[MeerTime] Please verify your email address')
+        self.assertEqual(mail.outbox[0].subject, "[MeerTime] Please verify your email address")
 
     def test_verify_user_created(self):
         registration = Registration.objects.create(**self.user_details)
@@ -87,22 +90,23 @@ class RegistrationTest(TestCase):
 
 @pytest.mark.django_db
 class ProvisionalUserTest(TestCase):
-
     def setUp(self):
-        self.user_details = dict({
-            'username': 'test@test.com',
-            'email': 'test@test.com',
-            'first_name': 'test first name',
-            'last_name': 'test last name',
-            'password': 'test@password',
-        })
+        self.user_details = dict(
+            {
+                "username": "test@test.com",
+                "email": "test@test.com",
+                "first_name": "test first name",
+                "last_name": "test last name",
+                "password": "test@password",
+            }
+        )
 
         User.objects.create_user(**self.user_details)
 
     @pytest.mark.enable_signals
     def test_provisional_user(self):
         provisional_user = ProvisionalUser.objects.create(
-            email='prvusr@test.com',
+            email="prvusr@test.com",
             role=UserRole.UNRESTRICTED.value,
         )
         assert provisional_user.role == UserRole.UNRESTRICTED.value
@@ -117,7 +121,7 @@ class ProvisionalUserTest(TestCase):
 
         assert provisional_user.email_sent
         assert len(mail.outbox) == 1
-        assert mail.outbox[0].subject == '[MeerTime] Please activate your account'
+        assert mail.outbox[0].subject == "[MeerTime] Please activate your account"
 
         assert provisional_user.user.role == UserRole.UNRESTRICTED.value
         assert not provisional_user.user.is_active
@@ -126,7 +130,7 @@ class ProvisionalUserTest(TestCase):
     def test_existing_user(self):
         with self.assertRaises(Exception) as raised:
             ProvisionalUser.objects.create(
-                email='test@test.com',
+                email="test@test.com",
                 role=UserRole.UNRESTRICTED.value,
             )
         self.assertEqual(IntegrityError, type(raised.exception))
@@ -134,12 +138,12 @@ class ProvisionalUserTest(TestCase):
     @pytest.mark.enable_signals
     def test_existing_provisional_user(self):
         ProvisionalUser.objects.create(
-            email='existing@test.com',
+            email="existing@test.com",
             role=UserRole.UNRESTRICTED.value,
         )
         with self.assertRaises(Exception) as raised:
             ProvisionalUser.objects.create(
-                email='existing@test.com',
+                email="existing@test.com",
                 role=UserRole.UNRESTRICTED.value,
             )
         self.assertEqual(ValidationError, type(raised.exception))

@@ -47,7 +47,7 @@ class Pulsars(GraphQLTable):
         self.field_names = ["id", "jname", "state", "comment"]
 
     def list(self, id=None, jname=None):
-        """ Return a list of records matching the id and/or the pulsar jname. """
+        """Return a list of records matching the id and/or the pulsar jname."""
         filters = [
             {"field": "jname", "value": jname, "join": None},
         ]

@@ -58,7 +58,7 @@ class Instrumentconfigs(GraphQLTable):
         self.field_names = ["id", "name", "frequency", "bandwidth", "nchan", "npol", "beam"]
 
     def list(self, id=None, name=None, beam=None):
-        """ Return a list of records matching the id and/or the name, beam. """
+        """Return a list of records matching the id and/or the name, beam."""
         filters = [
             {"field": "name", "value": name, "join": None},
             {"field": "beam", "value": beam, "join": None},

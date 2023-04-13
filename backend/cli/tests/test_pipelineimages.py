@@ -88,7 +88,7 @@ def test_cli_pipelineimage_update_with_token(client, creator, args, jwt_token, d
         + '"},'
         + '"rank":'
         + str(args.rank)
-        + '}}}}'
+        + "}}}}"
     )
 
     assert response.content == expected_content.encode("utf-8")

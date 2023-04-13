@@ -6,20 +6,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0061_foldpulsardetail_toas_download_link'),
+        ("web_cache", "0061_foldpulsardetail_toas_download_link"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsar',
-            name='all_projects',
-            field=models.CharField(default='FakeProject, AnotherONe', max_length=500),
+            model_name="foldpulsar",
+            name="all_projects",
+            field=models.CharField(default="FakeProject, AnotherONe", max_length=500),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='searchmodepulsar',
-            name='all_projects',
-            field=models.CharField(default='Fake Project', max_length=500),
+            model_name="searchmodepulsar",
+            name="all_projects",
+            field=models.CharField(default="Fake Project", max_length=500),
             preserve_default=False,
         ),
     ]

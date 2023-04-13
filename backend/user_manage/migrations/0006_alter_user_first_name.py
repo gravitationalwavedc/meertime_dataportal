@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('user_manage', '0005_update_users_for_flagged_feature'),
+        ("user_manage", "0005_update_users_for_flagged_feature"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='user',
-            name='first_name',
-            field=models.CharField(blank=True, max_length=150, verbose_name='first name'),
+            model_name="user",
+            name="first_name",
+            field=models.CharField(blank=True, max_length=150, verbose_name="first name"),
         ),
     ]

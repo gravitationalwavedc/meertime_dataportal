@@ -6,48 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0004_auto_20210812_0549'),
+        ("web_cache", "0004_auto_20210812_0549"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='dm_fold',
+            model_name="foldpulsardetail",
+            name="dm_fold",
             field=models.DecimalField(decimal_places=4, max_digits=12, null=True),
         ),
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='dm_meerpipe',
+            model_name="foldpulsardetail",
+            name="dm_meerpipe",
             field=models.DecimalField(decimal_places=2, max_digits=12, null=True),
         ),
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='length',
+            model_name="foldpulsardetail",
+            name="length",
             field=models.DecimalField(decimal_places=1, max_digits=12, null=True),
         ),
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='nant',
+            model_name="foldpulsardetail",
+            name="nant",
             field=models.IntegerField(null=True),
         ),
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='nant_eff',
+            model_name="foldpulsardetail",
+            name="nant_eff",
             field=models.IntegerField(null=True),
         ),
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='rm_meerpipe',
+            model_name="foldpulsardetail",
+            name="rm_meerpipe",
             field=models.DecimalField(decimal_places=2, max_digits=12, null=True),
         ),
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='sn_backend',
+            model_name="foldpulsardetail",
+            name="sn_backend",
             field=models.DecimalField(decimal_places=1, max_digits=12, null=True),
         ),
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='sn_meerpipe',
+            model_name="foldpulsardetail",
+            name="sn_meerpipe",
             field=models.DecimalField(decimal_places=1, max_digits=12, null=True),
         ),
     ]

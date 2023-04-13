@@ -5,19 +5,19 @@ from utils.constants import UserRole
 
 import os
 
-SHARED_MEERTIME_USER_ID = os.environ.get('SHARED_MEERTIME_USER_ID')
-SHARED_MEERTIME_USER_PASS = os.environ.get('SHARED_MEERTIME_USER_PASS')
-SHARED_MEERTIME_USER_EMAIL = os.environ.get('SHARED_MEERTIME_USER_EMAIL')
-SHARED_MEERTIME_USER_ACCESS = os.environ.get('SHARED_MEERTIME_USER_ACCESS')
+SHARED_MEERTIME_USER_ID = os.environ.get("SHARED_MEERTIME_USER_ID")
+SHARED_MEERTIME_USER_PASS = os.environ.get("SHARED_MEERTIME_USER_PASS")
+SHARED_MEERTIME_USER_EMAIL = os.environ.get("SHARED_MEERTIME_USER_EMAIL")
+SHARED_MEERTIME_USER_ACCESS = os.environ.get("SHARED_MEERTIME_USER_ACCESS")
 
-SERVICE_MEERTIME_USER_ID = os.environ.get('SERVICE_MEERTIME_USER_ID')
-SERVICE_MEERTIME_USER_PASS = os.environ.get('SERVICE_MEERTIME_USER_PASS')
-SERVICE_MEERTIME_USER_EMAIL = os.environ.get('SERVICE_MEERTIME_USER_EMAIL')
-SERVICE_MEERTIME_USER_ACCESS = os.environ.get('SERVICE_MEERTIME_USER_ACCESS')
+SERVICE_MEERTIME_USER_ID = os.environ.get("SERVICE_MEERTIME_USER_ID")
+SERVICE_MEERTIME_USER_PASS = os.environ.get("SERVICE_MEERTIME_USER_PASS")
+SERVICE_MEERTIME_USER_EMAIL = os.environ.get("SERVICE_MEERTIME_USER_EMAIL")
+SERVICE_MEERTIME_USER_ACCESS = os.environ.get("SERVICE_MEERTIME_USER_ACCESS")
 
 
 def add_default_users(apps, schema_editor):
-    User = apps.get_model('user_manage', 'User')
+    User = apps.get_model("user_manage", "User")
 
     # Setting the role of the user(s)
     if SHARED_MEERTIME_USER_ACCESS.strip().casefold() == UserRole.ADMIN.value.casefold():
@@ -50,10 +50,10 @@ def add_default_users(apps, schema_editor):
 
 
 def remove_default_users(apps, schema_editor):
-    User = apps.get_model('user_manage', 'User')
+    User = apps.get_model("user_manage", "User")
 
     for details in [SHARED_MEERTIME_USER_ID, SERVICE_MEERTIME_USER_ID]:
-        credentials = details.split(',')
+        credentials = details.split(",")
         User.objects.get(
             username=credentials[0],
         ).delete()
@@ -61,7 +61,7 @@ def remove_default_users(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('user_manage', '0001_initial'),
+        ("user_manage", "0001_initial"),
     ]
 
     operations = [

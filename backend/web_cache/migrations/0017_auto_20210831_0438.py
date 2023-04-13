@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0016_auto_20210830_1332'),
+        ("web_cache", "0016_auto_20210830_1332"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='foldpulsardetail',
-            old_name='nsubint',
-            new_name='tsubint',
+            model_name="foldpulsardetail",
+            old_name="nsubint",
+            new_name="tsubint",
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='npol',
+            model_name="foldpulsardetail",
+            name="npol",
             field=models.IntegerField(default=2),
             preserve_default=False,
         ),

@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0036_sessionpulsar_session_display'),
+        ("web_cache", "0036_sessionpulsar_session_display"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='sessionpulsar',
-            options={'ordering': ['-session_display__start']},
+            name="sessionpulsar",
+            options={"ordering": ["-session_display__start"]},
         ),
         migrations.AlterField(
-            model_name='sessiondisplay',
-            name='frequency',
+            model_name="sessiondisplay",
+            name="frequency",
             field=models.FloatField(null=True),
         ),
     ]

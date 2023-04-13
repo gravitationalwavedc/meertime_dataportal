@@ -75,19 +75,19 @@ def test_cli_filterbanking_update_with_token(client, creator, args, jwt_token):
         + '"},'
         + '"nbit":'
         + str(args.nbit)
-        + ','
+        + ","
         + '"npol":'
         + str(args.npol)
-        + ','
+        + ","
         + '"nchan":'
         + str(args.nchan)
-        + ','
+        + ","
         + '"dm":'
         + str(args.dm)
-        + ','
+        + ","
         + '"tsamp":'
         + str(args.tsamp)
-        + '}}}}'
+        + "}}}}"
     )
 
     assert response.content == expected_content.encode("utf-8")

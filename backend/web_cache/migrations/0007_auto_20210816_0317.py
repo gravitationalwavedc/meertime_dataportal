@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0006_auto_20210816_0059'),
+        ("web_cache", "0006_auto_20210816_0059"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='utc',
+            model_name="foldpulsardetail",
+            name="utc",
             field=models.DateTimeField(),
         ),
     ]

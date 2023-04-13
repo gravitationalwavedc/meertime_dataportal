@@ -7,13 +7,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0048_remove_folddetailimage_name'),
+        ("web_cache", "0048_remove_folddetailimage_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='folddetailimage',
-            name='fold_pulsar_detail',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='web_cache.FoldPulsarDetail'),
+            model_name="folddetailimage",
+            name="fold_pulsar_detail",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name="images", to="web_cache.FoldPulsarDetail"
+            ),
         ),
     ]

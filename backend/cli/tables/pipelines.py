@@ -59,7 +59,7 @@ class Pipelines(GraphQLTable):
         self.field_names = ["id", "name", "description", "revision", "createdAt", "createdBy", "configuration"]
 
     def list(self, id=None, name=None):
-        """ Return a list of records matching the id and/or the name. """
+        """Return a list of records matching the id and/or the name."""
         filters = [
             {"field": "name", "value": name, "join": None},
         ]
@@ -94,7 +94,12 @@ class Pipelines(GraphQLTable):
         self.print_stdout = True
         if args.subcommand == "create":
             return self.create(
-                args.name, args.description, args.revision, args.created_at, args.created_by, args.configuration,
+                args.name,
+                args.description,
+                args.revision,
+                args.created_at,
+                args.created_by,
+                args.configuration,
             )
         elif args.subcommand == "update":
             return self.update(

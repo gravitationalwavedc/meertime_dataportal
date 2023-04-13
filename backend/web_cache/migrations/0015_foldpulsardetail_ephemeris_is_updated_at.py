@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0014_auto_20210823_0235'),
+        ("web_cache", "0014_auto_20210823_0235"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='ephemeris_is_updated_at',
+            model_name="foldpulsardetail",
+            name="ephemeris_is_updated_at",
             field=models.DateTimeField(null=True),
         ),
     ]

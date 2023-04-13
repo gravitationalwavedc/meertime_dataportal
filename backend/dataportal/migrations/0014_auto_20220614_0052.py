@@ -6,33 +6,33 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0013_auto_20210930_0430'),
+        ("dataportal", "0013_auto_20210930_0430"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ephemerides',
-            name='comment',
+            model_name="ephemerides",
+            name="comment",
             field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name='observations',
-            name='comment',
+            model_name="observations",
+            name="comment",
             field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name='pulsars',
-            name='comment',
+            model_name="pulsars",
+            name="comment",
             field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name='templates',
-            name='comment',
+            model_name="templates",
+            name="comment",
             field=models.TextField(null=True),
         ),
         migrations.AlterField(
-            model_name='toas',
-            name='comment',
+            model_name="toas",
+            name="comment",
             field=models.TextField(null=True),
         ),
     ]

@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0005_auto_20210413_0255'),
+        ("dataportal", "0005_auto_20210413_0255"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='toas',
-            name='quality',
-            field=models.CharField(blank=True, choices=[('nominal', 'nominal'), ('bad', 'bad')], max_length=7, null=True),
+            model_name="toas",
+            name="quality",
+            field=models.CharField(
+                blank=True, choices=[("nominal", "nominal"), ("bad", "bad")], max_length=7, null=True
+            ),
         ),
     ]

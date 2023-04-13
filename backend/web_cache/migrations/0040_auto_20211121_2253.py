@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0039_auto_20211112_0055'),
+        ("web_cache", "0039_auto_20211112_0055"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sessiondisplay',
-            name='n_dish_max',
+            model_name="sessiondisplay",
+            name="n_dish_max",
             field=models.IntegerField(null=True),
         ),
         migrations.AlterField(
-            model_name='sessiondisplay',
-            name='n_dish_min',
+            model_name="sessiondisplay",
+            name="n_dish_min",
             field=models.IntegerField(null=True),
         ),
         migrations.AlterField(
-            model_name='sessiondisplay',
-            name='zap_fraction',
+            model_name="sessiondisplay",
+            name="zap_fraction",
             field=models.FloatField(null=True),
         ),
     ]

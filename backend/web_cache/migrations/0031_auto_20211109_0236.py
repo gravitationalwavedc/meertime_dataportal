@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0030_auto_20211109_0229'),
+        ("web_cache", "0030_auto_20211109_0229"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sessionpulsar',
-            name='backendSN',
+            model_name="sessionpulsar",
+            name="backendSN",
             field=models.IntegerField(null=True),
         ),
     ]

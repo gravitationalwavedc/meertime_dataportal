@@ -70,7 +70,7 @@ def test_cli_pipeline_update_with_token(client, creator, args, jwt_token):
         + '"revision":"updated",'
         + '"createdAt":"2000-01-01T00:00:01+00:00",'
         + '"createdBy":"updated",'
-        + '"configuration":"{\'foo\': \'updated\'}"}}}}'
+        + "\"configuration\":\"{'foo': 'updated'}\"}}}}"
     )
 
     assert response.content == expected_content.encode("utf-8")

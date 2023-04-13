@@ -91,7 +91,7 @@ class Templates(GraphQLTable):
         ]
 
     def list(self, id=None, pulsar_id=None, frequency=None, bandwidth=None):
-        """ Return a list of records matching the id and/or the pulsar id, frequency, bandwidth. """
+        """Return a list of records matching the id and/or the pulsar id, frequency, bandwidth."""
         filters = [
             {"field": "pulsar_Id", "value": pulsar_id, "join": "Pulsars"},
             {"field": "frequency", "value": frequency, "join": None},

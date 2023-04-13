@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0050_auto_20220216_0351'),
+        ("web_cache", "0050_auto_20220216_0351"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='foldpulsar',
-            name='project',
+            model_name="foldpulsar",
+            name="project",
             field=models.CharField(max_length=500),
         ),
         migrations.AlterField(
-            model_name='searchmodepulsar',
-            name='project',
+            model_name="searchmodepulsar",
+            name="project",
             field=models.CharField(max_length=500),
         ),
     ]

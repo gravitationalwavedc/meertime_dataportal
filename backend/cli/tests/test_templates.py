@@ -88,10 +88,10 @@ def test_cli_template_update_with_token(client, creator, args, jwt_token, debug_
         + '"},'
         + '"frequency":'
         + str(args.frequency)
-        + ','
+        + ","
         + '"bandwidth":'
         + str(args.bandwidth)
-        + ','
+        + ","
         + '"createdAt":"'
         + args.created_at
         + '",'

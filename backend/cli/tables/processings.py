@@ -84,7 +84,7 @@ class Processings(GraphQLTable):
         ]
 
     def list(self, id=None, observation_id=None, parent_id=None, location=None, utc_start=None):
-        """ Return a list of records matching the id and/or the provided arguments. """
+        """Return a list of records matching the id and/or the provided arguments."""
         filters = [
             {"field": "observationId", "value": observation_id, "join": "Observations"},
             {"field": "parentId", "value": parent_id, "join": "Processings"},

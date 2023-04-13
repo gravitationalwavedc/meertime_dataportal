@@ -66,7 +66,7 @@ class VerifyRegistration(graphene.Mutation):
             return VerifyRegistration(
                 ok=False,
                 registration=None,
-                errors=['Invalid verification code.'],
+                errors=["Invalid verification code."],
             )
 
         try:
@@ -75,7 +75,7 @@ class VerifyRegistration(graphene.Mutation):
                 return VerifyRegistration(
                     ok=False,
                     registration=None,
-                    errors=['Email already verified.'],
+                    errors=["Email already verified."],
                 )
             registration.status = Registration.VERIFIED
             registration.save()
@@ -88,7 +88,7 @@ class VerifyRegistration(graphene.Mutation):
             return VerifyRegistration(
                 ok=False,
                 registration=None,
-                errors=['Verification code does not exist.'],
+                errors=["Verification code does not exist."],
             )
         except Exception as exp:
             return VerifyRegistration(
@@ -115,24 +115,24 @@ class AccountActivation(graphene.Mutation):
             return AccountActivation(
                 ok=False,
                 provisional_user=None,
-                errors=['Invalid verification code.'],
+                errors=["Invalid verification code."],
             )
 
         try:
             provisional_user = ProvisionalUser.objects.get(
                 activation_code=activation_code,
-                email=user_input.get('email'),
+                email=user_input.get("email"),
             )
             if provisional_user.activated:
                 return AccountActivation(
                     ok=False,
                     provisional_user=None,
-                    errors=['Account already activated.'],
+                    errors=["Account already activated."],
                 )
 
-            provisional_user.user.set_password(user_input.get('password'))
-            provisional_user.user.first_name = user_input.get('first_name')
-            provisional_user.user.last_name = user_input.get('last_name')
+            provisional_user.user.set_password(user_input.get("password"))
+            provisional_user.user.first_name = user_input.get("first_name")
+            provisional_user.user.last_name = user_input.get("last_name")
             provisional_user.user.is_active = True
             provisional_user.user.save()
 
@@ -149,7 +149,7 @@ class AccountActivation(graphene.Mutation):
             return AccountActivation(
                 ok=False,
                 provisional_user=None,
-                errors=['Activation code for this email does not exist.'],
+                errors=["Activation code for this email does not exist."],
             )
         except Exception as exp:
             return AccountActivation(
@@ -201,7 +201,7 @@ class PasswordReset(graphene.Mutation):
             return PasswordReset(
                 ok=False,
                 password_reset_request=None,
-                errors=['Invalid verification code.'],
+                errors=["Invalid verification code."],
             )
 
         try:
@@ -211,21 +211,20 @@ class PasswordReset(graphene.Mutation):
                 return PasswordReset(
                     ok=False,
                     password_reset_request=None,
-                    errors=['The verification code has been expired.'],
+                    errors=["The verification code has been expired."],
                 )
 
             if password_reset_request.status == PasswordResetRequest.UPDATED:
                 return PasswordReset(
                     ok=False,
                     password_reset_request=None,
-                    errors=['The verification code has been used.'],
+                    errors=["The verification code has been used."],
                 )
 
             # change the user password here
             # get the user whose password will be changed
             user = UserModel.objects.filter(
-                Q(username=password_reset_request.email) |
-                Q(email=password_reset_request.email)
+                Q(username=password_reset_request.email) | Q(email=password_reset_request.email)
             ).first()
 
             if user:
@@ -245,13 +244,13 @@ class PasswordReset(graphene.Mutation):
                 return PasswordReset(
                     ok=False,
                     password_reset_request=None,
-                    errors=['No user found. Please contact support regarding this.'],
+                    errors=["No user found. Please contact support regarding this."],
                 )
         except PasswordResetRequest.DoesNotExist:
             return PasswordReset(
                 ok=False,
                 password_reset_request=None,
-                errors=['Verification code does not exist.'],
+                errors=["Verification code does not exist."],
             )
         except Exception as exp:
             return PasswordReset(
@@ -278,7 +277,7 @@ class PasswordChange(graphene.Mutation):
                 return PasswordChange(
                     ok=False,
                     user=None,
-                    errors=['New and current passwords cannot be same.'],
+                    errors=["New and current passwords cannot be same."],
                 )
 
             user = UserModel.objects.get(username=username)
@@ -290,7 +289,7 @@ class PasswordChange(graphene.Mutation):
                 return PasswordChange(
                     ok=False,
                     user=None,
-                    errors=['Current password is incorrect.'],
+                    errors=["Current password is incorrect."],
                 )
 
             return PasswordChange(
@@ -302,7 +301,7 @@ class PasswordChange(graphene.Mutation):
             return PasswordChange(
                 ok=False,
                 user=None,
-                errors=['User does not exist.'],
+                errors=["User does not exist."],
             )
         except Exception as exp:
             return PasswordChange(

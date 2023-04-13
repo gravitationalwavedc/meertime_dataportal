@@ -78,4 +78,4 @@ def test_cli_launch_update_with_token(client, creator, args, jwt_token):
         + '"}}}}}'
     )
 
-    assert response.content == expected_content.encode('utf-8')
+    assert response.content == expected_content.encode("utf-8")

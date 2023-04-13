@@ -7,18 +7,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0001_initial'),
+        ("dataportal", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='foldings',
-            name='tsubint',
+            model_name="foldings",
+            name="tsubint",
             field=models.FloatField(),
         ),
         migrations.AlterField(
-            model_name='pipelineimages',
-            name='image',
-            field=models.ImageField(null=True, storage=dataportal.storage.OverwriteStorage(), upload_to=dataportal.storage.get_upload_location),
+            model_name="pipelineimages",
+            name="image",
+            field=models.ImageField(
+                null=True,
+                storage=dataportal.storage.OverwriteStorage(),
+                upload_to=dataportal.storage.get_upload_location,
+            ),
         ),
     ]

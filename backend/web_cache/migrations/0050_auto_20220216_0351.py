@@ -6,48 +6,48 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0049_auto_20220215_0358'),
+        ("web_cache", "0049_auto_20220215_0358"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='bandpass_hi',
+            model_name="foldpulsardetail",
+            name="bandpass_hi",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='bandpass_lo',
+            model_name="foldpulsardetail",
+            name="bandpass_lo",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='phase_vs_frequency_hi',
+            model_name="foldpulsardetail",
+            name="phase_vs_frequency_hi",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='phase_vs_frequency_lo',
+            model_name="foldpulsardetail",
+            name="phase_vs_frequency_lo",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='phase_vs_time_hi',
+            model_name="foldpulsardetail",
+            name="phase_vs_time_hi",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='phase_vs_time_lo',
+            model_name="foldpulsardetail",
+            name="phase_vs_time_lo",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='profile_hi',
+            model_name="foldpulsardetail",
+            name="profile_hi",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='profile_lo',
+            model_name="foldpulsardetail",
+            name="profile_lo",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='snr_vs_time_hi',
+            model_name="foldpulsardetail",
+            name="snr_vs_time_hi",
         ),
         migrations.RemoveField(
-            model_name='foldpulsardetail',
-            name='snr_vs_time_lo',
+            model_name="foldpulsardetail",
+            name="snr_vs_time_lo",
         ),
     ]

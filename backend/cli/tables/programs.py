@@ -46,7 +46,7 @@ class Programs(GraphQLTable):
         self.field_names = ["id", "telescope {name} ", "name"]
 
     def list(self, id=None, telescope=None, name=None):
-        """ Return a list of records matching the id and/or the telescope id, name. """
+        """Return a list of records matching the id and/or the telescope id, name."""
         filters = [
             {"field": "telescope", "value": telescope, "join": "Telescopes"},
             {"field": "name", "value": name, "join": None},

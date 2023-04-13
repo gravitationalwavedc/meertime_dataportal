@@ -67,7 +67,7 @@ def get_calibration(utc_start):
 
 
 def regenerate_pngs(in_dir):
-    """ regenerate the PNG files for this fold mode observation """
+    """regenerate the PNG files for this fold mode observation"""
 
     freq_file = in_dir + "/freq.sum"
     time_file = in_dir + "/time.sum"

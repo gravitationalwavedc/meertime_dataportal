@@ -29,13 +29,15 @@ def sync_foldmode_experimental():
 
     print("Syncing FoldPulsarsDetails")
 
-    FoldPulsarDetail.bulk_update_or_create(Foldings.objects.select_related(
-        'folding_ephemeris',
-        'processing',
-    ).prefetch_related(
-        'toas_set__processing__pipelineimages_set',
-        'processing__pipelineimages_set'
-    ).all()[:1000])
+    FoldPulsarDetail.bulk_update_or_create(
+        Foldings.objects.select_related(
+            "folding_ephemeris",
+            "processing",
+        )
+        .prefetch_related("toas_set__processing__pipelineimages_set", "processing__pipelineimages_set")
+        .all()[:1000]
+    )
+
 
 def sync_foldmode():
     print("Syncing FoldPulsars")

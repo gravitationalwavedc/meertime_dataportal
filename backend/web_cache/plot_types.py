@@ -38,5 +38,5 @@ PLOT_NAMES = {
     "freq": ["freq", "frequency", "phase-vs-freq", "phase-freq", "phase.freq"],
     "time": ["time", "phase-time", "phase-vs-time", "phase.time"],
     "snrt": ["snrt", "snr", "snr-single", "snr.single"],
-    "zap": ["zap", "zap.dynspec", "zap-dynspec"]
+    "zap": ["zap", "zap.dynspec", "zap-dynspec"],
 }

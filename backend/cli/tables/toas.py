@@ -101,7 +101,7 @@ class Toas(GraphQLTable):
         ]
 
     def list(self, id=None, processing_id=None, input_folding_id=None, timing_ephemeris_id=None, template_id=None):
-        """ Return a list of records matching the id and/or the provided arguments. """
+        """Return a list of records matching the id and/or the provided arguments."""
         filters = [
             {"field": "processingId", "value": processing_id, "join": "Processings"},
             {"field": "inputFoldingId", "value": input_folding_id, "join": "Foldings"},

@@ -5,8 +5,8 @@ from graphql_jwt.decorators import login_required
 
 from dataportal.models import Foldings
 
-DATETIME_FILTERS = ['exact', 'isnull', 'lt', 'lte', 'gt', 'gte', 'month', 'year', 'date']
-NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']
+DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
+NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
 
 
 class FoldingsNode(DjangoObjectType):

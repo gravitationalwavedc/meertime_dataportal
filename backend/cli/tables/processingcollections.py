@@ -47,7 +47,7 @@ class Processingcollections(GraphQLTable):
         self.field_names = ["id", "processing {id}", "collection {name}"]
 
     def list(self, id=None, processing=None):
-        """ Return a list of records matching the id and/or the processing id. """
+        """Return a list of records matching the id and/or the processing id."""
         filters = [
             {"field": "processing", "value": processing, "join": None},
         ]

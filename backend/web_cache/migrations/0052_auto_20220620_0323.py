@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0051_auto_20220223_0430'),
+        ("web_cache", "0051_auto_20220223_0430"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='embargo_end_date',
+            model_name="foldpulsardetail",
+            name="embargo_end_date",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='searchmodepulsardetail',
-            name='embargo_end_date',
+            model_name="searchmodepulsardetail",
+            name="embargo_end_date",
             field=models.DateTimeField(null=True),
         ),
     ]

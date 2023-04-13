@@ -50,7 +50,7 @@ class Launches(GraphQLTable):
         self.field_names = ["id", "pipeline {name}", "parentPipeline {name}", "pulsar {jname}"]
 
     def list(self, id=None, pipeline=None, parentPipeline=None, pulsar=None):
-        """ Return a list of records matching the id and/or the pipeline id, parent pipeline id, pulsar id. """
+        """Return a list of records matching the id and/or the pipeline id, parent pipeline id, pulsar id."""
         filters = [
             {"field": "pipeline", "value": pipeline, "join": "Pipelines"},
             {"field": "parentPipeline", "value": parentPipeline, "join": "Pipelines"},

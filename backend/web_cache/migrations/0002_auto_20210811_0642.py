@@ -6,28 +6,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0001_initial'),
+        ("web_cache", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='foldpulsar',
-            name='band',
-            field=models.CharField(choices=[('L-BAND', 'L-Band'), ('S-BAND', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown')], max_length=6),
+            model_name="foldpulsar",
+            name="band",
+            field=models.CharField(
+                choices=[("L-BAND", "L-Band"), ("S-BAND", "S-Band"), ("UHF", "UHF"), ("UNKNOWN", "Unknown")],
+                max_length=6,
+            ),
         ),
         migrations.AlterField(
-            model_name='foldpulsar',
-            name='timespan',
+            model_name="foldpulsar",
+            name="timespan",
             field=models.IntegerField(),
         ),
         migrations.AlterField(
-            model_name='searchmodepulsar',
-            name='band',
-            field=models.CharField(choices=[('L-BAND', 'L-Band'), ('S-BAND', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown')], max_length=6),
+            model_name="searchmodepulsar",
+            name="band",
+            field=models.CharField(
+                choices=[("L-BAND", "L-Band"), ("S-BAND", "S-Band"), ("UHF", "UHF"), ("UNKNOWN", "Unknown")],
+                max_length=6,
+            ),
         ),
         migrations.AlterField(
-            model_name='searchmodepulsar',
-            name='timespan',
+            model_name="searchmodepulsar",
+            name="timespan",
             field=models.IntegerField(),
         ),
     ]

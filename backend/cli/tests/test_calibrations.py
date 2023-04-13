@@ -61,4 +61,4 @@ def test_cli_calibration_update_with_token(client, creator, args, jwt_token):
         + '"location":"updated"}}}}'
     )
 
-    assert response.content == expected_content.encode('utf-8')
+    assert response.content == expected_content.encode("utf-8")

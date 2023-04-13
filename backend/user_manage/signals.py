@@ -13,7 +13,7 @@ from .utility import (
 )
 
 
-@receiver(pre_save, sender=Registration, dispatch_uid='handle_registration_save')
+@receiver(pre_save, sender=Registration, dispatch_uid="handle_registration_save")
 def handle_registration_save(sender, instance, **kwargs):
     if not instance.pk:
         # hashing the password
@@ -46,7 +46,7 @@ def handle_registration_save(sender, instance, **kwargs):
             instance.user = new_user
 
 
-@receiver(pre_save, sender=PasswordResetRequest, dispatch_uid='handle_request_password_reset_save')
+@receiver(pre_save, sender=PasswordResetRequest, dispatch_uid="handle_request_password_reset_save")
 def handle_password_reset_request_save(sender, instance, raw, **kwargs):
     if not instance.pk and not raw:
         # get the user whose password will be changed
@@ -64,7 +64,7 @@ def handle_password_reset_request_save(sender, instance, raw, **kwargs):
         )
 
 
-@receiver(pre_save, sender=ProvisionalUser, dispatch_uid='handle_provisional_user_save')
+@receiver(pre_save, sender=ProvisionalUser, dispatch_uid="handle_provisional_user_save")
 def handle_provisional_user_save(sender, instance, **kwargs):
     if not instance.pk:
         # create a new user and refer it
@@ -89,7 +89,7 @@ def handle_provisional_user_save(sender, instance, **kwargs):
                 activation_code=instance.activation_code,
             )
         except Exception as ex:
-            print('Email was not sent due to an error')
+            print("Email was not sent due to an error")
             print(ex)
         else:
             instance.email_sent = True

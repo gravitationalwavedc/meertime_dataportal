@@ -47,7 +47,7 @@ class Pulsartargets(GraphQLTable):
         self.field_names = ["id", "pulsar {jname}", "target {name}"]
 
     def list(self, id=None, target_id=None, target_name=None, pulsar_id=None, pulsar_jname=None):
-        """ Return a list of records matching the id and/or the provided arguments. """
+        """Return a list of records matching the id and/or the provided arguments."""
         filters = [
             {"field": "target_Id", "value": target_id, "join": "Targets"},
             {"field": "target_Name", "value": target_name, "join": "Targets"},

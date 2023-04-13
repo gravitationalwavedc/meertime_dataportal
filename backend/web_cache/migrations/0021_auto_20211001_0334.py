@@ -8,23 +8,23 @@ from django.utils.timezone import utc
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0020_auto_20210923_1250'),
+        ("web_cache", "0020_auto_20210923_1250"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='sessionpulsar',
-            options={'ordering': ['-session__start']},
+            name="sessionpulsar",
+            options={"ordering": ["-session__start"]},
         ),
         migrations.AddField(
-            model_name='sessionpulsar',
-            name='project',
-            field=models.CharField(default='Relbin', max_length=50),
+            model_name="sessionpulsar",
+            name="project",
+            field=models.CharField(default="Relbin", max_length=50),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='sessionpulsar',
-            name='utc',
+            model_name="sessionpulsar",
+            name="utc",
             field=models.DateTimeField(default=datetime.datetime(2021, 10, 1, 3, 34, 40, 260181, tzinfo=utc)),
             preserve_default=False,
         ),

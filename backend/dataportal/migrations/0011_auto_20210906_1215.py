@@ -7,17 +7,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0010_merge_20210906_0143'),
+        ("dataportal", "0010_merge_20210906_0143"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='pipelinefiles',
-            name='file',
-            field=models.FileField(null=True, storage=dataportal.storage.OverwriteStorage(), upload_to=dataportal.storage.get_pipeline_upload_location),
+            model_name="pipelinefiles",
+            name="file",
+            field=models.FileField(
+                null=True,
+                storage=dataportal.storage.OverwriteStorage(),
+                upload_to=dataportal.storage.get_pipeline_upload_location,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='ephemerides',
-            unique_together={('pulsar', 'ephemeris_hash')},
+            name="ephemerides",
+            unique_together={("pulsar", "ephemeris_hash")},
         ),
     ]

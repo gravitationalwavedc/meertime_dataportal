@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0033_auto_20211111_0453'),
+        ("web_cache", "0033_auto_20211111_0453"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sessiondisplay',
-            name='list_of_pulsars',
+            model_name="sessiondisplay",
+            name="list_of_pulsars",
             field=models.CharField(max_length=2000, null=True),
         ),
         migrations.AlterField(
-            model_name='sessiondisplay',
-            name='projects',
+            model_name="sessiondisplay",
+            name="projects",
             field=models.CharField(max_length=2000, null=True),
         ),
     ]

@@ -55,7 +55,7 @@ class Projects(GraphQLTable):
         self.field_names = ["id", "program {name}", "code", "short", "embargoPeriod", "description"]
 
     def list(self, id=None, program=None, code=None):
-        """ Return a list of records matching the id and/or the program id, code. """
+        """Return a list of records matching the id and/or the program id, code."""
         filters = [
             {"field": "program", "value": program, "join": "Programs"},
             {"field": "code", "value": code, "join": None},

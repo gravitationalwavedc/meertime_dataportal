@@ -6,18 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0052_auto_20220505_0143'),
+        ("web_cache", "0052_auto_20220505_0143"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='foldpulsar',
-            name='band',
-            field=models.CharField(choices=[('L-Band', 'L-Band'), ('S-Band', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown')], max_length=50),
+            model_name="foldpulsar",
+            name="band",
+            field=models.CharField(
+                choices=[("L-Band", "L-Band"), ("S-Band", "S-Band"), ("UHF", "UHF"), ("UNKNOWN", "Unknown")],
+                max_length=50,
+            ),
         ),
         migrations.AlterField(
-            model_name='searchmodepulsar',
-            name='band',
-            field=models.CharField(choices=[('L-Band', 'L-Band'), ('S-Band', 'S-Band'), ('UHF', 'UHF'), ('UNKNOWN', 'Unknown')], max_length=50),
+            model_name="searchmodepulsar",
+            name="band",
+            field=models.CharField(
+                choices=[("L-Band", "L-Band"), ("S-Band", "S-Band"), ("UHF", "UHF"), ("UNKNOWN", "Unknown")],
+                max_length=50,
+            ),
         ),
     ]

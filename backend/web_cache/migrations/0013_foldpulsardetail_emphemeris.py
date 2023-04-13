@@ -7,13 +7,13 @@ import django_mysql.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0012_auto_20210818_0245'),
+        ("web_cache", "0012_auto_20210818_0245"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='emphemeris',
+            model_name="foldpulsardetail",
+            name="emphemeris",
             field=django_mysql.models.JSONField(default=dict),
         ),
     ]
