@@ -64,12 +64,12 @@ class Ephemerides(models.Model):
     valid_to = models.DateTimeField()
 
     class Meta:
-        unique_together = [['pulsar', 'ephemeris_hash', 'dm', 'rm']]
+        unique_together = [["pulsar", "ephemeris_hash", "dm", "rm"]]
 
     def clean(self, *args, **kwargs):
         # checking valid_to is later than valid_from
         if self.valid_from >= self.valid_to:
-            raise ValidationError(_('valid_to must be later than valid_from'))
+            raise ValidationError(_("valid_to must be later than valid_from"))
 
     def save(self, *args, **kwargs):
         Ephemerides.clean(self)

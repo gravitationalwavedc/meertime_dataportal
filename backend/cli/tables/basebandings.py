@@ -57,7 +57,7 @@ class Basebandings(GraphQLTable):
         self.field_names = ["id", "processing { id }"]
 
     def list(self, id=None, processing_id=None):
-        """ Return a list of records matching the id and/or the processing id. """
+        """Return a list of records matching the id and/or the processing id."""
         filters = [
             {"field": "processing", "value": processing_id, "join": "Processings"},
         ]
@@ -65,12 +65,12 @@ class Basebandings(GraphQLTable):
         return GraphQLTable.list_graphql(self, graphql_query)
 
     def create(self, processing):
-        """ Create a record using the processing id. """
+        """Create a record using the processing id."""
         self.create_variables = {"processing_id": processing}
         return self.create_graphql()
 
     def update(self, id, processing):
-        """ Update a record matching the id with the processing id. """
+        """Update a record matching the id with the processing id."""
         self.update_variables = {"id": id, "processing_id": processing}
         return self.update_graphql()
 
@@ -115,7 +115,7 @@ class Basebandings(GraphQLTable):
         parser_list = subs.add_parser("list", help="list existing pipelines")
         parser_list.add_argument("--id", type=int, help="list pipelines matching the id [int]")
         parser_list.add_argument(
-            "--processing", type=int, metavar='PROCID', help="list pipelines matching the processing id [int]"
+            "--processing", type=int, metavar="PROCID", help="list pipelines matching the processing id [int]"
         )
 
         # create the parser for the "create" command

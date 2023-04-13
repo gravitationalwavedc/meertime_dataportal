@@ -43,10 +43,7 @@ class ActivateUser(graphene.Mutation):
             user.is_active = True
             user.save()
         except User.DoesNotExist:
-            return ActivateUser(
-                ok=False,
-                errors=[f'User with username {username} does not exist.']
-            )
+            return ActivateUser(ok=False, errors=[f"User with username {username} does not exist."])
         except Exception as ex:
             return ActivateUser(
                 ok=False,
@@ -75,10 +72,7 @@ class DeactivateUser(graphene.Mutation):
             user.is_active = False
             user.save()
         except User.DoesNotExist:
-            return DeactivateUser(
-                ok=False,
-                errors=[f'User with username {username} does not exist.']
-            )
+            return DeactivateUser(ok=False, errors=[f"User with username {username} does not exist."])
         except Exception as ex:
             return DeactivateUser(
                 ok=False,
@@ -137,7 +131,7 @@ class CreateProvisionalUser(graphene.Mutation):
             return CreateProvisionalUser(
                 ok=False,
                 email_sent=False,
-                errors=[f'Email address {email} already exists.'],
+                errors=[f"Email address {email} already exists."],
             )
         except Exception as ex:
             return CreateProvisionalUser(
@@ -169,10 +163,7 @@ class UpdateRole(graphene.Mutation):
             user.role = set_role(role)
             user.save()
         except User.DoesNotExist:
-            return UpdateRole(
-                ok=False,
-                errors=[f'User with username {username} does not exist.']
-            )
+            return UpdateRole(ok=False, errors=[f"User with username {username} does not exist."])
         except Exception as ex:
             return UpdateRole(
                 ok=False,

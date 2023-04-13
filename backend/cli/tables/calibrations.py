@@ -47,7 +47,7 @@ class Calibrations(GraphQLTable):
         self.field_names = ["id", "calibrationType", "location"]
 
     def list(self, id=None, type=None):
-        """ Return a list of records matching the id and/or the type. """
+        """Return a list of records matching the id and/or the type."""
         filters = [
             {"field": "type", "value": type, "join": None},
         ]

@@ -8,42 +8,60 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0006_auto_20210829_0722'),
+        ("dataportal", "0006_auto_20210829_0722"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Sessions',
+            name="Sessions",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start', models.DateTimeField()),
-                ('end', models.DateTimeField()),
-                ('telescope', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='dataportal.Telescopes')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("start", models.DateTimeField()),
+                ("end", models.DateTimeField()),
+                (
+                    "telescope",
+                    models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to="dataportal.Telescopes"),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Programs',
+            name="Programs",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=64)),
-                ('telescope', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='dataportal.Telescopes')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("name", models.CharField(max_length=64)),
+                (
+                    "telescope",
+                    models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to="dataportal.Telescopes"),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Pipelinefiles',
+            name="Pipelinefiles",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('file', models.FileField(null=True, storage=dataportal.storage.OverwriteStorage(), upload_to=dataportal.storage.get_upload_location)),
-                ('file_type', models.CharField(blank=True, max_length=32, null=True)),
-                ('processing', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='dataportal.Processings')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                (
+                    "file",
+                    models.FileField(
+                        null=True,
+                        storage=dataportal.storage.OverwriteStorage(),
+                        upload_to=dataportal.storage.get_upload_location,
+                    ),
+                ),
+                ("file_type", models.CharField(blank=True, max_length=32, null=True)),
+                (
+                    "processing",
+                    models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to="dataportal.Processings"),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='projects',
-            name='program',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='dataportal.Programs'),
+            model_name="projects",
+            name="program",
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.DO_NOTHING, to="dataportal.Programs"
+            ),
         ),
     ]

@@ -11,8 +11,8 @@ def remove_duplicate_hash_for_pulsars(apps, schema_editor):
     Toas = apps.get_model("dataportal", "Toas")
 
     duplicates = (
-        Ephemerides.objects.values('pulsar', 'ephemeris_hash')
-        .annotate(min_id=Min('id'), count_id=Count('id'))
+        Ephemerides.objects.values("pulsar", "ephemeris_hash")
+        .annotate(min_id=Min("id"), count_id=Count("id"))
         .filter(count_id__gt=1)
     )
 
@@ -20,11 +20,11 @@ def remove_duplicate_hash_for_pulsars(apps, schema_editor):
         # WARNING: this is an irreversible action
         # It removes a duplicate based on pulsar and ephemeris_hash
 
-        min_eph = Ephemerides.objects.get(id=duplicate['min_id'])
+        min_eph = Ephemerides.objects.get(id=duplicate["min_id"])
 
-        ephs = Ephemerides.objects \
-            .filter(pulsar=duplicate['pulsar'], ephemeris_hash=duplicate['ephemeris_hash']) \
-            .exclude(id=duplicate['min_id'])
+        ephs = Ephemerides.objects.filter(
+            pulsar=duplicate["pulsar"], ephemeris_hash=duplicate["ephemeris_hash"]
+        ).exclude(id=duplicate["min_id"])
 
         for eph in ephs:
 
@@ -37,7 +37,7 @@ def remove_duplicate_hash_for_pulsars(apps, schema_editor):
                 pass
             except Foldings.MultipleObjectsReturned:
                 foldings = Foldings.objects.filter(folding_ephemeris=eph)
-                [folding.delete() for folding in foldings if folding.id != foldings.last().id] 
+                [folding.delete() for folding in foldings if folding.id != foldings.last().id]
                 foldings = Foldings.objects.get(folding_ephemeris=eph)
                 foldings.folding_ephemeris = min_eph
                 foldings.save()
@@ -59,10 +59,6 @@ def reverse_duplicates(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-    dependencies = [
-        ('dataportal', '0008_update_ephemeris_hash')
-    ]
+    dependencies = [("dataportal", "0008_update_ephemeris_hash")]
 
-    operations = [
-        migrations.RunPython(remove_duplicate_hash_for_pulsars, reverse_code=reverse_duplicates)
-    ]
+    operations = [migrations.RunPython(remove_duplicate_hash_for_pulsars, reverse_code=reverse_duplicates)]

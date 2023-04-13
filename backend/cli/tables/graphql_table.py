@@ -81,7 +81,9 @@ class GraphQLTable:
         self.delete_variables = {"id": id}
         return self.delete_graphql()
 
-    def create_graphql(self,):
+    def create_graphql(
+        self,
+    ):
 
         logging.debug(f"Using mutation {self.create_mutation}")
         logging.debug(f"Using mutation vars in a dict {self.create_variables}")

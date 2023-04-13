@@ -24,9 +24,9 @@ class GraphQLJoin(GraphQLTable):
             value = f["value"]
             if field.endswith("_Id"):
                 id_encoded = b64encode(f"{join}Node:{value}".encode("ascii")).decode("utf-8")
-                clauses.append(field + ": \"" + id_encoded + "\"")
+                clauses.append(field + ': "' + id_encoded + '"')
             else:
-                clauses.append(field + ": \"" + value + "\"")
+                clauses.append(field + ': "' + value + '"')
 
         template = """
         query {

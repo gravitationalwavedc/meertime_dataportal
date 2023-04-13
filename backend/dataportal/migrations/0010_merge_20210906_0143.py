@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0009_remove_duplicate_ephemeris_for_pulsars'),
-        ('dataportal', '0007_auto_20210902_2316'),
+        ("dataportal", "0009_remove_duplicate_ephemeris_for_pulsars"),
+        ("dataportal", "0007_auto_20210902_2316"),
     ]
 
-    operations = [
-    ]
+    operations = []

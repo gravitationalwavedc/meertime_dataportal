@@ -7,7 +7,7 @@ class GraphQLClause:
         if not join is None and (field.lower().endswith("id") or type(value) == int):
             value = b64encode(f"{join}Node:{value}".encode("ascii")).decode("utf-8")
         if type(value) == str:
-            self.clause = f"{field}: \"{value}\""
+            self.clause = f'{field}: "{value}"'
         else:
             self.clause = f"{field}: {value}"
 
@@ -71,7 +71,7 @@ class GraphQLQuery:
     def paginate(self, cursor):
         clauses = ["first:100"]
         if not cursor is None:
-            clauses.append("after:\"" + cursor + "\"")
+            clauses.append('after:"' + cursor + '"')
         return self.generate(clauses)
 
     @classmethod

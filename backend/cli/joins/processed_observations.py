@@ -70,7 +70,11 @@ class ProcessedObservations(GraphQLJoin):
             {"value": telescope_name, "field": "observation_Telescope_Name", "join": "Telescopes"},
             {"value": project_id, "field": "observation_Project_Id", "join": "Projects"},
             {"value": project_code, "field": "observation_Project_Code", "join": "Projects"},
-            {"value": instrument_config_id, "field": "observation_InstrumentConfig_Id", "join": "InstrumentConfigs",},
+            {
+                "value": instrument_config_id,
+                "field": "observation_InstrumentConfig_Id",
+                "join": "InstrumentConfigs",
+            },
             {
                 "value": instrument_config_name,
                 "field": "observation_InstrumentConfig_Name",

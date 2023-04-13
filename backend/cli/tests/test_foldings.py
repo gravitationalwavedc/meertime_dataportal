@@ -84,19 +84,19 @@ def test_cli_folding_update_with_token(client, creator, args, jwt_token):
         + '"},'
         + '"nbin":'
         + str(args.nbin)
-        + ','
+        + ","
         + '"npol":'
         + str(args.npol)
-        + ','
+        + ","
         + '"nchan":'
         + str(args.nchan)
-        + ','
+        + ","
         + '"dm":'
         + str(args.dm)
-        + ','
+        + ","
         + '"tsubint":'
         + str(args.tsubint)
-        + '}}}}'
+        + "}}}}"
     )
 
     assert response.content == expected_content.encode("utf-8")

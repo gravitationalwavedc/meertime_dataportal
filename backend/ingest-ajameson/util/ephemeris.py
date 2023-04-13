@@ -12,7 +12,7 @@ class Ephemeris:
         self.configured = False
 
     def load_from_file(self, ephemeris_file):
-        with open(ephemeris_file, 'r') as file:
+        with open(ephemeris_file, "r") as file:
             data = file.read()
         self.load_from_string(data)
 
@@ -27,7 +27,7 @@ class Ephemeris:
             line = re.sub("#.*", "", line)
             if line:
                 line = re.sub("\s+", " ", line)
-                parts = line.split(' ', 2)
+                parts = line.split(" ", 2)
                 if len(parts) < 2:
                     continue
                 if len(parts) == 2:
@@ -57,7 +57,7 @@ class Ephemeris:
 
     def get(self, key):
         if key in self.ephem.keys():
-            if 'err' in self.ephem[key].keys():
+            if "err" in self.ephem[key].keys():
                 return (self.ephem[key]["val"], self.ephem[key]["err"])
             else:
                 return self.ephem[key]["val"]

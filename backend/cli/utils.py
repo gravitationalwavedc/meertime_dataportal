@@ -74,5 +74,5 @@ def obtain_psrdb_parser(desc=""):
 
 def obtain_psrdb_subparser():
     parser = obtain_psrdb_parser()
-    subparser = parser.add_subparsers(dest='command', required=True, help='Database models which can be interrogated')
+    subparser = parser.add_subparsers(dest="command", required=True, help="Database models which can be interrogated")
     return subparser

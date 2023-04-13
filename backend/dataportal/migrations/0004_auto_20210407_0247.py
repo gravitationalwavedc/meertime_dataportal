@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0003_auto_20210407_0138'),
+        ("dataportal", "0003_auto_20210407_0138"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='targets',
-            name='name',
+            model_name="targets",
+            name="name",
             field=models.CharField(max_length=64, unique=True),
         ),
         migrations.AlterField(
-            model_name='telescopes',
-            name='name',
+            model_name="telescopes",
+            name="name",
             field=models.CharField(max_length=64, unique=True),
         ),
     ]

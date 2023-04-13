@@ -58,7 +58,7 @@ class Sessions(GraphQLTable):
         end_lte=None,
         end_gte=None,
     ):
-        """ Return a list of records matching the id and/or the provided arguments. """
+        """Return a list of records matching the id and/or the provided arguments."""
         filters = [
             {"field": "telescope_Id", "value": telescope_id, "join": "Telescopes"},
             {"field": "telescope_Name", "value": telescope_name, "join": "Telescopes"},

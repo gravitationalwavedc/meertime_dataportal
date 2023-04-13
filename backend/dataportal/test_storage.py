@@ -53,15 +53,15 @@ def test_pipelinefiles_file_name_with_plus():
 
     expected = "MeerKAT/MeerPIPE_PTA/J0023+0923/2020-08-24-03:14:33/2/J0023+0923.par"
 
-    generate_db_entry(psr='J0023+0923', utc="2020-08-24-03:14:33", config=entry_config)
+    generate_db_entry(psr="J0023+0923", utc="2020-08-24-03:14:33", config=entry_config)
     processing = Processings.objects.first()
     mock_file = mock.MagicMock(spec=File)
-    mock_file.name = 'J0023+0923.par'
+    mock_file.name = "J0023+0923.par"
 
     pipelinefile = Pipelinefiles.objects.create(
         processing=processing,
         file=mock_file,
-        file_type='pta.parfile',
+        file_type="pta.parfile",
     )
 
     assert pipelinefile.file.name == expected
@@ -79,15 +79,15 @@ def test_pipelinefiles_file_name_with_minus():
 
     expected = "MeerKAT/MeerPIPE_PTA/J0023-0923/2020-08-24-03:14:33/2/J0023-0923.par"
 
-    generate_db_entry(psr='J0023-0923', utc="2020-08-24-03:14:33", config=entry_config)
+    generate_db_entry(psr="J0023-0923", utc="2020-08-24-03:14:33", config=entry_config)
     processing = Processings.objects.first()
     mock_file = mock.MagicMock(spec=File)
-    mock_file.name = 'J0023-0923.par'
+    mock_file.name = "J0023-0923.par"
 
     pipelinefile = Pipelinefiles.objects.create(
         processing=processing,
         file=mock_file,
-        file_type='pta.parfile',
+        file_type="pta.parfile",
     )
 
     assert pipelinefile.file.name == expected

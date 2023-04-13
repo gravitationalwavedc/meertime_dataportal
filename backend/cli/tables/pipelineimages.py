@@ -67,7 +67,7 @@ class Pipelineimages(GraphQLTable):
         self.field_names = ["id", "image", "imageType", "rank", "processing {id}"]
 
     def list(self, id=None, processing_id=None):
-        """ Return a list of records matching the id and/or the processing id. """
+        """Return a list of records matching the id and/or the processing id."""
         filters = [
             {"field": "processing", "value": processing_id, "join": "Processings"},
         ]

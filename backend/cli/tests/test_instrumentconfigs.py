@@ -72,16 +72,16 @@ def test_cli_instrumentconfig_update_with_token(client, creator, args, jwt_token
         + '",'
         + '"bandwidth":'
         + str(args.bandwidth)
-        + ','
+        + ","
         + '"frequency":'
         + str(args.frequency)
-        + ','
+        + ","
         + '"nchan":'
         + str(args.nchan)
-        + ','
+        + ","
         + '"npol":'
         + str(args.npol)
-        + ','
+        + ","
         + '"beam":"'
         + args.beam
         + '"}}}}'

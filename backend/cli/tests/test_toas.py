@@ -55,13 +55,13 @@ def test_cli_toa_list_clauses(client, creator, args, jwt_token):
         + '",'
         + '"frequency":'
         + str(toa.frequency)
-        + ','
+        + ","
         + '"mjd":null,'
         + '"site":null,'
         + '"uncertainty":null,'
         + '"quality":null,'
         + '"comment":null'
-        + '}}]}}}'
+        + "}}]}}}"
     )
 
     response = t.list(processing_id=toa.processing.id)
@@ -168,7 +168,7 @@ def test_cli_toa_update_with_token(client, creator, args, jwt_token, debug_log):
         + '",'
         + '"frequency":'
         + str(args.frequency)
-        + ','
+        + ","
         + '"mjd":"'
         + args.mjd
         + '",'
@@ -177,7 +177,7 @@ def test_cli_toa_update_with_token(client, creator, args, jwt_token, debug_log):
         + '",'
         + '"uncertainty":'
         + str(args.uncertainty)
-        + ','
+        + ","
         + '"quality":"'
         + args.quality.upper()
         + '",'

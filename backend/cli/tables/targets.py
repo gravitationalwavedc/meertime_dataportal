@@ -49,7 +49,7 @@ class Targets(GraphQLTable):
         self.field_names = ["id", "name", "raj", "decj"]
 
     def list(self, id=None, name=None):
-        """ Return a list of records matching the id and/or the name. """
+        """Return a list of records matching the id and/or the name."""
         filters = [
             {"field": "name", "value": name, "join": None},
         ]

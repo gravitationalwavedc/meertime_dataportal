@@ -70,7 +70,7 @@ class Foldings(GraphQLTable):
         ]
 
     def list(self, id=None, processing_id=None, folding_ephemeris_id=None):
-        """ Return a list of records matching the id and/or the processing id, folding ephemeris id """
+        """Return a list of records matching the id and/or the processing id, folding ephemeris id"""
         filters = [
             {"field": "processingId", "value": processing_id, "join": "Processings"},
             {"field": "foldingEphemerisId", "value": folding_ephemeris_id, "join": "Ephemerides"},

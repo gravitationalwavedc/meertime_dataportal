@@ -122,16 +122,16 @@ def test_cli_observation_update_with_token(client, creator, args, jwt_token):
         + '",'
         + '"duration":'
         + str(args.duration)
-        + ','
+        + ","
         + '"nant":'
         + str(args.nant)
-        + ','
+        + ","
         + '"nantEff":'
         + str(args.nanteff)
-        + ','
+        + ","
         + '"suspect":'
         + str(args.suspect).lower()
-        + ','
+        + ","
         + '"comment":"'
         + args.comment
         + '"}}}}'

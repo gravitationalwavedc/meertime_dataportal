@@ -91,9 +91,9 @@ def test_cli_processing_update_with_token(client, creator, args, jwt_token, debu
         + '"},'
         + '"location":"updated",'
         + '"embargoEnd":"2000-01-01T00:00:01+00:00",'
-        + '"jobState":"{\'foo\': \'updated\'}",'
-        + '"jobOutput":"{\'foo\': \'updated\'}",'
-        + '"results":"{\'foo\': \'updated\'}"}}}}'
+        + "\"jobState\":\"{'foo': 'updated'}\","
+        + "\"jobOutput\":\"{'foo': 'updated'}\","
+        + "\"results\":\"{'foo': 'updated'}\"}}}}"
     )
 
     assert response.content == expected_content.encode("utf-8")

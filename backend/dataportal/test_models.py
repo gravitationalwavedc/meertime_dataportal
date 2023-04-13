@@ -273,7 +273,7 @@ def test_get_observation_details():
 @pytest.mark.django_db
 def test_ephemeris_hash():
 
-    ephemeris = default_entry_config['ephemeris']
+    ephemeris = default_entry_config["ephemeris"]
     expected = hashlib.md5(json.dumps(ephemeris, sort_keys=True, indent=2).encode("utf-8")).hexdigest()
 
     utc = "2000-01-01-12:59:12"

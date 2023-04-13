@@ -71,7 +71,7 @@ class Pipelinefiles(GraphQLTable):
         self.field_names = ["id", "file", "fileType", "processing {id}"]
 
     def list(self, id=None, processing_id=None, file_type=None):
-        """ Return a list of records matching the id and/or the file type. """
+        """Return a list of records matching the id and/or the file type."""
         filters = [
             {"field": "processing", "value": processing_id, "join": "Processings"},
             {"field": "filetype", "value": file_type, "join": None},
@@ -150,7 +150,10 @@ class Pipelinefiles(GraphQLTable):
         parser_create = subs.add_parser("create", help="create a new pipelinefile")
         parser_create.add_argument("file", metavar="FILE", type=str, help="path to the file to be uploaded [str]")
         parser_create.add_argument(
-            "file_type", metavar="TYPE", type=str, help='class of file type" [str]',
+            "file_type",
+            metavar="TYPE",
+            type=str,
+            help='class of file type" [str]',
         )
         parser_create.add_argument(
             "processing_id", metavar="PROC", type=int, help="id of the related processing [int]"
@@ -160,7 +163,7 @@ class Pipelinefiles(GraphQLTable):
         parser_update = subs.add_parser("update", help="update a new pipelinefile")
         parser_update.add_argument("id", metavar="ID", type=int, help="id of the existing pipeline file [int]")
         parser_update.add_argument("file", metavar="FILE", type=str, help="path to the file to be uploaded [str]")
-        parser_update.add_argument("file_type", metavar="TYPE", type=str, help='class of file type[str]')
+        parser_update.add_argument("file_type", metavar="TYPE", type=str, help="class of file type[str]")
         parser_update.add_argument(
             "processing_id", metavar="PROC", type=int, help="id of the related processing [int]"
         )

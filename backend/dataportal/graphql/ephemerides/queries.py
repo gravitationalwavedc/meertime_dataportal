@@ -5,7 +5,7 @@ from graphql_jwt.decorators import login_required
 
 from dataportal.models import Ephemerides
 
-NUMERIC_FILTERS = ['exact', 'lt', 'lte', 'gt', 'gte']
+NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
 
 
 class EphemeridesNode(DjangoObjectType):

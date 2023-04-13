@@ -96,13 +96,13 @@ def test_cli_ephemeris_update_with_token(client, creator, args, jwt_token, debug
         + '"{\\"F0\\": \\"2345.6\\"}",'
         + '"p0":'
         + str(args.p0)
-        + ','
+        + ","
         + '"dm":'
         + str(args.dm)
-        + ','
+        + ","
         + '"rm":'
         + str(args.rm)
-        + ','
+        + ","
         + '"comment":"'
         + args.comment
         + '",'

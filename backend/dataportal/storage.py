@@ -52,8 +52,8 @@ def get_valid_filename(s):
     >>> get_valid_filename("J1234-5678.dat")
     'J1234-5678.dat'
     """
-    s = str(s).strip().replace(' ', '_')
-    return re.sub(r'(?u)[^-+\w.]', '', s)
+    s = str(s).strip().replace(" ", "_")
+    return re.sub(r"(?u)[^-+\w.]", "", s)
 
 
 class OverwriteStorage(FileSystemStorage):
