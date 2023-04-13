@@ -1,8 +1,14 @@
 import pytest
 from datetime import datetime
 from dataportal.models import Telescopes, Foldings, Sessions
-from web_cache.models import FoldPulsar, FoldPulsarDetail, SearchmodePulsar, SearchmodePulsarDetail, FoldDetailImage, \
-    SessionDisplay
+from web_cache.models import (
+    FoldPulsar,
+    FoldPulsarDetail,
+    SearchmodePulsar,
+    SearchmodePulsarDetail,
+    FoldDetailImage,
+    SessionDisplay,
+)
 from web_cache.testing_utils import create_pulsar_with_observations
 
 
@@ -63,6 +69,7 @@ def test_handle_session_delete():
     session = create_session()
     session.delete()
     assert not SessionDisplay.objects.all()
+
 
 @pytest.mark.django_db
 @pytest.mark.enable_signals

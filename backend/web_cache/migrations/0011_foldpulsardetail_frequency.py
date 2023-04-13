@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0010_auto_20210817_0118'),
+        ("web_cache", "0010_auto_20210817_0118"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='frequency',
+            model_name="foldpulsardetail",
+            name="frequency",
             field=models.DecimalField(decimal_places=9, max_digits=15, null=True),
         ),
     ]

@@ -11,10 +11,11 @@ from web_cache.models import (
     SessionDisplay,
 )
 
+
 @receiver(post_save, sender=Pulsars)
 def handle_pulsar_comment_update(sender, instance, **kwargs):
-    # There's a very small chance that due to database updates by ingest there might be a pulsar 
-    # but no FoldPulsar model. We don't really care about this because it'll be fixed the next time 
+    # There's a very small chance that due to database updates by ingest there might be a pulsar
+    # but no FoldPulsar model. We don't really care about this because it'll be fixed the next time
     # that the ingest runs.
     with suppress(FoldPulsar.DoesNotExist):
         fold_pulsar = FoldPulsar.objects.get(jname=instance.jname)
@@ -61,7 +62,7 @@ def handle_image_save(sender, instance, **kwargs):
 
 @receiver(post_delete, sender=Sessions)
 def handle_session_delete(sender, instance, **kwargs):
-    # There's a small chance that a Session may have been created by the ingest script but not have created 
+    # There's a small chance that a Session may have been created by the ingest script but not have created
     # a SessionDisplay in the web_cache. This gets fixed the next time the ingest runs or a sync_web_cache is called,
     # so we don't care about the error.
     with suppress(SessionDisplay.DoesNotExist):

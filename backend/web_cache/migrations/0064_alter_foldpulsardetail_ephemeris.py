@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0063_auto_20230214_0348'),
+        ("web_cache", "0063_auto_20230214_0348"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='foldpulsardetail',
-            name='ephemeris',
+            model_name="foldpulsardetail",
+            name="ephemeris",
             field=models.JSONField(),
         ),
     ]

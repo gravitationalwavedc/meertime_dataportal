@@ -6,19 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0062_auto_20230213_2325'),
+        ("web_cache", "0062_auto_20230213_2325"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsar',
-            name='highest_sn_raw',
+            model_name="foldpulsar",
+            name="highest_sn_raw",
             field=models.DecimalField(decimal_places=1, default=0, max_digits=12),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='foldpulsar',
-            name='lowest_sn_raw',
+            model_name="foldpulsar",
+            name="lowest_sn_raw",
             field=models.DecimalField(decimal_places=1, default=0, max_digits=12),
             preserve_default=False,
         ),

@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0054_foldpulsardetail_flux'),
+        ("web_cache", "0054_foldpulsardetail_flux"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsar',
-            name='comment',
+            model_name="foldpulsar",
+            name="comment",
             field=models.TextField(null=True),
         ),
         migrations.AddField(
-            model_name='searchmodepulsar',
-            name='comment',
+            model_name="searchmodepulsar",
+            name="comment",
             field=models.TextField(null=True),
         ),
     ]

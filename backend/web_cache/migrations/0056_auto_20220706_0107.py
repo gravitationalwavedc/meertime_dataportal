@@ -6,18 +6,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0055_auto_20220614_0052'),
+        ("web_cache", "0055_auto_20220614_0052"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='sessionpulsar',
-            old_name='profile_hi',
-            new_name='flux_hi',
+            model_name="sessionpulsar",
+            old_name="profile_hi",
+            new_name="flux_hi",
         ),
         migrations.RenameField(
-            model_name='sessionpulsar',
-            old_name='profile_lo',
-            new_name='flux_lo',
+            model_name="sessionpulsar",
+            old_name="profile_lo",
+            new_name="flux_lo",
         ),
     ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0023_sessionpulsar_beam'),
+        ("web_cache", "0023_sessionpulsar_beam"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='sessionpulsar',
-            name='integrations',
+            model_name="sessionpulsar",
+            name="integrations",
             field=models.FloatField(),
         ),
     ]

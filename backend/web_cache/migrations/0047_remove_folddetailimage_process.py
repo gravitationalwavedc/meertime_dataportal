@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0046_folddetailimage'),
+        ("web_cache", "0046_folddetailimage"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='folddetailimage',
-            name='process',
+            model_name="folddetailimage",
+            name="process",
         ),
     ]

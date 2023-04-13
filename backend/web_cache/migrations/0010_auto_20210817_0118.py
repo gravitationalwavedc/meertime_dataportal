@@ -6,64 +6,64 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0009_auto_20210816_0637'),
+        ("web_cache", "0009_auto_20210816_0637"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='bandpass',
+            model_name="foldpulsardetail",
+            name="bandpass",
             field=models.URLField(null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='dec',
+            model_name="foldpulsardetail",
+            name="dec",
             field=models.CharField(max_length=16, null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='nsubint',
+            model_name="foldpulsardetail",
+            name="nsubint",
             field=models.DecimalField(decimal_places=1, max_digits=12, null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='phase_vs_frequency',
+            model_name="foldpulsardetail",
+            name="phase_vs_frequency",
             field=models.URLField(null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='phase_vs_time',
+            model_name="foldpulsardetail",
+            name="phase_vs_time",
             field=models.URLField(null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='phaseup',
+            model_name="foldpulsardetail",
+            name="phaseup",
             field=models.CharField(max_length=16, null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='profile',
+            model_name="foldpulsardetail",
+            name="profile",
             field=models.URLField(null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='proposal',
-            field=models.CharField(default='FAKE-12312-1231', max_length=40),
+            model_name="foldpulsardetail",
+            name="proposal",
+            field=models.CharField(default="FAKE-12312-1231", max_length=40),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='ra',
+            model_name="foldpulsardetail",
+            name="ra",
             field=models.CharField(max_length=16, null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='schedule',
+            model_name="foldpulsardetail",
+            name="schedule",
             field=models.CharField(max_length=16, null=True),
         ),
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='snr_vs_time',
+            model_name="foldpulsardetail",
+            name="snr_vs_time",
             field=models.URLField(null=True),
         ),
     ]

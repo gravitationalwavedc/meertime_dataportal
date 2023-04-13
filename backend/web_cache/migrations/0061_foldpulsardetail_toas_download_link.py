@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0060_foldpulsardetail_ephemeris_download_link'),
+        ("web_cache", "0060_foldpulsardetail_ephemeris_download_link"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsardetail',
-            name='toas_download_link',
+            model_name="foldpulsardetail",
+            name="toas_download_link",
             field=models.URLField(null=True),
         ),
     ]

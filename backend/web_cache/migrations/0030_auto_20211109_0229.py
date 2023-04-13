@@ -7,18 +7,20 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0029_auto_20211012_0142'),
+        ("web_cache", "0029_auto_20211012_0142"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='sessionpulsar',
-            name='search_pulsar',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='web_cache.SearchmodePulsar'),
+            model_name="sessionpulsar",
+            name="search_pulsar",
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.CASCADE, to="web_cache.SearchmodePulsar"
+            ),
         ),
         migrations.AlterField(
-            model_name='sessionpulsar',
-            name='fold_pulsar',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='web_cache.FoldPulsar'),
+            model_name="sessionpulsar",
+            name="fold_pulsar",
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to="web_cache.FoldPulsar"),
         ),
     ]

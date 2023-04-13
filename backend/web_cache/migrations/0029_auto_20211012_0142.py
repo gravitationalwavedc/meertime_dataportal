@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0028_auto_20211012_0138'),
+        ("web_cache", "0028_auto_20211012_0138"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='foldpulsardetail',
-            old_name='frequency_lo',
-            new_name='frequency',
+            model_name="foldpulsardetail",
+            old_name="frequency_lo",
+            new_name="frequency",
         ),
     ]

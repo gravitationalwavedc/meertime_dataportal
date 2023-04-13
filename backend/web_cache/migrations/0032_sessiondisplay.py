@@ -6,27 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0031_auto_20211109_0236'),
+        ("web_cache", "0031_auto_20211109_0236"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SessionDisplay',
+            name="SessionDisplay",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start', models.DateTimeField()),
-                ('end', models.DateTimeField()),
-                ('number_of_observations', models.IntegerField()),
-                ('number_of_pulsars', models.IntegerField()),
-                ('frequency', models.FloatField()),
-                ('projects', models.CharField(max_length=2000)),
-                ('total_integration', models.IntegerField()),
-                ('n_dish_min', models.IntegerField()),
-                ('n_dish_max', models.IntegerField()),
-                ('zap_fraction', models.FloatField()),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("start", models.DateTimeField()),
+                ("end", models.DateTimeField()),
+                ("number_of_observations", models.IntegerField()),
+                ("number_of_pulsars", models.IntegerField()),
+                ("frequency", models.FloatField()),
+                ("projects", models.CharField(max_length=2000)),
+                ("total_integration", models.IntegerField()),
+                ("n_dish_min", models.IntegerField()),
+                ("n_dish_max", models.IntegerField()),
+                ("zap_fraction", models.FloatField()),
             ],
             options={
-                'ordering': ['-start'],
+                "ordering": ["-start"],
             },
         ),
     ]

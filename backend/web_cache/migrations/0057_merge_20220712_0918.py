@@ -6,9 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0056_auto_20220706_0107'),
-        ('web_cache', '0052_auto_20220620_0323'),
+        ("web_cache", "0056_auto_20220706_0107"),
+        ("web_cache", "0052_auto_20220620_0323"),
     ]
 
-    operations = [
-    ]
+    operations = []
