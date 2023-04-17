@@ -8,7 +8,7 @@ metadata:
     tier: react
 spec:
   ports:
-    - port: 3000 
+    - port: 3000
       protocol: TCP
       targetPort: 3000
   selector:
@@ -42,19 +42,19 @@ spec:
       serviceAccountName: meertime
       containers:
         - name: ng-react
-          image: nexus.gwdc.org.au/meertime/react:2.1.2
+          image: nexus.gwdc.org.au/meertime/react:2.1.3
           imagePullPolicy: Always
           resources: {}
           livenessProbe:
             httpGet:
               path: /
-              port: 3000 
+              port: 3000
               httpHeaders:
             initialDelaySeconds: 3
             periodSeconds: 30
           readinessProbe:
             httpGet:
               path: /
-              port: 3000 
+              port: 3000
             initialDelaySeconds: 3
             periodSeconds: 3
