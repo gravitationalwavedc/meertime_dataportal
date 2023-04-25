@@ -139,7 +139,7 @@ class SessionPulsarNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
     jname = graphene.String()
-    pulsar_type = graphene.Float()
+    pulsar_type = graphene.String()
     frequency = graphene.Float()
 
     def resolve_frequency(self, instance):
