@@ -156,6 +156,7 @@ class FoldPulsarConnection(relay.Connection):
     total_observations = graphene.Int()
     total_pulsars = graphene.Int()
     total_observation_time = graphene.Int()
+    total_project_time = graphene.Int()
 
     def resolve_total_observations(self, instance):
         return sum(
@@ -169,6 +170,15 @@ class FoldPulsarConnection(relay.Connection):
 
     def resolve_total_observation_time(self, instance):
         return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
+
+    def resolve_total_project_time(self, instance):
+        total_length = 0
+        for edge in self.edges:
+            total_length += sum(
+                fold_detail.length
+                for fold_detail in edge.node.foldpulsardetail_set.all()
+            )
+        return total_length
 
 
 class FoldPulsarDetailConnection(relay.Connection):
@@ -207,9 +217,7 @@ class FoldPulsarDetailConnection(relay.Connection):
         return len(self.edges)
 
     def resolve_total_observation_hours(self, instance):
-        return round(
-            sum(float(observation.length) for observation in self.iterable) / 3600, 1
-        )
+        return sum(float(observation.length) for observation in self.iterable) / 3600, 1
 
     def resolve_total_projects(self, instance):
         return len({observation.project for observation in self.iterable})

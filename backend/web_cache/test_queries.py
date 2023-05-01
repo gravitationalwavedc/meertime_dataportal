@@ -56,6 +56,7 @@ def test_fold_query_with_token():
                 totalObservations
                 totalPulsars
                 totalObservationTime
+                totalProjectTime
                 edges {
                     node {
                         jname
@@ -80,6 +81,7 @@ def test_fold_query_with_token():
             "totalObservations": 1,
             "totalPulsars": 1,
             "totalObservationTime": 0,
+            "totalProjectTime": 4,
             "edges": [
                 {
                     "node": {
