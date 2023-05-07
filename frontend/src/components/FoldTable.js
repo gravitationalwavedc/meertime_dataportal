@@ -96,8 +96,12 @@ const FoldTable = ({ data: { foldObservations: relayData }, relay, match: { loca
     const summaryData = [
         { title: 'Observations', value: relayData.totalObservations },
         { title: 'Unique Pulsars', value: relayData.totalPulsars },
-        { title: 'Hours', value: relayData.totalObservationTime },
+        { title: 'Pulsar Hours', value: relayData.totalObservationTime },
     ];
+
+    if (project !== 'All') {
+        summaryData.push({ title: 'Project Hours', value: relayData.totalProjectTime });
+    }
 
     return (
         <DataView
@@ -128,12 +132,13 @@ export default createRefetchContainer(
           ) {
               foldObservations(
                 mainProject: $mainProject,
-                project: $project, 
-                band: $band, 
+                project: $project,
+                band: $band,
               ) {
                 totalObservations
                 totalPulsars
                 totalObservationTime
+                totalProjectTime
                 edges {
                   node {
                     jname

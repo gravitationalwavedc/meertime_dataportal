@@ -11,9 +11,9 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
         <Form.Row>
             <Form.Group controlId="plotController" className="mb-0">
                 <Form.Label>Plot Type</Form.Label>
-                <Form.Control 
+                <Form.Control
                     custom
-                    as="select"  
+                    as="select"
                     value={activePlot}
                     onChange={(event) => setActivePlot(event.target.value)}>
                     <option value="flux">Flux Density</option>
@@ -25,7 +25,7 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
             </Form.Group>
         </Form.Row>
         <div className="pulsar-plot-wrapper">
-            { activePlot === 'snr' ? 
+            { activePlot === 'snr' ?
                 <SNRPlot maxPlotLength={maxPlotLength} {...rest} /> :
                 <FluxPlot maxPlotLength={maxPlotLength} {...rest} />
             }
