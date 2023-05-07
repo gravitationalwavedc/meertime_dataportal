@@ -172,13 +172,14 @@ class FoldPulsarConnection(relay.Connection):
         return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
 
     def resolve_total_project_time(self, instance):
-        return sum(
-            sum(
-                fold_detail.length
-                for fold_detail in edge.node.foldpulsardetail_set.all()
+        # Too slow n(2)
+        total_seconds = sum(
+            fold.length
+            for fold in FoldPulsarDetail.objects.filter(
+                project=self.edges[0].node.project
             )
-            for edge in self.edges
         )
+        return int(total_seconds / 60 / 60)
 
 
 class FoldPulsarDetailConnection(relay.Connection):

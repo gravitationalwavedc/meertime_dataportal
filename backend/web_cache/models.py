@@ -41,6 +41,7 @@ class BasePulsar(models.Model):
 
     class Meta:
         abstract = True
+        unique_together = [["main_project", "jname"]]
         ordering = ["-latest_observation"]
 
     @classmethod
@@ -455,7 +456,7 @@ class FoldPulsarDetail(models.Model):
         # If it's a molonglo observation we can just get the latest flux value.
         if project_short == "MONSPSR_TIMING":
             try:
-                return folding.processing.processings_set.get(
+                return folding.processing.get(
                     pipeline__name="MONSPSR_CLEAN"
                 ).results.get("flux", None)
             except Processings.DoesNotExist:
