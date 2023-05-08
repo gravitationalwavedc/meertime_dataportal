@@ -2,6 +2,7 @@ import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
 import {
     columnsSizeFilter,
+    createLink,
     formatDDMonYYYY,
     formatUTC,
     meerWatchLink,
@@ -126,23 +127,9 @@ const FoldDetailTable = (
         { title: `Size [${sizeFormat}]`, value: size },
     ];
 
-    const downloadEphemeris = async () => {
-        const link = document.createElement('a');
-        link.href =
-      `${process.env.REACT_APP_MEDIA_URL}${foldObservationDetails.ephemerisLink}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const downloadToas = async () => {
-        const link = document.createElement('a');
-        link.href =
-      `${process.env.REACT_APP_MEDIA_URL}${foldObservationDetails.toasLink}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+    const downloadEphemeris = createLink(foldObservationDetails.ephemerisLink);
+    const downloadToas = createLink(foldObservationDetails.toasLin);
+    const downloadScrunched = createLink('myLink');
 
     return (
         <div className="fold-detail-table">
@@ -191,6 +178,15 @@ const FoldDetailTable = (
                 onClick={() => downloadToas()}
             >
               Download TOAs
+            </Button>}
+                    {localStorage.isStaff === 'true' && foldObservationDetails.scrunchedLink &&
+            <Button
+                size="sm"
+                className="mr-2 mb-2"
+                variant="outline-secondary"
+                onClick={() => downloadScrunched()}
+            >
+              Download Scrunched
             </Button>}
                 </Col>
             </Row>
