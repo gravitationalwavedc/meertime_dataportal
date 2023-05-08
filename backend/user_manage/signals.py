@@ -1,9 +1,10 @@
 import datetime
+import logging
 
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 from .models import Registration, PasswordResetRequest, User, ProvisionalUser
 from .utility import (
@@ -13,11 +14,12 @@ from .utility import (
 )
 
 
-@receiver(pre_save, sender=Registration, dispatch_uid="handle_registration_save")
-def handle_registration_save(sender, instance, **kwargs):
-    if not instance.pk:
-        # hashing the password
-        instance.password = make_password(instance.password)
+logger = logging.getLogger(__name__)
+
+
+@receiver(post_save, sender=Registration, dispatch_uid="send_out_email")
+def send_out_email(sender, instance, **kwargs):
+    if instance.status is not Registration.VERIFIED:
 
         # send verification email
         send_verification_email(
@@ -26,6 +28,26 @@ def handle_registration_save(sender, instance, **kwargs):
             to=instance.email,
             verification_code=instance.verification_code,
         )
+
+
+@receiver(pre_save, sender=Registration, dispatch_uid="handle_registration_save")
+def handle_registration_save(sender, instance, **kwargs):
+    if not instance.pk:
+        # hashing the password
+        instance.password = make_password(instance.password)
+
+        logger.info(
+            'signals.py: handle_registration_save fn={} ln={} email={} status={} vcode={} user={} time={}'.format(
+                instance.first_name,
+                instance.last_name,
+                instance.email,
+                instance.status,
+                instance.verification_code,
+                instance.user,
+                datetime.datetime,
+            )
+        )
+
     else:
         if instance.status == Registration.VERIFIED and instance.user is None:
             # if verified, and no user is associated with then, create a new user, with
