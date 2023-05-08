@@ -196,6 +196,14 @@ class FoldPulsarDetailConnection(relay.Connection):
     description = graphene.String()
     ephemeris_link = graphene.String()
     toas_link = graphene.String()
+    scrunched_link = graphene.Strin()
+
+    def resolve_scrunched_link(self, instance):
+        return (
+            self.iterable.first()
+            .fold_pulsar.foldpulsardetail_set.first()
+            .scrunched_link
+        )
 
     def resolve_toas_link(self, instance):
         return (

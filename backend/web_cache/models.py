@@ -380,6 +380,7 @@ class FoldPulsarDetail(models.Model):
     npol = models.IntegerField(null=True)
     ephemeris_download_link = models.URLField(null=True)
     toas_download_link = models.URLField(null=True)
+    scrunched_download_link = models.URLField(null=True)
 
     class Meta:
         ordering = ["-utc"]
@@ -415,6 +416,12 @@ class FoldPulsarDetail(models.Model):
             ).results.get("snr", None)
         except Processings.DoesNotExist:
             return None
+
+    @classmethod
+    def get_scrunched_link(cls, plusar):
+        # Create a link that can be used for downloading from the media folder. Eventually this needs to be moved to ozstar
+        # and better protected.
+        return ""
 
     @classmethod
     def get_ephemeris_link(cls, pulsar):
