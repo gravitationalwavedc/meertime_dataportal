@@ -2,8 +2,11 @@ import datetime
 
 import django.contrib.auth
 import graphene
+import requests
 
 from django.utils import timezone
+from django.conf import settings
+
 from uuid import UUID
 from django.db.models import Q
 
@@ -35,8 +38,25 @@ class CreateRegistration(graphene.Mutation):
 
     @classmethod
     def mutate(cls, self, info, input):
+        r = requests.post(
+            "https://www.google.com/recaptcha/api/siteverify",
+            data={
+                "secret": settings.SECRET_CAPTCHA_KEY,
+                "response": input.get("captcha"),
+            },
+        )
+
+        print(r.json())
+
+        if not r.json()["success"]:
+            return CreateRegistration(
+                ok=False, registration=None, errors=["Captcha validation failed."]
+            )
+
+        del input["captcha"]
+
         try:
-            registration = Registration.objects.create(**input.__dict__)
+            registration = Registration.objects.create(**input)
             return CreateRegistration(
                 ok=True,
                 registration=registration,
@@ -205,7 +225,9 @@ class PasswordReset(graphene.Mutation):
             )
 
         try:
-            password_reset_request = PasswordResetRequest.objects.get(verification_code=verification_code)
+            password_reset_request = PasswordResetRequest.objects.get(
+                verification_code=verification_code
+            )
 
             if password_reset_request.verification_expiry < timezone.now():
                 return PasswordReset(
@@ -221,10 +243,11 @@ class PasswordReset(graphene.Mutation):
                     errors=["The verification code has been used."],
                 )
 
-            # change the user password here
-            # get the user whose password will be changed
+            # Change the user password here
+            # Get the user whose password will be changed
             user = UserModel.objects.filter(
-                Q(username=password_reset_request.email) | Q(email=password_reset_request.email)
+                Q(username=password_reset_request.email)
+                | Q(email=password_reset_request.email)
             ).first()
 
             if user:

@@ -1,5 +1,7 @@
 import datetime
 import json
+import responses
+
 from unittest.mock import patch
 
 import pytest
@@ -28,15 +30,31 @@ class RegistrationTestCase(GraphQLTestCase):
         )
         Registration.objects.create(**self.user_details)
 
+    @responses.activate
     def test_create_registration(self):
+        # Mock the captcha response so that registration is successful
+        responses.add(
+            responses.POST,
+            "https://www.google.com/recaptcha/api/siteverify",
+            json={"success": True},
+            status=200,
+        )
+
         response = self.query(
             """
-            mutation RegisterMutation($first_name: String!, $last_name: String!, $email: String!, $password: String!) {
+            mutation RegisterMutation(
+                $first_name: String!,
+                $last_name: String!,
+                $email: String!,
+                $password: String!,
+                $captcha: String!
+            ) {
                 createRegistration(input: {
-                    firstName: $first_name, 
-                    lastName: $last_name, 
-                    email: $email, 
+                    firstName: $first_name,
+                    lastName: $last_name,
+                    email: $email,
                     password: $password,
+                    captcha: $captcha
                 })
                 {
                     ok,
@@ -54,6 +72,7 @@ class RegistrationTestCase(GraphQLTestCase):
                 "last_name": "Last Name",
                 "password": "Password#123",
                 "email": "test@email.com",
+                "captcha": "mysecretecaptcha",
             },
         )
 
@@ -63,17 +82,34 @@ class RegistrationTestCase(GraphQLTestCase):
 
         self.assertTrue(content["data"]["createRegistration"]["ok"])
         self.assertIsNotNone(content["data"]["createRegistration"]["registration"])
-        self.assertIsNotNone(content["data"]["createRegistration"]["registration"]["verificationExpiry"])
+        self.assertIsNotNone(
+            content["data"]["createRegistration"]["registration"]["verificationExpiry"]
+        )
 
+    @responses.activate
     def test_create_registration_exists(self):
+        responses.add(
+            responses.POST,
+            "https://www.google.com/recaptcha/api/siteverify",
+            json={"success": True},
+            status=200,
+        )
+
         response = self.query(
             """
-            mutation RegisterMutation($first_name: String!, $last_name: String!, $email: String!, $password: String!) {
+            mutation RegisterMutation(
+                $first_name: String!,
+                $last_name: String!,
+                $email: String!,
+                $password: String!
+                $captcha: String!
+            ) {
                 createRegistration(input: {
-                    firstName: $first_name, 
-                    lastName: $last_name, 
-                    email: $email, 
+                    firstName: $first_name,
+                    lastName: $last_name,
+                    email: $email,
                     password: $password,
+                    captcha: $captcha,
                 })
                 {
                     ok,
@@ -91,6 +127,7 @@ class RegistrationTestCase(GraphQLTestCase):
                 "last_name": "Last Name",
                 "password": "Password#123",
                 "email": "test@test.com",
+                "captcha": "mysecretecaptcha",
             },
         )
 
@@ -102,7 +139,8 @@ class RegistrationTestCase(GraphQLTestCase):
         self.assertIsNone(content["data"]["createRegistration"]["registration"])
         self.assertIsNotNone(content["data"]["createRegistration"]["errors"])
         self.assertEqual(
-            content["data"]["createRegistration"]["errors"][0], "Registration with this Email already exists."
+            content["data"]["createRegistration"]["errors"][0],
+            "Registration with this Email already exists.",
         )
 
 
@@ -147,8 +185,13 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
 
         self.assertTrue(content["data"]["verifyRegistration"]["ok"])
         self.assertIsNotNone(content["data"]["verifyRegistration"]["registration"])
-        self.assertIsNotNone(content["data"]["verifyRegistration"]["registration"]["email"])
-        self.assertEqual(content["data"]["verifyRegistration"]["registration"]["status"], Registration.VERIFIED)
+        self.assertIsNotNone(
+            content["data"]["verifyRegistration"]["registration"]["email"]
+        )
+        self.assertEqual(
+            content["data"]["verifyRegistration"]["registration"]["status"],
+            Registration.VERIFIED,
+        )
 
         # check user created and role assigned
         try:
@@ -189,10 +232,12 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["verifyRegistration"]["ok"])
         self.assertIsNone(content["data"]["verifyRegistration"]["registration"])
         self.assertIsNotNone(content["data"]["verifyRegistration"]["errors"])
-        self.assertEqual(content["data"]["verifyRegistration"]["errors"][0], "Invalid verification code.")
+        self.assertEqual(
+            content["data"]["verifyRegistration"]["errors"][0],
+            "Invalid verification code.",
+        )
 
     def test_verify_registration_already_verified(self):
-
         self.registration.status = Registration.VERIFIED
         self.registration.save()
 
@@ -223,10 +268,12 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["verifyRegistration"]["ok"])
         self.assertIsNone(content["data"]["verifyRegistration"]["registration"])
         self.assertIsNotNone(content["data"]["verifyRegistration"]["errors"])
-        self.assertEqual(content["data"]["verifyRegistration"]["errors"][0], "Email already verified.")
+        self.assertEqual(
+            content["data"]["verifyRegistration"]["errors"][0],
+            "Email already verified.",
+        )
 
     def test_verify_registration_verification_code_does_not_exist(self):
-
         self.registration.delete()
 
         response = self.query(
@@ -256,10 +303,12 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["verifyRegistration"]["ok"])
         self.assertIsNone(content["data"]["verifyRegistration"]["registration"])
         self.assertIsNotNone(content["data"]["verifyRegistration"]["errors"])
-        self.assertEqual(content["data"]["verifyRegistration"]["errors"][0], "Verification code does not exist.")
+        self.assertEqual(
+            content["data"]["verifyRegistration"]["errors"][0],
+            "Verification code does not exist.",
+        )
 
     def test_verify_registration_verification_code_expired(self):
-
         forty_eight_hours_later = timezone.now() + timezone.timedelta(hours=48)
 
         with patch.object(timezone, "now", return_value=forty_eight_hours_later):
@@ -290,7 +339,10 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["verifyRegistration"]["ok"])
         self.assertIsNone(content["data"]["verifyRegistration"]["registration"])
         self.assertIsNotNone(content["data"]["verifyRegistration"]["errors"])
-        self.assertEqual(content["data"]["verifyRegistration"]["errors"][0], "Verification code expired.")
+        self.assertEqual(
+            content["data"]["verifyRegistration"]["errors"][0],
+            "Verification code expired.",
+        )
 
 
 @pytest.mark.django_db
@@ -334,9 +386,13 @@ class PasswordResetRequestTestCase(GraphQLTestCase):
         content = json.loads(response.content)
 
         self.assertTrue(content["data"]["createPasswordResetRequest"]["ok"])
-        self.assertIsNotNone(content["data"]["createPasswordResetRequest"]["passwordResetRequest"])
         self.assertIsNotNone(
-            content["data"]["createPasswordResetRequest"]["passwordResetRequest"]["verificationExpiry"]
+            content["data"]["createPasswordResetRequest"]["passwordResetRequest"]
+        )
+        self.assertIsNotNone(
+            content["data"]["createPasswordResetRequest"]["passwordResetRequest"][
+                "verificationExpiry"
+            ]
         )
         self.assertEqual(mail.outbox[0].subject, "[MeerTime] Your password reset code.")
 
@@ -366,9 +422,13 @@ class PasswordResetRequestTestCase(GraphQLTestCase):
         content = json.loads(response.content)
 
         self.assertTrue(content["data"]["createPasswordResetRequest"]["ok"])
-        self.assertIsNotNone(content["data"]["createPasswordResetRequest"]["passwordResetRequest"])
         self.assertIsNotNone(
-            content["data"]["createPasswordResetRequest"]["passwordResetRequest"]["verificationExpiry"]
+            content["data"]["createPasswordResetRequest"]["passwordResetRequest"]
+        )
+        self.assertIsNotNone(
+            content["data"]["createPasswordResetRequest"]["passwordResetRequest"][
+                "verificationExpiry"
+            ]
         )
         self.assertEqual(len(mail.outbox), 0)
 
@@ -387,7 +447,9 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.user = User.objects.create_user(**self.user_details)
 
         # create password reset request
-        self.prr = PasswordResetRequest.objects.create(email=self.user_details.get("email"))
+        self.prr = PasswordResetRequest.objects.create(
+            email=self.user_details.get("email")
+        )
         # clearing up the mailbox so the verification code email sent is not there anymore
         mail.outbox = []
         self.new_password = "Abcdefgh#123"
@@ -421,7 +483,8 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertTrue(content["data"]["passwordReset"]["ok"])
         self.assertIsNotNone(content["data"]["passwordReset"]["passwordResetRequest"])
         self.assertEqual(
-            content["data"]["passwordReset"]["passwordResetRequest"]["status"], PasswordResetRequest.UPDATED
+            content["data"]["passwordReset"]["passwordResetRequest"]["status"],
+            PasswordResetRequest.UPDATED,
         )
 
         self.user.refresh_from_db()
@@ -454,7 +517,9 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordReset"]["ok"])
         self.assertIsNone(content["data"]["passwordReset"]["passwordResetRequest"])
         self.assertIsNotNone(content["data"]["passwordReset"]["errors"])
-        self.assertEqual(content["data"]["passwordReset"]["errors"][0], "Invalid verification code.")
+        self.assertEqual(
+            content["data"]["passwordReset"]["errors"][0], "Invalid verification code."
+        )
 
     def test_password_reset_verification_used(self):
         user_details = dict(
@@ -503,7 +568,10 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordReset"]["ok"])
         self.assertIsNone(content["data"]["passwordReset"]["passwordResetRequest"])
         self.assertIsNotNone(content["data"]["passwordReset"]["errors"])
-        self.assertEqual(content["data"]["passwordReset"]["errors"][0], "The verification code has been used.")
+        self.assertEqual(
+            content["data"]["passwordReset"]["errors"][0],
+            "The verification code has been used.",
+        )
 
     def test_password_reset_verification_user_not_found(self):
         user_details = dict(
@@ -552,7 +620,8 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertIsNone(content["data"]["passwordReset"]["passwordResetRequest"])
         self.assertIsNotNone(content["data"]["passwordReset"]["errors"])
         self.assertEqual(
-            content["data"]["passwordReset"]["errors"][0], "No user found. Please contact support regarding this."
+            content["data"]["passwordReset"]["errors"][0],
+            "No user found. Please contact support regarding this.",
         )
 
     def test_password_reset_verification_verification_code_does_not_exist(self):
@@ -601,7 +670,10 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordReset"]["ok"])
         self.assertIsNone(content["data"]["passwordReset"]["passwordResetRequest"])
         self.assertIsNotNone(content["data"]["passwordReset"]["errors"])
-        self.assertEqual(content["data"]["passwordReset"]["errors"][0], "Verification code does not exist.")
+        self.assertEqual(
+            content["data"]["passwordReset"]["errors"][0],
+            "Verification code does not exist.",
+        )
 
     def test_password_reset_verification_code_expired(self):
         thirty_minutes_later = timezone.now() + timezone.timedelta(minutes=30)
@@ -633,7 +705,10 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordReset"]["ok"])
         self.assertIsNone(content["data"]["passwordReset"]["passwordResetRequest"])
         self.assertIsNotNone(content["data"]["passwordReset"]["errors"])
-        self.assertEqual(content["data"]["passwordReset"]["errors"][0], "The verification code has been expired.")
+        self.assertEqual(
+            content["data"]["passwordReset"]["errors"][0],
+            "The verification code has been expired.",
+        )
 
 
 class PasswordChangeTestCase(GraphQLTestCase):
@@ -682,8 +757,14 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertTrue(content["data"]["passwordChange"]["ok"])
         self.assertIsNotNone(content["data"]["passwordChange"]["user"])
 
-        self.assertIsNone(authenticate(username=self.user.username, password=self.user_details.get("password")))
-        self.assertIsNotNone(authenticate(username=self.user.username, password=self.new_password))
+        self.assertIsNone(
+            authenticate(
+                username=self.user.username, password=self.user_details.get("password")
+            )
+        )
+        self.assertIsNotNone(
+            authenticate(username=self.user.username, password=self.new_password)
+        )
 
     def test_password_change_same_password(self):
         response = self.query(
@@ -716,7 +797,10 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordChange"]["ok"])
         self.assertIsNone(content["data"]["passwordChange"]["user"])
         self.assertIsNotNone(content["data"]["passwordChange"]["errors"])
-        self.assertEqual(content["data"]["passwordChange"]["errors"][0], "New and current passwords cannot be same.")
+        self.assertEqual(
+            content["data"]["passwordChange"]["errors"][0],
+            "New and current passwords cannot be same.",
+        )
 
     def test_password_change_incorrect_current_password(self):
         response = self.query(
@@ -749,7 +833,10 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordChange"]["ok"])
         self.assertIsNone(content["data"]["passwordChange"]["user"])
         self.assertIsNotNone(content["data"]["passwordChange"]["errors"])
-        self.assertEqual(content["data"]["passwordChange"]["errors"][0], "Current password is incorrect.")
+        self.assertEqual(
+            content["data"]["passwordChange"]["errors"][0],
+            "Current password is incorrect.",
+        )
 
     def test_password_change_user_does_not_exist(self):
         response = self.query(
@@ -782,7 +869,9 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordChange"]["ok"])
         self.assertIsNone(content["data"]["passwordChange"]["user"])
         self.assertIsNotNone(content["data"]["passwordChange"]["errors"])
-        self.assertEqual(content["data"]["passwordChange"]["errors"][0], "User does not exist.")
+        self.assertEqual(
+            content["data"]["passwordChange"]["errors"][0], "User does not exist."
+        )
 
 
 @pytest.mark.django_db
@@ -800,19 +889,21 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         response = self.query(
             """
             mutation AccountActivationMutation(
-                $activation_code: String!, 
-                $first_name: String!, 
-                $last_name: String!, 
-                $email: String!, 
-                $password: String!
+                $activation_code: String!,
+                $first_name: String!,
+                $last_name: String!,
+                $email: String!,
+                $password: String!,
+                $captcha: String!
             ){
                 accountActivation(
-                    activationCode: $activation_code, 
+                    activationCode: $activation_code,
                     userInput: {
-                        firstName: $first_name, 
-                        lastName: $last_name, 
-                        email: $email, 
+                        firstName: $first_name,
+                        lastName: $last_name,
+                        email: $email,
                         password: $password,
+                        captcha: $captcha
                         }
                 )
                 {
@@ -833,6 +924,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                 "last_name": "Last Name",
                 "email": f"{self.provisional_user.email}",
                 "password": "MyPasword@123",
+                "captcha": "mysecretecaptcha",
             },
         )
 
@@ -842,8 +934,12 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
 
         self.assertTrue(content["data"]["accountActivation"]["ok"])
         self.assertIsNotNone(content["data"]["accountActivation"]["provisionalUser"])
-        self.assertTrue(content["data"]["accountActivation"]["provisionalUser"]["activated"])
-        self.assertIsNotNone(content["data"]["accountActivation"]["provisionalUser"]["activatedOn"])
+        self.assertTrue(
+            content["data"]["accountActivation"]["provisionalUser"]["activated"]
+        )
+        self.assertIsNotNone(
+            content["data"]["accountActivation"]["provisionalUser"]["activatedOn"]
+        )
 
         # check user is active
         self.provisional_user.refresh_from_db()
@@ -853,19 +949,21 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         response = self.query(
             """
             mutation AccountActivationMutation(
-                $activation_code: String!, 
-                $first_name: String!, 
-                $last_name: String!, 
-                $email: String!, 
-                $password: String!
+                $activation_code: String!,
+                $first_name: String!,
+                $last_name: String!,
+                $email: String!,
+                $password: String!,
+                $captcha: String!
             ){
                 accountActivation(
-                    activationCode: $activation_code, 
+                    activationCode: $activation_code,
                     userInput: {
-                        firstName: $first_name, 
-                        lastName: $last_name, 
-                        email: $email, 
+                        firstName: $first_name,
+                        lastName: $last_name,
+                        email: $email,
                         password: $password,
+                        captcha: $captcha,
                         }
                 )
                 {
@@ -881,11 +979,12 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
             """,
             op_name="AccountActivationMutation",
             variables={
-                "activation_code": f"invalidcode",
+                "activation_code": "invalidcode",
                 "first_name": "First Name",
                 "last_name": "Last Name",
                 "email": f"{self.provisional_user.email}",
                 "password": "MyPasword@123",
+                "captcha": "mysecretecaptcha",
             },
         )
 
@@ -896,10 +995,12 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["accountActivation"]["ok"])
         self.assertIsNone(content["data"]["accountActivation"]["provisionalUser"])
         self.assertIsNotNone(content["data"]["accountActivation"]["errors"])
-        self.assertEqual(content["data"]["accountActivation"]["errors"][0], "Invalid verification code.")
+        self.assertEqual(
+            content["data"]["accountActivation"]["errors"][0],
+            "Invalid verification code.",
+        )
 
     def test_already_activated(self):
-
         self.provisional_user.activated = True
         self.provisional_user.activated_on = datetime.datetime.now()
         self.provisional_user.save()
@@ -907,19 +1008,21 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         response = self.query(
             """
             mutation AccountActivationMutation(
-                $activation_code: String!, 
-                $first_name: String!, 
-                $last_name: String!, 
-                $email: String!, 
-                $password: String!
+                $activation_code: String!,
+                $first_name: String!,
+                $last_name: String!,
+                $email: String!,
+                $password: String!,
+                $captcha: String!
             ){
                 accountActivation(
-                    activationCode: $activation_code, 
+                    activationCode: $activation_code,
                     userInput: {
-                        firstName: $first_name, 
-                        lastName: $last_name, 
-                        email: $email, 
+                        firstName: $first_name,
+                        lastName: $last_name,
+                        email: $email,
                         password: $password,
+                        captcha: $captcha
                         }
                 )
                 {
@@ -940,6 +1043,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                 "last_name": "Last Name",
                 "email": f"{self.provisional_user.email}",
                 "password": "MyPasword@123",
+                "captcha": "mysecretecaptcha",
             },
         )
 
@@ -950,25 +1054,30 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["accountActivation"]["ok"])
         self.assertIsNone(content["data"]["accountActivation"]["provisionalUser"])
         self.assertIsNotNone(content["data"]["accountActivation"]["errors"])
-        self.assertEqual(content["data"]["accountActivation"]["errors"][0], "Account already activated.")
+        self.assertEqual(
+            content["data"]["accountActivation"]["errors"][0],
+            "Account already activated.",
+        )
 
     def test_activation_code_does_not_exist_for_email(self):
         response = self.query(
             """
             mutation AccountActivationMutation(
-                $activation_code: String!, 
-                $first_name: String!, 
-                $last_name: String!, 
-                $email: String!, 
-                $password: String!
+                $activation_code: String!,
+                $first_name: String!,
+                $last_name: String!,
+                $email: String!,
+                $password: String!,
+                $captcha: String!
             ){
                 accountActivation(
-                    activationCode: $activation_code, 
+                    activationCode: $activation_code,
                     userInput: {
-                        firstName: $first_name, 
-                        lastName: $last_name, 
-                        email: $email, 
+                        firstName: $first_name,
+                        lastName: $last_name,
+                        email: $email,
                         password: $password,
+                        captcha: $captcha
                         }
                 )
                 {
@@ -989,6 +1098,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                 "last_name": "Last Name",
                 "email": "different@email.com",
                 "password": "MyPasword@123",
+                "captcha": "mysecretecaptcha",
             },
         )
 
@@ -1000,30 +1110,32 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertIsNone(content["data"]["accountActivation"]["provisionalUser"])
         self.assertIsNotNone(content["data"]["accountActivation"]["errors"])
         self.assertEqual(
-            content["data"]["accountActivation"]["errors"][0], "Activation code for this email does not exist."
+            content["data"]["accountActivation"]["errors"][0],
+            "Activation code for this email does not exist.",
         )
 
     def test_activation_code_expired(self):
-
         thirty_days_later = timezone.now() + timezone.timedelta(days=30)
 
         with patch.object(timezone, "now", return_value=thirty_days_later):
             response = self.query(
                 """
                 mutation AccountActivationMutation(
-                    $activation_code: String!, 
-                    $first_name: String!, 
-                    $last_name: String!, 
-                    $email: String!, 
-                    $password: String!
+                    $activation_code: String!,
+                    $first_name: String!,
+                    $last_name: String!,
+                    $email: String!,
+                    $password: String!,
+                    $captcha: String!
                 ){
                     accountActivation(
-                        activationCode: $activation_code, 
+                        activationCode: $activation_code,
                         userInput: {
-                            firstName: $first_name, 
-                            lastName: $last_name, 
-                            email: $email, 
+                            firstName: $first_name,
+                            lastName: $last_name,
+                            email: $email,
                             password: $password,
+                            captcha: $captcha
                             }
                     )
                     {
@@ -1044,6 +1156,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                     "last_name": "Last Name",
                     "email": f"{self.provisional_user.email}",
                     "password": "MyPasword@123",
+                    "captcha": "mysecretecaptcha",
                 },
             )
 
@@ -1054,4 +1167,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["accountActivation"]["ok"])
         self.assertIsNone(content["data"]["accountActivation"]["provisionalUser"])
         self.assertIsNotNone(content["data"]["accountActivation"]["errors"])
-        self.assertEqual(content["data"]["accountActivation"]["errors"][0], "Activation code expired.")
+        self.assertEqual(
+            content["data"]["accountActivation"]["errors"][0],
+            "Activation code expired.",
+        )
