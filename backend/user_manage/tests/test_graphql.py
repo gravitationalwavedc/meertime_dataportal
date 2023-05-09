@@ -1,5 +1,7 @@
 import datetime
 import json
+import responses
+
 from unittest.mock import patch
 
 import pytest
@@ -28,7 +30,16 @@ class RegistrationTestCase(GraphQLTestCase):
         )
         Registration.objects.create(**self.user_details)
 
+    @responses.activate
     def test_create_registration(self):
+        # Mock the captcha response so that registration is successful
+        responses.add(
+            responses.POST,
+            "https://www.google.com/recaptcha/api/siteverify",
+            json={"success": True},
+            status=200,
+        )
+
         response = self.query(
             """
             mutation RegisterMutation(
@@ -75,7 +86,15 @@ class RegistrationTestCase(GraphQLTestCase):
             content["data"]["createRegistration"]["registration"]["verificationExpiry"]
         )
 
+    @responses.activate
     def test_create_registration_exists(self):
+        responses.add(
+            responses.POST,
+            "https://www.google.com/recaptcha/api/siteverify",
+            json={"success": True},
+            status=200,
+        )
+
         response = self.query(
             """
             mutation RegisterMutation(
