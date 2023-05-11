@@ -10,12 +10,13 @@ import environment from '../relayEnvironment';
 
 
 const mutation = graphql`
-  mutation AccountActivationMutation($activation_code: String!, $first_name: String!, $last_name: String!, $email: String!, $password: String!) {
+  mutation AccountActivationMutation($activation_code: String!, $first_name: String!, $last_name: String!, $email: String!, $password: String!, $captcha: String!) {
     accountActivation(activationCode: $activation_code, userInput: {
-      firstName: $first_name, 
-      lastName: $last_name, 
-      email: $email, 
+      firstName: $first_name,
+      lastName: $last_name,
+      email: $email,
       password: $password,
+      captcha: $captcha
       })
     {
       ok,
@@ -45,7 +46,7 @@ const AccountActivation = ({ match: { params: { code } } }) => {
     const [formErrors, setFormErrors] = useState([]);
     const [success, setSuccess] = useState(false);
 
-    const accountActivation = (first_name, last_name, email, password, confirm_password) => {
+    const accountActivation = (first_name, last_name, email, password, confirm_password, captcha) => {
         const variables = {
             activation_code: code,
             first_name: first_name,
@@ -53,6 +54,7 @@ const AccountActivation = ({ match: { params: { code } } }) => {
             email: email,
             password: password,
             confirm_password: confirm_password,
+            captcha: captcha
         };
 
         commitMutation(

@@ -1,3 +1,7 @@
+.grecaptcha-badge {
+  visibility: hidden;
+}
+
 .searchbar {
     @include media-breakpoint-up(md) {
         margin-top: -20px;
