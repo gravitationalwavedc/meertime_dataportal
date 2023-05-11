@@ -10,12 +10,13 @@ import { Link } from 'found';
 import environment from '../relayEnvironment';
 
 const mutation = graphql`
-  mutation RegisterMutation($first_name: String!, $last_name: String!, $email: String!, $password: String!) {
+  mutation RegisterMutation($first_name: String!, $last_name: String!, $email: String!, $password: String!, $captcha: String!) {
     createRegistration(input: {
-      firstName: $first_name, 
-      lastName: $last_name, 
-      email: $email, 
+      firstName: $first_name,
+      lastName: $last_name,
+      email: $email,
       password: $password,
+      captcha: $captcha
       })
     {
       ok,
@@ -36,21 +37,38 @@ const validationSchema = Yup.object().shape({
         .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])/,
             'Must have uppercase, lowercase, number and special character')
         .matches(/^(?=.{8,})/,
-            'Must Contain 8 Characters'),
-    confirm_password: Yup.string().oneOf([Yup.ref('password'), null], 'Passwords must match'),
+            'Must Contain 8 Characters')
 });
 
-const Register = ({ router, match }) => {
+const Register = () => {
     const [formErrors, setFormErrors] = useState([]);
     const [success, setSuccess] = useState(false);
 
-    const register = (first_name, last_name, email, password, confirm_password) => {
+    const submitRegistrationForm = (values) => {
+        const google_recaptcha = grecaptcha; // eslint-disable-line
+        google_recaptcha.ready(function() {
+            google_recaptcha.execute(
+                process.env.REACT_APP_CAPTCHA_SITE_KEY,
+                { action: 'submit' }
+            ).then(function(captcha) {
+                register(
+                    values.first_name,
+                    values.last_name,
+                    values.email,
+                    values.password,
+                    captcha
+                );
+            });
+        });
+    };
+
+    const register = (first_name, last_name, email, password, captcha) => {
         const variables = {
             first_name: first_name,
             last_name: last_name,
             email: email,
             password: password,
-            confirm_password: confirm_password,
+            captcha: captcha
         };
 
         commitMutation(
@@ -65,7 +83,7 @@ const Register = ({ router, match }) => {
                         setSuccess(true);
                     }
                 },
-                onError: errors => {
+                onError: () => {
                     setFormErrors(['Something went wrong, please try later.']);
                 },
             }
@@ -119,12 +137,7 @@ const Register = ({ router, match }) => {
 
                                         }}
                                         validationSchema={validationSchema}
-                                        onSubmit={(values) => register(
-                                            values.first_name,
-                                            values.last_name,
-                                            values.email,
-                                            values.password,
-                                        )}
+                                        onSubmit={(values) => submitRegistrationForm(values)}
                                     >
                                         {({ handleSubmit }) =>
                                             <Form onSubmit={handleSubmit}>
@@ -167,7 +180,7 @@ const Register = ({ router, match }) => {
                                                         {({ field, meta }) =>
                                                             <Form.Group
                                                                 controlId="email"
-                                                                as={Col} sm={12} md={12} xl={12}>
+                                                                as={Col} sm={6} md={6} xl={6}>
                                                                 <Form.Label>Email</Form.Label>
                                                                 <Form.Control
                                                                     {...field}
@@ -199,43 +212,29 @@ const Register = ({ router, match }) => {
                                                                     type='invalid'>{meta.error}</Form.Control.Feedback>
                                                             </Form.Group>}
                                                     </Field>
-                                                    <Field name="confirm_password">
-                                                        {({ field, meta }) =>
-                                                            <Form.Group
-                                                                controlId="confirm_password"
-                                                                as={Col} sm={6} md={6} xl={6}>
-                                                                <Form.Label>Confirm Password</Form.Label>
-                                                                <Form.Control
-                                                                    type="password"
-                                                                    {...field}
-                                                                    isInvalid={meta.touched && meta.error}/>
-                                                                {!meta.error
-                                                                    &&
-                                                                    <HiOutlineLockClosed
-                                                                        className="form-control-icon-right"/>}
-                                                                <Form.Control.Feedback
-                                                                    type='invalid'>{meta.error}</Form.Control.Feedback>
-                                                            </Form.Group>}
-                                                    </Field>
                                                 </Form.Row>
                                                 {formErrors &&
                                                     formErrors.map((e) => <Alert variant='danger' key={e}>{e}</Alert>)}
                                                 <Row className="buttons-row">
                                                     <Col xl={{ span: 6 }} md={{ span: 6 }}>
                                                         <Button
-                                                            className="text-uppercase shadow-md mt-2"
+                                                            className="text-uppercase shadow-md"
                                                             type="submit">Register</Button>
                                                     </Col>
-                                                    <Col sm={{ span: 12 }} className="d-block d-md-none">
-                                                        &nbsp;
-                                                    </Col>
-                                                    <Col xl={{ span: 6 }} md={{ span: 6 }}>
-                                                        <span className="float-right">
-                                                            Have an account?&nbsp;
+                                                    <Col sm={12} className="mt-2">
+                                                        <small className="form-text text-muted">
+                                                        This site is protected by reCAPTCHA and the Google
+                                                            <a href="https://policies.google.com/privacy"> Privacy Policy </a>
+                                                        and
+                                                            <a href="https://policies.google.com/terms"> Terms of Service </a>
+                                                         apply.
+                                                        </small>
+                                                        <p>
+                                                            Have an account?
                                                             <Link
                                                                 to={`${process.env.REACT_APP_BASE_URL}/login/`}
-                                                            >Login</Link>
-                                                        </span>
+                                                            > Login</Link>
+                                                        </p>
                                                     </Col>
                                                 </Row>
                                             </Form>}
