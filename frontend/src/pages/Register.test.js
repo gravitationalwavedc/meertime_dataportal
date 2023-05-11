@@ -1,11 +1,7 @@
-import { fireEvent, render, waitFor } from '@testing-library/react';
-
-import Register from './Register';
-import { MockPayloadGenerator } from 'relay-test-utils';
 import React from 'react';
-import environment from '../relayEnvironment';
+import Register from './Register';
+import { render } from '@testing-library/react';
 
-/* global mockRouter */
 /* eslint-disable react/display-name */
 
 jest.mock('found', () => ({
@@ -28,13 +24,12 @@ jest.mock('found', () => ({
 }));
 
 describe('register page', () => {
-    it('should have first name, last name, email, password and confirm password fields', () => {
+    it('should have first name, last name, email, and password fields', () => {
         expect.hasAssertions();
         const { getByLabelText } = render(<Register router={{}} match={{}}/>);
         expect(getByLabelText('First Name')).toBeInTheDocument();
         expect(getByLabelText('Last Name')).toBeInTheDocument();
         expect(getByLabelText('Email')).toBeInTheDocument();
         expect(getByLabelText('Password')).toBeInTheDocument();
-        expect(getByLabelText('Confirm Password')).toBeInTheDocument();
     });
 });
