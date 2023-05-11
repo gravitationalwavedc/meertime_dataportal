@@ -45,9 +45,9 @@ const Register = () => {
     const [success, setSuccess] = useState(false);
 
     const submitRegistrationForm = (values) => {
-        const google_recaptcha = grecaptcha; // eslint-disable-line
-        google_recaptcha.ready(function() {
-            google_recaptcha.execute(
+        const googleRecaptcha = grecaptcha; // eslint-disable-line no-undef
+        googleRecaptcha.ready(function() {
+            googleRecaptcha.execute(
                 process.env.REACT_APP_CAPTCHA_SITE_KEY,
                 { action: 'submit' }
             ).then(function(captcha) {
