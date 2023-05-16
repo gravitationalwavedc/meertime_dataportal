@@ -1,8 +1,16 @@
 import pytest
 from datetime import datetime
-from web_cache.models import FoldPulsar, FoldPulsarDetail, FoldDetailImage, SessionPulsar
-from web_cache.testing_utils import create_pulsar_with_observations, create_folding_for_molonglo
-from dataportal.models import Sessions, Telescopes, Foldings, Processings
+from web_cache.models import (
+    FoldPulsar,
+    FoldPulsarDetail,
+    FoldDetailImage,
+    SessionPulsar,
+)
+from web_cache.testing_utils import (
+    create_pulsar_with_observations,
+    create_folding_for_molonglo,
+)
+from dataportal.models import Sessions, Telescopes, Foldings
 
 
 def create_fold_pulsar():
@@ -11,8 +19,12 @@ def create_fold_pulsar():
         project="new",
         band="L-Band",
         jname="j1234-5678",
-        latest_observation=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
-        first_observation=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
+        latest_observation=datetime.strptime(
+            "2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"
+        ),
+        first_observation=datetime.strptime(
+            "2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"
+        ),
         timespan=4,
         number_of_observations=2,
         beam="4",
@@ -101,22 +113,44 @@ def test_get_session_image():
     create_pulsar_with_observations()
     fold_pulsar_detail = FoldPulsarDetail.objects.last()
 
-    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="flux.hi", url=flux_url)
     FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="relbin.phase-freq.hi", url=freq_url
+        fold_pulsar_detail=fold_pulsar_detail, image_type="flux.hi", url=flux_url
     )
-    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="freq.hi", url=bad_url)
-    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="tpa.phase-time.hi", url=time_url)
-    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="time.hi", url=bad_url)
-    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="flux.lo", url=flux_url_lo)
     FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="relbin.phase-freq.lo", url=freq_url_lo
+        fold_pulsar_detail=fold_pulsar_detail,
+        image_type="relbin.phase-freq.hi",
+        url=freq_url,
     )
-    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="freq.lo", url=bad_url)
     FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="tpa.phase-time.lo", url=time_url_lo
+        fold_pulsar_detail=fold_pulsar_detail, image_type="freq.hi", url=bad_url
     )
-    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="time.lo", url=bad_url)
+    FoldDetailImage.objects.create(
+        fold_pulsar_detail=fold_pulsar_detail,
+        image_type="tpa.phase-time.hi",
+        url=time_url,
+    )
+    FoldDetailImage.objects.create(
+        fold_pulsar_detail=fold_pulsar_detail, image_type="time.hi", url=bad_url
+    )
+    FoldDetailImage.objects.create(
+        fold_pulsar_detail=fold_pulsar_detail, image_type="flux.lo", url=flux_url_lo
+    )
+    FoldDetailImage.objects.create(
+        fold_pulsar_detail=fold_pulsar_detail,
+        image_type="relbin.phase-freq.lo",
+        url=freq_url_lo,
+    )
+    FoldDetailImage.objects.create(
+        fold_pulsar_detail=fold_pulsar_detail, image_type="freq.lo", url=bad_url
+    )
+    FoldDetailImage.objects.create(
+        fold_pulsar_detail=fold_pulsar_detail,
+        image_type="tpa.phase-time.lo",
+        url=time_url_lo,
+    )
+    FoldDetailImage.objects.create(
+        fold_pulsar_detail=fold_pulsar_detail, image_type="time.lo", url=bad_url
+    )
 
     images = fold_pulsar_detail.images.all()
 
@@ -133,4 +167,4 @@ def test_get_session_image():
 def test_get_flux():
     create_folding_for_molonglo()
     folding = Foldings.objects.last()
-    assert FoldPulsarDetail.get_flux(folding, "MONSPSR_TIMING") == 1.22
+    assert FoldPulsarDetail.get_flux(folding, "MONSPSR_TIMING") == 1.46

@@ -380,7 +380,6 @@ class FoldPulsarDetail(models.Model):
     npol = models.IntegerField(null=True)
     ephemeris_download_link = models.URLField(null=True)
     toas_download_link = models.URLField(null=True)
-    scrunched_download_link = models.URLField(null=True)
 
     class Meta:
         ordering = ["-utc"]
@@ -463,9 +462,7 @@ class FoldPulsarDetail(models.Model):
         # If it's a molonglo observation we can just get the latest flux value.
         if project_short == "MONSPSR_TIMING":
             try:
-                return folding.processing.get(
-                    pipeline__name="MONSPSR_CLEAN"
-                ).results.get("flux", None)
+                return folding.processing.results.get("flux", None)
             except Processings.DoesNotExist:
                 return None
 
