@@ -10,6 +10,7 @@ import {
 import { meertime, molonglo } from '../telescopes';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
+import FildDownloadModal from './FileDownloadModal';
 import FoldDetailCard from './FoldDetailCard';
 import Link from 'found/Link';
 import ReactMarkdown from 'react-markdown';
@@ -17,7 +18,7 @@ import { useScreenSize } from '../context/screenSize-context';
 
 /* eslint-disable complexity */
 const FoldDetailTable = (
-    { data: { foldObservationDetails }, jname, mainProject },
+    { data: { foldObservationDetails, foldPulsar }, jname, mainProject },
 ) => {
     const { screenSize } = useScreenSize();
     const allRows = foldObservationDetails.edges.reduce(
@@ -73,6 +74,7 @@ const FoldDetailTable = (
 
     const [rows, setRows] = useState(allRows);
     const [ephemerisVisible, setEphemerisVisible] = useState(false);
+    const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
     const ephemeris =
     foldObservationDetails.edges[foldObservationDetails.edges.length - 1].node
@@ -127,9 +129,8 @@ const FoldDetailTable = (
         { title: `Size [${sizeFormat}]`, value: size },
     ];
 
-    const downloadEphemeris = createLink(foldObservationDetails.ephemerisLink);
-    const downloadToas = createLink(foldObservationDetails.toasLin);
-    const downloadScrunched = createLink('myLink');
+    const downloadEphemeris = () => createLink(foldObservationDetails.ephemerisLink);
+    const downloadToas = () => createLink(foldObservationDetails.toasLin);
 
     return (
         <div className="fold-detail-table">
@@ -179,14 +180,14 @@ const FoldDetailTable = (
             >
               Download TOAs
             </Button>}
-                    {localStorage.isStaff === 'true' && foldObservationDetails.scrunchedLink &&
+                    {localStorage.isStaff === 'true' && foldPulsar.files &&
             <Button
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => downloadScrunched()}
+                onClick={() => setDownloadModalVisible(true)}
             >
-              Download Scrunched
+              Download data files
             </Button>}
                 </Col>
             </Row>
@@ -196,6 +197,9 @@ const FoldDetailTable = (
                 show={ephemerisVisible}
                 setShow={setEphemerisVisible}
             />}
+            {localStorage.isStaff === 'true' && foldPulsar.files &&
+              <FildDownloadModal visible={downloadModalVisible}
+                  files={foldPulsar.files} setShow={setDownloadModalVisible} />}
             <DataView
                 summaryData={summaryData}
                 columns={columnsSizeFiltered}

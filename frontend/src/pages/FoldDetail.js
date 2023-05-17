@@ -7,6 +7,17 @@ import environment from '../relayEnvironment';
 
 const query = graphql`
   query FoldDetailQuery($jname: String!, $mainProject: String) {
+    foldPulsar(jname: $jname){
+      files {
+        edges {
+          node {
+            project
+            fileType
+            url
+          }
+        }
+      }
+    }
     foldObservationDetails(jname:$jname, mainProject: $mainProject) {
       totalObservations
       totalObservationHours
@@ -55,13 +66,13 @@ const FoldDetail = ({ match, relayEnvironment }) => {
                 query={query}
                 variables={{
                     jname: jname,
-                    mainProject: mainProject 
+                    mainProject: mainProject
                 }}
                 fetchPolicy="store-and-network"
                 render = {({ props, error }) => {
                     if (error) {
                         return <React.Fragment>
-                            <h1>404</h1> 
+                            <h1>404</h1>
                         </React.Fragment>;
                     }
 
