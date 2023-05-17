@@ -12,6 +12,7 @@ from graphql_jwt.decorators import login_required
 
 from web_cache.models import (
     FoldPulsar,
+    FoldPulsarFile,
     SearchmodePulsar,
     FoldPulsarDetail,
     FoldDetailImage,
@@ -35,6 +36,17 @@ class FoldDetailImageNode(DjangoObjectType):
     resolution = graphene.String()
     plot_type = graphene.String()
     generic_plot_type = graphene.String()
+
+
+class FoldPulsarFileNode(DjangoObjectType):
+    class Meta:
+        model = FoldPulsarFile
+        interfaces = (relay.Node,)
+        fields = ("image_type", "url", "project", "file_type")
+
+    # These attributes map to FoldPulsarFile properties
+    project = graphene.String()
+    file_type = graphene.String()
 
 
 class FoldPulsarNode(DjangoObjectType):
@@ -196,14 +208,6 @@ class FoldPulsarDetailConnection(relay.Connection):
     description = graphene.String()
     ephemeris_link = graphene.String()
     toas_link = graphene.String()
-    scrunched_link = graphene.String()
-
-    def resolve_scrunched_link(self, instance):
-        return (
-            self.iterable.first()
-            .fold_pulsar.foldpulsardetail_set.first()
-            .scrunched_link
-        )
 
     def resolve_toas_link(self, instance):
         return (

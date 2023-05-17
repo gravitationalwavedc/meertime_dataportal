@@ -249,7 +249,7 @@ class FoldPulsar(BasePulsar):
             }
         )
 
-        return FoldPulsar.objects.update_or_create(
+        new_fold_pulsar, created = FoldPulsar.objects.update_or_create(
             main_project=program_name,
             jname=pulsar.jname,
             defaults={
@@ -271,6 +271,20 @@ class FoldPulsar(BasePulsar):
                 "comment": pulsar.comment,
             },
         )
+
+        # Add scrunched data file per project.
+        scrunch_files = Pipelinefiles.objects.filter(
+            file__contains=pulsar.jname, file_type__contains="FTS"
+        )
+
+        for file in scrunch_files:
+            FoldPulsarFile.objects.update_or_create(
+                fold_pulsar=new_fold_pulsar,
+                image_type=file.file_type,
+                url=file.file,
+            )
+
+        return new_fold_pulsar, created
 
     @classmethod
     def get_snr_results(cls, pulsar_observations):
@@ -313,6 +327,22 @@ class FoldPulsar(BasePulsar):
         return max(
             (o["snr"] / math.sqrt(o["length"]) * sqrt_300) for o in observation_results
         )
+
+
+class FoldPulsarFile(models.Model):
+    fold_pulsar = models.ForeignKey(
+        "FoldPulsar", related_name="files", on_delete=models.CASCADE
+    )
+    image_type = models.CharField(max_length=64, null=True)
+    url = models.URLField()
+
+    @property
+    def project(self):
+        return self.image_type.split(".")[0]
+
+    @property
+    def file_type(self):
+        return self.image_type.split(".")[2]
 
 
 class FoldDetailImage(models.Model):
@@ -418,7 +448,8 @@ class FoldPulsarDetail(models.Model):
 
     @classmethod
     def get_scrunched_link(cls, plusar):
-        # Create a link that can be used for downloading from the media folder. Eventually this needs to be moved to ozstar
+        # Create a link that can be used for downloading from the media folder.
+        # Eventually this needs to be moved to ozstar
         # and better protected.
         return ""
 
