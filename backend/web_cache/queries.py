@@ -354,6 +354,8 @@ class SessionListConnection(relay.Connection):
 
 
 class Query(ObjectType):
+    fold_pulsar = graphene.Field(FoldPulsarNode, jname=graphene.String(required=True))
+
     fold_observations = relay.ConnectionField(
         FoldPulsarConnection,
         main_project=graphene.String(),
@@ -417,3 +419,7 @@ class Query(ObjectType):
     @login_required
     def resolve_session_display(self, info, **kwargs):
         return SessionDisplay.get_query_instance(**kwargs)
+
+    @login_required
+    def resolve_fold_pulsar(self, info, **kwargs):
+        return FoldPulsar.objects.get(jname=kwargs.get("jname"))
