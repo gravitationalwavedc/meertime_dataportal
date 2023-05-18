@@ -7,7 +7,7 @@ import environment from '../relayEnvironment';
 
 const query = graphql`
   query FoldDetailQuery($jname: String!, $mainProject: String) {
-    foldPulsar(jname: $jname){
+    foldPulsar(jname: $jname, mainProject: $mainProject){
       files {
         edges {
           node {
