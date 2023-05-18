@@ -7,10 +7,10 @@ const FildDownloadModal = ({ visible, files, setShow }) => (
         show={visible}
         onHide={() => setShow(false)}
     >
-        <Modal.Header>
-            <Modal.Title className="text-primary">Download a file</Modal.Title>
-        </Modal.Header>
         <Modal.Body>
+            <h4 className="text-primary">
+              Data files
+            </h4>
             <Table>
                 <thead>
                     <tr>

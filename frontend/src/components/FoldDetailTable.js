@@ -177,7 +177,7 @@ const FoldDetailTable = (
             >
               Download TOAs
             </Button>}
-                    {localStorage.isStaff === 'true' && foldPulsar.files &&
+                    {localStorage.isStaff === 'true' && foldPulsar.files.edges.length > 0 &&
             <Button
                 size="sm"
                 className="mr-2 mb-2"
