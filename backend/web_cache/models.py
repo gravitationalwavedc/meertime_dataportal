@@ -280,8 +280,8 @@ class FoldPulsar(BasePulsar):
         for file in scrunch_files:
             FoldPulsarFile.objects.update_or_create(
                 fold_pulsar=new_fold_pulsar,
-                image_type=file.file_type,
-                url=file.file,
+                file_meta=file.file_type,
+                file=file.file,
             )
 
         return new_fold_pulsar, created
@@ -333,16 +333,24 @@ class FoldPulsarFile(models.Model):
     fold_pulsar = models.ForeignKey(
         "FoldPulsar", related_name="files", on_delete=models.CASCADE
     )
-    image_type = models.CharField(max_length=64, null=True)
-    url = models.URLField()
+    file_meta = models.CharField(max_length=64, null=True)
+    file = models.FileField()
 
     @property
     def project(self):
-        return self.image_type.split(".")[0]
+        return self.file_meta.split(".")[0]
 
     @property
     def file_type(self):
-        return self.image_type.split(".")[2]
+        return self.file_meta.split(".")[2]
+
+    @property
+    def size(self):
+        return self.file.size if self.file.storage.exists(self.file.name) else 0
+
+    @property
+    def download_link(self):
+        return self.file.url
 
 
 class FoldDetailImage(models.Model):
@@ -445,13 +453,6 @@ class FoldPulsarDetail(models.Model):
             ).results.get("snr", None)
         except Processings.DoesNotExist:
             return None
-
-    @classmethod
-    def get_scrunched_link(cls, plusar):
-        # Create a link that can be used for downloading from the media folder.
-        # Eventually this needs to be moved to ozstar
-        # and better protected.
-        return ""
 
     @classmethod
     def get_ephemeris_link(cls, pulsar):

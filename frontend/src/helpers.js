@@ -5,6 +5,7 @@ import moment from 'moment';
 export const createLink = async (url) => {
     const link = document.createElement('a');
     link.href = `${process.env.REACT_APP_MEDIA_URL}${url}`;
+    link.download = url;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

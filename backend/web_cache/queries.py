@@ -42,11 +42,13 @@ class FoldPulsarFileNode(DjangoObjectType):
     class Meta:
         model = FoldPulsarFile
         interfaces = (relay.Node,)
-        fields = ("image_type", "url", "project", "file_type")
+        fields = ("download_link", "project", "file_type", "size")
 
     # These attributes map to FoldPulsarFile properties
     project = graphene.String()
     file_type = graphene.String()
+    size = graphene.String()
+    download_link = graphene.String()
 
 
 class FoldPulsarNode(DjangoObjectType):

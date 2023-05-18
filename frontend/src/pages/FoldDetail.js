@@ -13,7 +13,8 @@ const query = graphql`
           node {
             project
             fileType
-            url
+            size
+            downloadLink
           }
         }
       }

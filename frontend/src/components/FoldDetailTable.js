@@ -129,9 +129,6 @@ const FoldDetailTable = (
         { title: `Size [${sizeFormat}]`, value: size },
     ];
 
-    const downloadEphemeris = () => createLink(foldObservationDetails.ephemerisLink);
-    const downloadToas = () => createLink(foldObservationDetails.toasLin);
-
     return (
         <div className="fold-detail-table">
             <Row className="mb-3">
@@ -167,7 +164,7 @@ const FoldDetailTable = (
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => downloadEphemeris()}
+                onClick={() =>createLink(foldObservationDetails.ephemerisLink) }
             >
               Download ephemeris
             </Button>}
@@ -176,7 +173,7 @@ const FoldDetailTable = (
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => downloadToas()}
+                onClick={() => createLink(foldObservationDetails.toasLink)}
             >
               Download TOAs
             </Button>}

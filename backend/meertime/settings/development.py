@@ -5,7 +5,7 @@ import os
 
 # Development Settings
 
-DEBUG = True
+DEBUG = False
 
 # Enable query count check
 MIDDLEWARE.append("querycount.middleware.QueryCountMiddleware")
