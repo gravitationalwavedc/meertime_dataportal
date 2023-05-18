@@ -10,7 +10,7 @@ import {
 import { meertime, molonglo } from '../telescopes';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
-import FildDownloadModal from './FileDownloadModal';
+import FileDownloadModal from './FileDownloadModal';
 import FoldDetailCard from './FoldDetailCard';
 import Link from 'found/Link';
 import ReactMarkdown from 'react-markdown';
@@ -195,7 +195,7 @@ const FoldDetailTable = (
                 setShow={setEphemerisVisible}
             />}
             {localStorage.isStaff === 'true' && foldPulsar.files &&
-              <FildDownloadModal visible={downloadModalVisible}
+              <FileDownloadModal visible={downloadModalVisible}
                   files={foldPulsar.files} setShow={setDownloadModalVisible} />}
             <DataView
                 summaryData={summaryData}
