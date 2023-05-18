@@ -27,7 +27,7 @@ const FildDownloadModal = ({ visible, files, setShow }) => (
                             <td>{edge.node.fileType}</td>
                             <td>{edge.node.size}</td>
                             <td>
-                                <Button size="sm" variant="primary " onClick={() => createLink(edge.node.url)}
+                                <Button size="sm" variant="primary " onClick={() => createLink(edge.node.downloadLink)}
                                     disabled={edge.node.size === '0'}>
                                   Download
                                 </Button>
