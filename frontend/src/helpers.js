@@ -2,10 +2,18 @@ import _ from 'lodash';
 import moment from 'moment';
 
 /* eslint-disable complexity */
+export const createLink = async (url) => {
+    const link = document.createElement('a');
+    link.href = `${process.env.REACT_APP_MEDIA_URL}${url}`;
+    link.download = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
 
 export const handleSearch = (data, columns, search) => {
     // This search function mirrors the search done by standard BootsrapReactTable minus some of the features
-    // that are only applicable to columns. 
+    // that are only applicable to columns.
     // It allows searching of any of the data values and doesn't care about letter case.
     const searchText = search.searchText ? search.searchText.toLowerCase() : '';
 
@@ -58,7 +66,7 @@ export const scaleValue = (value, from, to) => {
 };
 
 export const formatProjectName = (projectName) => {
-    if(!projectName) return null;    
+    if(!projectName) return null;
 
     const projectDisplayNames = {
         relbin: 'RelBin',
@@ -119,5 +127,3 @@ export default {
     formatProjectName,
     formatSingleObservationData
 };
-
-

@@ -2,6 +2,7 @@ import { Button, ButtonGroup, Col, Row } from 'react-bootstrap';
 import React, { useState } from 'react';
 import {
     columnsSizeFilter,
+    createLink,
     formatDDMonYYYY,
     formatUTC,
     meerWatchLink,
@@ -9,6 +10,7 @@ import {
 import { meertime, molonglo } from '../telescopes';
 import DataView from './DataView';
 import Ephemeris from './Ephemeris';
+import FildDownloadModal from './FileDownloadModal';
 import FoldDetailCard from './FoldDetailCard';
 import Link from 'found/Link';
 import ReactMarkdown from 'react-markdown';
@@ -16,7 +18,7 @@ import { useScreenSize } from '../context/screenSize-context';
 
 /* eslint-disable complexity */
 const FoldDetailTable = (
-    { data: { foldObservationDetails }, jname, mainProject },
+    { data: { foldObservationDetails, foldPulsar }, jname, mainProject },
 ) => {
     const { screenSize } = useScreenSize();
     const allRows = foldObservationDetails.edges.reduce(
@@ -72,6 +74,7 @@ const FoldDetailTable = (
 
     const [rows, setRows] = useState(allRows);
     const [ephemerisVisible, setEphemerisVisible] = useState(false);
+    const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
     const ephemeris =
     foldObservationDetails.edges[foldObservationDetails.edges.length - 1].node
@@ -126,24 +129,6 @@ const FoldDetailTable = (
         { title: `Size [${sizeFormat}]`, value: size },
     ];
 
-    const downloadEphemeris = async () => {
-        const link = document.createElement('a');
-        link.href =
-      `${process.env.REACT_APP_MEDIA_URL}${foldObservationDetails.ephemerisLink}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
-    const downloadToas = async () => {
-        const link = document.createElement('a');
-        link.href =
-      `${process.env.REACT_APP_MEDIA_URL}${foldObservationDetails.toasLink}`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-
     return (
         <div className="fold-detail-table">
             <Row className="mb-3">
@@ -179,7 +164,7 @@ const FoldDetailTable = (
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => downloadEphemeris()}
+                onClick={() =>createLink(foldObservationDetails.ephemerisLink) }
             >
               Download ephemeris
             </Button>}
@@ -188,9 +173,18 @@ const FoldDetailTable = (
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => downloadToas()}
+                onClick={() => createLink(foldObservationDetails.toasLink)}
             >
               Download TOAs
+            </Button>}
+                    {localStorage.isStaff === 'true' && foldPulsar.files.edges.length > 0 &&
+            <Button
+                size="sm"
+                className="mr-2 mb-2"
+                variant="outline-secondary"
+                onClick={() => setDownloadModalVisible(true)}
+            >
+              Download data files
             </Button>}
                 </Col>
             </Row>
@@ -200,6 +194,9 @@ const FoldDetailTable = (
                 show={ephemerisVisible}
                 setShow={setEphemerisVisible}
             />}
+            {localStorage.isStaff === 'true' && foldPulsar.files &&
+              <FildDownloadModal visible={downloadModalVisible}
+                  files={foldPulsar.files} setShow={setDownloadModalVisible} />}
             <DataView
                 summaryData={summaryData}
                 columns={columnsSizeFiltered}

@@ -12,6 +12,7 @@ from graphql_jwt.decorators import login_required
 
 from web_cache.models import (
     FoldPulsar,
+    FoldPulsarFile,
     SearchmodePulsar,
     FoldPulsarDetail,
     FoldDetailImage,
@@ -35,6 +36,19 @@ class FoldDetailImageNode(DjangoObjectType):
     resolution = graphene.String()
     plot_type = graphene.String()
     generic_plot_type = graphene.String()
+
+
+class FoldPulsarFileNode(DjangoObjectType):
+    class Meta:
+        model = FoldPulsarFile
+        interfaces = (relay.Node,)
+        fields = ("download_link", "project", "file_type", "size")
+
+    # These attributes map to FoldPulsarFile properties
+    project = graphene.String()
+    file_type = graphene.String()
+    size = graphene.String()
+    download_link = graphene.String()
 
 
 class FoldPulsarNode(DjangoObjectType):
@@ -156,6 +170,7 @@ class FoldPulsarConnection(relay.Connection):
     total_observations = graphene.Int()
     total_pulsars = graphene.Int()
     total_observation_time = graphene.Int()
+    total_project_time = graphene.Int()
 
     def resolve_total_observations(self, instance):
         return sum(
@@ -169,6 +184,16 @@ class FoldPulsarConnection(relay.Connection):
 
     def resolve_total_observation_time(self, instance):
         return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
+
+    def resolve_total_project_time(self, instance):
+        # Too slow n(2)
+        total_seconds = sum(
+            fold.length
+            for fold in FoldPulsarDetail.objects.filter(
+                project=self.edges[0].node.project
+            )
+        )
+        return int(total_seconds / 60 / 60)
 
 
 class FoldPulsarDetailConnection(relay.Connection):
@@ -207,9 +232,7 @@ class FoldPulsarDetailConnection(relay.Connection):
         return len(self.edges)
 
     def resolve_total_observation_hours(self, instance):
-        return round(
-            sum(float(observation.length) for observation in self.iterable) / 3600, 1
-        )
+        return sum(float(observation.length) for observation in self.iterable) / 3600
 
     def resolve_total_projects(self, instance):
         return len({observation.project for observation in self.iterable})
@@ -333,6 +356,12 @@ class SessionListConnection(relay.Connection):
 
 
 class Query(ObjectType):
+    fold_pulsar = graphene.Field(
+        FoldPulsarNode,
+        jname=graphene.String(required=True),
+        main_project=graphene.String(),
+    )
+
     fold_observations = relay.ConnectionField(
         FoldPulsarConnection,
         main_project=graphene.String(),
@@ -396,3 +425,9 @@ class Query(ObjectType):
     @login_required
     def resolve_session_display(self, info, **kwargs):
         return SessionDisplay.get_query_instance(**kwargs)
+
+    @login_required
+    def resolve_fold_pulsar(self, info, **kwargs):
+        return FoldPulsar.objects.get(
+            jname=kwargs.get("jname"), main_project=kwargs.get("main_project")
+        )

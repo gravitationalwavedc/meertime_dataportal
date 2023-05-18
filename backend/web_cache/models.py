@@ -41,6 +41,7 @@ class BasePulsar(models.Model):
 
     class Meta:
         abstract = True
+        unique_together = [["main_project", "jname"]]
         ordering = ["-latest_observation"]
 
     @classmethod
@@ -248,7 +249,7 @@ class FoldPulsar(BasePulsar):
             }
         )
 
-        return FoldPulsar.objects.update_or_create(
+        new_fold_pulsar, created = FoldPulsar.objects.update_or_create(
             main_project=program_name,
             jname=pulsar.jname,
             defaults={
@@ -270,6 +271,20 @@ class FoldPulsar(BasePulsar):
                 "comment": pulsar.comment,
             },
         )
+
+        # Add scrunched data file per project.
+        scrunch_files = Pipelinefiles.objects.filter(
+            file__contains=pulsar.jname, file_type__contains="FTS"
+        )
+
+        for file in scrunch_files:
+            FoldPulsarFile.objects.update_or_create(
+                fold_pulsar=new_fold_pulsar,
+                file_meta=file.file_type,
+                file=file.file,
+            )
+
+        return new_fold_pulsar, created
 
     @classmethod
     def get_snr_results(cls, pulsar_observations):
@@ -312,6 +327,30 @@ class FoldPulsar(BasePulsar):
         return max(
             (o["snr"] / math.sqrt(o["length"]) * sqrt_300) for o in observation_results
         )
+
+
+class FoldPulsarFile(models.Model):
+    fold_pulsar = models.ForeignKey(
+        "FoldPulsar", related_name="files", on_delete=models.CASCADE
+    )
+    file_meta = models.CharField(max_length=64, null=True)
+    file = models.FileField()
+
+    @property
+    def project(self):
+        return self.file_meta.split(".")[0]
+
+    @property
+    def file_type(self):
+        return self.file_meta.split(".")[2]
+
+    @property
+    def size(self):
+        return self.file.size if self.file.storage.exists(self.file.name) else 0
+
+    @property
+    def download_link(self):
+        return self.file.url
 
 
 class FoldDetailImage(models.Model):
@@ -455,9 +494,7 @@ class FoldPulsarDetail(models.Model):
         # If it's a molonglo observation we can just get the latest flux value.
         if project_short == "MONSPSR_TIMING":
             try:
-                return folding.processing.processings_set.get(
-                    pipeline__name="MONSPSR_CLEAN"
-                ).results.get("flux", None)
+                return folding.processing.results.get("flux", None)
             except Processings.DoesNotExist:
                 return None
 
