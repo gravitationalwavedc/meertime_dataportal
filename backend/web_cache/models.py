@@ -350,7 +350,7 @@ class FoldPulsarFile(models.Model):
 
     @property
     def download_link(self):
-        return self.file.url
+        return self.file.name
 
 
 class FoldDetailImage(models.Model):
