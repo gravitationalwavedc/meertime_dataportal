@@ -4,7 +4,7 @@ import Link from 'found/Link';
 import React from 'react';
 import { meerWatchLink } from '../helpers';
 
-const JobCard = ({ row }) => 
+const JobCard = ({ row }) =>
     <Card className="mb-3 shadow-md job-card" data-testid="job-card">
         <Card.Body>
             <Card.Title><span className="mr-3">{row.jname}</span> {row.project}</Card.Title>
@@ -26,7 +26,7 @@ const JobCard = ({ row }) =>
                     <p>{row.maxSnPipe ? row.maxSnPipe : 'null'}</p>
                 </Col>
                 <Col md={3}>
-                    <p className="subtitle-1 text-primary-600 mb-2">Intergration</p>
+                    <p className="subtitle-1 text-primary-600 mb-2">Integration</p>
                     <p>{row.totalIntegrationHours} hours total</p>
                     <p className="overline mb-1">Last</p>
                     <p>{row.lastIntegrationMinutes? row.lastIntegrationMinutes : 'null'}</p>
@@ -34,27 +34,27 @@ const JobCard = ({ row }) =>
             </Row>
         </Card.Body>
         <Card.Footer>
-            <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/fold/${row.projectKey}/${row.jname}/`} 
+            <Link
+                to={`${process.env.REACT_APP_BASE_URL}/fold/${row.projectKey}/${row.jname}/`}
                 className='mr-2'
-                size='sm' 
-                variant="link" 
+                size='sm'
+                variant="link"
                 as={Button}>
-                          View all observations 
+                          View all observations
             </Link>
-            <Link 
-                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.latestObservation}/${row.beam}/`} 
+            <Link
+                to={`${process.env.REACT_APP_BASE_URL}/${row.jname}/${row.latestObservation}/${row.beam}/`}
                 className='mr-2'
-                size='sm' 
-                variant="link" 
+                size='sm'
+                variant="link"
                 as={Button}>
                           View last observation
             </Link>
-            <Button 
+            <Button
                 size="sm"
                 as="a"
                 href={meerWatchLink(row.jname)}
-                variant="link"> 
+                variant="link">
                         View MeerWatch
             </Button>
         </Card.Footer>
