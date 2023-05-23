@@ -36,9 +36,9 @@
         "react/prop-types": 0,
         "no-debugger": ["error"],
         "no-console": ["warn"],
-        "no-unreachable": ["error"], 
+        "no-unreachable": ["error"],
         "no-extra-semi": ["error"],
-        "no-alert": ["error"], 
+        "no-alert": ["error"],
         "no-empty-pattern": ["error"],
         "no-eval": ["error"],
         "no-implied-eval": ["error"],
@@ -77,7 +77,7 @@
         "react/no-unknown-property": ["error"],
         "react/react-in-jsx-scope": ["error"],
         "react/self-closing-comp": ["error"],
-        "react/default-props-match-prop-types": ["error"]
+        "react/default-props-match-prop-types": ["error"],
+        "jest/require-hook": "warn"
     }
 }
-
