@@ -34,8 +34,8 @@ from dataportal.models import (
 DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
 NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
 
-class Queries:
-    pass
+# class Queries:
+#     pass
 
 
 class PulsarNode(DjangoObjectType):

@@ -161,6 +161,7 @@ class Template(models.Model):
 
 
 class Calibration(models.Model):
+    # TODO use DELAYCAL_ID to note which calibrator was used.
     CALIBRATION_TYPES = [
         ("pre", "pre"),
         ("post", "post"),
