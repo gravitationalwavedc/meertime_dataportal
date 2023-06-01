@@ -7,7 +7,7 @@ from django.db.models import Sum, Count, ExpressionWrapper, Max, Min, DurationFi
 import json
 
 
-from .models import Pulsars, Foldings
+# from .models import Pulsars, Foldings
 from .plots import pulsar_summary_plot
 
 from .logic import get_meertime_filters
