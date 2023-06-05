@@ -1,18 +1,17 @@
-from graphene import relay, ObjectType
+from graphene import relay, ObjectType, List
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 
 # from .types import *
-from dataportal.models import Pulsars
+from dataportal.models import Pulsar
 
 
 class PulsarsNode(DjangoObjectType):
     class Meta:
-        model = Pulsars
+        model = Pulsar
         fields = "__all__"
         filter_fields = "__all__"
-        interfaces = (relay.Node,)
 
     @classmethod
     @login_required
@@ -21,5 +20,7 @@ class PulsarsNode(DjangoObjectType):
 
 
 class Query(ObjectType):
-    pulsar = relay.Node.Field(PulsarsNode)
-    all_pulsars = DjangoFilterConnectionField(PulsarsNode, max_limit=10000)
+    pulsars = List(PulsarsNode)
+
+    def resolve_pulsars(self, info, **kwargs):
+        return Pulsar.objects.all()

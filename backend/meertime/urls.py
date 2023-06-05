@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from utils.utility import secure_serve
 
-# from .schema import schema
+from .schema import schema
 
 handler500 = "dataportal.views.handler500"
 

@@ -1,7 +1,6 @@
 import graphene
 import graphql_jwt
 import dataportal.graphql
-import web_cache.queries
 import user_manage.graphql.queries
 import user_manage.graphql.mutations
 import jobcontroller.queries
@@ -12,7 +11,6 @@ from user_manage.graphql.types import UserType
 
 class Query(
     dataportal.graphql.Query,
-    web_cache.queries.Query,
     user_manage.graphql.queries.Query,
     jobcontroller.queries.Query,
     graphene.ObjectType,

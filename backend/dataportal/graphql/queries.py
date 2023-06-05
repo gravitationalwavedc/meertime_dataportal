@@ -1,65 +1,51 @@
-# import graphene
-# from graphql_jwt.decorators import login_required
+import graphene
+from graphql_jwt.decorators import login_required
+from graphene_django import DjangoObjectType
 
-# from . import (
-#     basebandings,
-#     calibrations,
-#     collections,
-#     ephemerides,
-#     filterbankings,
-#     foldings,
-#     instrumentconfigs,
-#     launches,
-#     observations,
-#     pipelinefiles,
-#     pipelineimages,
-#     pipelines,
-#     processingcollections,
-#     processings,
-#     programs,
-#     projects,
-#     pulsaraliases,
-#     pulsars,
-#     pulsartargets,
-#     rfis,
-#     sessions,
-#     targets,
-#     telescopes,
-#     templates,
-#     toas,
-# )
+from dataportal.models import Pulsar
+
+from . import (
+    pulsar,
+    # Ephemeris,
+    # Template,
+    # Calibration,
+    # Telescope,
+    # MainProject,
+    # Session,
+    # Observation,
+    # PipelineRun,
+    # PipelineImage,
+    # PipelineFile,
+    # Toa,
+)
 
 
-# class Queries:
-#     pass
+class Queries:
+    pass
 
 
-# class Query(
-#     basebandings.Query,
-#     calibrations.Query,
-#     collections.Query,
-#     ephemerides.Query,
-#     filterbankings.Query,
-#     foldings.Query,
-#     instrumentconfigs.Query,
-#     launches.Query,
-#     observations.Query,
-#     pipelinefiles.Query,
-#     pipelineimages.Query,
-#     pipelines.Query,
-#     processingcollections.Query,
-#     processings.Query,
-#     programs.Query,
-#     projects.Query,
-#     pulsaraliases.Query,
-#     pulsars.Query,
-#     pulsartargets.Query,
-#     rfis.Query,
-#     sessions.Query,
-#     targets.Query,
-#     telescopes.Query,
-#     templates.Query,
-#     toas.Query,
-#     graphene.ObjectType,
-# ):
-#     pass
+class PulsarType(DjangoObjectType):
+    class Meta:
+        model = Pulsar
+        fields = "__all__"
+        filter_fields = "__all__"
+
+class Query(
+    # pulsar.Query,
+    # Ephemeris.Query,
+    # Template.Query,
+    # Calibration.Query,
+    # Telescope.Query,
+    # MainProject.Query,
+    # Session.Query,
+    # Observation.Query,
+    # PipelineRun.Query,
+    # PipelineImage.Query,
+    # PipelineFile.Query,
+    # Toa.Query,
+    graphene.ObjectType,
+):
+    pulsars = graphene.List(PulsarType)
+
+    def resolve_pulsars(self, info, **kwargs):
+        return Pulsar.objects.all()

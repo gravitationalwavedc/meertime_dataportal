@@ -1,34 +1,35 @@
-# import graphene
-# from graphql_jwt.decorators import permission_required
+import graphene
+from graphql_jwt.decorators import permission_required
 
-# from . import (
-#     basebandings,
-#     calibrations,
-#     collections,
-#     ephemerides,
-#     filterbankings,
-#     foldings,
-#     instrumentconfigs,
-#     launches,
-#     observations,
-#     pipelinefiles,
-#     pipelineimages,
-#     pipelines,
-#     processingcollections,
-#     processings,
-#     programs,
-#     projects,
-#     pulsars,
-#     pulsartargets,
-#     sessions,
-#     targets,
-#     telescopes,
-#     templates,
-#     toas,
-# )
+from . import (
+    pulsar,
+    # basebandings,
+    # calibrations,
+    # collections,
+    # ephemerides,
+    # filterbankings,
+    # foldings,
+    # instrumentconfigs,
+    # launches,
+    # observations,
+    # pipelinefiles,
+    # pipelineimages,
+    # pipelines,
+    # processingcollections,
+    # processings,
+    # programs,
+    # projects,
+    # pulsartargets,
+    # sessions,
+    # targets,
+    # telescopes,
+    # templates,
+    # toas,
+)
 
 
-# class Mutation(
+class Mutation(
+    pulsar.Mutation,
 #     basebandings.Mutation,
 #     calibrations.Mutation,
 #     collections.Mutation,
@@ -45,7 +46,6 @@
 #     processings.Mutation,
 #     programs.Mutation,
 #     projects.Mutation,
-#     pulsars.Mutation,
 #     pulsartargets.Mutation,
 #     sessions.Mutation,
 #     targets.Mutation,
@@ -53,5 +53,5 @@
 #     templates.Mutation,
 #     toas.Mutation,
 #     graphene.ObjectType,
-# ):
-#     pass
+):
+    pass

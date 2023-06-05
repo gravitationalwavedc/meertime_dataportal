@@ -1,12 +1,12 @@
 import graphene
 from graphene_django import DjangoObjectType
 
-from dataportal.models import Pulsars
+from dataportal.models import Pulsar
 
 
 class PulsarsType(DjangoObjectType):
     class Meta:
-        model = Pulsars
+        model = Pulsar
 
 
 class PulsarsInput(graphene.InputObjectType):

@@ -3,7 +3,6 @@ import json
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import F, OuterRef, Subquery, Max, Min, ExpressionWrapper, Count, Sum, JSONField
 from django.db.models.constraints import UniqueConstraint
 from django.utils.translation import ugettext_lazy as _
 from django_mysql.models import Model
@@ -29,10 +28,11 @@ class Pulsar(models.Model):
 
 
 class Ephemeris(models.Model):
+    id = models.AutoField(primary_key=True)
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
     created_at = models.DateTimeField()
     created_by = models.CharField(max_length=64)
-    ephemeris = JSONField(unique=True) #TODO Test that json unique works as we expect
+    ephemeris = models.JSONField()#unique=True) #TODO Test that json unique works as we expect
     p0 = models.FloatField()
     dm = models.FloatField()
     comment = models.TextField(null=True)
@@ -45,12 +45,12 @@ class Ephemeris(models.Model):
         if self.valid_from >= self.valid_to:
             raise ValidationError(_("valid_to must be later than valid_from"))
 
-    # def save(self, *args, **kwargs):
-    #     Ephemeris.clean(self)
-    #     self.ephemeris_hash = hashlib.md5(
-    #         json.dumps(self.ephemeris, sort_keys=True, indent=2).encode("utf-8")
-    #     ).hexdigest()
-    #     super(Ephemeris, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        Ephemeris.clean(self)
+        self.ephemeris_hash = hashlib.md5(
+            json.dumps(self.ephemeris, sort_keys=True, indent=2).encode("utf-8")
+        ).hexdigest()
+        super(Ephemeris, self).save(*args, **kwargs)
 
 
 class Template(models.Model):
@@ -166,7 +166,7 @@ class Observation(models.Model):
     tsamp = models.FloatField()
 
     # Backend folding values
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, blank=True, null=True)
+    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", blank=True, null=True)
     fold_nbin = models.IntegerField(blank=True, null=True)
     fold_nchan = models.IntegerField(blank=True, null=True)
     fold_nsub = models.IntegerField(blank=True, null=True)
@@ -184,7 +184,7 @@ class PipelineRun(Model):
     Details about the software and pipeline run to process data
     """
     observation = models.ForeignKey(Observation, models.DO_NOTHING)
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, null=True)
+    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", null=True)
     template = models.ForeignKey(Template, models.DO_NOTHING)
 
     pipeline_name = models.CharField(max_length=64)
@@ -195,7 +195,7 @@ class PipelineRun(Model):
     created_by = models.CharField(max_length=64)
     job_state = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255)
-    configuration = JSONField(blank=True, null=True)
+    configuration = models.JSONField(blank=True, null=True)
     # TODO data size estimation
 
 
@@ -213,7 +213,15 @@ class PipelineImage(models.Model):
     class Meta:
         constraints = [
             # TODO this may no longer be necessary with pipeline run
-            UniqueConstraint(fields=["processing", "image_type"], name="unique image type for a processing")
+            UniqueConstraint(
+                fields=[
+                    "pipeline_run",
+                    "image_type",
+                    "cleaned",
+                    "resolution",
+                ],
+                name="unique image type for a processing"
+            )
         ]
 
 
@@ -223,13 +231,11 @@ class PipelineFile(models.Model):
     file_type = models.CharField(max_length=32, blank=True, null=True)
 
 
-
 class FoldPulsarResult(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.CASCADE)
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
 
-    ephemeris = JSONField(null=True)
     embargo_end_date = models.DateTimeField(null=True)
     proposal = models.CharField(max_length=40)
     dm = models.FloatField(null=True)
@@ -241,11 +247,10 @@ class FoldPulsarResult(models.Model):
     percent_rfi_zapped = models.FloatField()
 
 
-
 class Toa(models.Model):
 
     pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING)
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, null=True)
+    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", null=True)
     template = models.ForeignKey(Template, models.DO_NOTHING)
 
     mjd = models.CharField(max_length=32, blank=True, null=True)
@@ -256,4 +261,4 @@ class Toa(models.Model):
     nsub = models.IntegerField()
     site = models.CharField(max_length=1, blank=True, null=True)
     quality = models.CharField(max_length=10, blank=True, null=True, choices=DATA_QUALITY_CHOICES)
-    flags = JSONField()
+    flags = models.JSONField()
