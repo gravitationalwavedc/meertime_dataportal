@@ -29,6 +29,7 @@ spec:
   resources:
     requests:
       storage: 3Gi
+  storageClassName: ""
 ---
 apiVersion: apps/v1
 kind: Deployment

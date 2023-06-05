@@ -1,5 +1,5 @@
 # Source: grafana/templates/ingress.yaml
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: meertime-ingress
@@ -14,13 +14,19 @@ spec:
       http:
         paths:
           - path: /
+            pathType: Prefix
             backend:
-              serviceName: nginx
-              servicePort: 80
+              service:
+                name: nginx
+                port:
+                  number: 80
     - host: pulsars.org.au
       http:
         paths:
           - path: /
+            pathType: Prefix
             backend:
-              serviceName: nginx
-              servicePort: 80
+              service:
+                name: nginx
+                port:
+                  number: 80
