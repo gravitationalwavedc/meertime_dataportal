@@ -38,7 +38,7 @@ spec:
         tier: react
     spec:
       imagePullSecrets:
-        - name: meertime-regcred
+        - name: regcred
       serviceAccountName: meertime
       containers:
         - name: ng-react
