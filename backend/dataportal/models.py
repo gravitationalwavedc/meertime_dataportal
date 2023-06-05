@@ -807,7 +807,6 @@ class Residual(models.Model):
     def get_query(cls, **kwargs):
         return cls.objects.filter(**kwargs)
 
-
 class Toa(models.Model):
     # foreign keys
     pipeline_run = models.ForeignKey(PipelineRun, models.CASCADE, related_name="toas")

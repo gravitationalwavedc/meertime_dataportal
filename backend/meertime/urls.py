@@ -8,7 +8,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 # from utils.utility import secure_serve
 
-# from .schema import schema
+from .schema import schema
 
 handler500 = "dataportal.views.handler500"
 
