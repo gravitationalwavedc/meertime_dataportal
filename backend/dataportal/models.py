@@ -22,7 +22,6 @@ class Pulsar(models.Model):
     """
     Pulsar is used as a target for the observations so this can also be globular clusters
     """
-    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=32, unique=True)
     comment = models.TextField(null=True, help_text="Auto generated description based on information from the ANTF catalogue")
 

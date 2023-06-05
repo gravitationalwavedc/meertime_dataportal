@@ -30,12 +30,16 @@ class ObtainJSONWebToken(graphql_jwt.relay.JSONWebTokenMutation):
         )
 
 
+<<<<<<< HEAD
 class Mutation(
     dataportal.graphql.Mutation,
     user_manage.graphql.mutations.Mutation,
     jobcontroller.mutations.Mutation,
     graphene.ObjectType,
 ):
+=======
+class Mutation(dataportal.graphql.Mutation, web_cache.graphql.Query, user_manage.graphql.mutations.Mutation, graphene.ObjectType):
+>>>>>>> a56c9f4 (Started simplifying the Pulsar queries)
     token_auth = ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.relay.Verify.Field()
     refresh_token = graphql_jwt.relay.Refresh.Field()
