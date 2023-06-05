@@ -52,13 +52,13 @@ spec:
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/agent-pre-populate-only: "true"
-        vault.hashicorp.com/agent-inject-secret-retrieve-control.sh: "meertime/kv/nexus/service"
+        vault.hashicorp.com/agent-inject-secret-retrieve-control.sh: "kv/meertime/nexus/service"
         vault.hashicorp.com/agent-inject-template-retrieve-control.sh: |
-          {{- with secret "meertime/kv/nexus/service" -}}
+          {{- with secret "kv/meertime/nexus/service" -}}
           #!/bin/sh
 
           set -o nounset
-          wget --no-check-certificate --http-user='{{ .Data.data.NEXUS_USER }}' --http-password='{{ .Data.data.NEXUS_PASS }}' {{ .Data.data.NEXUS_URL }}/{{ .Data.data.NEXUS_CONTROL_DIR }}/$1
+          wget --no-check-certificate --http-user='{{ .Data.NEXUS_USER }}' --http-password='{{ .Data.NEXUS_PASS }}' {{ .Data.NEXUS_URL }}/{{ .Data.NEXUS_CONTROL_DIR }}/$1
           {{- end }}
       labels:
         app: dataportal
