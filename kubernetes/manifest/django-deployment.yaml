@@ -65,7 +65,7 @@ spec:
         tier: django
     spec:
       imagePullSecrets:
-        - name: meertime-regcred
+        - name: regcred
       serviceAccountName: meertime
       initContainers:
         - image: nexus.gwdc.org.au/docker/mysqldump:0.2
