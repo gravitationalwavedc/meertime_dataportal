@@ -59,7 +59,7 @@ react-test:
     - corepack prepare pnpm@latest-8 --activate
     - pnpm config set store-dir .pnpm-store
   script:
-    - cd ../frontend
+    - cd frontend
     - pnpm install
     - pnpm run relay
     - pnpm run test --coverage --reporter=junit --outputFile=./reports/junit.xml
