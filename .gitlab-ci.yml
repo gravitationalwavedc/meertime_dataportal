@@ -59,19 +59,16 @@ react-test:
     - corepack prepare pnpm@latest-8 --activate
     - pnpm config set store-dir .pnpm-store
   script:
-    - cd backend/
-    - $POETRY_HOME/bin/poetry install
-    - $POETRY_HOME/bin/poetry run python manage.py graphql_schema
     - cd ../frontend
     - pnpm install
     - pnpm run relay
-    - CI=true pnpm run test
+    - pnpm run test --coverage --reporter=junit --outputFile=./reports/junit.xml
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: frontend/coverage/cobertura-coverage.xml
-      junit: frontend/reports/jest/junit.xml
+        path: frontend/reports/cobertura-coverage.xml
+      junit: frontend/reports/junit.xml
   cache:
     key:
       files:

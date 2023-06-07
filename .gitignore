@@ -16,11 +16,17 @@ backend/static
 # django media
 backend/media
 
-# VS code:
-.vscode
-
-# Vim
+# Editor directories and files
 .vim
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -36,6 +42,7 @@ build/
 /build
 develop-eggs/
 dist/
+dist-ssr
 downloads/
 eggs/
 .eggs/
@@ -135,6 +142,7 @@ celerybeat.pid
 # Environments
 .env
 .venv
+*.local
 env/
 venv/
 ENV/
@@ -188,11 +196,8 @@ yarn-error.log*
 # React generated files
 __generated__
 
-# Relay schema
-schema.json
-schema.graphql
-
-.idea
+# pnpm logs
+pnpm-debug.log*
 
 # Don't track reports
 frontend/reports/
