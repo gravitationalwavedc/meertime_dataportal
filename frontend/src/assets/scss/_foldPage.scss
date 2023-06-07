@@ -1,0 +1,37 @@
+.graph-pattern-top {
+  position: absolute;
+  z-index: -1;
+  opacity: 0.05;
+  max-width: 80%;
+  top: 4rem;
+  left: 1rem;
+
+  @include media-breakpoint-down(sm) {
+    max-width: 97%;
+    left: 0;
+  }
+}
+
+.bg-gray-100 {
+  background: $gray-100;
+}
+
+.fold-detail-table {
+  margin: 0;
+
+  @include media-breakpoint-up(md) {
+    margin: -12.5rem 0 13.5rem 0;
+  }
+}
+
+.fold-detail-utc {
+  width: 34%;
+
+  @include media-breakpoint-up(lg) {
+    width: 18%;
+  }
+
+  @include media-breakpoint-up(xl) {
+    width: 15%;
+  }
+}

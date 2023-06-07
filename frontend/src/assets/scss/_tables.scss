@@ -1,0 +1,68 @@
+$row-border-radius: 0.75rem;
+
+.ephemeris-table {
+  .modal-dialog {
+    max-width: 600px;
+  }
+
+  .table {
+    td,
+    th {
+      border-top: none;
+    }
+  }
+}
+
+.react-bootstrap-table .table {
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
+
+  tbody tr {
+    box-shadow: $shadow-base;
+    border-radius: $row-border-radius;
+  }
+
+  td {
+    vertical-align: middle;
+    background: white;
+    border: 1px solid $gray-100;
+    border-style: solid none;
+
+    &:first-child {
+      border-left-style: solid;
+      border-top-left-radius: $row-border-radius;
+      border-bottom-left-radius: $row-border-radius;
+    }
+
+    &:last-child {
+      border-right-style: solid;
+      border-bottom-right-radius: $row-border-radius;
+      border-top-right-radius: $row-border-radius;
+    }
+  }
+
+  thead th {
+    border-top: none;
+    border-bottom: none;
+    color: $gray-500;
+    font-size: 0.9rem;
+    position: relative;
+    z-index: 3;
+
+    &:focus,
+    &:hover {
+      outline: none;
+      color: $primary;
+    }
+  }
+
+  @include media-breakpoint-up(md) {
+    margin-top: -2rem;
+
+    td {
+      padding: 0.5rem;
+      border: 1px solid $gray-100;
+      border-style: solid none;
+    }
+  }
+}
