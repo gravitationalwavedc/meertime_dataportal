@@ -6,6 +6,7 @@ describe("The Login Page", () => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasQuery(req, "FoldQuery", "foldQuery.json");
       aliasQuery(req, "FoldTableRefetchQuery", "foldQuery.json");
+      aliasQuery(req, "SearchQuery", "searchQuery.json");
     });
   });
 
@@ -28,5 +29,26 @@ describe("The Login Page", () => {
 
     cy.contains("Loading...").should("not.exist");
     cy.contains("Unique Pulsars").should("be.visible");
+  });
+
+  it("should redirect to login and back if not authenticated", () => {
+    cy.visit("/search/");
+    cy.location("pathname").should("equal", "/login/search");
+
+    cy.get("input[name=username]").type("buffy@sunnydale.com");
+    cy.get("input[name=password]").type("slayer!#1");
+    cy.contains("button", "Sign in").click();
+
+    cy.wait("@LoginMutation")
+      .its("response.body.data.tokenAuth")
+      .should("have.property", "token");
+
+    cy.wait("@SearchQuery");
+
+    cy.contains("Loading...").should("not.exist");
+    cy.contains("Search mode Observations").should("be.visible");
+    cy.contains("Pulsars").should("be.visible");
+
+    cy.location("pathname").should("equal", "/search/");
   });
 });

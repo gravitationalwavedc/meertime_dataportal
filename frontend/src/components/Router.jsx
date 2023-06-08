@@ -36,7 +36,12 @@ const renderTrackingRoute = (Component, props) => {
 
 const renderPrivateRoute = (Component, props) => {
   if (localStorage.getItem("jwt") === null) {
-    throw new RedirectException(`/login/`, 401);
+    // There will always be a redirect route.
+    const redirectRoute = props.match.location.pathname
+      .replaceAll("/", "")
+      .trim();
+    const redirectPath = `/login/${redirectRoute}`;
+    throw new RedirectException(redirectPath, 401);
   }
   // Send data to google analytics
   return renderTrackingRoute(Component, props);

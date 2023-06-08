@@ -2,7 +2,7 @@ import { fireEvent, render, waitFor, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "found";
 import Login from "./Login";
-import { MockPayloadGenerator, createMockEnvironment } from "relay-test-utils";
+import { MockPayloadGenerator } from "relay-test-utils";
 import environment from "../relayEnvironment";
 
 describe("login page", () => {

@@ -57,7 +57,7 @@ const Login = ({ router, match }) => {
           localStorage.isStaff = tokenAuth.user.isStaff;
           const nextPath =
             match.params["next"] === undefined
-              ? ""
+              ? "/"
               : `/${match.params["next"]}/`;
           router.replace(nextPath);
         }
