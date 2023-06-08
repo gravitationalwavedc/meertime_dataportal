@@ -52,10 +52,7 @@ django-tests:
 
 
 react-test:
-
-  stages:
-    - build
-    - test
+  stage: test
 
   variables:
     CYPRESS_RECORD_KEY: $CYPRESS_RECORD_KEY
@@ -67,28 +64,25 @@ react-test:
     paths:
        - .pnpm-store
 
-  install:
-    image: cypress-12.14.0-node-18.16.0-chrome-113.0.5672.92-1-ff-113.0-edge-113.0.1774.35-1
-    stage: build
+  image: cypress-12.14.0-node-18.16.0-chrome-113.0.5672.92-1-ff-113.0-edge-113.0.1774.35-1
 
-    before_script:
-      - corepack enable
-      - corepack prepare pnpm@latest-8 --activate
-      - pnpm config set store-dir .pnpm-store
-    script:
-      - cd frontend
-      - pnpm install
-      - pnpm run relay
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest-8 --activate
+    - pnpm config set store-dir .pnpm-store
+    - cd frontend
+    - pnpm install
+    - pnpm run relay
 
-    unit-test:
-      script:
-        - pnpm run test --coverage --reporter=junit --outputFile=./reports/junit.xml
-      artifacts:
-        reports:
-          coverage_report:
-            coverage_format: cobertura
-            path: frontend/reports/cobertura-coverage.xml
-          junit: frontend/reports/junit.xml
+  script:
+    - pnpm run test --coverage --reporter=junit --outputFile=./reports/junit.xml
+
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: frontend/reports/cobertura-coverage.xml
+      junit: frontend/reports/junit.xml
 
   ui-chrome:
     image: cypress/browsers:node16.14.2-slim-chrome100-ff99-edge
