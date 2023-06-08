@@ -10,7 +10,6 @@
     "preview": "vite preview",
     "relay": "relay-compiler",
     "test": "vitest",
-    "coverage": "vitest --coverage",
     "cypress": "cypress open",
     "cypress:e2e": "cypress run --record"
   },

@@ -11,7 +11,8 @@ export default defineConfig({
     setupFiles: "./src/setupTests.jsx",
     // you might want to disable it, if you don't have tests that rely on CSS
     // since parsing CSS is slow
-    css: true,
+    threads: false,
+    css: false,
     coverage: {
       provider: "istanbul",
       reporter: ["html", "cobertura"],
