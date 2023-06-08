@@ -5,8 +5,8 @@ from django_mysql.models import JSONField
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 
+from utils.ephemeris import parse_ephemeris_file
 from dataportal.models import Ephemeris
-
 from dataportal.models import (
     Ephemeris,
     Pulsar,
@@ -27,6 +27,7 @@ class EphemerisInput(graphene.InputObjectType):
     pulsar_name   = graphene.String(required=True)
     project_code  = graphene.String(required=True)
     ephemeris_loc = graphene.String(required=True)
+    comment = graphene.String(required=True)
 
 
 class CreateEphemeris(graphene.Mutation):
@@ -42,21 +43,17 @@ class CreateEphemeris(graphene.Mutation):
         pulsar  = Pulsar.objects.get(name=input["pulsar_name"])
         project = Project.objects.get(code=input["project_code"])
         # Load the ephemeris file
-        ephemeris_dict = {}
-        with open(input["ephemeris_loc"], "r") as file:
-            for line in file:
-                line = line.strip()
-                key, value = line.split(" ", 1)
-                ephemeris_dict[key] = value
+        ephemeris_dict = parse_ephemeris_file(input["ephemeris_loc"])
         ephemeris = Ephemeris.objects.get_or_create(
             pulsar=pulsar,
             project=project,
             # TODO add created_by
-            ephemeris=json.loads(ephemeris_dict),
+            ephemeris_data=json.dumps(ephemeris_dict),
             p0=ephemeris_dict["P0"],
             dm=ephemeris_dict["DM"],
-            valid_from=ephemeris_dict["P0"],
-            valid_to=ephemeris_dict["P0"],
+            valid_from=ephemeris_dict["START"],
+            valid_to=ephemeris_dict["FINISH"],
+            comment=input["comment"],
         )
         return CreateEphemeris(ephemeris=ephemeris)
 

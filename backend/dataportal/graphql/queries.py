@@ -4,7 +4,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 
-from dataportal.models import Pulsar, Observation, MainProject, Project
+from dataportal.models import Pulsar, Observation, MainProject, Project, Ephemeris
 
 DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
 NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
@@ -25,7 +25,7 @@ class PulsarNode(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
-class ObservationsNode(DjangoObjectType):
+class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
         fields = "__all__"
@@ -67,6 +67,25 @@ class ProjectNode(DjangoObjectType):
         return super().get_queryset(queryset, info)
 
 
+class EphemerisNode(DjangoObjectType):
+    class Meta:
+        model = Ephemeris
+        fields = "__all__"
+        filter_fields = {
+            "pulsar__id": ["exact"],
+            "p0": NUMERIC_FILTERS,
+            "dm": NUMERIC_FILTERS,
+            "ephemeris_hash": ["exact"],
+        }
+
+        interfaces = (relay.Node,)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+
 class Query(graphene.ObjectType):
     # pulsar = relay.Node.Field(PulsarNode)
     Pulsar = graphene.Field(
@@ -75,8 +94,8 @@ class Query(graphene.ObjectType):
     )
     allPulsars = DjangoFilterConnectionField(PulsarNode, max_limit=10000)
 
-    Observation = relay.Node.Field(ObservationsNode)
-    allObservations = DjangoFilterConnectionField(ObservationsNode, max_limit=10000)
+    Observation = relay.Node.Field(ObservationNode)
+    allObservations = DjangoFilterConnectionField(ObservationNode, max_limit=10000)
 
     mainproject = graphene.Field(
         MainProjectNode,
@@ -89,5 +108,8 @@ class Query(graphene.ObjectType):
         code=graphene.String(required=True),
     )
     allProjects = DjangoFilterConnectionField(ProjectNode, max_limit=10000)
+
+    ephemeris = relay.Node.Field(EphemerisNode)
+    allEphemeriss = DjangoFilterConnectionField(EphemerisNode, max_limit=10000)
 
 

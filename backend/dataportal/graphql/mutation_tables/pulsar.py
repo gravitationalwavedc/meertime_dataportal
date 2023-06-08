@@ -10,8 +10,7 @@ class PulsarType(DjangoObjectType):
 
 
 class PulsarsInput(graphene.InputObjectType):
-    jname = graphene.String(required=True)
-    state = graphene.String(required=True)
+    name = graphene.String(required=True)
     comment = graphene.String(required=True)
 
 class CreatePulsar(graphene.Mutation):
