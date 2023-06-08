@@ -67,7 +67,8 @@ react-test:
     - cd frontend
     - pnpm install
     - pnpm run relay
-    - pnpm run dev & npx wait-on 'http://localhost:5173'
+    - pnpm run build
+    - pnpm run preview --port 5173 & npx wait-on 'http://localhost:5173'
     - pnpm run cypress:e2e --record
     - pnpm run test --no-threads --run --silent --coverage --reporter=junit --outputFile=./reports/junit.xml
 
