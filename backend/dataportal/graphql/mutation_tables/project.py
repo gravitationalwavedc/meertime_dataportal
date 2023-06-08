@@ -1,22 +1,42 @@
 import graphene
 from graphql_jwt.decorators import permission_required
+from django.db.models.fields import DurationField
+from graphene_django import DjangoObjectType
+from graphene_django.converter import convert_django_field
 
-from dataportal.models import Projects
-from .types import ProjectsInput, ProjectsType
+from dataportal.models import Project, MainProject
 from datetime import timedelta
 
 
+@convert_django_field.register(DurationField)
+def convert_duration_field_to_string(field, registry=None):
+    return graphene.String()
+
+
+class ProjectType(DjangoObjectType):
+    class Meta:
+        model = Project
+
+
+class ProjectInput(graphene.InputObjectType):
+    main_project_name = graphene.String(required="True")
+    code = graphene.String()
+    short = graphene.String()
+    embargo_period = graphene.Int()
+    description = graphene.String()
+
 class CreateProject(graphene.Mutation):
     class Arguments:
-        input = ProjectsInput(required=True)
+        input = ProjectInput(required=True)
 
-    project = graphene.Field(ProjectsType)
+    project = graphene.Field(ProjectType)
 
     @classmethod
     @permission_required("dataportal.add_projects")
     def mutate(cls, self, info, input):
-        project, _ = Projects.objects.get_or_create(
-            program_id=input.program_id,
+        main_project = MainProject.objects.get(name=input["main_project_name"])
+        project, _ = Project.objects.get_or_create(
+            main_project=main_project,
             code=input.code,
             short=input.short,
             embargo_period=timedelta(days=input.embargo_period),
@@ -28,16 +48,17 @@ class CreateProject(graphene.Mutation):
 class UpdateProject(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
-        input = ProjectsInput(required=True)
+        input = ProjectInput(required=True)
 
-    project = graphene.Field(ProjectsType)
+    project = graphene.Field(ProjectType)
 
     @classmethod
     @permission_required("dataportal.add_projects")
     def mutate(cls, self, info, id, input):
         try:
-            project = Projects.objects.get(pk=id)
-            project.program_id = input.program_id
+            main_project = MainProject.objects.get(name=input["main_project_name"])
+            project = Project.objects.get(pk=id)
+            main_project=main_project,
             project.code = input.code
             project.short = input.short
             project.embargo_period = timedelta(days=input.embargo_period)
@@ -53,16 +74,16 @@ class DeleteProject(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    project = graphene.Field(ProjectsType)
+    project = graphene.Field(ProjectType)
 
     @classmethod
     @permission_required("dataportal.add_projects")
     def mutate(cls, self, info, id):
-        Projects.objects.get(pk=id).delete()
+        Project.objects.get(pk=id).delete()
         return cls(ok=True)
 
 
 class Mutation(graphene.ObjectType):
-    create_project = CreateProject.Field()
-    update_project = UpdateProject.Field()
-    delete_project = DeleteProject.Field()
+    createProject = CreateProject.Field()
+    updateProject = UpdateProject.Field()
+    deleteProject = DeleteProject.Field()
