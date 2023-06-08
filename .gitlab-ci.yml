@@ -53,33 +53,23 @@ django-tests:
 
 react-test:
   stage: test
+  image: node:19.1.0
 
   variables:
     CYPRESS_RECORD_KEY: $CYPRESS_RECORD_KEY
 
-  cache:
-    key:
-      files:
-       - pnpm-lock.yaml
-    paths:
-       - .pnpm-store
-
-  image: cypress/included:cypress-12.13.0-node-18.16.0-chrome-113.0.5672.92-1-ff-113.0-edge-113.0.1774.35-1
   before_script:
     - corepack enable
     - corepack prepare pnpm@latest-8 --activate
     - pnpm config set store-dir .pnpm-store
+
+  script:
     - cd frontend
     - pnpm install
     - pnpm run relay
-
-  script:
     - pnpm run test --coverage --reporter=junit --outputFile=./reports/junit.xml
-    - pnpm run dev --port 3000 & npx wait-on http://localhost:3000
-    - pnpm run cypress:e2e --record --parallel --browser chrome --group "UI - Chrome" --spec "cypress/tests/ui/*"
-    - pnpm run cypress:e2e --record --parallel --browser chrome --group "UI - Chrome - Mobile" --spec "cypress/tests/ui/*" --config "viewportWidth=375,viewportHeight=667"
-    - pnpm run cypress:e2e --record --parallel --browser firefox --group "UI - Firefox" --spec "cypress/tests/ui/*"
-    - pnpm run cypress:e2e --record --parallel --browser firefox --group "UI - Firefox - Mobile" --spec "cypress/tests/ui/*" --config "viewportWidth=375,viewportHeight=667"
+    - pnpm run dev --port 3000 & npx wait-on 'http://localhost:3000'
+    - pnpm run cypress --record
 
   artifacts:
     reports:
@@ -87,6 +77,13 @@ react-test:
         coverage_format: cobertura
         path: frontend/reports/cobertura-coverage.xml
       junit: frontend/reports/junit.xml
+
+  cache:
+    key:
+      files:
+       - pnpm-lock.yaml
+    paths:
+       - .pnpm-store
 
 code-quality:
   image: docker:stable
