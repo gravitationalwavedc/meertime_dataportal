@@ -1,35 +1,43 @@
 import graphene
 from graphql_jwt.decorators import permission_required
+from graphene_django import DjangoObjectType
 
-from dataportal.models import Calibrations
-from .types import CalibrationsInput, CalibrationsType
+from dataportal.models import Calibration
 
+class CalibrationType(DjangoObjectType):
+    class Meta:
+        model = Calibration
+
+
+class CalibrationInput(graphene.InputObjectType):
+    calibrationType = graphene.String(name="calibration_type", required=True)
+    location = graphene.String(required=True)
 
 class CreateCalibration(graphene.Mutation):
     class Arguments:
-        input = CalibrationsInput(required=True)
+        input = CalibrationInput(required=True)
 
-    calibration = graphene.Field(CalibrationsType)
+    calibration = graphene.Field(CalibrationType)
 
     @classmethod
     @permission_required("dataportal.add_calibrations")
     def mutate(cls, self, info, input):
-        calibration, _ = Calibrations.objects.get_or_create(**input.__dict__)
+        calibration, _ = Calibration.objects.get_or_create(**input.__dict__)
         return CreateCalibration(calibration=calibration)
 
 
 class UpdateCalibration(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
-        input = CalibrationsInput(required=True)
+        input = CalibrationInput(required=True)
 
-    calibration = graphene.Field(CalibrationsType)
+    calibration = graphene.Field(CalibrationType)
 
     @classmethod
     @permission_required("dataportal.add_calibrations")
     def mutate(cls, self, info, id, input):
         try:
-            calibration = Calibrations.objects.get(pk=id)
+            calibration = Calibration.objects.get(pk=id)
             for key, val in input.__dict__.items():
                 setattr(calibration, key, val)
             calibration.save()
@@ -47,11 +55,11 @@ class DeleteCalibration(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_calibrations")
     def mutate(cls, self, info, id):
-        Calibrations.objects.get(pk=id).delete()
+        Calibration.objects.get(pk=id).delete()
         return cls(ok=True)
 
 
 class Mutation(graphene.ObjectType):
-    create_calibration = CreateCalibration.Field()
-    update_calibration = UpdateCalibration.Field()
-    delete_calibration = DeleteCalibration.Field()
+    createCalibration = CreateCalibration.Field()
+    updateCalibration = UpdateCalibration.Field()
+    deleteCalibration = DeleteCalibration.Field()
