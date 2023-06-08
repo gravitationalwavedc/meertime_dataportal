@@ -4,7 +4,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 
-from dataportal.models import Pulsar, Observation
+from dataportal.models import Pulsar, Observation, MainProject, Project
 
 DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
 NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
@@ -13,11 +13,12 @@ class Queries:
     pass
 
 
-class PulsarsNode(DjangoObjectType):
+class PulsarNode(DjangoObjectType):
     class Meta:
         model = Pulsar
         fields = "__all__"
         filter_fields = "__all__"
+        interfaces = (relay.Node,)
 
     @classmethod
     @login_required
@@ -28,21 +29,37 @@ class ObservationsNode(DjangoObjectType):
     class Meta:
         model = Observation
         fields = "__all__"
-        filter_fields = {
-            "utc_start": DATETIME_FILTERS,
-            "duration": NUMERIC_FILTERS,
-            "suspect": ["exact"],
-            "telescope__id": ["exact"],
-            "telescope__name": ["exact"],
-            "target__id": ["exact"],
-            "target__name": ["exact"],
-            "project__id": ["exact"],
-            "project__code": ["exact"],
-            "instrument_config__id": ["exact"],
-            "instrument_config__name": ["exact"],
-        }
-        # filterset_class = JSONFieldFilter
+        filter_fields = "__all__"
         interfaces = (relay.Node,)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class MainProjectNode(DjangoObjectType):
+    class Meta:
+        model = MainProject
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class ProjectNode(DjangoObjectType):
+    class Meta:
+        model = Project
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    embargoPeriod = graphene.Int()
+
+    def resolve_embargoPeriod(self, info):
+        return self.embargo_period.days
 
     @classmethod
     @login_required
@@ -51,12 +68,26 @@ class ObservationsNode(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    pulsar = graphene.Field(
-        PulsarsNode,
+    # pulsar = relay.Node.Field(PulsarNode)
+    Pulsar = graphene.Field(
+        PulsarNode,
         name=graphene.String(required=True),
     )
-    all_observations = DjangoFilterConnectionField(ObservationsNode, max_limit=10000)
+    allPulsars = DjangoFilterConnectionField(PulsarNode, max_limit=10000)
 
-    observation = relay.Node.Field(ObservationsNode)
-    all_observations = DjangoFilterConnectionField(ObservationsNode, max_limit=10000)
+    Observation = relay.Node.Field(ObservationsNode)
+    allObservations = DjangoFilterConnectionField(ObservationsNode, max_limit=10000)
+
+    mainproject = graphene.Field(
+        MainProjectNode,
+        name=graphene.String(required=True),
+    )
+    allMainprojects = DjangoFilterConnectionField(MainProjectNode, max_limit=10000)
+
+    project = graphene.Field(
+        ProjectNode,
+        code=graphene.String(required=True),
+    )
+    allProjects = DjangoFilterConnectionField(ProjectNode, max_limit=10000)
+
 
