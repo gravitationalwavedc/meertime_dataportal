@@ -10,6 +10,8 @@ from .logic import get_meertime_filters, get_band
 from datetime import timedelta
 from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location
 
+from user_manage.models import User
+
 
 DATA_QUALITY_CHOICES = [
     ("unassessed", "unassessed"),
@@ -26,18 +28,42 @@ class Pulsar(models.Model):
     comment = models.TextField(null=True, help_text="Auto generated description based on information from the ANTF catalogue")
 
 
+class Telescope(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+
+
+class MainProject(Model):
+    """
+    E.g. Meertime and trapam
+    """
+    telescope = models.ForeignKey(Telescope, models.DO_NOTHING)
+    name = models.CharField(max_length=64)
+
+
+class Project(models.Model):
+    """
+    E.g. thousand pulsar array, RelBin
+    """
+    main_project = models.ForeignKey(MainProject, models.DO_NOTHING, null=True)
+    code = models.CharField(max_length=255, unique=True)
+    short = models.CharField(max_length=20, default="???")
+    embargo_period = models.DurationField(default=timedelta(days=548)) # default 18 months default embargo
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+
 class Ephemeris(models.Model):
     id = models.AutoField(primary_key=True)
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
-    created_at = models.DateTimeField()
-    created_by = models.CharField(max_length=64)
-    ephemeris = models.JSONField()#unique=True) #TODO Test that json unique works as we expect
+    project = models.ForeignKey(Project, models.DO_NOTHING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    ephemeris_data = models.JSONField(null=True)
+    ephemeris_hash = models.CharField(max_length=32, editable=False, null=True)
     p0 = models.FloatField()
     dm = models.FloatField()
-    comment = models.TextField(null=True)
     valid_from = models.DateTimeField()
-    # we should be making sure valid_to is later than valid_from
     valid_to = models.DateTimeField()
+    comment = models.TextField(null=True)
 
     def clean(self, *args, **kwargs):
         # checking valid_to is later than valid_from
@@ -51,6 +77,17 @@ class Ephemeris(models.Model):
         ).hexdigest()
         super(Ephemeris, self).save(*args, **kwargs)
 
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=[
+                    "project",
+                    "ephemeris_hash",
+                ],
+                name="Unique ephemeris for each project"
+            )
+        ]
+
 
 class Template(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
@@ -61,7 +98,7 @@ class Template(models.Model):
     created_by = models.CharField(max_length=64)
     location = models.CharField(max_length=255)
     method = models.CharField(max_length=255, blank=True, null=True)
-    type = models.CharField(max_length=255, blank=True, null=True)
+    template_type = models.CharField(max_length=255, blank=True, null=True)
     comment = models.TextField(null=True)
     # TODO upload the file
 
@@ -74,31 +111,9 @@ class Calibration(models.Model):
         ("post", "post"),
         ("none", "none"),
     ]
+    delay_cal_id = models.CharField(max_length=16)
     calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
     location = models.CharField(max_length=255, blank=True, null=True)
-
-
-class Telescope(models.Model):
-    name = models.CharField(max_length=64, unique=True)
-
-# TODO is the a difference between program and project?
-class MainProject(Model):
-    """
-    E.g. Meertime and trapam
-    """
-    telescope = models.ForeignKey(Telescope, models.DO_NOTHING)
-    name = models.CharField(max_length=64)
-
-
-class Project(models.Model):
-    """
-    E.g. thousand pulsar array, RelBin
-    """
-    program = models.ForeignKey(MainProject, models.DO_NOTHING, null=True)
-    code = models.CharField(max_length=255, unique=True)
-    short = models.CharField(max_length=20, default="???")
-    embargo_period = models.DurationField(default=timedelta(days=548)) # default 18 months default embargo
-    description = models.CharField(max_length=255, blank=True, null=True)
 
 
 class Session(models.Model):
@@ -156,7 +171,7 @@ class Observation(models.Model):
         ("search", "search"),
         # TODO may want to do baseband obs
     ]
-    type = models.CharField(max_length=6, choices=TYPE_CHOICES)
+    obs_type = models.CharField(max_length=6, choices=TYPE_CHOICES)
     utc_start = models.DateTimeField()
     raj = models.CharField(max_length=16)
     decj = models.CharField(max_length=16)
