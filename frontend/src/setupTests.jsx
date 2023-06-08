@@ -25,5 +25,11 @@ vi.mock("found", () => {
   };
 });
 
+vi.mock("found/link", () => {
+  return {
+    default: (component) => <div>{component.children}</div>,
+  };
+});
+
 global.jest = vi;
 global.environment = createMockEnvironment();
