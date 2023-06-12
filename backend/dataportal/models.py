@@ -1,5 +1,6 @@
 import hashlib
 import json
+from datetime import datetime
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -11,6 +12,7 @@ from datetime import timedelta
 from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location
 
 from user_manage.models import User
+from utils.observing_bands import get_band
 
 
 DATA_QUALITY_CHOICES = [
@@ -27,9 +29,15 @@ class Pulsar(models.Model):
     name = models.CharField(max_length=32, unique=True)
     comment = models.TextField(null=True, help_text="Auto generated description based on information from the ANTF catalogue")
 
+    def __str__(self):
+        return f"{self.name}"
+
 
 class Telescope(models.Model):
     name = models.CharField(max_length=64, unique=True)
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class MainProject(Model):
@@ -38,6 +46,9 @@ class MainProject(Model):
     """
     telescope = models.ForeignKey(Telescope, models.DO_NOTHING)
     name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.name}"
 
 
 class Project(models.Model):
@@ -50,6 +61,9 @@ class Project(models.Model):
     embargo_period = models.DurationField(default=timedelta(days=548)) # default 18 months default embargo
     description = models.CharField(max_length=255, blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.code}"
+
 
 class Ephemeris(models.Model):
     id = models.AutoField(primary_key=True)
@@ -61,8 +75,8 @@ class Ephemeris(models.Model):
     ephemeris_hash = models.CharField(max_length=32, editable=False, null=True)
     p0 = models.FloatField()
     dm = models.FloatField()
-    valid_from = models.DateTimeField()
-    valid_to = models.DateTimeField()
+    valid_from = models.DateTimeField(default=datetime.fromtimestamp(0))
+    valid_to   = models.DateTimeField(default=datetime.fromtimestamp(4294967295))
     comment = models.TextField(null=True)
 
     def clean(self, *args, **kwargs):
@@ -73,7 +87,7 @@ class Ephemeris(models.Model):
     def save(self, *args, **kwargs):
         Ephemeris.clean(self)
         self.ephemeris_hash = hashlib.md5(
-            json.dumps(self.ephemeris, sort_keys=True, indent=2).encode("utf-8")
+            json.dumps(self.ephemeris_data, sort_keys=True, indent=2).encode("utf-8")
         ).hexdigest()
         super(Ephemeris, self).save(*args, **kwargs)
 
@@ -112,8 +126,12 @@ class Calibration(models.Model):
         ("none", "none"),
     ]
     delay_cal_id = models.CharField(max_length=16)
+    phase_up_id = models.CharField(max_length=16)
     calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
     location = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.delay_cal_id}"
 
 
 class Session(models.Model):
@@ -183,7 +201,7 @@ class Observation(models.Model):
     ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", blank=True, null=True)
     fold_nbin = models.IntegerField(blank=True, null=True)
     fold_nchan = models.IntegerField(blank=True, null=True)
-    fold_nsub = models.IntegerField(blank=True, null=True)
+    fold_tsubint = models.IntegerField(blank=True, null=True)
 
     # Backend search values
     filterbank_nbit = models.IntegerField(blank=True, null=True)
@@ -191,6 +209,14 @@ class Observation(models.Model):
     filterbank_nchan = models.IntegerField(blank=True, null=True)
     filterbank_tsamp = models.FloatField(blank=True, null=True)
     filterbank_dm = models.FloatField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        Observation.clean(self)
+        self.band = get_band(self.frequency, self.band)
+        super(Observation, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.utc_start} {self.beam}"
 
 
 class PipelineRun(Model):
