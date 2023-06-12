@@ -2,6 +2,7 @@ import { render, waitFor, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import PasswordResetRequest from "./PasswordResetRequest";
 import { useRouter } from "found";
+import environment from "../relayEnvironment";
 
 describe("password reset request page", () => {
   it("should have an email field", () => {
@@ -25,6 +26,8 @@ describe("password reset request page", () => {
 
     await user.type(screen.getByLabelText("Email"), "e@mail.com");
     await user.click(screen.getByTestId("password-reset-button"));
+
+    await waitFor(() => environment.mock.rejectMostRecentOperation());
 
     await waitFor(() =>
       expect(

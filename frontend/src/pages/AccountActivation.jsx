@@ -101,7 +101,7 @@ const AccountActivation = ({
           setSuccess(true);
         }
       },
-      onError: (errors) => {
+      onError: () => {
         setFormErrors(["Something went wrong, please try later."]);
       },
     });
@@ -146,8 +146,8 @@ const AccountActivation = ({
                       <Col sm={{ span: 12 }}>&nbsp;</Col>
                       <Col xl={{ span: 12 }} md={{ span: 12 }}>
                         <span>
-                          Have an account?&nbsp;
-                          <Link to={"/login/"}>Login</Link>
+                          Have an account?
+                          <Link to={"/login/"}> Login</Link>
                         </span>
                       </Col>
                     </Row>

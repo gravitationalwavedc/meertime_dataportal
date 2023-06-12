@@ -1,4 +1,4 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import AccountActivation from "./AccountActivation";
 
 describe("account activation page", () => {
@@ -7,6 +7,9 @@ describe("account activation page", () => {
     const { getByLabelText } = render(
       <AccountActivation router={{}} match={{ params: { code: null } }} />
     );
+
+    screen.debug();
+
     expect(
       getByLabelText("Code (will be matched against your email)")
     ).toBeInTheDocument();

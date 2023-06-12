@@ -21,15 +21,25 @@ vi.mock("found", () => {
         createHref: vi.fn(),
       }),
     }),
-    Link: (component) => <div>{component.children}</div>,
+    Link: (component) => <>{component.children}</>,
   };
 });
 
 vi.mock("found/link", () => {
   return {
-    default: (component) => <div>{component.children}</div>,
+    default: (component) => <>{component.children}</>,
   };
 });
 
+// This must come before createMockEnvironment because we're switching out jest for vitest
+// in the relay-test-utils package.
 global.jest = vi;
-global.environment = createMockEnvironment();
+
+const mockEnvironment = createMockEnvironment();
+global.environment = mockEnvironment;
+
+vi.mock("./relayEnvironment.js", () => {
+  return {
+    default: mockEnvironment,
+  };
+});

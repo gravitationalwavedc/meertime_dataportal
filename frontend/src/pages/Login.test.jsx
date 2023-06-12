@@ -1,9 +1,8 @@
-import { fireEvent, render, waitFor, screen } from "@testing-library/react";
+import { render, waitFor, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "found";
 import Login from "./Login";
 import { MockPayloadGenerator } from "relay-test-utils";
-import environment from "../relayEnvironment";
 
 describe("login page", () => {
   it("should have a username and password field", () => {
@@ -25,6 +24,8 @@ describe("login page", () => {
     await user.type(usernameField, "asher");
     await user.type(passwordField, "password");
     await user.click(screen.getAllByText("Sign in")[1]);
+
+    await waitFor(() => environment.mock.rejectMostRecentOperation());
 
     await waitFor(() =>
       expect(
