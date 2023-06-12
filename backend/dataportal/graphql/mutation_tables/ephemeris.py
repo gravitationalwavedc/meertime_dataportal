@@ -6,7 +6,6 @@ from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 
 from utils.ephemeris import parse_ephemeris_file
-from dataportal.models import Ephemeris
 from dataportal.models import (
     Ephemeris,
     Pulsar,
@@ -27,7 +26,7 @@ class EphemerisInput(graphene.InputObjectType):
     pulsar_name   = graphene.String(required=True)
     project_code  = graphene.String(required=True)
     ephemeris_loc = graphene.String(required=True)
-    comment = graphene.String(required=True)
+    comment = graphene.String()
 
 
 class CreateEphemeris(graphene.Mutation):

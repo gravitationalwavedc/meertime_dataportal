@@ -1,9 +1,12 @@
+import json
+import pytz
 from datetime import timedelta
 
 import graphene
 from graphql_jwt.decorators import permission_required
 from graphene_django import DjangoObjectType
 
+from utils.ephemeris import parse_ephemeris_file
 from dataportal.models import (
     Observation,
     Pulsar,
@@ -11,6 +14,7 @@ from dataportal.models import (
     Project,
     Session,
     Calibration,
+    Ephemeris,
 )
 
 
@@ -25,7 +29,6 @@ class ObservationInput(graphene.InputObjectType):
     projectCode = graphene.String(required=True)
     calibrationId = graphene.Int(required=True)
 
-    band = graphene.String()
     frequency = graphene.Float()
     bandwidth = graphene.Float()
     nchan = graphene.Int()
@@ -45,10 +48,10 @@ class ObservationInput(graphene.InputObjectType):
     tsamp = graphene.Float()
 
     # Backend folding values
-    ephemerisLoc = graphene.String()
+    ephemerisText = graphene.String()
     foldNbin = graphene.Int()
     foldNchan = graphene.Int()
-    foldNsub = graphene.Int()
+    foldTsubint = graphene.Int()
 
     # Backend search values
     filterbankNbit = graphene.Int()
@@ -60,7 +63,7 @@ class ObservationInput(graphene.InputObjectType):
 
 class CreateObservation(graphene.Mutation):
     class Arguments:
-        input = ObservationInput(required=True)
+        input = ObservationInput()
 
     observation = graphene.Field(ObservationType)
 
@@ -68,13 +71,13 @@ class CreateObservation(graphene.Mutation):
     @permission_required("dataportal.add_observations")
     def mutate(cls, self, info, input=None):
         # Get foreign key models
-        pulsar = Pulsar.objects.get(name=input["pulsar_name"])
-        telescope = Telescope.objects.get(name=input["telescope_name"])
-        project = Project.objects.get(code=input["project_code"])
-        calibration = Calibration.objects.get(id=input["calibration_id"])
+        pulsar = Pulsar.objects.get(name=input["pulsarName"])
+        telescope = Telescope.objects.get(name=input["telescopeName"])
+        project = Project.objects.get(code=input["projectCode"])
+        calibration = Calibration.objects.get(id=input["calibrationId"])
 
         # Create a new session if it is the first one within two hours with this calibration
-        utc_start = input["utc_start"]
+        utc_start = input["utcStart"].astimezone(pytz.utc)
         utc_end = utc_start + timedelta(0, input["duration"])
         two_hours_before = utc_start - timedelta(0, 7200)
         two_hours_after  = utc_end   + timedelta(0, 7200)
@@ -98,26 +101,35 @@ class CreateObservation(graphene.Mutation):
             )
 
         # Fold mode specific values
-        if input["obs_type"] == "fold":
-            # Get Ephemeris
-            #TODO
-            ephemeris = input["ephemeris_loc"]
-            fold_nbin  = input["fold_nbin"]
-            fold_nchan = input["fold_nchan"]
-            fold_nsub  = input["fold_nsub"]
+        if input["obsType"] == "fold":
+            # Get Ephemeris from the ephemeris file
+            ephemeris_dict = parse_ephemeris_file(input["ephemerisText"])
+            ephemeris, _ = Ephemeris.objects.get_or_create(
+                pulsar=pulsar,
+                project=project,
+                # TODO add created_by
+                ephemeris_data=json.dumps(ephemeris_dict),
+                p0=ephemeris_dict["P0"],
+                dm=ephemeris_dict["DM"],
+                valid_from=ephemeris_dict["START"],
+                valid_to=ephemeris_dict["FINISH"],
+            )
+            fold_nbin     = input["foldNbin"]
+            fold_nchan    = input["foldNchan"]
+            fold_tsubint  = input["foldTsubint"]
         else:
             ephemeris = None
             fold_nbin  = None
             fold_nchan = None
-            fold_nsub  = None
+            fold_tsubint  = None
 
         # Backend search values
-        if input["obs_type"] == "search":
-            filterbank_nbit  = input["filterbank_nbit"]
-            filterbank_npol  = input["filterbank_npol"]
-            filterbank_nchan = input["filterbank_nchan"]
-            filterbank_tsamp = input["filterbank_tsamp"]
-            filterbank_dm    = input["filterbank_dm"]
+        if input["obsType"] == "search":
+            filterbank_nbit  = input["filterbankNbit"]
+            filterbank_npol  = input["filterbankNpol"]
+            filterbank_nchan = input["filterbankNchan"]
+            filterbank_tsamp = input["filterbankTsamp"]
+            filterbank_dm    = input["filterbankDm"]
         else:
             filterbank_nbit  = None
             filterbank_npol  = None
@@ -131,17 +143,16 @@ class CreateObservation(graphene.Mutation):
             telescope=telescope,
             project=project,
             session=session,
-            utc_start=input["utc_start"],
+            utc_start=input["utcStart"],
             beam=input["beam"],
             defaults={
-                "band": input["band"],
                 "frequency": input["frequency"],
                 "bandwidth": input["bandwidth"],
                 "nchan": input["nchan"],
                 "nant": input["nant"],
-                "nant_eff": input["nant_eff"],
+                "nant_eff": input["nantEff"],
                 "npol": input["npol"],
-                "obs_type": input["obs_type"],
+                "obs_type": input["obsType"],
                 "raj": input["raj"],
                 "decj": input["decj"],
                 "duration": input["duration"],
@@ -150,7 +161,7 @@ class CreateObservation(graphene.Mutation):
                 "ephemeris": ephemeris,
                 "fold_nbin": fold_nbin,
                 "fold_nchan": fold_nchan,
-                "fold_nsub": fold_nsub,
+                "fold_tsubint": fold_tsubint,
                 "filterbank_nbit": filterbank_nbit,
                 "filterbank_npol": filterbank_npol,
                 "filterbank_nchan": filterbank_nchan,
