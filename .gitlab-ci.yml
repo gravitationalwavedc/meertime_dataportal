@@ -53,7 +53,7 @@ django-tests:
 
 react-test:
   stage: test
-  image: cypress/included:12.4.1
+  image: node:18.16.0
 
   variables:
     CYPRESS_RECORD_KEY: $CYPRESS_RECORD_KEY
@@ -67,10 +67,9 @@ react-test:
     - cd frontend
     - pnpm install
     - pnpm run relay
-    - pnpm run build
-    - pnpm run preview --port 5173 & npx wait-on 'http://localhost:5173'
-    - pnpm run cypress:e2e --record --browser chrome
     - pnpm run test --no-threads --run --silent --coverage --reporter=junit --outputFile=./reports/junit.xml
+    - pnpm run dev &
+    - pnpm run cypress:e2e
 
   artifacts:
     reports:
