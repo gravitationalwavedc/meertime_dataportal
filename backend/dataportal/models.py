@@ -125,43 +125,20 @@ class Calibration(models.Model):
         ("post", "post"),
         ("none", "none"),
     ]
-    delay_cal_id = models.CharField(max_length=16)
-    phase_up_id = models.CharField(max_length=16)
+    delay_cal_id = models.CharField(max_length=16, blank=True, null=True)
+    phase_up_id = models.CharField(max_length=16, blank=True, null=True)
     calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
     location = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.delay_cal_id}"
-
-
-class Session(models.Model):
-    """
-    Sessions are observing runs that are phased up with the same calibrator.
-    They can be used to infer if there is something wrong with the telescope
-    if all observations of that session are unusable.
-    Within two hours and have the same calibration for Meerkat
-    """
-    calibration = models.ForeignKey(Calibration, models.DO_NOTHING, null=True)
-    start = models.DateTimeField()
-    end = models.DateTimeField()
-
-    @classmethod
-    def get_last_session(cls):
-        return cls.objects.order_by("end").last()
-
-    @classmethod
-    def get_session(cls, utc):
-        try:
-            return cls.objects.get(start__lte=utc, end__gte=utc)
-        except Session.DoesNotExist:
-            return None
+        return f"{self.id}_{self.delay_cal_id}"
 
 
 class Observation(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
     telescope = models.ForeignKey(Telescope, models.DO_NOTHING)
     project = models.ForeignKey(Project, models.DO_NOTHING)
-    session = models.ForeignKey(Session, models.DO_NOTHING, null=True)
+    calibration = models.ForeignKey(Calibration, models.DO_NOTHING, null=True)
 
     # Frequency fields
     BAND_CHOICES = [
@@ -268,6 +245,8 @@ class PipelineImage(models.Model):
 class PipelineFile(models.Model):
     pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING)
     file = models.FileField(null=True, upload_to=get_pipeline_upload_location, storage=OverwriteStorage())
+    # TODO make it check this path in the get or create so we're not making redundant files
+    ozstar_path = models.CharField(max_length=256, blank=True, null=True)
     file_type = models.CharField(max_length=32, blank=True, null=True)
 
 

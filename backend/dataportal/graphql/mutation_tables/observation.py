@@ -12,7 +12,6 @@ from dataportal.models import (
     Pulsar,
     Telescope,
     Project,
-    Session,
     Calibration,
     Ephemeris,
 )
@@ -76,30 +75,6 @@ class CreateObservation(graphene.Mutation):
         project     = Project.objects.get(code=input["projectCode"])
         calibration = Calibration.objects.get(id=input["calibrationId"])
 
-        # Create a new session if it is the first one within two hours with this calibration
-        utc_start = input["utcStart"].astimezone(pytz.utc)
-        utc_end = utc_start + timedelta(0, input["duration"])
-        two_hours_before = utc_start - timedelta(0, 7200)
-        two_hours_after  = utc_end   + timedelta(0, 7200)
-        try:
-            session = Session.objects.get(
-                calibration=calibration,
-                start__gte=two_hours_before,
-                end__lte=two_hours_after,
-            )
-            # Session exists so update start or end time
-            if utc_start < session.start:
-                session.start = utc_start
-            if utc_end > session.end:
-                session.end   = utc_end
-        except Session.DoesNotExist:
-            # No session exists so make one
-            session = Session.objects.create(
-                calibration=calibration,
-                start=utc_start,
-                end=utc_end,
-            )
-
         # Fold mode specific values
         if input["obsType"] == "fold":
             # Get Ephemeris from the ephemeris file
@@ -142,7 +117,7 @@ class CreateObservation(graphene.Mutation):
             pulsar=pulsar,
             telescope=telescope,
             project=project,
-            session=session,
+            calibration=calibration,
             utc_start=input["utcStart"],
             beam=input["beam"],
             defaults={
