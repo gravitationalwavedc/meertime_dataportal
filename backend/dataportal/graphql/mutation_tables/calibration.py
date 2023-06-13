@@ -10,8 +10,8 @@ class CalibrationType(DjangoObjectType):
 
 
 class CalibrationInput(graphene.InputObjectType):
-    delay_cal_id = graphene.String(required=True)
-    phase_up_id = graphene.String(required=True)
+    delay_cal_id = graphene.String()
+    phase_up_id = graphene.String()
     calibration_type = graphene.String(required=True)
     location = graphene.String()
 

@@ -71,9 +71,9 @@ class CreateObservation(graphene.Mutation):
     @permission_required("dataportal.add_observations")
     def mutate(cls, self, info, input=None):
         # Get foreign key models
-        pulsar = Pulsar.objects.get(name=input["pulsarName"])
-        telescope = Telescope.objects.get(name=input["telescopeName"])
-        project = Project.objects.get(code=input["projectCode"])
+        pulsar      = Pulsar.objects.get(name=input["pulsarName"])
+        telescope   = Telescope.objects.get(name=input["telescopeName"])
+        project     = Project.objects.get(code=input["projectCode"])
         calibration = Calibration.objects.get(id=input["calibrationId"])
 
         # Create a new session if it is the first one within two hours with this calibration

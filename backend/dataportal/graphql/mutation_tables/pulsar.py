@@ -11,11 +11,11 @@ class PulsarType(DjangoObjectType):
 
 class PulsarsInput(graphene.InputObjectType):
     name = graphene.String(required=True)
-    comment = graphene.String(required=True)
+    comment = graphene.String()
 
 class CreatePulsar(graphene.Mutation):
     class Arguments:
-        input = PulsarsInput(required=True)
+        input = PulsarsInput()
 
     pulsar = graphene.Field(PulsarType)
 
