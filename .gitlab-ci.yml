@@ -78,13 +78,6 @@ react-test:
         path: frontend/reports/cobertura-coverage.xml
       junit: frontend/reports/junit.xml
 
-  cache:
-    key:
-      files:
-       - pnpm-lock.yaml
-    paths:
-       - .pnpm-store
-
 code-quality:
   image: docker:stable
   variables:
