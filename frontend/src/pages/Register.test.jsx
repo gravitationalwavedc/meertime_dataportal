@@ -10,6 +10,5 @@ describe("register page", () => {
     expect(getByLabelText("Last Name")).toBeInTheDocument();
     expect(getByLabelText("Email")).toBeInTheDocument();
     expect(getByLabelText("Password")).toBeInTheDocument();
-    screen.debug();
   });
 });
