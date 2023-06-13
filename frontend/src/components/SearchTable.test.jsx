@@ -27,7 +27,6 @@ describe("search table component", () => {
   it("should renders the SearchTable with data", async () => {
     expect.hasAssertions();
     render(<TestRenderer />);
-    screen.debug();
     await waitFor(() =>
       environment.mock.resolveMostRecentOperation((operation) =>
         MockPayloadGenerator.generate(operation)

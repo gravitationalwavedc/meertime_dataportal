@@ -8,8 +8,6 @@ describe("account activation page", () => {
       <AccountActivation router={{}} match={{ params: { code: null } }} />
     );
 
-    screen.debug();
-
     expect(
       getByLabelText("Code (will be matched against your email)")
     ).toBeInTheDocument();
