@@ -68,7 +68,8 @@ react-test:
     - pnpm install
     - pnpm run relay
     - pnpm run test --run --coverage --reporter=junit --outputFile=./reports/junit.xml
-    - pnpm run dev & npx wait-on http://localhost:5174
+    - pnpm run build
+    - pnpm run preview --port 5174 & npx wait-on http://localhost:5174
     - pnpm run cypress:e2e --browser chrome
 
   artifacts:
