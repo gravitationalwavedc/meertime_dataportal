@@ -4,7 +4,7 @@ import { formatProjectName, formatSingleObservationData } from "../helpers";
 import { formatUTC, kronosLink } from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
-import Link from "found/Link";
+import { Link } from "found";
 import MainLayout from "./MainLayout";
 import MolongloImageGrid from "./MolongloImageGrid";
 

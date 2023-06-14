@@ -1,5 +1,5 @@
 import { Button, Card, Col, Row } from "react-bootstrap";
-import Link from "found/Link";
+import { Link } from "found";
 import { kronosLink } from "../helpers";
 
 const JobCard = ({ row }) => (

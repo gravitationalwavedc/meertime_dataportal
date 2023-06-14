@@ -11,12 +11,6 @@ afterEach(() => {
   cleanup();
 });
 
-vi.mock("found/link", () => {
-  return {
-    default: (component) => <>{component.children}</>,
-  };
-});
-
 vi.mock("found", () => {
   const actual = vi.importActual("found");
   return {

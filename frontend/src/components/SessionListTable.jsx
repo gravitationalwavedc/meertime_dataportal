@@ -2,7 +2,7 @@ import { Button, ButtonGroup } from "react-bootstrap";
 import { useState } from "react";
 import { createRefetchContainer, graphql } from "react-relay";
 import DataView from "./DataView";
-import Link from "found/Link";
+import { Link } from "found";
 import { formatUTC } from "../helpers";
 
 const SessionListTable = ({ data: { sessionList } }) => {

@@ -12,8 +12,8 @@ import DataView from "./DataView";
 import Ephemeris from "./Ephemeris";
 import FileDownloadModal from "./FileDownloadModal";
 import FoldDetailCard from "./FoldDetailCard";
-import Link from "found/Link";
 import ReactMarkdown from "react-markdown";
+import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
 /* eslint-disable complexity */

@@ -1,5 +1,5 @@
 import { Button, Card, Col, Row } from "react-bootstrap";
-import Link from "found/Link";
+import { Link } from "found";
 
 const FoldDetailCard = ({ row }) => (
   <Card className="mb-3 shadow-md job-card" data-testid="job-card">

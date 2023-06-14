@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { columnsSizeFilter, formatUTC, kronosLink } from "../helpers";
 import { createRefetchContainer, graphql } from "react-relay";
 import DataView from "./DataView";
-import Link from "found/Link";
+import { Link } from "found";
 import SearchmodeCard from "./SearchmodeCard";
 import { useScreenSize } from "../context/screenSize-context";
 

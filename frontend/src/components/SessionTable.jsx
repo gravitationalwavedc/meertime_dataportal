@@ -5,10 +5,10 @@ import { createRefetchContainer, graphql } from "react-relay";
 
 import DataView from "./DataView";
 import LightBox from "react-image-lightbox";
-import Link from "found/Link";
 import SessionCard from "./SessionCard";
 import SessionImage from "./SessionImage";
 import moment from "moment";
+import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
 const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {

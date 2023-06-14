@@ -1,5 +1,5 @@
 import { Button, Card, Col, Row } from "react-bootstrap";
-import Link from "found/Link";
+import { Link } from "found";
 import { meerWatchLink } from "../helpers";
 
 const SessionCard = ({ row }) => (
