@@ -1,6 +1,4 @@
 import json
-import pytz
-from datetime import timedelta
 
 import graphene
 from graphql_jwt.decorators import permission_required

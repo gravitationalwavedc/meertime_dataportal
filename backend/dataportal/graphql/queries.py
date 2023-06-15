@@ -29,7 +29,15 @@ class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
         fields = "__all__"
-        filter_fields = "__all__"
+        filter_fields = {
+            "utc_start": DATETIME_FILTERS,
+            "duration": NUMERIC_FILTERS,
+            "telescope__name": ["exact"],
+            "pulsar__name": ["exact"],
+            "project__id": ["exact"],
+            "project__short": ["exact"],
+        }
+
         interfaces = (relay.Node,)
 
     @classmethod

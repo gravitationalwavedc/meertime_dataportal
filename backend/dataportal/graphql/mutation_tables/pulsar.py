@@ -22,7 +22,11 @@ class CreatePulsar(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_pulsars")
     def mutate(cls, self, info, input):
-        pulsar, _ = Pulsar.objects.get_or_create(**input.__dict__)
+        pulsar, _ = Pulsar.objects.get_or_create(
+            name=input.name,
+            defaults={
+                "comment": input.comment,
+            })
         return CreatePulsar(pulsar=pulsar)
 
 

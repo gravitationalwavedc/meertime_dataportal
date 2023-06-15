@@ -209,7 +209,6 @@ class PipelineRun(Model):
     pipeline_name = models.CharField(max_length=64)
     pipeline_description = models.CharField(max_length=255, blank=True, null=True)
     pipeline_version = models.CharField(max_length=16)
-    pipeline_commit = models.CharField(max_length=16)
     created_at = models.DateTimeField()
     created_by = models.CharField(max_length=64)
     job_state = models.CharField(max_length=255, blank=True, null=True)
@@ -264,8 +263,7 @@ class FoldPulsarSummary(models.Model):
     max_sn_pipe = models.FloatField(null=True)
 
     # Project summary
-    main_project = models.CharField(max_length=64)
-    project = models.CharField(max_length=500)
+    most_common_project = models.CharField(max_length=64) # Tis could be a foreign key
     all_projects = models.CharField(max_length=500)
 
     class Meta:
@@ -361,7 +359,7 @@ class FoldPulsarSummary(models.Model):
                 "avg_sn_pipe": avg_sn_pipe,
                 "max_sn_pipe": max_sn_pipe,
                 "all_projects": all_projects,
-                "project": most_common_project,
+                "most_common_project": most_common_project,
             },
         )
 
