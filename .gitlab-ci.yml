@@ -57,6 +57,7 @@ react-test:
 
   variables:
     CYPRESS_RECORD_KEY: $CYPRESS_RECORD_KEY
+    VITE_GRAPHQL_API: "http://localhost:8000/graphql/"
 
   before_script:
     - corepack enable
