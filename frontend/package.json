@@ -11,6 +11,7 @@
     "relay": "relay-compiler",
     "test": "vitest",
     "cypress": "cypress open",
+    "cypress:run": "cypress run",
     "cypress:e2e": "cypress run --record"
   },
   "dependencies": {

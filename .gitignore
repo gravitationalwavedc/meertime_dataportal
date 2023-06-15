@@ -202,3 +202,5 @@ pnpm-debug.log*
 # Don't track reports
 frontend/reports/
 backend/reports/
+frontend/cypress/screenshots/
+frontend/cypress/videos/

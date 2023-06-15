@@ -1,6 +1,6 @@
 import { Environment, Network, RecordSource, Store } from "relay-runtime";
 
-const HTTP_ENDPOINT = "http://localhost:8000/graphql/";
+const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_ENDPOINT;
 
 const fetchFn = async (request, variables) => {
   const token = localStorage.getItem("jwt");
