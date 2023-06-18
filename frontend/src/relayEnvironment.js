@@ -1,48 +1,35 @@
-import {
-    Environment,
-    RecordSource,
-    Store,
-} from 'relay-runtime';
-import {
-    RelayNetworkLayer,
-    authMiddleware,
-    cacheMiddleware,
-    progressMiddleware,
-    retryMiddleware,
-    uploadMiddleware,
-    urlMiddleware,
-} from 'react-relay-network-modern';
+import { Environment, Network, RecordSource, Store } from "relay-runtime";
 
+const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_API;
 
-const network = new RelayNetworkLayer(
-    [
-        cacheMiddleware({
-            size: 100, // max 100 requests
-            ttl: 900000, // 15 minutes
-        }),
-        urlMiddleware({
-            url: () => Promise.resolve(process.env.REACT_APP_GRAPHQL_URL),
-        }),
-        retryMiddleware({
-            fetchTimeout: 15000,
-            retryDelays: (attempt) => Math.pow(2, attempt + 4) * 100, 
-            beforeRetry: ({ forceRetry, abort, attempt }) => {
-                if (attempt > 10) abort();
-                window.forceRelayRetry = forceRetry;
-            },
-            statusCodes: [500, 503, 504],
-        }),
-        authMiddleware({
-            token: () => localStorage.jwt,
-            prefix: 'JWT '
-        }),
-        uploadMiddleware(),
-    ],
-);
+const fetchFn = async (request, variables) => {
+  const token = localStorage.getItem("jwt");
 
-const environment = new Environment({
-    network,
+  const resp = await fetch(HTTP_ENDPOINT, {
+    method: "POST",
+    headers: {
+      Accept:
+        "application/graphql-response+json; charset=utf-8, application/json; charset=utf-8",
+      "Content-Type": "application/json",
+      // <-- Additional headers like 'Authorization' would go here
+      Authorization: `JWT ${token}`,
+    },
+    body: JSON.stringify({
+      query: request.text, // <-- The GraphQL document composed by Relay
+      variables,
+    }),
+  });
+
+  return await resp.json();
+};
+
+function createRelayEnvironment() {
+  return new Environment({
+    network: Network.create(fetchFn),
     store: new Store(new RecordSource()),
-});
+  });
+}
+
+const environment = createRelayEnvironment();
 
 export default environment;

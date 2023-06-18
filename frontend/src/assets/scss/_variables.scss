@@ -2,27 +2,26 @@
 //
 // Quickly modify global styling by enabling or disabling optional features.
 
-$enable-caret:                                true;
-$enable-rounded:                              true;
-$enable-shadows:                              true;
-$enable-gradients:                            true;
-$enable-transitions:                          true;
-$enable-prefers-reduced-motion-media-query:   true;
-$enable-grid-classes:                         true;
-$enable-pointer-cursor-for-buttons:           true;
-$enable-print-styles:                         true;
-$enable-responsive-font-sizes:                false;
-$enable-validation-icons:                     true;
-$enable-deprecation-messages:                 true;
+$enable-caret: true;
+$enable-rounded: true;
+$enable-shadows: true;
+$enable-gradients: true;
+$enable-transitions: true;
+$enable-prefers-reduced-motion-media-query: true;
+$enable-grid-classes: true;
+$enable-pointer-cursor-for-buttons: true;
+$enable-print-styles: true;
+$enable-responsive-font-sizes: false;
+$enable-validation-icons: true;
+$enable-deprecation-messages: true;
 
+// MeerTime Typeface
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Open+Sans:wght@400;600&display=swap");
 
-// MeerTime Typeface 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500&family=Open+Sans:wght@400;600&display=swap');
-
-$font-family-sans-serif: 'Open Sans', sans-serif;
+$font-family-sans-serif: "Open Sans", sans-serif;
 
 // Headings
-$headings-font-family: 'Montserrat', sans-serif;
+$headings-font-family: "Montserrat", sans-serif;
 $headings-font-weight: 300;
 
 $h1-font-size: 97px;
@@ -31,58 +30,57 @@ $h3-font-size: 48px;
 $h4-font-size: 36px;
 $h5-font-size: 24px;
 $h6-font-size: 20px;
-$body-1: 30px; 
+$body-1: 30px;
 $body-2: 32px;
 $font-size-base: 1rem;
 $input-btn-font-size: 14px;
 
-
 // Color system
-$gray-100: #F5F9FA;
-$gray-200: #DEEAED;
-$gray-300: #C9DADE;
-$gray-400: #ACC3C8;
-$gray-500: #88A5AA;
-$gray-600: #6B8C94;
-$gray-700: #526A6F;
-$gray-800: #35474B;
+$gray-100: #f5f9fa;
+$gray-200: #deeaed;
+$gray-300: #c9dade;
+$gray-400: #acc3c8;
+$gray-500: #88a5aa;
+$gray-600: #6b8c94;
+$gray-700: #526a6f;
+$gray-800: #35474b;
 $gray-900: #222525;
 
-$primary-100: #E2FCFD;
-$primary-200: #BFF2F7;
-$primary-300: #97E9F2;
-$primary-400: #52D6E4;
-$primary-500: #28B8D4;
-$primary-600: #30A4BB;
-$primary-700: #2A7583;
+$primary-100: #e2fcfd;
+$primary-200: #bff2f7;
+$primary-300: #97e9f2;
+$primary-400: #52d6e4;
+$primary-500: #28b8d4;
+$primary-600: #30a4bb;
+$primary-700: #2a7583;
 $primary-800: #235761;
-$primary-900: #0A3D48;
+$primary-900: #0a3d48;
 
-$accent-100: #FBEDE9;
-$accent-200: #F6C7BC;
-$accent-300: #EDA797;
-$accent-400: #E07761;
-$accent-500: #D44E33;
-$accent-600: #AF3A23;
-$accent-700: #8D2F1C;
-$accent-800: #7E2715;
-$accent-900: #5A190C;
+$accent-100: #fbede9;
+$accent-200: #f6c7bc;
+$accent-300: #eda797;
+$accent-400: #e07761;
+$accent-500: #d44e33;
+$accent-600: #af3a23;
+$accent-700: #8d2f1c;
+$accent-800: #7e2715;
+$accent-900: #5a190c;
 
-$white:    $gray-100;
-$black:    $gray-900;
-$green: #1ED48D;
+$white: $gray-100;
+$black: $gray-900;
+$green: #1ed48d;
 
-$primary:       $primary-500;
-$secondary:     $accent-400;
-$success:       $green;
-$info:          $primary-300;
-$warning:       $accent-300;
-$danger:        $accent-700;
+$primary: $primary-500;
+$secondary: $accent-400;
+$success: $green;
+$info: $primary-300;
+$warning: $accent-300;
+$danger: $accent-700;
 $dark: $primary-800;
 
 $theme-colors: (
-   'gray-100': $gray-100,
-   'primary-600': $primary-600
+  "gray-100": $gray-100,
+  "primary-600": $primary-600,
 );
 
 // Shadows
@@ -119,6 +117,5 @@ $container-max-widths: (
   sm: 540px,
   md: 720px,
   lg: 960px,
-  xl: 2000px
+  xl: 2000px,
 ) !default;
-

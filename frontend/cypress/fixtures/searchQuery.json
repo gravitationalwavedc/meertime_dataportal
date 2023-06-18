@@ -1,0 +1,54 @@
+{
+  "data": {
+    "searchmodeObservations": {
+      "totalObservations": 11574,
+      "totalPulsars": 1324,
+      "edges": [
+        {
+          "node": {
+            "jname": "J0737-3039A",
+            "latestObservation": "2021-10-17T07:19:01+00:00",
+            "firstObservation": "2019-05-20T17:12:49+00:00",
+            "project": "RelBin",
+            "timespan": 881,
+            "numberOfObservations": 59,
+            "id": "U2VhcmNobW9kZVB1bHNhck5vZGU6MzExNTQ="
+          }
+        },
+        {
+          "node": {
+            "jname": "J0514-4002A",
+            "latestObservation": "2021-09-30T22:37:32+00:00",
+            "firstObservation": "2021-01-15T15:00:59+00:00",
+            "project": "None",
+            "timespan": 259,
+            "numberOfObservations": 11,
+            "id": "U2VhcmNobW9kZVB1bHNhck5vZGU6MzExMDA="
+          }
+        },
+        {
+          "node": {
+            "jname": "J1946+1805",
+            "latestObservation": "2021-09-30T15:40:34+00:00",
+            "firstObservation": "2019-10-18T16:50:11+00:00",
+            "project": "TPA",
+            "timespan": 713,
+            "numberOfObservations": 22,
+            "id": "U2VhcmNobW9kZVB1bHNhck5vZGU6MzIzMjM="
+          }
+        },
+        {
+          "node": {
+            "jname": "J1943+0609",
+            "latestObservation": "2021-09-30T15:38:42+00:00",
+            "firstObservation": "2019-10-18T16:08:31+00:00",
+            "project": "TPA",
+            "timespan": 713,
+            "numberOfObservations": 21,
+            "id": "U2VhcmNobW9kZVB1bHNhck5vZGU6MzIzMTg="
+          }
+        }
+      ]
+    }
+  }
+}

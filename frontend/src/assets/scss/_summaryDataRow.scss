@@ -1,57 +1,54 @@
 .summaryData {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
 
-    @include media-breakpoint-only(md) {
-        margin-top: -6rem;
-    }
+  @include media-breakpoint-only(md) {
+    margin-top: -6rem;
+  }
 
-    @include media-breakpoint-up(lg) {
-        margin-top: -12rem;
-    }
+  @include media-breakpoint-up(lg) {
+    margin-top: -12rem;
+  }
 }
 
 .searchmode-table .summaryData {
-    @include media-breakpoint-only(lg) {
-        margin-top: -7rem;
-    }
+  @include media-breakpoint-only(lg) {
+    margin-top: -7rem;
+  }
 }
 
 .session-table .summaryData {
-    @include media-breakpoint-up(lg) {
-        margin-top: -9rem;
-    }
+  @include media-breakpoint-up(lg) {
+    margin-top: -9rem;
+  }
 }
 
 .search-detail {
-    .summaryData {
-        @include media-breakpoint-up(md) {
-            margin-top: -8rem;
-        }
+  .summaryData {
+    @include media-breakpoint-up(md) {
+      margin-top: -8rem;
     }
+  }
 
-    .emphemeris-col {
-        @include media-breakpoint-up(md) {
-            margin-top: -12rem;
-            margin-bottom: -2rem;
-        }
+  .emphemeris-col {
+    @include media-breakpoint-up(md) {
+      margin-top: -12rem;
+      margin-bottom: -2rem;
     }
+  }
 }
 
-
 .fold-detail-table .summaryData {
+  @include media-breakpoint-up(lg) {
+    max-width: 100%;
+  }
 
-    @include media-breakpoint-up(lg) {
-        max-width: 100%;
-    }
-
-    @include media-breakpoint-up(md) {
-        max-width: 70%;
-        margin-top: 0;
-    }
+  @include media-breakpoint-up(md) {
+    max-width: 70%;
+    margin-top: 0;
+  }
 }
 
 .secondLine {
-    margin: 0 256px 4rem auto;
+  margin: 0 256px 4rem auto;
 }
-

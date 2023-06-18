@@ -35,13 +35,6 @@ cache:
         - backend/poetry.lock
     paths:
       - backend/.venv/
-  - key:
-      files:
-        - frontend/package.lock
-    paths:
-        - frontend/node_modules/
-        - frontend/.npm/
-
 
 django-tests:
   stage: test
@@ -58,26 +51,34 @@ django-tests:
       junit: backend/reports/junit.xml
 
 
-npm-tests:
+react-test:
   stage: test
+  image: cypress/browsers:node-18.16.0-chrome-113.0.5672.92-1-ff-113.0-edge-113.0.1774.35-1
+
+  variables:
+    CYPRESS_RECORD_KEY: $CYPRESS_RECORD_KEY
+    VITE_GRAPHQL_API: "http://localhost:8000/graphql/"
+
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest-8 --activate
+    - pnpm config set store-dir .pnpm-store
+
   script:
-    - cd backend/
-    - $POETRY_HOME/bin/poetry install
-    - $POETRY_HOME/bin/poetry run python manage.py graphql_schema
-    - cd ../frontend
-    - export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" --no-use
-    - eval "[ -f .nvmrc ] && nvm install && nvm use && npm install npm@8.5.5"
-    - npm install
-    - npm run relay
-    - CI=true npm run test
+    - cd frontend
+    - pnpm install
+    - pnpm run relay
+    - pnpm run test --run --coverage --reporter=junit --outputFile=./reports/junit.xml
+    - pnpm run build
+    - pnpm run preview --port 5173 & npx wait-on http://localhost:5173
+    - pnpm run cypress:e2e --browser chrome
 
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: frontend/coverage/cobertura-coverage.xml
-      junit: frontend/reports/jest/junit.xml
-
+        path: frontend/reports/cobertura-coverage.xml
+      junit: frontend/reports/junit.xml
 
 code-quality:
   image: docker:stable

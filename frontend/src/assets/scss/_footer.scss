@@ -1,22 +1,22 @@
 .footer {
-    background: $gray-200;
+  background: $gray-200;
 
-    a {
-        &:hover {
-            text-decoration: none;
-        }
+  a {
+    &:hover {
+      text-decoration: none;
     }
+  }
 
-    ul {
-        padding: 0;
-    }
+  ul {
+    padding: 0;
+  }
 
-    li {
-        list-style-type: none;
-        margin-top: 0.5rem;
-    }
+  li {
+    list-style-type: none;
+    margin-top: 0.5rem;
+  }
 }
 
 .tagline {
-    // max-width: 35rem;
+  // max-width: 35rem;
 }
