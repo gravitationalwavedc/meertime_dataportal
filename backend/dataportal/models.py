@@ -10,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 from django_mysql.models import Model
 from .logic import get_meertime_filters, get_band
 from datetime import timedelta
-from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location
+from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location, get_template_upload_location, create_file_hash
 
 from user_manage.models import User
 from utils.observing_bands import get_band
@@ -22,6 +22,15 @@ DATA_QUALITY_CHOICES = [
     ("bad", "bad"),
 ]
 
+BAND_CHOICES = [
+    ("UHF", "UHF"),
+    ("LBAND", "LBAND"),
+    ("SBAND_0", "SBAND_0"),
+    ("SBAND_1", "SBAND_1"),
+    ("SBAND_2", "SBAND_2"),
+    ("SBAND_3", "SBAND_3"),
+    ("SBAND_4", "SBAND_4"),
+]
 
 class Pulsar(models.Model):
     """
@@ -67,7 +76,6 @@ class Project(models.Model):
 
 
 class Ephemeris(models.Model):
-    id = models.AutoField(primary_key=True)
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
     project = models.ForeignKey(Project, models.DO_NOTHING)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -106,16 +114,33 @@ class Ephemeris(models.Model):
 
 class Template(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
-    frequency = models.FloatField()
-    bandwidth = models.FloatField()
-    nchan = models.IntegerField()
-    created_at = models.DateTimeField()
-    created_by = models.CharField(max_length=64)
-    location = models.CharField(max_length=255)
-    method = models.CharField(max_length=255, blank=True, null=True)
-    template_type = models.CharField(max_length=255, blank=True, null=True)
-    comment = models.TextField(null=True)
-    # TODO upload the file
+    project = models.ForeignKey(Project, models.DO_NOTHING)
+    template_file = models.FileField(upload_to=get_template_upload_location, storage=OverwriteStorage(), null=True)
+    template_hash = models.CharField(max_length=64, editable=False, null=True)
+
+    band = models.CharField(max_length=7, choices=BAND_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+
+    def save(self, *args, **kwargs):
+        Template.clean(self)
+        if self.template_file:
+            # This may be redundant as the rest api already caculates the hash
+            self.template_hash = create_file_hash(self.template_file)
+        super(Template, self).save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=[
+                    "pulsar",
+                    "project",
+                    "band",
+                    "template_hash",
+                ],
+                name="Unique template for each pulsar, project and band."
+            )
+        ]
 
 
 
@@ -142,15 +167,6 @@ class Observation(models.Model):
     calibration = models.ForeignKey(Calibration, models.DO_NOTHING, null=True)
 
     # Frequency fields
-    BAND_CHOICES = [
-        ("UHF", "UHF"),
-        ("LBAND", "LBAND"),
-        ("SBAND_0", "SBAND_0"),
-        ("SBAND_1", "SBAND_1"),
-        ("SBAND_2", "SBAND_2"),
-        ("SBAND_3", "SBAND_3"),
-        ("SBAND_4", "SBAND_4"),
-    ]
     band = models.CharField(max_length=7, choices=BAND_CHOICES)
     frequency = models.FloatField()
     bandwidth = models.FloatField()

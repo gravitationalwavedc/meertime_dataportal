@@ -2,6 +2,20 @@ from django.core.files.storage import FileSystemStorage
 from django.conf import settings
 import os
 import re
+import hashlib
+
+
+def create_file_hash(file_path):
+    sha256_hash = hashlib.sha256()
+    # Open the file in binary mode
+    with file_path.open('rb') as file:
+        # Read the entire file content
+        file_content = file.read()
+    # Update the hash object with the file content
+    sha256_hash.update(file_content)
+    # Get the hexadecimal representation of the hash
+    return sha256_hash.hexdigest()
+
 
 
 def get_upload_location(instance, filename):
@@ -19,6 +33,23 @@ def get_upload_location(instance, filename):
     beam = instance.processing.observation.instrument_config.beam
     utc = instance.processing.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
     return f"{telescope}/{psr}/{utc}/{beam}/{filename}"
+
+
+def get_template_upload_location(instance, filename):
+    """
+    This method provides a filename to store an uploaded image.
+    Inputs:
+    instance: instance of a Pipelineimages class
+    filename: string
+
+    returns:
+    string:
+    """
+    pulsar = instance.pulsar.name
+    project_code = instance.project.code
+    band = instance.band
+    created_at = instance.created_at
+    return f"{project_code}/{pulsar}/{band}/{created_at}_{filename}"
 
 
 def get_pipeline_upload_location(instance, filename):
