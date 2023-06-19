@@ -41,7 +41,6 @@ def parse_ephemeris_file(ephemeris_data):
     # Check if input_data is a string
     if "PSR" in ephemeris_data and "\n" in ephemeris_data:
         ephemeris_lines = ephemeris_data.splitlines()
-        print(ephemeris_lines)
     else:
         with open(ephemeris_data, 'r') as file:
             ephemeris_lines = file.readlines()
@@ -51,7 +50,6 @@ def parse_ephemeris_file(ephemeris_data):
     # Parse the file by converting it into a dict
     ephemeris_dict = {}
     for line in ephemeris_lines:
-        print(line)
         line = line.strip()
         split_line = line.split()
         # Grab the value
