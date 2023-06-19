@@ -1,3 +1,4 @@
+import "./init.js"; // import first!
 import { RelayEnvironmentProvider } from "react-relay";
 import { ScreenSizeProvider } from "./context/screenSize-context";
 import environment from "./relayEnvironment";
