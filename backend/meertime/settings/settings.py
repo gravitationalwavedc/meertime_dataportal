@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "graphene_django",
     "django_jenkins",
     "jobcontroller",
+    'rest_framework',
     "user_manage",
     "dataportal"
 ]
