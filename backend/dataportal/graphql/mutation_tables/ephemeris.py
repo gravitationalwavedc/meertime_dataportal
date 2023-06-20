@@ -23,9 +23,9 @@ class EphemerisType(DjangoObjectType):
 
 
 class EphemerisInput(graphene.InputObjectType):
-    pulsar_name   = graphene.String(required=True)
-    project_code  = graphene.String(required=True)
-    ephemeris_loc = graphene.String(required=True)
+    pulsarName   = graphene.String(required=True)
+    projectCode  = graphene.String(required=True)
+    ephemerisText = graphene.String(required=True)
     comment = graphene.String()
 
 
@@ -39,11 +39,11 @@ class CreateEphemeris(graphene.Mutation):
     @permission_required("dataportal.add_ephemeris")
     def mutate(cls, self, info, input):
         # Get foreign key models
-        pulsar  = Pulsar.objects.get(name=input["pulsar_name"])
-        project = Project.objects.get(code=input["project_code"])
+        pulsar  = Pulsar.objects.get(name=input["pulsarName"])
+        project = Project.objects.get(code=input["projectCode"])
         # Load the ephemeris file
-        ephemeris_dict = parse_ephemeris_file(input["ephemeris_loc"])
-        ephemeris = Ephemeris.objects.get_or_create(
+        ephemeris_dict = parse_ephemeris_file(input["ephemerisText"])
+        ephemeris, created = Ephemeris.objects.get_or_create(
             pulsar=pulsar,
             project=project,
             # TODO add created_by
