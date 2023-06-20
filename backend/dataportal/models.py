@@ -225,7 +225,7 @@ class PipelineRun(Model):
     pipeline_name = models.CharField(max_length=64)
     pipeline_description = models.CharField(max_length=255, blank=True, null=True)
     pipeline_version = models.CharField(max_length=16)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.CharField(max_length=64)
     job_state = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255)
