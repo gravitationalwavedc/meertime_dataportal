@@ -143,7 +143,6 @@ class Template(models.Model):
         ]
 
 
-
 class Calibration(models.Model):
     # TODO use DELAYCAL_ID to note which calibrator was used.
     CALIBRATION_TYPES = [
@@ -306,7 +305,7 @@ class FoldPulsarSummary(models.Model):
         return cls.objects.filter(**kwargs)
 
     @classmethod
-    def most_common_project(cls, observations):
+    def get_most_common_project(cls, observations):
         project_counts = {}
         for observation in observations:
             # If you like it, then you should have put a key on it.
@@ -336,7 +335,7 @@ class FoldPulsarSummary(models.Model):
         # Process observation summary
         first_observation  = observations.first()
         latest_observation = observations.last()
-        timespan = (latest_observation - first_observation).days + 1
+        timespan = (latest_observation.utc_start - first_observation.utc_start).days + 1
         number_of_observations = observations.count()
         total_integration_hours = sum(observation.duration for observation in observations) / 3600
         last_integration_minutes = latest_observation.duration / 60
@@ -349,27 +348,34 @@ class FoldPulsarSummary(models.Model):
         lowest_sn  = min(sn_list)
         # Since SNR is proportional to the sqrt of the observation length
         # we can normalise the SNR to an equivalent 5 minute observation
-        sn_5min_list = [result.pipeline_run.sn / math.sqrt(result.observation.duration) * math.sqrt(300) for result in results]
-        avg_sn_pipe = sum(sn_5min_list) / len(sn_5min_list)
-        max_sn_pipe = max(sn_5min_list)
+        sn_5min_list = []
+        for result in results:
+            if result.pipeline_run.sn is not None:
+                sn_5min_list.append(result.pipeline_run.sn / math.sqrt(result.observation.duration) * math.sqrt(300) )
+        if len(sn_5min_list) > 0:
+            avg_sn_pipe = sum(sn_5min_list) / len(sn_5min_list)
+            max_sn_pipe = max(sn_5min_list)
+        else:
+            avg_sn_pipe = 0
+            max_sn_pipe = 0
 
         # Process project summary
         all_projects = ", ".join(
             {observation.project.short for observation in observations}
         )
-        most_common_project = cls.most_common_project(observations)
+        most_common_project = cls.get_most_common_project(observations)
 
         new_fold_pulsar_summary, created = FoldPulsarSummary.objects.update_or_create(
             pulsar=pulsar,
             main_project=main_project,
             defaults={
-                "first_observation": first_observation,
-                "latest_observation": latest_observation,
+                "first_observation": first_observation.utc_start,
+                "latest_observation": latest_observation.utc_start,
                 "timespan": timespan,
                 "number_of_observations": number_of_observations,
                 "total_integration_hours": total_integration_hours,
-                "last_integration_minutes": last_integration_minutes or 0,
-                "last_sn": last_sn,
+                "last_integration_minutes": last_integration_minutes,
+                "last_sn": last_sn or 0,
                 "highest_sn": highest_sn or 0,
                 "lowest_sn": lowest_sn or 0,
                 "avg_sn_pipe": avg_sn_pipe,
@@ -378,7 +384,6 @@ class FoldPulsarSummary(models.Model):
                 "most_common_project": most_common_project,
             },
         )
-
         return new_fold_pulsar_summary, created
 
 

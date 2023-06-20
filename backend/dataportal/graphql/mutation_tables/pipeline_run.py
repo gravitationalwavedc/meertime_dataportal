@@ -58,34 +58,8 @@ class CreatePipelineRun(graphene.Mutation):
         ephemeris   = Ephemeris.objects.get(id=input["ephemerisId"])
         template    = Template.objects.get(id=input["templateId"])
 
-        # Load the results JSON string into a dictionary
-        results = json.loads(input.results)
-        if results:
-            # Unpack data
-            dm = results.dm
-            dm_err = results.dm_err
-            dm_epoch = results.dm_epoch
-            dm_chi2r = results.dm_chi2r
-            dm_tres = results.dm_tres
-            sn = results.sn
-            flux = results.flux
-            rm = results.rm
-            percent_rfi_zapped = results.percent_rfi_zapped
-        else:
-            # None is empty dict given
-            dm = None
-            dm_err = None
-            dm_epoch = None
-            dm_chi2r = None
-            dm_tres = None
-            sn = None
-            flux = None
-            rm = None
-            percent_rfi_zapped = None
-
-
         # Create what is likely the initial pipeline run setup
-        pipeline_run, _ = PipelineRun.objects.create(
+        pipeline_run = PipelineRun.objects.create(
             observation=observation,
             ephemeris=ephemeris,
             template=template,
@@ -94,17 +68,17 @@ class CreatePipelineRun(graphene.Mutation):
             pipeline_version=input.pipelineVersion,
             job_state=input.jobState,
             location=input.location,
-            configuration=json.load(input.configuration),
+            configuration=input.configuration,
             # The results will likely not be set when the pipeline run is created
-            dm=dm,
-            dm_err=dm_err,
-            dm_epoch=dm_epoch,
-            dm_chi2r=dm_chi2r,
-            dm_tres=dm_tres,
-            sn=sn,
-            flux=flux,
-            rm=rm,
-            percent_rfi_zapped=percent_rfi_zapped,
+            dm=input.dm,
+            dm_err=input.dm_err,
+            dm_epoch=input.dm_epoch,
+            dm_chi2r=input.dm_chi2r,
+            dm_tres=input.dm_tres,
+            sn=input.sn,
+            flux=input.flux,
+            rm=input.rm,
+            percent_rfi_zapped=input.percent_rfi_zapped,
         )
         return CreatePipelineRun(pipeline_run=pipeline_run)
 
