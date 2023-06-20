@@ -1,6 +1,7 @@
 from django.conf import settings
 from sentry_sdk import last_event_id
 from django.shortcuts import render
+from django.http import JsonResponse
 
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
@@ -29,19 +30,21 @@ def handler500(request):
 class UploadTemplate(ViewSet):
     serializer_class = UploadTemplateSerializer
 
-    def list(self, request):
-        return Response("GET API")
-
     def create(self, request):
         template_upload = request.FILES.get('template_upload')
         pulsar_name     = request.data.get('pulsar_name')
         project_code    = request.data.get('project_code')
         band            = request.data.get('band')
-        print(pulsar_name, project_code, band, template_upload)
 
         # Get foreign key models
-        pulsar  = Pulsar.objects.get(name=pulsar_name)
-        project = Project.objects.get(code=project_code)
+        try:
+            pulsar  = Pulsar.objects.get(name=pulsar_name)
+        except Pulsar.DoesNotExist:
+            return JsonResponse({'error': f'Pulsar {pulsar_name} not found.'}, status=400)
+        try:
+            project = Project.objects.get(code=project_code)
+        except Project.DoesNotExist:
+            return JsonResponse({'error': f'Project code {project_code} not found.'}, status=400)
 
         # Create Template object
         template, created = Template.objects.get_or_create(
@@ -55,8 +58,20 @@ class UploadTemplate(ViewSet):
             # We use the save() method of the FileField to save the file.
             # This ensures that the file object remains open until the file is properly saved to the disk.
             template.template_file.save(template_upload.name, template_upload, save=True)
-        response = f"POST API and you have uploaded a template file to Template id: {template}"
-        return Response(response)
+            response = f"POST API and you have uploaded a template file to Template id: {template}"
+        else:
+            response = f"POST API and you have uploaded a template file to Template id: {template} (already exists)"
+
+        return JsonResponse(
+            {
+                'text': response,
+                'success': True,
+                'created': created,
+                'errors': None,
+                'id' : template.id,
+            },
+            status=201,
+        )
 
 
 class UploadImage(ViewSet):
