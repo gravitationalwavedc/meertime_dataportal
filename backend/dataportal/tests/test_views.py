@@ -1,7 +1,7 @@
 import pytest
 
 # from .models import Proposals, Pulsars, Observations, Utcs
-from .models import Pulsars
+from dataportal.models import Pulsar
 from datetime import datetime
 
 

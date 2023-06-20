@@ -1,5 +1,5 @@
 import pytest
-from .logic import get_band, get_meertime_filters, get_trapum_filters, get_band_filters
+from dataportal.logic import get_band, get_meertime_filters, get_trapum_filters, get_band_filters
 
 
 def test_get_band_returns_correct_value():

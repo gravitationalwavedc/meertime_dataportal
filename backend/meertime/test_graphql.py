@@ -5,28 +5,21 @@ from django.contrib.contenttypes.models import ContentType
 from datetime import datetime
 
 from dataportal.models import (
-    Basebandings,
-    Collections,
-    Ephemerides,
-    Filterbankings,
-    Foldings,
-    Instrumentconfigs,
-    Launches,
-    Observations,
-    Calibrations,
-    Pipelineimages,
-    Pipelines,
-    Processingcollections,
-    Processings,
-    Projects,
-    Pulsaraliases,
-    Pulsartargets,
-    Pulsars,
-    Rfis,
-    Targets,
-    Telescopes,
-    Templates,
-    Toas,
+    Pulsar,
+    Telescope,
+    MainProject,
+    Project,
+    Ephemeris,
+    Template,
+    Calibration,
+    Observation,
+    PipelineRun,
+    FoldPulsarResult,
+    FoldPulsarSummary,
+    # PipelineImage,
+    PipelineFile,
+    Toa,
+    Residual,
 )
 
 # Auxiliary functions
@@ -132,7 +125,7 @@ mutation_target = """
 mutation ($name: String!, $raj: String!, $decj: String!) {
   createTarget(input:{name: $name, raj: $raj, decj: $decj}) {
     target {
-      name,      
+      name,
     }
   }
 }

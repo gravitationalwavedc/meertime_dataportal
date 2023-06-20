@@ -1,7 +1,23 @@
 import pytest
 from datetime import datetime
-from .storage import get_upload_location, get_pipeline_upload_location
-from .models import Pipelinefiles, Processings, Observations, Instrumentconfigs, Targets
+from dataportal.storage import get_upload_location, get_pipeline_upload_location
+from dataportal.models import (
+    Pulsar,
+    Telescope,
+    MainProject,
+    Project,
+    Ephemeris,
+    Template,
+    Calibration,
+    Observation,
+    PipelineRun,
+    FoldPulsarResult,
+    FoldPulsarSummary,
+    # PipelineImage,
+    PipelineFile,
+    Toa,
+    Residual,
+)
 
 from django.core.files import File
 from unittest import mock

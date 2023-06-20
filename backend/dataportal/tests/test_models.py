@@ -8,21 +8,22 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.utils import IntegrityError
 
-from .models import (
-    Ephemerides,
-    Filterbankings,
-    Foldings,
-    Instrumentconfigs,
-    Observations,
-    Pipelines,
-    Pulsars,
-    Pulsartargets,
-    Processings,
-    Projects,
-    Programs,
-    Targets,
-    Telescopes,
-    Sessions,
+from dataportal.models import (
+    Pulsar,
+    Telescope,
+    MainProject,
+    Project,
+    Ephemeris,
+    Template,
+    Calibration,
+    Observation,
+    PipelineRun,
+    FoldPulsarResult,
+    FoldPulsarSummary,
+    # PipelineImage,
+    PipelineFile,
+    Toa,
+    Residual,
 )
 
 
