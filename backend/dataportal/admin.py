@@ -11,7 +11,7 @@ from .models import (
     PipelineRun,
     FoldPulsarResult,
     FoldPulsarSummary,
-    # PipelineImage,
+    PipelineImage,
     PipelineFile,
     Toa,
     Residual,
@@ -28,7 +28,7 @@ admin.site.register(Observation)
 admin.site.register(PipelineRun)
 admin.site.register(FoldPulsarResult)
 admin.site.register(FoldPulsarSummary)
-# admin.site.register(PipelineImage)
+admin.site.register(PipelineImage)
 admin.site.register(PipelineFile)
 admin.site.register(Toa)
 admin.site.register(Residual)

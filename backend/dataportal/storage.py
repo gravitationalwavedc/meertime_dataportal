@@ -28,11 +28,12 @@ def get_upload_location(instance, filename):
     returns:
     string:
     """
-    telescope = instance.processing.observation.telescope.name
-    psr = instance.processing.observation.target.name
-    beam = instance.processing.observation.instrument_config.beam
-    utc = instance.processing.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
-    return f"{telescope}/{psr}/{utc}/{beam}/{filename}"
+    telescope = instance.fold_pulsar_result.observation.telescope.name
+    project = instance.fold_pulsar_result.observation.project.code
+    psr = instance.fold_pulsar_result.observation.pulsar.name
+    beam = instance.fold_pulsar_result.observation.beam
+    utc = instance.fold_pulsar_result.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+    return f"{telescope}/{project}/{psr}/{utc}/{beam}/{filename}"
 
 
 def get_template_upload_location(instance, filename):
@@ -62,12 +63,12 @@ def get_pipeline_upload_location(instance, filename):
     returns:
     string:
     """
-    telescope = instance.processing.observation.telescope.name
-    pipeline = instance.processing.pipeline.name
-    psr = instance.processing.observation.target.name
-    beam = instance.processing.observation.instrument_config.beam
-    utc = instance.processing.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
-    return f"{telescope}/{pipeline}/{psr}/{utc}/{beam}/{filename}"
+    telescope = instance.pipeline_run.observation.telescope.name
+    project = instance.pipeline_run.observation.project.code
+    psr = instance.pipeline_run.observation.pulsar.name
+    beam = instance.pipeline_run.observation.beam
+    utc = instance.pipeline_run.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+    return f"{telescope}/{project}/{psr}/{utc}/{beam}/{filename}"
 
 
 def get_valid_filename(s):

@@ -1,4 +1,4 @@
-from rest_framework.serializers import Serializer, FileField, CharField
+from rest_framework.serializers import Serializer, FileField, CharField, BooleanField, IntegerField
 
 from .models import Template
 
@@ -11,7 +11,9 @@ class UploadTemplateSerializer(Serializer):
     band            = CharField(max_length=32)
 
 
-class UploadImageSerializer(Serializer):
-    image_upload = FileField()
-    class Meta:
-        fields = ['image_upload']
+class UploadPipelineImageSerializer(Serializer):
+    pipeline_run_id = IntegerField()
+    image_upload    = FileField()
+    image_type      = CharField(max_length=16)
+    resolution      = CharField(max_length=4)
+    cleaned         = BooleanField()

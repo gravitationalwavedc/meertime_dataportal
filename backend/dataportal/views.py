@@ -7,9 +7,16 @@ from rest_framework import status
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 
-from .serializers import UploadTemplateSerializer, UploadImageSerializer
-from .models import Template, Pulsar, Project
+from .serializers import UploadTemplateSerializer, UploadPipelineImageSerializer
 from .storage import create_file_hash
+from .models import (
+    Template,
+    Pulsar,
+    Project,
+    PipelineImage,
+    PipelineRun,
+    FoldPulsarResult,
+)
 
 
 def handler500(request):
@@ -74,14 +81,50 @@ class UploadTemplate(ViewSet):
         )
 
 
-class UploadImage(ViewSet):
-    serializer_class = UploadImageSerializer
+class UploadPipelineImage(ViewSet):
+    serializer_class = UploadPipelineImageSerializer
 
     def list(self, request):
         return Response("GET API")
 
+
     def create(self, request):
-        file_uploaded = request.FILES.get('file_uploaded')
-        content_type = file_uploaded.content_type
-        response = "POST API and you have uploaded a {} file".format(content_type)
-        return Response(response)
+        pipeline_run_id = request.data.get('pipeline_run_id')
+        image_upload    = request.FILES.get('image_upload')
+        image_type      = request.data.get('image_type')
+        resolution      = request.data.get('resolution')
+        cleaned         = request.data.get('cleaned')
+
+        # Get foreign key models
+        try:
+            pipeline_run  = PipelineRun.objects.get(id=pipeline_run_id)
+        except PipelineRun.DoesNotExist:
+            return JsonResponse({'error': f'PipelineRun ID {pipeline_run} not found.'}, status=400)
+        fold_pulsar_result = FoldPulsarResult.objects.get(observation=pipeline_run.observation)
+
+        # Create Template object
+        pipeline_image, created = PipelineImage.objects.get_or_create(
+            fold_pulsar_result=fold_pulsar_result,
+            cleaned=cleaned,
+            image_type=image_type,
+            resolution=resolution,
+        )
+        pipeline_image.save()
+        # We use the save() method of the FileField to save the file.
+        # This ensures that the file object remains open until the file is properly saved to the disk.
+        pipeline_image.image.save(image_upload.name, image_upload, save=True)
+        if created:
+            response = f"POST API and you have uploaded a new image to PipelineImage id: {pipeline_image}"
+        else:
+            response = f"POST API and you have uploaded a image overriding PipelineImage id: {pipeline_image} (already exists)"
+
+        return JsonResponse(
+            {
+                'text': response,
+                'success': True,
+                'created': created,
+                'errors': None,
+                'id' : pipeline_image.id,
+            },
+            status=201,
+        )

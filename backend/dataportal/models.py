@@ -185,8 +185,8 @@ class Observation(models.Model):
     ]
     obs_type = models.CharField(max_length=6, choices=TYPE_CHOICES)
     utc_start = models.DateTimeField()
-    raj = models.CharField(max_length=16)
-    decj = models.CharField(max_length=16)
+    raj  = models.CharField(max_length=32)
+    decj = models.CharField(max_length=32)
     duration = models.FloatField(null=True)
     nbit = models.IntegerField()
     tsamp = models.FloatField()
@@ -206,7 +206,7 @@ class Observation(models.Model):
 
     def save(self, *args, **kwargs):
         Observation.clean(self)
-        self.band = get_band(self.frequency, self.band)
+        self.band = get_band(self.frequency, self.bandwidth)
         super(Observation, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -387,30 +387,39 @@ class FoldPulsarSummary(models.Model):
         return new_fold_pulsar_summary, created
 
 
-# class PipelineImage(models.Model):
-#     fold_pulsar_result = models.ForeignKey(FoldPulsarResult, models.DO_NOTHING)
-#     image_type = models.CharField(max_length=64, blank=True, null=True)
-#     cleaned = models.BooleanField(default=True)
-#     RESOLUTION_CHOICES = [
-#         ("high", "high"),
-#         ("low",  "low"),
-#     ]
-#     resolution = models.CharField(max_length=4, choices=RESOLUTION_CHOICES)
-#     image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+class PipelineImage(models.Model):
+    fold_pulsar_result = models.ForeignKey(FoldPulsarResult, models.DO_NOTHING)
+    image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    cleaned = models.BooleanField(default=True)
+    IMAGE_TYPE_CHOICES = [
+        ("profile",     "profile"),
+        ("profile-pol", "profile-pol"),
+        ("phase-time",  "phase-time"),
+        ("phase-freq",  "phase-freq"),
+        ("bandpass",    "bandpass"),
+        ("snr-cumul",   "snr-cumul"),
+        ("snr-single",  "snr-single"),
+    ]
+    image_type = models.CharField(max_length=16, choices=IMAGE_TYPE_CHOICES)
+    RESOLUTION_CHOICES = [
+        ("high", "high"),
+        ("low",  "low"),
+    ]
+    resolution = models.CharField(max_length=4, choices=RESOLUTION_CHOICES)
 
-#     class Meta:
-#         constraints = [
-#             # TODO this may no longer be necessary with pipeline run
-#             UniqueConstraint(
-#                 fields=[
-#                     "fold_pulsar_result",
-#                     "image_type",
-#                     "cleaned",
-#                     "resolution",
-#                 ],
-#                 name="Unique image type for a FoldPulsarResult"
-#             )
-#         ]
+    class Meta:
+        constraints = [
+            # TODO this may no longer be necessary with pipeline run
+            UniqueConstraint(
+                fields=[
+                    "fold_pulsar_result",
+                    "image_type",
+                    "cleaned",
+                    "resolution",
+                ],
+                name="Unique image type for a FoldPulsarResult"
+            )
+        ]
 
 
 class PipelineFile(models.Model):
