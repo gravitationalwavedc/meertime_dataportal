@@ -19,29 +19,29 @@ class PipelineRunType(DjangoObjectType):
 
 
 class PipelineRunInput(graphene.InputObjectType):
-    observationId = graphene.Int(required=True)
-    ephemerisId   = graphene.Int(required=True)
-    templateId    = graphene.Int(required=True)
+    observationId = graphene.Int()
+    ephemerisId   = graphene.Int()
+    templateId    = graphene.Int()
 
-    pipelineName = graphene.String(required=True)
-    pipelineDescription = graphene.String(required=True)
-    pipelineVersion = graphene.String(required=True)
-    jobState = graphene.String(required=True)
-    location = graphene.String(required=True)
-    configuration = graphene.String(required=True)
+    pipelineName = graphene.String()
+    pipelineDescription = graphene.String()
+    pipelineVersion = graphene.String()
+    jobState = graphene.String()
+    location = graphene.String()
+    configuration = graphene.String()
 
     # DM results
     dm       = graphene.Float()
-    dm_err   = graphene.Float()
-    dm_epoch = graphene.Float()
-    dm_chi2r = graphene.Float()
-    dm_tres  = graphene.Float()
+    dmErr   = graphene.Float()
+    dmEpoch = graphene.Float()
+    dmChi2r = graphene.Float()
+    dmTres  = graphene.Float()
 
     # Other results
     sn   = graphene.Float()
     flux = graphene.Float()
     rm   = graphene.Float()
-    percent_rfi_zapped = graphene.Float()
+    percentRfiZapped = graphene.Float()
 
 
 class CreatePipelineRun(graphene.Mutation):

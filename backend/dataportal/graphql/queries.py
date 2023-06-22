@@ -4,7 +4,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 
-from dataportal.models import Pulsar, Observation, MainProject, Project, Ephemeris
+from dataportal.models import Pulsar, Observation, MainProject, Project, Ephemeris, PipelineRun
 
 DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
 NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
@@ -94,6 +94,39 @@ class EphemerisNode(DjangoObjectType):
         return super().get_queryset(queryset, info)
 
 
+class PipelineRunNode(DjangoObjectType):
+    class Meta:
+        model = PipelineRun
+        fields = "__all__"
+        filter_fields = {
+            "observation__id": ["exact"],
+            "ephemeris__id": ["exact"],
+            "template__id": ["exact"],
+            "pipeline_name": ["exact"],
+            "pipeline_description": ["exact"],
+            "pipeline_version": ["exact"],
+            "created_at": DATETIME_FILTERS,
+            "job_state": ["exact"],
+            "location": ["exact"],
+            "dm": NUMERIC_FILTERS,
+            "dm_err": NUMERIC_FILTERS,
+            "dm_epoch": NUMERIC_FILTERS,
+            "dm_chi2r": NUMERIC_FILTERS,
+            "dm_tres": NUMERIC_FILTERS,
+            "sn": NUMERIC_FILTERS,
+            "flux": NUMERIC_FILTERS,
+            "rm": NUMERIC_FILTERS,
+            "percent_rfi_zapped": NUMERIC_FILTERS,
+        }
+
+        interfaces = (relay.Node,)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+
 class Query(graphene.ObjectType):
     # pulsar = relay.Node.Field(PulsarNode)
     Pulsar = graphene.Field(
@@ -119,5 +152,8 @@ class Query(graphene.ObjectType):
 
     ephemeris = relay.Node.Field(EphemerisNode)
     allEphemeriss = DjangoFilterConnectionField(EphemerisNode, max_limit=10000)
+
+    pipelineRun = relay.Node.Field(PipelineRunNode)
+    allPipelineRuns = DjangoFilterConnectionField(PipelineRunNode, max_limit=10000)
 
 
