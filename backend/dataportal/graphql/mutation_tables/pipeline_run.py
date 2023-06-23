@@ -94,9 +94,17 @@ class UpdatePipelineRun(graphene.Mutation):
     @permission_required("dataportal.add_pipeline_run")
     def mutate(cls, self, info, id, input=None):
         try:
-            pipeline_run = PipelineRun.objects.get(pk=id)
-            for key, val in input.__dict__.items():
-                setattr(pipeline_run, key, val)
+            pipeline_run = PipelineRun.objects.get(id=id)
+            pipeline_run.job_state = input.jobState
+            pipeline_run.dm = input.dm
+            pipeline_run.dm_err = input.dmErr
+            pipeline_run.dm_epoch = input.dmEpoch
+            pipeline_run.dm_chi2r = input.dmChi2r
+            pipeline_run.dm_tres = input.dmTres
+            pipeline_run.sn = input.sn
+            pipeline_run.flux = input.flux
+            pipeline_run.rm = input.rm
+            pipeline_run.percent_rfi_zapped = input.percentRfiZapped
             pipeline_run.save()
             return UpdatePipelineRun(pipeline_run=pipeline_run)
         except:

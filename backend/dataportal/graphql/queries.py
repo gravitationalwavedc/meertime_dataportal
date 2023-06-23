@@ -3,6 +3,8 @@ from graphene import relay, ObjectType
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
+from graphql_relay import from_global_id
+from graphql import GraphQLError
 
 from dataportal.models import Pulsar, Observation, MainProject, Project, Ephemeris, PipelineRun
 
@@ -153,7 +155,7 @@ class Query(graphene.ObjectType):
     ephemeris = relay.Node.Field(EphemerisNode)
     allEphemeriss = DjangoFilterConnectionField(EphemerisNode, max_limit=10000)
 
-    pipelineRun = relay.Node.Field(PipelineRunNode)
+    pipelineRun = graphene.Field(PipelineRunNode, id=graphene.Int(required=True))
     allPipelineRuns = DjangoFilterConnectionField(PipelineRunNode, max_limit=10000)
 
 
