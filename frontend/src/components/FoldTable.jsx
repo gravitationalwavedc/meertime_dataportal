@@ -47,7 +47,8 @@ const foldTableQuery = graphql`
 `;
 
 const FoldTable = ({
-  data,
+  data: { foldPulsarSummary: relayData },
+  relay,
   match: {
     location: { query },
   },
@@ -58,21 +59,21 @@ const FoldTable = ({
   const [mainProject, setMainProject] = useState(
     query.mainProject || "meertime"
   );
-  const [project, setProject] = useState(query.project || "All");
+  const [mostCommonProject, setMostCommonProject] = useState(query.mostCommonProject || "All");
   const [band, setBand] = useState(query.band || "All");
 
   useEffect(() => {
-    refetch({ mainProject: mainProject, project: project, band: band });
+    relay.refetch({ mainProject: mainProject, mostCommonProject: mostCommonProject, band: band });
     const url = new URL(window.location);
     url.searchParams.set("mainProject", mainProject);
-    url.searchParams.set("project", project);
+    url.searchParams.set("mostCommonProject", mostCommonProject);
     url.searchParams.set("band", band);
     window.history.pushState({}, "", url);
-  }, [band, project, mainProject, query, refetch]);
+  }, [band, mostCommonProject, mainProject, query, relay]);
 
   const handleMainProjectChange = (newMainProject) => {
     setMainProject(newMainProject);
-    setProject("All");
+    setMostCommonProject("All");
     setBand("All");
   };
 
@@ -81,6 +82,7 @@ const FoldTable = ({
     row.projectKey = mainProject;
     row.latestObservation = formatUTC(row.latestObservation);
     row.firstObservation = formatUTC(row.firstObservation);
+    row.jname = row.pulsar.name;
     row.action = (
       <ButtonGroup vertical>
         <Link
@@ -114,8 +116,8 @@ const FoldTable = ({
     },
     { dataField: "jname", text: "JName", sort: true },
     {
-      dataField: "project",
-      text: "Project",
+      dataField: "mostCommonProject",
+      text: "Most Common Project",
       sort: true,
       screenSizes: ["xl", "xxl"],
     },
@@ -159,24 +161,24 @@ const FoldTable = ({
       formatter: (cell) => `${cell} [h]`,
     },
     {
-      dataField: "lastSnRaw",
-      text: "Last S/N raw",
+      dataField: "lastSn",
+      text: "Last S/N",
       align: "right",
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
     },
     {
-      dataField: "highestSnRaw",
-      text: "High S/N raw",
+      dataField: "highestSn",
+      text: "High S/N",
       align: "right",
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
     },
     {
-      dataField: "lowestSnRaw",
-      text: "Low S/N raw",
+      dataField: "lowestSn",
+      text: "Low S/N",
       align: "right",
       headerAlign: "right",
       sort: true,
@@ -215,7 +217,7 @@ const FoldTable = ({
     },
   ];
 
-  if (project !== "All") {
+  if (mostCommonProject !== "All") {
     summaryData.push({
       title: "Project Hours",
       value: relayData.foldObservations.totalProjectTime,
@@ -227,8 +229,8 @@ const FoldTable = ({
       summaryData={summaryData}
       columns={columnsSizeFiltered}
       rows={rows}
-      setProject={setProject}
-      project={project}
+      setMostCommonProject={setMostCommonProject}
+      mostCommonProject={mostCommonProject}
       mainProject={mainProject}
       setMainProject={handleMainProjectChange}
       band={band}
@@ -240,4 +242,55 @@ const FoldTable = ({
   );
 };
 
-export default FoldTable;
+export default createRefetchContainer(
+  FoldTable,
+  {
+    data: graphql`
+      fragment FoldTable_data on Query
+      @argumentDefinitions(
+        mainProject: { type: "String", defaultValue: "MeerTIME" }
+        mostCommonProject: { type: "String", defaultValue: "All" }
+        band: { type: "String", defaultValue: "All" }
+      ) {
+        foldPulsarSummary (
+          mainProject: $mainProject
+          mostCommonProject: $mostCommonProject
+          band: $band
+        ) {
+          totalObservations
+          totalPulsars
+          totalObservationTime
+          totalProjectTime
+          edges {
+            node {
+              pulsar {name}
+              latestObservation
+              firstObservation
+              allProjects
+              mostCommonProject
+              timespan
+              numberOfObservations
+              lastSn
+              highestSn
+              lowestSn
+              lastIntegrationMinutes
+              maxSnPipe
+              avgSnPipe
+              totalIntegrationHours
+            }
+          }
+        }
+      }
+    `,
+  },
+  graphql`
+    query FoldTableRefetchQuery(
+      $mainProject: String
+      $mostCommonProject: String
+      $band: String
+    ) {
+      ...FoldTable_data
+        @arguments(mainProject: $mainProject, mostCommonProject: $mostCommonProject, band: $band)
+    }
+  `
+);
