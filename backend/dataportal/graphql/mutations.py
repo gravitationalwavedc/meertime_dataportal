@@ -9,6 +9,7 @@ from dataportal.graphql.mutation_tables import (
     project,
     template,
     pipeline_run,
+    toa,
 )
 
 class Mutation(
@@ -21,6 +22,7 @@ class Mutation(
         project.Mutation,
         template.Mutation,
         pipeline_run.Mutation,
+        toa.Mutation,
         graphene.ObjectType,
     ):
     pass
