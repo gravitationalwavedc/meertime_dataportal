@@ -253,6 +253,9 @@ class FoldPulsarResult(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
 
     embargo_end_date = models.DateTimeField(null=True)
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
 
 
 class FoldPulsarSummary(models.Model):
@@ -269,6 +272,7 @@ class FoldPulsarSummary(models.Model):
     number_of_observations = models.IntegerField()
     total_integration_hours = models.FloatField()
     last_integration_minutes = models.FloatField(null=True)
+    all_bands = models.CharField(max_length=500)
 
     # Results summary
     last_sn = models.FloatField()
@@ -291,16 +295,18 @@ class FoldPulsarSummary(models.Model):
             if kwargs["band"] == "All":
                 kwargs.pop("band")
             else:
-                kwargs["band__icontains"] = kwargs.pop("band")
+                kwargs["all_bands__icontains"] = kwargs.pop("band")
 
-        if "project" in kwargs:
-            if kwargs["project"] == "All":
-                kwargs.pop("project")
+        if "most_common_project" in kwargs:
+            if kwargs["most_common_project"] == "All":
+                kwargs.pop("most_common_project")
             else:
-                kwargs["project__icontains"] = kwargs.pop("project")
+                kwargs["most_common_project__icontains"] = kwargs.pop("most_common_project")
 
         if "main_project" in kwargs and kwargs["main_project"] == "All":
             kwargs.pop("main_project")
+        else:
+            kwargs["main_project__name"] = kwargs.pop("main_project")
 
         return cls.objects.filter(**kwargs)
 
@@ -339,11 +345,14 @@ class FoldPulsarSummary(models.Model):
         number_of_observations = observations.count()
         total_integration_hours = sum(observation.duration for observation in observations) / 3600
         last_integration_minutes = latest_observation.duration / 60
+        all_bands = ", ".join(
+            {observation.band for observation in observations}
+        )
 
         # Process results summary
         results = FoldPulsarResult.objects.filter(pulsar=pulsar).order_by("observation__utc_start")
         last_sn = results.last().pipeline_run.sn
-        sn_list = [result.pipeline_run.sn for result in results]
+        sn_list = [result.pipeline_run.sn or 0 for result in results]
         highest_sn = max(sn_list)
         lowest_sn  = min(sn_list)
         # Since SNR is proportional to the sqrt of the observation length
@@ -375,6 +384,7 @@ class FoldPulsarSummary(models.Model):
                 "number_of_observations": number_of_observations,
                 "total_integration_hours": total_integration_hours,
                 "last_integration_minutes": last_integration_minutes,
+                "all_bands": all_bands,
                 "last_sn": last_sn or 0,
                 "highest_sn": highest_sn or 0,
                 "lowest_sn": lowest_sn or 0,
@@ -432,22 +442,33 @@ class PipelineFile(models.Model):
 
 
 class Toa(models.Model):
-
+    # foreign keys
     pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING)
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", null=True)
+    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id")
     template = models.ForeignKey(Template, models.DO_NOTHING)
 
-    mjd = models.FloatField()
-    mjd_err = models.FloatField()
-    sn = models.FloatField()
+    # toa results
+    archive   = models.CharField(max_length=128)
+    freq_MHz  = models.FloatField()
+    mjd       = models.DecimalField(decimal_places=12, max_digits=18)
+    mjd_err   = models.FloatField()
+    telescope = models.CharField(max_length=32)
 
-    frequency = models.FloatField()
-    nchan = models.IntegerField()
-    nsub = models.IntegerField()
-
-    site = models.CharField(max_length=1, blank=True, null=True)
-    quality = models.CharField(max_length=10, blank=True, null=True, choices=DATA_QUALITY_CHOICES)
-    flags = models.JSONField()
+    # The flags from the toa file
+    fe     = models.CharField(max_length=32, null=True)
+    be     = models.CharField(max_length=32, null=True)
+    f      = models.CharField(max_length=32, null=True)
+    bw     = models.IntegerField(null=True)
+    tobs   = models.IntegerField(null=True)
+    tmplt  = models.CharField(max_length=64, null=True)
+    gof    = models.FloatField(null=True)
+    nbin   = models.IntegerField(null=True)
+    nch    = models.IntegerField(null=True)
+    chan   = models.IntegerField(null=True)
+    rcvr   = models.CharField(max_length=32, null=True)
+    snr    = models.FloatField(null=True)
+    length = models.IntegerField(null=True)
+    subint = models.IntegerField(null=True)
 
 
 class Residual(models.Model):
