@@ -46,7 +46,7 @@ const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
         <Label value="UTC" position="bottom" />
       </XAxis>
       <YAxis type="number" dataKey="value" name="Flux">
-        <Label value="Flux Density" position="left" angle="-90" />
+        <Label value="Flux Density (mJy)" position="left" angle="-90" />
       </YAxis>
       <ZAxis type="number" dataKey="size" name="Size" range={[40, 600]} />
       <Tooltip

@@ -9,21 +9,21 @@ export const snrPlotData = (data, columns, search) => {
 
   // Process the table data in a way that react-vis understands.
   const lBandData = results
-    .filter((row) => row.band === "L-Band")
+    .filter((row) => row.observation.band === "LBAND")
     .map((row) => ({
-      time: moment(row.utc, "YYYY-MM-DD-HH:mm:ss").valueOf(),
-      value: row.snMeerpipe ? row.snMeerpipe : row.snBackend,
-      size: row.length,
-      link: row.plotLink,
+      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      value: row.pipelineRun.sn,
+      size:  row.observation.duration,
+      link:  row.plotLink,
     }));
 
   const UHFData = results
-    .filter((row) => row.band === "UHF")
+    .filter((row) => row.observation.band === "UHF")
     .map((row) => ({
-      time: moment(row.utc, "YYYY-MM-DD-HH:mm:ss").valueOf(),
-      value: row.snMeerpipe ? row.snMeerpipe : row.snBackend,
-      size: row.length,
-      link: row.plotLink,
+      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      value: row.pipelineRun.sn,
+      size:  row.observation.duration,
+      link:  row.plotLink,
     }));
 
   return { lBandData, UHFData };
@@ -41,21 +41,21 @@ export const fluxPlotData = (data, columns, search) => {
 
   // Process the table data in a way that react-vis understands.
   const lBandData = results
-    .filter((row) => row.band === "L-Band")
+    .filter((row) => row.observation.band === "LBAND")
     .map((row) => ({
-      time: moment(row.utc, "YYYY-MM-DD-HH:mm:ss").valueOf(),
-      value: row.flux,
-      size: row.length,
-      link: row.plotLink,
+      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      value: row.pipelineRun.flux,
+      size:  row.observation.duration,
+      link:  row.plotLink,
     }));
 
   const UHFData = results
     .filter((row) => row.band === "UHF")
     .map((row) => ({
-      time: moment(row.utc, "YYYY-MM-DD-HH:mm:ss").valueOf(),
-      value: row.flux,
-      size: row.length,
-      link: row.plotLink,
+      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      value: row.pipelineRun.flux,
+      size:  row.observation.duration,
+      link:  row.plotLink,
     }));
 
   return { lBandData, UHFData, ticks };
