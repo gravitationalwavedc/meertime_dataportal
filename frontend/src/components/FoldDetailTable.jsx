@@ -18,23 +18,23 @@ import { useScreenSize } from "../context/screenSize-context";
 
 /* eslint-disable complexity */
 const FoldDetailTable = ({
-  data: { foldObservationDetails, foldPulsar },
+  data: { foldPulsarResult },
   jname,
-  mainProject,
+  project,
 }) => {
   const { screenSize } = useScreenSize();
-  const allRows = foldObservationDetails.edges.reduce(
+  const allRows = foldPulsarResult.edges.reduce(
     (result, edge) => [
       ...result,
       {
         ...edge.node,
-        key: `${edge.node.utc}:${edge.node.beam}`,
+        key: `${edge.node.observation.utc_start}:${edge.node.observation.beam}`,
         jname: jname,
         embargo: edge.node.restricted
           ? "Embargoed until " + formatDDMonYYYY(edge.node.embargoEndDate)
           : "",
-        utc: formatUTC(edge.node.utc),
-        plotLink: `/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`,
+        utc: formatUTC(edge.node.observation.utc_start),
+        plotLink: `/${jname}/${formatUTC(edge.node.observation.utc_start)}/${edge.node.beam}/`,
         action: edge.node.restricted ? (
           <Button size="sm" variant="outline-dark">
             <span className="small">
@@ -48,7 +48,7 @@ const FoldDetailTable = ({
         ) : (
           <ButtonGroup vertical>
             <Link
-              to={`/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`}
+              to={`/${jname}/${formatUTC(edge.node.observation.utc_start)}/${edge.node.beam}/`}
               size="sm"
               variant="outline-secondary"
               as={Button}
@@ -56,7 +56,7 @@ const FoldDetailTable = ({
               View
             </Link>
             <Link
-              to={`/session/${formatUTC(edge.node.utc)}/`}
+              to={`/session/${formatUTC(edge.node.observation.utc_start)}/`}
               size="sm"
               variant="outline-secondary"
               as={Button}
@@ -74,18 +74,22 @@ const FoldDetailTable = ({
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
-  const { ephemeris, ephemerisUpdated } =
-    foldObservationDetails.edges[foldObservationDetails.edges.length - 1].node;
+  const ephemeris =
+    foldPulsarResult.edges[foldPulsarResult.edges.length - 1].node
+      .ephemeris;
+  const ephemerisUpdated =
+    foldPulsarResult.edges[foldPulsarResult.edges.length - 1].node
+      .ephemerisIsUpdatedAt;
 
   const columns =
-    mainProject === "MONSPSR" ? molonglo.columns : meertime.columns;
+    project === "MONSPSR" ? molonglo.columns : meertime.columns;
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
   // totalEstimatedDiskSpace is a human readable formatted byte string in the form of "900.2\u00a0MB".
   // We split on this character so we can use the number and the units separately.
   const [size, sizeFormat] =
-    foldObservationDetails.totalEstimatedDiskSpace.split("\u00a0");
+    foldPulsarResult.totalEstimatedDiskSpace.split("\u00a0");
 
   const handleBandFilter = (band) => {
     if (band.toLowerCase() === "all") {
@@ -112,13 +116,13 @@ const FoldDetailTable = ({
   };
 
   const summaryData = [
-    { title: "Observations", value: foldObservationDetails.totalObservations },
-    { title: "Projects", value: foldObservationDetails.totalProjects },
+    { title: "Observations", value: foldPulsarResult.totalObservations },
+    { title: "Projects", value: foldPulsarResult.totalProjects },
     {
       title: "Timespan [days]",
-      value: foldObservationDetails.totalTimespanDays,
+      value: foldPulsarResult.totalTimespanDays,
     },
-    { title: "Hours", value: foldObservationDetails.totalObservationHours },
+    { title: "Hours", value: foldPulsarResult.totalObservationHours },
     { title: `Size [${sizeFormat}]`, value: size },
   ];
 
@@ -126,7 +130,7 @@ const FoldDetailTable = ({
     <div className="fold-detail-table">
       <Row className="mb-3">
         <Col md={5}>
-          <ReactMarkdown>{foldObservationDetails.description}</ReactMarkdown>
+          <ReactMarkdown>{foldPulsarResult.description}</ReactMarkdown>
         </Col>
       </Row>
       <Row>
@@ -142,7 +146,7 @@ const FoldDetailTable = ({
               ? "View folding ephemeris"
               : "Folding ephemeris unavailable"}
           </Button>
-          {mainProject !== "MONSPSR" && (
+          {project !== "MONSPSR" && (
             <Button
               size="sm"
               className="mr-2 mb-2"
@@ -154,28 +158,28 @@ const FoldDetailTable = ({
             </Button>
           )}
           {localStorage.isStaff === "true" &&
-            foldObservationDetails.ephemerisLink && (
+            foldPulsarResult.ephemerisLink && (
               <Button
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => createLink(foldObservationDetails.ephemerisLink)}
+                onClick={() => createLink(foldPulsarResult.ephemerisLink)}
               >
                 Download ephemeris
               </Button>
             )}
           {localStorage.isStaff === "true" &&
-            foldObservationDetails.toasLink && (
+            foldPulsarResult.toasLink && (
               <Button
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => createLink(foldObservationDetails.toasLink)}
+                onClick={() => createLink(foldPulsarResult.toasLink)}
               >
                 Download TOAs
               </Button>
             )}
-          {localStorage.isStaff === "true" &&
+          {/* {localStorage.isStaff === "true" &&
             foldPulsar.files.edges.length > 0 && (
               <Button
                 size="sm"
@@ -185,7 +189,7 @@ const FoldDetailTable = ({
               >
                 Download data files
               </Button>
-            )}
+            )} */}
         </Col>
       </Row>
       {ephemeris && (
@@ -196,13 +200,13 @@ const FoldDetailTable = ({
           setShow={setEphemerisVisible}
         />
       )}
-      {localStorage.isStaff === "true" && foldPulsar.files && (
+      {/* {localStorage.isStaff === "true" && foldPulsar.files && (
         <FileDownloadModal
           visible={downloadModalVisible}
           files={foldPulsar.files}
           setShow={setDownloadModalVisible}
         />
-      )}
+      )} */}
       <DataView
         summaryData={summaryData}
         columns={columnsSizeFiltered}
@@ -210,9 +214,9 @@ const FoldDetailTable = ({
         setProject={handleProjectFilter}
         setBand={handleBandFilter}
         plot
-        maxPlotLength={foldObservationDetails.maxPlotLength}
-        minPlotLength={foldObservationDetails.minPlotLength}
-        mainProject={mainProject}
+        maxPlotLength={foldPulsarResult.maxPlotLength}
+        minPlotLength={foldPulsarResult.minPlotLength}
+        project={project}
         keyField="key"
         card={FoldDetailCard}
       />

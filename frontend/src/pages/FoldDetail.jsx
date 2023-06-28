@@ -4,19 +4,7 @@ import MainLayout from "../components/MainLayout";
 
 const query = graphql`
   query FoldDetailQuery($jname: String!, $mainProject: String) {
-    foldPulsar(jname: $jname, mainProject: $mainProject) {
-      files {
-        edges {
-          node {
-            project
-            fileType
-            size
-            downloadLink
-          }
-        }
-      }
-    }
-    foldObservationDetails(jname: $jname, mainProject: $mainProject) {
+    foldPulsarResult(pulsar: $jname, mainProject: $mainProject) {
       totalObservations
       totalObservationHours
       totalProjects
@@ -29,27 +17,32 @@ const query = graphql`
       toasLink
       edges {
         node {
-          id
-          utc
-          project
-          ephemeris
-          ephemerisIsUpdatedAt
-          length
-          beam
-          bw
-          nchan
-          band
-          nbin
-          nant
-          nantEff
-          dmFold
-          dmMeerpipe
-          rmMeerpipe
-          snBackend
-          snMeerpipe
-          flux
-          restricted
-          embargoEndDate
+          observation{
+            utcStart
+            duration
+            beam
+            bandwidth
+            nchan
+            band
+            foldNbin
+            nant
+            nantEff
+            project{
+              short
+            }
+            ephemeris {
+              dm
+            }
+          }
+          pipelineRun{
+            dm
+            rm
+            sn
+            flux
+            ephemeris {
+              ephemerisData
+            }
+          }
         }
       }
     }

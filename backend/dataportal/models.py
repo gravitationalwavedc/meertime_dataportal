@@ -74,6 +74,15 @@ class Project(models.Model):
     def __str__(self):
         return f"{self.code}"
 
+    @classmethod
+    def get_query(cls, **kwargs):
+        if "code" in kwargs:
+            if kwargs["code"] == "All":
+                kwargs.pop("code")
+            else:
+                kwargs["code"] = kwargs.pop("code")
+        return cls.objects.filter(**kwargs)
+
 
 class Ephemeris(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
@@ -211,6 +220,14 @@ class Observation(models.Model):
 
     def __str__(self):
         return f"{self.utc_start} {self.beam}"
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        if "telescope" in kwargs:
+            kwargs["telescope__name"] = kwargs.pop("telescope")
+        if "pulsar" in kwargs:
+            kwargs["pulsar__name"] = kwargs.pop("pulsar")
+        return cls.objects.filter(**kwargs)
 
 
 class PipelineRun(Model):
