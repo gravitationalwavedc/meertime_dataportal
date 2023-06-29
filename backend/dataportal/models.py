@@ -227,6 +227,14 @@ class Observation(models.Model):
             kwargs["telescope__name"] = kwargs.pop("telescope")
         if "pulsar" in kwargs:
             kwargs["pulsar__name"] = kwargs.pop("pulsar")
+        if "first" in kwargs:
+            kwargs.pop("first")
+        if "last" in kwargs:
+            kwargs.pop("last")
+        if "before" in kwargs:
+            kwargs.pop("before")
+        if "after" in kwargs:
+            kwargs.pop("after")
         return cls.objects.filter(**kwargs)
 
 

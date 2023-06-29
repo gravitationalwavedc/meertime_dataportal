@@ -29,8 +29,6 @@ class CreateProject(graphene.Mutation):
     class Arguments:
         input = ProjectInput(required=True)
 
-    project = graphene.Field(ProjectType)
-
     @classmethod
     @permission_required("dataportal.add_projects")
     def mutate(cls, self, info, input):
@@ -49,8 +47,6 @@ class UpdateProject(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
         input = ProjectInput(required=True)
-
-    project = graphene.Field(ProjectType)
 
     @classmethod
     @permission_required("dataportal.add_projects")
@@ -72,9 +68,6 @@ class UpdateProject(graphene.Mutation):
 class DeleteProject(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
-
-    ok = graphene.Boolean()
-    project = graphene.Field(ProjectType)
 
     @classmethod
     @permission_required("dataportal.add_projects")

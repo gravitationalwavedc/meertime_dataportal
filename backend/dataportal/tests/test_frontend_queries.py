@@ -155,7 +155,7 @@ def test_fold_detail_query():
     response = client.execute(
         """
         query {
-            allFoldPulsarResults(pulsar:"J0125-2327") {
+            foldPulsarResult(pulsar:"J0125-2327") {
                 totalObservations
                 totalObservationHours
                 totalProjects
