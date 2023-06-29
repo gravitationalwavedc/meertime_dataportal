@@ -15,7 +15,7 @@ def handle_fold_pulsar_summary_update(sender, instance, **kwargs):
     model so it accurately summaries all fold observations for that pulsar.
     """
     # Make a fold result if there isn't one already
-    FoldPulsarResult.objects.get_or_create(
+    fold_pulsar_result, created = FoldPulsarResult.objects.get_or_create(
         observation=instance.observation,
         pulsar=instance.observation.pulsar,
         defaults={
@@ -23,5 +23,12 @@ def handle_fold_pulsar_summary_update(sender, instance, **kwargs):
             "embargo_end_date": datetime.now() + instance.observation.project.embargo_period,
         },
     )
+    if instance.job_state == "Completed":
+        # Update the result foreign key to update the results
+        fold_pulsar_result.pipeline_run = instance
+        fold_pulsar_result.save()
+
+
+    # Update the summary info
     FoldPulsarSummary.update_or_create(instance.observation.pulsar, instance.observation.project.main_project)
 

@@ -42,6 +42,10 @@ class Pulsar(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
+
 
 class Telescope(models.Model):
     name = models.CharField(max_length=64, unique=True)
@@ -223,10 +227,6 @@ class Observation(models.Model):
 
     @classmethod
     def get_query(cls, **kwargs):
-        if "telescope" in kwargs:
-            kwargs["telescope__name"] = kwargs.pop("telescope")
-        if "pulsar" in kwargs:
-            kwargs["pulsar__name"] = kwargs.pop("pulsar")
         if "first" in kwargs:
             kwargs.pop("first")
         if "last" in kwargs:
@@ -251,7 +251,14 @@ class PipelineRun(Model):
     pipeline_version = models.CharField(max_length=16)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.CharField(max_length=64)
-    job_state = models.CharField(max_length=255, blank=True, null=True)
+    JOB_STATE_CHOICES = [
+        ("Pending",   "Pending"),
+        ("Running",   "Running"),
+        ("Completed", "Completed"),
+        ("Failed",    "Failed"),
+        ("Cancelled", "Cancelled"),
+    ]
+    job_state = models.CharField(max_length=9, choices=JOB_STATE_CHOICES, default="Pending")
     location = models.CharField(max_length=255)
     configuration = models.JSONField(blank=True, null=True)
 

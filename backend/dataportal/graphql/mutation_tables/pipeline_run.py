@@ -71,14 +71,14 @@ class CreatePipelineRun(graphene.Mutation):
             configuration=input.configuration,
             # The results will likely not be set when the pipeline run is created
             dm=input.dm,
-            dm_err=input.dm_err,
-            dm_epoch=input.dm_epoch,
-            dm_chi2r=input.dm_chi2r,
-            dm_tres=input.dm_tres,
+            dm_err=input.dmErr,
+            dm_epoch=input.dmEpoch,
+            dm_chi2r=input.dmChi2r,
+            dm_tres=input.dmTres,
             sn=input.sn,
             flux=input.flux,
             rm=input.rm,
-            percent_rfi_zapped=input.percent_rfi_zapped,
+            percent_rfi_zapped=input.percentRfiZapped,
         )
         return CreatePipelineRun(pipeline_run=pipeline_run)
 

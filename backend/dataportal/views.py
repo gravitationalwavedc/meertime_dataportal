@@ -99,7 +99,15 @@ class UploadPipelineImage(ViewSet):
         try:
             pipeline_run  = PipelineRun.objects.get(id=pipeline_run_id)
         except PipelineRun.DoesNotExist:
-            return JsonResponse({'error': f'PipelineRun ID {pipeline_run} not found.'}, status=400)
+            response = f'PipelineRun ID {pipeline_run_id} not found.'
+            return JsonResponse(
+                {
+                    'error': response,
+                    'text':  response,
+                    'success': False,
+                },
+                status=400
+            )
         fold_pulsar_result = FoldPulsarResult.objects.get(observation=pipeline_run.observation)
 
         # Create Template object
