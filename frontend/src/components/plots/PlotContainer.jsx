@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Col } from "react-bootstrap";
-import FluxPlot from "./FluxPlot";
 import Form from "react-bootstrap/Form";
+import FluxPlot from "./FluxPlot";
 import SNRPlot from "./SNRPlot";
+import DMPlot from "./DMPlot";
 
 const PlotContainer = ({ maxPlotLength, ...rest }) => {
   const [activePlot, setActivePlot] = useState("flux");
@@ -20,6 +21,7 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
           >
             <option value="flux">Flux Density</option>
             <option value="snr">S/N</option>
+            <option value="dm">DM</option>
           </Form.Control>
           <Form.Text className="text-muted">
             Drag to zoom, click empty area to reset, double click to view utc.
@@ -27,10 +29,14 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
         </Form.Group>
       </Form.Row>
       <div className="pulsar-plot-wrapper">
-        {activePlot === "snr" ? (
+        { activePlot === "snr" ? (
           <SNRPlot maxPlotLength={maxPlotLength} {...rest} />
-        ) : (
+        ) : activePlot === "flux" ? (
           <FluxPlot maxPlotLength={maxPlotLength} {...rest} />
+        ) : activePlot === "dm" ? (
+          <DMPlot maxPlotLength={maxPlotLength} {...rest} />
+        ) : (
+          <div>No known active plot</div>
         )}
       </div>
     </Col>

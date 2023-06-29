@@ -60,3 +60,41 @@ export const fluxPlotData = (data, columns, search) => {
 
   return { lBandData, UHFData, ticks };
 };
+
+export const dmPlotData = (data, columns, search) => {
+  // Pass table data through the search filter to enable searching pulsars on chart.
+  const results = search.searchText
+    ? handleSearch(data, columns, search)
+    : data;
+
+  // Process the table data in a way that react-vis understands.
+  const lBandData = results
+    .filter((row) => row.observation.band === "LBAND")
+    .map((row) => ({
+      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      value: row.pipelineRun.dm,
+      size:  row.observation.duration,
+      link:  row.plotLink,
+    }));
+
+  const UHFData = results
+    .filter((row) => row.band === "UHF")
+    .map((row) => ({
+      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      value: row.pipelineRun.dm,
+      size:  row.observation.duration,
+      link:  row.plotLink,
+    }));
+
+    const minValue = Math.min(
+      ...lBandData.map((entry) => entry.value),
+      ...UHFData.map(  (entry) => entry.value)
+    );
+
+    const maxValue = Math.max(
+      ...lBandData.map((entry) => entry.value),
+      ...UHFData.map(  (entry) => entry.value)
+    );
+
+  return { lBandData, UHFData, minValue, maxValue };
+};
