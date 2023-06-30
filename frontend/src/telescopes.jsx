@@ -180,7 +180,7 @@ const meertime = {
       text: "Length",
       sort: true,
       screenSizes: ["sm", "md", "lg", "xl", "xxl"],
-      formatter: (cell) => `${parseFloat(cell).toFixed(2)} [s]`,
+      formatter: (cell) => `${parseFloat(cell/60).toFixed(2)} [m]`,
       align: "right",
       headerAlign: "right",
     },
@@ -245,7 +245,7 @@ const meertime = {
       screenSizes: ["xl", "xxl"],
       align: "right",
       headerAlign: "right",
-      formatter: (cell) => parseFloat(cell).toFixed(2),
+      formatter: (cell) => parseFloat(cell).toFixed(4),
     },
     {
       dataField: "pipelineRun.dm",
@@ -254,6 +254,7 @@ const meertime = {
       screenSizes: ["xxl"],
       align: "right",
       headerAlign: "right",
+      formatter: (cell) => parseFloat(cell).toFixed(4),
     },
     {
       dataField: "pipelineRun.rm",
@@ -262,6 +263,7 @@ const meertime = {
       screenSizes: ["xxl"],
       align: "right",
       headerAlign: "right",
+      formatter: (cell) => parseFloat(cell).toFixed(2),
     },
     // {
     //   dataField: "snBackend",
@@ -278,6 +280,7 @@ const meertime = {
       screenSizes: ["xxl"],
       align: "right",
       headerAlign: "right",
+      formatter: (cell) => parseFloat(cell).toFixed(1),
     },
     {
       dataField: "action",

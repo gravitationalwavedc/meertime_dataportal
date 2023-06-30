@@ -158,7 +158,7 @@ const FoldTable = ({
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
-      formatter: (cell) => `${cell} [h]`,
+      formatter: (cell) => `${parseFloat(cell).toFixed(1)} [h]`,
     },
     {
       dataField: "lastSn",
@@ -167,6 +167,7 @@ const FoldTable = ({
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
+      formatter: (cell) => parseFloat(cell).toFixed(1),
     },
     {
       dataField: "highestSn",
@@ -175,6 +176,7 @@ const FoldTable = ({
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
+      formatter: (cell) => parseFloat(cell).toFixed(1),
     },
     {
       dataField: "lowestSn",
@@ -183,6 +185,7 @@ const FoldTable = ({
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
+      formatter: (cell) => parseFloat(cell).toFixed(1),
     },
     {
       dataField: "lastIntegrationMinutes",
@@ -191,7 +194,7 @@ const FoldTable = ({
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
-      formatter: (cell) => `${cell} [m]`,
+      formatter: (cell) => `${parseFloat(cell).toFixed(2)} [m]`,
     },
     {
       dataField: "action",
