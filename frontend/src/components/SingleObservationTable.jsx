@@ -9,16 +9,20 @@ import MainLayout from "./MainLayout";
 import MolongloImageGrid from "./MolongloImageGrid";
 import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
 
-const SingleObservationTable = ({ data, jname }) => {
-  const { foldObservationDetails } = data;
-  const relayObservationModel = foldObservationDetails.edges[0].node;
+const SingleObservationTable = ({
+  data: { foldPulsarResult },
+  jname,
+}) => {
+  const relayObservationModel = foldPulsarResult.edges[0].node;
 
-  const projectChoices = Array.from(
-    relayObservationModel.images.edges.reduce(
-      (plotTypesSet, { node }) => plotTypesSet.add(node.process),
-      new Set()
-    )
-  ).filter((process) => process.toLowerCase() !== "raw");
+  // const projectChoices = Array.from(
+  //   relayObservationModel.images.edges.reduce(
+  //     (plotTypesSet, { node }) => plotTypesSet.add(node.project.short),
+  //     new Set()
+  //   )
+  // )
+  const projectChoices = ['pta'];
+
 
   const [project, setProject] = useState(projectChoices[0]);
 
@@ -28,25 +32,25 @@ const SingleObservationTable = ({ data, jname }) => {
     </Link>
   );
 
-  const displayDate = formatUTC(relayObservationModel.utc);
+  const displayDate = formatUTC(relayObservationModel.observation.utcStart);
 
-  const dataItems = formatSingleObservationData(relayObservationModel);
+  const dataItems = formatSingleObservationData(relayObservationModel.observation);
 
-  const isMolonglo = relayObservationModel.project
+  const isMolonglo = relayObservationModel.observation.project.mainProject.name
     .toLowerCase()
     .includes("monspsr");
 
   return (
     <MainLayout title={title}>
       <h5 className="single-observation-subheading">{displayDate}</h5>
-      <h5>Beam {relayObservationModel.beam}</h5>
+      <h5>Beam {relayObservationModel.observation.beam}</h5>
       <Row>
         <Col>
           <Button
             size="sm"
             as="a"
             className="mr-2"
-            href={kronosLink(relayObservationModel.beam, jname, displayDate)}
+            href={kronosLink(relayObservationModel.observation.beam, jname, displayDate)}
             variant="outline-secondary"
           >
             View Kronos

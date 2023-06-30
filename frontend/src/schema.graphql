@@ -20,6 +20,32 @@ enum CalibrationCalibrationType {
   NONE
 }
 
+type CalibrationConnection {
+  pageInfo: PageInfo!
+  edges: [CalibrationEdge]!
+}
+
+type CalibrationEdge {
+  node: CalibrationNode
+  cursor: String!
+}
+
+input CalibrationInput {
+  delayCalId: String
+  phaseUpId: String
+  calibrationType: String!
+  location: String
+}
+
+type CalibrationNode implements Node {
+  id: ID!
+  delayCalId: String
+  phaseUpId: String
+  calibrationType: CalibrationCalibrationType!
+  location: String
+  observationSet: [ObservationType!]!
+}
+
 type CalibrationType {
   id: ID!
   delayCalId: String
@@ -29,10 +55,34 @@ type CalibrationType {
   observationSet: [ObservationType!]!
 }
 
+type CreateCalibration {
+  calibration: CalibrationType
+}
+
+type CreateEphemeris {
+  ephemeris: EphemerisType
+}
+
+type CreateMainProject {
+  mainproject: MainProjectType
+}
+
+type CreateObservation {
+  observation: ObservationType
+}
+
 type CreatePasswordResetRequest {
   ok: Boolean
   passwordResetRequest: PasswordResetRequestType
   errors: [String]
+}
+
+type CreatePipelineRun {
+  pipelineRun: PipelineRunType
+}
+
+type CreateProject {
+  project: ProjectType
 }
 
 type CreateProvisionalUser {
@@ -41,10 +91,22 @@ type CreateProvisionalUser {
   errors: [String]
 }
 
+type CreatePulsar {
+  pulsar: PulsarType
+}
+
 type CreateRegistration {
   ok: Boolean
   registration: RegistrationType
   errors: [String]
+}
+
+type CreateTelescope {
+  telescope: TelescopeType
+}
+
+type CreateToa {
+  toa: ToaType
 }
 
 scalar DateTime
@@ -56,15 +118,75 @@ type DeactivateUser {
 
 scalar Decimal
 
+type DeleteCalibration {
+  ok: Boolean
+}
+
+type DeleteEphemeris {
+  ok: Boolean
+  ephemeris: EphemerisType
+}
+
+type DeleteMainProject {
+  ok: Boolean
+  mainproject: MainProjectType
+}
+
+type DeleteObservation {
+  ok: Boolean
+}
+
+type DeletePipelineRun {
+  ok: Boolean
+}
+
+type DeleteProject {
+  project: ProjectType
+}
+
+type DeletePulsar {
+  ok: Boolean
+}
+
+type DeleteTelescope {
+  ok: Boolean
+}
+
+type DeleteTemplate {
+  ok: Boolean
+  template: TemplateType
+}
+
+type DeleteToa {
+  ok: Boolean
+}
+
 type DeleteUser {
   ok: Boolean
   errors: [String]
 }
 
+type EphemerisConnection {
+  pageInfo: PageInfo!
+  edges: [EphemerisEdge]!
+}
+
+type EphemerisEdge {
+  node: EphemerisNode
+  cursor: String!
+}
+
+input EphemerisInput {
+  pulsarName: String!
+  projectCode: String!
+  ephemerisText: String!
+  comment: String
+}
+
 type EphemerisNode implements Node {
   id: ID!
-  pulsar: PulsarType!
-  project: ProjectType!
+  pulsar: PulsarNode
+  project: ProjectNode
   createdAt: DateTime!
   createdBy: UserType
   ephemerisData: JSONString
@@ -77,16 +199,7 @@ type EphemerisNode implements Node {
   observationSet: [ObservationType!]!
   pipelinerunSet: [PipelineRunType!]!
   toaSet: [ToaType!]!
-}
-
-type EphemerisNodeConnection {
-  pageInfo: PageInfo!
-  edges: [EphemerisNodeEdge]!
-}
-
-type EphemerisNodeEdge {
-  node: EphemerisNode
-  cursor: String!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 type EphemerisType {
@@ -105,6 +218,7 @@ type EphemerisType {
   observationSet: [ObservationType!]!
   pipelinerunSet: [PipelineRunType!]!
   toaSet: [ToaType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 type FoldPulsarResultConnection {
@@ -129,12 +243,12 @@ type FoldPulsarResultEdge {
 
 type FoldPulsarResultNode implements Node {
   id: ID!
-  observation: ObservationType!
-  pipelineRun: PipelineRunType!
+  observation: ObservationNode
+  pipelineRun: PipelineRunNode
   pulsar: PulsarType!
   embargoEndDate: DateTime
+  images(offset: Int, before: String, after: String, first: Int, last: Int): PipelineImageNodeConnection!
   project: ProjectNode
-  ephemeris: EphemerisNode
 }
 
 type FoldPulsarResultNodeConnection {
@@ -163,8 +277,8 @@ type FoldPulsarSummaryEdge {
 
 type FoldPulsarSummaryNode implements Node {
   id: ID!
-  pulsar: PulsarType!
-  mainProject: MainProjectType!
+  pulsar: PulsarNode
+  mainProject: MainProjectNode
   firstObservation: DateTime!
   latestObservation: DateTime!
   timespan: Int!
@@ -195,22 +309,27 @@ scalar GenericScalar
 
 scalar JSONString
 
-type MainProjectNode implements Node {
-  id: ID!
-  telescope: TelescopeType!
-  name: String!
-  projectSet: [ProjectType!]!
-  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, pulsar_Id: ID, mainProject_Id: ID, firstObservation: DateTime, firstObservation_Isnull: Boolean, firstObservation_Lt: DateTime, firstObservation_Lte: DateTime, firstObservation_Gt: DateTime, firstObservation_Gte: DateTime, firstObservation_Month: DateTime, firstObservation_Year: DateTime, firstObservation_Date: DateTime, latestObservation: DateTime, latestObservation_Isnull: Boolean, latestObservation_Lt: DateTime, latestObservation_Lte: DateTime, latestObservation_Gt: DateTime, latestObservation_Gte: DateTime, latestObservation_Month: DateTime, latestObservation_Year: DateTime, latestObservation_Date: DateTime, timespan: Int, timespan_Lt: Int, timespan_Lte: Int, timespan_Gt: Int, timespan_Gte: Int, numberOfObservations: Int, numberOfObservations_Lt: Int, numberOfObservations_Lte: Int, numberOfObservations_Gt: Int, numberOfObservations_Gte: Int, totalIntegrationHours: Float, totalIntegrationHours_Lt: Float, totalIntegrationHours_Lte: Float, totalIntegrationHours_Gt: Float, totalIntegrationHours_Gte: Float, lastIntegrationMinutes: Float, lastIntegrationMinutes_Lt: Float, lastIntegrationMinutes_Lte: Float, lastIntegrationMinutes_Gt: Float, lastIntegrationMinutes_Gte: Float, allBands: String, lastSn: Float, lastSn_Lt: Float, lastSn_Lte: Float, lastSn_Gt: Float, lastSn_Gte: Float, highestSn: Float, highestSn_Lt: Float, highestSn_Lte: Float, highestSn_Gt: Float, highestSn_Gte: Float, lowestSn: Float, lowestSn_Lt: Float, lowestSn_Lte: Float, lowestSn_Gt: Float, lowestSn_Gte: Float, avgSnPipe: Float, avgSnPipe_Lt: Float, avgSnPipe_Lte: Float, avgSnPipe_Gt: Float, avgSnPipe_Gte: Float, maxSnPipe: Float, maxSnPipe_Lt: Float, maxSnPipe_Lte: Float, maxSnPipe_Gt: Float, maxSnPipe_Gte: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
-}
-
-type MainProjectNodeConnection {
+type MainProjectConnection {
   pageInfo: PageInfo!
-  edges: [MainProjectNodeEdge]!
+  edges: [MainProjectEdge]!
 }
 
-type MainProjectNodeEdge {
+type MainProjectEdge {
   node: MainProjectNode
   cursor: String!
+}
+
+input MainProjectInput {
+  telescopeName: String!
+  name: String!
+}
+
+type MainProjectNode implements Node {
+  id: ID!
+  telescope: TelescopeNode
+  name: String!
+  projectSet: [ProjectType!]!
+  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
 }
 
 type MainProjectType {
@@ -218,7 +337,7 @@ type MainProjectType {
   telescope: TelescopeType!
   name: String!
   projectSet: [ProjectType!]!
-  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, pulsar_Id: ID, mainProject_Id: ID, firstObservation: DateTime, firstObservation_Isnull: Boolean, firstObservation_Lt: DateTime, firstObservation_Lte: DateTime, firstObservation_Gt: DateTime, firstObservation_Gte: DateTime, firstObservation_Month: DateTime, firstObservation_Year: DateTime, firstObservation_Date: DateTime, latestObservation: DateTime, latestObservation_Isnull: Boolean, latestObservation_Lt: DateTime, latestObservation_Lte: DateTime, latestObservation_Gt: DateTime, latestObservation_Gte: DateTime, latestObservation_Month: DateTime, latestObservation_Year: DateTime, latestObservation_Date: DateTime, timespan: Int, timespan_Lt: Int, timespan_Lte: Int, timespan_Gt: Int, timespan_Gte: Int, numberOfObservations: Int, numberOfObservations_Lt: Int, numberOfObservations_Lte: Int, numberOfObservations_Gt: Int, numberOfObservations_Gte: Int, totalIntegrationHours: Float, totalIntegrationHours_Lt: Float, totalIntegrationHours_Lte: Float, totalIntegrationHours_Gt: Float, totalIntegrationHours_Gte: Float, lastIntegrationMinutes: Float, lastIntegrationMinutes_Lt: Float, lastIntegrationMinutes_Lte: Float, lastIntegrationMinutes_Gt: Float, lastIntegrationMinutes_Gte: Float, allBands: String, lastSn: Float, lastSn_Lt: Float, lastSn_Lte: Float, lastSn_Gt: Float, lastSn_Gte: Float, highestSn: Float, highestSn_Lt: Float, highestSn_Lte: Float, highestSn_Gt: Float, highestSn_Gte: Float, lowestSn: Float, lowestSn_Lt: Float, lowestSn_Lte: Float, lowestSn_Gt: Float, lowestSn_Gte: Float, avgSnPipe: Float, avgSnPipe_Lt: Float, avgSnPipe_Lte: Float, avgSnPipe_Gt: Float, avgSnPipe_Gte: Float, maxSnPipe: Float, maxSnPipe_Lt: Float, maxSnPipe_Lte: Float, maxSnPipe_Gt: Float, maxSnPipe_Gte: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
+  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
 }
 
 type Mutation {
@@ -234,6 +353,34 @@ type Mutation {
   passwordReset(password: String!, verificationCode: String!): PasswordReset
   passwordChange(oldPassword: String!, password: String!, username: String!): PasswordChange
   accountActivation(activationCode: String!, userInput: RegistrationInput!): AccountActivation
+  createToa(input: ToaInput!): CreateToa
+  updateToa(id: Int!, input: ToaInput!): UpdateToa
+  deleteToa(id: Int!): DeleteToa
+  createPipelineRun(input: PipelineRunInput): CreatePipelineRun
+  updatePipelineRun(id: Int!, input: PipelineRunInput!): UpdatePipelineRun
+  deletePipelineRun(id: Int!): DeletePipelineRun
+  deleteTemplate(id: Int!): DeleteTemplate
+  createProject(input: ProjectInput!): CreateProject
+  updateProject(id: Int!, input: ProjectInput!): UpdateProject
+  deleteProject(id: Int!): DeleteProject
+  createMainProject(input: MainProjectInput!): CreateMainProject
+  updateMainProject(id: Int!, input: MainProjectInput!): UpdateMainProject
+  deleteMainProject(id: Int!): DeleteMainProject
+  createTelescope(input: TelescopeInput!): CreateTelescope
+  updateTelescope(id: Int!, input: TelescopeInput!): UpdateTelescope
+  deleteTelescope(id: Int!): DeleteTelescope
+  createEphemeris(input: EphemerisInput!): CreateEphemeris
+  updateEphemeris(id: Int!, input: EphemerisInput!): UpdateEphemeris
+  deleteEphemeris(id: Int!): DeleteEphemeris
+  createCalibration(input: CalibrationInput): CreateCalibration
+  updateCalibration(id: Int!, input: CalibrationInput!): UpdateCalibration
+  deleteCalibration(id: Int!): DeleteCalibration
+  createObservation(input: ObservationInput): CreateObservation
+  updateObservation(id: Int!, input: ObservationInput!): UpdateObservation
+  deleteObservation(id: Int!): DeleteObservation
+  createPulsar(input: PulsarsInput): CreatePulsar
+  updatePulsar(id: Int!, input: PulsarsInput!): UpdatePulsar
+  deletePulsar(id: Int!): DeletePulsar
   tokenAuth(input: ObtainJSONWebTokenInput!): ObtainJSONWebTokenPayload
   verifyToken(input: VerifyInput!): VerifyPayload
   refreshToken(input: RefreshInput!): RefreshPayload
@@ -253,12 +400,52 @@ enum ObservationBand {
   SBAND_4
 }
 
+type ObservationConnection {
+  pageInfo: PageInfo!
+  edges: [ObservationEdge]!
+}
+
+type ObservationEdge {
+  node: ObservationNode
+  cursor: String!
+}
+
+input ObservationInput {
+  pulsarName: String!
+  telescopeName: String!
+  projectCode: String!
+  calibrationId: Int!
+  frequency: Float
+  bandwidth: Float
+  nchan: Int
+  beam: Int
+  nant: Int
+  nantEff: Int
+  npol: Int
+  obsType: String
+  utcStart: DateTime
+  raj: String
+  decj: String
+  duration: Float
+  nbit: Int
+  tsamp: Float
+  ephemerisText: String
+  foldNbin: Int
+  foldNchan: Int
+  foldTsubint: Int
+  filterbankNbit: Int
+  filterbankNpol: Int
+  filterbankNchan: Int
+  filterbankTsamp: Float
+  filterbankDm: Float
+}
+
 type ObservationNode implements Node {
   id: ID!
-  pulsar: PulsarType!
-  telescope: TelescopeType!
+  pulsar: PulsarNode
+  telescope: TelescopeNode
   project: ProjectNode
-  calibration: CalibrationType
+  calibration: CalibrationNode
   band: ObservationBand!
   frequency: Float!
   bandwidth: Float!
@@ -284,17 +471,7 @@ type ObservationNode implements Node {
   filterbankTsamp: Float
   filterbankDm: Float
   pipelinerunSet: [PipelineRunType!]!
-  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation_Id: ID, pipelineRun_Id: ID, pulsar_Id: ID, embargoEndDate: DateTime, embargoEndDate_Isnull: Boolean, embargoEndDate_Lt: DateTime, embargoEndDate_Lte: DateTime, embargoEndDate_Gt: DateTime, embargoEndDate_Gte: DateTime, embargoEndDate_Month: DateTime, embargoEndDate_Year: DateTime, embargoEndDate_Date: DateTime): FoldPulsarResultNodeConnection!
-}
-
-type ObservationNodeConnection {
-  pageInfo: PageInfo!
-  edges: [ObservationNodeEdge]!
-}
-
-type ObservationNodeEdge {
-  node: ObservationNode
-  cursor: String!
+  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): FoldPulsarResultNodeConnection!
 }
 
 enum ObservationObsType {
@@ -334,7 +511,7 @@ type ObservationType {
   filterbankTsamp: Float
   filterbankDm: Float
   pipelinerunSet: [PipelineRunType!]!
-  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation_Id: ID, pipelineRun_Id: ID, pulsar_Id: ID, embargoEndDate: DateTime, embargoEndDate_Isnull: Boolean, embargoEndDate_Lt: DateTime, embargoEndDate_Lte: DateTime, embargoEndDate_Gt: DateTime, embargoEndDate_Gte: DateTime, embargoEndDate_Month: DateTime, embargoEndDate_Year: DateTime, embargoEndDate_Date: DateTime): FoldPulsarResultNodeConnection!
+  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): FoldPulsarResultNodeConnection!
 }
 
 input ObtainJSONWebTokenInput {
@@ -385,17 +562,130 @@ type PasswordResetRequestType implements Node {
   lastUpdated: DateTime!
 }
 
+type PipelineFileConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineFileEdge]!
+}
+
+type PipelineFileEdge {
+  node: PipelineFileNode
+  cursor: String!
+}
+
+type PipelineFileNode implements Node {
+  id: ID!
+  pipelineRun: PipelineRunNode
+  file: String
+  ozstarPath: String
+  fileType: String
+}
+
+type PipelineFileNodeConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineFileNodeEdge]!
+}
+
+type PipelineFileNodeEdge {
+  node: PipelineFileNode
+  cursor: String!
+}
+
+type PipelineImageConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineImageEdge]!
+}
+
+type PipelineImageEdge {
+  node: PipelineImageNode
+  cursor: String!
+}
+
+enum PipelineImageImageType {
+  TOA_SINGLE
+  PROFILE
+  PROFILE_POL
+  PHASE_TIME
+  PHASE_FREQ
+  BANDPASS
+  SNR_CUMUL
+  SNR_SINGLE
+}
+
+type PipelineImageNode implements Node {
+  id: ID!
+  foldPulsarResult: FoldPulsarResultNode
+  image: String
+  url: String
+  cleaned: Boolean!
+  imageType: PipelineImageImageType!
+  resolution: PipelineImageResolution!
+}
+
+type PipelineImageNodeConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineImageNodeEdge]!
+}
+
+type PipelineImageNodeEdge {
+  node: PipelineImageNode
+  cursor: String!
+}
+
+enum PipelineImageResolution {
+  HIGH
+  LOW
+}
+
+type PipelineRunConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineRunEdge]!
+}
+
+type PipelineRunEdge {
+  node: PipelineRunNode
+  cursor: String!
+}
+
+input PipelineRunInput {
+  observationId: Int
+  ephemerisId: Int
+  templateId: Int
+  pipelineName: String
+  pipelineDescription: String
+  pipelineVersion: String
+  jobState: String
+  location: String
+  configuration: String
+  dm: Float
+  dmErr: Float
+  dmEpoch: Float
+  dmChi2r: Float
+  dmTres: Float
+  sn: Float
+  flux: Float
+  rm: Float
+  percentRfiZapped: Float
+}
+
+enum PipelineRunJobState {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
 type PipelineRunNode implements Node {
   id: ID!
   observation: ObservationType!
-  ephemeris: EphemerisType
-  template: TemplateType!
+  ephemeris: EphemerisNode
+  template: TemplateNode
   pipelineName: String!
   pipelineDescription: String
   pipelineVersion: String!
   createdAt: DateTime!
   createdBy: String!
-  jobState: String
+  jobState: PipelineRunJobState!
   location: String!
   configuration: JSONString
   ephemerisDownloadLink: String
@@ -409,18 +699,11 @@ type PipelineRunNode implements Node {
   flux: Float
   rm: Float
   percentRfiZapped: Float
-  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation_Id: ID, pipelineRun_Id: ID, pulsar_Id: ID, embargoEndDate: DateTime, embargoEndDate_Isnull: Boolean, embargoEndDate_Lt: DateTime, embargoEndDate_Lte: DateTime, embargoEndDate_Gt: DateTime, embargoEndDate_Gte: DateTime, embargoEndDate_Month: DateTime, embargoEndDate_Year: DateTime, embargoEndDate_Date: DateTime): FoldPulsarResultNodeConnection!
+  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): FoldPulsarResultNodeConnection!
+  pipelinefileSet(offset: Int, before: String, after: String, first: Int, last: Int): PipelineFileNodeConnection!
   toaSet: [ToaType!]!
-}
-
-type PipelineRunNodeConnection {
-  pageInfo: PageInfo!
-  edges: [PipelineRunNodeEdge]!
-}
-
-type PipelineRunNodeEdge {
-  node: PipelineRunNode
-  cursor: String!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
+  project: ProjectNode
 }
 
 type PipelineRunType {
@@ -433,7 +716,7 @@ type PipelineRunType {
   pipelineVersion: String!
   createdAt: DateTime!
   createdBy: String!
-  jobState: String
+  jobState: PipelineRunJobState!
   location: String!
   configuration: JSONString
   ephemerisDownloadLink: String
@@ -447,13 +730,33 @@ type PipelineRunType {
   flux: Float
   rm: Float
   percentRfiZapped: Float
-  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation_Id: ID, pipelineRun_Id: ID, pulsar_Id: ID, embargoEndDate: DateTime, embargoEndDate_Isnull: Boolean, embargoEndDate_Lt: DateTime, embargoEndDate_Lte: DateTime, embargoEndDate_Gt: DateTime, embargoEndDate_Gte: DateTime, embargoEndDate_Month: DateTime, embargoEndDate_Year: DateTime, embargoEndDate_Date: DateTime): FoldPulsarResultNodeConnection!
+  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): FoldPulsarResultNodeConnection!
+  pipelinefileSet(offset: Int, before: String, after: String, first: Int, last: Int): PipelineFileNodeConnection!
   toaSet: [ToaType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
+}
+
+type ProjectConnection {
+  pageInfo: PageInfo!
+  edges: [ProjectEdge]!
+}
+
+type ProjectEdge {
+  node: ProjectNode
+  cursor: String!
+}
+
+input ProjectInput {
+  mainProjectName: String!
+  code: String
+  short: String
+  embargoPeriod: Int
+  description: String
 }
 
 type ProjectNode implements Node {
   id: ID!
-  mainProject: MainProjectType
+  mainProject: MainProjectNode
   code: String!
   short: String!
   embargoPeriod: Int
@@ -461,16 +764,6 @@ type ProjectNode implements Node {
   ephemerisSet: [EphemerisType!]!
   templateSet: [TemplateType!]!
   observationSet: [ObservationType!]!
-}
-
-type ProjectNodeConnection {
-  pageInfo: PageInfo!
-  edges: [ProjectNodeEdge]!
-}
-
-type ProjectNodeEdge {
-  node: ProjectNode
-  cursor: String!
 }
 
 type ProjectType {
@@ -513,6 +806,16 @@ type ProvisionalUserTypeEdge {
   cursor: String!
 }
 
+type PulsarConnection {
+  pageInfo: PageInfo!
+  edges: [PulsarEdge]!
+}
+
+type PulsarEdge {
+  node: PulsarNode
+  cursor: String!
+}
+
 type PulsarNode implements Node {
   id: ID!
   name: String!
@@ -520,18 +823,8 @@ type PulsarNode implements Node {
   ephemerisSet: [EphemerisType!]!
   templateSet: [TemplateType!]!
   observationSet: [ObservationType!]!
-  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation_Id: ID, pipelineRun_Id: ID, pulsar_Id: ID, embargoEndDate: DateTime, embargoEndDate_Isnull: Boolean, embargoEndDate_Lt: DateTime, embargoEndDate_Lte: DateTime, embargoEndDate_Gt: DateTime, embargoEndDate_Gte: DateTime, embargoEndDate_Month: DateTime, embargoEndDate_Year: DateTime, embargoEndDate_Date: DateTime): FoldPulsarResultNodeConnection!
-  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, pulsar_Id: ID, mainProject_Id: ID, firstObservation: DateTime, firstObservation_Isnull: Boolean, firstObservation_Lt: DateTime, firstObservation_Lte: DateTime, firstObservation_Gt: DateTime, firstObservation_Gte: DateTime, firstObservation_Month: DateTime, firstObservation_Year: DateTime, firstObservation_Date: DateTime, latestObservation: DateTime, latestObservation_Isnull: Boolean, latestObservation_Lt: DateTime, latestObservation_Lte: DateTime, latestObservation_Gt: DateTime, latestObservation_Gte: DateTime, latestObservation_Month: DateTime, latestObservation_Year: DateTime, latestObservation_Date: DateTime, timespan: Int, timespan_Lt: Int, timespan_Lte: Int, timespan_Gt: Int, timespan_Gte: Int, numberOfObservations: Int, numberOfObservations_Lt: Int, numberOfObservations_Lte: Int, numberOfObservations_Gt: Int, numberOfObservations_Gte: Int, totalIntegrationHours: Float, totalIntegrationHours_Lt: Float, totalIntegrationHours_Lte: Float, totalIntegrationHours_Gt: Float, totalIntegrationHours_Gte: Float, lastIntegrationMinutes: Float, lastIntegrationMinutes_Lt: Float, lastIntegrationMinutes_Lte: Float, lastIntegrationMinutes_Gt: Float, lastIntegrationMinutes_Gte: Float, allBands: String, lastSn: Float, lastSn_Lt: Float, lastSn_Lte: Float, lastSn_Gt: Float, lastSn_Gte: Float, highestSn: Float, highestSn_Lt: Float, highestSn_Lte: Float, highestSn_Gt: Float, highestSn_Gte: Float, lowestSn: Float, lowestSn_Lt: Float, lowestSn_Lte: Float, lowestSn_Gt: Float, lowestSn_Gte: Float, avgSnPipe: Float, avgSnPipe_Lt: Float, avgSnPipe_Lte: Float, avgSnPipe_Gt: Float, avgSnPipe_Gte: Float, maxSnPipe: Float, maxSnPipe_Lt: Float, maxSnPipe_Lte: Float, maxSnPipe_Gt: Float, maxSnPipe_Gte: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
-}
-
-type PulsarNodeConnection {
-  pageInfo: PageInfo!
-  edges: [PulsarNodeEdge]!
-}
-
-type PulsarNodeEdge {
-  node: PulsarNode
-  cursor: String!
+  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): FoldPulsarResultNodeConnection!
+  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
 }
 
 type PulsarType {
@@ -541,23 +834,31 @@ type PulsarType {
   ephemerisSet: [EphemerisType!]!
   templateSet: [TemplateType!]!
   observationSet: [ObservationType!]!
-  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation_Id: ID, pipelineRun_Id: ID, pulsar_Id: ID, embargoEndDate: DateTime, embargoEndDate_Isnull: Boolean, embargoEndDate_Lt: DateTime, embargoEndDate_Lte: DateTime, embargoEndDate_Gt: DateTime, embargoEndDate_Gte: DateTime, embargoEndDate_Month: DateTime, embargoEndDate_Year: DateTime, embargoEndDate_Date: DateTime): FoldPulsarResultNodeConnection!
-  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, pulsar_Id: ID, mainProject_Id: ID, firstObservation: DateTime, firstObservation_Isnull: Boolean, firstObservation_Lt: DateTime, firstObservation_Lte: DateTime, firstObservation_Gt: DateTime, firstObservation_Gte: DateTime, firstObservation_Month: DateTime, firstObservation_Year: DateTime, firstObservation_Date: DateTime, latestObservation: DateTime, latestObservation_Isnull: Boolean, latestObservation_Lt: DateTime, latestObservation_Lte: DateTime, latestObservation_Gt: DateTime, latestObservation_Gte: DateTime, latestObservation_Month: DateTime, latestObservation_Year: DateTime, latestObservation_Date: DateTime, timespan: Int, timespan_Lt: Int, timespan_Lte: Int, timespan_Gt: Int, timespan_Gte: Int, numberOfObservations: Int, numberOfObservations_Lt: Int, numberOfObservations_Lte: Int, numberOfObservations_Gt: Int, numberOfObservations_Gte: Int, totalIntegrationHours: Float, totalIntegrationHours_Lt: Float, totalIntegrationHours_Lte: Float, totalIntegrationHours_Gt: Float, totalIntegrationHours_Gte: Float, lastIntegrationMinutes: Float, lastIntegrationMinutes_Lt: Float, lastIntegrationMinutes_Lte: Float, lastIntegrationMinutes_Gt: Float, lastIntegrationMinutes_Gte: Float, allBands: String, lastSn: Float, lastSn_Lt: Float, lastSn_Lte: Float, lastSn_Gt: Float, lastSn_Gte: Float, highestSn: Float, highestSn_Lt: Float, highestSn_Lte: Float, highestSn_Gt: Float, highestSn_Gte: Float, lowestSn: Float, lowestSn_Lt: Float, lowestSn_Lte: Float, lowestSn_Gt: Float, lowestSn_Gte: Float, avgSnPipe: Float, avgSnPipe_Lt: Float, avgSnPipe_Lte: Float, avgSnPipe_Gt: Float, avgSnPipe_Gte: Float, maxSnPipe: Float, maxSnPipe_Lt: Float, maxSnPipe_Lte: Float, maxSnPipe_Gt: Float, maxSnPipe_Gte: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
+  foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): FoldPulsarResultNodeConnection!
+  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
+}
+
+input PulsarsInput {
+  name: String!
+  comment: String
 }
 
 type Query {
-  pulsar(name: String!): PulsarNode
-  allPulsars(offset: Int, before: String, after: String, first: Int, last: Int, name: String, comment: String): PulsarNodeConnection
-  observation(pulsar: String, telescope: String, before: String, after: String, first: Int, last: Int): ObservationNodeConnection
-  mainproject(name: String!): MainProjectNode
-  allMainprojects(offset: Int, before: String, after: String, first: Int, last: Int, telescope: ID, name: String): MainProjectNodeConnection
-  project(code: String, before: String, after: String, first: Int, last: Int): ProjectNodeConnection
-  ephemeris(id: ID!): EphemerisNode
-  allEphemeriss(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String): EphemerisNodeConnection
-  pipelinerun(id: Int!): PipelineRunNode
-  allPipelineruns(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, observation_Id: ID, ephemeris_Id: ID, template_Id: ID, pipelineName: String, pipelineDescription: String, pipelineVersion: String, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, jobState: String, location: String, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, dmErr: Float, dmErr_Lt: Float, dmErr_Lte: Float, dmErr_Gt: Float, dmErr_Gte: Float, dmEpoch: Float, dmEpoch_Lt: Float, dmEpoch_Lte: Float, dmEpoch_Gt: Float, dmEpoch_Gte: Float, dmChi2r: Float, dmChi2r_Lt: Float, dmChi2r_Lte: Float, dmChi2r_Gt: Float, dmChi2r_Gte: Float, dmTres: Float, dmTres_Lt: Float, dmTres_Lte: Float, dmTres_Gt: Float, dmTres_Gte: Float, sn: Float, sn_Lt: Float, sn_Lte: Float, sn_Gt: Float, sn_Gte: Float, flux: Float, flux_Lt: Float, flux_Lte: Float, flux_Gt: Float, flux_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, percentRfiZapped: Float, percentRfiZapped_Lt: Float, percentRfiZapped_Lte: Float, percentRfiZapped_Gt: Float, percentRfiZapped_Gte: Float): PipelineRunNodeConnection
+  pulsar(name: String, before: String, after: String, first: Int, last: Int): PulsarConnection
+  telescope(before: String, after: String, first: Int, last: Int): TelescopeConnection
+  mainProject(name: String!, before: String, after: String, first: Int, last: Int): MainProjectConnection
+  project(code: String, before: String, after: String, first: Int, last: Int): ProjectConnection
+  ephemeris(before: String, after: String, first: Int, last: Int): EphemerisConnection
+  template(before: String, after: String, first: Int, last: Int): TemplateConnection
+  calibration(before: String, after: String, first: Int, last: Int): CalibrationConnection
+  observation(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, before: String, after: String, first: Int, last: Int): ObservationConnection
+  pipelineRun(before: String, after: String, first: Int, last: Int): PipelineRunConnection
+  foldPulsarResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): FoldPulsarResultConnection
   foldPulsarSummary(mainProject: String, mostCommonProject: String, band: String, before: String, after: String, first: Int, last: Int): FoldPulsarSummaryConnection
-  foldPulsarResult(pulsar: String, mainProject: String, before: String, after: String, first: Int, last: Int): FoldPulsarResultConnection
+  pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
+  pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
+  toa(before: String, after: String, first: Int, last: Int): ToaConnection
+  residual(before: String, after: String, first: Int, last: Int): ResidualConnection
 }
 
 input RefreshInput {
@@ -606,6 +907,74 @@ type RegistrationTypeEdge {
   cursor: String!
 }
 
+type ResidualConnection {
+  pageInfo: PageInfo!
+  edges: [ResidualEdge]!
+}
+
+type ResidualEdge {
+  node: ResidualNode
+  cursor: String!
+}
+
+type ResidualNode implements Node {
+  id: ID!
+  pipelineRun: PipelineRunNode
+  ephemeris: EphemerisNode
+  template: TemplateNode
+  mjd: Float!
+  dayOfYear: Float!
+  binaryOrbitalPhase: Float!
+  residualSec: Float!
+  residualSecErr: Float!
+  residualPhase: Float!
+  residualPhaseErr: Float!
+  sn: Float!
+  frequency: Float!
+  nchan: Int!
+  nsub: Int!
+  site: String
+  quality: ResidualQuality
+  flags: JSONString!
+}
+
+type ResidualNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ResidualNodeEdge]!
+}
+
+type ResidualNodeEdge {
+  node: ResidualNode
+  cursor: String!
+}
+
+enum ResidualQuality {
+  UNASSESSED
+  GOOD
+  BAD
+}
+
+type TelescopeConnection {
+  pageInfo: PageInfo!
+  edges: [TelescopeEdge]!
+}
+
+type TelescopeEdge {
+  node: TelescopeNode
+  cursor: String!
+}
+
+input TelescopeInput {
+  name: String!
+}
+
+type TelescopeNode implements Node {
+  id: ID!
+  name: String!
+  mainprojectSet: [MainProjectType!]!
+  observationSet: [ObservationType!]!
+}
+
 type TelescopeType {
   id: ID!
   name: String!
@@ -623,6 +992,30 @@ enum TemplateBand {
   SBAND_4
 }
 
+type TemplateConnection {
+  pageInfo: PageInfo!
+  edges: [TemplateEdge]!
+}
+
+type TemplateEdge {
+  node: TemplateNode
+  cursor: String!
+}
+
+type TemplateNode implements Node {
+  id: ID!
+  pulsar: PulsarNode
+  project: ProjectNode
+  templateFile: String
+  templateHash: String
+  band: TemplateBand!
+  createdAt: DateTime!
+  createdBy: UserType
+  pipelinerunSet: [PipelineRunType!]!
+  toaSet: [ToaType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
+}
+
 type TemplateType {
   id: ID!
   pulsar: PulsarType!
@@ -634,6 +1027,68 @@ type TemplateType {
   createdBy: UserType
   pipelinerunSet: [PipelineRunType!]!
   toaSet: [ToaType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
+}
+
+type ToaConnection {
+  pageInfo: PageInfo!
+  edges: [ToaEdge]!
+}
+
+type ToaEdge {
+  node: ToaNode
+  cursor: String!
+}
+
+input ToaInput {
+  pipelineRunId: Int!
+  ephemerisId: Int!
+  templateId: Int!
+  archive: String!
+  freqMHz: Float!
+  mjd: Decimal!
+  mjdErr: Float!
+  telescope: String!
+  fe: String
+  be: String
+  f: String
+  bw: Int
+  tobs: Int
+  tmplt: String
+  gof: Float
+  nbin: Int
+  nch: Int
+  chan: Int
+  rcvr: String
+  snr: Float
+  length: Int
+  subint: Int
+}
+
+type ToaNode implements Node {
+  id: ID!
+  pipelineRun: PipelineRunNode
+  ephemeris: EphemerisNode
+  template: TemplateNode
+  archive: String!
+  freqMhz: Float!
+  mjd: Decimal!
+  mjdErr: Float!
+  telescope: String!
+  fe: String
+  be: String
+  f: String
+  bw: Int
+  tobs: Int
+  tmplt: String
+  gof: Float
+  nbin: Int
+  nch: Int
+  chan: Int
+  rcvr: String
+  snr: Float
+  length: Int
+  subint: Int
 }
 
 type ToaType {
@@ -662,9 +1117,45 @@ type ToaType {
   subint: Int
 }
 
+type UpdateCalibration {
+  calibration: CalibrationType
+}
+
+type UpdateEphemeris {
+  ephemeris: EphemerisType
+}
+
+type UpdateMainProject {
+  mainproject: MainProjectType
+}
+
+type UpdateObservation {
+  observation: ObservationType
+}
+
+type UpdatePipelineRun {
+  pipelineRun: PipelineRunType
+}
+
+type UpdateProject {
+  project: ProjectType
+}
+
+type UpdatePulsar {
+  pulsar: PulsarType
+}
+
 type UpdateRole {
   ok: Boolean
   errors: [String]
+}
+
+type UpdateTelescope {
+  telescope: TelescopeType
+}
+
+type UpdateToa {
+  toa: ToaType
 }
 
 enum UserRole {

@@ -28,13 +28,13 @@ const FoldDetailTable = ({
       ...result,
       {
         ...edge.node,
-        key: `${edge.node.observation.utc_start}:${edge.node.observation.beam}`,
+        key: `${edge.node.observation.utcStart}:${edge.node.observation.beam}`,
         jname: jname,
         embargo: edge.node.restricted
           ? "Embargoed until " + formatDDMonYYYY(edge.node.embargoEndDate)
           : "",
-        utc: formatUTC(edge.node.observation.utc_start),
-        plotLink: `/${jname}/${formatUTC(edge.node.observation.utc_start)}/${edge.node.beam}/`,
+        utc: formatUTC(edge.node.observation.utcStart),
+        plotLink: `/${jname}/${formatUTC(edge.node.observation.utcStart)}/${edge.node.observation.beam}/`,
         action: edge.node.restricted ? (
           <Button size="sm" variant="outline-dark">
             <span className="small">
@@ -48,7 +48,7 @@ const FoldDetailTable = ({
         ) : (
           <ButtonGroup vertical>
             <Link
-              to={`/${jname}/${formatUTC(edge.node.observation.utc_start)}/${edge.node.beam}/`}
+              to={`/${jname}/${formatUTC(edge.node.observation.utcStart)}/${edge.node.observation.beam}/`}
               size="sm"
               variant="outline-secondary"
               as={Button}
@@ -56,7 +56,7 @@ const FoldDetailTable = ({
               View
             </Link>
             <Link
-              to={`/session/${formatUTC(edge.node.observation.utc_start)}/`}
+              to={`/session/${formatUTC(edge.node.observation.utcStart)}/`}
               size="sm"
               variant="outline-secondary"
               as={Button}

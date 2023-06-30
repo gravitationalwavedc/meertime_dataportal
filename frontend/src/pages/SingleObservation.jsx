@@ -3,30 +3,37 @@ import SingleObservationTable from "../components/SingleObservationTable";
 import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
-  query SingleObservationQuery($jname: String!, $utc: String!, $beam: Int!) {
-    foldObservationDetails(jname: $jname, utc: $utc, beam: $beam) {
+  query SingleObservationQuery($jname: String!, $utc: String, $beam: Int) {
+    foldPulsarResult(pulsar: $jname, utcStart: $utc, beam: $beam) {
       edges {
         node {
-          beam
-          utc
-          proposal
-          project
-          frequency
-          bw
-          ra
-          dec
-          length
-          nbin
-          nchan
-          tsubint
-          nant
+          observation{
+            beam
+            utcStart
+            project {
+              id
+              short
+              mainProject {
+                name
+              }
+            }
+            frequency
+            bandwidth
+            raj
+            decj
+            duration
+            foldNbin
+            foldNchan
+            foldTsubint
+            nant
+          }
           images {
             edges {
               node {
-                plotType
-                genericPlotType
+                image
+                cleaned
+                imageType
                 resolution
-                process
                 url
               }
             }
