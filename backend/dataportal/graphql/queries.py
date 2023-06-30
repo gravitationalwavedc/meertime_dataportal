@@ -10,7 +10,23 @@ from graphql_jwt.decorators import login_required
 from graphql_relay import from_global_id
 from graphql import GraphQLError
 
-from dataportal.models import Pulsar, Observation, MainProject, Project, Ephemeris, PipelineRun, FoldPulsarSummary, FoldPulsarResult
+from dataportal.models import (
+    Pulsar,
+    Telescope,
+    MainProject,
+    Project,
+    Ephemeris,
+    Template,
+    Calibration,
+    Observation,
+    PipelineRun,
+    FoldPulsarResult,
+    FoldPulsarSummary,
+    PipelineImage,
+    PipelineFile,
+    Toa,
+    Residual,
+)
 
 DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
 NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
@@ -31,18 +47,16 @@ class PulsarNode(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
-
-class EphemerisNode(DjangoObjectType):
+class PulsarConnection(relay.Connection):
     class Meta:
-        model = Ephemeris
-        fields = "__all__"
-        filter_fields = {
-            "pulsar__id": ["exact"],
-            "p0": NUMERIC_FILTERS,
-            "dm": NUMERIC_FILTERS,
-            "ephemeris_hash": ["exact"],
-        }
+        node = PulsarNode
 
+
+class TelescopeNode(DjangoObjectType):
+    class Meta:
+        model = Telescope
+        fields = "__all__"
+        filter_fields = "__all__"
         interfaces = (relay.Node,)
 
     @classmethod
@@ -50,12 +64,40 @@ class EphemerisNode(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
+class TelescopeConnection(relay.Connection):
+    class Meta:
+        node = TelescopeNode
+
+
+class MainProjectNode(DjangoObjectType):
+    class Meta:
+        model = MainProject
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    telescope = graphene.Field(TelescopeNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class MainProjectConnection(relay.Connection):
+    class Meta:
+        node = MainProjectNode
+
+
 class ProjectNode(DjangoObjectType):
     class Meta:
         model = Project
         fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    main_project = graphene.Field(MainProjectNode)
 
     embargoPeriod = graphene.Int()
 
@@ -67,38 +109,55 @@ class ProjectNode(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
-class ProjectNodeConnection(relay.Connection):
+class ProjectConnection(relay.Connection):
     class Meta:
         node = ProjectNode
 
-class ObservationNode(DjangoObjectType):
+
+class EphemerisNode(DjangoObjectType):
     class Meta:
-        model = Observation
+        model = Ephemeris
         fields = "__all__"
-        filter_fields = {
-            "utc_start": DATETIME_FILTERS,
-            "duration": NUMERIC_FILTERS,
-            "telescope__name": ["exact"],
-            "pulsar__name": ["exact"],
-            # "project__id": ["exact"],
-            "project__short": ["exact"],
-        }
+        filter_fields = "__all__"
         interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pulsar = graphene.Field(PulsarNode)
     project = graphene.Field(ProjectNode)
-    ephemeris = graphene.Field(EphemerisNode)
 
     @classmethod
     @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
-class ObservationNodeConnection(relay.Connection):
+class EphemerisConnection(relay.Connection):
     class Meta:
-        node = ObservationNode
+        node = EphemerisNode
 
-class MainProjectNode(DjangoObjectType):
+class TemplateNode(DjangoObjectType):
     class Meta:
-        model = MainProject
+        model = Template
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pulsar = graphene.Field(PulsarNode)
+    project = graphene.Field(ProjectNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class TemplateConnection(relay.Connection):
+    class Meta:
+        node = TemplateNode
+
+
+class CalibrationNode(DjangoObjectType):
+    class Meta:
+        model = Calibration
         fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
@@ -108,6 +167,34 @@ class MainProjectNode(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
+class CalibrationConnection(relay.Connection):
+    class Meta:
+        node = CalibrationNode
+
+
+class ObservationNode(DjangoObjectType):
+    class Meta:
+        model = Observation
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pulsar = graphene.Field(PulsarNode)
+    telescope = graphene.Field(TelescopeNode)
+    project = graphene.Field(ProjectNode)
+    calibration = graphene.Field(CalibrationNode)
+    ephemeris = graphene.Field(EphemerisNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class ObservationConnection(relay.Connection):
+    class Meta:
+        node = ObservationNode
+
 
 class PipelineRunNode(DjangoObjectType):
     class Meta:
@@ -137,123 +224,32 @@ class PipelineRunNode(DjangoObjectType):
 
         interfaces = (relay.Node,)
 
-    @classmethod
-    @login_required
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class FoldPulsarSummaryNode(DjangoObjectType):
-    class Meta:
-        model = FoldPulsarSummary
-        fields = "__all__"
-        filter_fields = {
-            "id": ["exact"],
-            "pulsar__id": ["exact"],
-            "main_project__id": ["exact"],
-            "first_observation": DATETIME_FILTERS,
-            "latest_observation": DATETIME_FILTERS,
-            "timespan": NUMERIC_FILTERS,
-            "number_of_observations": NUMERIC_FILTERS,
-            "total_integration_hours": NUMERIC_FILTERS,
-            "last_integration_minutes": NUMERIC_FILTERS,
-            "all_bands": ["exact"],
-            "last_sn": NUMERIC_FILTERS,
-            "highest_sn": NUMERIC_FILTERS,
-            "lowest_sn": NUMERIC_FILTERS,
-            "avg_sn_pipe": NUMERIC_FILTERS,
-            "max_sn_pipe": NUMERIC_FILTERS,
-            "most_common_project": ["exact"],
-            "all_projects": ["exact"],
-        }
-
-        interfaces = (relay.Node,)
+    # ForeignKey fields
+    project = graphene.Field(ProjectNode)
+    ephemeris = graphene.Field(EphemerisNode)
+    template = graphene.Field(TemplateNode)
 
     @classmethod
     @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
-
-class FoldPulsarSummaryConnection(relay.Connection):
+class PipelineRunConnection(relay.Connection):
     class Meta:
-        node = FoldPulsarSummaryNode
-
-    total_observations = graphene.Int()
-    total_pulsars = graphene.Int()
-    total_observation_time = graphene.Int()
-    total_project_time = graphene.Int()
-
-    def resolve_total_observations(self, instance):
-        return sum(
-            edge.node.number_of_observations
-            for edge in self.edges
-            if edge.node.number_of_observations
-        )
-
-    def resolve_total_pulsars(self, instance):
-        return len(self.edges)
-
-    def resolve_total_observation_time(self, instance):
-        return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
-
-    def resolve_total_project_time(self, instance):
-        # Too slow n(2)
-        total_seconds = sum(
-            obs.duration
-            for obs in Observation.objects.filter(
-                project__short=self.edges[0].node.most_common_project
-            )
-        )
-        return int(total_seconds / 60 / 60)
-
-class PipelineRunNode(DjangoObjectType):
-    class Meta:
-        model = PipelineRun
-        fields = "__all__"
-        filter_fields = {
-            "id": ["exact"],
-            "observation__id": ["exact"],
-            "ephemeris__id": ["exact"],
-            "template__id": ["exact"],
-            "pipeline_name": ["exact"],
-            "pipeline_description": ["exact"],
-            "pipeline_version": ["exact"],
-            "created_at": DATETIME_FILTERS,
-            "job_state": ["exact"],
-            "location": ["exact"],
-            "dm": NUMERIC_FILTERS,
-            "dm_err": NUMERIC_FILTERS,
-            "dm_epoch": NUMERIC_FILTERS,
-            "dm_chi2r": NUMERIC_FILTERS,
-            "dm_tres": NUMERIC_FILTERS,
-            "sn": NUMERIC_FILTERS,
-            "flux": NUMERIC_FILTERS,
-            "rm": NUMERIC_FILTERS,
-            "percent_rfi_zapped": NUMERIC_FILTERS,
-        }
-
-        interfaces = (relay.Node,)
-
-    @classmethod
-    @login_required
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
+        node = PipelineRunNode
 
 
 class FoldPulsarResultNode(DjangoObjectType):
     class Meta:
         model = FoldPulsarResult
         fields = "__all__"
-        filter_fields = {
-            # "id": ["exact"],
-            "observation__id": ["exact"],
-            "pipeline_run__id": ["exact"],
-            "pulsar__id": ["exact"],
-            "embargo_end_date": DATETIME_FILTERS,
-        }
+        filter_fields =  "__all__"
         interfaces = (relay.Node,)
+
+    # ForeignKey fields
     observation = graphene.Field(ObservationNode)
+    pipeline_run = graphene.Field(PipelineRunNode)
+    project = graphene.Field(ProjectNode)
 
     @classmethod
     @login_required
@@ -334,63 +330,219 @@ class FoldPulsarResultConnection(relay.Connection):
         return FoldPulsarResult.objects.order_by("-observation__duration").last().observation.duration
 
 
+class FoldPulsarSummaryNode(DjangoObjectType):
+    class Meta:
+        model = FoldPulsarSummary
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pulsar = graphene.Field(PulsarNode)
+    main_project = graphene.Field(MainProjectNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class FoldPulsarSummaryConnection(relay.Connection):
+    class Meta:
+        node = FoldPulsarSummaryNode
+
+    total_observations = graphene.Int()
+    total_pulsars = graphene.Int()
+    total_observation_time = graphene.Int()
+    total_project_time = graphene.Int()
+
+    def resolve_total_observations(self, instance):
+        return sum(
+            edge.node.number_of_observations
+            for edge in self.edges
+            if edge.node.number_of_observations
+        )
+
+    def resolve_total_pulsars(self, instance):
+        return len(self.edges)
+
+    def resolve_total_observation_time(self, instance):
+        return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
+
+    def resolve_total_project_time(self, instance):
+        # Too slow n(2)
+        total_seconds = sum(
+            obs.duration
+            for obs in Observation.objects.filter(
+                project__short=self.edges[0].node.most_common_project
+            )
+        )
+        return int(total_seconds / 60 / 60)
+
+
+class PipelineImageNode(DjangoObjectType):
+    class Meta:
+        model = PipelineImage
+        fields = "__all__"
+        # filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    fold_pulsar_result = graphene.Field(FoldPulsarResultNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class PipelineImageConnection(relay.Connection):
+    class Meta:
+        node = PipelineImageNode
+
+
+class PipelineFileNode(DjangoObjectType):
+    class Meta:
+        model = PipelineFile
+        fields = "__all__"
+        # filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pipeline_run = graphene.Field(PipelineRunNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class PipelineFileConnection(relay.Connection):
+    class Meta:
+        node = PipelineFileNode
+
+
+class ToaNode(DjangoObjectType):
+    class Meta:
+        model = Toa
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pipeline_run = graphene.Field(PipelineRunNode)
+    ephemeris = graphene.Field(EphemerisNode)
+    template = graphene.Field(TemplateNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class ToaConnection(relay.Connection):
+    class Meta:
+        node = ToaNode
+
+
+class ResidualNode(DjangoObjectType):
+    class Meta:
+        model = Residual
+        fields = "__all__"
+        # filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pipeline_run = graphene.Field(PipelineRunNode)
+    ephemeris = graphene.Field(EphemerisNode)
+    template = graphene.Field(TemplateNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class ResidualConnection(relay.Connection):
+    class Meta:
+        node = ResidualNode
+
 
 
 
 class Query(graphene.ObjectType):
-    # pulsar = relay.Node.Field(PulsarNode)
-    pulsar = graphene.Field(
-        PulsarNode,
-        name=graphene.String(required=True),
-    )
-    allPulsars = DjangoFilterConnectionField(PulsarNode, max_limit=10000)
-
-    # observation = relay.Node.Field(ObservationNode)
-    # allObservations = DjangoFilterConnectionField(ObservationNode, max_limit=10000)
-    observation = relay.ConnectionField(
-        ObservationNodeConnection,
-        pulsar=graphene.String(),
-        telescope=graphene.String(),
+    pulsar = relay.ConnectionField(
+        PulsarConnection,
+        name=graphene.String(),
     )
     @login_required
-    def resolve_observation(self, info, **kwargs):
-        return Observation.get_query(**kwargs)
+    def resolve_pulsar(self, info, **kwargs):
+        return Pulsar.get_query(**kwargs)
 
-    mainproject = graphene.Field(
-        MainProjectNode,
+
+    telescope = relay.ConnectionField(
+        TelescopeConnection,
+    )
+    @login_required
+    def resolve_telescope(self, info, **kwargs):
+        return Telescope.get_query(**kwargs)
+
+
+    main_project = relay.ConnectionField(
+        MainProjectConnection,
         name=graphene.String(required=True),
     )
-    allMainprojects = DjangoFilterConnectionField(MainProjectNode, max_limit=10000)
+    @login_required
+    def resolve_main_project(self, info, **kwargs):
+        return MainProject.get_query(**kwargs)
 
-    # project = graphene.Field(
-    #     ProjectNode,
-    #     code=graphene.String(required=True),
-    # )
-    # allProjects = DjangoFilterConnectionField(ProjectNode, max_limit=10000)
+
     project = relay.ConnectionField(
-        ProjectNodeConnection,
+        ProjectConnection,
         code=graphene.String(),
     )
     @login_required
     def resolve_project(self, info, **kwargs):
         return Project.get_query(**kwargs)
 
-    ephemeris = relay.Node.Field(EphemerisNode)
-    allEphemeriss = DjangoFilterConnectionField(EphemerisNode, max_limit=10000)
 
-    pipelinerun = graphene.Field(PipelineRunNode, id=graphene.Int(required=True))
-    allPipelineruns = DjangoFilterConnectionField(PipelineRunNode, max_limit=10000)
-
-    fold_pulsar_summary = relay.ConnectionField(
-        FoldPulsarSummaryConnection,
-        main_project=graphene.String(),
-        most_common_project=graphene.String(),
-        band=graphene.String(),
+    ephemeris = relay.ConnectionField(
+        EphemerisConnection,
     )
-
     @login_required
-    def resolve_fold_pulsar_summary(self, info, **kwargs):
-        return FoldPulsarSummary.get_query(**kwargs)
+    def resolve_ephemeris(self, info, **kwargs):
+        return Ephemeris.get_query(**kwargs)
+
+
+    template = relay.ConnectionField(
+        TemplateConnection,
+    )
+    @login_required
+    def resolve_template(self, info, **kwargs):
+        return Template.get_query(**kwargs)
+
+
+    calibration = relay.ConnectionField(
+        CalibrationConnection,
+    )
+    @login_required
+    def resolve_calibration(self, info, **kwargs):
+        return Calibration.get_query(**kwargs)
+
+
+    observation = relay.ConnectionField(
+        ObservationConnection,
+        pulsar__name=graphene.String(),
+        telescope__name=graphene.String(),
+        project__id=graphene.Int(),
+        project__short=graphene.String(),
+    )
+    @login_required
+    def resolve_observation(self, info, **kwargs):
+        return Observation.get_query(**kwargs)
+
+
+    pipeline_run = relay.ConnectionField(
+        PipelineRunConnection,
+    )
+    @login_required
+    def resolve_pipeline_run(self, info, **kwargs):
+        return PipelineRun.get_query(**kwargs)
 
 
     fold_pulsar_result = relay.ConnectionField(
@@ -398,7 +550,6 @@ class Query(graphene.ObjectType):
         pulsar=graphene.String(),
         mainProject=graphene.String(),
     )
-
     @login_required
     def resolve_fold_pulsar_result(self, info, **kwargs):
         queryset = FoldPulsarResult.objects.all()
@@ -412,5 +563,47 @@ class Query(graphene.ObjectType):
             queryset = queryset.filter(observation__project__main_project__name__iexact=main_project_name)
 
         return queryset
+        # return FoldPulsarResult.get_query(**kwargs)
 
 
+    fold_pulsar_summary = relay.ConnectionField(
+        FoldPulsarSummaryConnection,
+        main_project=graphene.String(),
+        most_common_project=graphene.String(),
+        band=graphene.String(),
+    )
+    @login_required
+    def resolve_fold_pulsar_summary(self, info, **kwargs):
+        return FoldPulsarSummary.get_query(**kwargs)
+
+
+    pipeline_image = relay.ConnectionField(
+        PipelineImageConnection,
+    )
+    @login_required
+    def resolve_pipeline_image(self, info, **kwargs):
+        return PipelineImage.get_query(**kwargs)
+
+
+    pipeline_file = relay.ConnectionField(
+        PipelineFileConnection,
+    )
+    @login_required
+    def resolve_pipeline_file(self, info, **kwargs):
+        return PipelineFile.get_query(**kwargs)
+
+
+    toa = relay.ConnectionField(
+        ToaConnection,
+    )
+    @login_required
+    def resolve_toa(self, info, **kwargs):
+        return Toa.get_query(**kwargs)
+
+
+    residual = relay.ConnectionField(
+        ResidualConnection,
+    )
+    @login_required
+    def resolve_residual(self, info, **kwargs):
+        return Residual.get_query(**kwargs)
