@@ -15,7 +15,7 @@ from .models import (
     Project,
     PipelineImage,
     PipelineRun,
-    FoldPulsarResult,
+    PulsarFoldResult,
 )
 
 
@@ -108,11 +108,11 @@ class UploadPipelineImage(ViewSet):
                 },
                 status=400
             )
-        fold_pulsar_result = FoldPulsarResult.objects.get(observation=pipeline_run.observation)
+        pulsar_fold_result = PulsarFoldResult.objects.get(observation=pipeline_run.observation)
 
         # Create Template object
         pipeline_image, created = PipelineImage.objects.get_or_create(
-            fold_pulsar_result=fold_pulsar_result,
+            pulsar_fold_result=pulsar_fold_result,
             cleaned=cleaned,
             image_type=image_type,
             resolution=resolution,
