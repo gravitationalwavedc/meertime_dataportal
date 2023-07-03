@@ -17,7 +17,7 @@ from dataportal.models import (
     Observation,
     PipelineRun,
     FoldPulsarResult,
-    FoldPulsarSummary,
+    PulsarFoldSummary,
     # PipelineImage,
     PipelineFile,
     Toa,

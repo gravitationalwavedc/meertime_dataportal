@@ -261,50 +261,6 @@ type FoldPulsarResultNodeEdge {
   cursor: String!
 }
 
-type FoldPulsarSummaryConnection {
-  pageInfo: PageInfo!
-  edges: [FoldPulsarSummaryEdge]!
-  totalObservations: Int
-  totalPulsars: Int
-  totalObservationTime: Int
-  totalProjectTime: Int
-}
-
-type FoldPulsarSummaryEdge {
-  node: FoldPulsarSummaryNode
-  cursor: String!
-}
-
-type FoldPulsarSummaryNode implements Node {
-  id: ID!
-  pulsar: PulsarNode
-  mainProject: MainProjectNode
-  firstObservation: DateTime!
-  latestObservation: DateTime!
-  timespan: Int!
-  numberOfObservations: Int!
-  totalIntegrationHours: Float!
-  lastIntegrationMinutes: Float
-  allBands: String!
-  lastSn: Float!
-  highestSn: Float!
-  lowestSn: Float!
-  avgSnPipe: Float
-  maxSnPipe: Float
-  mostCommonProject: String!
-  allProjects: String!
-}
-
-type FoldPulsarSummaryNodeConnection {
-  pageInfo: PageInfo!
-  edges: [FoldPulsarSummaryNodeEdge]!
-}
-
-type FoldPulsarSummaryNodeEdge {
-  node: FoldPulsarSummaryNode
-  cursor: String!
-}
-
 scalar GenericScalar
 
 scalar JSONString
@@ -329,7 +285,7 @@ type MainProjectNode implements Node {
   telescope: TelescopeNode
   name: String!
   projectSet: [ProjectType!]!
-  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
+  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
 }
 
 type MainProjectType {
@@ -337,7 +293,7 @@ type MainProjectType {
   telescope: TelescopeType!
   name: String!
   projectSet: [ProjectType!]!
-  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
+  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
 }
 
 type Mutation {
@@ -816,6 +772,50 @@ type PulsarEdge {
   cursor: String!
 }
 
+type PulsarFoldSummaryConnection {
+  pageInfo: PageInfo!
+  edges: [PulsarFoldSummaryEdge]!
+  totalObservations: Int
+  totalPulsars: Int
+  totalObservationTime: Int
+  totalProjectTime: Int
+}
+
+type PulsarFoldSummaryEdge {
+  node: PulsarFoldSummaryNode
+  cursor: String!
+}
+
+type PulsarFoldSummaryNode implements Node {
+  id: ID!
+  pulsar: PulsarNode
+  mainProject: MainProjectNode
+  firstObservation: DateTime!
+  latestObservation: DateTime!
+  timespan: Int!
+  numberOfObservations: Int!
+  totalIntegrationHours: Float!
+  lastIntegrationMinutes: Float
+  allBands: String!
+  lastSn: Float!
+  highestSn: Float!
+  lowestSn: Float!
+  avgSnPipe: Float
+  maxSnPipe: Float
+  mostCommonProject: String!
+  allProjects: String!
+}
+
+type PulsarFoldSummaryNodeConnection {
+  pageInfo: PageInfo!
+  edges: [PulsarFoldSummaryNodeEdge]!
+}
+
+type PulsarFoldSummaryNodeEdge {
+  node: PulsarFoldSummaryNode
+  cursor: String!
+}
+
 type PulsarNode implements Node {
   id: ID!
   name: String!
@@ -824,7 +824,7 @@ type PulsarNode implements Node {
   templateSet: [TemplateType!]!
   observationSet: [ObservationType!]!
   foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): FoldPulsarResultNodeConnection!
-  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
+  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
 }
 
 type PulsarType {
@@ -835,7 +835,7 @@ type PulsarType {
   templateSet: [TemplateType!]!
   observationSet: [ObservationType!]!
   foldpulsarresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): FoldPulsarResultNodeConnection!
-  foldpulsarsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): FoldPulsarSummaryNodeConnection!
+  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
 }
 
 input PulsarsInput {
@@ -854,7 +854,7 @@ type Query {
   observation(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, before: String, after: String, first: Int, last: Int): ObservationConnection
   pipelineRun(before: String, after: String, first: Int, last: Int): PipelineRunConnection
   foldPulsarResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): FoldPulsarResultConnection
-  foldPulsarSummary(mainProject: String, mostCommonProject: String, band: String, before: String, after: String, first: Int, last: Int): FoldPulsarSummaryConnection
+  pulsarFoldSummary(mainProject: String, mostCommonProject: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
   pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
   toa(before: String, after: String, first: Int, last: Int): ToaConnection

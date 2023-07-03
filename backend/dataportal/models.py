@@ -290,7 +290,7 @@ class FoldPulsarResult(models.Model):
         return cls.objects.filter(**kwargs)
 
 
-class FoldPulsarSummary(models.Model):
+class PulsarFoldSummary(models.Model):
     """
     Summary of all observations of a pulsar
     """
@@ -337,7 +337,7 @@ class FoldPulsarSummary(models.Model):
 
         if "main_project" in kwargs and kwargs["main_project"] == "All":
             kwargs.pop("main_project")
-        else:
+        elif "main_project" in kwargs:
             kwargs["main_project__name"] = kwargs.pop("main_project")
 
         return cls.objects.filter(**kwargs)
@@ -361,7 +361,7 @@ class FoldPulsarSummary(models.Model):
     @classmethod
     def update_or_create(cls, pulsar, main_project):
         """
-        Every time a PipelineRun is saved, we want to update the FoldPulsarSummary
+        Every time a PipelineRun is saved, we want to update the PulsarFoldSummary
         model so it accurately summaries all fold observations for that pulsar.
 
         Parameters:
@@ -406,7 +406,7 @@ class FoldPulsarSummary(models.Model):
         )
         most_common_project = cls.get_most_common_project(observations)
 
-        new_fold_pulsar_summary, created = FoldPulsarSummary.objects.update_or_create(
+        new_pulsar_fold_summary, created = PulsarFoldSummary.objects.update_or_create(
             pulsar=pulsar,
             main_project=main_project,
             defaults={
@@ -426,14 +426,16 @@ class FoldPulsarSummary(models.Model):
                 "most_common_project": most_common_project,
             },
         )
-        return new_fold_pulsar_summary, created
+        return new_pulsar_fold_summary, created
 
 
 class PipelineImage(models.Model):
-    fold_pulsar_result = models.ForeignKey(FoldPulsarResult, models.DO_NOTHING)
+    fold_pulsar_result = models.ForeignKey(FoldPulsarResult, models.DO_NOTHING, related_name="images",)
     image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    url = models.URLField(null=True)
     cleaned = models.BooleanField(default=True)
     IMAGE_TYPE_CHOICES = [
+        ("toa-single",  "toa-single"),
         ("profile",     "profile"),
         ("profile-pol", "profile-pol"),
         ("phase-time",  "phase-time"),
@@ -462,6 +464,11 @@ class PipelineImage(models.Model):
                 name="Unique image type for a FoldPulsarResult"
             )
         ]
+
+    def save(self, *args, **kwargs):
+        PipelineImage.clean(self)
+        self.url = self.image.url
+        super(PipelineImage, self).save(*args, **kwargs)
 
 
 class PipelineFile(models.Model):

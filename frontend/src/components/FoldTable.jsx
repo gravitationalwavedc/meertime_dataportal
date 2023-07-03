@@ -47,7 +47,7 @@ const foldTableQuery = graphql`
 `;
 
 const FoldTable = ({
-  data: { foldPulsarSummary: relayData },
+  data: { pulsarFoldSummary: relayData },
   relay,
   match: {
     location: { query },
@@ -86,7 +86,7 @@ const FoldTable = ({
     row.action = (
       <ButtonGroup vertical>
         <Link
-          to={`/fold/${mainProject}/${row.jname}/`}
+          to={`/fold/${mainProject}/${row.pulsar.name}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}
@@ -255,7 +255,7 @@ export default createRefetchContainer(
         mostCommonProject: { type: "String", defaultValue: "All" }
         band: { type: "String", defaultValue: "All" }
       ) {
-        foldPulsarSummary (
+        pulsarFoldSummary (
           mainProject: $mainProject
           mostCommonProject: $mostCommonProject
           band: $band

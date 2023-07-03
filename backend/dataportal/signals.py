@@ -2,16 +2,16 @@ from datetime import datetime
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from dataportal.models import FoldPulsarSummary, FoldPulsarResult, PipelineRun
+from dataportal.models import PulsarFoldSummary, FoldPulsarResult, PipelineRun
 
 
 
 
 
 @receiver(post_save, sender=PipelineRun)
-def handle_fold_pulsar_summary_update(sender, instance, **kwargs):
+def handle_pulsar_fold_summary_update(sender, instance, **kwargs):
     """
-    Every time a PipelineRun is saved, we want to update the FoldPulsarSummary
+    Every time a PipelineRun is saved, we want to update the PulsarFoldSummary
     model so it accurately summaries all fold observations for that pulsar.
     """
     # Make a fold result if there isn't one already
@@ -30,5 +30,5 @@ def handle_fold_pulsar_summary_update(sender, instance, **kwargs):
 
 
     # Update the summary info
-    FoldPulsarSummary.update_or_create(instance.observation.pulsar, instance.observation.project.main_project)
+    PulsarFoldSummary.update_or_create(instance.observation.pulsar, instance.observation.project.main_project)
 

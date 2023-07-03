@@ -1,4 +1,5 @@
 import math
+from datetime import datetime
 
 from django.template.defaultfilters import filesizeformat
 
@@ -21,7 +22,7 @@ from dataportal.models import (
     Observation,
     PipelineRun,
     FoldPulsarResult,
-    FoldPulsarSummary,
+    PulsarFoldSummary,
     PipelineImage,
     PipelineFile,
     Toa,
@@ -118,7 +119,12 @@ class EphemerisNode(DjangoObjectType):
     class Meta:
         model = Ephemeris
         fields = "__all__"
-        filter_fields = "__all__"
+        filter_fields = {
+            "p0": NUMERIC_FILTERS,
+            "dm": NUMERIC_FILTERS,
+            "ephemeris_hash": ["exact"],
+        }
+
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -138,7 +144,11 @@ class TemplateNode(DjangoObjectType):
     class Meta:
         model = Template
         fields = "__all__"
-        filter_fields = "__all__"
+        filter_fields = {
+            "band": ["exact"],
+            "created_at": DATETIME_FILTERS,
+            "template_hash": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -238,6 +248,10 @@ class PipelineRunConnection(relay.Connection):
     class Meta:
         node = PipelineRunNode
 
+class PipelineImageType(DjangoObjectType):
+    class Meta:
+        model = PipelineImage
+        fields = "__all__"
 
 class FoldPulsarResultNode(DjangoObjectType):
     class Meta:
@@ -250,6 +264,13 @@ class FoldPulsarResultNode(DjangoObjectType):
     observation = graphene.Field(ObservationNode)
     pipeline_run = graphene.Field(PipelineRunNode)
     project = graphene.Field(ProjectNode)
+
+    # # List all the images for this result
+    # images = graphene.List(PipelineImageType)
+
+    # @staticmethod
+    # def resolve_images(self, instance):
+    #     return PipelineImage.objects.filter(fold_pulsar_result=instance)
 
     @classmethod
     @login_required
@@ -330,9 +351,9 @@ class FoldPulsarResultConnection(relay.Connection):
         return FoldPulsarResult.objects.order_by("-observation__duration").last().observation.duration
 
 
-class FoldPulsarSummaryNode(DjangoObjectType):
+class PulsarFoldSummaryNode(DjangoObjectType):
     class Meta:
-        model = FoldPulsarSummary
+        model = PulsarFoldSummary
         fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
@@ -346,9 +367,9 @@ class FoldPulsarSummaryNode(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
-class FoldPulsarSummaryConnection(relay.Connection):
+class PulsarFoldSummaryConnection(relay.Connection):
     class Meta:
-        node = FoldPulsarSummaryNode
+        node = PulsarFoldSummaryNode
 
     total_observations = graphene.Int()
     total_pulsars = graphene.Int()
@@ -549,6 +570,8 @@ class Query(graphene.ObjectType):
         FoldPulsarResultConnection,
         pulsar=graphene.String(),
         mainProject=graphene.String(),
+        utcStart=graphene.String(),
+        beam=graphene.Int(),
     )
     @login_required
     def resolve_fold_pulsar_result(self, info, **kwargs):
@@ -562,19 +585,27 @@ class Query(graphene.ObjectType):
         if main_project_name:
             queryset = queryset.filter(observation__project__main_project__name__iexact=main_project_name)
 
+        utc_start = kwargs.get('utcStart')
+        if utc_start:
+            queryset = queryset.filter(observation__utc_start=datetime.strptime(utc_start, "%Y-%m-%d-%H:%M:%S"))
+
+        beam = kwargs.get('beam')
+        if beam:
+            queryset = queryset.filter(observation__beam=beam)
+
         return queryset
         # return FoldPulsarResult.get_query(**kwargs)
 
 
-    fold_pulsar_summary = relay.ConnectionField(
-        FoldPulsarSummaryConnection,
+    pulsar_fold_summary = relay.ConnectionField(
+        PulsarFoldSummaryConnection,
         main_project=graphene.String(),
         most_common_project=graphene.String(),
         band=graphene.String(),
     )
     @login_required
-    def resolve_fold_pulsar_summary(self, info, **kwargs):
-        return FoldPulsarSummary.get_query(**kwargs)
+    def resolve_pulsar_fold_summary(self, info, **kwargs):
+        return PulsarFoldSummary.get_query(**kwargs)
 
 
     pipeline_image = relay.ConnectionField(
@@ -582,7 +613,8 @@ class Query(graphene.ObjectType):
     )
     @login_required
     def resolve_pipeline_image(self, info, **kwargs):
-        return PipelineImage.get_query(**kwargs)
+        # return PipelineImage.get_query(**kwargs)
+        return PipelineImage.objects.all()
 
 
     pipeline_file = relay.ConnectionField(

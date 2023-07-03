@@ -31,7 +31,7 @@ def test_fold_query_no_token():
     response = client.execute(
         """
         query {
-            allFoldpulsarsummarys {
+            pulsarFoldSummary {
                 edges {
                     node {
                         id
@@ -42,7 +42,7 @@ def test_fold_query_no_token():
     """
     )
     expected_error_message = "You do not have permission to perform this action"
-    assert not response.data["allFoldpulsarsummarys"]
+    assert not response.data["pulsarFoldSummary"]
     assert response.errors[0].message == expected_error_message
 
 @pytest.mark.django_db
@@ -53,7 +53,7 @@ def test_fold_query_with_token():
     response = client.execute(
         """
         query {
-            allFoldpulsarsummarys {
+            pulsarFoldSummary {
                 totalObservations
                 totalPulsars
                 totalObservationTime
@@ -78,7 +78,7 @@ def test_fold_query_with_token():
     """
     )
     expected = {
-        'allFoldpulsarsummarys': {
+        'pulsarFoldSummary': {
             'totalObservations': 2,
             'totalPulsars': 1,
             'totalObservationTime': 0,
@@ -114,7 +114,7 @@ def test_fold_query_with_proposal_and_band():
     response = client.execute(
         """
         query {
-            allFoldpulsarsummarys {
+            pulsarFoldSummary {
                 totalObservations
                 totalObservationTime
                 totalPulsars
@@ -128,7 +128,7 @@ def test_fold_query_with_proposal_and_band():
     """
     )
     expected = {
-        "allFoldpulsarsummarys": {
+        "pulsarFoldSummary": {
             "totalObservations": 2,
             "totalObservationTime": 0,
             "totalPulsars": 1,
@@ -199,7 +199,7 @@ def test_fold_detail_query():
         """
     )
     expected = {
-        'allFoldPulsarResults': {
+        'foldPulsarResult': {
             'totalObservations': 2,
             'totalObservationHours': 0,
             'totalProjects': 1,
