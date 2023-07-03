@@ -10,10 +10,10 @@ import MolongloImageGrid from "./MolongloImageGrid";
 import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
 
 const SingleObservationTable = ({
-  data: { foldPulsarResult },
+  data: { pulsarFoldResult },
   jname,
 }) => {
-  const relayObservationModel = foldPulsarResult.edges[0].node;
+  const relayObservationModel = pulsarFoldResult.edges[0].node;
 
   // const projectChoices = Array.from(
   //   relayObservationModel.images.edges.reduce(

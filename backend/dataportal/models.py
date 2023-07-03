@@ -279,7 +279,7 @@ class PipelineRun(Model):
     percent_rfi_zapped = models.FloatField(null=True)
 
 
-class FoldPulsarResult(models.Model):
+class PulsarFoldResult(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.CASCADE)
     pipeline_run = models.ForeignKey(PipelineRun, on_delete=models.CASCADE)
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
@@ -382,7 +382,7 @@ class PulsarFoldSummary(models.Model):
         )
 
         # Process results summary
-        results = FoldPulsarResult.objects.filter(pulsar=pulsar).order_by("observation__utc_start")
+        results = PulsarFoldResult.objects.filter(pulsar=pulsar).order_by("observation__utc_start")
         last_sn = results.last().pipeline_run.sn
         sn_list = [result.pipeline_run.sn or 0 for result in results]
         highest_sn = max(sn_list)
@@ -430,7 +430,7 @@ class PulsarFoldSummary(models.Model):
 
 
 class PipelineImage(models.Model):
-    fold_pulsar_result = models.ForeignKey(FoldPulsarResult, models.DO_NOTHING, related_name="images",)
+    pulsar_fold_result = models.ForeignKey(PulsarFoldResult, models.DO_NOTHING, related_name="images",)
     image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
     url = models.URLField(null=True)
     cleaned = models.BooleanField(default=True)
@@ -456,18 +456,19 @@ class PipelineImage(models.Model):
             # TODO this may no longer be necessary with pipeline run
             UniqueConstraint(
                 fields=[
-                    "fold_pulsar_result",
+                    "pulsar_fold_result",
                     "image_type",
                     "cleaned",
                     "resolution",
                 ],
-                name="Unique image type for a FoldPulsarResult"
+                name="Unique image type for a PulsarFoldResult"
             )
         ]
 
     def save(self, *args, **kwargs):
         PipelineImage.clean(self)
-        self.url = self.image.url
+        if self.image:
+            self.url = self.image.url
         super(PipelineImage, self).save(*args, **kwargs)
 
 

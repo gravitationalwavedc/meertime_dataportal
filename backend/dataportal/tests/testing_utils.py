@@ -16,7 +16,7 @@ from dataportal.models import (
     Calibration,
     Observation,
     PipelineRun,
-    FoldPulsarResult,
+    PulsarFoldResult,
     PulsarFoldSummary,
     # PipelineImage,
     PipelineFile,

@@ -18,12 +18,12 @@ import { useScreenSize } from "../context/screenSize-context";
 
 /* eslint-disable complexity */
 const FoldDetailTable = ({
-  data: { foldPulsarResult },
+  data: { pulsarFoldResult },
   jname,
   project,
 }) => {
   const { screenSize } = useScreenSize();
-  const allRows = foldPulsarResult.edges.reduce(
+  const allRows = pulsarFoldResult.edges.reduce(
     (result, edge) => [
       ...result,
       {
@@ -75,10 +75,10 @@ const FoldDetailTable = ({
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
   const ephemeris =
-    foldPulsarResult.edges[foldPulsarResult.edges.length - 1].node
+    pulsarFoldResult.edges[pulsarFoldResult.edges.length - 1].node
       .ephemeris;
   const ephemerisUpdated =
-    foldPulsarResult.edges[foldPulsarResult.edges.length - 1].node
+    pulsarFoldResult.edges[pulsarFoldResult.edges.length - 1].node
       .ephemerisIsUpdatedAt;
 
   const columns =
@@ -89,7 +89,7 @@ const FoldDetailTable = ({
   // totalEstimatedDiskSpace is a human readable formatted byte string in the form of "900.2\u00a0MB".
   // We split on this character so we can use the number and the units separately.
   const [size, sizeFormat] =
-    foldPulsarResult.totalEstimatedDiskSpace.split("\u00a0");
+    pulsarFoldResult.totalEstimatedDiskSpace.split("\u00a0");
 
   const handleBandFilter = (band) => {
     if (band.toLowerCase() === "all") {
@@ -116,13 +116,13 @@ const FoldDetailTable = ({
   };
 
   const summaryData = [
-    { title: "Observations", value: foldPulsarResult.totalObservations },
-    { title: "Projects", value: foldPulsarResult.totalProjects },
+    { title: "Observations", value: pulsarFoldResult.totalObservations },
+    { title: "Projects", value: pulsarFoldResult.totalProjects },
     {
       title: "Timespan [days]",
-      value: foldPulsarResult.totalTimespanDays,
+      value: pulsarFoldResult.totalTimespanDays,
     },
-    { title: "Hours", value: foldPulsarResult.totalObservationHours },
+    { title: "Hours", value: pulsarFoldResult.totalObservationHours },
     { title: `Size [${sizeFormat}]`, value: size },
   ];
 
@@ -130,7 +130,7 @@ const FoldDetailTable = ({
     <div className="fold-detail-table">
       <Row className="mb-3">
         <Col md={5}>
-          <ReactMarkdown>{foldPulsarResult.description}</ReactMarkdown>
+          <ReactMarkdown>{pulsarFoldResult.description}</ReactMarkdown>
         </Col>
       </Row>
       <Row>
@@ -158,23 +158,23 @@ const FoldDetailTable = ({
             </Button>
           )}
           {localStorage.isStaff === "true" &&
-            foldPulsarResult.ephemerisLink && (
+            pulsarFoldResult.ephemerisLink && (
               <Button
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => createLink(foldPulsarResult.ephemerisLink)}
+                onClick={() => createLink(pulsarFoldResult.ephemerisLink)}
               >
                 Download ephemeris
               </Button>
             )}
           {localStorage.isStaff === "true" &&
-            foldPulsarResult.toasLink && (
+            pulsarFoldResult.toasLink && (
               <Button
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => createLink(foldPulsarResult.toasLink)}
+                onClick={() => createLink(pulsarFoldResult.toasLink)}
               >
                 Download TOAs
               </Button>
@@ -214,8 +214,8 @@ const FoldDetailTable = ({
         setProject={handleProjectFilter}
         setBand={handleBandFilter}
         plot
-        maxPlotLength={foldPulsarResult.maxPlotLength}
-        minPlotLength={foldPulsarResult.minPlotLength}
+        maxPlotLength={pulsarFoldResult.maxPlotLength}
+        minPlotLength={pulsarFoldResult.minPlotLength}
         project={project}
         keyField="key"
         card={FoldDetailCard}

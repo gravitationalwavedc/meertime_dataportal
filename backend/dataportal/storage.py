@@ -28,11 +28,11 @@ def get_upload_location(instance, filename):
     returns:
     string:
     """
-    telescope = instance.fold_pulsar_result.observation.telescope.name
-    project = instance.fold_pulsar_result.observation.project.code
-    psr = instance.fold_pulsar_result.observation.pulsar.name
-    beam = instance.fold_pulsar_result.observation.beam
-    utc = instance.fold_pulsar_result.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+    telescope = instance.pulsar_fold_result.observation.telescope.name
+    project = instance.pulsar_fold_result.observation.project.code
+    psr = instance.pulsar_fold_result.observation.pulsar.name
+    beam = instance.pulsar_fold_result.observation.beam
+    utc = instance.pulsar_fold_result.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
     return f"{telescope}/{project}/{psr}/{utc}/{beam}/{filename}"
 
 

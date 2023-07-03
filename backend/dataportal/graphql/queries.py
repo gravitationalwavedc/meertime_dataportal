@@ -21,7 +21,7 @@ from dataportal.models import (
     Calibration,
     Observation,
     PipelineRun,
-    FoldPulsarResult,
+    PulsarFoldResult,
     PulsarFoldSummary,
     PipelineImage,
     PipelineFile,
@@ -253,9 +253,9 @@ class PipelineImageType(DjangoObjectType):
         model = PipelineImage
         fields = "__all__"
 
-class FoldPulsarResultNode(DjangoObjectType):
+class PulsarFoldResultNode(DjangoObjectType):
     class Meta:
-        model = FoldPulsarResult
+        model = PulsarFoldResult
         fields = "__all__"
         filter_fields =  "__all__"
         interfaces = (relay.Node,)
@@ -270,7 +270,7 @@ class FoldPulsarResultNode(DjangoObjectType):
 
     # @staticmethod
     # def resolve_images(self, instance):
-    #     return PipelineImage.objects.filter(fold_pulsar_result=instance)
+    #     return PipelineImage.objects.filter(pulsar_fold_result=instance)
 
     @classmethod
     @login_required
@@ -278,9 +278,9 @@ class FoldPulsarResultNode(DjangoObjectType):
         return super().get_queryset(queryset, info)
 
 
-class FoldPulsarResultConnection(relay.Connection):
+class PulsarFoldResultConnection(relay.Connection):
     class Meta:
-        node = FoldPulsarResultNode
+        node = PulsarFoldResultNode
 
     total_observations = graphene.Int()
     total_observation_hours = graphene.Int()
@@ -345,10 +345,10 @@ class FoldPulsarResultConnection(relay.Connection):
         return filesizeformat(total_bytes)
 
     def resolve_max_plot_length(self, instance):
-        return FoldPulsarResult.objects.order_by("observation__duration").last().observation.duration
+        return PulsarFoldResult.objects.order_by("observation__duration").last().observation.duration
 
     def resolve_min_plot_length(self, instance):
-        return FoldPulsarResult.objects.order_by("-observation__duration").last().observation.duration
+        return PulsarFoldResult.objects.order_by("-observation__duration").last().observation.duration
 
 
 class PulsarFoldSummaryNode(DjangoObjectType):
@@ -408,7 +408,7 @@ class PipelineImageNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
     # ForeignKey fields
-    fold_pulsar_result = graphene.Field(FoldPulsarResultNode)
+    pulsar_fold_result = graphene.Field(PulsarFoldResultNode)
 
     @classmethod
     @login_required
@@ -566,16 +566,16 @@ class Query(graphene.ObjectType):
         return PipelineRun.get_query(**kwargs)
 
 
-    fold_pulsar_result = relay.ConnectionField(
-        FoldPulsarResultConnection,
+    pulsar_fold_result = relay.ConnectionField(
+        PulsarFoldResultConnection,
         pulsar=graphene.String(),
         mainProject=graphene.String(),
         utcStart=graphene.String(),
         beam=graphene.Int(),
     )
     @login_required
-    def resolve_fold_pulsar_result(self, info, **kwargs):
-        queryset = FoldPulsarResult.objects.all()
+    def resolve_pulsar_fold_result(self, info, **kwargs):
+        queryset = PulsarFoldResult.objects.all()
 
         pulsar_name = kwargs.get('pulsar')
         if pulsar_name:
@@ -594,7 +594,7 @@ class Query(graphene.ObjectType):
             queryset = queryset.filter(observation__beam=beam)
 
         return queryset
-        # return FoldPulsarResult.get_query(**kwargs)
+        # return PulsarFoldResult.get_query(**kwargs)
 
 
     pulsar_fold_summary = relay.ConnectionField(

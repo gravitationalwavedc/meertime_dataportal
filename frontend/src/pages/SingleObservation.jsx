@@ -4,7 +4,7 @@ import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
   query SingleObservationQuery($jname: String!, $utc: String, $beam: Int) {
-    foldPulsarResult(pulsar: $jname, utcStart: $utc, beam: $beam) {
+    pulsarFoldResult(pulsar: $jname, utcStart: $utc, beam: $beam) {
       edges {
         node {
           observation{

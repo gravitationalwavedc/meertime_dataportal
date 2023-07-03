@@ -9,7 +9,7 @@ from .models import (
     Calibration,
     Observation,
     PipelineRun,
-    FoldPulsarResult,
+    PulsarFoldResult,
     PulsarFoldSummary,
     PipelineImage,
     PipelineFile,
@@ -26,7 +26,7 @@ admin.site.register(Template)
 admin.site.register(Calibration)
 admin.site.register(Observation)
 admin.site.register(PipelineRun)
-admin.site.register(FoldPulsarResult)
+admin.site.register(PulsarFoldResult)
 admin.site.register(PulsarFoldSummary)
 admin.site.register(PipelineImage)
 admin.site.register(PipelineFile)

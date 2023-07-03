@@ -4,7 +4,7 @@ import MainLayout from "../components/MainLayout";
 
 const query = graphql`
   query FoldDetailQuery($jname: String!, $mainProject: String) {
-    foldPulsarResult(pulsar: $jname, mainProject: $mainProject) {
+    pulsarFoldResult(pulsar: $jname, mainProject: $mainProject) {
       totalObservations
       totalObservationHours
       totalProjects
