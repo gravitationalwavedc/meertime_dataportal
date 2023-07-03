@@ -41,6 +41,7 @@ class PipelineRunInput(graphene.InputObjectType):
     sn   = graphene.Float()
     flux = graphene.Float()
     rm   = graphene.Float()
+    rmErr= graphene.Float()
     percentRfiZapped = graphene.Float()
 
 
@@ -78,6 +79,7 @@ class CreatePipelineRun(graphene.Mutation):
             sn=input.sn,
             flux=input.flux,
             rm=input.rm,
+            rm_err=input.rmErr,
             percent_rfi_zapped=input.percentRfiZapped,
         )
         return CreatePipelineRun(pipeline_run=pipeline_run)
@@ -104,6 +106,7 @@ class UpdatePipelineRun(graphene.Mutation):
             pipeline_run.sn = input.sn
             pipeline_run.flux = input.flux
             pipeline_run.rm = input.rm
+            pipeline_run.rm_err = input.rmErr
             pipeline_run.percent_rfi_zapped = input.percentRfiZapped
             pipeline_run.save()
             return UpdatePipelineRun(pipeline_run=pipeline_run)

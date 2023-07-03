@@ -276,6 +276,7 @@ class PipelineRun(Model):
     sn = models.FloatField(null=True)
     flux = models.FloatField(null=True)
     rm = models.FloatField(null=True)
+    rm_err = models.FloatField(null=True)
     percent_rfi_zapped = models.FloatField(null=True)
 
 
