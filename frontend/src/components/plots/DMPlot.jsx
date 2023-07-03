@@ -8,7 +8,7 @@ import {
   ZAxis,
 } from "recharts";
 import React from "react";
-import ZoomPlot from "./ZoomPlot";
+import ScatterPlot from "./ScatterPlot";
 import { dmPlotData } from "./plotData";
 import moment from "moment";
 
@@ -39,7 +39,7 @@ const DMPlot = ({ data, columns, search, maxPlotLength }) => {
   };
 
   return (
-    <ZoomPlot dataOne={lBandData} dataTwo={UHFData}>
+    <ScatterPlot dataOne={lBandData} dataTwo={UHFData}>
       <CartesianGrid />
       <XAxis
         type="number"
@@ -67,7 +67,7 @@ const DMPlot = ({ data, columns, search, maxPlotLength }) => {
           { id: "1", type: "square", value: "UHF", color: "#e07761" },
         ]}
       />
-    </ZoomPlot>
+    </ScatterPlot>
   );
 };
 

@@ -10,7 +10,7 @@ import { useRouter } from "found";
 
 const DEFAULT_ZOOM = { x1: null, y1: null, x2: null, y2: null };
 
-const ZoomPlot = ({ dataOne, dataTwo, children }) => {
+const ScatterPlot = ({ dataOne, dataTwo, children }) => {
   const [filteredDataOne, setFilteredDataOne] = useState(dataOne);
   const [filteredDataTwo, setFilteredDataTwo] = useState(dataTwo);
   const [zoomArea, setZoomArea] = useState(DEFAULT_ZOOM);
@@ -133,4 +133,4 @@ const ZoomPlot = ({ dataOne, dataTwo, children }) => {
   );
 };
 
-export default ZoomPlot;
+export default ScatterPlot;
