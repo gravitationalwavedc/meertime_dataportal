@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import FluxPlot from "./FluxPlot";
 import SNRPlot from "./SNRPlot";
 import DMPlot from "./DMPlot";
+import RMPlot from "./RMPlot";
 
 const PlotContainer = ({ maxPlotLength, ...rest }) => {
   const [activePlot, setActivePlot] = useState("flux");
@@ -22,6 +23,7 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
             <option value="flux">Flux Density</option>
             <option value="snr">S/N</option>
             <option value="dm">DM</option>
+            <option value="rm">RM</option>
           </Form.Control>
           <Form.Text className="text-muted">
             Drag to zoom, click empty area to reset, double click to view utc.
@@ -35,6 +37,8 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
           <FluxPlot maxPlotLength={maxPlotLength} {...rest} />
         ) : activePlot === "dm" ? (
           <DMPlot maxPlotLength={maxPlotLength} {...rest} />
+        ) : activePlot === "rm" ? (
+          <RMPlot maxPlotLength={maxPlotLength} {...rest} />
         ) : (
           <div>No known active plot</div>
         )}

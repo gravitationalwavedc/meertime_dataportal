@@ -580,6 +580,7 @@ input PipelineRunInput {
   sn: Float
   flux: Float
   rm: Float
+  rmErr: Float
   percentRfiZapped: Float
 }
 
@@ -614,6 +615,7 @@ type PipelineRunNode implements Node {
   sn: Float
   flux: Float
   rm: Float
+  rmErr: Float
   percentRfiZapped: Float
   pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
   pipelinefileSet(offset: Int, before: String, after: String, first: Int, last: Int): PipelineFileNodeConnection!
@@ -645,6 +647,7 @@ type PipelineRunType {
   sn: Float
   flux: Float
   rm: Float
+  rmErr: Float
   percentRfiZapped: Float
   pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
   pipelinefileSet(offset: Int, before: String, after: String, first: Int, last: Int): PipelineFileNodeConnection!

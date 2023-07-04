@@ -4,6 +4,7 @@ import {
   ResponsiveContainer,
   Scatter,
   ScatterChart,
+  ErrorBar,
 } from "recharts";
 import { Button } from "react-bootstrap";
 import { useRouter } from "found";
@@ -113,14 +114,18 @@ const ScatterPlot = ({ dataOne, dataTwo, children }) => {
             fill="#8884d8"
             shape="circle"
             onMouseUp={handleSymbolClick}
-          />
+          >
+            <ErrorBar dataKey="error" width={5} strokeWidth={2} stroke="#8884d8" direction="y" />
+          </Scatter>
           <Scatter
             name="UHF"
             data={filteredDataTwo}
             fill="#e07761"
             shape="square"
             onMouseUp={handleSymbolClick}
-          />
+            >
+            <ErrorBar dataKey="error" width={5} strokeWidth={2} stroke="#e07761" direction="y" />
+          </Scatter>
           <ReferenceArea
             x1={zoomArea.x1 ? zoomArea.x1 : null}
             x2={zoomArea.x2 ? zoomArea.x2 : null}

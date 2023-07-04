@@ -9,7 +9,7 @@ import {
 } from "recharts";
 import React from "react";
 import ScatterPlot from "./ScatterPlot";
-import { dmPlotData } from "./plotData";
+import { rmPlotData } from "./plotData";
 import moment from "moment";
 
 
@@ -18,8 +18,8 @@ const formatYAxisTick = (value) => {
 };
 
 
-const DMPlot = ({ data, columns, search, maxPlotLength }) => {
-  const { lBandData, UHFData, minValue, maxValue } = dmPlotData(
+const RMPlot = ({ data, columns, search, maxPlotLength }) => {
+  const { lBandData, UHFData, minValue, maxValue } = rmPlotData(
     data,
     columns,
     search,
@@ -51,8 +51,8 @@ const DMPlot = ({ data, columns, search, maxPlotLength }) => {
       >
         <Label value="UTC" position="bottom" />
       </XAxis>
-      <YAxis type="number" dataKey="value" name="DM" domain={[minValue, maxValue]} tickFormatter={formatYAxisTick}>
-        <Label value="Fit DM (pc cm^-3)" position="left" angle="-90" />
+      <YAxis type="number" dataKey="value" name="RM" domain={[minValue, maxValue]} tickFormatter={formatYAxisTick}>
+        <Label value="Fit RM (rad m^-2)" position="left" angle="-90" />
       </YAxis>
       <ZAxis type="number" dataKey="size" name="Size" range={[20, 300]} />
       <Tooltip
@@ -71,4 +71,4 @@ const DMPlot = ({ data, columns, search, maxPlotLength }) => {
   );
 };
 
-export default DMPlot;
+export default RMPlot;

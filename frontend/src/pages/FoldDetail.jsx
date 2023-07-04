@@ -36,7 +36,9 @@ const query = graphql`
           }
           pipelineRun{
             dm
+            dmErr
             rm
+            rmErr
             sn
             flux
             ephemeris {
