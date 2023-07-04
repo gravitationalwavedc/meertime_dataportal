@@ -13,7 +13,7 @@ import { fluxPlotData } from "./plotData";
 import moment from "moment";
 
 const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
-  const { lBandData, UHFData } = fluxPlotData(
+  const { lBandData, UHFData, ticks } = fluxPlotData(
     data,
     columns,
     search,
@@ -39,9 +39,9 @@ const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
         type="number"
         dataKey="time"
         name="UTC"
-        tickCount={8}
         domain={["auto", "auto"]}
-        tickFormatter={(unixTime) => moment(unixTime).format("DD/MM/YY")}
+        ticks={ticks}
+        tickFormatter={(unixTime) => moment(unixTime).format("YYYY")}
       >
         <Label value="UTC" position="bottom" />
       </XAxis>

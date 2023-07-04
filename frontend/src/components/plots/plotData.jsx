@@ -35,6 +35,10 @@ export const fluxPlotData = (data, columns, search) => {
     ? handleSearch(data, columns, search)
     : data;
 
+  const ticks = Array.from(
+    new Set(results.map((row) => moment(row.utc.slice(0, 4), "YYYY").valueOf()))
+  );
+
   // Process the table data in a way that react-vis understands.
   const lBandData = results
     .filter((row) => row.band === "L-Band")
@@ -54,5 +58,5 @@ export const fluxPlotData = (data, columns, search) => {
       link: row.plotLink,
     }));
 
-  return { lBandData, UHFData };
+  return { lBandData, UHFData, ticks };
 };
