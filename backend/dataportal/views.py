@@ -47,11 +47,11 @@ class UploadTemplate(ViewSet):
         try:
             pulsar  = Pulsar.objects.get(name=pulsar_name)
         except Pulsar.DoesNotExist:
-            return JsonResponse({'error': f'Pulsar {pulsar_name} not found.'}, status=400)
+            return JsonResponse({'errors': f'Pulsar {pulsar_name} not found.'}, status=400)
         try:
             project = Project.objects.get(code=project_code)
         except Project.DoesNotExist:
-            return JsonResponse({'error': f'Project code {project_code} not found.'}, status=400)
+            return JsonResponse({'errors': f'Project code {project_code} not found.'}, status=400)
 
         # Create Template object
         template, created = Template.objects.get_or_create(
@@ -102,7 +102,7 @@ class UploadPipelineImage(ViewSet):
             response = f'PipelineRun ID {pipeline_run_id} not found.'
             return JsonResponse(
                 {
-                    'error': response,
+                    'errors': response,
                     'text':  response,
                     'success': False,
                 },
