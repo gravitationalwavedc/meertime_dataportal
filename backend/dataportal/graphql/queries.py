@@ -238,6 +238,7 @@ class PipelineRunNode(DjangoObjectType):
     project = graphene.Field(ProjectNode)
     ephemeris = graphene.Field(EphemerisNode)
     template = graphene.Field(TemplateNode)
+    observation = graphene.Field(ObservationNode)
 
     @classmethod
     @login_required
@@ -560,10 +561,17 @@ class Query(graphene.ObjectType):
 
     pipeline_run = relay.ConnectionField(
         PipelineRunConnection,
+        id=graphene.Int(),
     )
     @login_required
     def resolve_pipeline_run(self, info, **kwargs):
-        return PipelineRun.get_query(**kwargs)
+        queryset = PipelineRun.objects.all()
+
+        pipeline_run_id = kwargs.get('id')
+        if pipeline_run_id:
+            queryset = queryset.filter(id=pipeline_run_id)
+
+        return queryset
 
 
     pulsar_fold_result = relay.ConnectionField(
