@@ -21,6 +21,7 @@ const ComparisonImageGrid = ({
 
   const extraImageOrder = [
     "toa_single",
+    "toa_dm_corrected",
   ];
 
   return (

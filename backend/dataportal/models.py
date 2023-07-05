@@ -436,6 +436,7 @@ class PipelineImage(models.Model):
     url = models.URLField(null=True)
     cleaned = models.BooleanField(default=True)
     IMAGE_TYPE_CHOICES = [
+        ("toa-dm-corrected",  "toa-dm-corrected"),
         ("toa-single",  "toa-single"),
         ("profile",     "profile"),
         ("profile-pol", "profile-pol"),

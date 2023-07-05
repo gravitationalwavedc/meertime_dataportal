@@ -10,6 +10,7 @@ const ImageGrid = ({ images, project }) => {
 
   const rawImages = images.edges.filter(
     ({ node }) =>
+      console.log(node) ||
       ! node.cleaned
   );
 
