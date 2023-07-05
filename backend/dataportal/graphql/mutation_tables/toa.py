@@ -6,6 +6,7 @@ from dataportal.models import Toa
 from datetime import timedelta
 
 from dataportal.models import PipelineRun, Ephemeris, Template
+from utils.toa import toa_line_to_dict, toa_dict_to_line
 
 
 class ToaType(DjangoObjectType):
@@ -19,28 +20,7 @@ class ToaInput(graphene.InputObjectType):
     ephemerisId   = graphene.Int(required=True)
     templateId    = graphene.Int(required=True)
 
-    # toa results
-    archive   = graphene.String(required=True)
-    freqMHz  = graphene.Float(required=True)
-    mjd       = graphene.Decimal(required=True)
-    mjdErr   = graphene.Float(required=True)
-    telescope = graphene.String(required=True)
-
-    # The flags from the toa file
-    fe     = graphene.String()
-    be     = graphene.String()
-    f      = graphene.String()
-    bw     = graphene.Int()
-    tobs   = graphene.Int()
-    tmplt  = graphene.String()
-    gof    = graphene.Float()
-    nbin   = graphene.Int()
-    nch    = graphene.Int()
-    chan   = graphene.Int()
-    rcvr   = graphene.String()
-    snr    = graphene.Float()
-    length = graphene.Int()
-    subint = graphene.Int()
+    toaText = graphene.String(required=True)
 
 
 class CreateToa(graphene.Mutation):
@@ -55,30 +35,39 @@ class CreateToa(graphene.Mutation):
         pipeline_run = PipelineRun.objects.get(id=input["pipelineRunId"])
         ephemeris    = Ephemeris.objects.get(id=input["ephemerisId"])
         template     = Template.objects.get(id=input["templateId"])
-        toa = Toa.objects.create(
-            pipeline_run=pipeline_run,
-            ephemeris   =ephemeris,
-            template    =template,
-            archive     =input["archive"],
-            freq_MHz    =input["freqMHz"],
-            mjd         =input["mjd"],
-            mjd_err     =input["mjdErr"],
-            telescope   =input["telescope"],
-            fe          =input["fe"],
-            be          =input["be"],
-            f           =input["f"],
-            bw          =input["bw"],
-            tobs        =input["tobs"],
-            tmplt       =input["tmplt"],
-            gof         =input["gof"],
-            nbin        =input["nbin"],
-            nch         =input["nch"],
-            chan        =input["chan"],
-            rcvr        =input["rcvr"],
-            snr         =input["snr"],
-            length      =input["length"],
-            subint      =input["subint"],
-        )
+
+        toa_lines = input["toaText"].split("\n")
+        for toa_line in toa_lines[1:]:
+            # Loop over toa lines and turn into a dict
+            toa_dict = toa_line_to_dict(toa_line)
+            # Revert it back to a line and check it matches before uploading
+            output_toa_line = toa_dict_to_line(toa_dict)
+            assert toa_line == output_toa_line
+            # Upload the toa
+            toa = Toa.objects.create(
+                pipeline_run=pipeline_run,
+                ephemeris   =ephemeris,
+                template    =template,
+                archive     =toa_dict["archive"],
+                freq_MHz    =toa_dict["freqMHz"],
+                mjd         =toa_dict["mjd"],
+                mjd_err     =toa_dict["mjdErr"],
+                telescope   =toa_dict["telescope"],
+                fe          =toa_dict["fe"],
+                be          =toa_dict["be"],
+                f           =toa_dict["f"],
+                bw          =toa_dict["bw"],
+                tobs        =toa_dict["tobs"],
+                tmplt       =toa_dict["tmplt"],
+                gof         =toa_dict["gof"],
+                nbin        =toa_dict["nbin"],
+                nch         =toa_dict["nch"],
+                chan        =toa_dict["chan"],
+                rcvr        =toa_dict["rcvr"],
+                snr         =toa_dict["snr"],
+                length      =toa_dict["length"],
+                subint      =toa_dict["subint"],
+            )
         return CreateToa(toa=toa)
 
 
