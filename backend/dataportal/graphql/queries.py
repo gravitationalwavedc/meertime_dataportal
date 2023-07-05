@@ -635,10 +635,22 @@ class Query(graphene.ObjectType):
 
     toa = relay.ConnectionField(
         ToaConnection,
+        pulsar=graphene.String(),
+        dmcorrected=graphene.Boolean(),
     )
     @login_required
     def resolve_toa(self, info, **kwargs):
-        return Toa.get_query(**kwargs)
+        queryset = Toa.objects.all()
+
+        pulsar_name = kwargs.get('pulsar')
+        if pulsar_name:
+            queryset = queryset.filter(pipeline_run__observation__pulsar__name=pulsar_name)
+
+        dmcorrected = kwargs.get('dmcorrected')
+        if dmcorrected:
+            queryset = queryset.filter(dm_corrected=dmcorrected)
+
+        return queryset
 
 
     residual = relay.ConnectionField(

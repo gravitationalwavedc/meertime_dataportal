@@ -512,6 +512,19 @@ class Toa(models.Model):
     length = models.IntegerField(null=True)
     subint = models.IntegerField(null=True)
 
+    # Flags for the type of TOA (used for filtering downloads)
+    dm_corrected  = models.BooleanField(default=False)
+    minimum_nsubs = models.BooleanField(default=False)
+    maximum_nsubs = models.BooleanField(default=False)
+    obs_nchan     = models.IntegerField(null=True)
+
+    def save(self, *args, **kwargs):
+        Toa.clean(self)
+        if self.nch:
+            # Convert nchans in toa to nchans of the obs (for filtering downloads)
+            self.obs_nchan = int(self.pipeline_run.observation.nchan) // int(self.nch)
+        super(Toa, self).save(*args, **kwargs)
+
 
 class Residual(models.Model):
     pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING)

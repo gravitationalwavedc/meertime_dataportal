@@ -1,5 +1,17 @@
 from decimal import Decimal, getcontext
 
+def convert_to_int_or_float_if_possible(value):
+    try:
+        int_value = int(value)
+        return int_value
+    except ValueError:
+        try:
+            float_value = float(value)
+            return float_value
+        except ValueError:
+            return value
+
+
 def toa_line_to_dict(toa_line):
     """
     Parse a single line from a .toa file.
@@ -23,6 +35,7 @@ def toa_line_to_dict(toa_line):
 
     for toa_arg in toa_args[1:]:
         arg, value = toa_arg.split()
+        value = convert_to_int_or_float_if_possible(value)
         toa_dict[arg] = value
 
     return toa_dict

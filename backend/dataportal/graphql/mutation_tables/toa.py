@@ -1,6 +1,7 @@
 import graphene
 from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import permission_required
+from graphql import GraphQLError
 
 from dataportal.models import Toa
 from datetime import timedelta
@@ -20,14 +21,23 @@ class ToaInput(graphene.InputObjectType):
     ephemerisId   = graphene.Int(required=True)
     templateId    = graphene.Int(required=True)
 
-    toaText = graphene.String(required=True)
+    toaLines = graphene.List(graphene.String, required=True)
+
+    dmCorrected  = graphene.Boolean(required=True)
+    minimumNsubs = graphene.Boolean(required=True)
+    maximumNsubs = graphene.Boolean(required=True)
+
+
+class CreateToaOutput(graphene.ObjectType):
+    toa = graphene.List(ToaType)
 
 
 class CreateToa(graphene.Mutation):
     class Arguments:
         input = ToaInput(required=True)
 
-    toa = graphene.Field(ToaType)
+    toa    = graphene.List(ToaType)
+    Output = CreateToaOutput
 
     @classmethod
     @permission_required("dataportal.add_toa")
@@ -36,22 +46,25 @@ class CreateToa(graphene.Mutation):
         ephemeris    = Ephemeris.objects.get(id=input["ephemerisId"])
         template     = Template.objects.get(id=input["templateId"])
 
-        toa_lines = input["toaText"].split("\n")
+        created_toas = []
+        toa_lines = input["toaLines"]
         for toa_line in toa_lines[1:]:
+            toa_line = toa_line.rstrip("\n")
             # Loop over toa lines and turn into a dict
             toa_dict = toa_line_to_dict(toa_line)
             # Revert it back to a line and check it matches before uploading
             output_toa_line = toa_dict_to_line(toa_dict)
-            assert toa_line == output_toa_line
+            if toa_line != output_toa_line:
+                raise GraphQLError(f"Assertion failed. toa_line and output_toa_line do not match.\n{toa_line}\n{output_toa_line}")
             # Upload the toa
             toa = Toa.objects.create(
                 pipeline_run=pipeline_run,
                 ephemeris   =ephemeris,
                 template    =template,
                 archive     =toa_dict["archive"],
-                freq_MHz    =toa_dict["freqMHz"],
+                freq_MHz    =toa_dict["freq_MHz"],
                 mjd         =toa_dict["mjd"],
-                mjd_err     =toa_dict["mjdErr"],
+                mjd_err     =toa_dict["mjd_err"],
                 telescope   =toa_dict["telescope"],
                 fe          =toa_dict["fe"],
                 be          =toa_dict["be"],
@@ -67,8 +80,12 @@ class CreateToa(graphene.Mutation):
                 snr         =toa_dict["snr"],
                 length      =toa_dict["length"],
                 subint      =toa_dict["subint"],
+                dm_corrected  =input["dmCorrected"],
+                minimum_nsubs =input["minimumNsubs"],
+                maximum_nsubs =input["maximumNsubs"],
             )
-        return CreateToa(toa=toa)
+            created_toas.append(toa)
+        return CreateToaOutput(toa=created_toas)
 
 
 class UpdateToa(graphene.Mutation):
