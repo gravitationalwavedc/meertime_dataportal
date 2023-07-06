@@ -24,27 +24,19 @@ const ImageGrid = ({ images, project }) => {
     ...processedImages.map(({ node }) => node.url),
   ];
 
-  const [lightBoxImages, setLightBoxImages] = useState();
+  const [lightBoxImages, setLightBoxImages] = useState({
+    images: [],
+    imagesIndex: 0,
+  });
 
-  Promise.all(urls.map(url => getImageData(url)))
-    .then(results => {
-      if(!lightBoxImages)
-        setLightBoxImages({
-          images: results,
-          imagesIndex: 0,
-        });
-    })
-    .catch(error => {
-      console.log(error);
-    });
-
-  console.log(lightBoxImages)
-
-  const openLightBox = (imageUrl) => {
-    const images = lightBoxImages.images;
+  const openLightBox = async (imageUrl) => {
+    const imagePromises = urls.map((url) => getImageData(url));
+    const imageData = await Promise.all(imagePromises);
+    const images = imageData.filter((data) => data !== null).map((data) => data);
     const imageIndex = urls.indexOf(imageUrl);
+
+    setLightBoxImages({ images, imagesIndex: imageIndex });
     setIsLightBoxOpen(true);
-    setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
 
   return (
