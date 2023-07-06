@@ -3,6 +3,7 @@ import ComparisonImageGrid from "./ComparisonImageGrid";
 import LightBox from "react-image-lightbox";
 import PlotImage from "./PlotImage";
 import ToaImages from "./ToaImages";
+import { getImageData } from "../pages/RefreshToken.jsx";
 
 const ImageGrid = ({ images, project }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -18,19 +19,30 @@ const ImageGrid = ({ images, project }) => {
       node.process.toLowerCase() === project.toLowerCase()
   );
 
-  const newlightBoxImages = [
+  const urls = [
     ...rawImages.map(({ node }) => node.url),
     ...processedImages.map(({ node }) => node.url),
   ];
 
-  const [lightBoxImages, setLightBoxImages] = useState({
-    images: newlightBoxImages,
-    imagesIndex: 0,
-  });
+  const [lightBoxImages, setLightBoxImages] = useState();
+
+  Promise.all(urls.map(url => getImageData(url)))
+    .then(results => {
+      if(!lightBoxImages)
+        setLightBoxImages({
+          images: results,
+          imagesIndex: 0,
+        });
+    })
+    .catch(error => {
+      console.log(error);
+    });
+
+  console.log(lightBoxImages)
 
   const openLightBox = (imageUrl) => {
     const images = lightBoxImages.images;
-    const imageIndex = images.indexOf(imageUrl);
+    const imageIndex = urls.indexOf(imageUrl);
     setIsLightBoxOpen(true);
     setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
@@ -59,9 +71,7 @@ const ImageGrid = ({ images, project }) => {
       )}
       {isLightBoxOpen && (
         <LightBox
-          mainSrc={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${
-            lightBoxImages.images[lightBoxImages.imagesIndex]
-          }`}
+          mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
           nextSrc={
             lightBoxImages.images[
               (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length

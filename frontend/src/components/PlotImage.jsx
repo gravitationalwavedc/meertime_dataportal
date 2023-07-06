@@ -10,7 +10,18 @@ const PlotImage = ({ imageData, handleClick }) => {
 
     useEffect(() => {
         if (!imageData) {
-            return null;
+            return <Image
+                rounded
+                fluid
+                className="mb-3"
+                alt={`Plot ${imageData.plotType} using ${imageData.process} data.`}
+                src={image404}
+                onError={({ currentTarget }) => {
+                    currentTarget.onError = null;
+                    currentTarget.src = image404;
+                }}
+                onClick={handleClick}
+            />
         } else {
             fetch(imageUrl, {
                 headers: {
