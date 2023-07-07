@@ -8,38 +8,41 @@ const PlotImage = ({ imageData, handleClick }) => {
     const [image, setImage] = useState('');
 
     useEffect(() => {
-        if (!imageData) {
-            return <Image
-                rounded
-                fluid
-                className="mb-3"
-                alt={`Plot ${imageData.plotType} using ${imageData.process} data.`}
-                src={image404}
-                onError={({ currentTarget }) => {
-                    currentTarget.onError = null;
-                    currentTarget.src = image404;
-                }}
-                onClick={handleClick}
-            />
-        } else {
+        if (imageData) {
             getImageData(imageData.url).then(data => setImage(data));
         }
     });
 
     return (
-        <Image
-            rounded
-            fluid
-            className="mb-3"
-            alt={`Plot ${imageData.plotType} using ${imageData.process} data.`}
-            // src={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${imageData.url}`}
-            src={image}
-            onError={({ currentTarget }) => {
-                currentTarget.onError = null;
-                currentTarget.src = image404;
-            }}
-            onClick={handleClick}
-        />
+        <>
+        {
+            imageData ? (
+                <Image
+                    rounded
+                    fluid
+                    className="mb-3"
+                    alt={`Plot ${imageData.plotType} using ${imageData.process} data.`}
+                    src={image}
+                    onError={({ currentTarget }) => {
+                        currentTarget.onError = null;
+                        currentTarget.src = image404;
+                    }}
+                    onClick={handleClick}
+                />):(
+                <Image
+                    rounded
+                    fluid
+                    className="mb-3"
+                    alt={`Image not found.`}
+                    src={image404}
+                    onError={({ currentTarget }) => {
+                        currentTarget.onError = null;
+                        currentTarget.src = image404;
+                    }}
+                    onClick={handleClick}
+                />)
+        }
+        </>
     );
 };
 
