@@ -210,27 +210,28 @@ class PipelineRunNode(DjangoObjectType):
     class Meta:
         model = PipelineRun
         fields = "__all__"
-        filter_fields = {
-            "id": ["exact"],
-            "observation__id": ["exact"],
-            "ephemeris__id": ["exact"],
-            "template__id": ["exact"],
-            "pipeline_name": ["exact"],
-            "pipeline_description": ["exact"],
-            "pipeline_version": ["exact"],
-            "created_at": DATETIME_FILTERS,
-            "job_state": ["exact"],
-            "location": ["exact"],
-            "dm": NUMERIC_FILTERS,
-            "dm_err": NUMERIC_FILTERS,
-            "dm_epoch": NUMERIC_FILTERS,
-            "dm_chi2r": NUMERIC_FILTERS,
-            "dm_tres": NUMERIC_FILTERS,
-            "sn": NUMERIC_FILTERS,
-            "flux": NUMERIC_FILTERS,
-            "rm": NUMERIC_FILTERS,
-            "percent_rfi_zapped": NUMERIC_FILTERS,
-        }
+        filter_fields =  "__all__"
+        # filter_fields = {
+        #     "id": ["exact"],
+        #     "observation__id": ["exact"],
+        #     "ephemeris__id": ["exact"],
+        #     "template__id": ["exact"],
+        #     "pipeline_name": ["exact"],
+        #     "pipeline_description": ["exact"],
+        #     "pipeline_version": ["exact"],
+        #     "created_at": DATETIME_FILTERS,
+        #     "job_state": ["exact"],
+        #     "location": ["exact"],
+        #     "dm": NUMERIC_FILTERS,
+        #     "dm_err": NUMERIC_FILTERS,
+        #     "dm_epoch": NUMERIC_FILTERS,
+        #     "dm_chi2r": NUMERIC_FILTERS,
+        #     "dm_tres": NUMERIC_FILTERS,
+        #     "sn": NUMERIC_FILTERS,
+        #     "flux": NUMERIC_FILTERS,
+        #     "rm": NUMERIC_FILTERS,
+        #     "percent_rfi_zapped": NUMERIC_FILTERS,
+        # }
 
         interfaces = (relay.Node,)
 
@@ -249,11 +250,6 @@ class PipelineRunConnection(relay.Connection):
     class Meta:
         node = PipelineRunNode
 
-class PipelineImageType(DjangoObjectType):
-    class Meta:
-        model = PipelineImage
-        fields = "__all__"
-
 class PulsarFoldResultNode(DjangoObjectType):
     class Meta:
         model = PulsarFoldResult
@@ -265,13 +261,6 @@ class PulsarFoldResultNode(DjangoObjectType):
     observation = graphene.Field(ObservationNode)
     pipeline_run = graphene.Field(PipelineRunNode)
     project = graphene.Field(ProjectNode)
-
-    # # List all the images for this result
-    # images = graphene.List(PipelineImageType)
-
-    # @staticmethod
-    # def resolve_images(self, instance):
-    #     return PipelineImage.objects.filter(pulsar_fold_result=instance)
 
     @classmethod
     @login_required
@@ -445,7 +434,7 @@ class ToaNode(DjangoObjectType):
     class Meta:
         model = Toa
         fields = "__all__"
-        filter_fields = "__all__"
+        # filter_fields = "__all__"
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -636,7 +625,10 @@ class Query(graphene.ObjectType):
     toa = relay.ConnectionField(
         ToaConnection,
         pulsar=graphene.String(),
-        dmcorrected=graphene.Boolean(),
+        dmCorrected=graphene.Boolean(),
+        minimumNsubs=graphene.Boolean(),
+        maximumNsubs=graphene.Boolean(),
+        obsNchan=graphene.Int(),
     )
     @login_required
     def resolve_toa(self, info, **kwargs):
@@ -646,16 +638,55 @@ class Query(graphene.ObjectType):
         if pulsar_name:
             queryset = queryset.filter(pipeline_run__observation__pulsar__name=pulsar_name)
 
-        dmcorrected = kwargs.get('dmcorrected')
-        if dmcorrected:
-            queryset = queryset.filter(dm_corrected=dmcorrected)
+        dm_corrected = kwargs.get('dmCorrected')
+        if dm_corrected is not None:
+            queryset = queryset.filter(dm_corrected=bool(dm_corrected))
+
+        minimum_nsubs = kwargs.get('minimumNsubs')
+        if minimum_nsubs is not None:
+            queryset = queryset.filter(minimum_nsubs=bool(minimum_nsubs))
+
+        maximum_nsubs = kwargs.get('maximumNsubs')
+        if maximum_nsubs is not None:
+            queryset = queryset.filter(maximum_nsubs=bool(maximum_nsubs))
+
+        obs_nchan = kwargs.get('obsNchan')
+        if obs_nchan:
+            queryset = queryset.filter(obs_nchan=obs_nchan)
 
         return queryset
 
 
     residual = relay.ConnectionField(
         ResidualConnection,
+        pulsar=graphene.String(),
+        dmCorrected=graphene.Boolean(),
+        minimumNsubs=graphene.Boolean(),
+        maximumNsubs=graphene.Boolean(),
+        obsNchan=graphene.Int(),
     )
     @login_required
     def resolve_residual(self, info, **kwargs):
-        return Residual.get_query(**kwargs)
+        queryset = Residual.objects.all()
+
+        pulsar_name = kwargs.get('pulsar')
+        if pulsar_name:
+            queryset = queryset.filter(pulsar__name=pulsar_name)
+
+        dm_corrected = kwargs.get('dmCorrected')
+        if dm_corrected is not None:
+            queryset = queryset.filter(toa__dm_corrected=bool(dm_corrected))
+
+        minimum_nsubs = kwargs.get('minimumNsubs')
+        if minimum_nsubs is not None:
+            queryset = queryset.filter(toa__minimum_nsubs=bool(minimum_nsubs))
+
+        maximum_nsubs = kwargs.get('maximumNsubs')
+        if maximum_nsubs is not None:
+            queryset = queryset.filter(toa__maximum_nsubs=bool(maximum_nsubs))
+
+        obs_nchan = kwargs.get('obsNchan')
+        if obs_nchan:
+            queryset = queryset.filter(toa__obs_nchan=obs_nchan)
+
+        return queryset

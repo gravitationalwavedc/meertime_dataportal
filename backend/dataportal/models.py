@@ -485,8 +485,8 @@ class PipelineFile(models.Model):
 
 class Toa(models.Model):
     # foreign keys
-    pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING)
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id")
+    pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING, related_name="toas")
+    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING)
     template = models.ForeignKey(Template, models.DO_NOTHING)
 
     # toa results
@@ -525,28 +525,39 @@ class Toa(models.Model):
             self.obs_nchan = int(self.pipeline_run.observation.nchan) // int(self.nch)
         super(Toa, self).save(*args, **kwargs)
 
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
+
 
 class Residual(models.Model):
-    pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING)
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", null=True)
-    template = models.ForeignKey(Template, models.DO_NOTHING)
+    toa = models.ForeignKey(Toa, models.CASCADE, related_name="residuals")
+    pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
+    project = models.ForeignKey(Project, models.DO_NOTHING)
+    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING)
 
     # X axis types
-    mjd = models.FloatField()
+    mjd = models.DecimalField(decimal_places=12, max_digits=18)
     day_of_year = models.FloatField()
-    binary_orbital_phase = models.FloatField()
+    binary_orbital_phase = models.FloatField(null=True)#TODO add this to the pipeline
 
     # Y axis types
     residual_sec     = models.FloatField()
     residual_sec_err = models.FloatField()
     residual_phase     = models.FloatField() # pulse period phase
-    residual_phase_err = models.FloatField()
+    residual_phase_err = models.FloatField(null=True) #TODO add this to the pipeline
 
-    sn = models.FloatField()
-    frequency = models.FloatField()
-    nchan = models.IntegerField()
-    nsub = models.IntegerField()
+    def save(self, *args, **kwargs):
+        # Convert MJD to a datetime object
+        base_date = datetime(1858, 11, 17)  # Base date for MJD
+        date = base_date + timedelta(days=float(self.mjd))
+        # Get the day of the year as a float
+        self.day_of_year = date.timetuple().tm_yday \
+            + date.hour / 24.0 \
+            + date.minute / (24.0 * 60.0) \
+            + date.second / (24.0 * 60.0 * 60.0)
+        super(Residual, self).save(*args, **kwargs)
 
-    site = models.CharField(max_length=1, blank=True, null=True)
-    quality = models.CharField(max_length=10, blank=True, null=True, choices=DATA_QUALITY_CHOICES)
-    flags = models.JSONField()
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
