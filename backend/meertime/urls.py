@@ -5,7 +5,7 @@ from django.urls import include, path, re_path
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-from backend.utils.utility import secure_serve
+from utils.utility import secure_serve
 
 from .schema import schema
 
