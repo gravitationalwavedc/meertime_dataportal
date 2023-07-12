@@ -1,6 +1,7 @@
 import { useState } from "react";
 import LightBox from "react-image-lightbox";
 import PlotImage from "./PlotImage";
+import { getImageData } from "../pages/RefreshToken.jsx";
 
 const MolongloImageGrid = ({ images, project }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -9,18 +10,21 @@ const MolongloImageGrid = ({ images, project }) => {
     ({ node }) => node.process === project
   );
 
-  const newlightBoxImages = [...gridImages.map(({ node }) => node.url)];
+  const urls = [...gridImages.map(({ node }) => node.url)];
 
   const [lightBoxImages, setLightBoxImages] = useState({
-    images: newlightBoxImages,
+    images: [],
     imagesIndex: 0,
   });
 
-  const openLightBox = (imageUrl) => {
-    const images = lightBoxImages.images;
-    const imageIndex = images.indexOf(imageUrl);
+  const openLightBox = async (imageUrl) => {
+    const imagePromises = urls.map((url) => getImageData(url));
+    const imageData = await Promise.all(imagePromises);
+    const images = imageData.filter((data) => data !== null).map((data) => data);
+    const imageIndex = urls.indexOf(imageUrl);
+
+    setLightBoxImages({ images, imagesIndex: imageIndex });
     setIsLightBoxOpen(true);
-    setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
 
   return (
@@ -34,9 +38,7 @@ const MolongloImageGrid = ({ images, project }) => {
       ))}
       {isLightBoxOpen && (
         <LightBox
-          mainSrc={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${
-            lightBoxImages.images[lightBoxImages.imagesIndex]
-          }`}
+          mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
           nextSrc={
             lightBoxImages.images[
               (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length
