@@ -129,18 +129,11 @@ class Template(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
     project = models.ForeignKey(Project, models.DO_NOTHING)
     template_file = models.FileField(upload_to=get_template_upload_location, storage=OverwriteStorage(), null=True)
-    template_hash = models.CharField(max_length=64, editable=False, null=True)
+    template_hash = models.CharField(max_length=64, null=True)
 
     band = models.CharField(max_length=7, choices=BAND_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
-    def save(self, *args, **kwargs):
-        Template.clean(self)
-        if self.template_file:
-            # This may be redundant as the rest api already caculates the hash
-            self.template_hash = create_file_hash(self.template_file)
-        super(Template, self).save(*args, **kwargs)
 
     class Meta:
         constraints = [
@@ -244,7 +237,7 @@ class PipelineRun(Model):
     """
     observation = models.ForeignKey(Observation, models.DO_NOTHING)
     ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", null=True)
-    template = models.ForeignKey(Template, models.DO_NOTHING)
+    template = models.ForeignKey(Template, models.CASCADE)
 
     pipeline_name = models.CharField(max_length=64)
     pipeline_description = models.CharField(max_length=255, blank=True, null=True)
@@ -487,7 +480,7 @@ class Toa(models.Model):
     # foreign keys
     pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING, related_name="toas")
     ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING)
-    template = models.ForeignKey(Template, models.DO_NOTHING)
+    template = models.ForeignKey(Template, models.CASCADE)
 
     # toa results
     archive   = models.CharField(max_length=128)

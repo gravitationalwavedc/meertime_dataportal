@@ -5,12 +5,10 @@ import re
 import hashlib
 
 
-def create_file_hash(file_path):
+def create_file_hash(opened_file):
     sha256_hash = hashlib.sha256()
     # Open the file in binary mode
-    with file_path.open('rb') as file:
-        # Read the entire file content
-        file_content = file.read()
+    file_content = opened_file.read()
     # Update the hash object with the file content
     sha256_hash.update(file_content)
     # Get the hexadecimal representation of the hash

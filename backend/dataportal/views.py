@@ -2,6 +2,7 @@ from django.conf import settings
 from sentry_sdk import last_event_id
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.core.files.base import ContentFile
 
 from rest_framework import status
 from rest_framework.viewsets import ViewSet
@@ -42,6 +43,7 @@ class UploadTemplate(ViewSet):
         pulsar_name     = request.data.get('pulsar_name')
         project_code    = request.data.get('project_code')
         band            = request.data.get('band')
+        print(template_upload, type(template_upload))
 
         # Get foreign key models
         try:
@@ -53,21 +55,33 @@ class UploadTemplate(ViewSet):
         except Project.DoesNotExist:
             return JsonResponse({'errors': f'Project code {project_code} not found.'}, status=400)
 
+
         # Create Template object
-        template, created = Template.objects.get_or_create(
-            pulsar=pulsar,
-            project=project,
-            band=band,
-            template_hash=create_file_hash(template_upload),
-        )
-        template.save()
-        if created:
-            # We use the save() method of the FileField to save the file.
-            # This ensures that the file object remains open until the file is properly saved to the disk.
-            template.template_file.save(template_upload.name, template_upload, save=True)
-            response = f"POST API and you have uploaded a template file to Template id: {template}"
-        else:
-            response = f"POST API and you have uploaded a template file to Template id: {template} (already exists)"
+        with template_upload.open('rb') as file:
+            tempalte_hash = create_file_hash(file)
+            # Check if a template with the same hash already exists
+            template_check = Template.objects.filter(
+                pulsar=pulsar,
+                project=project,
+                band=band,
+                template_hash=tempalte_hash,
+            )
+            if template_check.exists():
+                id = template_check.first().id
+                response = f"POST API and you have uploaded a template file to Template id: {id} (already exists)"
+                created = False
+            else:
+                template = Template.objects.create(
+                    pulsar=pulsar,
+                    project=project,
+                    band=band,
+                    template_hash=tempalte_hash,
+                    template_file=file
+                )
+                template.save()
+                id = template.id
+                response = f"POST API and you have uploaded a template file to Template id: {id}"
+                created = True
 
         return JsonResponse(
             {
@@ -75,7 +89,7 @@ class UploadTemplate(ViewSet):
                 'success': True,
                 'created': created,
                 'errors': None,
-                'id' : template.id,
+                'id' : id,
             },
             status=201,
         )
