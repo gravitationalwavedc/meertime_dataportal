@@ -1,9 +1,17 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import SingleObservationTable from "./SingleObservationTable";
+import * as imageUtils from "../pages/RefreshToken";
+
+vi.mock("../pages/RefreshToken");
 
 describe("observationTimeView component", () => {
-  it("should render the page with images", () => {
+  it("should render the page with images", async() => {
     expect.hasAssertions();
+
+    const getImageDataSpy = vi.spyOn(imageUtils, "getImageData");
+    const mockImageUrl = "data:image;base64,VGhpcyBpcyBhIHRlc3Qgc3RyaW5nLg==";
+    getImageDataSpy.mockResolvedValue(Promise.resolve(mockImageUrl));
+
     const data = {
       foldObservationDetails: {
         edges: [
@@ -60,18 +68,22 @@ describe("observationTimeView component", () => {
     };
 
     const { getByAltText } = render(<SingleObservationTable data={data} />);
-    expect(getByAltText("Plot profile using raw data.")).toHaveAttribute(
-      "src",
-      expect.stringContaining("profile.mock.png")
-    );
-    expect(getByAltText("Plot time using raw data.")).toHaveAttribute(
-      "src",
-      expect.stringContaining("phaseVsTime.mock.png")
-    );
-    expect(getByAltText("Plot phase using raw data.")).toHaveAttribute(
-      "src",
-      expect.stringContaining("phaseVsFrequency.mock.png")
-    );
+
+    await waitFor(() => {
+      expect(getImageDataSpy).toHaveBeenCalled();
+      expect(getByAltText("Plot profile using raw data.")).toHaveAttribute(
+        "src",
+        expect.stringContaining("data:image;base64,")
+      );
+      expect(getByAltText("Plot time using raw data.")).toHaveAttribute(
+        "src",
+        expect.stringContaining("data:image;base64,")
+      );
+      expect(getByAltText("Plot phase using raw data.")).toHaveAttribute(
+        "src",
+        expect.stringContaining("data:image;base64,")
+      );
+    });
   });
 
   it("should render the page with no images available", () => {
