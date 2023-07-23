@@ -23,7 +23,7 @@ class Query(graphene.ObjectType):
         project=graphene.String(required=True),
         jname=graphene.String(required=True),
         utc=graphene.String(required=True),
-        beams=graphene.Int(required=True),
+        beam=graphene.Int(required=True),
         band=graphene.Int(required=True),
     )
 
@@ -34,6 +34,7 @@ class Query(graphene.ObjectType):
         if has_files:
             return [
                 JobControllerFile(
+                    id=file["path"].split("/")[-1],
                     file_size=file["fileSize"],
                     is_dir=file["isDir"],
                     path=file["path"],

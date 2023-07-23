@@ -5,6 +5,7 @@ import web_cache.queries
 import user_manage.graphql.queries
 import user_manage.graphql.mutations
 import jobcontroller.queries
+import jobcontroller.mutations
 from django.conf import settings
 from user_manage.graphql.types import UserType
 
@@ -34,6 +35,7 @@ class ObtainJSONWebToken(graphql_jwt.relay.JSONWebTokenMutation):
 class Mutation(
     dataportal.graphql.Mutation,
     user_manage.graphql.mutations.Mutation,
+    jobcontroller.mutations.Mutation,
     graphene.ObjectType,
 ):
     token_auth = ObtainJSONWebToken.Field()

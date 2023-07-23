@@ -1,6 +1,5 @@
 import { Button, Modal, Table } from "react-bootstrap";
 import { createLink, formatProjectName } from "../helpers";
-import React from "react";
 
 const FildDownloadModal = ({ visible, files, setShow }) => (
   <Modal show={visible} onHide={() => setShow(false)} size="xl">

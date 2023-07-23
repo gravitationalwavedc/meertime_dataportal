@@ -4,7 +4,13 @@ import environment from "../relayEnvironment";
 import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
-  query SingleObservationQuery($jname: String!, $utc: String, $beam: Int) {
+  query SingleObservationQuery(
+    $jname: String!
+    $utc: String!
+    $beam: Int!
+    $project: String!
+    $band: Int!
+  ) {
     foldObservationDetails(jname: $jname, utc: $utc, beam: $beam) {
       edges {
         node {
@@ -35,30 +41,44 @@ const query = graphql`
         }
       }
     }
+    ...DownloadFluxcalButtons_data
+      @arguments(
+        jname: $jname
+        utc: $utc
+        project: $project
+        band: $band
+        beam: $beam
+      )
   }
 `;
 
-const SingleObservation = ({ router, match: { params: { jname, utc, beam }, }, }) => {
+const SingleObservation = ({
+  router,
+  match: {
+    params: { jname, utc, beam },
+  },
+}) => {
+  performRefreshTokenMutation(router);
 
-    performRefreshTokenMutation(router);
-
-    return (<QueryRenderer
-        environment={environment}
-        query={query}
-        variables={{
-            jname: jname,
-            utc: utc,
-            beam: beam,
-        }}
-        render={({ error, props }) => {
-            if (error) {
-                return <h5>{error.message}</h5>;
-            } else if (props) {
-                return <SingleObservationTable data={props} jname={jname}/>;
-            }
-            return <h1>Loading...</h1>;
-        }}
-    />)
-}
+  return (
+    <QueryRenderer
+      environment={environment}
+      query={query}
+      variables={{
+        jname: jname,
+        utc: utc,
+        beam: beam,
+      }}
+      render={({ error, props }) => {
+        if (error) {
+          return <h5>{error.message}</h5>;
+        } else if (props) {
+          return <SingleObservationTable data={props} jname={jname} />;
+        }
+        return <h1>Loading...</h1>;
+      }}
+    />
+  );
+};
 
 export default SingleObservation;
