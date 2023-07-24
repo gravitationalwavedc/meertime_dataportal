@@ -4,13 +4,7 @@ import environment from "../relayEnvironment";
 import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
-  query SingleObservationQuery(
-    $jname: String!
-    $utc: String!
-    $beam: Int!
-    $project: String!
-    $band: Int!
-  ) {
+  query SingleObservationQuery($jname: String!, $utc: String!, $beam: Int!) {
     foldObservationDetails(jname: $jname, utc: $utc, beam: $beam) {
       edges {
         node {
@@ -42,13 +36,7 @@ const query = graphql`
       }
     }
     ...DownloadFluxcalButtons_data
-      @arguments(
-        jname: $jname
-        utc: $utc
-        project: $project
-        band: $band
-        beam: $beam
-      )
+      @arguments(jname: $jname, utc: $utc, band: $band)
   }
 `;
 

@@ -1,5 +1,5 @@
 import { commitMutation, createFragmentContainer, graphql } from "react-relay";
-import { Button, Col } from "react-bootstrap";
+import { Button } from "react-bootstrap";
 import environment from "../relayEnvironment";
 
 const downloadFluxcalButtonsMutation = graphql`
@@ -82,17 +82,9 @@ export default createFragmentContainer(DownloadFluxcalButtons, {
     @argumentDefinitions(
       jname: { type: "String!" }
       utc: { type: "String!" }
-      project: { type: "String!" }
-      band: { type: "Int!" }
       beam: { type: "Int!" }
     ) {
-      fileList(
-        jname: $jname
-        utc: $utc
-        project: $project
-        band: $band
-        beam: $beam
-      ) {
+      fileList(jname: $jname, utc: $utc, beam: $beam) {
         edges {
           node {
             path

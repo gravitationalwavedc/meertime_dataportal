@@ -1,6 +1,7 @@
 import graphene
 from graphene import relay
 from jobcontroller import request_file_list, get_fluxcal_archive_path
+from web_cache.models import FoldPulsarDetail
 
 
 class JobControllerFile(graphene.ObjectType):
@@ -20,15 +21,27 @@ class FileConnection(relay.Connection):
 class Query(graphene.ObjectType):
     file_list = relay.ConnectionField(
         FileConnection,
-        project=graphene.String(required=True),
         jname=graphene.String(required=True),
         utc=graphene.String(required=True),
         beam=graphene.Int(required=True),
-        band=graphene.Int(required=True),
     )
 
     def resolve_file_list(self, info, **kwargs):
-        path = get_fluxcal_archive_path(**kwargs)
+
+        fold_pulsar_detail = FoldPulsarDetail.objects.get(
+            fold_pular__jname=jname,
+            utc=utc,
+            beam=beam
+        )
+
+        path = get_fluxcal_archive_path(
+            project=fold_pulsar_detail.project,
+            jname=jname,
+            utc=utc,
+            beam=beam,
+            band=fold_pulsar_detail.get_band_for_path()
+        )
+
         has_files, files = request_file_list(path, False)
 
         if has_files:
