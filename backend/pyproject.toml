@@ -48,6 +48,7 @@ django-cprofile-middleware = "^1.0.5"
 xenon = "^0.7.1"
 model_bakery = "^1.2.1"
 django-stubs = "^1.8.0"
+pyyaml = "==5.3.1"
 
 [tool.poetry.group.dev.dependencies]
 freezegun = "^1.2.2"

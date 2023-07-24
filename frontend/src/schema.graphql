@@ -101,10 +101,6 @@ type CreateRegistration {
   errors: [String]
 }
 
-type CreateResidualOutput {
-  residual: [ResidualType]
-}
-
 type CreateTelescope {
   telescope: TelescopeType
 }
@@ -149,10 +145,6 @@ type DeleteProject {
 }
 
 type DeletePulsar {
-  ok: Boolean
-}
-
-type DeleteResidual {
   ok: Boolean
 }
 
@@ -207,7 +199,7 @@ type EphemerisNode implements Node {
   observationSet: [ObservationType!]!
   pipelinerunSet: [PipelineRunType!]!
   toaSet: [ToaType!]!
-  residualSet: [ResidualType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 type EphemerisType {
@@ -226,7 +218,7 @@ type EphemerisType {
   observationSet: [ObservationType!]!
   pipelinerunSet: [PipelineRunType!]!
   toaSet: [ToaType!]!
-  residualSet: [ResidualType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 scalar GenericScalar
@@ -277,9 +269,6 @@ type Mutation {
   passwordReset(password: String!, verificationCode: String!): PasswordReset
   passwordChange(oldPassword: String!, password: String!, username: String!): PasswordChange
   accountActivation(activationCode: String!, userInput: RegistrationInput!): AccountActivation
-  createResidual(input: ResidualInput!): CreateResidualOutput
-  updateResidual(id: Int!, input: ResidualInput!): UpdateResidual
-  deleteResidual(id: Int!): DeleteResidual
   createToa(input: ToaInput!): CreateToaOutput
   updateToa(id: Int!, input: ToaInput!): UpdateToa
   deleteToa(id: Int!): DeleteToa
@@ -693,7 +682,7 @@ type ProjectNode implements Node {
   ephemerisSet: [EphemerisType!]!
   templateSet: [TemplateType!]!
   observationSet: [ObservationType!]!
-  residualSet: [ResidualType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 type ProjectType {
@@ -706,7 +695,7 @@ type ProjectType {
   ephemerisSet: [EphemerisType!]!
   templateSet: [TemplateType!]!
   observationSet: [ObservationType!]!
-  residualSet: [ResidualType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 enum ProvisionalUserRole {
@@ -840,7 +829,7 @@ type PulsarNode implements Node {
   observationSet: [ObservationType!]!
   pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
   pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
-  residualSet: [ResidualType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 type PulsarType {
@@ -852,7 +841,7 @@ type PulsarType {
   observationSet: [ObservationType!]!
   pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
   pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
-  residualSet: [ResidualType!]!
+  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 input PulsarsInput {
@@ -934,13 +923,6 @@ type ResidualEdge {
   cursor: String!
 }
 
-input ResidualInput {
-  pulsar: String!
-  projectShort: String!
-  ephemerisId: Int!
-  residualLines: [String]!
-}
-
 type ResidualNode implements Node {
   id: ID!
   toa: ToaType!
@@ -958,19 +940,14 @@ type ResidualNode implements Node {
   template: TemplateNode
 }
 
-type ResidualType {
-  id: ID!
-  toa: ToaType!
-  pulsar: PulsarType!
-  project: ProjectType!
-  ephemeris: EphemerisType!
-  mjd: Decimal!
-  dayOfYear: Float!
-  binaryOrbitalPhase: Float
-  residualSec: Float!
-  residualSecErr: Float!
-  residualPhase: Float!
-  residualPhaseErr: Float
+type ResidualNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ResidualNodeEdge]!
+}
+
+type ResidualNodeEdge {
+  node: ResidualNode
+  cursor: String!
 }
 
 type TelescopeConnection {
@@ -1095,7 +1072,7 @@ type ToaNode implements Node {
   minimumNsubs: Boolean!
   maximumNsubs: Boolean!
   obsNchan: Int
-  residuals: [ResidualType!]!
+  residuals(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 type ToaType {
@@ -1126,7 +1103,7 @@ type ToaType {
   minimumNsubs: Boolean!
   maximumNsubs: Boolean!
   obsNchan: Int
-  residuals: [ResidualType!]!
+  residuals(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
 type UpdateCalibration {
@@ -1155,10 +1132,6 @@ type UpdateProject {
 
 type UpdatePulsar {
   pulsar: PulsarType
-}
-
-type UpdateResidual {
-  residual: ResidualType
 }
 
 type UpdateRole {
