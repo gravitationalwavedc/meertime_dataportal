@@ -168,3 +168,10 @@ def test_get_flux():
     create_folding_for_molonglo()
     folding = Foldings.objects.last()
     assert FoldPulsarDetail.get_flux(folding, "MONSPSR_TIMING") == 1.46
+
+
+def test_get_centre_frequency():
+    assert FoldPulsarDetail(band="L-Band").get_band_centre_frequency() == 1284
+    assert FoldPulsarDetail(band="UHF").get_band_centre_frequency() == 830
+    assert FoldPulsarDetail(band="UNKNOWN").get_band_centre_frequency() is None
+    assert FoldPulsarDetail(band="").get_band_centre_frequency() is None

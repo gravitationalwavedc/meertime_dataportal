@@ -21,6 +21,12 @@ BAND_CHOICES = (
     ("UNKNOWN", "Unknown"),
 )
 
+BANDS = {
+    "UHF": {"centre_frequency": 830.0, "allowed_deviation": 200.0},
+    "L-Band": {"centre_frequency": 1283.0, "allowed_deviation": 200.0},
+    "S-Band": {"centre_frequency": 2625.0, "allowed_deviation": 200.0},
+}
+
 
 class BasePulsar(models.Model):
     """
@@ -73,16 +79,11 @@ class BasePulsar(models.Model):
         L-band: 20-cm band, around Hydrogen transition line ~1.42 GHz
         S-band: 10-cm band, around 2.6 GHz
         """
-        bands = {
-            "UHF": {"centre_frequency": 830.0, "allowed_deviation": 200.0},
-            "L-Band": {"centre_frequency": 1285.0, "allowed_deviation": 200.0},
-            "S-Band": {"centre_frequency": 2625.0, "allowed_deviation": 200.0},
-        }
 
         return next(
             (
                 band
-                for band, frequencies in bands.items()
+                for band, frequencies in BANDS.items()
                 if abs(float(frequency) - frequencies["centre_frequency"])
                 < frequencies["allowed_deviation"]
             ),
@@ -444,6 +445,13 @@ class FoldPulsarDetail(models.Model):
     def session(self):
         return Sessions.get_session(self.utc)
 
+    def get_band_centre_frequency(self):
+        # Centre frequency is currnently used as part of the file structure
+        # on OzStar as an int value. Most common is 1284.
+        # We need to calculate this so we can get the correct path of files for download.
+        band = BANDS.get(self.band)
+        return int(band["centre_frequency"]) if band else None
+
     @classmethod
     def get_sn_meerpipe(cls, folding, project_short):
         try:
@@ -721,6 +729,10 @@ class FoldPulsarDetail(models.Model):
         return new_fold_pulsar_detail, created
 
     @classmethod
+    def format_utc(cls, utc):
+        return datetime.strptime(utc, "%Y-%m-%d-%H:%M:%S")
+
+    @classmethod
     def get_query(cls, **kwargs):
         if "jname" in kwargs:
             kwargs["fold_pulsar__jname"] = kwargs.pop("jname")
@@ -729,7 +741,7 @@ class FoldPulsarDetail(models.Model):
             kwargs["fold_pulsar__main_project"] = kwargs.pop("main_project")
 
         if "utc" in kwargs:
-            kwargs["utc"] = datetime.strptime(kwargs["utc"], "%Y-%m-%d-%H:%M:%S")
+            kwargs["utc"] = cls.format_utc(kwargs["utc"])
 
         return cls.objects.filter(**kwargs)
 

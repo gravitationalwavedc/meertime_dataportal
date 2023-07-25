@@ -29,17 +29,17 @@ class Query(graphene.ObjectType):
     def resolve_file_list(self, info, **kwargs):
 
         fold_pulsar_detail = FoldPulsarDetail.objects.get(
-            fold_pular__jname=jname,
-            utc=utc,
-            beam=beam
+            fold_pulsar__jname=kwargs.get("jname"),
+            utc=FoldPulsarDetail.format_utc(kwargs.get("utc")),
+            beam=kwargs.get("beam")
         )
 
         path = get_fluxcal_archive_path(
             project=fold_pulsar_detail.project,
-            jname=jname,
-            utc=utc,
-            beam=beam,
-            band=fold_pulsar_detail.get_band_for_path()
+            jname=kwargs.get("jname"),
+            utc=kwargs.get('utc'),
+            beam=kwargs.get("beam"),
+            band=fold_pulsar_detail.get_band_centre_frequency()
         )
 
         has_files, files = request_file_list(path, False)
