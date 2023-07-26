@@ -48,6 +48,9 @@ xenon = "^0.7.1"
 model_bakery = "^1.2.1"
 django-stubs = "^1.8.0"
 
+[tool.poetry.group.dev.dependencies]
+freezegun = "^1.2.2"
+
 [tool.black]
 line-length = 119
 target_version = ['py37', 'py38']

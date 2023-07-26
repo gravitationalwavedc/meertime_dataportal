@@ -1,4 +1,5 @@
 import math
+import pytz
 from datetime import datetime
 from dateutil import parser
 from django.db import models
@@ -13,6 +14,9 @@ from dataportal.models import (
 from django.db.models import JSONField, Q
 from statistics import mean
 from web_cache.plot_types import PLOT_NAMES
+from utils.constants import UserRole
+
+from utils import constants
 
 BAND_CHOICES = (
     ("L-Band", "L-Band"),
@@ -451,6 +455,14 @@ class FoldPulsarDetail(models.Model):
         # We need to calculate this so we can get the correct path of files for download.
         band = BANDS.get(self.band)
         return int(band["centre_frequency"]) if band else None
+
+    def is_restricted(self, user):
+        # If the user role isn't restricted they can access everything
+        if user.role.upper() in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]:
+            return False
+
+        # If there's no embargo then it's not restricted
+        return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
 
     @classmethod
     def get_sn_meerpipe(cls, folding, project_short):

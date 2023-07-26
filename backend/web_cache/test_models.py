@@ -1,5 +1,9 @@
 import pytest
+import pytz
+
+from freezegun import freeze_time
 from datetime import datetime
+from django.contrib.auth import get_user_model
 from web_cache.models import (
     FoldPulsar,
     FoldPulsarDetail,
@@ -12,6 +16,7 @@ from web_cache.testing_utils import (
 )
 from dataportal.models import Sessions, Telescopes, Foldings
 
+User = get_user_model()
 
 def create_fold_pulsar():
     return FoldPulsar.objects.create(
@@ -175,3 +180,18 @@ def test_get_centre_frequency():
     assert FoldPulsarDetail(band="UHF").get_band_centre_frequency() == 830
     assert FoldPulsarDetail(band="UNKNOWN").get_band_centre_frequency() is None
     assert FoldPulsarDetail(band="").get_band_centre_frequency() is None
+
+
+@freeze_time("2023-07-26 12:00:00")
+def test_is_restricted():
+    embargoed_fold_detail = FoldPulsarDetail(embargo_end_date=datetime(2024, 1, 1, 12, 0, 0, 0, pytz.UTC))
+    unrestricted_fold_detail = FoldPulsarDetail(embargo_end_date=datetime(2022, 1, 1, 12, 0, 0, 0, pytz.UTC))
+    assert embargoed_fold_detail.is_restricted(User(role="RESTRICTED")) is True
+    assert embargoed_fold_detail.is_restricted(User(role="Default")) is True
+    assert embargoed_fold_detail.is_restricted(User(role="UNRESTRICTED")) is False
+    assert embargoed_fold_detail.is_restricted(User(role="ADMIN")) is False
+
+    assert unrestricted_fold_detail.is_restricted(User(role="RESTRICTED")) is False
+    assert unrestricted_fold_detail.is_restricted(User(role="Default")) is False
+    assert unrestricted_fold_detail.is_restricted(User(role="UNRESTRICTED")) is False
+    assert unrestricted_fold_detail.is_restricted(User(role="ADMIN")) is False
