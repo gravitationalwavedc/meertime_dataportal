@@ -1296,7 +1296,7 @@ type PulsartargetsType {
 }
 
 type Query {
-  fileList(project: String!, jname: String!, utc: String!, beam: Int!, band: Int!, before: String, after: String, first: Int, last: Int): FileConnection
+  fileList(jname: String!, utc: String!, beam: Int!, before: String, after: String, first: Int, last: Int): FileConnection
   foldPulsar(jname: String!, mainProject: String): FoldPulsarNode
   foldObservations(mainProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): FoldPulsarConnection
   foldObservationDetails(jname: String!, mainProject: String, project: String, utc: String, beam: Int, before: String, after: String, first: Int, last: Int): FoldPulsarDetailConnection

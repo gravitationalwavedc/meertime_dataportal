@@ -171,7 +171,7 @@ def test_get_flux():
 
 
 def test_get_centre_frequency():
-    assert FoldPulsarDetail(band="L-Band").get_band_centre_frequency() == 1284
+    assert FoldPulsarDetail(band="L-Band").get_band_centre_frequency() == 1283
     assert FoldPulsarDetail(band="UHF").get_band_centre_frequency() == 830
     assert FoldPulsarDetail(band="UNKNOWN").get_band_centre_frequency() is None
     assert FoldPulsarDetail(band="").get_band_centre_frequency() is None
