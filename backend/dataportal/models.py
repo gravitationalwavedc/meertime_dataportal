@@ -169,7 +169,7 @@ class Observation(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
     telescope = models.ForeignKey(Telescope, models.DO_NOTHING)
     project = models.ForeignKey(Project, models.DO_NOTHING)
-    calibration = models.ForeignKey(Calibration, models.DO_NOTHING, null=True)
+    calibration = models.ForeignKey(Calibration, models.DO_NOTHING, null=True)#, related_name="observations")
 
     # Frequency fields
     band = models.CharField(max_length=7, choices=BAND_CHOICES)
@@ -235,7 +235,7 @@ class PipelineRun(Model):
     """
     Details about the software and pipeline run to process data
     """
-    observation = models.ForeignKey(Observation, models.DO_NOTHING)
+    observation = models.ForeignKey(Observation, models.DO_NOTHING, related_name="pipeline_runs")
     ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", null=True)
     template = models.ForeignKey(Template, models.CASCADE)
 
@@ -274,7 +274,7 @@ class PipelineRun(Model):
 
 
 class PulsarFoldResult(models.Model):
-    observation = models.ForeignKey(Observation, on_delete=models.CASCADE)
+    observation = models.ForeignKey(Observation, on_delete=models.CASCADE, related_name="pulsar_fold_results")
     pipeline_run = models.ForeignKey(PipelineRun, on_delete=models.CASCADE)
     pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
 

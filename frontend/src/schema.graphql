@@ -43,7 +43,15 @@ type CalibrationNode implements Node {
   phaseUpId: String
   calibrationType: CalibrationCalibrationType!
   location: String
-  observationSet: [ObservationType!]!
+  observations: [ObservationType!]!
+  start: DateTime
+  end: DateTime
+  allProjects: String
+  nObservations: Int
+  nAntMin: Int
+  nAntMax: Int
+  totalIntegrationTimeSeconds: Float
+  idInt: Int
 }
 
 type CalibrationType {
@@ -52,7 +60,7 @@ type CalibrationType {
   phaseUpId: String
   calibrationType: CalibrationCalibrationType!
   location: String
-  observationSet: [ObservationType!]!
+  observations: [ObservationType!]!
 }
 
 type CreateCalibration {
@@ -386,8 +394,8 @@ type ObservationNode implements Node {
   filterbankNchan: Int
   filterbankTsamp: Float
   filterbankDm: Float
-  pipelinerunSet: [PipelineRunType!]!
-  pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
+  pipelineRuns: [PipelineRunType!]!
+  pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
 }
 
 enum ObservationObsType {
@@ -426,8 +434,8 @@ type ObservationType {
   filterbankNchan: Int
   filterbankTsamp: Float
   filterbankDm: Float
-  pipelinerunSet: [PipelineRunType!]!
-  pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
+  pipelineRuns: [PipelineRunType!]!
+  pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
 }
 
 input ObtainJSONWebTokenInput {
@@ -856,8 +864,8 @@ type Query {
   project(code: String, before: String, after: String, first: Int, last: Int): ProjectConnection
   ephemeris(before: String, after: String, first: Int, last: Int): EphemerisConnection
   template(before: String, after: String, first: Int, last: Int): TemplateConnection
-  calibration(before: String, after: String, first: Int, last: Int): CalibrationConnection
-  observation(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, before: String, after: String, first: Int, last: Int): ObservationConnection
+  calibration(id: Int, before: String, after: String, first: Int, last: Int): CalibrationConnection
+  observations(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, before: String, after: String, first: Int, last: Int): ObservationConnection
   pipelineRun(id: Int, before: String, after: String, first: Int, last: Int): PipelineRunConnection
   pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
   pulsarFoldSummary(mainProject: String, mostCommonProject: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection

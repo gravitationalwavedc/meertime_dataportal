@@ -11,6 +11,7 @@ from graphql_jwt.decorators import login_required
 from graphql_relay import from_global_id
 from graphql import GraphQLError
 
+
 from dataportal.models import (
     Pulsar,
     Telescope,
@@ -165,12 +166,54 @@ class TemplateConnection(relay.Connection):
         node = TemplateNode
 
 
+class ObservationNode(DjangoObjectType):
+    class Meta:
+        model = Observation
+        interfaces = (relay.Node,)
+
 class CalibrationNode(DjangoObjectType):
     class Meta:
         model = Calibration
         fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
+
+    start = graphene.DateTime()
+    end = graphene.DateTime()
+    all_projects = graphene.String()
+    n_observations = graphene.Int()
+    n_ant_min = graphene.Int()
+    n_ant_max = graphene.Int()
+    total_integration_time_seconds = graphene.Float()
+    id_int = graphene.Int()
+
+    def resolve_start(self, info):
+        return self.observations.order_by('utc_start').first().utc_start
+
+    def resolve_end(self, info):
+        return self.observations.order_by('utc_start').last().utc_start
+
+    def resolve_all_projects(self, info):
+        all_projects = ", ".join(
+            {observation.project.short for observation in self.observations.all()}
+        )
+        return all_projects
+
+    def resolve_n_observations(self, info):
+        return self.observations.count()
+
+    def resolve_n_ant_min(self, info):
+        return self.observations.order_by('nant').first().nant
+
+    def resolve_n_ant_max(self, info):
+        return self.observations.order_by('nant').last().nant
+
+    def resolve_total_integration_time_seconds(self, info):
+        durations = self.observations.all().values_list('duration', flat=True)
+        return sum(durations)
+
+    def resolve_id_int(self, info):
+        return self.id
 
     @classmethod
     @login_required
@@ -182,28 +225,28 @@ class CalibrationConnection(relay.Connection):
         node = CalibrationNode
 
 
-class ObservationNode(DjangoObjectType):
-    class Meta:
-        model = Observation
-        fields = "__all__"
-        filter_fields = "__all__"
-        interfaces = (relay.Node,)
+# class ObservationNode(DjangoObjectType):
+#     class Meta:
+#         model = Observation
+#         fields = "__all__"
+#         filter_fields = "__all__"
+#         interfaces = (relay.Node,)
 
-    # ForeignKey fields
-    pulsar = graphene.Field(PulsarNode)
-    telescope = graphene.Field(TelescopeNode)
-    project = graphene.Field(ProjectNode)
-    calibration = graphene.Field(CalibrationNode)
-    ephemeris = graphene.Field(EphemerisNode)
+#     # ForeignKey fields
+#     pulsar = graphene.Field(PulsarNode)
+#     telescope = graphene.Field(TelescopeNode)
+#     project = graphene.Field(ProjectNode)
+#     calibration = graphene.Field(CalibrationNode)
+#     ephemeris = graphene.Field(EphemerisNode)
 
-    @classmethod
-    @login_required
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
+#     @classmethod
+#     @login_required
+#     def get_queryset(cls, queryset, info):
+#         return super().get_queryset(queryset, info)
 
-class ObservationConnection(relay.Connection):
-    class Meta:
-        node = ObservationNode
+# class ObservationConnection(relay.Connection):
+#     class Meta:
+#         node = ObservationNode
 
 
 class PipelineRunNode(DjangoObjectType):
@@ -239,7 +282,7 @@ class PipelineRunNode(DjangoObjectType):
     project = graphene.Field(ProjectNode)
     ephemeris = graphene.Field(EphemerisNode)
     template = graphene.Field(TemplateNode)
-    observation = graphene.Field(ObservationNode)
+    # observation = graphene.Field(ObservationNode)
 
     @classmethod
     @login_required
@@ -258,7 +301,7 @@ class PulsarFoldResultNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
     # ForeignKey fields
-    observation = graphene.Field(ObservationNode)
+    # observation = graphene.Field(ObservationNode)
     pipeline_run = graphene.Field(PipelineRunNode)
     project = graphene.Field(ProjectNode)
 
@@ -491,7 +534,13 @@ class Query(graphene.ObjectType):
     )
     @login_required
     def resolve_telescope(self, info, **kwargs):
-        return Telescope.get_query(**kwargs)
+        queryset = Telescope.objects.all()
+
+        name = kwargs.get('name')
+        if name:
+            queryset = queryset.filter(name=name)
+
+        return queryset
 
 
     main_project = relay.ConnectionField(
@@ -530,22 +579,30 @@ class Query(graphene.ObjectType):
 
     calibration = relay.ConnectionField(
         CalibrationConnection,
+        id=graphene.Int(),
     )
     @login_required
     def resolve_calibration(self, info, **kwargs):
-        return Calibration.get_query(**kwargs)
+        queryset = Calibration.objects.all()
+
+        calibration_id = kwargs.get('id')
+        if calibration_id:
+            print(calibration_id)
+            queryset = queryset.filter(id=calibration_id)
+
+        return queryset
 
 
-    observation = relay.ConnectionField(
-        ObservationConnection,
-        pulsar__name=graphene.String(),
-        telescope__name=graphene.String(),
-        project__id=graphene.Int(),
-        project__short=graphene.String(),
-    )
-    @login_required
-    def resolve_observation(self, info, **kwargs):
-        return Observation.get_query(**kwargs)
+    # observations = relay.ConnectionField(
+    #     ObservationConnection,
+    #     pulsar__name=graphene.String(),
+    #     telescope__name=graphene.String(),
+    #     project__id=graphene.Int(),
+    #     project__short=graphene.String(),
+    # )
+    # @login_required
+    # def resolve_observations(self, info, **kwargs):
+    #     return Observation.get_query(**kwargs)
 
 
     pipeline_run = relay.ConnectionField(

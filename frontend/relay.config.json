@@ -6,8 +6,6 @@
     "**/node_modules/**",
     "**/__mocks__/**",
     "**/__generated__/**",
-    "**/pages/Session*",
-    "**/components/Session*",
     "**/pages/Search*",
     "**/components/Search*"
   ],

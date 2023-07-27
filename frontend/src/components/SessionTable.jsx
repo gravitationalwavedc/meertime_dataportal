@@ -11,49 +11,7 @@ import moment from "moment";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
-const sessionTableQuery = graphql`
-  fragment SessionTable_data on Query
-  @refetchable(queryName: "SessionTableQuery")
-  @argumentDefinitions(
-    start: { type: "String" }
-    end: { type: "String" }
-    utc: { type: "String" }
-    project: { type: "String", defaultValue: "All" }
-  ) {
-    sessionDisplay(start: $start, end: $end, utc: $utc) {
-      start
-      end
-      numberOfObservations
-      numberOfPulsars
-      sessionPulsars(project: $project) {
-        edges {
-          node {
-            jname
-            pulsarType
-            project
-            utc
-            beam
-            integrations
-            frequency
-            backendSN
-            fluxHi
-            phaseVsTimeHi
-            phaseVsFrequencyHi
-            fluxLo
-            phaseVsTimeLo
-            phaseVsFrequencyLo
-          }
-        }
-      }
-    }
-  }
-`;
-
-const SessionTable = ({ data, utc }) => {
-  const [fragmentData, refetch] = useRefetchableFragment(
-    sessionTableQuery,
-    data
-  );
+const SessionTable = ({ data: { calibration }, relay, id }) => {
   const { screenSize } = useScreenSize();
   const [project, setProject] = useState("All");
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -63,23 +21,23 @@ const SessionTable = ({ data, utc }) => {
   });
 
   useEffect(() => {
-    if (utc !== undefined) {
-      refetch({ start: null, end: null, utc: utc, project: project });
+    if (id !== undefined) {
+      relay.refetch({ id: null });
     } else {
-      refetch({
-        start: fragmentData.sessionDisplay.start,
-        end: fragmentData.sessionDisplay.end,
-        utc: null,
-        project: project,
+      relay.refetch({
+        id: id
       });
     }
-  }, [project, utc, refetch, fragmentData.sessionDisplay]);
+  }, [project, relay, id]);
 
+  console.log(calibration);
+  // Grab the single item from the edges array
+  const calibration_node = calibration.edges[0]?.node;
   const startDate = moment
-    .parseZone(fragmentData.sessionDisplay.start, moment.ISO_8601)
+    .parseZone(calibration_node.start, moment.ISO_8601)
     .format("h:mma DD/MM/YYYY");
   const endDate = moment
-    .parseZone(fragmentData.sessionDisplay.end, moment.ISO_8601)
+    .parseZone(calibration_node.end, moment.ISO_8601)
     .format("h:mma DD/MM/YYYY");
 
   const openLightBox = (images, imageIndex) => {
@@ -87,11 +45,11 @@ const SessionTable = ({ data, utc }) => {
     setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
 
-  const rows = fragmentData.sessionDisplay.sessionPulsars.edges.reduce(
-    (result, edge) => {
-      const row = { ...edge.node };
-      row.utc = formatUTC(row.utc);
-      row.projectKey = project;
+  const rows = calibration_node.observations.reduce((result, edge) => {
+    const row = { ...edge };
+    console.log(row);
+    row.utc = formatUTC(row.utc);
+    row.projectKey = project;
 
       const images = [
         `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.fluxHi}`,
@@ -220,7 +178,7 @@ const SessionTable = ({ data, utc }) => {
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
-  const projectData = fragmentData.sessionDisplay.sessionPulsars.edges.reduce(
+  const projectData = calibration_node.observations.edges.reduce(
     (result, edge) => {
       if (
         result.filter((project) => project.title === edge.node.project)
@@ -230,7 +188,7 @@ const SessionTable = ({ data, utc }) => {
           ...result,
           {
             title: edge.node.project,
-            value: fragmentData.sessionDisplay.sessionPulsars.edges.filter(
+            value: calibration.sessionPulsars.edges.filter(
               (newEdge) => newEdge.node.project === edge.node.project
             ).length,
           },
@@ -243,11 +201,8 @@ const SessionTable = ({ data, utc }) => {
   );
 
   const summaryData = [
-    {
-      title: "Observations",
-      value: fragmentData.sessionDisplay.numberOfObservations,
-    },
-    { title: "Pulsars", value: fragmentData.sessionDisplay.numberOfPulsars },
+    { title: "Observations", value: calibration_node.numberOfObservations },
+    { title: "Pulsars", value: calibration_node.numberOfPulsars },
     ...projectData,
   ];
 
@@ -302,4 +257,60 @@ const SessionTable = ({ data, utc }) => {
   );
 };
 
-export default SessionTable;
+export default createRefetchContainer(
+  SessionTable,
+  {
+    data: graphql`
+      fragment SessionTable_data on Query
+      @argumentDefinitions(
+        id: { type: "Int" }
+      ) {
+        calibration (id: $id) {
+          edges {
+            node {
+              id
+              idInt
+              start
+              end
+              allProjects
+              nObservations
+              nAntMin
+              nAntMax
+              totalIntegrationTimeSeconds
+              observations {
+                id
+                pulsar {
+                  name
+                }
+                utcStart
+                duration
+                project{
+                  short
+                }
+                pulsarFoldResults {
+                  edges {
+                    node {
+                      pipelineRun {
+                        rm
+                        rmErr
+                        sn
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `,
+  },
+  graphql`
+    query SessionTableRefetchQuery(
+      $id: Int
+    ) {
+      ...SessionTable_data
+        @arguments(id: $id)
+    }
+  `
+);
