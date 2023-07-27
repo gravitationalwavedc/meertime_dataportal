@@ -58,7 +58,7 @@ class MainProject(Model):
     """
     E.g. Meertime and trapam
     """
-    telescope = models.ForeignKey(Telescope, models.DO_NOTHING)
+    telescope = models.ForeignKey(Telescope, models.CASCADE)
     name = models.CharField(max_length=64)
 
     def __str__(self):
@@ -69,7 +69,7 @@ class Project(models.Model):
     """
     E.g. thousand pulsar array, RelBin
     """
-    main_project = models.ForeignKey(MainProject, models.DO_NOTHING, null=True)
+    main_project = models.ForeignKey(MainProject, models.CASCADE, null=True)
     code = models.CharField(max_length=255, unique=True)
     short = models.CharField(max_length=20, default="???")
     embargo_period = models.DurationField(default=timedelta(days=548)) # default 18 months default embargo
@@ -89,8 +89,8 @@ class Project(models.Model):
 
 
 class Ephemeris(models.Model):
-    pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
-    project = models.ForeignKey(Project, models.DO_NOTHING)
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     ephemeris_data = models.JSONField(null=True)
@@ -126,8 +126,8 @@ class Ephemeris(models.Model):
 
 
 class Template(models.Model):
-    pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
-    project = models.ForeignKey(Project, models.DO_NOTHING)
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
     template_file = models.FileField(upload_to=get_template_upload_location, storage=OverwriteStorage(), null=True)
     template_hash = models.CharField(max_length=64, null=True)
 
@@ -166,10 +166,10 @@ class Calibration(models.Model):
 
 
 class Observation(models.Model):
-    pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
-    telescope = models.ForeignKey(Telescope, models.DO_NOTHING)
-    project = models.ForeignKey(Project, models.DO_NOTHING)
-    calibration = models.ForeignKey(Calibration, models.DO_NOTHING, null=True)#, related_name="observations")
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    telescope = models.ForeignKey(Telescope, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
+    calibration = models.ForeignKey(Calibration, models.SET_NULL, null=True, related_name="observations")
 
     # Frequency fields
     band = models.CharField(max_length=7, choices=BAND_CHOICES)
@@ -198,7 +198,7 @@ class Observation(models.Model):
     tsamp = models.FloatField()
 
     # Backend folding values
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", blank=True, null=True)
+    ephemeris = models.ForeignKey(Ephemeris, models.SET_NULL, to_field="id", blank=True, null=True)
     fold_nbin = models.IntegerField(blank=True, null=True)
     fold_nchan = models.IntegerField(blank=True, null=True)
     fold_tsubint = models.IntegerField(blank=True, null=True)
@@ -235,9 +235,9 @@ class PipelineRun(Model):
     """
     Details about the software and pipeline run to process data
     """
-    observation = models.ForeignKey(Observation, models.DO_NOTHING, related_name="pipeline_runs")
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING, to_field="id", null=True)
-    template = models.ForeignKey(Template, models.CASCADE)
+    observation = models.ForeignKey(Observation, models.CASCADE, related_name="pipeline_runs")
+    ephemeris = models.ForeignKey(Ephemeris, models.SET_NULL, null=True)
+    template = models.ForeignKey(Template, models.SET_NULL, null=True)
 
     pipeline_name = models.CharField(max_length=64)
     pipeline_description = models.CharField(max_length=255, blank=True, null=True)
@@ -276,7 +276,7 @@ class PipelineRun(Model):
 class PulsarFoldResult(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.CASCADE, related_name="pulsar_fold_results")
     pipeline_run = models.ForeignKey(PipelineRun, on_delete=models.CASCADE)
-    pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
 
     embargo_end_date = models.DateTimeField(null=True)
     @classmethod
@@ -288,8 +288,8 @@ class PulsarFoldSummary(models.Model):
     """
     Summary of all observations of a pulsar
     """
-    pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
-    main_project = models.ForeignKey(MainProject, models.DO_NOTHING)
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    main_project = models.ForeignKey(MainProject, models.CASCADE)
 
     # Obs summary
     first_observation = models.DateTimeField()
@@ -424,7 +424,7 @@ class PulsarFoldSummary(models.Model):
 
 
 class PipelineImage(models.Model):
-    pulsar_fold_result = models.ForeignKey(PulsarFoldResult, models.DO_NOTHING, related_name="images",)
+    pulsar_fold_result = models.ForeignKey(PulsarFoldResult, models.CASCADE, related_name="images",)
     image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
     url = models.URLField(null=True)
     cleaned = models.BooleanField(default=True)
@@ -468,7 +468,7 @@ class PipelineImage(models.Model):
 
 
 class PipelineFile(models.Model):
-    pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING)
+    pipeline_run = models.ForeignKey(PipelineRun, models.CASCADE)
     file = models.FileField(null=True, upload_to=get_pipeline_upload_location, storage=OverwriteStorage())
     # TODO make it check this path in the get or create so we're not making redundant files
     ozstar_path = models.CharField(max_length=256, blank=True, null=True)
@@ -478,8 +478,8 @@ class PipelineFile(models.Model):
 
 class Toa(models.Model):
     # foreign keys
-    pipeline_run = models.ForeignKey(PipelineRun, models.DO_NOTHING, related_name="toas")
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING)
+    pipeline_run = models.ForeignKey(PipelineRun, models.CASCADE, related_name="toas")
+    ephemeris = models.ForeignKey(Ephemeris, models.CASCADE)
     template = models.ForeignKey(Template, models.CASCADE)
 
     # toa results
@@ -525,9 +525,9 @@ class Toa(models.Model):
 
 class Residual(models.Model):
     toa = models.ForeignKey(Toa, models.CASCADE, related_name="residuals")
-    pulsar = models.ForeignKey(Pulsar, models.DO_NOTHING)
-    project = models.ForeignKey(Project, models.DO_NOTHING)
-    ephemeris = models.ForeignKey(Ephemeris, models.DO_NOTHING)
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
+    ephemeris = models.ForeignKey(Ephemeris, models.CASCADE)
 
     # X axis types
     mjd = models.DecimalField(decimal_places=12, max_digits=18)
