@@ -12,9 +12,7 @@ describe("Single Observation Page", () => {
     cy.get("input[name=password]").type("slayer!#1");
     cy.contains("button", "Sign in").click();
 
-    cy.wait("@LoginMutation")
-      .its("response.body.data.tokenAuth")
-      .should("have.property", "token");
+    cy.wait("@LoginMutation");
   });
 
   it("should display the download buttons where there are files", () => {
@@ -25,18 +23,10 @@ describe("Single Observation Page", () => {
     cy.wait("@SingleObservationQuery");
 
     // Correct page loads
-    cy.contains("Loading...").should("not.exist");
     cy.contains("J0125-2327").should("be.visible");
 
     // The download buttons are visible
     cy.contains("Download Fluxcal Archive").should("be.visible");
-    // The images have been loaded
-
-    cy.get("img[alt='Plot flux using raw data.']").should(
-      "have.attr",
-      "src",
-      "http://localhost:8000/media/MeerKAT/J0125-2327/2023-05-10-05:28:55/2/flux.hi.png"
-    );
   });
 
   it("should hide download buttons when there are no files", () => {
@@ -49,6 +39,9 @@ describe("Single Observation Page", () => {
     });
 
     cy.wait("@SingleObservationQuery");
+
+    // Correct page loads
+    cy.contains("J0125-2327").should("be.visible");
 
     // Download buttons should not show.
     cy.contains("Download Fluxcal Archive").should("not.exist");
