@@ -36,7 +36,7 @@ const query = graphql`
       }
     }
     ...DownloadFluxcalButtons_data
-      @arguments(jname: $jname, utc: $utc, band: $band)
+      @arguments(jname: $jname, utc: $utc, beam: $beam)
   }
 `;
 

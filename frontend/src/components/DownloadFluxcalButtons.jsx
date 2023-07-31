@@ -61,7 +61,7 @@ const isChopped = (path) => {
 
 const DownloadFluxcalButtons = ({ data: { fileList } }) => (
   <>
-    {fileList.edges.map(({ node }) => (
+    {fileList.edges?.map(({ node }) => (
       <Button
         key={node.path}
         size="sm"

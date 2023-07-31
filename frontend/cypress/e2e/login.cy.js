@@ -12,7 +12,7 @@ describe("The Login Page", () => {
 
   it("sets auth token when logging in via form submission", () => {
     cy.visit("/");
-    cy.location("pathname").should("equal", "/login/");
+    cy.location("pathname").should("equal", "/login");
 
     cy.get("input[name=username]").type("buffy@sunnydale.com");
     cy.get("input[name=password]").type("slayer!#1");
@@ -33,7 +33,8 @@ describe("The Login Page", () => {
 
   it("should redirect to login and back if not authenticated", () => {
     cy.visit("/search/");
-    cy.location("pathname").should("equal", "/login/search");
+    cy.location("pathname").should("equal", "/login");
+    cy.location("search").should("equal", "?next=/search/");
 
     cy.get("input[name=username]").type("buffy@sunnydale.com");
     cy.get("input[name=password]").type("slayer!#1");

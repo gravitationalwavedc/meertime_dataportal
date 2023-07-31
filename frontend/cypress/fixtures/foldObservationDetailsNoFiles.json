@@ -1,0 +1,233 @@
+{
+  "data": {
+    "foldObservationDetails": {
+      "edges": [
+        {
+          "node": {
+            "beam": 2,
+            "utc": "2023-05-10T05:28:55+00:00",
+            "proposal": "SCI-20180516-MB-05",
+            "project": "PTA",
+            "frequency": 1283.58203125,
+            "bw": 856.0,
+            "ra": "01:25:01.06",
+            "dec": "-23:27:08.2",
+            "length": 4.0,
+            "nbin": 1024,
+            "nchan": 1024,
+            "tsubint": 8.0,
+            "nant": 58,
+            "images": {
+              "edges": [
+                {
+                  "node": {
+                    "plotType": "flux",
+                    "genericPlotType": "flux",
+                    "resolution": "hi",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/flux.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzNzU="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "freq",
+                    "genericPlotType": "freq",
+                    "resolution": "lo",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/freq.lo.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzNzY="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "band",
+                    "genericPlotType": "band",
+                    "resolution": "lo",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/band.lo.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzNzc="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "freq",
+                    "genericPlotType": "freq",
+                    "resolution": "hi",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/freq.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzNzg="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "flux",
+                    "genericPlotType": "flux",
+                    "resolution": "lo",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/flux.lo.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzNzk="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "snrt",
+                    "genericPlotType": "snrt",
+                    "resolution": "lo",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/snrt.lo.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzODA="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "time",
+                    "genericPlotType": "time",
+                    "resolution": "hi",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/time.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzODE="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "time",
+                    "genericPlotType": "time",
+                    "resolution": "lo",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/time.lo.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzODI="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "snrt",
+                    "genericPlotType": "snrt",
+                    "resolution": "hi",
+                    "process": "raw",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/snrt.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTMzODM="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "bandpass",
+                    "genericPlotType": "bandpass",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.bandpass.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MTM="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "calib-dynspec",
+                    "genericPlotType": "calib-dynspec",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.calib-dynspec.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MTQ="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "phase-freq",
+                    "genericPlotType": "freq",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.phase-freq.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MTU="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "phase-time",
+                    "genericPlotType": "time",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.phase-time.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MTY="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "profile-int",
+                    "genericPlotType": "flux",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.profile-int.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MTc="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "profile-pol",
+                    "genericPlotType": "profile-pol",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.profile-pol.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MTg="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "snr-cumul",
+                    "genericPlotType": "snr-cumul",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.snr-cumul.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MTk="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "snr-single",
+                    "genericPlotType": "snrt",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.snr-single.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MjA="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "toa-global",
+                    "genericPlotType": "toa-global",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.toa-global.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MjE="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "toa-single",
+                    "genericPlotType": "toa-single",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.toa-single.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MjI="
+                  }
+                },
+                {
+                  "node": {
+                    "plotType": "zap-dynspec",
+                    "genericPlotType": "zap",
+                    "resolution": "hi",
+                    "process": "pta",
+                    "url": "MeerKAT/J0125-2327/2023-05-10-05:28:55/2/pta.zap-dynspec.hi.png",
+                    "id": "Rm9sZERldGFpbEltYWdlTm9kZTo3MTM2MjM="
+                  }
+                }
+              ]
+            },
+            "id": "Rm9sZFB1bHNhckRldGFpbE5vZGU6NTcyMTIxNw=="
+          }
+        }
+      ]
+    },
+    "fileList": {
+      "edges": []
+    }
+  }
+}

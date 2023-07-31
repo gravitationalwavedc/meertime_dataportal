@@ -18,6 +18,7 @@ from dataportal.models import Sessions, Telescopes, Foldings
 
 User = get_user_model()
 
+
 def create_fold_pulsar():
     return FoldPulsar.objects.create(
         main_project="main",

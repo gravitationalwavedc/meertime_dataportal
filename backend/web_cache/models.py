@@ -16,8 +16,6 @@ from statistics import mean
 from web_cache.plot_types import PLOT_NAMES
 from utils.constants import UserRole
 
-from utils import constants
-
 BAND_CHOICES = (
     ("L-Band", "L-Band"),
     ("S-Band", "S-Band"),
@@ -27,7 +25,7 @@ BAND_CHOICES = (
 
 BANDS = {
     "UHF": {"centre_frequency": 830.0, "allowed_deviation": 200.0},
-    "L-Band": {"centre_frequency": 1283.0, "allowed_deviation": 200.0},
+    "L-Band": {"centre_frequency": 1284.0, "allowed_deviation": 200.0},
     "S-Band": {"centre_frequency": 2625.0, "allowed_deviation": 200.0},
 }
 

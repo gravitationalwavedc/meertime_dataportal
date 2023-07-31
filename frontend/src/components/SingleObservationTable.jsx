@@ -51,8 +51,8 @@ const SingleObservationTable = ({ data, jname }) => {
           >
             View Kronos
           </Button>
+          <DownloadFluxcalButtons data={data} />
         </Col>
-        {data.fileList && <DownloadFluxcalButtons data={data} />}
       </Row>
       {projectChoices.length >= 1 ? (
         <Row className="mt-2">
