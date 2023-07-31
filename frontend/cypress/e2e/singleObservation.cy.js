@@ -6,13 +6,15 @@ describe("Single Observation Page", () => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
     });
 
-    cy.visit("/J0125-2327/2020-02-04-00:21:21/2/");
+    cy.visit("/");
 
     cy.get("input[name=username]").type("buffy@sunnydale.com");
     cy.get("input[name=password]").type("slayer!#1");
     cy.contains("button", "Sign in").click();
 
-    cy.wait("@LoginMutation");
+    cy.wait("@LoginMutation")
+      .its("response.body.data.tokenAuth")
+      .should("have.property", "token");
   });
 
   it("should display the download buttons where there are files", () => {
@@ -20,9 +22,9 @@ describe("Single Observation Page", () => {
       aliasQuery(req, "SingleObservationQuery", "foldObservationDetails.json");
     });
 
-    cy.wait("@SingleObservationQuery");
+    cy.visit("/J0125-2327/2020-02-04-00:21:21/2/");
 
-    cy.wait(2000);
+    cy.wait("@SingleObservationQuery");
 
     // Correct page loads
     cy.contains("J0125-2327").should("be.visible");
@@ -39,6 +41,8 @@ describe("Single Observation Page", () => {
         "foldObservationDetailsNoFiles.json"
       );
     });
+
+    cy.visit("/J0125-2327/2020-02-04-00:21:21/2/");
 
     cy.wait("@SingleObservationQuery");
 
