@@ -4,6 +4,7 @@ from graphql_jwt.decorators import permission_required
 from django_mysql.models import JSONField
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
+from django.db import IntegrityError
 
 from utils.ephemeris import parse_ephemeris_file
 from dataportal.models import (
@@ -23,15 +24,16 @@ class EphemerisType(DjangoObjectType):
 
 
 class EphemerisInput(graphene.InputObjectType):
-    pulsarName   = graphene.String(required=True)
-    projectCode  = graphene.String(required=True)
+    pulsarName    = graphene.String(required=True)
     ephemerisText = graphene.String(required=True)
-    comment = graphene.String()
+    projectCode   = graphene.String()
+    projectShort  = graphene.String()
+    comment       = graphene.String()
 
 
 class CreateEphemeris(graphene.Mutation):
     class Arguments:
-        input = EphemerisInput(required=True)
+        input = EphemerisInput()
 
     ephemeris = graphene.Field(EphemerisType)
 
@@ -40,21 +42,38 @@ class CreateEphemeris(graphene.Mutation):
     def mutate(cls, self, info, input):
         # Get foreign key models
         pulsar  = Pulsar.objects.get(name=input["pulsarName"])
-        project = Project.objects.get(code=input["projectCode"])
+        if input["projectCode"] is not None:
+            project = Project.objects.get(code=input["projectCode"])
+        elif input["projectShort"] is not None:
+            print(f'projectShort:{input["projectShort"]}')
+            project = Project.objects.get(short=input["projectShort"])
+        else:
+            # Should have a project code or short so I can't create an ephemeris
+            project = None
+
         # Load the ephemeris file
         ephemeris_dict = parse_ephemeris_file(input["ephemerisText"])
-        ephemeris, created = Ephemeris.objects.get_or_create(
-            pulsar=pulsar,
-            project=project,
-            # TODO add created_by
-            ephemeris_data=json.dumps(ephemeris_dict),
-            p0=ephemeris_dict["P0"],
-            dm=ephemeris_dict["DM"],
-            valid_from=ephemeris_dict["START"],
-            valid_to=ephemeris_dict["FINISH"],
-            comment=input["comment"],
-        )
-        return CreateEphemeris(ephemeris=ephemeris)
+        try:
+            ephemeris, created = Ephemeris.objects.get_or_create(
+                pulsar=pulsar,
+                project=project,
+                # TODO add created_by
+                ephemeris_data=json.dumps(ephemeris_dict),
+                p0=ephemeris_dict["P0"],
+                dm=ephemeris_dict["DM"],
+                valid_from=ephemeris_dict["START"],
+                valid_to=ephemeris_dict["FINISH"],
+                comment=input["comment"],
+            )
+            return CreateEphemeris(ephemeris=ephemeris)
+        except IntegrityError:
+            # Handle the IntegrityError gracefully by grabbing the already created ephem
+            ephemeris = Ephemeris.objects.get(
+                pulsar=pulsar,
+                project=project,
+                ephemeris_data=json.dumps(ephemeris_dict),
+            )
+            return CreateEphemeris(ephemeris=ephemeris)
 
 
 class UpdateEphemeris(graphene.Mutation):

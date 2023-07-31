@@ -42,6 +42,7 @@ class UploadTemplate(ViewSet):
         template_upload = request.FILES.get('template_upload')
         pulsar_name     = request.data.get('pulsar_name')
         project_code    = request.data.get('project_code')
+        project_short   = request.data.get('project_short')
         band            = request.data.get('band')
         print(template_upload, type(template_upload))
 
@@ -51,7 +52,13 @@ class UploadTemplate(ViewSet):
         except Pulsar.DoesNotExist:
             return JsonResponse({'errors': f'Pulsar {pulsar_name} not found.'}, status=400)
         try:
-            project = Project.objects.get(code=project_code)
+            if project_code is not None:
+                project = Project.objects.get(code=project_code)
+            elif project_short is not None:
+                project = Project.objects.get(short=project_short)
+            else:
+                # Should have a project code or short so I can't create an ephemeris
+                return JsonResponse({'errors': f'Must include either a project_code or a project_short'}, status=400)
         except Project.DoesNotExist:
             return JsonResponse({'errors': f'Project code {project_code} not found.'}, status=400)
 
