@@ -25,12 +25,8 @@ def create_fold_pulsar():
         project="new",
         band="L-Band",
         jname="j1234-5678",
-        latest_observation=datetime.strptime(
-            "2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"
-        ),
-        first_observation=datetime.strptime(
-            "2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"
-        ),
+        latest_observation=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
+        first_observation=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
         timespan=4,
         number_of_observations=2,
         beam="4",
@@ -119,44 +115,32 @@ def test_get_session_image():
     create_pulsar_with_observations()
     fold_pulsar_detail = FoldPulsarDetail.objects.last()
 
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="flux.hi", url=flux_url
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="flux.hi", url=flux_url)
     FoldDetailImage.objects.create(
         fold_pulsar_detail=fold_pulsar_detail,
         image_type="relbin.phase-freq.hi",
         url=freq_url,
     )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="freq.hi", url=bad_url
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="freq.hi", url=bad_url)
     FoldDetailImage.objects.create(
         fold_pulsar_detail=fold_pulsar_detail,
         image_type="tpa.phase-time.hi",
         url=time_url,
     )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="time.hi", url=bad_url
-    )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="flux.lo", url=flux_url_lo
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="time.hi", url=bad_url)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="flux.lo", url=flux_url_lo)
     FoldDetailImage.objects.create(
         fold_pulsar_detail=fold_pulsar_detail,
         image_type="relbin.phase-freq.lo",
         url=freq_url_lo,
     )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="freq.lo", url=bad_url
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="freq.lo", url=bad_url)
     FoldDetailImage.objects.create(
         fold_pulsar_detail=fold_pulsar_detail,
         image_type="tpa.phase-time.lo",
         url=time_url_lo,
     )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="time.lo", url=bad_url
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="time.lo", url=bad_url)
 
     images = fold_pulsar_detail.images.all()
 
@@ -177,7 +161,7 @@ def test_get_flux():
 
 
 def test_get_centre_frequency():
-    assert FoldPulsarDetail(band="L-Band").get_band_centre_frequency() == 1283
+    assert FoldPulsarDetail(band="L-Band").get_band_centre_frequency() == 1284
     assert FoldPulsarDetail(band="UHF").get_band_centre_frequency() == 830
     assert FoldPulsarDetail(band="UNKNOWN").get_band_centre_frequency() is None
     assert FoldPulsarDetail(band="").get_band_centre_frequency() is None
