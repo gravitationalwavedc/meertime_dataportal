@@ -22,6 +22,8 @@ describe("Single Observation Page", () => {
 
     cy.wait("@SingleObservationQuery");
 
+    cy.wait(2000);
+
     // Correct page loads
     cy.contains("J0125-2327").should("be.visible");
 
