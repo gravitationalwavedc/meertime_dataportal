@@ -165,12 +165,6 @@ class TemplateConnection(relay.Connection):
     class Meta:
         node = TemplateNode
 
-
-class ObservationNode(DjangoObjectType):
-    class Meta:
-        model = Observation
-        interfaces = (relay.Node,)
-
 class CalibrationNode(DjangoObjectType):
     class Meta:
         model = Calibration
@@ -225,28 +219,28 @@ class CalibrationConnection(relay.Connection):
         node = CalibrationNode
 
 
-# class ObservationNode(DjangoObjectType):
-#     class Meta:
-#         model = Observation
-#         fields = "__all__"
-#         filter_fields = "__all__"
-#         interfaces = (relay.Node,)
+class ObservationNode(DjangoObjectType):
+    class Meta:
+        model = Observation
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
 
-#     # ForeignKey fields
-#     pulsar = graphene.Field(PulsarNode)
-#     telescope = graphene.Field(TelescopeNode)
-#     project = graphene.Field(ProjectNode)
-#     calibration = graphene.Field(CalibrationNode)
-#     ephemeris = graphene.Field(EphemerisNode)
+    # ForeignKey fields
+    pulsar = graphene.Field(PulsarNode)
+    telescope = graphene.Field(TelescopeNode)
+    project = graphene.Field(ProjectNode)
+    calibration = graphene.Field(CalibrationNode)
+    ephemeris = graphene.Field(EphemerisNode)
 
-#     @classmethod
-#     @login_required
-#     def get_queryset(cls, queryset, info):
-#         return super().get_queryset(queryset, info)
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
 
-# class ObservationConnection(relay.Connection):
-#     class Meta:
-#         node = ObservationNode
+class ObservationConnection(relay.Connection):
+    class Meta:
+        node = ObservationNode
 
 
 class PipelineRunNode(DjangoObjectType):
@@ -593,16 +587,34 @@ class Query(graphene.ObjectType):
         return queryset
 
 
-    # observations = relay.ConnectionField(
-    #     ObservationConnection,
-    #     pulsar__name=graphene.String(),
-    #     telescope__name=graphene.String(),
-    #     project__id=graphene.Int(),
-    #     project__short=graphene.String(),
-    # )
-    # @login_required
-    # def resolve_observations(self, info, **kwargs):
-    #     return Observation.get_query(**kwargs)
+    observation = relay.ConnectionField(
+        ObservationConnection,
+        pulsar__name=graphene.String(),
+        telescope__name=graphene.String(),
+        project__id=graphene.Int(),
+        project__short=graphene.String(),
+    )
+    @login_required
+    def resolve_observation(self, info, **kwargs):
+        queryset = Observation.objects.all()
+
+        pulsar_name = kwargs.get('pulsar__name')
+        if pulsar_name:
+            queryset = queryset.filter(pulsar__name=pulsar_name)
+
+        telescope_name = kwargs.get('telescope__name')
+        if telescope_name:
+            queryset = queryset.filter(telescope__name=telescope_name)
+
+        project_id = kwargs.get('project__id')
+        if project_id:
+            queryset = queryset.filter(project__id=project_id)
+
+        project_short = kwargs.get('project__short')
+        if project_short:
+            queryset = queryset.filter(project__short=project_short)
+
+        return queryset
 
 
     pipeline_run = relay.ConnectionField(

@@ -76,7 +76,7 @@ class Project(models.Model):
     description = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.code}"
+        return f"{self.code}_{self.short}"
 
     @classmethod
     def get_query(cls, **kwargs):
@@ -217,18 +217,6 @@ class Observation(models.Model):
 
     def __str__(self):
         return f"{self.utc_start} {self.beam}"
-
-    @classmethod
-    def get_query(cls, **kwargs):
-        if "first" in kwargs:
-            kwargs.pop("first")
-        if "last" in kwargs:
-            kwargs.pop("last")
-        if "before" in kwargs:
-            kwargs.pop("before")
-        if "after" in kwargs:
-            kwargs.pop("after")
-        return cls.objects.filter(**kwargs)
 
 
 class PipelineRun(Model):
