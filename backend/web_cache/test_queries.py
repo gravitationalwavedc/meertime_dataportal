@@ -208,7 +208,7 @@ def test_fold_detail_query():
                     "node": {
                         "utc": "2000-01-21T12:59:12+00:00",
                         "project": "RelBin",
-                        "length": 0.0,
+                        "length": 4.0,
                         "beam": 54,
                         "bw": 11.00,
                         "nchan": 21,
