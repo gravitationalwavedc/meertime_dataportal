@@ -7,17 +7,22 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0066_auto_20230503_0022'),
+        ("web_cache", "0066_auto_20230503_0022"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FoldPulsarFile',
+            name="FoldPulsarFile",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('image_type', models.CharField(max_length=64, null=True)),
-                ('url', models.URLField()),
-                ('fold_pulsar', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='files', to='web_cache.foldpulsar')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("image_type", models.CharField(max_length=64, null=True)),
+                ("url", models.URLField()),
+                (
+                    "fold_pulsar",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="files", to="web_cache.foldpulsar"
+                    ),
+                ),
             ],
         ),
     ]

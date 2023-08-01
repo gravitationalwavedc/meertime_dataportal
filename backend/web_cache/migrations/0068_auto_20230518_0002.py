@@ -6,22 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0067_foldpulsarfile'),
+        ("web_cache", "0067_foldpulsarfile"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='foldpulsarfile',
-            name='image_type',
+            model_name="foldpulsarfile",
+            name="image_type",
         ),
         migrations.RemoveField(
-            model_name='foldpulsarfile',
-            name='url',
+            model_name="foldpulsarfile",
+            name="url",
         ),
         migrations.AddField(
-            model_name='foldpulsarfile',
-            name='file',
-            field=models.FileField(default='a', upload_to=''),
+            model_name="foldpulsarfile",
+            name="file",
+            field=models.FileField(default="a", upload_to=""),
             preserve_default=False,
         ),
     ]

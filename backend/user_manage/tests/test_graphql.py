@@ -82,9 +82,7 @@ class RegistrationTestCase(GraphQLTestCase):
 
         self.assertTrue(content["data"]["createRegistration"]["ok"])
         self.assertIsNotNone(content["data"]["createRegistration"]["registration"])
-        self.assertIsNotNone(
-            content["data"]["createRegistration"]["registration"]["verificationExpiry"]
-        )
+        self.assertIsNotNone(content["data"]["createRegistration"]["registration"]["verificationExpiry"])
 
     @responses.activate
     def test_create_registration_exists(self):
@@ -185,9 +183,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
 
         self.assertTrue(content["data"]["verifyRegistration"]["ok"])
         self.assertIsNotNone(content["data"]["verifyRegistration"]["registration"])
-        self.assertIsNotNone(
-            content["data"]["verifyRegistration"]["registration"]["email"]
-        )
+        self.assertIsNotNone(content["data"]["verifyRegistration"]["registration"]["email"])
         self.assertEqual(
             content["data"]["verifyRegistration"]["registration"]["status"],
             Registration.VERIFIED,
@@ -386,13 +382,9 @@ class PasswordResetRequestTestCase(GraphQLTestCase):
         content = json.loads(response.content)
 
         self.assertTrue(content["data"]["createPasswordResetRequest"]["ok"])
+        self.assertIsNotNone(content["data"]["createPasswordResetRequest"]["passwordResetRequest"])
         self.assertIsNotNone(
-            content["data"]["createPasswordResetRequest"]["passwordResetRequest"]
-        )
-        self.assertIsNotNone(
-            content["data"]["createPasswordResetRequest"]["passwordResetRequest"][
-                "verificationExpiry"
-            ]
+            content["data"]["createPasswordResetRequest"]["passwordResetRequest"]["verificationExpiry"]
         )
         self.assertEqual(mail.outbox[0].subject, "[MeerTime] Your password reset code.")
 
@@ -422,13 +414,9 @@ class PasswordResetRequestTestCase(GraphQLTestCase):
         content = json.loads(response.content)
 
         self.assertTrue(content["data"]["createPasswordResetRequest"]["ok"])
+        self.assertIsNotNone(content["data"]["createPasswordResetRequest"]["passwordResetRequest"])
         self.assertIsNotNone(
-            content["data"]["createPasswordResetRequest"]["passwordResetRequest"]
-        )
-        self.assertIsNotNone(
-            content["data"]["createPasswordResetRequest"]["passwordResetRequest"][
-                "verificationExpiry"
-            ]
+            content["data"]["createPasswordResetRequest"]["passwordResetRequest"]["verificationExpiry"]
         )
         self.assertEqual(len(mail.outbox), 0)
 
@@ -447,9 +435,7 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.user = User.objects.create_user(**self.user_details)
 
         # create password reset request
-        self.prr = PasswordResetRequest.objects.create(
-            email=self.user_details.get("email")
-        )
+        self.prr = PasswordResetRequest.objects.create(email=self.user_details.get("email"))
         # clearing up the mailbox so the verification code email sent is not there anymore
         mail.outbox = []
         self.new_password = "Abcdefgh#123"
@@ -517,9 +503,7 @@ class PasswordResetTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordReset"]["ok"])
         self.assertIsNone(content["data"]["passwordReset"]["passwordResetRequest"])
         self.assertIsNotNone(content["data"]["passwordReset"]["errors"])
-        self.assertEqual(
-            content["data"]["passwordReset"]["errors"][0], "Invalid verification code."
-        )
+        self.assertEqual(content["data"]["passwordReset"]["errors"][0], "Invalid verification code.")
 
     def test_password_reset_verification_used(self):
         user_details = dict(
@@ -757,14 +741,8 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertTrue(content["data"]["passwordChange"]["ok"])
         self.assertIsNotNone(content["data"]["passwordChange"]["user"])
 
-        self.assertIsNone(
-            authenticate(
-                username=self.user.username, password=self.user_details.get("password")
-            )
-        )
-        self.assertIsNotNone(
-            authenticate(username=self.user.username, password=self.new_password)
-        )
+        self.assertIsNone(authenticate(username=self.user.username, password=self.user_details.get("password")))
+        self.assertIsNotNone(authenticate(username=self.user.username, password=self.new_password))
 
     def test_password_change_same_password(self):
         response = self.query(
@@ -869,9 +847,7 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertFalse(content["data"]["passwordChange"]["ok"])
         self.assertIsNone(content["data"]["passwordChange"]["user"])
         self.assertIsNotNone(content["data"]["passwordChange"]["errors"])
-        self.assertEqual(
-            content["data"]["passwordChange"]["errors"][0], "User does not exist."
-        )
+        self.assertEqual(content["data"]["passwordChange"]["errors"][0], "User does not exist.")
 
 
 @pytest.mark.django_db
@@ -934,12 +910,8 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
 
         self.assertTrue(content["data"]["accountActivation"]["ok"])
         self.assertIsNotNone(content["data"]["accountActivation"]["provisionalUser"])
-        self.assertTrue(
-            content["data"]["accountActivation"]["provisionalUser"]["activated"]
-        )
-        self.assertIsNotNone(
-            content["data"]["accountActivation"]["provisionalUser"]["activatedOn"]
-        )
+        self.assertTrue(content["data"]["accountActivation"]["provisionalUser"]["activated"])
+        self.assertIsNotNone(content["data"]["accountActivation"]["provisionalUser"]["activatedOn"])
 
         # check user is active
         self.provisional_user.refresh_from_db()

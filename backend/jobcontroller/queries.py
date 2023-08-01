@@ -33,7 +33,7 @@ class Query(graphene.ObjectType):
         fold_pulsar_detail = FoldPulsarDetail.objects.get(
             fold_pulsar__jname=kwargs.get("jname"),
             utc=FoldPulsarDetail.format_utc(kwargs.get("utc")),
-            beam=kwargs.get("beam")
+            beam=kwargs.get("beam"),
         )
 
         # Only allow files if the user passes has access to this
@@ -42,9 +42,9 @@ class Query(graphene.ObjectType):
             path = get_fluxcal_archive_path(
                 project=fold_pulsar_detail.project,
                 jname=kwargs.get("jname"),
-                utc=kwargs.get('utc'),
+                utc=kwargs.get("utc"),
                 beam=kwargs.get("beam"),
-                band=fold_pulsar_detail.get_band_centre_frequency()
+                band=fold_pulsar_detail.get_band_centre_frequency(),
             )
 
             has_files, files = request_file_list(path, False)

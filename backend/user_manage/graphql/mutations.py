@@ -49,9 +49,7 @@ class CreateRegistration(graphene.Mutation):
         print(r.json())
 
         if not r.json()["success"]:
-            return CreateRegistration(
-                ok=False, registration=None, errors=["Captcha validation failed."]
-            )
+            return CreateRegistration(ok=False, registration=None, errors=["Captcha validation failed."])
 
         del input["captcha"]
 
@@ -225,9 +223,7 @@ class PasswordReset(graphene.Mutation):
             )
 
         try:
-            password_reset_request = PasswordResetRequest.objects.get(
-                verification_code=verification_code
-            )
+            password_reset_request = PasswordResetRequest.objects.get(verification_code=verification_code)
 
             if password_reset_request.verification_expiry < timezone.now():
                 return PasswordReset(
@@ -246,8 +242,7 @@ class PasswordReset(graphene.Mutation):
             # Change the user password here
             # Get the user whose password will be changed
             user = UserModel.objects.filter(
-                Q(username=password_reset_request.email)
-                | Q(email=password_reset_request.email)
+                Q(username=password_reset_request.email) | Q(email=password_reset_request.email)
             ).first()
 
             if user:

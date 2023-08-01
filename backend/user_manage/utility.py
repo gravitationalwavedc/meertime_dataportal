@@ -48,9 +48,7 @@ def send_verification_email(
         reply_to=[from_email],
     )
     msg.attach_alternative(html_content, "text/html")
-    logger.info(
-        'utility.py : send_verification_email subject={} from={} to={}'.format(subject, from_email, to)
-    )
+    logger.info("utility.py : send_verification_email subject={} from={} to={}".format(subject, from_email, to))
     msg.send(fail_silently=False)
 
 
