@@ -21,7 +21,9 @@ export const handleSearch = (data, columns, search) => {
     for (let columnIndex = 0; columnIndex < columns.length; columnIndex += 1) {
       const column = columns[columnIndex];
 
-      if (column.searchable === false) continue;
+      if (column.searchable === false) {
+        continue;
+      }
 
       let targetValue = _.get(row, column.dataField);
 
@@ -49,7 +51,7 @@ export const kronosLink = (beam, jname, utc) =>
 export const meerWatchLink = (jname) =>
   `http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname=${jname}&data=${localStorage.meerWatchKey}`;
 
-export const nullCellFormatter = (cell) => (!cell ? "-" : cell);
+export const nullCellFormatter = (cell) => cell || "-";
 
 export const columnsSizeFilter = (columns, screenSize) => {
   columns
@@ -70,7 +72,9 @@ export const scaleValue = (value, from, to) => {
 };
 
 export const formatProjectName = (projectName) => {
-  if (!projectName) return null;
+  if (!projectName) {
+    return null;
+  }
 
   const projectDisplayNames = {
     relbin: "RelBin",
@@ -97,25 +101,23 @@ export const formatSingleObservationData = (data) => {
   const displayTitles = {
     proposal: "Proposal",
     project: "Project",
-    length: "Length",
+    length: "Length [s]",
     nbin: "Nbin",
     nchan: "Nchan",
     frequency: "Frequency (MHz)",
     bw: "Bandwidth (MHz)",
     ra: "RA",
     dec: "DEC",
-    tsubint: "Subint Time (s)",
+    tsubint: "Subint Time [s]",
     nant: "Number of Antennas",
   };
 
-  const dataItems = Object.keys(data)
+  return Object.keys(data)
     .filter((key) => !excludeTitles.includes(key) && key !== "images")
     .reduce(
       (result, key) => ({ ...result, [displayTitles[key]]: data[key] }),
       {}
     );
-
-  return dataItems;
 };
 
 export default {

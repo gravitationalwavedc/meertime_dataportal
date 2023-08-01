@@ -99,7 +99,7 @@ class FoldPulsarDetailNode(DjangoObjectType):
         return self.get_band_display()
 
     def resolve_length(self, instance):
-        return round(self.length / 60)
+        return round(self.length)
 
     def resolve_restricted(self, info):
         # by default, we assume that the user is restricted
