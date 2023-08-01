@@ -106,10 +106,7 @@ class FoldPulsarDetailNode(DjangoObjectType):
         restricted = True
         try:
             # checking whether the user is restricted or not
-            restricted = (
-                info.context.user.role.casefold()
-                == constants.UserRole.RESTRICTED.value.casefold()
-            )
+            restricted = info.context.user.role.casefold() == constants.UserRole.RESTRICTED.value.casefold()
 
             if restricted:
                 # if the user is restricted, then we check this Pulsar's embargo date
@@ -173,11 +170,7 @@ class FoldPulsarConnection(relay.Connection):
     total_project_time = graphene.Int()
 
     def resolve_total_observations(self, instance):
-        return sum(
-            edge.node.number_of_observations
-            for edge in self.edges
-            if edge.node.number_of_observations
-        )
+        return sum(edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations)
 
     def resolve_total_pulsars(self, instance):
         return len(self.edges)
@@ -188,10 +181,7 @@ class FoldPulsarConnection(relay.Connection):
     def resolve_total_project_time(self, instance):
         # Too slow n(2)
         total_seconds = sum(
-            fold.length
-            for fold in FoldPulsarDetail.objects.filter(
-                project=self.edges[0].node.project
-            )
+            fold.length for fold in FoldPulsarDetail.objects.filter(project=self.edges[0].node.project)
         )
         return int(total_seconds / 60 / 60)
 
@@ -212,18 +202,10 @@ class FoldPulsarDetailConnection(relay.Connection):
     toas_link = graphene.String()
 
     def resolve_toas_link(self, instance):
-        return (
-            self.iterable.first()
-            .fold_pulsar.foldpulsardetail_set.first()
-            .toas_download_link
-        )
+        return self.iterable.first().fold_pulsar.foldpulsardetail_set.first().toas_download_link
 
     def resolve_ephemeris_link(self, instance):
-        return (
-            self.iterable.first()
-            .fold_pulsar.foldpulsardetail_set.first()
-            .ephemeris_download_link
-        )
+        return self.iterable.first().fold_pulsar.foldpulsardetail_set.first().ephemeris_download_link
 
     def resolve_description(self, instance):
         return self.iterable.first().fold_pulsar.comment
@@ -266,11 +248,7 @@ class SearchmodePulsarConnections(relay.Connection):
     total_pulsars = graphene.Int()
 
     def resolve_total_observations(self, instance):
-        return sum(
-            edge.node.number_of_observations
-            for edge in self.edges
-            if edge.node.number_of_observations
-        )
+        return sum(edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations)
 
     def resolve_total_pulsars(self, instance):
         return len(self.edges)
@@ -336,9 +314,7 @@ class SessionListNode(DjangoObjectType):
         model = SessionDisplay
         interfaces = (relay.Node,)
 
-    session_pulsars = relay.ConnectionField(
-        SessionPulsarConnection, project=graphene.String()
-    )
+    session_pulsars = relay.ConnectionField(SessionPulsarConnection, project=graphene.String())
 
     def resolve_frequency(self, instance):
         return round(self.frequency, 1) if self.frequency else None
@@ -428,6 +404,4 @@ class Query(ObjectType):
 
     @login_required
     def resolve_fold_pulsar(self, info, **kwargs):
-        return FoldPulsar.objects.get(
-            jname=kwargs.get("jname"), main_project=kwargs.get("main_project")
-        )
+        return FoldPulsar.objects.get(jname=kwargs.get("jname"), main_project=kwargs.get("main_project"))

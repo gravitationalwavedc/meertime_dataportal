@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0068_auto_20230518_0002'),
+        ("web_cache", "0068_auto_20230518_0002"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='foldpulsarfile',
-            name='file_meta',
+            model_name="foldpulsarfile",
+            name="file_meta",
             field=models.CharField(max_length=64, null=True),
         ),
     ]

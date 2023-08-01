@@ -32,7 +32,9 @@ const ImageGrid = ({ images, project }) => {
   const openLightBox = async (imageUrl) => {
     const imagePromises = urls.map((url) => getImageData(url));
     const imageData = await Promise.all(imagePromises);
-    const images = imageData.filter((data) => data !== null).map((data) => data);
+    const images = imageData
+      .filter((data) => data !== null)
+      .map((data) => data);
     const imageIndex = urls.indexOf(imageUrl);
 
     setLightBoxImages({ images, imagesIndex: imageIndex });

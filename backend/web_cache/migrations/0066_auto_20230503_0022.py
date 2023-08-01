@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('web_cache', '0065_alter_foldpulsardetail_ephemeris'),
+        ("web_cache", "0065_alter_foldpulsardetail_ephemeris"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='foldpulsar',
-            unique_together={('main_project', 'jname')},
+            name="foldpulsar",
+            unique_together={("main_project", "jname")},
         ),
         migrations.AlterUniqueTogether(
-            name='searchmodepulsar',
-            unique_together={('main_project', 'jname')},
+            name="searchmodepulsar",
+            unique_together={("main_project", "jname")},
         ),
     ]

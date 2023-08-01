@@ -37,7 +37,7 @@ def handle_registration_save(sender, instance, **kwargs):
         instance.password = make_password(instance.password)
 
         logger.info(
-            'signals.py: handle_registration_save fn={} ln={} email={} status={} vcode={} user={} time={}'.format(
+            "signals.py: handle_registration_save fn={} ln={} email={} status={} vcode={} user={} time={}".format(
                 instance.first_name,
                 instance.last_name,
                 instance.email,

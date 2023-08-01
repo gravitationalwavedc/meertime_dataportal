@@ -14,7 +14,7 @@ handler500 = "dataportal.views.handler500"
 urlpatterns = [
     path("", include("dataportal.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
-    re_path(r'^media/(?P<path>.*)$', secure_serve, {'document_root': settings.MEDIA_ROOT}),
+    re_path(r"^media/(?P<path>.*)$", secure_serve, {"document_root": settings.MEDIA_ROOT}),
     path("graphql/", csrf_exempt(GraphQLView.as_view(schema=schema, graphiql=settings.DEVELOPMENT_MODE))),
 ]
 
