@@ -53,36 +53,7 @@ type CalibrationsNode implements Node {
   id: ID!
   calibrationType: CalibrationsCalibrationType!
   location: String
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
 }
 
 type CalibrationsNodeConnection {
@@ -99,36 +70,7 @@ type CalibrationsType {
   id: ID!
   calibrationType: CalibrationsCalibrationType!
   location: String
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
 }
 
 input CollectionsInput {
@@ -140,15 +82,7 @@ type CollectionsNode implements Node {
   id: ID!
   name: String!
   description: String
-  processingcollectionsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    collection: ID
-  ): ProcessingcollectionsNodeConnection!
+  processingcollectionsSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, collection: ID): ProcessingcollectionsNodeConnection!
 }
 
 type CollectionsNodeConnection {
@@ -165,15 +99,7 @@ type CollectionsType {
   id: ID!
   name: String!
   description: String
-  processingcollectionsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    collection: ID
-  ): ProcessingcollectionsNodeConnection!
+  processingcollectionsSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, collection: ID): ProcessingcollectionsNodeConnection!
 }
 
 type CreateBasebanding {
@@ -424,78 +350,8 @@ type EphemeridesNode implements Node {
   comment: String
   validFrom: DateTime!
   validTo: DateTime!
-  foldingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    nbin: Int
-    npol: Int
-    nchan: Int
-    processingId: ID
-    foldingEphemerisId: ID
-    foldingEphemeris_Pulsar_Id: ID
-    foldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-  ): FoldingsNodeConnection!
-  toasSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection!
+  foldingsSet(offset: Int, before: String, after: String, first: Int, last: Int, nbin: Int, npol: Int, nchan: Int, processingId: ID, foldingEphemerisId: ID, foldingEphemeris_Pulsar_Id: ID, foldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String): FoldingsNodeConnection!
+  toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
 }
 
 type EphemeridesNodeConnection {
@@ -521,78 +377,28 @@ type EphemeridesType {
   comment: String
   validFrom: DateTime!
   validTo: DateTime!
-  foldingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    nbin: Int
-    npol: Int
-    nchan: Int
-    processingId: ID
-    foldingEphemerisId: ID
-    foldingEphemeris_Pulsar_Id: ID
-    foldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-  ): FoldingsNodeConnection!
-  toasSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection!
+  foldingsSet(offset: Int, before: String, after: String, first: Int, last: Int, nbin: Int, npol: Int, nchan: Int, processingId: ID, foldingEphemerisId: ID, foldingEphemeris_Pulsar_Id: ID, foldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String): FoldingsNodeConnection!
+  toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
+}
+
+type FileConnection {
+  pageInfo: PageInfo!
+  edges: [FileEdge]!
+}
+
+input FileDownloadTokenMutationInput {
+  path: String!
+  clientMutationId: String
+}
+
+type FileDownloadTokenMutationPayload {
+  downloadToken: String
+  clientMutationId: String
+}
+
+type FileEdge {
+  node: JobControllerFile
+  cursor: String!
 }
 
 input FilterbankingsInput {
@@ -722,13 +528,7 @@ type FoldPulsarDetailNode implements Node {
   npol: Int
   ephemerisDownloadLink: String
   toasDownloadLink: String
-  images(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): FoldDetailImageNodeConnection!
+  images(offset: Int, before: String, after: String, first: Int, last: Int): FoldDetailImageNodeConnection!
   ephemeris: String
   jname: String
   restricted: Boolean
@@ -787,27 +587,9 @@ type FoldPulsarNode implements Node {
   avgSnPipe: Float
   maxSnPipe: Float
   lastIntegrationMinutes: Float
-  files(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): FoldPulsarFileNodeConnection!
-  foldpulsardetailSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): FoldPulsarDetailNodeConnection!
-  sessionpulsarSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): SessionPulsarNodeConnection!
+  files(offset: Int, before: String, after: String, first: Int, last: Int): FoldPulsarFileNodeConnection!
+  foldpulsardetailSet(offset: Int, before: String, after: String, first: Int, last: Int): FoldPulsarDetailNodeConnection!
+  sessionpulsarSet(offset: Int, before: String, after: String, first: Int, last: Int): SessionPulsarNodeConnection!
 }
 
 input FoldingsInput {
@@ -829,53 +611,8 @@ type FoldingsNode implements Node {
   nchan: Int!
   dm: Float
   tsubint: Float!
-  rfisSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    folding: ID
-    percentZapped: Float
-  ): RfisNodeConnection!
-  toasSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection!
+  rfisSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, folding: ID, percentZapped: Float): RfisNodeConnection!
+  toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
 }
 
 type FoldingsNodeConnection {
@@ -897,53 +634,8 @@ type FoldingsType {
   nchan: Int!
   dm: Float
   tsubint: Float!
-  rfisSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    folding: ID
-    percentZapped: Float
-  ): RfisNodeConnection!
-  toasSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection!
+  rfisSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, folding: ID, percentZapped: Float): RfisNodeConnection!
+  toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
 }
 
 scalar GenericScalar
@@ -965,36 +657,7 @@ type InstrumentconfigsNode implements Node {
   nchan: Int!
   npol: Int!
   beam: String!
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
 }
 
 type InstrumentconfigsNodeConnection {
@@ -1015,39 +678,17 @@ type InstrumentconfigsType {
   nchan: Int!
   npol: Int!
   beam: String!
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
 }
 
 scalar JSONString
+
+type JobControllerFile implements Node {
+  id: ID!
+  fileSize: Int
+  isDir: Boolean
+  path: String
+}
 
 input LaunchesInput {
   pipeline_id: Int!
@@ -1080,6 +721,7 @@ type LaunchesType {
 }
 
 type Mutation {
+  getFileDownloadToken(input: FileDownloadTokenMutationInput!): FileDownloadTokenMutationPayload
   createProvisionalUser(email: String!, role: String!): CreateProvisionalUser
   deleteUser(username: String): DeleteUser
   activateUser(username: String): ActivateUser
@@ -1089,15 +731,8 @@ type Mutation {
   verifyRegistration(verificationCode: String!): VerifyRegistration
   createPasswordResetRequest(email: String!): CreatePasswordResetRequest
   passwordReset(password: String!, verificationCode: String!): PasswordReset
-  passwordChange(
-    oldPassword: String!
-    password: String!
-    username: String!
-  ): PasswordChange
-  accountActivation(
-    activationCode: String!
-    userInput: RegistrationInput!
-  ): AccountActivation
+  passwordChange(oldPassword: String!, password: String!, username: String!): PasswordChange
+  accountActivation(activationCode: String!, userInput: RegistrationInput!): AccountActivation
   createToa(input: ToasInput!): CreateToa
   updateToa(id: Int!, input: ToasInput!): UpdateToa
   deleteToa(id: Int!): DeleteToa
@@ -1128,22 +763,14 @@ type Mutation {
   createProcessing(input: ProcessingInput!): CreateProcessing
   updateProcessing(id: Int!, input: ProcessingInput!): UpdateProcessing
   deleteProcessing(id: Int!): DeleteProcessing
-  createProcessingcollection(
-    input: ProcessingcollectionsInput!
-  ): CreateProcessingcollection
-  updateProcessingcollection(
-    id: Int!
-    input: ProcessingcollectionsInput!
-  ): UpdateProcessingcollection
+  createProcessingcollection(input: ProcessingcollectionsInput!): CreateProcessingcollection
+  updateProcessingcollection(id: Int!, input: ProcessingcollectionsInput!): UpdateProcessingcollection
   deleteProcessingcollection(id: Int!): DeleteProcessingcollection
   createPipeline(input: PipelinesInput!): CreatePipeline
   updatePipeline(id: Int!, input: PipelinesInput!): UpdatePipeline
   deletePipeline(id: Int!): DeletePipeline
   createPipelineimage(input: PipelineimagesInput!): CreatePipelineimage
-  updatePipelineimage(
-    id: Int!
-    input: PipelineimagesInput!
-  ): UpdatePipelineimage
+  updatePipelineimage(id: Int!, input: PipelineimagesInput!): UpdatePipelineimage
   deletePipelineimage(id: Int!): DeletePipelineimage
   createPipelinefile(input: PipelinefilesInput!): CreatePipelinefile
   updatePipelinefile(id: Int!, input: PipelinefilesInput!): UpdatePipelinefile
@@ -1155,16 +782,10 @@ type Mutation {
   updateLaunch(id: Int!, input: LaunchesInput!): UpdateLaunch
   deleteLaunch(id: Int!): DeleteLaunch
   createInstrumentconfig(input: InstrumentconfigsInput!): CreateInstrumentconfig
-  updateInstrumentconfig(
-    id: Int!
-    input: InstrumentconfigsInput!
-  ): UpdateInstrumentconfig
+  updateInstrumentconfig(id: Int!, input: InstrumentconfigsInput!): UpdateInstrumentconfig
   deleteInstrumentconfig(id: Int!): DeleteInstrumentconfig
   createFilterbanking(input: FilterbankingsInput!): CreateFilterbanking
-  updateFilterbanking(
-    id: Int!
-    input: FilterbankingsInput!
-  ): UpdateFilterbanking
+  updateFilterbanking(id: Int!, input: FilterbankingsInput!): UpdateFilterbanking
   deleteFilterbanking(id: Int!): DeleteFilterbanking
   createFolding(input: FoldingsInput!): CreateFolding
   updateFolding(id: Int!, input: FoldingsInput!): UpdateFolding
@@ -1219,49 +840,7 @@ type ObservationsNode implements Node {
   nantEff: Int
   suspect: Boolean!
   comment: String
-  processingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    location: String
-    observationId: ID
-    pipelineId: ID
-    parentId: ID
-    embargoEnd: DateTime
-    embargoEnd_Isnull: Boolean
-    embargoEnd_Lt: DateTime
-    embargoEnd_Lte: DateTime
-    embargoEnd_Gt: DateTime
-    embargoEnd_Gte: DateTime
-    embargoEnd_Month: DateTime
-    embargoEnd_Year: DateTime
-    embargoEnd_Date: DateTime
-    observation_UtcStart: DateTime
-    observation_UtcStart_Isnull: Boolean
-    observation_UtcStart_Lt: DateTime
-    observation_UtcStart_Lte: DateTime
-    observation_UtcStart_Gt: DateTime
-    observation_UtcStart_Gte: DateTime
-    observation_UtcStart_Month: DateTime
-    observation_UtcStart_Year: DateTime
-    observation_UtcStart_Date: DateTime
-    observation_Duration: Float
-    observation_Duration_Lt: Float
-    observation_Duration_Lte: Float
-    observation_Duration_Gt: Float
-    observation_Duration_Gte: Float
-    observation_Suspect: Boolean
-    observation_Telescope_Id: ID
-    observation_Telescope_Name: String
-    observation_Target_Id: ID
-    observation_Target_Name: String
-    observation_Project_Id: ID
-    observation_Project_Code: String
-    observation_InstrumentConfig_Id: ID
-    observation_InstrumentConfig_Name: String
-  ): ProcessingsNodeConnection!
+  processingsSet(offset: Int, before: String, after: String, first: Int, last: Int, location: String, observationId: ID, pipelineId: ID, parentId: ID, embargoEnd: DateTime, embargoEnd_Isnull: Boolean, embargoEnd_Lt: DateTime, embargoEnd_Lte: DateTime, embargoEnd_Gt: DateTime, embargoEnd_Gte: DateTime, embargoEnd_Month: DateTime, embargoEnd_Year: DateTime, embargoEnd_Date: DateTime, observation_UtcStart: DateTime, observation_UtcStart_Isnull: Boolean, observation_UtcStart_Lt: DateTime, observation_UtcStart_Lte: DateTime, observation_UtcStart_Gt: DateTime, observation_UtcStart_Gte: DateTime, observation_UtcStart_Month: DateTime, observation_UtcStart_Year: DateTime, observation_UtcStart_Date: DateTime, observation_Duration: Float, observation_Duration_Lt: Float, observation_Duration_Lte: Float, observation_Duration_Gt: Float, observation_Duration_Gte: Float, observation_Suspect: Boolean, observation_Telescope_Id: ID, observation_Telescope_Name: String, observation_Target_Id: ID, observation_Target_Name: String, observation_Project_Id: ID, observation_Project_Code: String, observation_InstrumentConfig_Id: ID, observation_InstrumentConfig_Name: String): ProcessingsNodeConnection!
 }
 
 type ObservationsNodeConnection {
@@ -1288,49 +867,7 @@ type ObservationsType {
   nantEff: Int
   suspect: Boolean!
   comment: String
-  processingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    location: String
-    observationId: ID
-    pipelineId: ID
-    parentId: ID
-    embargoEnd: DateTime
-    embargoEnd_Isnull: Boolean
-    embargoEnd_Lt: DateTime
-    embargoEnd_Lte: DateTime
-    embargoEnd_Gt: DateTime
-    embargoEnd_Gte: DateTime
-    embargoEnd_Month: DateTime
-    embargoEnd_Year: DateTime
-    embargoEnd_Date: DateTime
-    observation_UtcStart: DateTime
-    observation_UtcStart_Isnull: Boolean
-    observation_UtcStart_Lt: DateTime
-    observation_UtcStart_Lte: DateTime
-    observation_UtcStart_Gt: DateTime
-    observation_UtcStart_Gte: DateTime
-    observation_UtcStart_Month: DateTime
-    observation_UtcStart_Year: DateTime
-    observation_UtcStart_Date: DateTime
-    observation_Duration: Float
-    observation_Duration_Lt: Float
-    observation_Duration_Lte: Float
-    observation_Duration_Gt: Float
-    observation_Duration_Gte: Float
-    observation_Suspect: Boolean
-    observation_Telescope_Id: ID
-    observation_Telescope_Name: String
-    observation_Target_Id: ID
-    observation_Target_Name: String
-    observation_Project_Id: ID
-    observation_Project_Code: String
-    observation_InstrumentConfig_Id: ID
-    observation_InstrumentConfig_Name: String
-  ): ProcessingsNodeConnection!
+  processingsSet(offset: Int, before: String, after: String, first: Int, last: Int, location: String, observationId: ID, pipelineId: ID, parentId: ID, embargoEnd: DateTime, embargoEnd_Isnull: Boolean, embargoEnd_Lt: DateTime, embargoEnd_Lte: DateTime, embargoEnd_Gt: DateTime, embargoEnd_Gte: DateTime, embargoEnd_Month: DateTime, embargoEnd_Year: DateTime, embargoEnd_Date: DateTime, observation_UtcStart: DateTime, observation_UtcStart_Isnull: Boolean, observation_UtcStart_Lt: DateTime, observation_UtcStart_Lte: DateTime, observation_UtcStart_Gt: DateTime, observation_UtcStart_Gte: DateTime, observation_UtcStart_Month: DateTime, observation_UtcStart_Year: DateTime, observation_UtcStart_Date: DateTime, observation_Duration: Float, observation_Duration_Lt: Float, observation_Duration_Lte: Float, observation_Duration_Gt: Float, observation_Duration_Gte: Float, observation_Suspect: Boolean, observation_Telescope_Id: ID, observation_Telescope_Name: String, observation_Target_Id: ID, observation_Target_Name: String, observation_Project_Id: ID, observation_Project_Code: String, observation_InstrumentConfig_Id: ID, observation_InstrumentConfig_Name: String): ProcessingsNodeConnection!
 }
 
 input ObtainJSONWebTokenInput {
@@ -1462,69 +999,9 @@ type PipelinesNode implements Node {
   createdAt: DateTime!
   createdBy: String!
   configuration: JSONString
-  launchesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pipeline: ID
-    parentPipeline: ID
-    pulsar: ID
-  ): LaunchesNodeConnection!
-  parentPipeline(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pipeline: ID
-    parentPipeline: ID
-    pulsar: ID
-  ): LaunchesNodeConnection!
-  processingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    location: String
-    observationId: ID
-    pipelineId: ID
-    parentId: ID
-    embargoEnd: DateTime
-    embargoEnd_Isnull: Boolean
-    embargoEnd_Lt: DateTime
-    embargoEnd_Lte: DateTime
-    embargoEnd_Gt: DateTime
-    embargoEnd_Gte: DateTime
-    embargoEnd_Month: DateTime
-    embargoEnd_Year: DateTime
-    embargoEnd_Date: DateTime
-    observation_UtcStart: DateTime
-    observation_UtcStart_Isnull: Boolean
-    observation_UtcStart_Lt: DateTime
-    observation_UtcStart_Lte: DateTime
-    observation_UtcStart_Gt: DateTime
-    observation_UtcStart_Gte: DateTime
-    observation_UtcStart_Month: DateTime
-    observation_UtcStart_Year: DateTime
-    observation_UtcStart_Date: DateTime
-    observation_Duration: Float
-    observation_Duration_Lt: Float
-    observation_Duration_Lte: Float
-    observation_Duration_Gt: Float
-    observation_Duration_Gte: Float
-    observation_Suspect: Boolean
-    observation_Telescope_Id: ID
-    observation_Telescope_Name: String
-    observation_Target_Id: ID
-    observation_Target_Name: String
-    observation_Project_Id: ID
-    observation_Project_Code: String
-    observation_InstrumentConfig_Id: ID
-    observation_InstrumentConfig_Name: String
-  ): ProcessingsNodeConnection!
+  launchesSet(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection!
+  parentPipeline(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection!
+  processingsSet(offset: Int, before: String, after: String, first: Int, last: Int, location: String, observationId: ID, pipelineId: ID, parentId: ID, embargoEnd: DateTime, embargoEnd_Isnull: Boolean, embargoEnd_Lt: DateTime, embargoEnd_Lte: DateTime, embargoEnd_Gt: DateTime, embargoEnd_Gte: DateTime, embargoEnd_Month: DateTime, embargoEnd_Year: DateTime, embargoEnd_Date: DateTime, observation_UtcStart: DateTime, observation_UtcStart_Isnull: Boolean, observation_UtcStart_Lt: DateTime, observation_UtcStart_Lte: DateTime, observation_UtcStart_Gt: DateTime, observation_UtcStart_Gte: DateTime, observation_UtcStart_Month: DateTime, observation_UtcStart_Year: DateTime, observation_UtcStart_Date: DateTime, observation_Duration: Float, observation_Duration_Lt: Float, observation_Duration_Lte: Float, observation_Duration_Gt: Float, observation_Duration_Gte: Float, observation_Suspect: Boolean, observation_Telescope_Id: ID, observation_Telescope_Name: String, observation_Target_Id: ID, observation_Target_Name: String, observation_Project_Id: ID, observation_Project_Code: String, observation_InstrumentConfig_Id: ID, observation_InstrumentConfig_Name: String): ProcessingsNodeConnection!
 }
 
 type PipelinesNodeConnection {
@@ -1545,69 +1022,9 @@ type PipelinesType {
   createdAt: DateTime!
   createdBy: String!
   configuration: JSONString
-  launchesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pipeline: ID
-    parentPipeline: ID
-    pulsar: ID
-  ): LaunchesNodeConnection!
-  parentPipeline(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pipeline: ID
-    parentPipeline: ID
-    pulsar: ID
-  ): LaunchesNodeConnection!
-  processingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    location: String
-    observationId: ID
-    pipelineId: ID
-    parentId: ID
-    embargoEnd: DateTime
-    embargoEnd_Isnull: Boolean
-    embargoEnd_Lt: DateTime
-    embargoEnd_Lte: DateTime
-    embargoEnd_Gt: DateTime
-    embargoEnd_Gte: DateTime
-    embargoEnd_Month: DateTime
-    embargoEnd_Year: DateTime
-    embargoEnd_Date: DateTime
-    observation_UtcStart: DateTime
-    observation_UtcStart_Isnull: Boolean
-    observation_UtcStart_Lt: DateTime
-    observation_UtcStart_Lte: DateTime
-    observation_UtcStart_Gt: DateTime
-    observation_UtcStart_Gte: DateTime
-    observation_UtcStart_Month: DateTime
-    observation_UtcStart_Year: DateTime
-    observation_UtcStart_Date: DateTime
-    observation_Duration: Float
-    observation_Duration_Lt: Float
-    observation_Duration_Lte: Float
-    observation_Duration_Gt: Float
-    observation_Duration_Gte: Float
-    observation_Suspect: Boolean
-    observation_Telescope_Id: ID
-    observation_Telescope_Name: String
-    observation_Target_Id: ID
-    observation_Target_Name: String
-    observation_Project_Id: ID
-    observation_Project_Code: String
-    observation_InstrumentConfig_Id: ID
-    observation_InstrumentConfig_Name: String
-  ): ProcessingsNodeConnection!
+  launchesSet(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection!
+  parentPipeline(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection!
+  processingsSet(offset: Int, before: String, after: String, first: Int, last: Int, location: String, observationId: ID, pipelineId: ID, parentId: ID, embargoEnd: DateTime, embargoEnd_Isnull: Boolean, embargoEnd_Lt: DateTime, embargoEnd_Lte: DateTime, embargoEnd_Gt: DateTime, embargoEnd_Gte: DateTime, embargoEnd_Month: DateTime, embargoEnd_Year: DateTime, embargoEnd_Date: DateTime, observation_UtcStart: DateTime, observation_UtcStart_Isnull: Boolean, observation_UtcStart_Lt: DateTime, observation_UtcStart_Lte: DateTime, observation_UtcStart_Gt: DateTime, observation_UtcStart_Gte: DateTime, observation_UtcStart_Month: DateTime, observation_UtcStart_Year: DateTime, observation_UtcStart_Date: DateTime, observation_Duration: Float, observation_Duration_Lt: Float, observation_Duration_Lte: Float, observation_Duration_Gt: Float, observation_Duration_Gte: Float, observation_Suspect: Boolean, observation_Telescope_Id: ID, observation_Telescope_Name: String, observation_Target_Id: ID, observation_Target_Name: String, observation_Project_Id: ID, observation_Project_Code: String, observation_InstrumentConfig_Id: ID, observation_InstrumentConfig_Name: String): ProcessingsNodeConnection!
 }
 
 input ProcessingInput {
@@ -1659,173 +1076,14 @@ type ProcessingsNode implements Node {
   jobOutput: JSONString
   results: JSONString
   basebandings: BasebandingsNode
-  filterbankingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    nbit: Int
-    npol: Int
-    nchan: Int
-    tsamp: Float
-    dm: Float
-  ): FilterbankingsNodeConnection!
-  foldingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    nbin: Int
-    npol: Int
-    nchan: Int
-    processingId: ID
-    foldingEphemerisId: ID
-    foldingEphemeris_Pulsar_Id: ID
-    foldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-  ): FoldingsNodeConnection!
-  pipelineimagesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    id: ID
-    processing: ID
-    rank: Int
-  ): PipelineimagesNodeConnection!
-  pipelinefilesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    id: ID
-    processing: ID
-    fileType: String
-  ): PipelinefilesNodeConnection!
-  processingcollectionsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    collection: ID
-  ): ProcessingcollectionsNodeConnection!
-  processingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    location: String
-    observationId: ID
-    pipelineId: ID
-    parentId: ID
-    embargoEnd: DateTime
-    embargoEnd_Isnull: Boolean
-    embargoEnd_Lt: DateTime
-    embargoEnd_Lte: DateTime
-    embargoEnd_Gt: DateTime
-    embargoEnd_Gte: DateTime
-    embargoEnd_Month: DateTime
-    embargoEnd_Year: DateTime
-    embargoEnd_Date: DateTime
-    observation_UtcStart: DateTime
-    observation_UtcStart_Isnull: Boolean
-    observation_UtcStart_Lt: DateTime
-    observation_UtcStart_Lte: DateTime
-    observation_UtcStart_Gt: DateTime
-    observation_UtcStart_Gte: DateTime
-    observation_UtcStart_Month: DateTime
-    observation_UtcStart_Year: DateTime
-    observation_UtcStart_Date: DateTime
-    observation_Duration: Float
-    observation_Duration_Lt: Float
-    observation_Duration_Lte: Float
-    observation_Duration_Gt: Float
-    observation_Duration_Gte: Float
-    observation_Suspect: Boolean
-    observation_Telescope_Id: ID
-    observation_Telescope_Name: String
-    observation_Target_Id: ID
-    observation_Target_Name: String
-    observation_Project_Id: ID
-    observation_Project_Code: String
-    observation_InstrumentConfig_Id: ID
-    observation_InstrumentConfig_Name: String
-  ): ProcessingsNodeConnection!
-  rfisSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    folding: ID
-    percentZapped: Float
-  ): RfisNodeConnection!
-  toasSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection!
+  filterbankingsSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, nbit: Int, npol: Int, nchan: Int, tsamp: Float, dm: Float): FilterbankingsNodeConnection!
+  foldingsSet(offset: Int, before: String, after: String, first: Int, last: Int, nbin: Int, npol: Int, nchan: Int, processingId: ID, foldingEphemerisId: ID, foldingEphemeris_Pulsar_Id: ID, foldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String): FoldingsNodeConnection!
+  pipelineimagesSet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, processing: ID, rank: Int): PipelineimagesNodeConnection!
+  pipelinefilesSet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, processing: ID, fileType: String): PipelinefilesNodeConnection!
+  processingcollectionsSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, collection: ID): ProcessingcollectionsNodeConnection!
+  processingsSet(offset: Int, before: String, after: String, first: Int, last: Int, location: String, observationId: ID, pipelineId: ID, parentId: ID, embargoEnd: DateTime, embargoEnd_Isnull: Boolean, embargoEnd_Lt: DateTime, embargoEnd_Lte: DateTime, embargoEnd_Gt: DateTime, embargoEnd_Gte: DateTime, embargoEnd_Month: DateTime, embargoEnd_Year: DateTime, embargoEnd_Date: DateTime, observation_UtcStart: DateTime, observation_UtcStart_Isnull: Boolean, observation_UtcStart_Lt: DateTime, observation_UtcStart_Lte: DateTime, observation_UtcStart_Gt: DateTime, observation_UtcStart_Gte: DateTime, observation_UtcStart_Month: DateTime, observation_UtcStart_Year: DateTime, observation_UtcStart_Date: DateTime, observation_Duration: Float, observation_Duration_Lt: Float, observation_Duration_Lte: Float, observation_Duration_Gt: Float, observation_Duration_Gte: Float, observation_Suspect: Boolean, observation_Telescope_Id: ID, observation_Telescope_Name: String, observation_Target_Id: ID, observation_Target_Name: String, observation_Project_Id: ID, observation_Project_Code: String, observation_InstrumentConfig_Id: ID, observation_InstrumentConfig_Name: String): ProcessingsNodeConnection!
+  rfisSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, folding: ID, percentZapped: Float): RfisNodeConnection!
+  toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
 }
 
 type ProcessingsNodeConnection {
@@ -1849,173 +1107,14 @@ type ProcessingsType {
   jobOutput: JSONString
   results: JSONString
   basebandings: BasebandingsNode
-  filterbankingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    nbit: Int
-    npol: Int
-    nchan: Int
-    tsamp: Float
-    dm: Float
-  ): FilterbankingsNodeConnection!
-  foldingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    nbin: Int
-    npol: Int
-    nchan: Int
-    processingId: ID
-    foldingEphemerisId: ID
-    foldingEphemeris_Pulsar_Id: ID
-    foldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-  ): FoldingsNodeConnection!
-  pipelineimagesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    id: ID
-    processing: ID
-    rank: Int
-  ): PipelineimagesNodeConnection!
-  pipelinefilesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    id: ID
-    processing: ID
-    fileType: String
-  ): PipelinefilesNodeConnection!
-  processingcollectionsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    collection: ID
-  ): ProcessingcollectionsNodeConnection!
-  processingsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    location: String
-    observationId: ID
-    pipelineId: ID
-    parentId: ID
-    embargoEnd: DateTime
-    embargoEnd_Isnull: Boolean
-    embargoEnd_Lt: DateTime
-    embargoEnd_Lte: DateTime
-    embargoEnd_Gt: DateTime
-    embargoEnd_Gte: DateTime
-    embargoEnd_Month: DateTime
-    embargoEnd_Year: DateTime
-    embargoEnd_Date: DateTime
-    observation_UtcStart: DateTime
-    observation_UtcStart_Isnull: Boolean
-    observation_UtcStart_Lt: DateTime
-    observation_UtcStart_Lte: DateTime
-    observation_UtcStart_Gt: DateTime
-    observation_UtcStart_Gte: DateTime
-    observation_UtcStart_Month: DateTime
-    observation_UtcStart_Year: DateTime
-    observation_UtcStart_Date: DateTime
-    observation_Duration: Float
-    observation_Duration_Lt: Float
-    observation_Duration_Lte: Float
-    observation_Duration_Gt: Float
-    observation_Duration_Gte: Float
-    observation_Suspect: Boolean
-    observation_Telescope_Id: ID
-    observation_Telescope_Name: String
-    observation_Target_Id: ID
-    observation_Target_Name: String
-    observation_Project_Id: ID
-    observation_Project_Code: String
-    observation_InstrumentConfig_Id: ID
-    observation_InstrumentConfig_Name: String
-  ): ProcessingsNodeConnection!
-  rfisSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    folding: ID
-    percentZapped: Float
-  ): RfisNodeConnection!
-  toasSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection!
+  filterbankingsSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, nbit: Int, npol: Int, nchan: Int, tsamp: Float, dm: Float): FilterbankingsNodeConnection!
+  foldingsSet(offset: Int, before: String, after: String, first: Int, last: Int, nbin: Int, npol: Int, nchan: Int, processingId: ID, foldingEphemerisId: ID, foldingEphemeris_Pulsar_Id: ID, foldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String): FoldingsNodeConnection!
+  pipelineimagesSet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, processing: ID, rank: Int): PipelineimagesNodeConnection!
+  pipelinefilesSet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, processing: ID, fileType: String): PipelinefilesNodeConnection!
+  processingcollectionsSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, collection: ID): ProcessingcollectionsNodeConnection!
+  processingsSet(offset: Int, before: String, after: String, first: Int, last: Int, location: String, observationId: ID, pipelineId: ID, parentId: ID, embargoEnd: DateTime, embargoEnd_Isnull: Boolean, embargoEnd_Lt: DateTime, embargoEnd_Lte: DateTime, embargoEnd_Gt: DateTime, embargoEnd_Gte: DateTime, embargoEnd_Month: DateTime, embargoEnd_Year: DateTime, embargoEnd_Date: DateTime, observation_UtcStart: DateTime, observation_UtcStart_Isnull: Boolean, observation_UtcStart_Lt: DateTime, observation_UtcStart_Lte: DateTime, observation_UtcStart_Gt: DateTime, observation_UtcStart_Gte: DateTime, observation_UtcStart_Month: DateTime, observation_UtcStart_Year: DateTime, observation_UtcStart_Date: DateTime, observation_Duration: Float, observation_Duration_Lt: Float, observation_Duration_Lte: Float, observation_Duration_Gt: Float, observation_Duration_Gte: Float, observation_Suspect: Boolean, observation_Telescope_Id: ID, observation_Telescope_Name: String, observation_Target_Id: ID, observation_Target_Name: String, observation_Project_Id: ID, observation_Project_Code: String, observation_InstrumentConfig_Id: ID, observation_InstrumentConfig_Name: String): ProcessingsNodeConnection!
+  rfisSet(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, folding: ID, percentZapped: Float): RfisNodeConnection!
+  toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
 }
 
 input ProgramsInput {
@@ -2027,18 +1126,7 @@ type ProgramsNode implements Node {
   id: ID!
   telescope: TelescopesNode!
   name: String!
-  projectsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    program: ID
-    code: String
-    short: String
-    embargoPeriod: String
-    description: String
-  ): ProjectsNodeConnection!
+  projectsSet(offset: Int, before: String, after: String, first: Int, last: Int, program: ID, code: String, short: String, embargoPeriod: String, description: String): ProjectsNodeConnection!
 }
 
 type ProgramsNodeConnection {
@@ -2055,18 +1143,7 @@ type ProgramsType {
   id: ID!
   telescope: TelescopesNode!
   name: String!
-  projectsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    program: ID
-    code: String
-    short: String
-    embargoPeriod: String
-    description: String
-  ): ProjectsNodeConnection!
+  projectsSet(offset: Int, before: String, after: String, first: Int, last: Int, program: ID, code: String, short: String, embargoPeriod: String, description: String): ProjectsNodeConnection!
 }
 
 input ProjectsInput {
@@ -2084,36 +1161,7 @@ type ProjectsNode implements Node {
   short: String!
   embargoPeriod: String
   description: String
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
 }
 
 type ProjectsNodeConnection {
@@ -2133,36 +1181,7 @@ type ProjectsType {
   short: String!
   embargoPeriod: String
   description: String
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
 }
 
 enum ProvisionalUserRole {
@@ -2220,78 +1239,11 @@ type PulsarsNode implements Node {
   jname: String!
   state: String
   comment: String
-  ephemeridesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar_Id: ID
-    p0: Float
-    p0_Lt: Float
-    p0_Lte: Float
-    p0_Gt: Float
-    p0_Gte: Float
-    dm: Float
-    dm_Lt: Float
-    dm_Lte: Float
-    dm_Gt: Float
-    dm_Gte: Float
-    rm: Float
-    rm_Lt: Float
-    rm_Lte: Float
-    rm_Gt: Float
-    rm_Gte: Float
-    ephemerisHash: String
-  ): EphemeridesNodeConnection!
-  launchesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pipeline: ID
-    parentPipeline: ID
-    pulsar: ID
-  ): LaunchesNodeConnection!
-  pulsaraliasesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar: ID
-    alias: String
-  ): PulsaraliasesNodeConnection!
-  pulsartargetsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    target_Id: ID
-    target_Name: String
-    pulsar_Id: ID
-    pulsar_Jname: String
-  ): PulsartargetsNodeConnection!
-  templatesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar_Id: ID
-    frequency: Float
-    frequency_Lt: Float
-    frequency_Lte: Float
-    frequency_Gt: Float
-    frequency_Gte: Float
-    bandwidth: Float
-    bandwidth_Lt: Float
-    bandwidth_Lte: Float
-    bandwidth_Gt: Float
-    bandwidth_Gte: Float
-  ): TemplatesNodeConnection!
+  ephemeridesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection!
+  launchesSet(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection!
+  pulsaraliasesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, alias: String): PulsaraliasesNodeConnection!
+  pulsartargetsSet(offset: Int, before: String, after: String, first: Int, last: Int, target_Id: ID, target_Name: String, pulsar_Id: ID, pulsar_Jname: String): PulsartargetsNodeConnection!
+  templatesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, frequency: Float, frequency_Lt: Float, frequency_Lte: Float, frequency_Gt: Float, frequency_Gte: Float, bandwidth: Float, bandwidth_Lt: Float, bandwidth_Lte: Float, bandwidth_Gt: Float, bandwidth_Gte: Float): TemplatesNodeConnection!
 }
 
 type PulsarsNodeConnection {
@@ -2309,78 +1261,11 @@ type PulsarsType {
   jname: String!
   state: String
   comment: String
-  ephemeridesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar_Id: ID
-    p0: Float
-    p0_Lt: Float
-    p0_Lte: Float
-    p0_Gt: Float
-    p0_Gte: Float
-    dm: Float
-    dm_Lt: Float
-    dm_Lte: Float
-    dm_Gt: Float
-    dm_Gte: Float
-    rm: Float
-    rm_Lt: Float
-    rm_Lte: Float
-    rm_Gt: Float
-    rm_Gte: Float
-    ephemerisHash: String
-  ): EphemeridesNodeConnection!
-  launchesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pipeline: ID
-    parentPipeline: ID
-    pulsar: ID
-  ): LaunchesNodeConnection!
-  pulsaraliasesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar: ID
-    alias: String
-  ): PulsaraliasesNodeConnection!
-  pulsartargetsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    target_Id: ID
-    target_Name: String
-    pulsar_Id: ID
-    pulsar_Jname: String
-  ): PulsartargetsNodeConnection!
-  templatesSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar_Id: ID
-    frequency: Float
-    frequency_Lt: Float
-    frequency_Lte: Float
-    frequency_Gt: Float
-    frequency_Gte: Float
-    bandwidth: Float
-    bandwidth_Lt: Float
-    bandwidth_Lte: Float
-    bandwidth_Gt: Float
-    bandwidth_Gte: Float
-  ): TemplatesNodeConnection!
+  ephemeridesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection!
+  launchesSet(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection!
+  pulsaraliasesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, alias: String): PulsaraliasesNodeConnection!
+  pulsartargetsSet(offset: Int, before: String, after: String, first: Int, last: Int, target_Id: ID, target_Name: String, pulsar_Id: ID, pulsar_Jname: String): PulsartargetsNodeConnection!
+  templatesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, frequency: Float, frequency_Lt: Float, frequency_Lte: Float, frequency_Gt: Float, frequency_Gte: Float, bandwidth: Float, bandwidth_Lt: Float, bandwidth_Lte: Float, bandwidth_Gt: Float, bandwidth_Gte: Float): TemplatesNodeConnection!
 }
 
 input PulsartargetsInput {
@@ -2411,474 +1296,64 @@ type PulsartargetsType {
 }
 
 type Query {
+  fileList(jname: String!, utc: String!, beam: Int!, before: String, after: String, first: Int, last: Int): FileConnection
   foldPulsar(jname: String!, mainProject: String): FoldPulsarNode
-  foldObservations(
-    mainProject: String
-    project: String
-    band: String
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): FoldPulsarConnection
-  foldObservationDetails(
-    jname: String!
-    mainProject: String
-    project: String
-    utc: String
-    beam: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): FoldPulsarDetailConnection
-  searchmodeObservations(
-    mainProject: String
-    project: String
-    band: String
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): SearchmodePulsarConnectionsConnection
-  searchmodeObservationDetails(
-    jname: String!
-    mainProject: String
-    project: String
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): SearchmodePulsarDetailConnection
-  sessionDisplay(
-    start: String
-    end: String
-    utc: String
-    project: String
-  ): SessionListNode
-  sessionList(
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): SessionListConnection
+  foldObservations(mainProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): FoldPulsarConnection
+  foldObservationDetails(jname: String!, mainProject: String, project: String, utc: String, beam: Int, before: String, after: String, first: Int, last: Int): FoldPulsarDetailConnection
+  searchmodeObservations(mainProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): SearchmodePulsarConnectionsConnection
+  searchmodeObservationDetails(jname: String!, mainProject: String, project: String, before: String, after: String, first: Int, last: Int): SearchmodePulsarDetailConnection
+  sessionDisplay(start: String, end: String, utc: String, project: String): SessionListNode
+  sessionList(before: String, after: String, first: Int, last: Int): SessionListConnection
   toa(id: ID!): ToasNode
-  allToas(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection
+  allToas(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection
   template(id: ID!): TemplatesNode
-  allTemplates(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar_Id: ID
-    frequency: Float
-    frequency_Lt: Float
-    frequency_Lte: Float
-    frequency_Gt: Float
-    frequency_Gte: Float
-    bandwidth: Float
-    bandwidth_Lt: Float
-    bandwidth_Lte: Float
-    bandwidth_Gt: Float
-    bandwidth_Gte: Float
-  ): TemplatesNodeConnection
+  allTemplates(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, frequency: Float, frequency_Lt: Float, frequency_Lte: Float, frequency_Gt: Float, frequency_Gte: Float, bandwidth: Float, bandwidth_Lt: Float, bandwidth_Lte: Float, bandwidth_Gt: Float, bandwidth_Gte: Float): TemplatesNodeConnection
   telescope(id: ID!): TelescopesNode
-  allTelescopes(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    name: String
-  ): TelescopesNodeConnection
+  allTelescopes(offset: Int, before: String, after: String, first: Int, last: Int, name: String): TelescopesNodeConnection
   target(id: ID!): TargetsNode
-  allTargets(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    name: String
-    raj: String
-    decj: String
-  ): TargetsNodeConnection
+  allTargets(offset: Int, before: String, after: String, first: Int, last: Int, name: String, raj: String, decj: String): TargetsNodeConnection
   session(id: ID!): SessionsNode
-  allSessions(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    telescope_Id: ID
-    telescope_Name: String
-    start: DateTime
-    start_Isnull: Boolean
-    start_Lt: DateTime
-    start_Lte: DateTime
-    start_Gt: DateTime
-    start_Gte: DateTime
-    start_Month: DateTime
-    start_Year: DateTime
-    start_Date: DateTime
-    end: DateTime
-    end_Isnull: Boolean
-    end_Lt: DateTime
-    end_Lte: DateTime
-    end_Gt: DateTime
-    end_Gte: DateTime
-    end_Month: DateTime
-    end_Year: DateTime
-    end_Date: DateTime
-  ): SessionsNodeConnection
+  allSessions(offset: Int, before: String, after: String, first: Int, last: Int, telescope_Id: ID, telescope_Name: String, start: DateTime, start_Isnull: Boolean, start_Lt: DateTime, start_Lte: DateTime, start_Gt: DateTime, start_Gte: DateTime, start_Month: DateTime, start_Year: DateTime, start_Date: DateTime, end: DateTime, end_Isnull: Boolean, end_Lt: DateTime, end_Lte: DateTime, end_Gt: DateTime, end_Gte: DateTime, end_Month: DateTime, end_Year: DateTime, end_Date: DateTime): SessionsNodeConnection
   rfi(id: ID!): RfisNode
-  allRfis(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    folding: ID
-    percentZapped: Float
-  ): RfisNodeConnection
+  allRfis(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, folding: ID, percentZapped: Float): RfisNodeConnection
   pulsartarget(id: ID!): PulsartargetsNode
-  allPulsartargets(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    target_Id: ID
-    target_Name: String
-    pulsar_Id: ID
-    pulsar_Jname: String
-  ): PulsartargetsNodeConnection
+  allPulsartargets(offset: Int, before: String, after: String, first: Int, last: Int, target_Id: ID, target_Name: String, pulsar_Id: ID, pulsar_Jname: String): PulsartargetsNodeConnection
   pulsar(id: ID!): PulsarsNode
-  allPulsars(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    jname: String
-    state: String
-    comment: String
-  ): PulsarsNodeConnection
+  allPulsars(offset: Int, before: String, after: String, first: Int, last: Int, jname: String, state: String, comment: String): PulsarsNodeConnection
   pulsaralias(id: ID!): PulsaraliasesNode
-  allPulsaraliases(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar: ID
-    alias: String
-  ): PulsaraliasesNodeConnection
+  allPulsaraliases(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, alias: String): PulsaraliasesNodeConnection
   project(id: ID!): ProjectsNode
-  allProjects(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    program: ID
-    code: String
-    short: String
-    embargoPeriod: String
-    description: String
-  ): ProjectsNodeConnection
+  allProjects(offset: Int, before: String, after: String, first: Int, last: Int, program: ID, code: String, short: String, embargoPeriod: String, description: String): ProjectsNodeConnection
   program(id: ID!): ProgramsNode
-  allPrograms(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    telescope: ID
-    name: String
-  ): ProgramsNodeConnection
+  allPrograms(offset: Int, before: String, after: String, first: Int, last: Int, telescope: ID, name: String): ProgramsNodeConnection
   processing(id: ID!): ProcessingsNode
-  allProcessings(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    location: String
-    observationId: ID
-    pipelineId: ID
-    parentId: ID
-    embargoEnd: DateTime
-    embargoEnd_Isnull: Boolean
-    embargoEnd_Lt: DateTime
-    embargoEnd_Lte: DateTime
-    embargoEnd_Gt: DateTime
-    embargoEnd_Gte: DateTime
-    embargoEnd_Month: DateTime
-    embargoEnd_Year: DateTime
-    embargoEnd_Date: DateTime
-    observation_UtcStart: DateTime
-    observation_UtcStart_Isnull: Boolean
-    observation_UtcStart_Lt: DateTime
-    observation_UtcStart_Lte: DateTime
-    observation_UtcStart_Gt: DateTime
-    observation_UtcStart_Gte: DateTime
-    observation_UtcStart_Month: DateTime
-    observation_UtcStart_Year: DateTime
-    observation_UtcStart_Date: DateTime
-    observation_Duration: Float
-    observation_Duration_Lt: Float
-    observation_Duration_Lte: Float
-    observation_Duration_Gt: Float
-    observation_Duration_Gte: Float
-    observation_Suspect: Boolean
-    observation_Telescope_Id: ID
-    observation_Telescope_Name: String
-    observation_Target_Id: ID
-    observation_Target_Name: String
-    observation_Project_Id: ID
-    observation_Project_Code: String
-    observation_InstrumentConfig_Id: ID
-    observation_InstrumentConfig_Name: String
-  ): ProcessingsNodeConnection
+  allProcessings(offset: Int, before: String, after: String, first: Int, last: Int, location: String, observationId: ID, pipelineId: ID, parentId: ID, embargoEnd: DateTime, embargoEnd_Isnull: Boolean, embargoEnd_Lt: DateTime, embargoEnd_Lte: DateTime, embargoEnd_Gt: DateTime, embargoEnd_Gte: DateTime, embargoEnd_Month: DateTime, embargoEnd_Year: DateTime, embargoEnd_Date: DateTime, observation_UtcStart: DateTime, observation_UtcStart_Isnull: Boolean, observation_UtcStart_Lt: DateTime, observation_UtcStart_Lte: DateTime, observation_UtcStart_Gt: DateTime, observation_UtcStart_Gte: DateTime, observation_UtcStart_Month: DateTime, observation_UtcStart_Year: DateTime, observation_UtcStart_Date: DateTime, observation_Duration: Float, observation_Duration_Lt: Float, observation_Duration_Lte: Float, observation_Duration_Gt: Float, observation_Duration_Gte: Float, observation_Suspect: Boolean, observation_Telescope_Id: ID, observation_Telescope_Name: String, observation_Target_Id: ID, observation_Target_Name: String, observation_Project_Id: ID, observation_Project_Code: String, observation_InstrumentConfig_Id: ID, observation_InstrumentConfig_Name: String): ProcessingsNodeConnection
   processingcollection(id: ID!): ProcessingcollectionsNode
-  allProcessingcollections(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    collection: ID
-  ): ProcessingcollectionsNodeConnection
+  allProcessingcollections(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, collection: ID): ProcessingcollectionsNodeConnection
   pipeline(id: ID!): PipelinesNode
-  allPipelines(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    name: String
-  ): PipelinesNodeConnection
+  allPipelines(offset: Int, before: String, after: String, first: Int, last: Int, name: String): PipelinesNodeConnection
   pipelineimage(id: ID!): PipelineimagesNode
-  allPipelineimages(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    id: ID
-    processing: ID
-    rank: Int
-  ): PipelineimagesNodeConnection
+  allPipelineimages(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, processing: ID, rank: Int): PipelineimagesNodeConnection
   pipelinefile(id: ID!): PipelinefilesNode
-  allPipelinefiles(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    id: ID
-    processing: ID
-    fileType: String
-  ): PipelinefilesNodeConnection
+  allPipelinefiles(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, processing: ID, fileType: String): PipelinefilesNodeConnection
   observation(id: ID!): ObservationsNode
-  allObservations(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection
+  allObservations(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection
   launch(id: ID!): LaunchesNode
-  allLaunches(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pipeline: ID
-    parentPipeline: ID
-    pulsar: ID
-  ): LaunchesNodeConnection
+  allLaunches(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection
   instrumentconfig(id: ID!): InstrumentconfigsNode
-  allInstrumentconfigs(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    name: String
-    bandwidth: Float
-    frequency: Float
-    nchan: Int
-    npol: Int
-    beam: String
-  ): InstrumentconfigsNodeConnection
+  allInstrumentconfigs(offset: Int, before: String, after: String, first: Int, last: Int, name: String, bandwidth: Float, frequency: Float, nchan: Int, npol: Int, beam: String): InstrumentconfigsNodeConnection
   folding(id: ID!): FoldingsNode
-  allFoldings(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    nbin: Int
-    npol: Int
-    nchan: Int
-    processingId: ID
-    foldingEphemerisId: ID
-    foldingEphemeris_Pulsar_Id: ID
-    foldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-  ): FoldingsNodeConnection
+  allFoldings(offset: Int, before: String, after: String, first: Int, last: Int, nbin: Int, npol: Int, nchan: Int, processingId: ID, foldingEphemerisId: ID, foldingEphemeris_Pulsar_Id: ID, foldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String): FoldingsNodeConnection
   filterbanking(id: ID!): FilterbankingsNode
-  allFilterbankings(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-    nbit: Int
-    npol: Int
-    nchan: Int
-    tsamp: Float
-    dm: Float
-  ): FilterbankingsNodeConnection
+  allFilterbankings(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, nbit: Int, npol: Int, nchan: Int, tsamp: Float, dm: Float): FilterbankingsNodeConnection
   ephemeris(id: ID!): EphemeridesNode
-  allEphemerides(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    pulsar_Id: ID
-    p0: Float
-    p0_Lt: Float
-    p0_Lte: Float
-    p0_Gt: Float
-    p0_Gte: Float
-    dm: Float
-    dm_Lt: Float
-    dm_Lte: Float
-    dm_Gt: Float
-    dm_Gte: Float
-    rm: Float
-    rm_Lt: Float
-    rm_Lte: Float
-    rm_Gt: Float
-    rm_Gte: Float
-    ephemerisHash: String
-  ): EphemeridesNodeConnection
+  allEphemerides(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection
   collection(id: ID!): CollectionsNode
-  allCollections(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    name: String
-    description: String
-  ): CollectionsNodeConnection
+  allCollections(offset: Int, before: String, after: String, first: Int, last: Int, name: String, description: String): CollectionsNodeConnection
   calibration(id: ID!): CalibrationsNode
-  allCalibrations(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    calibrationType: String
-    location: String
-  ): CalibrationsNodeConnection
+  allCalibrations(offset: Int, before: String, after: String, first: Int, last: Int, calibrationType: String, location: String): CalibrationsNodeConnection
   basebanding(id: ID!): BasebandingsNode
-  allBasebandings(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processing: ID
-  ): BasebandingsNodeConnection
+  allBasebandings(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID): BasebandingsNodeConnection
 }
 
 input RefreshInput {
@@ -3018,20 +1493,8 @@ type SearchmodePulsarNode implements Node {
   numberOfObservations: Int!
   beam: String!
   comment: String
-  searchmodepulsardetailSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): SearchmodePulsarDetailNodeConnection!
-  sessionpulsarSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): SessionPulsarNodeConnection!
+  searchmodepulsardetailSet(offset: Int, before: String, after: String, first: Int, last: Int): SearchmodePulsarDetailNodeConnection!
+  sessionpulsarSet(offset: Int, before: String, after: String, first: Int, last: Int): SessionPulsarNodeConnection!
 }
 
 type SessionListConnection {
@@ -3057,20 +1520,8 @@ type SessionListNode implements Node {
   nDishMin: Int
   nDishMax: Int
   zapFraction: Float
-  sessionpulsarSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): SessionPulsarNodeConnection!
-  sessionPulsars(
-    project: String
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): SessionPulsarConnection
+  sessionpulsarSet(offset: Int, before: String, after: String, first: Int, last: Int): SessionPulsarNodeConnection!
+  sessionPulsars(project: String, before: String, after: String, first: Int, last: Int): SessionPulsarConnection
 }
 
 type SessionPulsarConnection {
@@ -3159,47 +1610,8 @@ type TargetsNode implements Node {
   name: String!
   raj: String!
   decj: String!
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
-  pulsartargetsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    target_Id: ID
-    target_Name: String
-    pulsar_Id: ID
-    pulsar_Jname: String
-  ): PulsartargetsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
+  pulsartargetsSet(offset: Int, before: String, after: String, first: Int, last: Int, target_Id: ID, target_Name: String, pulsar_Id: ID, pulsar_Jname: String): PulsartargetsNodeConnection!
 }
 
 type TargetsNodeConnection {
@@ -3217,47 +1629,8 @@ type TargetsType {
   name: String!
   raj: String!
   decj: String!
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
-  pulsartargetsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    target_Id: ID
-    target_Name: String
-    pulsar_Id: ID
-    pulsar_Jname: String
-  ): PulsartargetsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
+  pulsartargetsSet(offset: Int, before: String, after: String, first: Int, last: Int, target_Id: ID, target_Name: String, pulsar_Id: ID, pulsar_Jname: String): PulsartargetsNodeConnection!
 }
 
 input TelescopesInput {
@@ -3267,72 +1640,9 @@ input TelescopesInput {
 type TelescopesNode implements Node {
   id: ID!
   name: String!
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
-  programsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    telescope: ID
-    name: String
-  ): ProgramsNodeConnection!
-  sessionsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    telescope_Id: ID
-    telescope_Name: String
-    start: DateTime
-    start_Isnull: Boolean
-    start_Lt: DateTime
-    start_Lte: DateTime
-    start_Gt: DateTime
-    start_Gte: DateTime
-    start_Month: DateTime
-    start_Year: DateTime
-    start_Date: DateTime
-    end: DateTime
-    end_Isnull: Boolean
-    end_Lt: DateTime
-    end_Lte: DateTime
-    end_Gt: DateTime
-    end_Gte: DateTime
-    end_Month: DateTime
-    end_Year: DateTime
-    end_Date: DateTime
-  ): SessionsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
+  programsSet(offset: Int, before: String, after: String, first: Int, last: Int, telescope: ID, name: String): ProgramsNodeConnection!
+  sessionsSet(offset: Int, before: String, after: String, first: Int, last: Int, telescope_Id: ID, telescope_Name: String, start: DateTime, start_Isnull: Boolean, start_Lt: DateTime, start_Lte: DateTime, start_Gt: DateTime, start_Gte: DateTime, start_Month: DateTime, start_Year: DateTime, start_Date: DateTime, end: DateTime, end_Isnull: Boolean, end_Lt: DateTime, end_Lte: DateTime, end_Gt: DateTime, end_Gte: DateTime, end_Month: DateTime, end_Year: DateTime, end_Date: DateTime): SessionsNodeConnection!
 }
 
 type TelescopesNodeConnection {
@@ -3348,72 +1658,9 @@ type TelescopesNodeEdge {
 type TelescopesType {
   id: ID!
   name: String!
-  observationsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    utcStart: DateTime
-    utcStart_Isnull: Boolean
-    utcStart_Lt: DateTime
-    utcStart_Lte: DateTime
-    utcStart_Gt: DateTime
-    utcStart_Gte: DateTime
-    utcStart_Month: DateTime
-    utcStart_Year: DateTime
-    utcStart_Date: DateTime
-    duration: Float
-    duration_Lt: Float
-    duration_Lte: Float
-    duration_Gt: Float
-    duration_Gte: Float
-    suspect: Boolean
-    telescope_Id: ID
-    telescope_Name: String
-    target_Id: ID
-    target_Name: String
-    project_Id: ID
-    project_Code: String
-    instrumentConfig_Id: ID
-    instrumentConfig_Name: String
-  ): ObservationsNodeConnection!
-  programsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    telescope: ID
-    name: String
-  ): ProgramsNodeConnection!
-  sessionsSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    telescope_Id: ID
-    telescope_Name: String
-    start: DateTime
-    start_Isnull: Boolean
-    start_Lt: DateTime
-    start_Lte: DateTime
-    start_Gt: DateTime
-    start_Gte: DateTime
-    start_Month: DateTime
-    start_Year: DateTime
-    start_Date: DateTime
-    end: DateTime
-    end_Isnull: Boolean
-    end_Lt: DateTime
-    end_Lte: DateTime
-    end_Gt: DateTime
-    end_Gte: DateTime
-    end_Month: DateTime
-    end_Year: DateTime
-    end_Date: DateTime
-  ): SessionsNodeConnection!
+  observationsSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, suspect: Boolean, telescope_Id: ID, telescope_Name: String, target_Id: ID, target_Name: String, project_Id: ID, project_Code: String, instrumentConfig_Id: ID, instrumentConfig_Name: String): ObservationsNodeConnection!
+  programsSet(offset: Int, before: String, after: String, first: Int, last: Int, telescope: ID, name: String): ProgramsNodeConnection!
+  sessionsSet(offset: Int, before: String, after: String, first: Int, last: Int, telescope_Id: ID, telescope_Name: String, start: DateTime, start_Isnull: Boolean, start_Lt: DateTime, start_Lte: DateTime, start_Gt: DateTime, start_Gte: DateTime, start_Month: DateTime, start_Year: DateTime, start_Date: DateTime, end: DateTime, end_Isnull: Boolean, end_Lt: DateTime, end_Lte: DateTime, end_Gt: DateTime, end_Gte: DateTime, end_Month: DateTime, end_Year: DateTime, end_Date: DateTime): SessionsNodeConnection!
 }
 
 input TemplatesInput {
@@ -3439,43 +1686,7 @@ type TemplatesNode implements Node {
   method: String
   type: String
   comment: String
-  toasSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection!
+  toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
 }
 
 type TemplatesNodeConnection {
@@ -3499,43 +1710,7 @@ type TemplatesType {
   method: String
   type: String
   comment: String
-  toasSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-    processingId: ID
-    inputFoldingId: ID
-    timingEphemerisId: ID
-    templateId: ID
-    inputFolding_FoldingEphemerisId: ID
-    inputFolding_FoldingEphemeris_Pulsar_Id: ID
-    inputFolding_FoldingEphemeris_Pulsar_Jname: String
-    processing_Observation_UtcStart: DateTime
-    processing_Observation_UtcStart_Isnull: Boolean
-    processing_Observation_UtcStart_Lt: DateTime
-    processing_Observation_UtcStart_Lte: DateTime
-    processing_Observation_UtcStart_Gt: DateTime
-    processing_Observation_UtcStart_Gte: DateTime
-    processing_Observation_UtcStart_Month: DateTime
-    processing_Observation_UtcStart_Year: DateTime
-    processing_Observation_UtcStart_Date: DateTime
-    processing_Observation_Duration: Float
-    processing_Observation_Duration_Lt: Float
-    processing_Observation_Duration_Lte: Float
-    processing_Observation_Duration_Gt: Float
-    processing_Observation_Duration_Gte: Float
-    processing_Observation_Suspect: Boolean
-    processing_Observation_Telescope_Id: ID
-    processing_Observation_Telescope_Name: String
-    processing_Observation_Project_Id: ID
-    processing_Observation_Project_Code: String
-    processing_Observation_InstrumentConfig_Id: ID
-    processing_Observation_InstrumentConfig_Name: String
-    processing_Pipeline_Id: ID
-    processing_Pipeline_Name: String
-  ): ToasNodeConnection!
+  toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
 }
 
 input ToasInput {
@@ -3715,20 +1890,8 @@ type UserType implements Node {
   dateJoined: DateTime!
   email: String!
   role: UserRole!
-  provisionaluserSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): ProvisionalUserTypeConnection!
-  registrationSet(
-    offset: Int
-    before: String
-    after: String
-    first: Int
-    last: Int
-  ): RegistrationTypeConnection!
+  provisionaluserSet(offset: Int, before: String, after: String, first: Int, last: Int): ProvisionalUserTypeConnection!
+  registrationSet(offset: Int, before: String, after: String, first: Int, last: Int): RegistrationTypeConnection!
 }
 
 input VerifyInput {

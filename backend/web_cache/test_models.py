@@ -1,5 +1,9 @@
 import pytest
+import pytz
+
+from freezegun import freeze_time
 from datetime import datetime
+from django.contrib.auth import get_user_model
 from web_cache.models import (
     FoldPulsar,
     FoldPulsarDetail,
@@ -12,6 +16,8 @@ from web_cache.testing_utils import (
 )
 from dataportal.models import Sessions, Telescopes, Foldings
 
+User = get_user_model()
+
 
 def create_fold_pulsar():
     return FoldPulsar.objects.create(
@@ -19,12 +25,8 @@ def create_fold_pulsar():
         project="new",
         band="L-Band",
         jname="j1234-5678",
-        latest_observation=datetime.strptime(
-            "2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"
-        ),
-        first_observation=datetime.strptime(
-            "2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"
-        ),
+        latest_observation=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
+        first_observation=datetime.strptime("2000-01-01-12:59:12 +0000", "%Y-%m-%d-%H:%M:%S %z"),
         timespan=4,
         number_of_observations=2,
         beam="4",
@@ -113,44 +115,32 @@ def test_get_session_image():
     create_pulsar_with_observations()
     fold_pulsar_detail = FoldPulsarDetail.objects.last()
 
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="flux.hi", url=flux_url
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="flux.hi", url=flux_url)
     FoldDetailImage.objects.create(
         fold_pulsar_detail=fold_pulsar_detail,
         image_type="relbin.phase-freq.hi",
         url=freq_url,
     )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="freq.hi", url=bad_url
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="freq.hi", url=bad_url)
     FoldDetailImage.objects.create(
         fold_pulsar_detail=fold_pulsar_detail,
         image_type="tpa.phase-time.hi",
         url=time_url,
     )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="time.hi", url=bad_url
-    )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="flux.lo", url=flux_url_lo
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="time.hi", url=bad_url)
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="flux.lo", url=flux_url_lo)
     FoldDetailImage.objects.create(
         fold_pulsar_detail=fold_pulsar_detail,
         image_type="relbin.phase-freq.lo",
         url=freq_url_lo,
     )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="freq.lo", url=bad_url
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="freq.lo", url=bad_url)
     FoldDetailImage.objects.create(
         fold_pulsar_detail=fold_pulsar_detail,
         image_type="tpa.phase-time.lo",
         url=time_url_lo,
     )
-    FoldDetailImage.objects.create(
-        fold_pulsar_detail=fold_pulsar_detail, image_type="time.lo", url=bad_url
-    )
+    FoldDetailImage.objects.create(fold_pulsar_detail=fold_pulsar_detail, image_type="time.lo", url=bad_url)
 
     images = fold_pulsar_detail.images.all()
 
@@ -168,3 +158,25 @@ def test_get_flux():
     create_folding_for_molonglo()
     folding = Foldings.objects.last()
     assert FoldPulsarDetail.get_flux(folding, "MONSPSR_TIMING") == 1.46
+
+
+def test_get_centre_frequency():
+    assert FoldPulsarDetail(band="L-Band").get_band_centre_frequency() == 1284
+    assert FoldPulsarDetail(band="UHF").get_band_centre_frequency() == 830
+    assert FoldPulsarDetail(band="UNKNOWN").get_band_centre_frequency() is None
+    assert FoldPulsarDetail(band="").get_band_centre_frequency() is None
+
+
+@freeze_time("2023-07-26 12:00:00")
+def test_is_restricted():
+    embargoed_fold_detail = FoldPulsarDetail(embargo_end_date=datetime(2024, 1, 1, 12, 0, 0, 0, pytz.UTC))
+    unrestricted_fold_detail = FoldPulsarDetail(embargo_end_date=datetime(2022, 1, 1, 12, 0, 0, 0, pytz.UTC))
+    assert embargoed_fold_detail.is_restricted(User(role="RESTRICTED")) is True
+    assert embargoed_fold_detail.is_restricted(User(role="Default")) is True
+    assert embargoed_fold_detail.is_restricted(User(role="UNRESTRICTED")) is False
+    assert embargoed_fold_detail.is_restricted(User(role="ADMIN")) is False
+
+    assert unrestricted_fold_detail.is_restricted(User(role="RESTRICTED")) is False
+    assert unrestricted_fold_detail.is_restricted(User(role="Default")) is False
+    assert unrestricted_fold_detail.is_restricted(User(role="UNRESTRICTED")) is False
+    assert unrestricted_fold_detail.is_restricted(User(role="ADMIN")) is False

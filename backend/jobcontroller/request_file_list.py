@@ -6,6 +6,21 @@ import requests
 from django.conf import settings
 
 
+def get_fluxcal_archive_path(project, jname, utc, beam, band):
+    """
+    Get the path to the cleaned fluxcal archives as it is on Ozstar.
+    :param project: String of the project name
+    :param jname: String of the pulsar name
+    :param utc: String of the utc of the observation
+    :param beams: Int Number of beams for the pulsar
+    :param band: Int Band number for the observation
+    :return: String of the path to the fluxcal archives
+    """
+    # Example path as expected on Ozstar
+    # /fred/oz005/timing_processed/PTA/J1017-7156/2020-10-05-01:52:19/4/1284/cleaned/
+    return f"/timing_processed/{project}/{jname}/{utc}/{beam}/{band}/cleaned/"
+
+
 def request_file_list(path, recursive):
     """
     Requests the file list for a job

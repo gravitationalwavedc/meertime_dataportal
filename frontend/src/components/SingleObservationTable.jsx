@@ -7,11 +7,10 @@ import ImageGrid from "./ImageGrid";
 import { Link } from "found";
 import MainLayout from "./MainLayout";
 import MolongloImageGrid from "./MolongloImageGrid";
+import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
 
-const SingleObservationTable = ({
-  data: { foldObservationDetails },
-  jname,
-}) => {
+const SingleObservationTable = ({ data, jname }) => {
+  const { foldObservationDetails } = data;
   const relayObservationModel = foldObservationDetails.edges[0].node;
 
   const projectChoices = Array.from(
@@ -52,6 +51,7 @@ const SingleObservationTable = ({
           >
             View Kronos
           </Button>
+          <DownloadFluxcalButtons data={data} />
         </Col>
       </Row>
       {projectChoices.length >= 1 ? (

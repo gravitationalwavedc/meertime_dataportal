@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     "graphene_django",
     "user_manage",
     "django_jenkins",
+    "jobcontroller"
 ]
 
 AUTH_USER_MODEL = "user_manage.User"

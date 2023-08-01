@@ -64,15 +64,13 @@ def queries():
           }
         """
 
-    queries = {
+    return {
         "create_provisional_user": create_provisional_user,
         "delete_user": delete_user,
         "deactivate_user": deactivate_user,
         "activate_user": activate_user,
         "update_role": update_role,
     }
-
-    return queries
 
 
 @pytest.mark.django_db

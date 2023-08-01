@@ -174,6 +174,7 @@ def test_fold_detail_query():
                 snMeerpipe
                 flux
                 ephemeris
+                restricted
                 images {{
                     edges {{
                         node {{
@@ -221,6 +222,7 @@ def test_fold_detail_query():
                         "snBackend": 67.8,
                         "snMeerpipe": 42.1,
                         "flux": 1.22,
+                        "restricted": False,
                         "images": {
                             "edges": [
                                 {
