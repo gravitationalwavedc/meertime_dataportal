@@ -108,3 +108,26 @@ flake8:
   artifacts:
     reports:
       codequality: backend/gl-code-quality-report.json
+
+
+black:
+  stage: test
+  script:
+    - cd backend/
+    - $POETRY_HOME/bin/poetry install
+    - $POETRY_HOME/bin/poetry run black .
+
+react-formatting:
+  stage: test
+  image: node:18
+
+  before_script:
+    - corepack enable
+    - corepack prepare pnpm@latest-8 --activate
+    - pnpm config set store-dir .pnpm-store
+
+  script:
+    - cd frontend
+    - pnpm install
+    - pnpm exec prettier --check .
+    - pnpm exec eslint src
