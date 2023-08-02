@@ -35,7 +35,17 @@ const FoldDetailTable = ({
           : "",
         utc: formatUTC(edge.node.utc),
         plotLink: `/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`,
-        action: !edge.node.restricted ? (
+        action: edge.node.restricted ? (
+          <Button size="sm" variant="outline-dark">
+            <span className="small">
+              Embargoed
+              <br />
+              until
+              <br />
+              {formatDDMonYYYY(edge.node.embargoEndDate)}
+            </span>
+          </Button>
+        ) : (
           <ButtonGroup vertical>
             <Link
               to={`/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`}
@@ -54,16 +64,6 @@ const FoldDetailTable = ({
               View session
             </Link>
           </ButtonGroup>
-        ) : (
-          <Button size="sm" variant="outline-dark">
-            <span className="small">
-              Embargoed
-              <br />
-              until
-              <br />
-              {formatDDMonYYYY(edge.node.embargoEndDate)}
-            </span>
-          </Button>
         ),
       },
     ],
@@ -74,12 +74,8 @@ const FoldDetailTable = ({
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
-  const ephemeris =
-    foldObservationDetails.edges[foldObservationDetails.edges.length - 1].node
-      .ephemeris;
-  const ephemerisUpdated =
-    foldObservationDetails.edges[foldObservationDetails.edges.length - 1].node
-      .ephemerisIsUpdatedAt;
+  const { ephemeris, ephemerisUpdated } =
+    foldObservationDetails.edges[foldObservationDetails.edges.length - 1].node;
 
   const columns =
     mainProject === "MONSPSR" ? molonglo.columns : meertime.columns;
@@ -139,7 +135,7 @@ const FoldDetailTable = ({
             size="sm"
             variant="outline-secondary"
             className="mr-2 mb-2"
-            disabled={ephemeris ? false : true}
+            disabled={!ephemeris}
             onClick={() => setEphemerisVisible(true)}
           >
             {ephemeris
