@@ -28,7 +28,7 @@ export function performRefreshTokenMutation(router) {
         localStorage.jwt = refreshToken.token;
       }
     },
-    onError: (error) => {
+    onError: () => {
       localStorage.jwt = "";
       router.replace("/login/");
     },
