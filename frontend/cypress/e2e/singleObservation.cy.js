@@ -6,6 +6,10 @@ describe("Single Observation Page", () => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
     });
 
+    cy.intercept("http://localhost:8000/graphql/", (req) => {
+      aliasMutation(req, "RefreshTokenMutation", "refreshTokenMutation.json");
+    });
+
     cy.visit("/");
 
     cy.get("input[name=username]").type("buffy@sunnydale.com");
