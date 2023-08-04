@@ -11,9 +11,8 @@ import { useRouter } from "found";
 
 const DEFAULT_ZOOM = { x1: null, y1: null, x2: null, y2: null };
 
-const ScatterPlot = ({ dataOne, dataTwo, children }) => {
-  const [filteredDataOne, setFilteredDataOne] = useState(dataOne);
-  const [filteredDataTwo, setFilteredDataTwo] = useState(dataTwo);
+const ScatterPlot = ({ data, children }) => {
+  const [dataBands, setFilteredData] = useState(data);
   const [zoomArea, setZoomArea] = useState(DEFAULT_ZOOM);
   const [isZooming, setIsZooming] = useState(false);
   const [isDrag, setIsDrag] = useState(false);
@@ -21,9 +20,8 @@ const ScatterPlot = ({ dataOne, dataTwo, children }) => {
   const { router } = useRouter();
 
   useEffect(() => {
-    setFilteredDataOne(dataOne);
-    setFilteredDataTwo(dataTwo);
-  }, [dataOne, dataTwo]);
+    setFilteredData(data);
+  }, data);
 
   const handleSymbolClick = (symbolData) => {
     if (!isDrag) {
@@ -32,8 +30,7 @@ const ScatterPlot = ({ dataOne, dataTwo, children }) => {
   };
 
   const handleZoomOut = () => {
-    setFilteredDataOne(dataOne);
-    setFilteredDataTwo(dataTwo);
+    setFilteredData(data);
     setZoomArea(DEFAULT_ZOOM);
   };
 
@@ -64,14 +61,7 @@ const ScatterPlot = ({ dataOne, dataTwo, children }) => {
       if (x1 > x2) [x1, x2] = [x2, x1];
       if (y1 > y2) [y1, y2] = [y2, y1];
 
-      const DataOneInRange = filteredDataOne.filter(
-        (dataPoint) =>
-          dataPoint.time >= x1 &&
-          dataPoint.time <= x2 &&
-          dataPoint.value >= y1 &&
-          dataPoint.value <= y2
-      );
-      const DataTwoInRange = filteredDataTwo.filter(
+      const DataInRange = filteredData.filter(
         (dataPoint) =>
           dataPoint.time >= x1 &&
           dataPoint.time <= x2 &&
@@ -79,8 +69,7 @@ const ScatterPlot = ({ dataOne, dataTwo, children }) => {
           dataPoint.value <= y2
       );
 
-      setFilteredDataOne(DataOneInRange);
-      setFilteredDataTwo(DataTwoInRange);
+      setFilteredData(DataInRange);
       setZoomArea(DEFAULT_ZOOM);
     }
   };
@@ -108,24 +97,17 @@ const ScatterPlot = ({ dataOne, dataTwo, children }) => {
           onMouseUp={handleMouseUp}
         >
           {children}
-          <Scatter
-            name="L-Band"
-            data={filteredDataOne}
-            fill="#8884d8"
-            shape="circle"
-            onMouseUp={handleSymbolClick}
-          >
-            <ErrorBar dataKey="error" width={5} strokeWidth={2} stroke="#8884d8" direction="y" />
-          </Scatter>
-          <Scatter
-            name="UHF"
-            data={filteredDataTwo}
-            fill="#e07761"
-            shape="square"
-            onMouseUp={handleSymbolClick}
+          {dataBands.map((dataBand, index) => (
+            <Scatter
+              name={dataBand.name}
+              data={dataBand.data}
+              fill={dataBand.colour}
+              shape={dataBand.shape}
+              onMouseUp={handleSymbolClick}
             >
-            <ErrorBar dataKey="error" width={5} strokeWidth={2} stroke="#e07761" direction="y" />
-          </Scatter>
+              <ErrorBar dataKey="error" width={5} strokeWidth={2} stroke={dataBand.colour} direction="y" />
+            </Scatter>
+          ))}
           <ReferenceArea
             x1={zoomArea.x1 ? zoomArea.x1 : null}
             x2={zoomArea.x2 ? zoomArea.x2 : null}
