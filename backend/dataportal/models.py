@@ -150,7 +150,6 @@ class Template(models.Model):
 
 
 class Calibration(models.Model):
-    # TODO use DELAYCAL_ID to note which calibrator was used.
     CALIBRATION_TYPES = [
         ("pre", "pre"),
         ("post", "post"),
@@ -161,8 +160,56 @@ class Calibration(models.Model):
     calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
     location = models.CharField(max_length=255, blank=True, null=True)
 
+    # The following will be populated by the observations
+    start = models.DateTimeField(null=True)
+    end   = models.DateTimeField(null=True)
+    all_projects = models.CharField(max_length=255, blank=True, null=True)
+    n_observations = models.IntegerField(null=True)
+    n_ant_min = models.IntegerField(null=True)
+    n_ant_max = models.IntegerField(null=True)
+    total_integration_time_seconds = models.FloatField(null=True)
+
+    @classmethod
+    def update_observation_session(cls, calibration):
+        """
+        Every time a Observation is saved, we want to update the Calibration
+        model so it accurately summaries all observations for that Calibration (session).
+
+        Parameters:
+            calibration: Calibration django model
+                A Calibration model instance.
+        """
+        # Grab observations for the calibrator
+        observations = Observation.objects.filter(calibration=calibration)
+
+        start = observations.order_by('utc_start').first().utc_start
+        end = observations.order_by('utc_start').last().utc_start
+        all_projects = ", ".join(
+            {observation.project.short for observation in observations.all()}
+        )
+        n_observations = observations.count()
+        n_ant_min = observations.order_by('nant').first().nant
+        n_ant_max = observations.order_by('nant').last().nant
+        total_integration_time_seconds = sum(observations.all().values_list('duration', flat=True))
+
+        # Update the calibration values
+        calibration.start = start
+        calibration.end = end
+        calibration.all_projects = all_projects
+        calibration.n_observations = n_observations
+        calibration.n_ant_min = n_ant_min
+        calibration.n_ant_max = n_ant_max
+        calibration.total_integration_time_seconds = total_integration_time_seconds
+        calibration.save()
+
+        return calibration
+
+
     def __str__(self):
         return f"{self.id}_{self.delay_cal_id}"
+
+    class Meta:
+        ordering = ["-start"]
 
 
 class Observation(models.Model):
@@ -347,7 +394,10 @@ class PulsarFoldSummary(models.Model):
         model so it accurately summaries all fold observations for that pulsar.
 
         Parameters:
-            pulsar: A pulsar model instance.
+            pulsar: Pulsar django model
+                A Pulsar model instance.
+            main_project: MainProject django model
+                A MainProject model instance.
         """
         # Get all the fold observations for that pulsar
         observations = Observation.objects.filter(pulsar=pulsar, obs_type="fold").order_by("utc_start")

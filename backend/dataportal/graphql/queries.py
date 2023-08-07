@@ -172,39 +172,7 @@ class CalibrationNode(DjangoObjectType):
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
-    start = graphene.DateTime()
-    end = graphene.DateTime()
-    all_projects = graphene.String()
-    n_observations = graphene.Int()
-    n_ant_min = graphene.Int()
-    n_ant_max = graphene.Int()
-    total_integration_time_seconds = graphene.Float()
     id_int = graphene.Int()
-
-    def resolve_start(self, info):
-        return self.observations.order_by('utc_start').first().utc_start
-
-    def resolve_end(self, info):
-        return self.observations.order_by('utc_start').last().utc_start
-
-    def resolve_all_projects(self, info):
-        all_projects = ", ".join(
-            {observation.project.short for observation in self.observations.all()}
-        )
-        return all_projects
-
-    def resolve_n_observations(self, info):
-        return self.observations.count()
-
-    def resolve_n_ant_min(self, info):
-        return self.observations.order_by('nant').first().nant
-
-    def resolve_n_ant_max(self, info):
-        return self.observations.order_by('nant').last().nant
-
-    def resolve_total_integration_time_seconds(self, info):
-        durations = self.observations.all().values_list('duration', flat=True)
-        return sum(durations)
 
     def resolve_id_int(self, info):
         return self.id
@@ -224,6 +192,7 @@ class ObservationNode(DjangoObjectType):
         model = Observation
         fields = "__all__"
         filter_fields = "__all__"
+
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -276,7 +245,7 @@ class PipelineRunNode(DjangoObjectType):
     project = graphene.Field(ProjectNode)
     ephemeris = graphene.Field(EphemerisNode)
     template = graphene.Field(TemplateNode)
-    # observation = graphene.Field(ObservationNode)
+    observation = graphene.Field(ObservationNode)
 
     @classmethod
     @login_required
@@ -295,7 +264,7 @@ class PulsarFoldResultNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
     # ForeignKey fields
-    # observation = graphene.Field(ObservationNode)
+    observation = graphene.Field(ObservationNode)
     pipeline_run = graphene.Field(PipelineRunNode)
     project = graphene.Field(ProjectNode)
 
@@ -593,6 +562,8 @@ class Query(graphene.ObjectType):
         telescope__name=graphene.String(),
         project__id=graphene.Int(),
         project__short=graphene.String(),
+        utcStart_gte=graphene.DateTime(),
+        utcStart_lte=graphene.DateTime(),
     )
     @login_required
     def resolve_observation(self, info, **kwargs):
@@ -613,6 +584,14 @@ class Query(graphene.ObjectType):
         project_short = kwargs.get('project__short')
         if project_short:
             queryset = queryset.filter(project__short=project_short)
+
+        utcStart_gte = kwargs.get('utcStart_gte')
+        if utcStart_gte:
+            queryset = queryset.filter(utc_start__gte=utcStart_gte)
+
+        utcStart_lte = kwargs.get('utcStart_lte')
+        if utcStart_lte:
+            queryset = queryset.filter(utc_start__lte=utcStart_lte)
 
         return queryset
 
@@ -679,8 +658,9 @@ class Query(graphene.ObjectType):
     )
     @login_required
     def resolve_pipeline_image(self, info, **kwargs):
-        # return PipelineImage.get_query(**kwargs)
-        return PipelineImage.objects.all()
+        queryset = PipelineImage.objects.all()
+
+        return queryset
 
 
     pipeline_file = relay.ConnectionField(
