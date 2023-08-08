@@ -1,18 +1,10 @@
 import graphene
-from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import permission_required
 from graphql import GraphQLError
 
-from dataportal.models import Toa
-from datetime import timedelta
-
-from dataportal.models import PipelineRun, Ephemeris, Template
+from dataportal.models import Toa, PipelineRun, Ephemeris, Template
+from dataportal.graphql.queries import ToaNode
 from utils.toa import toa_line_to_dict, toa_dict_to_line
-
-
-class ToaType(DjangoObjectType):
-    class Meta:
-        model = Toa
 
 
 class ToaInput(graphene.InputObjectType):
@@ -29,14 +21,14 @@ class ToaInput(graphene.InputObjectType):
 
 
 class CreateToaOutput(graphene.ObjectType):
-    toa = graphene.List(ToaType)
+    toa = graphene.List(ToaNode)
 
 
 class CreateToa(graphene.Mutation):
     class Arguments:
         input = ToaInput(required=True)
 
-    toa    = graphene.List(ToaType)
+    toa    = graphene.List(ToaNode)
     Output = CreateToaOutput
 
     @classmethod
@@ -93,7 +85,7 @@ class UpdateToa(graphene.Mutation):
         id = graphene.Int(required=True)
         input = ToaInput(required=True)
 
-    toa = graphene.Field(ToaType)
+    toa = graphene.Field(ToaNode)
 
     @classmethod
     @permission_required("dataportal.add_toa")

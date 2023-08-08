@@ -1,24 +1,15 @@
-import json
 import graphene
+from graphene_django.converter import convert_django_field
 from graphql_jwt.decorators import permission_required
 from django_mysql.models import JSONField
-from graphene_django import DjangoObjectType
-from graphene_django.converter import convert_django_field
 
-from dataportal.models import (
-    Template,
-    Pulsar,
-    Project,
-)
+from dataportal.models import Template
+from dataportal.graphql.queries import TemplateNode
+
 
 @convert_django_field.register(JSONField)
 def convert_json_field_to_string(field, registry=None):
     return graphene.JSONString()
-
-
-class TemplateType(DjangoObjectType):
-    class Meta:
-        model = Template
 
 
 class TemplateInput(graphene.InputObjectType):
@@ -27,13 +18,12 @@ class TemplateInput(graphene.InputObjectType):
     band          = graphene.String(required=True)
 
 
-
 class DeleteTemplate(graphene.Mutation):
     class Arguments:
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    template = graphene.Field(TemplateType)
+    template = graphene.Field(TemplateNode)
 
     @classmethod
     @permission_required("dataportal.delete_template")

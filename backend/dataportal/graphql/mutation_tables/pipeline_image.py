@@ -2,21 +2,17 @@ import json
 import graphene
 from graphql_jwt.decorators import permission_required
 from django_mysql.models import JSONField
-from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 
 from dataportal.models import (
     PipelineImage,
 )
+from dataportal.graphql.queries import PipelineImageNode
+
 
 @convert_django_field.register(JSONField)
 def convert_json_field_to_string(field, registry=None):
     return graphene.JSONString()
-
-
-class PipelineImageType(DjangoObjectType):
-    class Meta:
-        model = PipelineImage
 
 
 class PipelineImageInput(graphene.InputObjectType):
@@ -31,7 +27,7 @@ class DeletePipelineImage(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    pipeline_image = graphene.Field(PipelineImageType)
+    pipeline_image = graphene.Field(PipelineImageNode)
 
     @classmethod
     @permission_required("dataportal.delete_pipeline_image")

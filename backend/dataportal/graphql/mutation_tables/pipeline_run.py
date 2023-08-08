@@ -1,21 +1,13 @@
-import json
-
 import graphene
 from graphql_jwt.decorators import permission_required
-from graphene_django import DjangoObjectType
 
-from utils.ephemeris import parse_ephemeris_file
 from dataportal.models import (
     PipelineRun,
     Observation,
     Ephemeris,
     Template,
 )
-
-
-class PipelineRunType(DjangoObjectType):
-    class Meta:
-        model = PipelineRun
+from dataportal.graphql.queries import PipelineRunNode
 
 
 class PipelineRunInput(graphene.InputObjectType):
@@ -49,7 +41,7 @@ class CreatePipelineRun(graphene.Mutation):
     class Arguments:
         input = PipelineRunInput()
 
-    pipeline_run = graphene.Field(PipelineRunType)
+    pipeline_run = graphene.Field(PipelineRunNode)
 
     @classmethod
     @permission_required("dataportal.add_pipeline_run")
@@ -90,7 +82,7 @@ class UpdatePipelineRun(graphene.Mutation):
         id = graphene.Int(required=True)
         input = PipelineRunInput(required=True)
 
-    pipeline_run = graphene.Field(PipelineRunType)
+    pipeline_run = graphene.Field(PipelineRunNode)
 
     @classmethod
     @permission_required("dataportal.add_pipeline_run")

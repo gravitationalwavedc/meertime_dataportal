@@ -1,12 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from graphene_django import DjangoObjectType
 
 from dataportal.models import Pulsar
-
-class PulsarType(DjangoObjectType):
-    class Meta:
-        model = Pulsar
+from dataportal.graphql.queries import PulsarNode
 
 
 class PulsarsInput(graphene.InputObjectType):
@@ -17,7 +13,7 @@ class CreatePulsar(graphene.Mutation):
     class Arguments:
         input = PulsarsInput()
 
-    pulsar = graphene.Field(PulsarType)
+    pulsar = graphene.Field(PulsarNode)
 
     @classmethod
     @permission_required("dataportal.add_pulsars")
@@ -35,7 +31,7 @@ class UpdatePulsar(graphene.Mutation):
         id = graphene.Int(required=True)
         input = PulsarsInput(required=True)
 
-    pulsar = graphene.Field(PulsarType)
+    pulsar = graphene.Field(PulsarNode)
 
     @classmethod
     @permission_required("dataportal.add_pulsars")

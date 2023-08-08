@@ -1,8 +1,8 @@
 import json
 import graphene
+from decimal import Decimal
 from graphql_jwt.decorators import permission_required
 from django_mysql.models import JSONField
-from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from django.db import IntegrityError
 
@@ -12,15 +12,12 @@ from dataportal.models import (
     Pulsar,
     Project,
 )
+from dataportal.graphql.queries import EphemerisNode
+
 
 @convert_django_field.register(JSONField)
 def convert_json_field_to_string(field, registry=None):
     return graphene.JSONString()
-
-
-class EphemerisType(DjangoObjectType):
-    class Meta:
-        model = Ephemeris
 
 
 class EphemerisInput(graphene.InputObjectType):
@@ -35,7 +32,7 @@ class CreateEphemeris(graphene.Mutation):
     class Arguments:
         input = EphemerisInput()
 
-    ephemeris = graphene.Field(EphemerisType)
+    ephemeris = graphene.Field(EphemerisNode)
 
     @classmethod
     @permission_required("dataportal.add_ephemeris")
@@ -81,7 +78,7 @@ class UpdateEphemeris(graphene.Mutation):
         id = graphene.Int(required=True)
         input = EphemerisInput(required=True)
 
-    ephemeris = graphene.Field(EphemerisType)
+    ephemeris = graphene.Field(EphemerisNode)
 
     @classmethod
     @permission_required("dataportal.add_ephemerides")
@@ -104,7 +101,7 @@ class DeleteEphemeris(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    ephemeris = graphene.Field(EphemerisType)
+    ephemeris = graphene.Field(EphemerisNode)
 
     @classmethod
     @permission_required("dataportal.add_ephemerides")

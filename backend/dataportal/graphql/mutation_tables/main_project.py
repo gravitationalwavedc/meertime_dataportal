@@ -1,21 +1,15 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 from django.db.models.fields import DurationField
-from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 
 from dataportal.models import MainProject, Telescope
-from datetime import timedelta
+from dataportal.graphql.queries import MainProjectNode
 
 
 @convert_django_field.register(DurationField)
 def convert_duration_field_to_string(field, registry=None):
     return graphene.String()
-
-
-class MainProjectType(DjangoObjectType):
-    class Meta:
-        model = MainProject
 
 
 class MainProjectInput(graphene.InputObjectType):
@@ -27,7 +21,7 @@ class CreateMainProject(graphene.Mutation):
     class Arguments:
         input = MainProjectInput(required=True)
 
-    mainproject = graphene.Field(MainProjectType)
+    mainproject = graphene.Field(MainProjectNode)
 
     @classmethod
     @permission_required("dataportal.add_main_project")
@@ -45,7 +39,7 @@ class UpdateMainProject(graphene.Mutation):
         id = graphene.Int(required=True)
         input = MainProjectInput(required=True)
 
-    mainproject = graphene.Field(MainProjectType)
+    mainproject = graphene.Field(MainProjectNode)
 
     @classmethod
     @permission_required("dataportal.add_main_project")
@@ -66,7 +60,7 @@ class DeleteMainProject(graphene.Mutation):
         id = graphene.Int(required=True)
 
     ok = graphene.Boolean()
-    mainproject = graphene.Field(MainProjectType)
+    mainproject = graphene.Field(MainProjectNode)
 
     @classmethod
     @permission_required("dataportal.add_main_project")

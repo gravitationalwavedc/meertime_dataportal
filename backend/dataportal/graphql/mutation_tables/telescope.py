@@ -1,14 +1,8 @@
 import graphene
-from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import permission_required
 
 from dataportal.models import Telescope
-from datetime import timedelta
-
-
-class TelescopeType(DjangoObjectType):
-    class Meta:
-        model = Telescope
+from dataportal.graphql.queries import TelescopeNode
 
 
 class TelescopeInput(graphene.InputObjectType):
@@ -19,7 +13,7 @@ class CreateTelescope(graphene.Mutation):
     class Arguments:
         input = TelescopeInput(required=True)
 
-    telescope = graphene.Field(TelescopeType)
+    telescope = graphene.Field(TelescopeNode)
 
     @classmethod
     @permission_required("dataportal.add_telescope")
@@ -33,7 +27,7 @@ class UpdateTelescope(graphene.Mutation):
         id = graphene.Int(required=True)
         input = TelescopeInput(required=True)
 
-    telescope = graphene.Field(TelescopeType)
+    telescope = graphene.Field(TelescopeNode)
 
     @classmethod
     @permission_required("dataportal.add_telescope")

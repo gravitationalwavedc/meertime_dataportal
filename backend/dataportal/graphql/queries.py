@@ -191,8 +191,16 @@ class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
         fields = "__all__"
-        filter_fields = "__all__"
-
+        filter_fields = {
+            "utc_start": DATETIME_FILTERS,
+            "duration": NUMERIC_FILTERS,
+            "telescope__id": ["exact"],
+            "telescope__name": ["exact"],
+            "pulsar__id": ["exact"],
+            "pulsar__name": ["exact"],
+            "project__id": ["exact"],
+            "project__short": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -210,6 +218,13 @@ class ObservationNode(DjangoObjectType):
 class ObservationConnection(relay.Connection):
     class Meta:
         node = ObservationNode
+
+    pulsar__name=graphene.String()
+    telescope__name=graphene.String()
+    project__id=graphene.Int()
+    project__short=graphene.String()
+    utcStart_gte=graphene.DateTime()
+    utcStart_lte=graphene.DateTime()
 
 
 class PipelineRunNode(DjangoObjectType):
@@ -558,12 +573,6 @@ class Query(graphene.ObjectType):
 
     observation = relay.ConnectionField(
         ObservationConnection,
-        pulsar__name=graphene.String(),
-        telescope__name=graphene.String(),
-        project__id=graphene.Int(),
-        project__short=graphene.String(),
-        utcStart_gte=graphene.DateTime(),
-        utcStart_lte=graphene.DateTime(),
     )
     @login_required
     def resolve_observation(self, info, **kwargs):

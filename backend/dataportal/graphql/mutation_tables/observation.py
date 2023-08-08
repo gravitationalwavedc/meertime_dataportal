@@ -2,7 +2,6 @@ import json
 
 import graphene
 from graphql_jwt.decorators import permission_required
-from graphene_django import DjangoObjectType
 
 from utils.ephemeris import parse_ephemeris_file
 from dataportal.models import (
@@ -13,11 +12,7 @@ from dataportal.models import (
     Calibration,
     Ephemeris,
 )
-
-
-class ObservationType(DjangoObjectType):
-    class Meta:
-        model = Observation
+from dataportal.graphql.queries import ObservationNode
 
 
 class ObservationInput(graphene.InputObjectType):
@@ -62,7 +57,7 @@ class CreateObservation(graphene.Mutation):
     class Arguments:
         input = ObservationInput()
 
-    observation = graphene.Field(ObservationType)
+    observation = graphene.Field(ObservationNode)
 
     @classmethod
     @permission_required("dataportal.add_observations")
@@ -150,7 +145,7 @@ class UpdateObservation(graphene.Mutation):
         id = graphene.Int(required=True)
         input = ObservationInput(required=True)
 
-    observation = graphene.Field(ObservationType)
+    observation = graphene.Field(ObservationNode)
 
     @classmethod
     @permission_required("dataportal.add_observations")

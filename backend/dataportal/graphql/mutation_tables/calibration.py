@@ -1,12 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
-from graphene_django import DjangoObjectType
 
 from dataportal.models import Calibration
-
-class CalibrationType(DjangoObjectType):
-    class Meta:
-        model = Calibration
+from dataportal.graphql.queries import CalibrationNode
 
 
 class CalibrationInput(graphene.InputObjectType):
@@ -15,11 +11,12 @@ class CalibrationInput(graphene.InputObjectType):
     calibration_type = graphene.String(required=True)
     location = graphene.String()
 
+
 class CreateCalibration(graphene.Mutation):
     class Arguments:
         input = CalibrationInput()
 
-    calibration = graphene.Field(CalibrationType)
+    calibration = graphene.Field(CalibrationNode)
 
     @classmethod
     @permission_required("dataportal.add_calibrations")
@@ -33,7 +30,7 @@ class UpdateCalibration(graphene.Mutation):
         id = graphene.Int(required=True)
         input = CalibrationInput(required=True)
 
-    calibration = graphene.Field(CalibrationType)
+    calibration = graphene.Field(CalibrationNode)
 
     @classmethod
     @permission_required("dataportal.add_calibrations")
