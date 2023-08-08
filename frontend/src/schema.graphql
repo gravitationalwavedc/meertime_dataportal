@@ -43,7 +43,6 @@ type CalibrationNode implements Node {
   phaseUpId: String
   calibrationType: CalibrationCalibrationType!
   location: String
-  observations: [ObservationType!]!
   start: DateTime
   end: DateTime
   allProjects: String
@@ -51,32 +50,24 @@ type CalibrationNode implements Node {
   nAntMin: Int
   nAntMax: Int
   totalIntegrationTimeSeconds: Float
+  observations(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
   idInt: Int
 }
 
-type CalibrationType {
-  id: ID!
-  delayCalId: String
-  phaseUpId: String
-  calibrationType: CalibrationCalibrationType!
-  location: String
-  observations: [ObservationType!]!
-}
-
 type CreateCalibration {
-  calibration: CalibrationType
+  calibration: CalibrationNode
 }
 
 type CreateEphemeris {
-  ephemeris: EphemerisType
+  ephemeris: EphemerisNode
 }
 
 type CreateMainProject {
-  mainproject: MainProjectType
+  mainproject: MainProjectNode
 }
 
 type CreateObservation {
-  observation: ObservationType
+  observation: ObservationNode
 }
 
 type CreatePasswordResetRequest {
@@ -86,11 +77,11 @@ type CreatePasswordResetRequest {
 }
 
 type CreatePipelineRun {
-  pipelineRun: PipelineRunType
+  pipelineRun: PipelineRunNode
 }
 
 type CreateProject {
-  project: ProjectType
+  project: ProjectNode
 }
 
 type CreateProvisionalUser {
@@ -100,7 +91,7 @@ type CreateProvisionalUser {
 }
 
 type CreatePulsar {
-  pulsar: PulsarType
+  pulsar: PulsarNode
 }
 
 type CreateRegistration {
@@ -110,11 +101,11 @@ type CreateRegistration {
 }
 
 type CreateTelescope {
-  telescope: TelescopeType
+  telescope: TelescopeNode
 }
 
 type CreateToaOutput {
-  toa: [ToaType]
+  toa: [ToaNode]
 }
 
 scalar DateTime
@@ -132,12 +123,12 @@ type DeleteCalibration {
 
 type DeleteEphemeris {
   ok: Boolean
-  ephemeris: EphemerisType
+  ephemeris: EphemerisNode
 }
 
 type DeleteMainProject {
   ok: Boolean
-  mainproject: MainProjectType
+  mainproject: MainProjectNode
 }
 
 type DeleteObservation {
@@ -149,7 +140,7 @@ type DeletePipelineRun {
 }
 
 type DeleteProject {
-  project: ProjectType
+  project: ProjectNode
 }
 
 type DeletePulsar {
@@ -162,7 +153,7 @@ type DeleteTelescope {
 
 type DeleteTemplate {
   ok: Boolean
-  template: TemplateType
+  template: TemplateNode
 }
 
 type DeleteToa {
@@ -186,8 +177,9 @@ type EphemerisEdge {
 
 input EphemerisInput {
   pulsarName: String!
-  projectCode: String!
   ephemerisText: String!
+  projectCode: String
+  projectShort: String
   comment: String
 }
 
@@ -204,29 +196,20 @@ type EphemerisNode implements Node {
   validFrom: DateTime!
   validTo: DateTime!
   comment: String
-  observationSet: [ObservationType!]!
-  pipelinerunSet: [PipelineRunType!]!
-  toaSet: [ToaType!]!
+  observationSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
+  pipelinerunSet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, observation_Id: ID, ephemeris_Id: ID, template_Id: ID, pipelineName: String, pipelineDescription: String, pipelineVersion: String, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, jobState: PipelineRunJobState, location: String, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, dmErr: Float, dmErr_Lt: Float, dmErr_Lte: Float, dmErr_Gt: Float, dmErr_Gte: Float, dmEpoch: Float, dmEpoch_Lt: Float, dmEpoch_Lte: Float, dmEpoch_Gt: Float, dmEpoch_Gte: Float, dmChi2r: Float, dmChi2r_Lt: Float, dmChi2r_Lte: Float, dmChi2r_Gt: Float, dmChi2r_Gte: Float, dmTres: Float, dmTres_Lt: Float, dmTres_Lte: Float, dmTres_Gt: Float, dmTres_Gte: Float, sn: Float, sn_Lt: Float, sn_Lte: Float, sn_Gt: Float, sn_Gte: Float, flux: Float, flux_Lt: Float, flux_Lte: Float, flux_Gt: Float, flux_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, percentRfiZapped: Float, percentRfiZapped_Lt: Float, percentRfiZapped_Lte: Float, percentRfiZapped_Gt: Float, percentRfiZapped_Gte: Float): PipelineRunNodeConnection!
+  toaSet(offset: Int, before: String, after: String, first: Int, last: Int): ToaNodeConnection!
   residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
-type EphemerisType {
-  id: ID!
-  pulsar: PulsarType!
-  project: ProjectType!
-  createdAt: DateTime!
-  createdBy: UserType
-  ephemerisData: JSONString
-  ephemerisHash: String
-  p0: Float!
-  dm: Float!
-  validFrom: DateTime!
-  validTo: DateTime!
-  comment: String
-  observationSet: [ObservationType!]!
-  pipelinerunSet: [PipelineRunType!]!
-  toaSet: [ToaType!]!
-  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
+type EphemerisNodeConnection {
+  pageInfo: PageInfo!
+  edges: [EphemerisNodeEdge]!
+}
+
+type EphemerisNodeEdge {
+  node: EphemerisNode
+  cursor: String!
 }
 
 scalar GenericScalar
@@ -252,16 +235,18 @@ type MainProjectNode implements Node {
   id: ID!
   telescope: TelescopeNode
   name: String!
-  projectSet: [ProjectType!]!
+  projectSet(offset: Int, before: String, after: String, first: Int, last: Int, mainProject: ID, code: String, short: String, embargoPeriod: Float, description: String): ProjectNodeConnection!
   pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
 }
 
-type MainProjectType {
-  id: ID!
-  telescope: TelescopeType!
-  name: String!
-  projectSet: [ProjectType!]!
-  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
+type MainProjectNodeConnection {
+  pageInfo: PageInfo!
+  edges: [MainProjectNodeEdge]!
+}
+
+type MainProjectNodeEdge {
+  node: MainProjectNode
+  cursor: String!
 }
 
 type Mutation {
@@ -293,7 +278,7 @@ type Mutation {
   createTelescope(input: TelescopeInput!): CreateTelescope
   updateTelescope(id: Int!, input: TelescopeInput!): UpdateTelescope
   deleteTelescope(id: Int!): DeleteTelescope
-  createEphemeris(input: EphemerisInput!): CreateEphemeris
+  createEphemeris(input: EphemerisInput): CreateEphemeris
   updateEphemeris(id: Int!, input: EphemerisInput!): UpdateEphemeris
   deleteEphemeris(id: Int!): DeleteEphemeris
   createCalibration(input: CalibrationInput): CreateCalibration
@@ -327,6 +312,12 @@ enum ObservationBand {
 type ObservationConnection {
   pageInfo: PageInfo!
   edges: [ObservationEdge]!
+  pulsar_Name: String
+  telescope_Name: String
+  project_Id: Int
+  project_Short: String
+  utcStartGte: DateTime
+  utcStartLte: DateTime
 }
 
 type ObservationEdge {
@@ -394,48 +385,24 @@ type ObservationNode implements Node {
   filterbankNchan: Int
   filterbankTsamp: Float
   filterbankDm: Float
-  pipelineRuns: [PipelineRunType!]!
+  pipelineRuns(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, observation_Id: ID, ephemeris_Id: ID, template_Id: ID, pipelineName: String, pipelineDescription: String, pipelineVersion: String, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, jobState: PipelineRunJobState, location: String, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, dmErr: Float, dmErr_Lt: Float, dmErr_Lte: Float, dmErr_Gt: Float, dmErr_Gte: Float, dmEpoch: Float, dmEpoch_Lt: Float, dmEpoch_Lte: Float, dmEpoch_Gt: Float, dmEpoch_Gte: Float, dmChi2r: Float, dmChi2r_Lt: Float, dmChi2r_Lte: Float, dmChi2r_Gt: Float, dmChi2r_Gte: Float, dmTres: Float, dmTres_Lt: Float, dmTres_Lte: Float, dmTres_Gt: Float, dmTres_Gte: Float, sn: Float, sn_Lt: Float, sn_Lte: Float, sn_Gt: Float, sn_Gte: Float, flux: Float, flux_Lt: Float, flux_Lte: Float, flux_Gt: Float, flux_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, percentRfiZapped: Float, percentRfiZapped_Lt: Float, percentRfiZapped_Lte: Float, percentRfiZapped_Gt: Float, percentRfiZapped_Gte: Float): PipelineRunNodeConnection!
   pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
+}
+
+type ObservationNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ObservationNodeEdge]!
+}
+
+type ObservationNodeEdge {
+  node: ObservationNode
+  cursor: String!
 }
 
 enum ObservationObsType {
   CAL
   FOLD
   SEARCH
-}
-
-type ObservationType {
-  id: ID!
-  pulsar: PulsarType!
-  telescope: TelescopeType!
-  project: ProjectType!
-  calibration: CalibrationType
-  band: ObservationBand!
-  frequency: Float!
-  bandwidth: Float!
-  nchan: Int!
-  beam: Int!
-  nant: Int
-  nantEff: Int
-  npol: Int!
-  obsType: ObservationObsType!
-  utcStart: DateTime!
-  raj: String!
-  decj: String!
-  duration: Float
-  nbit: Int!
-  tsamp: Float!
-  ephemeris: EphemerisType
-  foldNbin: Int
-  foldNchan: Int
-  foldTsubint: Int
-  filterbankNbit: Int
-  filterbankNpol: Int
-  filterbankNchan: Int
-  filterbankTsamp: Float
-  filterbankDm: Float
-  pipelineRuns: [PipelineRunType!]!
-  pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
 }
 
 input ObtainJSONWebTokenInput {
@@ -628,38 +595,18 @@ type PipelineRunNode implements Node {
   percentRfiZapped: Float
   pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
   pipelinefileSet(offset: Int, before: String, after: String, first: Int, last: Int): PipelineFileNodeConnection!
-  toas: [ToaType!]!
+  toas(offset: Int, before: String, after: String, first: Int, last: Int): ToaNodeConnection!
   project: ProjectNode
 }
 
-type PipelineRunType {
-  id: ID!
-  observation: ObservationType!
-  ephemeris: EphemerisType
-  template: TemplateType!
-  pipelineName: String!
-  pipelineDescription: String
-  pipelineVersion: String!
-  createdAt: DateTime!
-  createdBy: String!
-  jobState: PipelineRunJobState!
-  location: String!
-  configuration: JSONString
-  ephemerisDownloadLink: String
-  toasDownloadLink: String
-  dm: Float
-  dmErr: Float
-  dmEpoch: Float
-  dmChi2r: Float
-  dmTres: Float
-  sn: Float
-  flux: Float
-  rm: Float
-  rmErr: Float
-  percentRfiZapped: Float
-  pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
-  pipelinefileSet(offset: Int, before: String, after: String, first: Int, last: Int): PipelineFileNodeConnection!
-  toas: [ToaType!]!
+type PipelineRunNodeConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineRunNodeEdge]!
+}
+
+type PipelineRunNodeEdge {
+  node: PipelineRunNode
+  cursor: String!
 }
 
 type ProjectConnection {
@@ -687,23 +634,20 @@ type ProjectNode implements Node {
   short: String!
   embargoPeriod: Int
   description: String
-  ephemerisSet: [EphemerisType!]!
-  templateSet: [TemplateType!]!
-  observationSet: [ObservationType!]!
+  ephemerisSet(offset: Int, before: String, after: String, first: Int, last: Int, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String): EphemerisNodeConnection!
+  templateSet(offset: Int, before: String, after: String, first: Int, last: Int, band: TemplateBand, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, templateHash: String): TemplateNodeConnection!
+  observationSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
   residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
-type ProjectType {
-  id: ID!
-  mainProject: MainProjectType
-  code: String!
-  short: String!
-  embargoPeriod: Float!
-  description: String
-  ephemerisSet: [EphemerisType!]!
-  templateSet: [TemplateType!]!
-  observationSet: [ObservationType!]!
-  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
+type ProjectNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ProjectNodeEdge]!
+}
+
+type ProjectNodeEdge {
+  node: ProjectNode
+  cursor: String!
 }
 
 enum ProvisionalUserRole {
@@ -768,7 +712,7 @@ type PulsarFoldResultNode implements Node {
   id: ID!
   observation: ObservationNode
   pipelineRun: PipelineRunNode
-  pulsar: PulsarType!
+  pulsar: PulsarNode!
   embargoEndDate: DateTime
   images(offset: Int, before: String, after: String, first: Int, last: Int): PipelineImageNodeConnection!
   project: ProjectNode
@@ -832,21 +776,9 @@ type PulsarNode implements Node {
   id: ID!
   name: String!
   comment: String
-  ephemerisSet: [EphemerisType!]!
-  templateSet: [TemplateType!]!
-  observationSet: [ObservationType!]!
-  pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
-  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
-  residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
-}
-
-type PulsarType {
-  id: ID!
-  name: String!
-  comment: String
-  ephemerisSet: [EphemerisType!]!
-  templateSet: [TemplateType!]!
-  observationSet: [ObservationType!]!
+  ephemerisSet(offset: Int, before: String, after: String, first: Int, last: Int, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String): EphemerisNodeConnection!
+  templateSet(offset: Int, before: String, after: String, first: Int, last: Int, band: TemplateBand, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, templateHash: String): TemplateNodeConnection!
+  observationSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
   pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
   pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
   residualSet(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
@@ -865,7 +797,7 @@ type Query {
   ephemeris(before: String, after: String, first: Int, last: Int): EphemerisConnection
   template(before: String, after: String, first: Int, last: Int): TemplateConnection
   calibration(id: Int, before: String, after: String, first: Int, last: Int): CalibrationConnection
-  observations(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, before: String, after: String, first: Int, last: Int): ObservationConnection
+  observation(before: String, after: String, first: Int, last: Int): ObservationConnection
   pipelineRun(id: Int, before: String, after: String, first: Int, last: Int): PipelineRunConnection
   pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
   pulsarFoldSummary(mainProject: String, mostCommonProject: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
@@ -933,9 +865,9 @@ type ResidualEdge {
 
 type ResidualNode implements Node {
   id: ID!
-  toa: ToaType!
-  pulsar: PulsarType!
-  project: ProjectType!
+  toa: ToaNode!
+  pulsar: PulsarNode!
+  project: ProjectNode!
   ephemeris: EphemerisNode
   mjd: Decimal!
   dayOfYear: Float!
@@ -975,15 +907,8 @@ input TelescopeInput {
 type TelescopeNode implements Node {
   id: ID!
   name: String!
-  mainprojectSet: [MainProjectType!]!
-  observationSet: [ObservationType!]!
-}
-
-type TelescopeType {
-  id: ID!
-  name: String!
-  mainprojectSet: [MainProjectType!]!
-  observationSet: [ObservationType!]!
+  mainprojectSet(offset: Int, before: String, after: String, first: Int, last: Int, telescope: ID, name: String): MainProjectNodeConnection!
+  observationSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
 }
 
 enum TemplateBand {
@@ -1015,21 +940,18 @@ type TemplateNode implements Node {
   band: TemplateBand!
   createdAt: DateTime!
   createdBy: UserType
-  pipelinerunSet: [PipelineRunType!]!
-  toaSet: [ToaType!]!
+  pipelinerunSet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, observation_Id: ID, ephemeris_Id: ID, template_Id: ID, pipelineName: String, pipelineDescription: String, pipelineVersion: String, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, jobState: PipelineRunJobState, location: String, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, dmErr: Float, dmErr_Lt: Float, dmErr_Lte: Float, dmErr_Gt: Float, dmErr_Gte: Float, dmEpoch: Float, dmEpoch_Lt: Float, dmEpoch_Lte: Float, dmEpoch_Gt: Float, dmEpoch_Gte: Float, dmChi2r: Float, dmChi2r_Lt: Float, dmChi2r_Lte: Float, dmChi2r_Gt: Float, dmChi2r_Gte: Float, dmTres: Float, dmTres_Lt: Float, dmTres_Lte: Float, dmTres_Gt: Float, dmTres_Gte: Float, sn: Float, sn_Lt: Float, sn_Lte: Float, sn_Gt: Float, sn_Gte: Float, flux: Float, flux_Lt: Float, flux_Lte: Float, flux_Gt: Float, flux_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, percentRfiZapped: Float, percentRfiZapped_Lt: Float, percentRfiZapped_Lte: Float, percentRfiZapped_Gt: Float, percentRfiZapped_Gte: Float): PipelineRunNodeConnection!
+  toaSet(offset: Int, before: String, after: String, first: Int, last: Int): ToaNodeConnection!
 }
 
-type TemplateType {
-  id: ID!
-  pulsar: PulsarType!
-  project: ProjectType!
-  templateFile: String
-  templateHash: String
-  band: TemplateBand!
-  createdAt: DateTime!
-  createdBy: UserType
-  pipelinerunSet: [PipelineRunType!]!
-  toaSet: [ToaType!]!
+type TemplateNodeConnection {
+  pageInfo: PageInfo!
+  edges: [TemplateNodeEdge]!
+}
+
+type TemplateNodeEdge {
+  node: TemplateNode
+  cursor: String!
 }
 
 type ToaConnection {
@@ -1083,63 +1005,42 @@ type ToaNode implements Node {
   residuals(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
 }
 
-type ToaType {
-  id: ID!
-  pipelineRun: PipelineRunType!
-  ephemeris: EphemerisType!
-  template: TemplateType!
-  archive: String!
-  freqMhz: Float!
-  mjd: Decimal!
-  mjdErr: Float!
-  telescope: String!
-  fe: String
-  be: String
-  f: String
-  bw: Int
-  tobs: Int
-  tmplt: String
-  gof: Float
-  nbin: Int
-  nch: Int
-  chan: Int
-  rcvr: String
-  snr: Float
-  length: Int
-  subint: Int
-  dmCorrected: Boolean!
-  minimumNsubs: Boolean!
-  maximumNsubs: Boolean!
-  obsNchan: Int
-  residuals(offset: Int, before: String, after: String, first: Int, last: Int): ResidualNodeConnection!
+type ToaNodeConnection {
+  pageInfo: PageInfo!
+  edges: [ToaNodeEdge]!
+}
+
+type ToaNodeEdge {
+  node: ToaNode
+  cursor: String!
 }
 
 type UpdateCalibration {
-  calibration: CalibrationType
+  calibration: CalibrationNode
 }
 
 type UpdateEphemeris {
-  ephemeris: EphemerisType
+  ephemeris: EphemerisNode
 }
 
 type UpdateMainProject {
-  mainproject: MainProjectType
+  mainproject: MainProjectNode
 }
 
 type UpdateObservation {
-  observation: ObservationType
+  observation: ObservationNode
 }
 
 type UpdatePipelineRun {
-  pipelineRun: PipelineRunType
+  pipelineRun: PipelineRunNode
 }
 
 type UpdateProject {
-  project: ProjectType
+  project: ProjectNode
 }
 
 type UpdatePulsar {
-  pulsar: PulsarType
+  pulsar: PulsarNode
 }
 
 type UpdateRole {
@@ -1148,11 +1049,11 @@ type UpdateRole {
 }
 
 type UpdateTelescope {
-  telescope: TelescopeType
+  telescope: TelescopeNode
 }
 
 type UpdateToa {
-  toa: ToaType
+  toa: ToaNode
 }
 
 enum UserRole {
@@ -1175,8 +1076,8 @@ type UserType implements Node {
   role: UserRole!
   provisionaluserSet(offset: Int, before: String, after: String, first: Int, last: Int): ProvisionalUserTypeConnection!
   registrationSet(offset: Int, before: String, after: String, first: Int, last: Int): RegistrationTypeConnection!
-  ephemerisSet: [EphemerisType!]!
-  templateSet: [TemplateType!]!
+  ephemerisSet(offset: Int, before: String, after: String, first: Int, last: Int, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String): EphemerisNodeConnection!
+  templateSet(offset: Int, before: String, after: String, first: Int, last: Int, band: TemplateBand, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, templateHash: String): TemplateNodeConnection!
 }
 
 input VerifyInput {

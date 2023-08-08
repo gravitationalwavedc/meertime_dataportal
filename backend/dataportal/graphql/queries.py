@@ -231,28 +231,27 @@ class PipelineRunNode(DjangoObjectType):
     class Meta:
         model = PipelineRun
         fields = "__all__"
-        filter_fields =  "__all__"
-        # filter_fields = {
-        #     "id": ["exact"],
-        #     "observation__id": ["exact"],
-        #     "ephemeris__id": ["exact"],
-        #     "template__id": ["exact"],
-        #     "pipeline_name": ["exact"],
-        #     "pipeline_description": ["exact"],
-        #     "pipeline_version": ["exact"],
-        #     "created_at": DATETIME_FILTERS,
-        #     "job_state": ["exact"],
-        #     "location": ["exact"],
-        #     "dm": NUMERIC_FILTERS,
-        #     "dm_err": NUMERIC_FILTERS,
-        #     "dm_epoch": NUMERIC_FILTERS,
-        #     "dm_chi2r": NUMERIC_FILTERS,
-        #     "dm_tres": NUMERIC_FILTERS,
-        #     "sn": NUMERIC_FILTERS,
-        #     "flux": NUMERIC_FILTERS,
-        #     "rm": NUMERIC_FILTERS,
-        #     "percent_rfi_zapped": NUMERIC_FILTERS,
-        # }
+        filter_fields = {
+            "id": ["exact"],
+            "observation__id": ["exact"],
+            "ephemeris__id": ["exact"],
+            "template__id": ["exact"],
+            "pipeline_name": ["exact"],
+            "pipeline_description": ["exact"],
+            "pipeline_version": ["exact"],
+            "created_at": DATETIME_FILTERS,
+            "job_state": ["exact"],
+            "location": ["exact"],
+            "dm": NUMERIC_FILTERS,
+            "dm_err": NUMERIC_FILTERS,
+            "dm_epoch": NUMERIC_FILTERS,
+            "dm_chi2r": NUMERIC_FILTERS,
+            "dm_tres": NUMERIC_FILTERS,
+            "sn": NUMERIC_FILTERS,
+            "flux": NUMERIC_FILTERS,
+            "rm": NUMERIC_FILTERS,
+            "percent_rfi_zapped": NUMERIC_FILTERS,
+        }
 
         interfaces = (relay.Node,)
 

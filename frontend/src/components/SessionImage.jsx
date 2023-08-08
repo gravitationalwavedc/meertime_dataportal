@@ -17,7 +17,7 @@ const SessionImage = ({
         rounded
         onClick={() => openLightBox(images, imageIndex)}
         fluid
-        src={thumbnail}
+        src={images[imageIndex]}
       />
     );
   }

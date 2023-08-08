@@ -30,7 +30,6 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
     }
   }, [project, relay, id]);
 
-  console.log(calibration);
   // Grab the single item from the edges array
   const calibration_node = calibration.edges[0]?.node;
   const startDate = moment
@@ -45,94 +44,114 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
     setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
 
-  const rows = calibration_node.observations.reduce((result, edge) => {
-    const row = { ...edge };
-    console.log(row);
-    row.utc = formatUTC(row.utc);
+  const rows = calibration_node.observations.edges.reduce((result, edge) => {
+    const row = { ...edge.node };
+    row.utc = formatUTC(row.utcStart);
     row.projectKey = project;
 
-      const images = [
-        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.fluxHi}`,
-        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.phaseVsTimeHi}`,
-        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.phaseVsFrequencyHi}`,
-      ];
+    const pulsarFoldResult = row.pulsarFoldResults.edges[0]?.node;
+    row.sn = pulsarFoldResult.pipelineRun.sn;
 
-      row.flux = (
-        <SessionImage
-          imageHi={row.fluxHi}
-          imageLo={row.fluxLo}
-          images={images}
-          imageIndex={0}
-          openLightBox={openLightBox}
-        />
-      );
-      row.phaseVsTime = (
-        <SessionImage
-          imageHi={row.phaseVsTimeHi}
-          imageLo={row.phaseVsTimeLo}
-          images={images}
-          imageIndex={1}
-          openLightBox={openLightBox}
-        />
-      );
-      row.phaseVsFrequency = (
-        <SessionImage
-          imageHi={row.phaseVsFrequencyHi}
-          imageLo={row.phaseVsFrequencyLo}
-          images={images}
-          imageIndex={2}
-          openLightBox={openLightBox}
-        />
-      );
-      row.action = (
-        <ButtonGroup vertical>
-          <Link
-            to={`/${row.pulsarType}/meertime/${row.jname}/`}
-            size="sm"
-            variant="outline-secondary"
-            as={Button}
-          >
-            View all
-          </Link>
-          <Link
-            to={`/${row.jname}/${row.utc}/${row.beam}/`}
-            size="sm"
-            variant="outline-secondary"
-            as={Button}
-          >
-            View last
-          </Link>
-        </ButtonGroup>
-      );
-      return [...result, { ...row }];
-    },
-    []
-  );
+    // Grab the three images
+    const flux = pulsarFoldResult.images.edges
+      .filter(
+        (edge) => edge.node.imageType === "PROFILE" && edge.node.cleaned
+      )[0]?.node;
+    const phaseVsTime = pulsarFoldResult.images.edges
+      .filter(
+        (edge) => edge.node.imageType === "PHASE_TIME" && edge.node.cleaned
+      )[0]?.node;
+    const phaseVsFrequency = pulsarFoldResult.images.edges
+      .filter(
+        (edge) => edge.node.imageType === "PHASE_FREQ" && edge.node.cleaned
+      )[0]?.node;
+    const images = [
+      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}`,
+      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`,
+      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}`,
+    ];
+
+    row.flux = (
+      <SessionImage
+        imageHi={flux.url}
+        imageLo={flux.url}
+        images={images}
+        imageIndex={0}
+        openLightBox={openLightBox}
+      />
+    );
+    row.phaseVsTime = (
+      <SessionImage
+        imageHi={phaseVsTime.url}
+        imageLo={phaseVsTime.url}
+        images={images}
+        imageIndex={1}
+        openLightBox={openLightBox}
+      />
+    );
+    row.phaseVsFrequency = (
+      <SessionImage
+        imageHi={phaseVsFrequency.url}
+        imageLo={phaseVsFrequency.url}
+        images={images}
+        imageIndex={2}
+        openLightBox={openLightBox}
+      />
+    );
+    row.action = (
+      <ButtonGroup vertical>
+        <Link
+          to={`/${row.pulsarType}/meertime/${row.jname}/`}
+          size="sm"
+          variant="outline-secondary"
+          as={Button}
+        >
+          View all
+        </Link>
+        <Link
+          to={`/${row.jname}/${row.utc}/${row.beam}/`}
+          size="sm"
+          variant="outline-secondary"
+          as={Button}
+        >
+          View last
+        </Link>
+      </ButtonGroup>
+    );
+    return [...result, { ...row }];
+  }, []);
 
   const columns = [
-    { dataField: "jname", text: "JName", sort: true },
+    { dataField: "pulsar.name", text: "JName", sort: true },
     {
-      dataField: "project",
+      dataField: "project.short",
       text: "Project",
       sort: true,
       screenSizes: ["md", "lg", "xl", "xxl"],
     },
-    { dataField: "utc", text: "UTC", sort: true, screenSizes: ["xl", "xxl"] },
     {
-      dataField: "backendSN",
-      text: "Backend S/N",
+      dataField: "utcStart",
+      text: "UTC",
+      sort: true,
+      formatter: (cell) => formatUTC(cell),
+      screenSizes: ["xl", "xxl"]
+    },
+    {
+      dataField: "sn",
+      text: "S/N",
       align: "right",
       headerAlign: "right",
       sort: true,
+      formatter: (cell) => cell.toFixed(1),
       screenSizes: ["xl", "xxl"],
     },
     {
-      dataField: "integrations",
-      text: "Integration",
+      dataField: "duration",
+      text: "Duration",
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => `${cell} [s]`,
+      formatter: (cell) => `${cell.toFixed(1)} [s]`,
       screenSizes: ["xl", "xxl"],
     },
     {
@@ -141,7 +160,7 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => `${cell} Mhz`,
+      formatter: (cell) => `${cell.toFixed(1)} [Mhz]`,
       screenSizes: ["xxl"],
     },
     {
@@ -181,15 +200,15 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
   const projectData = calibration_node.observations.edges.reduce(
     (result, edge) => {
       if (
-        result.filter((project) => project.title === edge.node.project)
+        result.filter((project) => project === edge.node.project.short)
           .length === 0
       ) {
         return [
           ...result,
           {
-            title: edge.node.project,
-            value: calibration.sessionPulsars.edges.filter(
-              (newEdge) => newEdge.node.project === edge.node.project
+            title: edge.node.project.short,
+            value: calibration_node.observations.edges.filter(
+              (newEdge) => newEdge.node.project.short === edge.node.project.short
             ).length,
           },
         ];
@@ -202,7 +221,7 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
 
   const summaryData = [
     { title: "Observations", value: calibration_node.numberOfObservations },
-    { title: "Pulsars", value: calibration_node.numberOfPulsars },
+    // { title: "Pulsars", value: calibration_node.numberOfPulsars },
     ...projectData,
   ];
 
@@ -278,22 +297,35 @@ export default createRefetchContainer(
               nAntMax
               totalIntegrationTimeSeconds
               observations {
-                id
-                pulsar {
-                  name
-                }
-                utcStart
-                duration
-                project{
-                  short
-                }
-                pulsarFoldResults {
-                  edges {
-                    node {
-                      pipelineRun {
-                        rm
-                        rmErr
-                        sn
+                edges {
+                  node {
+                    id
+                    pulsar {
+                      name
+                    }
+                    utcStart
+                    duration
+                    frequency
+                    project {
+                      short
+                    }
+                    pulsarFoldResults {
+                      edges {
+                        node {
+                          images {
+                            edges {
+                              node {
+                                url
+                                imageType
+                                cleaned
+                              }
+                            }
+                          }
+                          pipelineRun {
+                            sn
+                            percentRfiZapped
+                          }
+                        }
                       }
                     }
                   }
