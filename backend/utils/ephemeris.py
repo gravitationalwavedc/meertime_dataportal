@@ -46,6 +46,7 @@ def parse_ephemeris_file(ephemeris_data):
             ephemeris_lines = file.readlines()
         # Remove newline characters from end of each line
         ephemeris_lines = [line.rstrip('\n').replace('\t', '') for line in ephemeris_lines]
+    print(ephemeris_lines)
 
     # Parse the file by converting it into a dict
     ephemeris_dict = {}
@@ -53,13 +54,30 @@ def parse_ephemeris_file(ephemeris_data):
         line = line.strip()
         split_line = line.split()
         # Grab the value
-        ephemeris_dict[split_line[0]] = split_line[1]
-        if len(split_line) == 4:
+        if len(split_line) == 0:
+            # Blank line so skip
+            continue
+        if len(split_line) in (2, 3, 4):
+            # Grab the value
+            ephemeris_dict[split_line[0]] = split_line[1]
+        if len(split_line) in (3, 4):
             # Also grab the error
-            ephemeris_dict[f"{split_line[0]}_ERR"] = split_line[3]
+            ephemeris_dict[f"{split_line[0]}_ERR"] = split_line[-1]
+        if len(split_line) == 5:
+            # Grab time offset values, so record them as a list of dicts
+            if "TIMEOFFSETS" not in ephemeris_dict.keys():
+                ephemeris_dict["TIMEOFFSETS"] = []
+            ephemeris_dict["TIMEOFFSETS"].append({
+                "type": split_line[0],
+                "mjd": split_line[1],
+                # The -1 column is used to not display the jump in the PLK plugin
+                "display": split_line[3],
+                "offset": split_line[3],
+                # The 0 column is to not fit for the jump in tempo2
+                "fit": split_line[3],
+            })
     if "F0_ERR" not in ephemeris_dict.keys():
         ephemeris_dict["F0_ERR"] = None
-
     # Calculate the period from the frequency
     p0, p0_err = convert_frequency_to_period(ephemeris_dict["F0"], ephemeris_dict["F0_ERR"])
     ephemeris_dict["P0"] = p0
