@@ -5,9 +5,10 @@ import FluxPlot from "./FluxPlot";
 import SNRPlot from "./SNRPlot";
 import DMPlot from "./DMPlot";
 import RMPlot from "./RMPlot";
+import ResidualPlot from "./ResidualPlot";
 
 const PlotContainer = ({ maxPlotLength, ...rest }) => {
-  const [activePlot, setActivePlot] = useState("flux");
+  const [activePlot, setActivePlot] = useState("residual");
 
   return (
     <Col md={10} className="pulsar-plot-display">
@@ -39,6 +40,8 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
           <DMPlot maxPlotLength={maxPlotLength} {...rest} />
         ) : activePlot === "rm" ? (
           <RMPlot maxPlotLength={maxPlotLength} {...rest} />
+        // ) : activePlot === "residual" ? (
+        //   <ResidualPlot maxPlotLength={maxPlotLength} {...rest} />
         ) : (
           <div>No known active plot</div>
         )}

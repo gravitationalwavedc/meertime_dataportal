@@ -18,7 +18,7 @@ import { useScreenSize } from "../context/screenSize-context";
 
 /* eslint-disable complexity */
 const FoldDetailTable = ({
-  data: { pulsarFoldResult },
+  data: { pulsarFoldResult, residual },
   jname,
   project,
 }) => {
@@ -219,6 +219,7 @@ const FoldDetailTable = ({
         project={project}
         keyField="key"
         card={FoldDetailCard}
+        residual={residual}
       />
     </div>
   );

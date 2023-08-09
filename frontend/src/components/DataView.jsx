@@ -30,14 +30,17 @@ const DataView = ({
   card,
   query,
   rememberSearch,
+  residual,
 }) => {
   const { screenSize } = useScreenSize();
   const [isTableView, setIsTableView] = useState(
     ["md", "lg", "xl", "xxl"].includes(screenSize)
   );
+  console.log(residual)
   return (
     <React.Fragment>
       <SummaryDataRow dataPoints={summaryData} />
+
       <ToolkitProvider
         bootstrap4
         keyField={keyField}
@@ -52,6 +55,7 @@ const DataView = ({
         columnToggle
         search
         condensed
+        residual={residual}
       >
         {(props) => {
           return (

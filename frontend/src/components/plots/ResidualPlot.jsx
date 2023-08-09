@@ -9,18 +9,19 @@ import {
 } from "recharts";
 import React from "react";
 import ScatterPlot from "./ScatterPlot";
-import { dmPlotData } from "./plotData";
+import { residualPlotData } from "./plotData";
 import moment from "moment";
 
 
 const formatYAxisTick = (value) => {
-  return value.toFixed(4);
+  return value.toFixed(2);
 };
 
 
-const DMPlot = ({ data, columns, search, maxPlotLength }) => {
-  const { lBandData, UHFData, minValue, maxValue } = dmPlotData(
-    data,
+const ResidualPlot = ({ residual, columns, search, maxPlotLength }) => {
+  console.log("ResidualPlot: " + residual);
+  const { lBandData, UHFData, minValue, maxValue } = residualPlotData(
+    residual,
     columns,
     search,
     maxPlotLength
@@ -71,4 +72,4 @@ const DMPlot = ({ data, columns, search, maxPlotLength }) => {
   );
 };
 
-export default DMPlot;
+export default ResidualPlot;
