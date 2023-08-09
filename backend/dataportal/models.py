@@ -32,6 +32,13 @@ BAND_CHOICES = [
     ("SBAND_4", "SBAND_4"),
 ]
 
+OBS_TYPE_CHOICES = [
+    ("cal", "cal"),
+    ("fold", "fold"),
+    ("search", "search"),
+]
+
+
 class Pulsar(models.Model):
     """
     Pulsar is used as a target for the observations so this can also be globular clusters
@@ -229,14 +236,7 @@ class Observation(models.Model):
     nant = models.IntegerField(blank=True, null=True)
     nant_eff = models.IntegerField(blank=True, null=True)
     npol = models.IntegerField()
-
-    TYPE_CHOICES = [
-        ("cal", "cal"),
-        ("fold", "fold"),
-        ("search", "search"),
-        # TODO may want to do baseband obs
-    ]
-    obs_type = models.CharField(max_length=6, choices=TYPE_CHOICES)
+    obs_type = models.CharField(max_length=6, choices=OBS_TYPE_CHOICES)
     utc_start = models.DateTimeField()
     raj  = models.CharField(max_length=32)
     decj = models.CharField(max_length=32)
@@ -264,6 +264,116 @@ class Observation(models.Model):
 
     def __str__(self):
         return f"{self.utc_start} {self.beam}"
+
+
+class ObservationSummary(Model):
+    # Foreign Keys that can be none when they're summarising all instead of an individual model
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE, null=True)
+    telescope = models.ForeignKey(Telescope, models.CASCADE, null=True)
+    project = models.ForeignKey(Project, models.CASCADE, null=True)
+    calibration = models.ForeignKey(Calibration, models.CASCADE, null=True, related_name="observation_summaries")
+    obs_type = models.CharField(max_length=6, choices=OBS_TYPE_CHOICES, null=True)
+
+    # Summary values
+    observations = models.IntegerField(blank=True, null=True)
+    pulsars = models.IntegerField(blank=True, null=True)
+    projects = models.IntegerField(blank=True, null=True)
+    estimated_disk_space_gb = models.FloatField(blank=True, null=True)
+    observation_hours = models.IntegerField(blank=True, null=True)
+    timespan_days = models.IntegerField(blank=True, null=True)
+    min_duration = models.FloatField(blank=True, null=True)
+    max_duration = models.FloatField(blank=True, null=True)
+
+    @classmethod
+    def update_or_create(cls, obs_type, pulsar, telescope, project, calibration):
+        """
+        Every time a Observation is saved, we want to update the ObservationSummary
+        model so it accurately summaries all observations for the input filters.
+
+        Parameters:
+            obs_type: str
+                A Pulsar model instance.
+            main_project: MainProject django model
+                A MainProject model instance.
+        """
+        # Create a kwargs for the filter that doesn't use the foreign keys that are none
+        kwargs = {}
+        if obs_type is not None:
+            kwargs["obs_type"] = obs_type
+        if pulsar is not None:
+            kwargs["pulsar"] = pulsar
+        if telescope is not None:
+            kwargs["telescope"] = telescope
+        if project is not None:
+            kwargs["project"] = project
+        if calibration is not None:
+            kwargs["calibration"] = calibration
+        all_observations = Observation.objects.filter(**kwargs).order_by("utc_start")
+        if len(all_observations) == 0:
+            # No observations for this combo so do not create a summary
+            return None, False
+
+        min_utc = all_observations.first().utc_start
+        max_utc = all_observations.last().utc_start
+
+        observations = len(all_observations)
+        pulsars = len({obs.pulsar.name for obs in all_observations})
+        projects = len({obs.project for obs in all_observations})
+        observation_hours = sum(float(obs.duration) for obs in all_observations) / 3600
+        min_duration = all_observations.order_by("duration").first().duration
+        max_duration = all_observations.order_by("duration").last().duration
+
+        duration = max_utc - min_utc
+        # Add 1 day to the end result because the timespan should show the rounded up number of days
+        timespan_days = duration.days + 1
+
+        estimated_sizes = []
+        for obs in all_observations:
+            if obs.obs_type == "fold":
+                try:
+                    estimated_sizes.append(
+                        math.ceil(obs.duration / float(obs.fold_tsubint))
+                        * obs.fold_nbin
+                        * obs.fold_nchan
+                        * obs.npol
+                        * 2
+                    )
+                except ZeroDivisionError:
+                    estimated_sizes.append(0)
+
+        total_bytes = sum(estimated_sizes)
+        estimated_disk_space_gb = total_bytes/ (1024 ** 3)
+
+        # Update oc create the model
+        new_observation_summary, created = ObservationSummary.objects.update_or_create(
+            pulsar=pulsar,
+            telescope=telescope,
+            project=project,
+            calibration=calibration,
+            obs_type=obs_type,
+            defaults={
+                "observations": observations,
+                "pulsars": pulsars,
+                "projects": projects,
+                "estimated_disk_space_gb": estimated_disk_space_gb,
+                "observation_hours": observation_hours,
+                "timespan_days": timespan_days,
+                "min_duration": min_duration,
+                "max_duration": max_duration,
+            },
+        )
+        if not created:
+            # If updating a model need to save the new values as defaults will not be used
+            new_observation_summary.observations
+            new_observation_summary.pulsars
+            new_observation_summary.projects
+            new_observation_summary.estimated_disk_space_gb
+            new_observation_summary.observation_hours
+            new_observation_summary.timespan_days
+            new_observation_summary.min_duration
+            new_observation_summary.max_duration
+            new_observation_summary.save()
+        return new_observation_summary, created
 
 
 class PipelineRun(Model):

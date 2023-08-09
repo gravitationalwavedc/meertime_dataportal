@@ -8,6 +8,7 @@ from .models import (
     Template,
     Calibration,
     Observation,
+    ObservationSummary,
     PipelineRun,
     PulsarFoldResult,
     PulsarFoldSummary,
@@ -25,6 +26,7 @@ admin.site.register(Ephemeris)
 admin.site.register(Template)
 admin.site.register(Calibration)
 admin.site.register(Observation)
+admin.site.register(ObservationSummary)
 admin.site.register(PipelineRun)
 admin.site.register(PulsarFoldResult)
 admin.site.register(PulsarFoldSummary)
