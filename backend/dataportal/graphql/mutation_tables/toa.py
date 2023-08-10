@@ -38,7 +38,8 @@ class CreateToa(graphene.Mutation):
         ephemeris    = Ephemeris.objects.get(id=input["ephemerisId"])
         template     = Template.objects.get(id=input["templateId"])
 
-        created_toas = []
+        # created_toas = []
+        toas_to_create = []
         toa_lines = input["toaLines"]
         for toa_line in toa_lines[1:]:
             toa_line = toa_line.rstrip("\n")
@@ -49,34 +50,38 @@ class CreateToa(graphene.Mutation):
             if toa_line != output_toa_line:
                 raise GraphQLError(f"Assertion failed. toa_line and output_toa_line do not match.\n{toa_line}\n{output_toa_line}")
             # Upload the toa
-            toa = Toa.objects.create(
-                pipeline_run=pipeline_run,
-                ephemeris   =ephemeris,
-                template    =template,
-                archive     =toa_dict["archive"],
-                freq_MHz    =toa_dict["freq_MHz"],
-                mjd         =toa_dict["mjd"],
-                mjd_err     =toa_dict["mjd_err"],
-                telescope   =toa_dict["telescope"],
-                fe          =toa_dict["fe"],
-                be          =toa_dict["be"],
-                f           =toa_dict["f"],
-                bw          =toa_dict["bw"],
-                tobs        =toa_dict["tobs"],
-                tmplt       =toa_dict["tmplt"],
-                gof         =toa_dict["gof"],
-                nbin        =toa_dict["nbin"],
-                nch         =toa_dict["nch"],
-                chan        =toa_dict["chan"],
-                rcvr        =toa_dict["rcvr"],
-                snr         =toa_dict["snr"],
-                length      =toa_dict["length"],
-                subint      =toa_dict["subint"],
-                dm_corrected  =input["dmCorrected"],
-                minimum_nsubs =input["minimumNsubs"],
-                maximum_nsubs =input["maximumNsubs"],
+            # toa = Toa.objects.create(
+            toas_to_create.append(
+                Toa(
+                    pipeline_run=pipeline_run,
+                    ephemeris   =ephemeris,
+                    template    =template,
+                    archive     =toa_dict["archive"],
+                    freq_MHz    =toa_dict["freq_MHz"],
+                    mjd         =toa_dict["mjd"],
+                    mjd_err     =toa_dict["mjd_err"],
+                    telescope   =toa_dict["telescope"],
+                    fe          =toa_dict["fe"],
+                    be          =toa_dict["be"],
+                    f           =toa_dict["f"],
+                    bw          =toa_dict["bw"],
+                    tobs        =toa_dict["tobs"],
+                    tmplt       =toa_dict["tmplt"],
+                    gof         =toa_dict["gof"],
+                    nbin        =toa_dict["nbin"],
+                    nch         =toa_dict["nch"],
+                    chan        =toa_dict["chan"],
+                    rcvr        =toa_dict["rcvr"],
+                    snr         =toa_dict["snr"],
+                    length      =toa_dict["length"],
+                    subint      =toa_dict["subint"],
+                    dm_corrected  =input["dmCorrected"],
+                    minimum_nsubs =input["minimumNsubs"],
+                    maximum_nsubs =input["maximumNsubs"],
+                    obs_nchan = int(pipeline_run.observation.nchan) // int(toa_dict["nch"])
+                )
             )
-            created_toas.append(toa)
+        created_toas = Toa.objects.bulk_create(toas_to_create)
         return CreateToaOutput(toa=created_toas)
 
 
