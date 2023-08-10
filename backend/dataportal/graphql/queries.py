@@ -21,6 +21,7 @@ from dataportal.models import (
     Template,
     Calibration,
     Observation,
+    ObservationSummary,
     PipelineRun,
     PulsarFoldResult,
     PulsarFoldSummary,
@@ -225,6 +226,29 @@ class ObservationConnection(relay.Connection):
     project__short=graphene.String()
     utcStart_gte=graphene.DateTime()
     utcStart_lte=graphene.DateTime()
+
+
+class ObservationSummaryNode(DjangoObjectType):
+    class Meta:
+        model = ObservationSummary
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pulsar = graphene.Field(PulsarNode)
+    telescope = graphene.Field(TelescopeNode)
+    project = graphene.Field(ProjectNode)
+    calibration = graphene.Field(CalibrationNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class ObservationSummaryConnection(relay.Connection):
+    class Meta:
+        node = ObservationSummaryNode
 
 
 class PipelineRunNode(DjangoObjectType):
@@ -449,12 +473,11 @@ class PipelineFileConnection(relay.Connection):
     class Meta:
         node = PipelineFileNode
 
-
 class ToaNode(DjangoObjectType):
     class Meta:
         model = Toa
         fields = "__all__"
-        # filter_fields = "__all__"
+        filter_fields = "__all__"
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -476,7 +499,13 @@ class ResidualNode(DjangoObjectType):
     class Meta:
         model = Residual
         fields = "__all__"
-        # filter_fields = "__all__"
+        filter_fields = {
+            "pulsar": ["exact"],
+            "toa__dm_corrected": ["exact"],
+            "toa__minimum_nsubs": ["exact"],
+            "toa__maximum_nsubs": ["exact"],
+            "toa__obs_nchan": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -492,8 +521,6 @@ class ResidualNode(DjangoObjectType):
 class ResidualConnection(relay.Connection):
     class Meta:
         node = ResidualNode
-
-
 
 
 class Query(graphene.ObjectType):
@@ -564,7 +591,6 @@ class Query(graphene.ObjectType):
 
         calibration_id = kwargs.get('id')
         if calibration_id:
-            print(calibration_id)
             queryset = queryset.filter(id=calibration_id)
 
         return queryset
@@ -572,6 +598,10 @@ class Query(graphene.ObjectType):
 
     observation = relay.ConnectionField(
         ObservationConnection,
+        pulsar__name=graphene.String(),
+        telescope__name=graphene.String(),
+        project__id=graphene.Int(),
+        project__short=graphene.String(),
     )
     @login_required
     def resolve_observation(self, info, **kwargs):
@@ -600,6 +630,46 @@ class Query(graphene.ObjectType):
         utcStart_lte = kwargs.get('utcStart_lte')
         if utcStart_lte:
             queryset = queryset.filter(utc_start__lte=utcStart_lte)
+
+        return queryset
+
+
+    observation_summary = relay.ConnectionField(
+        ObservationSummaryConnection,
+        pulsar__name=graphene.String(),
+        telescope__name=graphene.String(),
+        project__id=graphene.Int(),
+        project__short=graphene.String(),
+        calibration__id=graphene.String(),
+        obs_type=graphene.String(),
+    )
+    @login_required
+    def resolve_observation_summary(self, info, **kwargs):
+        queryset = ObservationSummary.objects.all()
+
+        pulsar_name = kwargs.get('pulsar__name')
+        if pulsar_name:
+            queryset = queryset.filter(pulsar__name=pulsar_name)
+
+        telescope_name = kwargs.get('telescope__name')
+        if telescope_name:
+            queryset = queryset.filter(telescope__name=telescope_name)
+
+        project_id = kwargs.get('project__id')
+        if project_id:
+            queryset = queryset.filter(project__id=project_id)
+
+        project_short = kwargs.get('project__short')
+        if project_short:
+            queryset = queryset.filter(project__short=project_short)
+
+        calibration__id = kwargs.get('calibration__id')
+        if calibration__id:
+            queryset = queryset.filter(calibration__id=calibration__id)
+
+        obs_type = kwargs.get('obs_type')
+        if obs_type:
+            queryset = queryset.filter(obs_type=obs_type)
 
         return queryset
 
@@ -679,8 +749,10 @@ class Query(graphene.ObjectType):
         return PipelineFile.get_query(**kwargs)
 
 
-    toa = relay.ConnectionField(
-        ToaConnection,
+    #toa = relay.ConnectionField(
+        # ToaConnection,
+    toa = DjangoFilterConnectionField(
+        ToaNode,
         pulsar=graphene.String(),
         dmCorrected=graphene.Boolean(),
         minimumNsubs=graphene.Boolean(),

@@ -659,13 +659,6 @@ class Toa(models.Model):
     maximum_nsubs = models.BooleanField(default=False)
     obs_nchan     = models.IntegerField(null=True)
 
-    def save(self, *args, **kwargs):
-        Toa.clean(self)
-        if self.nch:
-            # Convert nchans in toa to nchans of the obs (for filtering downloads)
-            self.obs_nchan = int(self.pipeline_run.observation.nchan) // int(self.nch)
-        super(Toa, self).save(*args, **kwargs)
-
     @classmethod
     def get_query(cls, **kwargs):
         return cls.objects.filter(**kwargs)

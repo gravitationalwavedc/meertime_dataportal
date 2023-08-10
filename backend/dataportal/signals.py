@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from dataportal.models import PulsarFoldSummary, PulsarFoldResult, PipelineRun, Calibration, Observation
+from dataportal.models import PulsarFoldSummary, PulsarFoldResult, PipelineRun, Calibration, Observation, ObservationSummary
 
 
 
@@ -34,7 +34,16 @@ def handle_pulsar_fold_summary_update(sender, instance, **kwargs):
 @receiver(post_save, sender=Observation)
 def handle_calibration_update(sender, instance, **kwargs):
     """
-    Every time a Observation is saved, we want to update the Calibration to summarise the session.
+    Every time a Observation is saved, we want to update the Calibration
+    to summarise the session and the ObservationSummary.
     """
     Calibration.update_observation_session(instance.calibration)
+
+    # Update for the current values and each value with a None
+    for obs_type in [instance.obs_type, None]:
+        for pulsar in [instance.pulsar, None]:
+            for telescope in [instance.telescope, None]:
+                for project in [instance.project, None]:
+                    for calibration in [instance.calibration, None]:
+                        ObservationSummary.update_or_create(obs_type, pulsar, telescope, project, calibration)
 
