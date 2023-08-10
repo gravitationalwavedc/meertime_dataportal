@@ -9,7 +9,7 @@ TEST_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_d
 def test_period_calculation():
     tests = [
         # Test values of J2355+2246 from ATNF
-        ("0.5431872107706268", "8.851570378343201e-11", "1.8409859072", "3E-10"),
+        ("0.5431872107706268", "8.851570378343201e-11", "1.8409859072", "3e-10"),
     ]
     for f0, f0_err, p0_exp, p0_err_exp in tests:
         p0, p0_err = convert_frequency_to_period(f0, f0_err)
