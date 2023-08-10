@@ -18,14 +18,15 @@ const formatYAxisTick = (value) => {
 };
 
 
-const ResidualPlot = ({ residual, columns, search, maxPlotLength }) => {
-  console.log("ResidualPlot: " + residual);
-  const { lBandData, UHFData, minValue, maxValue } = residualPlotData(
-    residual,
+const ResidualPlot = ({ data, columns, search, maxPlotLength }) => {
+  console.log("ResidualPlot: " , data);
+  const { plotData, minValue, maxValue } = residualPlotData(
+    data,
     columns,
     search,
     maxPlotLength
   );
+  console.log("plotData: " , plotData);
 
   const toolTipFormatter = (value, name) => {
     if (name === "UTC") {
@@ -40,7 +41,7 @@ const ResidualPlot = ({ residual, columns, search, maxPlotLength }) => {
   };
 
   return (
-    <ScatterPlot dataOne={lBandData} dataTwo={UHFData}>
+    <ScatterPlot data={plotData}>
       <CartesianGrid />
       <XAxis
         type="number"
@@ -52,8 +53,8 @@ const ResidualPlot = ({ residual, columns, search, maxPlotLength }) => {
       >
         <Label value="UTC" position="bottom" />
       </XAxis>
-      <YAxis type="number" dataKey="value" name="DM" domain={[minValue, maxValue]} tickFormatter={formatYAxisTick}>
-        <Label value="Fit DM (pc cm^-3)" position="left" angle="-90" />
+      <YAxis type="number" dataKey="value" name="Residual" domain={[minValue, maxValue]} tickFormatter={formatYAxisTick}>
+        <Label value="Residual (s)" position="left" angle="-90" />
       </YAxis>
       <ZAxis type="number" dataKey="size" name="Size" range={[20, 300]} />
       <Tooltip
@@ -64,8 +65,13 @@ const ResidualPlot = ({ residual, columns, search, maxPlotLength }) => {
         align="right"
         verticalAlign="top"
         payload={[
-          { id: "1", type: "circle", value: "L-Band", color: "#8884d8" },
-          { id: "1", type: "square", value: "UHF", color: "#e07761" },
+          { id: "1", type: "circle", value: "L-Band", color: "#440154" },
+          { id: "2", type: "square", value: "UHF", color: "#3e4a89" },
+          { id: "3", type: "triangle", value: "S-Band_0", color: "#31688e" },
+          { id: "4", type: "triangle", value: "S-Band_1", color: "#26828e" },
+          { id: "5", type: "triangle", value: "S-Band_2", color: "#1f9e89" },
+          { id: "6", type: "triangle", value: "S-Band_3", color: "#35b779" },
+          { id: "7", type: "triangle", value: "S-Band_4", color: "#6ece58" },
         ]}
       />
     </ScatterPlot>

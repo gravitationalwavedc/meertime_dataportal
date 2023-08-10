@@ -4,6 +4,8 @@ import moment from "moment";
 export const filterBandData = (data) => {
   console.log(data);
 
+  data = data.filter((row) => row.value !== null);
+
   // Process the table data in a way that react-vis understands.
   const lBandData = data
     .filter((row) => row.band === "LBAND");
@@ -70,13 +72,11 @@ export const filterBandData = (data) => {
 
   const minValue = Math.min(
     ...data
-      .filter((row) => row.value !== null)
       .map((row) => row.value)
   );
 
   const maxValue = Math.max(
     ...data
-      .filter((row) => row.value !== null)
       .map((row) => row.value)
   );
 
@@ -167,42 +167,50 @@ export const rmPlotData = (data, columns, search) => {
     return filterBandData(allData);
 };
 
-export const residualPlotData = (residual, columns, search) => {
+export const residualPlotData = (data, columns, search) => {
   // Pass table data through the search filter to enable searching pulsars on chart.
   const results = search.searchText
     ? handleSearch(residual, columns, search)
-    : residual;
-  console.log(results)
-  // Process the table data in a way that react-vis understands.
-  const lBandData = results
-    .filter((row) => row.toa.pipelineRun.observation.band === "LBAND")
+    : data;
+
+  console.log("results:", results);
+  const run_toas = results.reduce( (result_returned, run_result) => {
+    // Run for each pipelineRun
+    const run_results = run_result.pipelineRun.toas.edges.reduce( (result, edge) => {
+      // Grab all of the info needed from the toa
+      console.log("node:", edge.node);
+      if (edge.node.residuals.edges.length === 0) {
+        // No residuals for this run so return nothing
+        return [];
+      }
+      const residual = edge.node.residuals.edges[0]?.node;
+      console.log("residual:", residual);
+      result.push({
+        mjd:            edge.node.mjd,
+        residualSec:    residual.residualSec,
+        residualSecErr: residual.residualSecErr,
+        duration:       edge.node.length,
+        plotLink:       run_result.plotLink,
+        band:           run_result.observation.band,
+      });
+      return result;
+    }, []);
+    result_returned.push(run_results);
+    return result_returned;
+  }, []);
+  // Combine the array of arrays
+  const toas = [].concat(...run_toas);
+
+  console.log("toas:", toas);
+  const allData = toas
     .map((row) => ({
       time:  row.mjd,
       value: row.residualSec,
       error: row.residualSecErr,
-      size:  row.toa.pipelineRun.observation.duration,
+      size:  row.duration,
       link:  row.plotLink,
+      band:  row.band,
     }));
 
-  const UHFData = results
-    .filter((row) => row.band === "UHF")
-    .map((row) => ({
-      time:  row.mjd,
-      value: row.residualSec,
-      error: row.residualSecErr,
-      size:  row.toa.pipelineRun.observation.duration,
-      link:  row.plotLink,
-    }));
-
-    const minValue = Math.min(
-      ...lBandData.map((entry) => entry.value),
-      ...UHFData.map(  (entry) => entry.value)
-    );
-
-    const maxValue = Math.max(
-      ...lBandData.map((entry) => entry.value),
-      ...UHFData.map(  (entry) => entry.value)
-    );
-
-  return { lBandData, UHFData, minValue, maxValue };
+    return filterBandData(allData);
 };

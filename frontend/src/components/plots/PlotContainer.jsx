@@ -21,6 +21,7 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
             value={activePlot}
             onChange={(event) => setActivePlot(event.target.value)}
           >
+            <option value="residual">Timing Residuals</option>
             <option value="flux">Flux Density</option>
             <option value="snr">S/N</option>
             <option value="dm">DM</option>
@@ -40,8 +41,8 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
           <DMPlot maxPlotLength={maxPlotLength} {...rest} />
         ) : activePlot === "rm" ? (
           <RMPlot maxPlotLength={maxPlotLength} {...rest} />
-        // ) : activePlot === "residual" ? (
-        //   <ResidualPlot maxPlotLength={maxPlotLength} {...rest} />
+        ) : activePlot === "residual" ? (
+          <ResidualPlot maxPlotLength={maxPlotLength} {...rest} />
         ) : (
           <div>No known active plot</div>
         )}

@@ -44,6 +44,31 @@ const query = graphql`
             ephemeris {
               ephemerisData
             }
+            toas (
+              dmCorrected: false,
+              minimumNsubs: true,
+              obsNchan: 1,
+            ){
+              edges {
+                node {
+                  freqMhz
+                  mjd
+                  mjdErr
+                  length
+                  residuals {
+                    edges {
+                      node {
+                        mjd
+                        residualSec
+                        residualSecErr
+                        residualPhase
+                        residualPhaseErr
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

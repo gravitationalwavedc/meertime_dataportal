@@ -49,7 +49,6 @@ const foldTableQuery = graphql`
 const FoldTable = ({
   data: {
     pulsarFoldSummary: relayData,
-    residual: residual,
   },
   relay,
   match: {
@@ -229,7 +228,6 @@ const FoldTable = ({
       value: relayData.foldObservations.totalProjectTime,
     });
   }
-
   return (
     <DataView
       summaryData={summaryData}
