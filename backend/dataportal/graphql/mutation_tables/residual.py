@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 from decimal import Decimal, getcontext
 
 import graphene
@@ -61,6 +62,7 @@ class CreateResidual(graphene.Mutation):
 
         # MJDs are stored as Decimals as standard floats don't have enough precision
         getcontext().prec = 12
+        base_date = datetime(1858, 11, 17)  # Base date for MJD
 
         residual_to_create = []
         residual_lines = input["residualLines"]
@@ -69,6 +71,15 @@ class CreateResidual(graphene.Mutation):
             id, mjd, residual, residual_err, residual_phase = residual_line.split(",")
             # Get toa foreign key
             toa = Toa.objects.get(id=int(id))
+
+
+
+            date = base_date + timedelta(days=float(mjd))
+            # Get the day of the year as a float
+            day_of_year = date.timetuple().tm_yday \
+                + date.hour / 24.0 \
+                + date.minute / (24.0 * 60.0) \
+                + date.second / (24.0 * 60.0 * 60.0)
 
             # Upload the residual
             residual_to_create.append(
@@ -79,12 +90,14 @@ class CreateResidual(graphene.Mutation):
                     ephemeris=ephemeris,
                     # X axis types
                     mjd               =Decimal(mjd),
+                    day_of_year       =day_of_year,
                     # binary_orbital_phase=residual_dict["binary_orbital_phase"],
                     # Y axis types
                     residual_sec      =float(residual),
-                    residual_sec_err  =float(residual_err),
+                    residual_sec_err  =float(residual_err)/1e9, # Convert from ns to s
                     residual_phase    =float(residual_phase),
-                    # residual_phase_err=residual_dict["residual_phase_err"],
+                    # Convert from ns to s the divide vy period to convert to phase
+                    residual_phase_err=float(residual_err)/1e9 / ephemeris_dict["P0"],
                 )
             )
         created_residuals = Residual.objects.bulk_create(residual_to_create)

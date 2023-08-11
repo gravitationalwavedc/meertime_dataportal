@@ -1,7 +1,7 @@
 import math
 import hashlib
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -9,7 +9,6 @@ from django.db.models.constraints import UniqueConstraint
 from django.utils.translation import ugettext_lazy as _
 from django_mysql.models import Model
 from .logic import get_meertime_filters, get_band
-from datetime import timedelta
 from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location, get_template_upload_location, create_file_hash
 
 from user_manage.models import User
@@ -680,17 +679,6 @@ class Residual(models.Model):
     residual_sec_err = models.FloatField()
     residual_phase     = models.FloatField() # pulse period phase
     residual_phase_err = models.FloatField(null=True) #TODO add this to the pipeline
-
-    def save(self, *args, **kwargs):
-        # Convert MJD to a datetime object
-        base_date = datetime(1858, 11, 17)  # Base date for MJD
-        date = base_date + timedelta(days=float(self.mjd))
-        # Get the day of the year as a float
-        self.day_of_year = date.timetuple().tm_yday \
-            + date.hour / 24.0 \
-            + date.minute / (24.0 * 60.0) \
-            + date.second / (24.0 * 60.0 * 60.0)
-        super(Residual, self).save(*args, **kwargs)
 
     @classmethod
     def get_query(cls, **kwargs):
