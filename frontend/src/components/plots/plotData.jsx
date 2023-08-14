@@ -1,4 +1,4 @@
-import { handleSearch } from "../../helpers";
+import { handleSearch, mjdToUnixTimestamp } from "../../helpers";
 import moment from "moment";
 
 export const filterBandData = (data) => {
@@ -204,7 +204,7 @@ export const residualPlotData = (data, columns, search) => {
   console.log("toas:", toas);
   const allData = toas
     .map((row) => ({
-      time:  row.mjd,
+      time:  moment(mjdToUnixTimestamp(row.mjd)).valueOf(),
       value: row.residualSec,
       error: row.residualSecErr,
       size:  row.duration,

@@ -3,8 +3,17 @@ import FoldDetailTable from "../components/FoldDetailTable";
 import MainLayout from "../components/MainLayout";
 
 const query = graphql`
-  query FoldDetailQuery($jname: String!, $mainProject: String) {
-    pulsarFoldResult(pulsar: $jname, mainProject: $mainProject) {
+  query FoldDetailQuery(
+      $jname: String!,
+      $mainProject: String
+      $dmCorrected: Boolean,
+      $minimumNsubs: Boolean,
+      $obsNchan: Int,
+    ) {
+    pulsarFoldResult(
+        pulsar: $jname,
+        mainProject: $mainProject
+      ) {
       totalObservations
       totalObservationHours
       totalProjects
@@ -45,9 +54,9 @@ const query = graphql`
               ephemerisData
             }
             toas (
-              dmCorrected: false,
-              minimumNsubs: true,
-              obsNchan: 1,
+              dmCorrected: $dmCorrected,
+              minimumNsubs: $minimumNsubs,
+              obsNchan: $obsNchan,
             ){
               edges {
                 node {
@@ -78,9 +87,15 @@ const query = graphql`
 
 const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
+  const dmCorrected = false;
+  const minimumNsubs = true;
+  const obsNchan = 4;
   const data = useLazyLoadQuery(query, {
     jname: jname,
     mainProject: mainProject,
+    dmCorrected: dmCorrected,
+    minimumNsubs: minimumNsubs,
+    obsNchan: obsNchan,
   });
 
   return (

@@ -10,6 +10,7 @@ const query = graphql`
           observation{
             beam
             utcStart
+            obsType
             project {
               id
               short

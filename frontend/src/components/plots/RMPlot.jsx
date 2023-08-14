@@ -54,7 +54,7 @@ const RMPlot = ({ data, columns, search, maxPlotLength }) => {
       <YAxis type="number" dataKey="value" name="RM" domain={[minValue, maxValue]} tickFormatter={formatYAxisTick}>
         <Label value="Fit RM (rad m^-2)" position="left" angle="-90" />
       </YAxis>
-      <ZAxis type="number" dataKey="size" name="Size" range={[20, 300]} />
+      <ZAxis type="number" dataKey="size" name="Size" range={[5, 100]} />
       <Tooltip
         cursor={{ strokeDasharray: "3 3" }}
         formatter={toolTipFormatter}

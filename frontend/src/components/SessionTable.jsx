@@ -10,6 +10,7 @@ import SessionImage from "./SessionImage";
 import moment from "moment";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
+import image404 from "../assets/images/image404.png";
 
 const SessionTable = ({ data: { calibration }, relay, id }) => {
   const { screenSize } = useScreenSize();
@@ -49,6 +50,9 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
     row.utc = formatUTC(row.utcStart);
     row.projectKey = project;
 
+    if (row.pulsarFoldResults.edges.length === 0) {
+      return [...result];
+    }
     const pulsarFoldResult = row.pulsarFoldResults.edges[0]?.node;
     row.sn = pulsarFoldResult.pipelineRun.sn;
 
@@ -66,15 +70,15 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
         (edge) => edge.node.imageType === "PHASE_FREQ" && edge.node.cleaned
       )[0]?.node;
     const images = [
-      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}`,
-      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`,
-      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}`,
+      flux             ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}`             : image404,
+      phaseVsTime      ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`      : image404,
+      phaseVsFrequency ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}` : image404,
     ];
 
     row.flux = (
       <SessionImage
-        imageHi={flux.url}
-        imageLo={flux.url}
+        imageHi={flux}
+        imageLo={flux}
         images={images}
         imageIndex={0}
         openLightBox={openLightBox}
@@ -82,8 +86,8 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
     );
     row.phaseVsTime = (
       <SessionImage
-        imageHi={phaseVsTime.url}
-        imageLo={phaseVsTime.url}
+        imageHi={phaseVsTime}
+        imageLo={phaseVsTime}
         images={images}
         imageIndex={1}
         openLightBox={openLightBox}
@@ -91,8 +95,8 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
     );
     row.phaseVsFrequency = (
       <SessionImage
-        imageHi={phaseVsFrequency.url}
-        imageLo={phaseVsFrequency.url}
+        imageHi={phaseVsFrequency}
+        imageLo={phaseVsFrequency}
         images={images}
         imageIndex={2}
         openLightBox={openLightBox}
@@ -101,7 +105,7 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
     row.action = (
       <ButtonGroup vertical>
         <Link
-          to={`/${row.pulsarType}/meertime/${row.jname}/`}
+          to={`/${row.obsType}/meertime/${row.pulsar.name}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}
@@ -109,7 +113,7 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
           View all
         </Link>
         <Link
-          to={`/${row.jname}/${row.utc}/${row.beam}/`}
+          to={`/${row.pulsar.name}/${row.utc}/${row.beam}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}
@@ -142,7 +146,7 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => cell.toFixed(1),
+      formatter: (cell) => cell ? cell.toFixed(1) : NaN,
       screenSizes: ["xl", "xxl"],
     },
     {
@@ -151,7 +155,7 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => `${cell.toFixed(1)} [s]`,
+      formatter: (cell) => cell ? `${cell.toFixed(1)} [s]` : NaN,
       screenSizes: ["xl", "xxl"],
     },
     {
@@ -160,7 +164,7 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => `${cell.toFixed(1)} [Mhz]`,
+      formatter: (cell) => cell ? `${cell.toFixed(1)} [Mhz]` : NaN,
       screenSizes: ["xxl"],
     },
     {

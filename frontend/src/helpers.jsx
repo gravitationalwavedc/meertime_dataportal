@@ -44,6 +44,11 @@ export const formatDDMonYYYY = (utc) =>
 export const formatUTC = (utc) =>
   moment.parseZone(utc, moment.ISO_8601).format("YYYY-MM-DD-HH:mm:ss");
 
+export const mjdToUnixTimestamp = (mjdValue) =>
+  // Calculate the Unix timestamp (in milliseconds) from MJD
+  (mjdValue - 40587) * 86400 * 1000;
+
+
 export const kronosLink = (beam, jname, utc) =>
   `http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam=${beam}&utc_start=${utc}&jname=${jname}&data=${localStorage.meerWatchKey}`;
 
@@ -130,4 +135,5 @@ export default {
   scaleValue,
   formatProjectName,
   formatSingleObservationData,
+  mjdToUnixTimestamp,
 };
