@@ -42,7 +42,7 @@ const query = graphql`
 const SingleObservation = ({
   router,
   match: {
-    params: { jname, utc, beam },
+    params: { mainProject, jname, utc, beam },
   },
 }) => {
   performRefreshTokenMutation(router);
@@ -53,7 +53,13 @@ const SingleObservation = ({
     beam: beam,
   });
 
-  return <SingleObservationTable data={data} jname={jname} />;
+  return (
+    <SingleObservationTable
+      data={data}
+      jname={jname}
+      mainProject={mainProject}
+    />
+  );
 };
 
 export default SingleObservation;
