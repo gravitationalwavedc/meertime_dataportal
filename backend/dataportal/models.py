@@ -623,11 +623,34 @@ class PipelineFile(models.Model):
     # TODO data size estimation
 
 
+class Residual(models.Model):
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
+    ephemeris = models.ForeignKey(Ephemeris, models.CASCADE)
+
+    # X axis types
+    mjd = models.DecimalField(decimal_places=12, max_digits=18)
+    day_of_year = models.FloatField()
+    binary_orbital_phase = models.FloatField(null=True)#TODO add this to the pipeline
+
+    # Y axis types
+    residual_sec     = models.FloatField()
+    residual_sec_err = models.FloatField()
+    residual_phase     = models.FloatField() # pulse period phase
+    residual_phase_err = models.FloatField(null=True) #TODO add this to the pipeline
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
+
+
 class Toa(models.Model):
     # foreign keys
     pipeline_run = models.ForeignKey(PipelineRun, models.CASCADE, related_name="toas")
     ephemeris = models.ForeignKey(Ephemeris, models.CASCADE)
     template = models.ForeignKey(Template, models.CASCADE)
+    # Residual will be set after this model which is why it can be null
+    residual = models.ForeignKey(Residual, models.SET_NULL, null=True)
 
     # toa results
     archive   = models.CharField(max_length=128)
@@ -657,28 +680,6 @@ class Toa(models.Model):
     minimum_nsubs = models.BooleanField(default=False)
     maximum_nsubs = models.BooleanField(default=False)
     obs_nchan     = models.IntegerField(null=True)
-
-    @classmethod
-    def get_query(cls, **kwargs):
-        return cls.objects.filter(**kwargs)
-
-
-class Residual(models.Model):
-    toa = models.ForeignKey(Toa, models.CASCADE, related_name="residuals")
-    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
-    project = models.ForeignKey(Project, models.CASCADE)
-    ephemeris = models.ForeignKey(Ephemeris, models.CASCADE)
-
-    # X axis types
-    mjd = models.DecimalField(decimal_places=12, max_digits=18)
-    day_of_year = models.FloatField()
-    binary_orbital_phase = models.FloatField(null=True)#TODO add this to the pipeline
-
-    # Y axis types
-    residual_sec     = models.FloatField()
-    residual_sec_err = models.FloatField()
-    residual_phase     = models.FloatField() # pulse period phase
-    residual_phase_err = models.FloatField(null=True) #TODO add this to the pipeline
 
     @classmethod
     def get_query(cls, **kwargs):

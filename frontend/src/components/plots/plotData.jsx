@@ -2,8 +2,6 @@ import { handleSearch, mjdToUnixTimestamp } from "../../helpers";
 import moment from "moment";
 
 export const filterBandData = (data) => {
-  console.log(data);
-
   data = data.filter((row) => row.value !== null);
 
   // Process the table data in a way that react-vis understands.
@@ -97,7 +95,6 @@ export const snrPlotData = (data, columns, search) => {
     : data;
 
   // Process the table data in a way that react-vis understands.
-  console.log(results);
   const allData = results
     .map((row) => ({
       time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
@@ -133,7 +130,6 @@ export const dmPlotData = (data, columns, search) => {
   const results = search.searchText
     ? handleSearch(data, columns, search)
     : data;
-  console.log(data)
   // Process the table data in a way that react-vis understands.
   const allData = results
     .map((row) => ({
@@ -173,27 +169,25 @@ export const residualPlotData = (data, columns, search) => {
     ? handleSearch(residual, columns, search)
     : data;
 
-  console.log("results:", results);
   const run_toas = results.reduce( (result_returned, run_result) => {
     // Run for each pipelineRun
     const run_results = run_result.pipelineRun.toas.edges.reduce( (result, edge) => {
       // Grab all of the info needed from the toa
-      console.log("node:", edge.node);
-      if (edge.node.residuals.edges.length === 0) {
+      if (edge.node.residual) {
+        result.push({
+          mjd:            edge.node.mjd,
+          residualSec:    edge.node.residual.residualSec,
+          residualSecErr: edge.node.residual.residualSecErr,
+          duration:       edge.node.length,
+          plotLink:       run_result.plotLink,
+          band:           run_result.observation.band,
+        });
+        return result;
+      }
+      else {
         // No residuals for this run so return nothing
         return [];
       }
-      const residual = edge.node.residuals.edges[0]?.node;
-      console.log("residual:", residual);
-      result.push({
-        mjd:            edge.node.mjd,
-        residualSec:    residual.residualSec,
-        residualSecErr: residual.residualSecErr,
-        duration:       edge.node.length,
-        plotLink:       run_result.plotLink,
-        band:           run_result.observation.band,
-      });
-      return result;
     }, []);
     result_returned.push(run_results);
     return result_returned;
@@ -201,16 +195,16 @@ export const residualPlotData = (data, columns, search) => {
   // Combine the array of arrays
   const toas = [].concat(...run_toas);
 
-  console.log("toas:", toas);
   const allData = toas
     .map((row) => ({
       time:  moment(mjdToUnixTimestamp(row.mjd)).valueOf(),
-      value: row.residualSec,
-      error: row.residualSecErr,
+      value: row.residualSec   * 1e6,
+      error: row.residualSecErr* 1e9,
       size:  row.duration,
       link:  row.plotLink,
       band:  row.band,
     }));
+    console.log("toas:", allData);
 
     return filterBandData(allData);
 };

@@ -65,17 +65,14 @@ class CreateResidual(graphene.Mutation):
         base_date = datetime(1858, 11, 17)  # Base date for MJD
 
         residual_to_create = []
+        toas_to_update = []
         residual_lines = input["residualLines"]
         for residual_line in residual_lines:
             # Loop over residual lines and and split them to get the important values
             id, mjd, residual, residual_err, residual_phase = residual_line.split(",")
-            # Get toa foreign key
-            toa = Toa.objects.get(id=int(id))
 
-
-
-            date = base_date + timedelta(days=float(mjd))
             # Get the day of the year as a float
+            date = base_date + timedelta(days=float(mjd))
             day_of_year = date.timetuple().tm_yday \
                 + date.hour / 24.0 \
                 + date.minute / (24.0 * 60.0) \
@@ -84,7 +81,6 @@ class CreateResidual(graphene.Mutation):
             # Upload the residual
             residual_to_create.append(
                 Residual(
-                    toa=toa,
                     pulsar=pulsar,
                     project=project,
                     ephemeris=ephemeris,
@@ -100,7 +96,18 @@ class CreateResidual(graphene.Mutation):
                     residual_phase_err=float(residual_err)/1e9 / ephemeris_dict["P0"],
                 )
             )
+
+            # Get toa which we will update the residual foreign key of
+            toas_to_update.append(Toa.objects.get(id=int(id)))
+
+        # Launch bulk creation of residuals
         created_residuals = Residual.objects.bulk_create(residual_to_create)
+
+        # Prep bulk updates of Toas so they have updated foreign key to residual
+        for list_n in range(len(created_residuals)):
+            toas_to_update[list_n].residual = created_residuals[list_n]
+        n_toas_updated = Toa.objects.bulk_update(toas_to_update, ["residual"])
+
         return CreateResidualOutput(residual=created_residuals)
 
 

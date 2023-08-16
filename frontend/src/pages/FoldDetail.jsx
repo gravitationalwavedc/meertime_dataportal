@@ -64,16 +64,12 @@ const query = graphql`
                   mjd
                   mjdErr
                   length
-                  residuals {
-                    edges {
-                      node {
-                        mjd
-                        residualSec
-                        residualSecErr
-                        residualPhase
-                        residualPhaseErr
-                      }
-                    }
+                  residual {
+                    mjd
+                    residualSec
+                    residualSecErr
+                    residualPhase
+                    residualPhaseErr
                   }
                 }
               }
@@ -89,7 +85,7 @@ const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
   const dmCorrected = false;
   const minimumNsubs = true;
-  const obsNchan = 4;
+  const obsNchan = 1;
   const data = useLazyLoadQuery(query, {
     jname: jname,
     mainProject: mainProject,
