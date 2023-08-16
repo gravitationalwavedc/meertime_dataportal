@@ -42,7 +42,10 @@ class PulsarNode(DjangoObjectType):
     class Meta:
         model = Pulsar
         fields = "__all__"
-        filter_fields = "__all__"
+        filter_fields = {
+            "name": ["exact"],
+            "comment": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     @classmethod
@@ -530,7 +533,13 @@ class Query(graphene.ObjectType):
     )
     @login_required
     def resolve_pulsar(self, info, **kwargs):
-        return Pulsar.get_query(**kwargs)
+        queryset = Pulsar.objects.all()
+
+        name = kwargs.get('name')
+        if name:
+            queryset = queryset.filter(name=name)
+
+        return queryset
 
 
     telescope = relay.ConnectionField(
@@ -602,6 +611,9 @@ class Query(graphene.ObjectType):
         telescope__name=graphene.String(),
         project__id=graphene.Int(),
         project__short=graphene.String(),
+        utcStart_gte=graphene.String(),
+        utcStart_lte=graphene.String(),
+        obs_type=graphene.String(),
     )
     @login_required
     def resolve_observation(self, info, **kwargs):
@@ -631,6 +643,10 @@ class Query(graphene.ObjectType):
         if utcStart_lte:
             queryset = queryset.filter(utc_start__lte=utcStart_lte)
 
+        obs_type = kwargs.get('obs_type')
+        if obs_type:
+            queryset = queryset.filter(obs_type=obs_type)
+
         return queryset
 
 
@@ -649,10 +665,14 @@ class Query(graphene.ObjectType):
 
         pulsar_name = kwargs.get('pulsar__name')
         if pulsar_name:
+            if pulsar_name == "All":
+                pulsar_name = None
             queryset = queryset.filter(pulsar__name=pulsar_name)
 
         telescope_name = kwargs.get('telescope__name')
         if telescope_name:
+            if telescope_name == "All":
+                telescope_name = None
             queryset = queryset.filter(telescope__name=telescope_name)
 
         project_id = kwargs.get('project__id')
@@ -661,10 +681,14 @@ class Query(graphene.ObjectType):
 
         project_short = kwargs.get('project__short')
         if project_short:
+            if project_short == "All":
+                project_short = None
             queryset = queryset.filter(project__short=project_short)
 
         calibration__id = kwargs.get('calibration__id')
         if calibration__id:
+            if calibration__id == "All":
+                calibration__id = None
             queryset = queryset.filter(calibration__id=calibration__id)
 
         obs_type = kwargs.get('obs_type')
@@ -753,6 +777,7 @@ class Query(graphene.ObjectType):
         # ToaConnection,
     toa = DjangoFilterConnectionField(
         ToaNode,
+        pipelineRunId=graphene.Int(),
         pulsar=graphene.String(),
         dmCorrected=graphene.Boolean(),
         minimumNsubs=graphene.Boolean(),
@@ -762,6 +787,10 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_toa(self, info, **kwargs):
         queryset = Toa.objects.all()
+
+        pipelineRunId = kwargs.get('pipelineRunId')
+        if pipelineRunId:
+            queryset = queryset.filter(pipeline_run__id=pipelineRunId)
 
         pulsar_name = kwargs.get('pulsar')
         if pulsar_name:

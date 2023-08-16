@@ -10,17 +10,30 @@ const query = graphql`
       $minimumNsubs: Boolean,
       $obsNchan: Int,
     ) {
+    observationSummary (
+      pulsar_Name: $jname,
+      obsType: "fold",
+      calibration_Id: "All",
+      project_Short: "All",
+      telescope_Name: "All",
+    ) {
+      edges {
+        node {
+          observations
+          observationHours
+          projects
+          pulsars
+          estimatedDiskSpaceGb
+          timespanDays
+          maxDuration
+          minDuration
+        }
+      }
+    }
     pulsarFoldResult(
         pulsar: $jname,
         mainProject: $mainProject
       ) {
-      totalObservations
-      totalObservationHours
-      totalProjects
-      totalEstimatedDiskSpace
-      totalTimespanDays
-      maxPlotLength
-      minPlotLength
       description
       ephemerisLink
       toasLink

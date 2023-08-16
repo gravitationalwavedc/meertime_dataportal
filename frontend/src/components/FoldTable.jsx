@@ -48,6 +48,7 @@ const foldTableQuery = graphql`
 
 const FoldTable = ({
   data: {
+    observationSummary: observationData,
     pulsarFoldSummary: relayData,
   },
   relay,
@@ -210,24 +211,15 @@ const FoldTable = ({
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
+  console.log(observationData);
+  const summaryNode = observationData.edges[0]?.node;
+  console.log(summaryNode);
   const summaryData = [
-    {
-      title: "Observations",
-      value: relayData.foldObservations.totalObservations,
-    },
-    { title: "Unique Pulsars", value: relayData.foldObservations.totalPulsars },
-    {
-      title: "Pulsar Hours",
-      value: relayData.foldObservations.totalObservationTime,
-    },
+    { title: "Observations", value: summaryNode.observations },
+    { title: "Unique Pulsars", value: summaryNode.pulsars },
+    { title: "Observation Hours", value: summaryNode.observationHours },
   ];
 
-  if (mostCommonProject !== "All") {
-    summaryData.push({
-      title: "Project Hours",
-      value: relayData.foldObservations.totalProjectTime,
-    });
-  }
   return (
     <DataView
       summaryData={summaryData}
@@ -253,9 +245,27 @@ export default createRefetchContainer(
       fragment FoldTable_data on Query
       @argumentDefinitions(
         mainProject: { type: "String", defaultValue: "MeerTIME" }
+        project: { type: "String", defaultValue: "All" }
         mostCommonProject: { type: "String", defaultValue: "All" }
+        pulsar: { type: "String", defaultValue: "All" }
         band: { type: "String", defaultValue: "All" }
+        telescope: { type: "String", defaultValue: "All" }
       ) {
+        observationSummary (
+          pulsar_Name: $pulsar,
+          obsType: "fold",
+          calibration_Id: "All",
+          project_Short: $project,
+          telescope_Name: $telescope,
+        ) {
+          edges {
+            node {
+              observations
+              pulsars
+              observationHours
+            }
+          }
+        }
         pulsarFoldSummary (
           mainProject: $mainProject
           mostCommonProject: $mostCommonProject

@@ -18,11 +18,12 @@ import { useScreenSize } from "../context/screenSize-context";
 
 /* eslint-disable complexity */
 const FoldDetailTable = ({
-  data: { pulsarFoldResult },
+  data: { observationSummary, pulsarFoldResult },
   jname,
   project,
 }) => {
   const { screenSize } = useScreenSize();
+  const summaryNode = observationSummary.edges[0]?.node;
   const allRows = pulsarFoldResult.edges.reduce(
     (result, edge) => [
       ...result,
@@ -86,10 +87,6 @@ const FoldDetailTable = ({
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
-  // totalEstimatedDiskSpace is a human readable formatted byte string in the form of "900.2\u00a0MB".
-  // We split on this character so we can use the number and the units separately.
-  const [size, sizeFormat] =
-    pulsarFoldResult.totalEstimatedDiskSpace.split("\u00a0");
 
   const handleBandFilter = (band) => {
     if (band.toLowerCase() === "all") {
@@ -116,14 +113,14 @@ const FoldDetailTable = ({
   };
 
   const summaryData = [
-    { title: "Observations", value: pulsarFoldResult.totalObservations },
-    { title: "Projects", value: pulsarFoldResult.totalProjects },
+    { title: "Observations", value: summaryNode.observations },
+    { title: "Projects", value: summaryNode.projects },
     {
       title: "Timespan [days]",
-      value: pulsarFoldResult.totalTimespanDays,
+      value: summaryNode.timespanDays,
     },
-    { title: "Hours", value: pulsarFoldResult.totalObservationHours },
-    { title: `Size [${sizeFormat}]`, value: size },
+    { title: "Hours", value: summaryNode.observationHours },
+    { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb.toFixed(1) },
   ];
 
   return (
@@ -214,8 +211,8 @@ const FoldDetailTable = ({
         setProject={handleProjectFilter}
         setBand={handleBandFilter}
         plot
-        maxPlotLength={pulsarFoldResult.maxPlotLength}
-        minPlotLength={pulsarFoldResult.minPlotLength}
+        maxPlotLength={summaryNode.maxDuration}
+        minPlotLength={summaryNode.minDuration}
         project={project}
         keyField="key"
         card={FoldDetailCard}
