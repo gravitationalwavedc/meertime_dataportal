@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
 import FoldTable from "../components/FoldTable";
@@ -15,15 +14,7 @@ const Fold = ({ match }) => {
 
   return (
     <MainLayout title="Fold Observations">
-      <Suspense
-        fallback={
-          <div>
-            <h3>Loading...</h3>
-          </div>
-        }
-      >
-        <FoldTable data={data} match={match} />
-      </Suspense>
+      <FoldTable data={data} match={match} />
     </MainLayout>
   );
 };
