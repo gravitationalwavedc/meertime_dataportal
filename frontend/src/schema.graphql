@@ -855,13 +855,13 @@ type Query {
   template(before: String, after: String, first: Int, last: Int): TemplateConnection
   calibration(id: Int, before: String, after: String, first: Int, last: Int): CalibrationConnection
   observation(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, utcStartGte: String, utcStartLte: String, obsType: String, before: String, after: String, first: Int, last: Int): ObservationConnection
-  observationSummary(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, calibration_Id: String, obsType: String, before: String, after: String, first: Int, last: Int): ObservationSummaryConnection
+  observationSummary(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, calibration_Id: String, calibrationInt: Int, obsType: String, before: String, after: String, first: Int, last: Int): ObservationSummaryConnection
   pipelineRun(id: Int, before: String, after: String, first: Int, last: Int): PipelineRunConnection
   pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
   pulsarFoldSummary(mainProject: String, mostCommonProject: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
   pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
-  toa(pulsar: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, ephemeris: ID, template: ID, residual: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int): ToaNodeConnection
+  toa(pipelineRunId: Int, pulsar: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, ephemeris: ID, template: ID, residual: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int): ToaNodeConnection
   residual(pulsar: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, before: String, after: String, first: Int, last: Int): ResidualConnection
 }
 

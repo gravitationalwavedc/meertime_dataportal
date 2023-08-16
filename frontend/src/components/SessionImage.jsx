@@ -8,8 +8,6 @@ const SessionImage = ({
   imageIndex,
   openLightBox,
 }) => {
-  console.log(imageHi);
-  console.log(imageLo);
   if (imageHi && imageHi.url) {
     const thumbnail = `${import.meta.env.VITE_DJANGO_MEDIA_URL}${
       (imageLo && imageLo.url) ? imageLo.url : imageHi.url

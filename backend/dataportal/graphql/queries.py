@@ -657,6 +657,7 @@ class Query(graphene.ObjectType):
         project__id=graphene.Int(),
         project__short=graphene.String(),
         calibration__id=graphene.String(),
+        calibration_int=graphene.Int(),
         obs_type=graphene.String(),
     )
     @login_required
@@ -691,8 +692,14 @@ class Query(graphene.ObjectType):
                 calibration__id = None
             queryset = queryset.filter(calibration__id=calibration__id)
 
+        calibration_int = kwargs.get('calibration_int')
+        if calibration_int:
+            queryset = queryset.filter(calibration__id=calibration_int)
+
         obs_type = kwargs.get('obs_type')
         if obs_type:
+            if obs_type == "All":
+                obs_type = None
             queryset = queryset.filter(obs_type=obs_type)
 
         return queryset

@@ -12,7 +12,7 @@ import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 import image404 from "../assets/images/image404.png";
 
-const SessionTable = ({ data: { calibration }, relay, id }) => {
+const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) => {
   const { screenSize } = useScreenSize();
   const [project, setProject] = useState("All");
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -201,12 +201,11 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
+  const seenProjects = new Set();
   const projectData = calibration_node.observations.edges.reduce(
     (result, edge) => {
-      if (
-        result.filter((project) => project === edge.node.project.short)
-          .length === 0
-      ) {
+      if (!seenProjects.has(edge.node.project.short)) {
+        seenProjects.add(edge.node.project.short);
         return [
           ...result,
           {
@@ -224,8 +223,8 @@ const SessionTable = ({ data: { calibration }, relay, id }) => {
   );
 
   const summaryData = [
-    { title: "Observations", value: calibration_node.numberOfObservations },
-    // { title: "Pulsars", value: calibration_node.numberOfPulsars },
+    { title: "Observations", value: observationSummary.edges[0]?.node.observations },
+    { title: "Pulsars", value: observationSummary.edges[0]?.node.pulsars },
     ...projectData,
   ];
 
@@ -288,6 +287,21 @@ export default createRefetchContainer(
       @argumentDefinitions(
         id: { type: "Int" }
       ) {
+        observationSummary (
+          pulsar_Name: "All",
+          obsType: "All",
+          calibrationInt: $id,
+          project_Short: "All",
+          telescope_Name: "All",
+        ) {
+          edges {
+            node {
+              observations
+              projects
+              pulsars
+            }
+          }
+        }
         calibration (id: $id) {
           edges {
             node {
@@ -295,11 +309,6 @@ export default createRefetchContainer(
               idInt
               start
               end
-              allProjects
-              nObservations
-              nAntMin
-              nAntMax
-              totalIntegrationTimeSeconds
               observations {
                 edges {
                   node {
