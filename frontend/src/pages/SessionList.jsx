@@ -1,8 +1,6 @@
-import { QueryRenderer, graphql } from "react-relay";
+import { graphql, useLazyLoadQuery } from "react-relay";
 import MainLayout from "../components/MainLayout";
-import React from "react";
 import SessionListTable from "../components/SessionListTable";
-import environment from "../relayEnvironment";
 
 const query = graphql`
   query SessionListTableQuery {
@@ -10,24 +8,14 @@ const query = graphql`
   }
 `;
 
-const SessionList = () => (
-  <MainLayout title="Sessions">
-    <QueryRenderer
-      environment={environment}
-      query={query}
-      render={({ props, error }) => {
-        if (error) {
-          return <h1>404</h1>;
-        }
+const SessionList = () => {
+  const data = useLazyLoadQuery(query, {});
 
-        if (props) {
-          return <SessionListTable data={props} />;
-        }
-
-        return <h1>Loading...</h1>;
-      }}
-    />
-  </MainLayout>
-);
+  return (
+    <MainLayout title="Sessions">
+      <SessionListTable data={data} />
+    </MainLayout>
+  );
+};
 
 export default SessionList;

@@ -1,12 +1,36 @@
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useState } from "react";
-import { createRefetchContainer, graphql } from "react-relay";
+import { graphql, useFragment } from "react-relay";
 import DataView from "./DataView";
 import { Link } from "found";
 import { formatUTC } from "../helpers";
 
-const SessionListTable = ({ data: { sessionList } }) => {
-  const allRows = sessionList.edges.reduce((result, edge) => {
+const sessionListTableQuery = graphql`
+  fragment SessionListTable_data on Query {
+    sessionList {
+      edges {
+        node {
+          start
+          end
+          numberOfObservations
+          numberOfPulsars
+          listOfPulsars
+          frequency
+          projects
+          totalIntegration
+          nDishMin
+          nDishMax
+          zapFraction
+        }
+      }
+    }
+  }
+`;
+
+const SessionListTable = ({ data }) => {
+  const fragmentData = useFragment(sessionListTableQuery, data);
+
+  const allRows = fragmentData.sessionList.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     row.start = formatUTC(row.start);
     row.end = formatUTC(row.end);
@@ -110,34 +134,4 @@ const SessionListTable = ({ data: { sessionList } }) => {
   );
 };
 
-export default createRefetchContainer(
-  SessionListTable,
-  {
-    data: graphql`
-      fragment SessionListTable_data on Query {
-        sessionList {
-          edges {
-            node {
-              start
-              end
-              numberOfObservations
-              numberOfPulsars
-              listOfPulsars
-              frequency
-              projects
-              totalIntegration
-              nDishMin
-              nDishMax
-              zapFraction
-            }
-          }
-        }
-      }
-    `,
-  },
-  graphql`
-    query SessionListTableRefetchQuery {
-      ...SessionListTable_data
-    }
-  `
-);
+export default SessionListTable;

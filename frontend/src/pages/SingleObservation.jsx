@@ -1,6 +1,5 @@
-import { QueryRenderer, graphql } from "react-relay";
+import { graphql, useLazyLoadQuery } from "react-relay";
 import SingleObservationTable from "../components/SingleObservationTable";
-import environment from "../relayEnvironment";
 import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
@@ -48,25 +47,13 @@ const SingleObservation = ({
 }) => {
   performRefreshTokenMutation(router);
 
-  return (
-    <QueryRenderer
-      environment={environment}
-      query={query}
-      variables={{
-        jname: jname,
-        utc: utc,
-        beam: beam,
-      }}
-      render={({ error, props }) => {
-        if (error) {
-          return <h5>{error.message}</h5>;
-        } else if (props) {
-          return <SingleObservationTable data={props} jname={jname} />;
-        }
-        return <h1>Loading...</h1>;
-      }}
-    />
-  );
+  const data = useLazyLoadQuery(query, {
+    jname: jname,
+    utc: utc,
+    beam: beam,
+  });
+
+  return <SingleObservationTable data={data} jname={jname} />;
 };
 
 export default SingleObservation;

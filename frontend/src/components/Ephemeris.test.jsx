@@ -1,7 +1,5 @@
 import { fireEvent, render } from "@testing-library/react";
-
 import Ephemeris from "./Ephemeris";
-import React from "react";
 
 describe("ephemeris modal component", () => {
   it("should render the table", () => {
