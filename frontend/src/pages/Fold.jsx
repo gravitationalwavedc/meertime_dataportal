@@ -18,7 +18,7 @@ const Fold = ({ match }) => {
       <Suspense
         fallback={
           <div>
-            <h3>Loading..</h3>
+            <h3>Loading...</h3>
           </div>
         }
       >
