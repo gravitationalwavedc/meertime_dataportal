@@ -1,4 +1,4 @@
-import { commitMutation, createFragmentContainer, graphql } from "react-relay";
+import { commitMutation, graphql, useFragment } from "react-relay";
 import { Button } from "react-bootstrap";
 import environment from "../relayEnvironment";
 
@@ -22,7 +22,7 @@ const generateDownload = (url) => {
   document.body.removeChild(link);
 };
 
-export const performFileDownload = (e, path) => {
+const performFileDownload = (e, path) => {
   e.preventDefault();
   const originalButtonLabel = e.target.innerText;
   e.target.classList.add("disabled");
@@ -59,39 +59,42 @@ const isChopped = (path) => {
   return path.includes(".ch.");
 };
 
-const DownloadFluxcalButtons = ({ data: { fileList } }) => (
-  <>
-    {fileList.edges?.map(({ node }) => (
-      <Button
-        key={node.path}
-        size="sm"
-        as="a"
-        className="mr-2"
-        variant="outline-secondary"
-        onClick={(e) => performFileDownload(e, node.path)}
-      >
-        Download {isChopped(node.path) ? "Chopped" : ""} Fluxcal Archive
-      </Button>
-    ))}
-  </>
-);
-
-export default createFragmentContainer(DownloadFluxcalButtons, {
-  data: graphql`
-    fragment DownloadFluxcalButtons_data on Query
-    @argumentDefinitions(
-      jname: { type: "String!" }
-      utc: { type: "String!" }
-      beam: { type: "Int!" }
-    ) {
-      fileList(jname: $jname, utc: $utc, beam: $beam) {
-        edges {
-          node {
-            path
-            fileSize
-          }
+const downloadFluxcalButtonQuery = graphql`
+  fragment DownloadFluxcalButtons_data on Query
+  @argumentDefinitions(
+    jname: { type: "String!" }
+    utc: { type: "String!" }
+    beam: { type: "Int!" }
+  ) {
+    fileList(jname: $jname, utc: $utc, beam: $beam) {
+      edges {
+        node {
+          path
+          fileSize
         }
       }
     }
-  `,
-});
+  }
+`;
+
+const DownloadFluxcalButtons = ({ data }) => {
+  const fragmentData = useFragment(downloadFluxcalButtonQuery, data);
+  return (
+    <>
+      {fragmentData.fileList.edges?.map(({ node }) => (
+        <Button
+          key={node.path}
+          size="sm"
+          as="a"
+          className="mr-2"
+          variant="outline-secondary"
+          onClick={(e) => performFileDownload(e, node.path)}
+        >
+          Download {isChopped(node.path) ? "Chopped" : ""} Fluxcal Archive
+        </Button>
+      ))}
+    </>
+  );
+};
+
+export default DownloadFluxcalButtons;

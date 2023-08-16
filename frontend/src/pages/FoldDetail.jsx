@@ -1,9 +1,6 @@
-import { QueryRenderer, graphql } from "react-relay";
-
+import { graphql, useLazyLoadQuery } from "react-relay";
 import FoldDetailTable from "../components/FoldDetailTable";
 import MainLayout from "../components/MainLayout";
-import React from "react";
-import environment from "../relayEnvironment";
 
 const query = graphql`
   query FoldDetailQuery($jname: String!, $mainProject: String) {
@@ -59,46 +56,18 @@ const query = graphql`
   }
 `;
 
-const FoldDetail = ({ match, relayEnvironment }) => {
+const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
+  const data = useLazyLoadQuery(query, {
+    jname: jname,
+    mainProject: mainProject,
+  });
+
   return (
     <MainLayout title={jname}>
-      <QueryRenderer
-        environment={relayEnvironment}
-        query={query}
-        variables={{
-          jname: jname,
-          mainProject: mainProject,
-        }}
-        fetchPolicy="store-and-network"
-        render={({ props, error }) => {
-          if (error) {
-            return (
-              <React.Fragment>
-                <h1>404</h1>
-              </React.Fragment>
-            );
-          }
-
-          if (props) {
-            return (
-              <FoldDetailTable
-                data={props}
-                jname={jname}
-                mainProject={mainProject}
-              />
-            );
-          }
-
-          return <h1>Loading...</h1>;
-        }}
-      />
+      <FoldDetailTable data={data} jname={jname} mainProject={mainProject} />
     </MainLayout>
   );
-};
-
-FoldDetail.defaultProps = {
-  relayEnvironment: environment,
 };
 
 export default FoldDetail;

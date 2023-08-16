@@ -1,9 +1,6 @@
-import { QueryRenderer, graphql } from "react-relay";
-
+import { graphql, useLazyLoadQuery } from "react-relay";
 import MainLayout from "../components/MainLayout";
-import React from "react";
 import SearchTable from "../components/SearchTable";
-import environment from "../relayEnvironment";
 
 const query = graphql`
   query SearchQuery {
@@ -11,16 +8,13 @@ const query = graphql`
   }
 `;
 
-const Search = () => (
-  <MainLayout title="Search mode Observations">
-    <QueryRenderer
-      environment={environment}
-      query={query}
-      render={({ props }) =>
-        props ? <SearchTable data={props} /> : <h1>Loading...</h1>
-      }
-    />
-  </MainLayout>
-);
+const Search = () => {
+  const data = useLazyLoadQuery(query, {});
+  return (
+    <MainLayout title="Search mode Observations">
+      <SearchTable data={data} />
+    </MainLayout>
+  );
+};
 
 export default Search;
