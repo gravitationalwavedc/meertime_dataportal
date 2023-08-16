@@ -29,7 +29,7 @@ INSTALLED_APPS = [
     "jobcontroller",
     'rest_framework',
     "user_manage",
-    "dataportal"
+    "dataportal",
 ]
 
 AUTH_USER_MODEL = "user_manage.User"
