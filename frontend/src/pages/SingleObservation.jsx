@@ -8,6 +8,10 @@ const query = graphql`
       edges {
         node {
           observation{
+            calibration {
+              id
+              idInt
+            }
             beam
             utcStart
             obsType

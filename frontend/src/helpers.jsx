@@ -58,6 +58,9 @@ export const meerWatchLink = (jname) =>
 
 export const nullCellFormatter = (cell) => cell || "-";
 
+export const sessionLink = (calid) =>
+  `/session/${calid}/`;
+
 export const columnsSizeFilter = (columns, screenSize) => {
   columns
     .filter(
@@ -131,6 +134,7 @@ export default {
   formatUTC,
   kronosLink,
   meerWatchLink,
+  sessionLink,
   nullCellFormatter,
   scaleValue,
   formatProjectName,

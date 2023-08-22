@@ -1,7 +1,7 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
 import { useState } from "react";
 import { formatProjectName, formatSingleObservationData } from "../helpers";
-import { formatUTC, kronosLink } from "../helpers";
+import { formatUTC, kronosLink, sessionLink } from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
 import { Link } from "found";
@@ -40,6 +40,8 @@ const SingleObservationTable = ({
     .toLowerCase()
     .includes("monspsr");
 
+  console.log(relayObservationModel);
+  console.log(relayObservationModel.observation.calibration.idInt);
   return (
     <MainLayout title={title}>
       <h5 className="single-observation-subheading">{displayDate}</h5>
@@ -56,6 +58,15 @@ const SingleObservationTable = ({
             View Kronos
           </Button>
           <DownloadFluxcalButtons data={data} />
+          <Button
+            size="sm"
+            as="a"
+            className="mr-2"
+            href={sessionLink(relayObservationModel.observation.calibration.idInt)}
+            variant="outline-secondary"
+          >
+            View Observation Session
+          </Button>
         </Col>
       </Row>
       {projectChoices.length >= 1 ? (

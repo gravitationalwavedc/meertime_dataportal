@@ -317,6 +317,7 @@ export default createRefetchContainer(
                       name
                     }
                     utcStart
+                    obsType
                     duration
                     frequency
                     project {
