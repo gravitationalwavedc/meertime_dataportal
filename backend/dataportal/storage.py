@@ -47,7 +47,7 @@ def get_template_upload_location(instance, filename):
     pulsar = instance.pulsar.name
     project_code = instance.project.code
     band = instance.band
-    created_at = instance.created_at
+    created_at = instance.created_at.strftime("%Y-%m-%d-%H:%M:%S")
     file_basename = os.path.basename(filename)
     return f"{project_code}/{pulsar}/{band}/{created_at}_{file_basename}"
 

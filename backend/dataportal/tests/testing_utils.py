@@ -19,7 +19,6 @@ from dataportal.models import (
     PulsarFoldResult,
     PulsarFoldSummary,
     # PipelineImage,
-    PipelineFile,
     Toa,
     Residual,
 )
@@ -32,7 +31,7 @@ def create_basic_data():
 
     telescope = Telescope.objects.create(name="my first telescope")
 
-    main_project = MainProject.objects.create(name="MeerTime", telescope=telescope)
+    main_project = MainProject.objects.create(name="MeerTIME", telescope=telescope)
 
     project = Project.objects.create(code="SCI_thinga_MB", short="RelBin", main_project=main_project)
 
@@ -161,5 +160,40 @@ def create_pulsar_with_observations():
         # percent_rfi_zapped = models.FloatField(null=True)
     )
 
-    return
+    return pulsar, telescope, project, ephemeris, template, pipeline_run1
 
+
+
+
+def create_toas_and_residuals(
+        pulsar,
+        project,
+        ephemeris,
+        pipeline_run,
+        template,
+    ):
+    residual = Residual.objects.create(
+        pulsar=pulsar,
+        project=project,
+        ephemeris=ephemeris,
+        mjd=1,
+        day_of_year=1,
+        residual_sec=2,
+        residual_sec_err=3,
+        residual_phase=4,
+        residual_phase_err=5,
+    )
+    toa = Toa.objects.create(
+        pipeline_run=pipeline_run,
+        ephemeris=ephemeris,
+        template=template,
+        residual=residual,
+        freq_MHz=6,
+        mjd=7,
+        mjd_err=8,
+        length=9,
+        dm_corrected=False,
+        minimum_nsubs=True,
+        obs_nchan=1,
+    )
+    return
