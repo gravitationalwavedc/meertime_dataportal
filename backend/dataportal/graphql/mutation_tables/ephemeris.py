@@ -42,7 +42,6 @@ class CreateEphemeris(graphene.Mutation):
         if input["projectCode"] is not None:
             project = Project.objects.get(code=input["projectCode"])
         elif input["projectShort"] is not None:
-            print(f'projectShort:{input["projectShort"]}')
             project = Project.objects.get(short=input["projectShort"])
         else:
             # Should have a project code or short so I can't create an ephemeris

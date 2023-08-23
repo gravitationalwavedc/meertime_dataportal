@@ -5,7 +5,6 @@ from meertime.settings import env
 
 DATABASES = {
     "default": {
-        # "ENGINE": "django.db.backends.mysql",
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         "NAME": env("MYSQL_DATABASE"),
         "USER": env("MYSQL_USER"),
