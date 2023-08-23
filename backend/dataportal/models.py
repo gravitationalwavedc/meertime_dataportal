@@ -8,8 +8,7 @@ from django.db import models
 from django.db.models.constraints import UniqueConstraint
 from django.utils.translation import ugettext_lazy as _
 from django_mysql.models import Model
-from .logic import get_meertime_filters, get_band
-from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location, get_template_upload_location, create_file_hash
+from .storage import OverwriteStorage, get_upload_location, get_template_upload_location, create_file_hash
 
 from user_manage.models import User
 from utils.observing_bands import get_band
@@ -473,10 +472,16 @@ class PulsarFoldSummary(models.Model):
             else:
                 kwargs["most_common_project__icontains"] = kwargs.pop("most_common_project")
 
+        if "project" in kwargs:
+            if kwargs["project"] == "All":
+                kwargs.pop("project")
+            else:
+                kwargs["all_projects__icontains"] = kwargs.pop("project")
+
         if "main_project" in kwargs and kwargs["main_project"] == "All":
             kwargs.pop("main_project")
         elif "main_project" in kwargs:
-            kwargs["main_project__name"] = kwargs.pop("main_project")
+            kwargs["main_project__name__icontains"] = kwargs.pop("main_project")
 
         return cls.objects.filter(**kwargs)
 
@@ -612,15 +617,6 @@ class PipelineImage(models.Model):
         if self.image:
             self.url = self.image.url
         super(PipelineImage, self).save(*args, **kwargs)
-
-
-class PipelineFile(models.Model):
-    pipeline_run = models.ForeignKey(PipelineRun, models.CASCADE)
-    file = models.FileField(null=True, upload_to=get_pipeline_upload_location, storage=OverwriteStorage())
-    # TODO make it check this path in the get or create so we're not making redundant files
-    ozstar_path = models.CharField(max_length=256, blank=True, null=True)
-    file_type = models.CharField(max_length=32, blank=True, null=True)
-    # TODO data size estimation
 
 
 class Residual(models.Model):
