@@ -398,7 +398,6 @@ class PipelineRun(Model):
     location = models.CharField(max_length=255)
     configuration = models.JSONField(blank=True, null=True)
 
-    ephemeris_download_link = models.URLField(null=True)
     toas_download_link = models.URLField(null=True)
 
     # DM results

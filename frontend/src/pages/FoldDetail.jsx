@@ -34,8 +34,11 @@ const query = graphql`
         pulsar: $jname,
         mainProject: $mainProject
       ) {
+      residualEphemeris {
+        ephemerisData
+        createdAt
+      }
       description
-      ephemerisLink
       toasLink
       edges {
         node {
@@ -63,9 +66,6 @@ const query = graphql`
             rmErr
             sn
             flux
-            ephemeris {
-              ephemerisData
-            }
             toas (
               dmCorrected: $dmCorrected,
               minimumNsubs: $minimumNsubs,

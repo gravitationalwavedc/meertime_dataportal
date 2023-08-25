@@ -135,6 +135,11 @@ class EphemerisNode(DjangoObjectType):
     pulsar = graphene.Field(PulsarNode)
     project = graphene.Field(ProjectNode)
 
+    id_int = graphene.Int()
+
+    def resolve_id_int(self, info):
+        return self.id
+
     @classmethod
     @login_required
     def get_queryset(cls, queryset, info):
@@ -326,7 +331,7 @@ class PulsarFoldResultConnection(relay.Connection):
     max_plot_length = graphene.Int()
     min_plot_length = graphene.Int()
     description = graphene.String()
-    ephemeris_link = graphene.String()
+    residual_ephemeris = graphene.Field(EphemerisNode)
     toas_link = graphene.String()
 
     def resolve_toas_link(self, instance):
@@ -335,11 +340,12 @@ class PulsarFoldResultConnection(relay.Connection):
             .pipeline_run.toas_download_link
         )
 
-    def resolve_ephemeris_link(self, instance):
-        return (
-            self.iterable.first()
-            .pipeline_run.ephemeris_download_link
-        )
+    def resolve_residual_ephemeris(self, instance):
+        for pulsar_fold_result in self.iterable:
+            for toa in Toa.objects.filter(pipeline_run=pulsar_fold_result.pipeline_run):
+                if toa.residual:
+                    return toa.residual.ephemeris
+        return None
 
     def resolve_description(self, instance):
         return self.iterable.first().pulsar.comment

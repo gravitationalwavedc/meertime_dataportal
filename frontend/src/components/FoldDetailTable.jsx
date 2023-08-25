@@ -31,6 +31,7 @@ const FoldDetailTable = ({
         ...edge.node,
         key: `${edge.node.observation.utcStart}:${edge.node.observation.beam}`,
         jname: jname,
+        band: edge.node.observation.band,
         embargo: edge.node.restricted
           ? "Embargoed until " + formatDDMonYYYY(edge.node.embargoEndDate)
           : "",
@@ -75,12 +76,8 @@ const FoldDetailTable = ({
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
-  const ephemeris =
-    pulsarFoldResult.edges[pulsarFoldResult.edges.length - 1].node
-      .ephemeris;
-  const ephemerisUpdated =
-    pulsarFoldResult.edges[pulsarFoldResult.edges.length - 1].node
-      .ephemerisIsUpdatedAt;
+  const ephemeris        = pulsarFoldResult.residualEphemeris ? pulsarFoldResult.residualEphemeris.ephemerisData : null;
+  const ephemerisUpdated = pulsarFoldResult.residualEphemeris ? pulsarFoldResult.residualEphemeris.createdAt     : null;
 
   const columns =
     project === "MONSPSR" ? molonglo.columns : meertime.columns;

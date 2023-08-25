@@ -209,6 +209,7 @@ type EphemerisNode implements Node {
   pipelinerunSet(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, observation_Id: ID, ephemeris_Id: ID, template_Id: ID, pipelineName: String, pipelineDescription: String, pipelineVersion: String, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, jobState: PipelineRunJobState, location: String, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, dmErr: Float, dmErr_Lt: Float, dmErr_Lte: Float, dmErr_Gt: Float, dmErr_Gte: Float, dmEpoch: Float, dmEpoch_Lt: Float, dmEpoch_Lte: Float, dmEpoch_Gt: Float, dmEpoch_Gte: Float, dmChi2r: Float, dmChi2r_Lt: Float, dmChi2r_Lte: Float, dmChi2r_Gt: Float, dmChi2r_Gte: Float, dmTres: Float, dmTres_Lt: Float, dmTres_Lte: Float, dmTres_Gt: Float, dmTres_Gte: Float, sn: Float, sn_Lt: Float, sn_Lte: Float, sn_Gt: Float, sn_Gte: Float, flux: Float, flux_Lt: Float, flux_Lte: Float, flux_Gt: Float, flux_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, percentRfiZapped: Float, percentRfiZapped_Lt: Float, percentRfiZapped_Lte: Float, percentRfiZapped_Gt: Float, percentRfiZapped_Gte: Float): PipelineRunNodeConnection!
   residualSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, toa_DmCorrected: Boolean, toa_MinimumNsubs: Boolean, toa_MaximumNsubs: Boolean, toa_ObsNchan: Int): ResidualNodeConnection!
   toaSet(offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, ephemeris: ID, template: ID, residual: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int): ToaNodeConnection!
+  idInt: Int
 }
 
 type EphemerisNodeConnection {
@@ -508,34 +509,6 @@ type PasswordResetRequestType implements Node {
   lastUpdated: DateTime!
 }
 
-type PipelineFileConnection {
-  pageInfo: PageInfo!
-  edges: [PipelineFileEdge]!
-}
-
-type PipelineFileEdge {
-  node: PipelineFileNode
-  cursor: String!
-}
-
-type PipelineFileNode implements Node {
-  id: ID!
-  pipelineRun: PipelineRunNode
-  file: String
-  ozstarPath: String
-  fileType: String
-}
-
-type PipelineFileNodeConnection {
-  pageInfo: PageInfo!
-  edges: [PipelineFileNodeEdge]!
-}
-
-type PipelineFileNodeEdge {
-  node: PipelineFileNode
-  cursor: String!
-}
-
 type PipelineImageConnection {
   pageInfo: PageInfo!
   edges: [PipelineImageEdge]!
@@ -636,7 +609,6 @@ type PipelineRunNode implements Node {
   jobState: PipelineRunJobState!
   location: String!
   configuration: JSONString
-  ephemerisDownloadLink: String
   toasDownloadLink: String
   dm: Float
   dmErr: Float
@@ -649,7 +621,6 @@ type PipelineRunNode implements Node {
   rmErr: Float
   percentRfiZapped: Float
   pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
-  pipelinefileSet(offset: Int, before: String, after: String, first: Int, last: Int): PipelineFileNodeConnection!
   toas(offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, ephemeris: ID, template: ID, residual: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int): ToaNodeConnection!
   project: ProjectNode
 }
@@ -755,7 +726,7 @@ type PulsarFoldResultConnection {
   maxPlotLength: Int
   minPlotLength: Int
   description: String
-  ephemerisLink: String
+  residualEphemeris: EphemerisNode
   toasLink: String
 }
 
@@ -858,9 +829,8 @@ type Query {
   observationSummary(pulsar_Name: String, telescope_Name: String, project_Id: Int, project_Short: String, calibration_Id: String, calibrationInt: Int, obsType: String, before: String, after: String, first: Int, last: Int): ObservationSummaryConnection
   pipelineRun(id: Int, before: String, after: String, first: Int, last: Int): PipelineRunConnection
   pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
-  pulsarFoldSummary(mainProject: String, mostCommonProject: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
+  pulsarFoldSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
-  pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
   toa(pipelineRunId: Int, pulsar: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, ephemeris: ID, template: ID, residual: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int): ToaNodeConnection
   residual(pulsar: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, before: String, after: String, first: Int, last: Int): ResidualConnection
 }
