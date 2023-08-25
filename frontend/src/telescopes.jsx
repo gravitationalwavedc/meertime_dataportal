@@ -129,7 +129,7 @@ const trapum = {
   value: "trapum",
   title: "Trapum",
   subprojects: ["All"],
-  bandOptions: ["All", "L-BAND", "UHF", "S-BAND", "UNKNOWN"],
+  bandOptions: ["All", "LBAND", "UHF", "SBAND_0", "SBAND_1", "SBAND_2", "SBAND_3", "SBAND_4", "UNKNOWN"],
 };
 
 const meertime = {

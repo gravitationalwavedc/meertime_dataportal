@@ -12,12 +12,14 @@ const PlotImage = ({ imageData, handleClick }) => {
     }
   });
 
+  const cleaned_str = imageData.cleaned ? "cleaned" : "raw";
+
   return (
     <Image
       rounded
       fluid
       className="mb-3"
-      alt={`Plot ${imageData.imageType} `}
+      alt={`Plot ${imageData.imageType} ${cleaned_str}`}
       src={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${imageData.url}`}
       onError={({ currentTarget }) => {
         currentTarget.onError = null;
