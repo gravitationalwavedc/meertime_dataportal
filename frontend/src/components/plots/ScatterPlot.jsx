@@ -8,6 +8,7 @@ import {
 } from "recharts";
 import { Button } from "react-bootstrap";
 import { useRouter } from "found";
+import _default from "react-bootstrap/esm/CardColumns";
 
 const DEFAULT_ZOOM = { x1: null, y1: null, x2: null, y2: null };
 
@@ -61,13 +62,28 @@ const ScatterPlot = ({ data, children }) => {
       if (x1 > x2) [x1, x2] = [x2, x1];
       if (y1 > y2) [y1, y2] = [y2, y1];
 
-      const DataInRange = filteredData.filter(
-        (dataPoint) =>
-          dataPoint.time >= x1 &&
-          dataPoint.time <= x2 &&
-          dataPoint.value >= y1 &&
-          dataPoint.value <= y2
-      );
+      const DataInRange = data.map((dataBand, index) => ({
+        ...dataBand,
+        data: dataBand.data.filter(
+          (dataPoint) =>
+            dataPoint.value >= y1 &&
+            dataPoint.value <= y2 &&
+            ( (
+              dataPoint.time >= x1 &&
+              dataPoint.time <= x2
+            ) || (
+              dataPoint.utc >= x1 &&
+              dataPoint.utc <= x2
+            ) || (
+              dataPoint.date >= x1 &&
+              dataPoint.date <= x2
+            ) || (
+              dataPoint.phase >= x1 &&
+              dataPoint.phase <= x2
+            ) )
+
+        )
+      }));
 
       setFilteredData(DataInRange);
       setZoomArea(DEFAULT_ZOOM);
