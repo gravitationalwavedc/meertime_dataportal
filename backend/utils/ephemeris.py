@@ -38,7 +38,7 @@ def convert_frequency_to_period(
 def convert_to_float_if_possible(s):
     try:
         return float(s)
-    except ValueError:
+    except (ValueError, TypeError):
         return s
 
 def parse_ephemeris_file(ephemeris_data):

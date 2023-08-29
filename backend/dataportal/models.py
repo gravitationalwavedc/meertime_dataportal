@@ -1,7 +1,10 @@
 import math
-import hashlib
 import json
+import hashlib
 from datetime import datetime, timedelta
+
+import numpy as np
+from astropy.time import Time
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -12,6 +15,7 @@ from .storage import OverwriteStorage, get_upload_location, get_template_upload_
 
 from user_manage.models import User
 from utils.observing_bands import get_band
+from utils.binary_phase import get_binary_phase, is_binary
 
 
 DATA_QUALITY_CHOICES = [
@@ -236,6 +240,8 @@ class Observation(models.Model):
     npol = models.IntegerField()
     obs_type = models.CharField(max_length=6, choices=OBS_TYPE_CHOICES)
     utc_start = models.DateTimeField()
+    day_of_year = models.FloatField(null=True)
+    binary_orbital_phase = models.FloatField(null=True)
     raj  = models.CharField(max_length=32)
     decj = models.CharField(max_length=32)
     duration = models.FloatField(null=True)
@@ -258,6 +264,15 @@ class Observation(models.Model):
     def save(self, *args, **kwargs):
         Observation.clean(self)
         self.band = get_band(self.frequency, self.bandwidth)
+        self.day_of_year = self.utc_start.timetuple().tm_yday \
+            + self.utc_start.hour / 24.0 \
+            + self.utc_start.minute / (24.0 * 60.0) \
+            + self.utc_start.second / (24.0 * 60.0 * 60.0)
+        if self.ephemeris is not None:
+            ephemeris_dict = json.loads(self.ephemeris.ephemeris_data)
+            if is_binary(ephemeris_dict):
+                centre_obs_mjd = self.utc_start + timedelta(seconds=self.duration/2)
+                self.binary_orbital_phase = get_binary_phase(np.array([Time(centre_obs_mjd).mjd]), ephemeris_dict)
         super(Observation, self).save(*args, **kwargs)
 
     def __str__(self):

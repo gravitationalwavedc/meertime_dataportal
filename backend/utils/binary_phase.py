@@ -211,7 +211,6 @@ def get_mean_anomaly(mjds, ephemeris_dict):
         else:
             PBDOT = 0
 
-        print(PBDOT)
         if np.abs(PBDOT) > 1e-6: # adjusted from Daniels' setting
             # correct tempo-format
             PBDOT *= 10**-12
@@ -225,8 +224,8 @@ def get_mean_anomaly(mjds, ephemeris_dict):
         i = 0
 
         # produce integrated Taylor series of FB terms
-        while ('FB' + ('%s' % i) in ephemeris_dict.keys()):
-            M = M + ephemeris_dict['FB' + ('%s' % i)] * ((mjds - T0)**(i+1))/math.factorial(i + 1)
+        while (f'FB{i}' in ephemeris_dict.keys()):
+            M = M + ephemeris_dict[f'FB{i}'] * ((mjds - T0)**(i+1))/math.factorial(i + 1)
             i += 1
 
         M = M * 2*np.pi * 86400
@@ -243,7 +242,7 @@ def get_eccentric_anomaly(mjds, ephemeris_dict):
     M = get_mean_anomaly(mjds, ephemeris_dict)
 
     # handle conversion of EPS/ECC
-    ECC = get_ecc(ephemeris_dict)
+    ECC = float(get_ecc(ephemeris_dict))
 
     # eccentric anomaly
     if ECC < 1e-4:
