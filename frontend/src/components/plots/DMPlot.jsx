@@ -64,13 +64,13 @@ const DMPlot = ({ data, columns, search, maxPlotLength }) => {
         align="right"
         verticalAlign="top"
         payload={[
-          { id: "1", type: "circle", value: "L-Band", color: "#440154" },
-          { id: "2", type: "square", value: "UHF", color: "#3e4a89" },
-          { id: "3", type: "triangle", value: "S-Band_0", color: "#31688e" },
-          { id: "4", type: "triangle", value: "S-Band_1", color: "#26828e" },
-          { id: "5", type: "triangle", value: "S-Band_2", color: "#1f9e89" },
-          { id: "6", type: "triangle", value: "S-Band_3", color: "#35b779" },
-          { id: "7", type: "triangle", value: "S-Band_4", color: "#6ece58" },
+          { id: "1", type: "square",   value: "UHF",      color: "#0d0887" },
+          { id: "2", type: "circle",   value: "L-Band",   color: "#6001a6" },
+          { id: "3", type: "triangle", value: "S-Band_0", color: "#cd4a76" },
+          { id: "4", type: "triangle", value: "S-Band_1", color: "#df6263" },
+          { id: "5", type: "triangle", value: "S-Band_2", color: "#ee7b51" },
+          { id: "6", type: "triangle", value: "S-Band_3", color: "#f9973f" },
+          { id: "7", type: "triangle", value: "S-Band_4", color: "#fdb52e" },
         ]}
       />
     </ScatterPlot>
