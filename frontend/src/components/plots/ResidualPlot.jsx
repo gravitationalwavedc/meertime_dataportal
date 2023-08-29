@@ -9,13 +9,8 @@ import {
 } from "recharts";
 import React from "react";
 import ScatterPlot from "./ScatterPlot";
-import { residualPlotData } from "./plotData";
+import { residualPlotData, formatYAxisTick } from "./plotData";
 import moment from "moment";
-
-
-const formatYAxisTick = (value) => {
-  return value.toFixed(2);
-};
 
 
 const ResidualPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {

@@ -29,35 +29,32 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
             <option value="rm">RM</option>
           </Form.Control>
         </Form.Group>
-        { activePlot === "residual" &&
-          // Only show the x-axis selector for the residual plot.
-          <Form.Group controlId="xAxisController" className="col-md-2">
-            <Form.Label>X Axis</Form.Label>
-            <Form.Control
-              custom
-              as="select"
-              value={xAxis}
-              onChange={(event) => setXAxis(event.target.value)}
-            >
-              <option value="utc">UTC date</option>
-              <option value="day">Day of the year</option>
-              <option value="phase">Binary Phase</option>
-            </Form.Control>
-          </Form.Group>
-        }
+        <Form.Group controlId="xAxisController" className="col-md-2">
+          <Form.Label>X Axis</Form.Label>
+          <Form.Control
+            custom
+            as="select"
+            value={xAxis}
+            onChange={(event) => setXAxis(event.target.value)}
+          >
+            <option value="utc">UTC date</option>
+            <option value="day">Day of the year</option>
+            <option value="phase">Binary Phase</option>
+          </Form.Control>
+        </Form.Group>
       </Form.Row>
       <Form.Text className="text-muted">
         Drag to zoom, click empty area to reset, double click to view utc.
       </Form.Text>
       <div className="pulsar-plot-wrapper">
         { activePlot === "snr" ? (
-          <SNRPlot maxPlotLength={maxPlotLength} {...rest} />
+          <SNRPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
         ) : activePlot === "flux" ? (
-          <FluxPlot maxPlotLength={maxPlotLength} {...rest} />
+          <FluxPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
         ) : activePlot === "dm" ? (
-          <DMPlot maxPlotLength={maxPlotLength} {...rest} />
+          <DMPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
         ) : activePlot === "rm" ? (
-          <RMPlot maxPlotLength={maxPlotLength} {...rest} />
+          <RMPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
         ) : activePlot === "residual" ? (
           <ResidualPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
         ) : (

@@ -44,6 +44,8 @@ const query = graphql`
         node {
           observation{
             utcStart
+            dayOfYear
+            binaryOrbitalPhase
             duration
             beam
             bandwidth

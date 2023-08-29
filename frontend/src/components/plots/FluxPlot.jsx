@@ -9,10 +9,10 @@ import {
 } from "recharts";
 import React from "react";
 import ScatterPlot from "./ScatterPlot";
-import { fluxPlotData } from "./plotData";
+import { fluxPlotData, formatYAxisTick  } from "./plotData";
 import moment from "moment";
 
-const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
+const FluxPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
   const { plotData, minValue, maxValue } = fluxPlotData(
     data,
     columns,
@@ -32,16 +32,28 @@ const FluxPlot = ({ data, columns, search, maxPlotLength }) => {
     return [value, name];
   };
 
+  const getXaxisFormatter = (xAxis) => {
+    if (xAxis === "utc") {
+      return (unixTime) => moment(unixTime).format("YYYY");
+    } else if (xAxis === "day") {
+      return formatYAxisTick;
+    } else if (xAxis === "phase") {
+      return formatYAxisTick;
+    } else {
+      return (unixTime) => moment(unixTime).format("YYYY");
+    }
+  };
+
   return (
     <ScatterPlot data={plotData}>
       <CartesianGrid />
       <XAxis
         type="number"
-        dataKey="time"
+        dataKey={xAxis}
         name="UTC"
         domain={["auto", "auto"]}
         ticks={ticks}
-        tickFormatter={(unixTime) => moment(unixTime).format("YYYY")}
+        tickFormatter={getXaxisFormatter(xAxis)}
       >
         <Label value="UTC" position="bottom" />
       </XAxis>

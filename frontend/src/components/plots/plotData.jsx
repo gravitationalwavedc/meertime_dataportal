@@ -1,6 +1,10 @@
 import { handleSearch, mjdToUnixTimestamp } from "../../helpers";
 import moment from "moment";
 
+export const formatYAxisTick = (value) => {
+  return value.toFixed(2);
+};
+
 export const filterBandData = (data) => {
   data = data.filter((row) => row.value !== null);
 
@@ -97,7 +101,9 @@ export const snrPlotData = (data, columns, search) => {
   // Process the table data in a way that react-vis understands.
   const allData = results
     .map((row) => ({
-      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      utc:   moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      day:   row.observation.dayOfYear,
+      phase: row.observation.binaryOrbitalPhase,
       value: row.pipelineRun.sn,
       size:  row.observation.duration,
       link:  row.plotLink,
@@ -115,7 +121,9 @@ export const fluxPlotData = (data, columns, search) => {
 
   const allData = results
     .map((row) => ({
-      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      utc:   moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      day:   row.observation.dayOfYear,
+      phase: row.observation.binaryOrbitalPhase,
       value: row.pipelineRun.flux,
       size:  row.observation.duration,
       link:  row.plotLink,
@@ -133,7 +141,9 @@ export const dmPlotData = (data, columns, search) => {
   // Process the table data in a way that react-vis understands.
   const allData = results
     .map((row) => ({
-      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      utc:   moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      day:   row.observation.dayOfYear,
+      phase: row.observation.binaryOrbitalPhase,
       value: row.pipelineRun.dm,
       error: row.pipelineRun.dmErr,
       size:  row.observation.duration,
@@ -152,7 +162,9 @@ export const rmPlotData = (data, columns, search) => {
   // Process the table data in a way that react-vis understands.
   const allData = results
     .map((row) => ({
-      time:  moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      utc:   moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+      day:   row.observation.dayOfYear,
+      phase: row.observation.binaryOrbitalPhase,
       value: row.pipelineRun.rm,
       error: row.pipelineRun.rmErr,
       size:  row.observation.duration,

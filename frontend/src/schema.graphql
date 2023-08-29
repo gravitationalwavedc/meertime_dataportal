@@ -331,6 +331,10 @@ type ObservationConnection {
   project_Short: String
   utcStartGte: DateTime
   utcStartLte: DateTime
+  totalObservations: Int
+  totalObservationHours: Int
+  totalPulsars: Int
+  totalObservationsTelLt35: Int
 }
 
 type ObservationEdge {
@@ -384,6 +388,8 @@ type ObservationNode implements Node {
   npol: Int!
   obsType: ObservationObsType!
   utcStart: DateTime!
+  dayOfYear: Float
+  binaryOrbitalPhase: Float
   raj: String!
   decj: String!
   duration: Float
