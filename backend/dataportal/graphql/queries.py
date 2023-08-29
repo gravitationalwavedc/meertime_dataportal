@@ -234,6 +234,27 @@ class ObservationConnection(relay.Connection):
     utcStart_gte=graphene.DateTime()
     utcStart_lte=graphene.DateTime()
 
+    total_observations = graphene.Int()
+    total_observation_hours = graphene.Int()
+    total_pulsars = graphene.Int()
+    total_observations_tel_lt_35 = graphene.Int()
+
+    def resolve_total_observations(self, instance):
+        return len(self.edges)
+
+    def resolve_total_observation_hours(self, instance):
+        return sum(float(result.duration) for result in self.iterable) / 3600
+
+    def resolve_total_pulsars(self, instance):
+        return len(list(set(result.pulsar.name for result in self.iterable)))
+
+    def resolve_total_observations_tel_lt_35(self, instance):
+        n_obs = 0
+        for obs in self.iterable:
+            if obs.nant < 35:
+                n_obs += 1
+        return n_obs
+
 
 class ObservationSummaryNode(DjangoObjectType):
     class Meta:
