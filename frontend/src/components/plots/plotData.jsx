@@ -175,12 +175,14 @@ export const residualPlotData = (data, columns, search) => {
       // Grab all of the info needed from the toa
       if (edge.node.residual) {
         result.push({
-          mjd:            edge.node.mjd,
-          residualSec:    edge.node.residual.residualSec,
-          residualSecErr: edge.node.residual.residualSecErr,
-          duration:       edge.node.length,
-          plotLink:       run_result.plotLink,
-          band:           run_result.observation.band,
+          mjd:                edge.node.residual.mjd,
+          dayOfYear:          edge.node.residual.dayOfYear,
+          binaryOrbitalPhase: edge.node.residual.binaryOrbitalPhase,
+          residualSec:        edge.node.residual.residualSec,
+          residualSecErr:     edge.node.residual.residualSecErr,
+          duration:           edge.node.length,
+          plotLink:           run_result.plotLink,
+          band:               run_result.observation.band,
         });
         return result;
       }
@@ -197,7 +199,9 @@ export const residualPlotData = (data, columns, search) => {
 
   const allData = toas
     .map((row) => ({
-      time:  moment(mjdToUnixTimestamp(row.mjd)).valueOf(),
+      utc:   moment(mjdToUnixTimestamp(row.mjd)).valueOf(),
+      day:   row.dayOfYear,
+      phase: row.binaryOrbitalPhase,
       value: row.residualSec   * 1e6,
       error: row.residualSecErr* 1e9,
       size:  row.duration,

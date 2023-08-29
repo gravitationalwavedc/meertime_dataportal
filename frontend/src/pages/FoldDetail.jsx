@@ -74,11 +74,11 @@ const query = graphql`
               edges {
                 node {
                   freqMhz
-                  mjd
-                  mjdErr
                   length
                   residual {
                     mjd
+                    dayOfYear
+                    binaryOrbitalPhase
                     residualSec
                     residualSecErr
                     residualPhase

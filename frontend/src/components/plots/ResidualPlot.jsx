@@ -18,7 +18,7 @@ const formatYAxisTick = (value) => {
 };
 
 
-const ResidualPlot = ({ data, columns, search, maxPlotLength }) => {
+const ResidualPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
   console.log("ResidualPlot: " , data);
   const { plotData, minValue, maxValue } = residualPlotData(
     data,
@@ -43,16 +43,51 @@ const ResidualPlot = ({ data, columns, search, maxPlotLength }) => {
   return (
     <ScatterPlot data={plotData}>
       <CartesianGrid />
-      <XAxis
-        type="number"
-        dataKey="time"
-        name="UTC"
-        tickCount={8}
-        domain={["auto", "auto"]}
-        tickFormatter={(unixTime) => moment(unixTime).format("DD/MM/YY")}
-      >
-        <Label value="UTC" position="bottom" />
-      </XAxis>
+      { xAxis === "utc" ? (
+        <XAxis
+          type="number"
+          dataKey="utc"
+          name="UTC"
+          tickCount={8}
+          domain={["auto", "auto"]}
+          tickFormatter={(unixTime) => moment(unixTime).format("DD/MM/YY")}
+        >
+          <Label value="UTC" position="bottom" />
+        </XAxis>
+      ) : xAxis === "day" ? (
+        <XAxis
+          type="number"
+          dataKey="day"
+          name="UTC"
+          tickCount={8}
+          domain={["auto", "auto"]}
+          tickFormatter={formatYAxisTick}
+        >
+          <Label value="Day of the year" position="bottom" />
+        </XAxis>
+      ) : xAxis === "phase" ? (
+        <XAxis
+          type="number"
+          dataKey="phase"
+          name="UTC"
+          tickCount={8}
+          domain={["auto", "auto"]}
+          tickFormatter={formatYAxisTick}
+        >
+          <Label value="Binary phase" position="bottom" />
+        </XAxis>
+      ) : (
+        <XAxis
+          type="number"
+          dataKey="utc"
+          name="UTC"
+          tickCount={8}
+          domain={["auto", "auto"]}
+          tickFormatter={(unixTime) => moment(unixTime).format("DD/MM/YY")}
+        >
+          <Label value="UTC" position="bottom" />
+        </XAxis>
+      )}
       <YAxis type="number" dataKey="value" name="Residual" domain={[minValue, maxValue]} tickFormatter={formatYAxisTick}>
         <Label value="Residual (μs)" position="left" angle="-90" />
       </YAxis>
