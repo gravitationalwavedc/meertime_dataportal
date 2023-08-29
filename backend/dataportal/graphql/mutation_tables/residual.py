@@ -1,4 +1,5 @@
 import json
+import numpy as np
 from datetime import datetime, timedelta
 from decimal import Decimal, getcontext
 
@@ -9,6 +10,7 @@ from django.db import IntegrityError
 from dataportal.models import Pulsar, Ephemeris, Project, Residual, Toa
 from dataportal.graphql.queries import ResidualNode
 from utils.ephemeris import parse_ephemeris_file
+from utils.binary_phase import get_binary_phase
 
 
 
@@ -79,21 +81,23 @@ class CreateResidual(graphene.Mutation):
                 + date.second / (24.0 * 60.0 * 60.0)
 
             # Upload the residual
+            print(mjd)
+            print(json.dumps(ephemeris_dict, indent=4))
             residual_to_create.append(
                 Residual(
                     pulsar=pulsar,
                     project=project,
                     ephemeris=ephemeris,
                     # X axis types
-                    mjd               =Decimal(mjd),
-                    day_of_year       =day_of_year,
-                    # binary_orbital_phase=residual_dict["binary_orbital_phase"],
+                    mjd                 =Decimal(mjd),
+                    day_of_year         =day_of_year,
+                    binary_orbital_phase=get_binary_phase(np.array([float(mjd)]), ephemeris_dict),
                     # Y axis types
-                    residual_sec      =float(residual),
-                    residual_sec_err  =float(residual_err)/1e9, # Convert from ns to s
-                    residual_phase    =float(residual_phase),
+                    residual_sec        =float(residual),
+                    residual_sec_err    =float(residual_err)/1e9, # Convert from ns to s
+                    residual_phase      =float(residual_phase),
                     # Convert from ns to s the divide vy period to convert to phase
-                    residual_phase_err=float(residual_err)/1e9 / ephemeris_dict["P0"],
+                    residual_phase_err  =float(residual_err)/1e9 / ephemeris_dict["P0"],
                 )
             )
 

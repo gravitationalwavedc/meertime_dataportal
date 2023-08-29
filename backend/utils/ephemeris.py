@@ -35,7 +35,11 @@ def convert_frequency_to_period(
 
     return p0, p0_err
 
-
+def convert_to_float_if_possible(s):
+    try:
+        return float(s)
+    except ValueError:
+        return s
 
 def parse_ephemeris_file(ephemeris_data):
     # Check if input_data is a string
@@ -46,7 +50,6 @@ def parse_ephemeris_file(ephemeris_data):
             ephemeris_lines = file.readlines()
         # Remove newline characters from end of each line
         ephemeris_lines = [line.rstrip('\n').replace('\t', '') for line in ephemeris_lines]
-    print(ephemeris_lines)
 
     # Parse the file by converting it into a dict
     ephemeris_dict = {}
@@ -59,10 +62,10 @@ def parse_ephemeris_file(ephemeris_data):
             continue
         if len(split_line) in (2, 3, 4):
             # Grab the value
-            ephemeris_dict[split_line[0]] = split_line[1]
+            ephemeris_dict[split_line[0]] = convert_to_float_if_possible(split_line[1])
         if len(split_line) in (3, 4):
             # Also grab the error
-            ephemeris_dict[f"{split_line[0]}_ERR"] = split_line[-1]
+            ephemeris_dict[f"{split_line[0]}_ERR"] = convert_to_float_if_possible(split_line[-1])
         if len(split_line) == 5:
             # Grab time offset values, so record them as a list of dicts
             if "TIMEOFFSETS" not in ephemeris_dict.keys():
