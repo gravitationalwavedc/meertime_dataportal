@@ -227,7 +227,7 @@ class ObservationConnection(relay.Connection):
     class Meta:
         node = ObservationNode
 
-    pulsar__name=graphene.String()
+    pulsar__name=graphene.List(graphene.String)
     telescope__name=graphene.String()
     project__id=graphene.Int()
     project__short=graphene.String()
@@ -614,7 +614,7 @@ class Query(graphene.ObjectType):
 
     observation = relay.ConnectionField(
         ObservationConnection,
-        pulsar__name=graphene.String(),
+        pulsar__name=graphene.List(graphene.String),
         telescope__name=graphene.String(),
         project__id=graphene.Int(),
         project__short=graphene.String(),
@@ -628,7 +628,7 @@ class Query(graphene.ObjectType):
 
         pulsar_name = kwargs.get('pulsar__name')
         if pulsar_name:
-            queryset = queryset.filter(pulsar__name=pulsar_name)
+            queryset = queryset.filter(pulsar__name__in=pulsar_name)
 
         telescope_name = kwargs.get('telescope__name')
         if telescope_name:
