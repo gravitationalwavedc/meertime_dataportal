@@ -12,6 +12,7 @@ from .models import (
     PipelineRun,
     PulsarFoldResult,
     PulsarFoldSummary,
+    PulsarSearchSummary,
     PipelineImage,
     Toa,
     Residual,
@@ -29,6 +30,7 @@ admin.site.register(ObservationSummary)
 admin.site.register(PipelineRun)
 admin.site.register(PulsarFoldResult)
 admin.site.register(PulsarFoldSummary)
+admin.site.register(PulsarSearchSummary)
 admin.site.register(PipelineImage)
 admin.site.register(Toa)
 admin.site.register(Residual)

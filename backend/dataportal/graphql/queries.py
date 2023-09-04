@@ -25,6 +25,7 @@ from dataportal.models import (
     PipelineRun,
     PulsarFoldResult,
     PulsarFoldSummary,
+    PulsarSearchSummary,
     PipelineImage,
     Toa,
     Residual,
@@ -463,6 +464,55 @@ class PulsarFoldSummaryConnection(relay.Connection):
         return int(total_seconds / 60 / 60)
 
 
+class PulsarSearchSummaryNode(DjangoObjectType):
+    class Meta:
+        model = PulsarSearchSummary
+        fields = "__all__"
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+
+    # ForeignKey fields
+    pulsar = graphene.Field(PulsarNode)
+    main_project = graphene.Field(MainProjectNode)
+
+    @classmethod
+    @login_required
+    def get_queryset(cls, queryset, info):
+        return super().get_queryset(queryset, info)
+
+class PulsarSearchSummaryConnection(relay.Connection):
+    class Meta:
+        node = PulsarSearchSummaryNode
+
+    total_observations = graphene.Int()
+    total_pulsars = graphene.Int()
+    total_observation_time = graphene.Int()
+    total_project_time = graphene.Int()
+
+    def resolve_total_observations(self, instance):
+        return sum(
+            edge.node.number_of_observations
+            for edge in self.edges
+            if edge.node.number_of_observations
+        )
+
+    def resolve_total_pulsars(self, instance):
+        return len(self.edges)
+
+    def resolve_total_observation_time(self, instance):
+        return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
+
+    def resolve_total_project_time(self, instance):
+        # Too slow n(2)
+        total_seconds = sum(
+            obs.duration
+            for obs in Observation.objects.filter(
+                project__short=self.edges[0].node.most_common_project
+            )
+        )
+        return int(total_seconds / 60 / 60)
+
+
 class PipelineImageNode(DjangoObjectType):
     class Meta:
         model = PipelineImage
@@ -616,6 +666,7 @@ class Query(graphene.ObjectType):
         ObservationConnection,
         pulsar__name=graphene.List(graphene.String),
         telescope__name=graphene.String(),
+        main_project=graphene.String(),
         project__id=graphene.Int(),
         project__short=graphene.String(),
         utcStart_gte=graphene.String(),
@@ -633,6 +684,10 @@ class Query(graphene.ObjectType):
         telescope_name = kwargs.get('telescope__name')
         if telescope_name:
             queryset = queryset.filter(telescope__name=telescope_name)
+
+        main_project = kwargs.get('main_project')
+        if main_project:
+            queryset = queryset.filter(project__main_project__name=main_project)
 
         project_id = kwargs.get('project__id')
         if project_id:
@@ -768,6 +823,18 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_pulsar_fold_summary(self, info, **kwargs):
         return PulsarFoldSummary.get_query(**kwargs)
+
+
+    pulsar_search_summary = relay.ConnectionField(
+        PulsarSearchSummaryConnection,
+        main_project=graphene.String(),
+        most_common_project=graphene.String(),
+        project=graphene.String(),
+        band=graphene.String(),
+    )
+    @login_required
+    def resolve_pulsar_search_summary(self, info, **kwargs):
+        return PulsarSearchSummary.get_query(**kwargs)
 
 
     pipeline_image = relay.ConnectionField(

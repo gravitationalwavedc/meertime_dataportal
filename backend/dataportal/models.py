@@ -443,7 +443,7 @@ class PulsarFoldResult(models.Model):
 
 class PulsarFoldSummary(models.Model):
     """
-    Summary of all observations of a pulsar
+    Summary of all the fold observations of a pulsar
     """
     pulsar = models.ForeignKey(Pulsar, models.CASCADE)
     main_project = models.ForeignKey(MainProject, models.CASCADE)
@@ -586,7 +586,148 @@ class PulsarFoldSummary(models.Model):
                 "most_common_project": most_common_project,
             },
         )
+        if not created:
+            # If updating a model need to save the new values as defaults will not be used
+            new_pulsar_fold_summary.first_observation
+            new_pulsar_fold_summary.latest_observation
+            new_pulsar_fold_summary.timespan
+            new_pulsar_fold_summary.number_of_observations
+            new_pulsar_fold_summary.total_integration_hours
+            new_pulsar_fold_summary.last_integration_minutes
+            new_pulsar_fold_summary.all_bands
+            new_pulsar_fold_summary.all_projects
+            new_pulsar_fold_summary.most_common_project
+            new_pulsar_fold_summary.save()
         return new_pulsar_fold_summary, created
+
+
+class PulsarSearchSummary(models.Model):
+    """
+    Summary of all the search observations of a pulsar
+    """
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    main_project = models.ForeignKey(MainProject, models.CASCADE)
+
+    # Obs summary
+    first_observation = models.DateTimeField()
+    latest_observation = models.DateTimeField()
+    timespan = models.IntegerField()
+    number_of_observations = models.IntegerField()
+    total_integration_hours = models.FloatField()
+    last_integration_minutes = models.FloatField(null=True)
+    all_bands = models.CharField(max_length=500)
+
+    # Project summary
+    most_common_project = models.CharField(max_length=64) # Tis could be a foreign key
+    all_projects = models.CharField(max_length=500)
+
+    class Meta:
+        unique_together = [["main_project", "pulsar"]]
+        ordering = ["-latest_observation"]
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        if "band" in kwargs:
+            if kwargs["band"] == "All":
+                kwargs.pop("band")
+            else:
+                kwargs["all_bands__icontains"] = kwargs.pop("band")
+
+        if "most_common_project" in kwargs:
+            if kwargs["most_common_project"] == "All":
+                kwargs.pop("most_common_project")
+            else:
+                kwargs["most_common_project__icontains"] = kwargs.pop("most_common_project")
+
+        if "project" in kwargs:
+            if kwargs["project"] == "All":
+                kwargs.pop("project")
+            else:
+                kwargs["all_projects__icontains"] = kwargs.pop("project")
+
+        if "main_project" in kwargs and kwargs["main_project"] == "All":
+            kwargs.pop("main_project")
+        elif "main_project" in kwargs:
+            kwargs["main_project__name__icontains"] = kwargs.pop("main_project")
+
+        return cls.objects.filter(**kwargs)
+
+    @classmethod
+    def get_most_common_project(cls, observations):
+        project_counts = {}
+        for observation in observations:
+            # If you like it, then you should have put a key on it.
+            project_short = observation.project.short
+            if project_short in project_counts:
+                # I'm a survivor, I'm not a quitter, I'm gonna increment until I'm a winner.
+                project_counts[project_short] += 1
+            else:
+                project_counts[project_short] = 1
+
+        # To the left, to the left
+        # Find the key with the highest count, to the left
+        return max(project_counts, key=project_counts.get)
+
+    @classmethod
+    def update_or_create(cls, pulsar, main_project):
+        """
+        Every time a PipelineRun is saved, we want to update the PulsarFoldSummary
+        model so it accurately summaries all fold observations for that pulsar.
+
+        Parameters:
+            pulsar: Pulsar django model
+                A Pulsar model instance.
+            main_project: MainProject django model
+                A MainProject model instance.
+        """
+        # Get all the fold observations for that pulsar
+        observations = Observation.objects.filter(pulsar=pulsar, obs_type="search").order_by("utc_start")
+
+        # Process observation summary
+        first_observation  = observations.first()
+        latest_observation = observations.last()
+        timespan = (latest_observation.utc_start - first_observation.utc_start).days + 1
+        number_of_observations = observations.count()
+        total_integration_hours = sum(observation.duration for observation in observations) / 3600
+        last_integration_minutes = latest_observation.duration / 60
+        all_bands = ", ".join(
+            {observation.band for observation in observations}
+        )
+
+        # Process project summary
+        all_projects = ", ".join(
+            {observation.project.short for observation in observations}
+        )
+        most_common_project = cls.get_most_common_project(observations)
+
+        new_pulsar_search_summary, created = PulsarSearchSummary.objects.update_or_create(
+            pulsar=pulsar,
+            main_project=main_project,
+            defaults={
+                "first_observation": first_observation.utc_start,
+                "latest_observation": latest_observation.utc_start,
+                "timespan": timespan,
+                "number_of_observations": number_of_observations,
+                "total_integration_hours": total_integration_hours,
+                "last_integration_minutes": last_integration_minutes,
+                "all_bands": all_bands,
+                "all_projects": all_projects,
+                "most_common_project": most_common_project,
+            },
+        )
+        if not created:
+            # If updating a model need to save the new values as defaults will not be used
+            new_pulsar_search_summary.first_observation
+            new_pulsar_search_summary.latest_observation
+            new_pulsar_search_summary.timespan
+            new_pulsar_search_summary.number_of_observations
+            new_pulsar_search_summary.total_integration_hours
+            new_pulsar_search_summary.last_integration_minutes
+            new_pulsar_search_summary.all_bands
+            new_pulsar_search_summary.all_projects
+            new_pulsar_search_summary.most_common_project
+            new_pulsar_search_summary.save()
+        return new_pulsar_search_summary, created
 
 
 class PipelineImage(models.Model):
