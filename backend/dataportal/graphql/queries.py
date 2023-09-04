@@ -817,7 +817,7 @@ class Query(graphene.ObjectType):
         if obs_nchan:
             queryset = queryset.filter(obs_nchan=obs_nchan)
 
-        return queryset
+        return queryset.order_by('mjd')
 
 
     residual = relay.ConnectionField(
