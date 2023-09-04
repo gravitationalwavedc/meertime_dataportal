@@ -54,7 +54,7 @@ const SearchmodeDetail = ({ match }) => {
 
   return (
     <MainLayout title={jname}>
-      <SearchmodeDetailTable data={data} jname={jname} />
+      <SearchmodeDetailTable data={data} jname={jname} mainProject={mainProject} />
     </MainLayout>
   );
 };

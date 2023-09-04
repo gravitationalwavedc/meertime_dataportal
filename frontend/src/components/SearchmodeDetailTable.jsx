@@ -11,7 +11,8 @@ const SearchmodeDetailTable = ({
     observationSummary: summaryQuery,
     observation: observationData,
   },
-  jname
+  jname,
+  mainProject
 }) => {
   const { screenSize } = useScreenSize();
   const allRows = observationData.edges.reduce(
@@ -169,7 +170,9 @@ const SearchmodeDetailTable = ({
       return;
     }
 
-    const newRows = allRows.filter((row) => row.project.short === project);
+    const newRows = allRows.filter(
+      (row) => row.project.short.toLowerCase() === project.toLowerCase()
+    );
     setRows(newRows);
   };
 

@@ -1,94 +1,112 @@
 import { fireEvent, render, waitFor } from "@testing-library/react";
 import SearchmodeDetailTable from "./SearchmodeDetailTable";
 
-describe("searhmode detail table", () => {
+describe("search mode detail table", () => {
   const data = {
-    searchmodeObservationDetails: {
-      totalObservations: 1,
-      totalProjects: 1,
-      totalTimespanDays: 0,
-      edges: [
+    "observationSummary": {
+      "edges": [
         {
-          node: {
-            id: "1",
-            utc: "2021-03-02T03:34:32+00:00",
-            project: "TPA",
-            beam: 4,
-            length: 4,
-            tsamp: 316.8,
-            frequency: 0,
-            nchan: 1024,
-            nbit: 8,
-            npol: 4,
-            nantEff: 30,
-            dm: 38.28,
-            ra: "18:29:05.37",
-            dec: "-7:34:22.0",
-          },
+          "node": {
+            "observations": 1,
+            "projects": 1,
+            "observationHours": 3,
+            "timespanDays": 1
+          }
+        }
+      ]
+    },
+    "observation": {
+      "edges": [
+        {
+          "node": {
+            "id": "1",
+            "utcStart": "2023-06-27T11:37:31+00:00",
+            "raj": "13:26:47.24",
+            "decj": "-47:28:46.5",
+            "beam": 1,
+            "duration": 14399.068999999645,
+            "frequency": 1283.89550781,
+            "nantEff": 41,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 256,
+            "filterbankTsamp": 19.14,
+            "filterbankDm": 99.9,
+            "project": {
+              "short": "RelBin"
+            },
+          }
         },
         {
-          node: {
-            id: "2",
-            utc: "2021-02-02T03:34:32+00:00",
-            project: "TPA",
-            beam: 4,
-            length: 4,
-            tsamp: 316.8,
-            frequency: 0,
-            nchan: 1024,
-            nbit: 8,
-            npol: 4,
-            nantEff: 30,
-            dm: 38.28,
-            ra: "18:29:05.37",
-            dec: "-7:34:22.0",
-          },
+          "node": {
+            "id": "2",
+            "utcStart": "2023-06-27T11:37:31+00:00",
+            "raj": "13:26:47.24",
+            "decj": "-47:28:46.5",
+            "beam": 1,
+            "duration": 14399.068999999645,
+            "frequency": 1283.89550781,
+            "nantEff": 41,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 256,
+            "filterbankTsamp": 19.14,
+            "filterbankDm": 99.9,
+            "project": {
+              "short": "RelBin"
+            },
+          }
         },
         {
-          node: {
-            id: "3",
-            utc: "2021-01-02T03:34:32+00:00",
-            project: "RelBin",
-            beam: 4,
-            length: 4,
-            tsamp: 316.8,
-            frequency: 0,
-            nchan: 1024,
-            nbit: 8,
-            npol: 4,
-            nantEff: 30,
-            dm: 38.28,
-            ra: "18:29:05.37",
-            dec: "-7:34:22.0",
-          },
+          "node": {
+            "id": "3",
+            "utcStart": "2023-06-27T11:37:31+00:00",
+            "raj": "13:26:47.24",
+            "decj": "-47:28:46.5",
+            "beam": 1,
+            "duration": 14399.068999999645,
+            "frequency": 1283.89550781,
+            "nantEff": 41,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 256,
+            "filterbankTsamp": 19.14,
+            "filterbankDm": 99.9,
+            "project": {
+              "short": "TPA"
+            },
+          }
         },
         {
-          node: {
-            id: "4",
-            utc: "2021-01-11T03:34:32+00:00",
-            project: "RelBin",
-            beam: 4,
-            length: 4,
-            tsamp: 316.8,
-            frequency: 0,
-            nchan: 1024,
-            nbit: 8,
-            npol: 4,
-            nantEff: 30,
-            dm: 38.28,
-            ra: "18:29:05.37",
-            dec: "-7:34:22.0",
-          },
+          "node": {
+            "id": "4",
+            "utcStart": "2023-06-27T11:37:31+00:00",
+            "raj": "13:26:47.24",
+            "decj": "-47:28:46.5",
+            "beam": 1,
+            "duration": 14399.068999999645,
+            "frequency": 1283.89550781,
+            "nantEff": 41,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 256,
+            "filterbankTsamp": 19.14,
+            "filterbankDm": 99.9,
+            "project": {
+              "short": "TPA"
+            },
+          }
         },
       ],
     },
   };
 
+  const mainProject = "MeerTIME";
   it("should render data onto the table", () => {
     expect.hasAssertions();
-    const { getByText } = render(<SearchmodeDetailTable data={data} />);
+    const { getByText } = render(<SearchmodeDetailTable data={data} mainProject={mainProject}/>);
     expect(getByText("Observations")).toBeInTheDocument();
-    expect(getByText("2021-03-02-03:34:32")).toBeInTheDocument();
+    expect(getByText("2023-06-27-11:37:31")).toBeInTheDocument();
   });
 
   it("should update the table when the project filter is changed", async () => {
@@ -96,6 +114,7 @@ describe("searhmode detail table", () => {
     const { getAllByText, getByLabelText } = render(
       <SearchmodeDetailTable data={data} />
     );
+    console.log(getAllByText("RelBin"));
     expect(getAllByText("TPA")).toHaveLength(3);
     expect(getAllByText("RelBin")).toHaveLength(3);
 

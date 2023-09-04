@@ -94,7 +94,7 @@ const routeConfig = () =>
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
-        path="/search/:project/:jname/"
+        path="/search/:mainProject/:jname/"
         Component={SearchmodeDetail}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
