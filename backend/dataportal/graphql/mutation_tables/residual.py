@@ -10,7 +10,7 @@ from django.db import IntegrityError
 from dataportal.models import Pulsar, Ephemeris, Project, Residual, Toa
 from dataportal.graphql.queries import ResidualNode
 from utils.ephemeris import parse_ephemeris_file
-from utils.binary_phase import get_binary_phase
+from utils.binary_phase import get_binary_phase, is_binary
 
 
 
@@ -80,9 +80,13 @@ class CreateResidual(graphene.Mutation):
                 + date.minute / (24.0 * 60.0) \
                 + date.second / (24.0 * 60.0 * 60.0)
 
+            if is_binary(ephemeris_dict):
+                # If the pulsar is a binary then we need to calculate the phase
+                binary_orbital_phase = get_binary_phase(np.array([float(mjd)]), ephemeris_dict)[0]
+            else:
+                binary_orbital_phase = None
+
             # Upload the residual
-            print(mjd)
-            print(json.dumps(ephemeris_dict, indent=4))
             residual_to_create.append(
                 Residual(
                     pulsar=pulsar,
@@ -91,7 +95,7 @@ class CreateResidual(graphene.Mutation):
                     # X axis types
                     mjd                 =Decimal(mjd),
                     day_of_year         =day_of_year,
-                    binary_orbital_phase=get_binary_phase(np.array([float(mjd)]), ephemeris_dict),
+                    binary_orbital_phase=binary_orbital_phase,
                     # Y axis types
                     residual_sec        =float(residual),
                     residual_sec_err    =float(residual_err)/1e9, # Convert from ns to s
