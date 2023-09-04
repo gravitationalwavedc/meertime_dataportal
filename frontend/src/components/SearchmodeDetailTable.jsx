@@ -6,19 +6,25 @@ import SearchmodeDetailCard from "./SearchmodeDetailCard";
 import { formatUTC } from "../helpers";
 import { useScreenSize } from "../context/screenSize-context";
 
-const SearchmodeDetailTable = ({ data, jname }) => {
+const SearchmodeDetailTable = ({
+  data: {
+    observationSummary: summaryQuery,
+    observation: observationData,
+  },
+  jname
+}) => {
   const { screenSize } = useScreenSize();
-  const allRows = data.searchmodeObservationDetails.edges.reduce(
+  const allRows = observationData.edges.reduce(
     (result, edge) => [
       ...result,
       {
         ...edge.node,
-        key: `${edge.node.utc}:${edge.node.beam}`,
+        key: `${edge.node.utcStart}:${edge.node.beam}`,
         jname: jname,
-        utc: formatUTC(edge.node.utc),
+        utc: formatUTC(edge.node.utcStart),
         action: (
           <Button
-            href={kronosLink(edge.node.beam, jname, formatUTC(edge.node.utc))}
+            href={kronosLink(edge.node.beam, jname, formatUTC(edge.node.utcStart))}
             as="a"
             size="sm"
             variant="outline-secondary"
@@ -49,13 +55,13 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       headerClasses: "fold-detail-utc",
     },
     {
-      dataField: "project",
+      dataField: "project.short",
       text: "Project",
       sort: true,
       screenSizes: ["md", "lg", "xl", "xxl"],
     },
     {
-      dataField: "ra",
+      dataField: "raj",
       text: "RA",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
@@ -63,7 +69,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       headerAlign: "right",
     },
     {
-      dataField: "dec",
+      dataField: "decj",
       text: "DEC",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
@@ -71,13 +77,13 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       headerAlign: "right",
     },
     {
-      dataField: "length",
-      text: "Length",
+      dataField: "duration",
+      text: "Duration",
       sort: true,
       screenSizes: ["sm", "md", "lg", "xl", "xxl"],
       align: "right",
       headerAlign: "right",
-      formatter: (cell) => `${cell} [m]`,
+      formatter: (cell) => `${parseFloat(cell).toFixed(2)} [s]`,
     },
     {
       dataField: "beam",
@@ -94,10 +100,10 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       screenSizes: ["xxl"],
       align: "right",
       headerAlign: "right",
-      formatter: (cell) => `${cell} [Mhz]`,
+      formatter: (cell) => `${parseFloat(cell).toFixed(2)} [Mhz]`,
     },
     {
-      dataField: "nchan",
+      dataField: "filterbankNchan",
       text: "Nchan",
       sort: true,
       screenSizes: ["xl", "xxl"],
@@ -105,7 +111,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       headerAlign: "right",
     },
     {
-      dataField: "nbit",
+      dataField: "filterbankNbit",
       text: "Nbit",
       sort: true,
       screenSizes: ["xl", "xxl"],
@@ -121,7 +127,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       headerAlign: "right",
     },
     {
-      dataField: "npol",
+      dataField: "filterbankNpol",
       text: "Npol",
       sort: true,
       screenSizes: ["xxl"],
@@ -129,7 +135,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       headerAlign: "right",
     },
     {
-      dataField: "dm",
+      dataField: "filterbankDm",
       text: "DM",
       sort: true,
       screenSizes: ["xxl"],
@@ -137,7 +143,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       headerAlign: "right",
     },
     {
-      dataField: "tsamp",
+      dataField: "filterbankTsamp",
       text: "tSamp",
       sort: true,
       screenSizes: ["xxl"],
@@ -163,22 +169,23 @@ const SearchmodeDetailTable = ({ data, jname }) => {
       return;
     }
 
-    const newRows = allRows.filter((row) => row.project === project);
+    const newRows = allRows.filter((row) => row.project.short === project);
     setRows(newRows);
   };
 
+  const summaryNode = summaryQuery.edges[0]?.node;
   const summaryData = [
     {
       title: "Observations",
-      value: data.searchmodeObservationDetails.totalObservations,
+      value: summaryNode.observations,
     },
     {
       title: "Projects",
-      value: data.searchmodeObservationDetails.totalProjects,
+      value: summaryNode.projects,
     },
     {
       title: "Timespan",
-      value: data.searchmodeObservationDetails.totalTimespanDays,
+      value: summaryNode.timespanDays,
     },
   ];
 

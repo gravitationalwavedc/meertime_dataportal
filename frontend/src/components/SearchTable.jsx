@@ -9,38 +9,61 @@ import { useScreenSize } from "../context/screenSize-context";
 
 const searchTableQuery = graphql`
   fragment SearchTable_data on Query
-  @refetchable(queryName: "SearchTableQuery")
   @argumentDefinitions(
-    mainProject: { type: "String", defaultValue: "MEERTIME" }
+    mainProject: { type: "String", defaultValue: "MeerTIME" }
     project: { type: "String", defaultValue: "All" }
+    mostCommonProject: { type: "String", defaultValue: "All" }
+    pulsar: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
+    telescope: { type: "String", defaultValue: "All" }
   ) {
-    searchmodeObservations(
+    observationSummary (
+      pulsar_Name: $pulsar,
+      obsType: "search",
+      calibration_Id: "All",
+      project_Short: $project,
+      telescope_Name: $telescope,
+    ) {
+      edges {
+        node {
+          observations
+          pulsars
+          observationHours
+        }
+      }
+    }
+    pulsarSearchSummary (
       mainProject: $mainProject
-      project: $project
+      mostCommonProject: $mostCommonProject
       band: $band
     ) {
       totalObservations
       totalPulsars
+      totalObservationTime
+      totalProjectTime
       edges {
         node {
-          jname
+          pulsar {name}
           latestObservation
           firstObservation
-          project
+          allProjects
+          mostCommonProject
           timespan
           numberOfObservations
+          lastIntegrationMinutes
+          totalIntegrationHours
         }
       }
     }
   }
 `;
-
-const SearchTable = ({ data }) => {
-  const [fragmentData, refetch] = useRefetchableFragment(
-    searchTableQuery,
-    data
-  );
+const SearchTable = ({
+  data: {
+    observationSummary: observationData,
+    pulsarSearchSummary: searchData,
+  },
+  relay
+}) => {
   const { screenSize } = useScreenSize();
   const [mainProject, setMainProject] = useState("meertime");
   const [project, setProject] = useState("All");
@@ -50,44 +73,49 @@ const SearchTable = ({ data }) => {
     refetch({ mainProject: mainProject, project: project, band: band });
   }, [band, mainProject, project, refetch]);
 
-  const rows = fragmentData.searchmodeObservations.edges.reduce(
-    (result, edge) => {
-      const row = { ...edge.node };
-      row.projectKey = mainProject;
-      row.latestObservation = formatUTC(row.latestObservation);
-      row.firstObservation = formatUTC(row.firstObservation);
-      row.action = (
-        <ButtonGroup vertical>
-          <Link
-            to={`/search/${mainProject}/${row.jname}/`}
-            size="sm"
-            variant="outline-secondary"
-            as={Button}
-          >
-            View all
-          </Link>
-          <Button
-            href={kronosLink(row.beam, row.jname, row.latestObservation)}
-            as="a"
-            size="sm"
-            variant="outline-secondary"
-          >
-            View last
-          </Button>
-        </ButtonGroup>
-      );
-      return [...result, { ...row }];
-    },
-    []
-  );
+  console.log("searchData", searchData);
+  console.log("observationData", observationData);
+  const rows = searchData.edges.reduce((result, edge) => {
+    const row = { ...edge.node };
+    row.projectKey = mainProject;
+    row.latestObservation = formatUTC(row.latestObservation);
+    row.firstObservation = formatUTC(row.firstObservation);
+    row.action = (
+      <ButtonGroup vertical>
+        <Link
+          to={`/search/${mainProject}/${row.pulsar.name}/`}
+          size="sm"
+          variant="outline-secondary"
+          as={Button}
+        >
+          View all
+        </Link>
+        <Button
+          href={kronosLink(row.beam, row.pulsar.name, row.latestObservation)}
+          as="a"
+          size="sm"
+          variant="outline-secondary"
+        >
+          View last
+        </Button>
+      </ButtonGroup>
+    );
+    return [...result, { ...row }];
+  }, []);
 
   const columns = [
-    { dataField: "jname", text: "JName", sort: true },
+    { dataField: "pulsar.name", text: "JName", sort: true },
     {
-      dataField: "project",
-      text: "Project",
+      dataField: "mostCommonProject",
+      text: "Most Common Project",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
+    },
+    {
+      dataField: "allProjects",
+      text: "All Projects",
+      sort: true,
+      screenSizes: ["xxl"],
     },
     { dataField: "latestObservation", text: "Last", sort: true },
     {
@@ -111,6 +139,25 @@ const SearchTable = ({ data }) => {
       align: "right",
       headerAlign: "right",
       sort: true,
+      screenSizes: ["md", "lg", "xl", "xxl"],
+    },
+    {
+      dataField: "totalIntegrationHours",
+      text: "Total int",
+      align: "right",
+      headerAlign: "right",
+      sort: true,
+      screenSizes: ["lg", "xl", "xxl"],
+      formatter: (cell) => `${parseFloat(cell).toFixed(1)} [h]`,
+    },
+    {
+      dataField: "lastIntegrationMinutes",
+      text: "Last int.",
+      align: "right",
+      headerAlign: "right",
+      sort: true,
+      screenSizes: ["lg", "xl", "xxl"],
+      formatter: (cell) => `${parseFloat(cell).toFixed(2)} [m]`,
     },
     {
       dataField: "action",
@@ -123,15 +170,10 @@ const SearchTable = ({ data }) => {
 
   const columnsForScreenSize = columnsSizeFilter(columns, screenSize);
 
+  const summaryNode = observationData.edges[0]?.node;
   const summaryData = [
-    {
-      title: "Observations",
-      value: fragmentData.searchmodeObservations.totalObservations,
-    },
-    {
-      title: "Pulsars",
-      value: fragmentData.searchmodeObservations.totalPulsars,
-    },
+    { title: "Observations", value: summaryNode.observations },
+    { title: "Pulsars", value: summaryNode.pulsars },
   ];
 
   return (

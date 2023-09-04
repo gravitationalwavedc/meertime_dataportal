@@ -4,31 +4,46 @@ import SearchmodeDetailTable from "../components/SearchmodeDetailTable";
 
 const query = graphql`
   query SearchmodeDetailQuery($jname: String!, $mainProject: String) {
-    searchmodeObservationDetails(jname: $jname, mainProject: $mainProject) {
-      totalObservations
-      totalProjects
-      totalTimespanDays
-      edges {
-        node {
-          id
-          utc
-          project
-          beam
-          length
-          tsamp
-          frequency
-          nchan
-          nbit
-          npol
-          nantEff
-          dm
-          ra
-          dec
+        observationSummary (
+          pulsar_Name: $jname,
+          obsType: "search",
+          calibration_Id: "All",
+          project_Short: "All",
+          telescope_Name: "All",
+        ) {
+          edges {
+            node {
+              observations
+              projects
+              observationHours
+              timespanDays
+            }
+          }
         }
-      }
-    }
-  }
-`;
+        observation (
+          mainProject: $mainProject
+          obsType: "search",
+        ) {
+          edges {
+            node {
+              id
+              utcStart
+              project { short }
+              raj
+              decj
+              beam
+              duration
+              frequency
+              nantEff
+              filterbankNbit
+              filterbankNpol
+              filterbankNchan
+              filterbankTsamp
+              filterbankDm
+            }
+          }
+        }
+      }`;
 
 const SearchmodeDetail = ({ match }) => {
   const { jname, mainProject } = match.params;

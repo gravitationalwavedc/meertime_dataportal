@@ -5,9 +5,7 @@
   "exclude": [
     "**/node_modules/**",
     "**/__mocks__/**",
-    "**/__generated__/**",
-    "**/pages/Search*",
-    "**/components/Search*"
+    "**/__generated__/**"
   ],
   "eagerEsModules": true
 }

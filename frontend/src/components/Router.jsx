@@ -13,8 +13,8 @@ import { RedirectException } from "found";
 import Register from "../pages/Register";
 import RegisterVerify from "../pages/RegisterVerify";
 import { Resolver } from "found-relay";
-// import Search from "../pages/Search";
-// import SearchmodeDetail from "../pages/SearchmodeDetail";
+import Search from "../pages/Search";
+import SearchmodeDetail from "../pages/SearchmodeDetail";
 import Session from "../pages/Session";
 import SessionList from "../pages/SessionList";
 import SingleObservation from "../pages/SingleObservation";
@@ -88,16 +88,16 @@ const routeConfig = () =>
         Component={PasswordChange}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
-      {/* <Route
+      <Route
         path="/search/"
         Component={Search}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      /> */}
-      {/* <Route
+      />
+      <Route
         path="/search/:project/:jname/"
         Component={SearchmodeDetail}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      /> */}
+      />
       <Route
         path="/last-session/"
         Component={Session}
