@@ -1,8 +1,10 @@
-from django.core.files.storage import FileSystemStorage
-from django.conf import settings
 import os
 import re
 import hashlib
+from datetime import datetime
+
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 
 
 def create_file_hash(opened_file):
@@ -38,7 +40,7 @@ def get_template_upload_location(instance, filename):
     """
     This method provides a filename to store an uploaded image.
     Inputs:
-    instance: instance of a Pipelineimages class
+    instance: instance of a Template class
     filename: string
 
     returns:
@@ -47,7 +49,10 @@ def get_template_upload_location(instance, filename):
     pulsar = instance.pulsar.name
     project_code = instance.project.code
     band = instance.band
-    created_at = instance.created_at.strftime("%Y-%m-%d-%H:%M:%S")
+    if instance.created_at is None:
+        created_at = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    else:
+        created_at = instance.created_at.strftime("%Y-%m-%d-%H:%M:%S")
     file_basename = os.path.basename(filename)
     return f"{project_code}/{pulsar}/{band}/{created_at}_{file_basename}"
 
