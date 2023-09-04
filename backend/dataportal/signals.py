@@ -2,7 +2,7 @@ from datetime import datetime
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from dataportal.models import PulsarFoldSummary, PulsarFoldResult, PipelineRun, Calibration, Observation, ObservationSummary
+from dataportal.models import PulsarFoldSummary, PulsarSearchSummary, PulsarFoldResult, PipelineRun, Calibration, Observation, ObservationSummary
 
 
 
@@ -26,7 +26,6 @@ def handle_pulsar_fold_summary_update(sender, instance, **kwargs):
         pulsar_fold_result.pipeline_run = instance
         pulsar_fold_result.save()
 
-
     # Update the summary info
     PulsarFoldSummary.update_or_create(instance.observation.pulsar, instance.observation.project.main_project)
 
@@ -39,11 +38,34 @@ def handle_calibration_update(sender, instance, **kwargs):
     """
     Calibration.update_observation_session(instance.calibration)
 
-    # Update for the current values and each value with a None
-    for obs_type in [instance.obs_type, None]:
+    if instance.obs_type == "search":
+        # Update the summary info (do this after the observation upload because there is no search pipeline products)
+        PulsarSearchSummary.update_or_create(instance.pulsar, instance.project.main_project)
+
+    if instance.obs_type == "fold":
+        # Update fold summaries
+        obs_type = "fold"
+        #main_project = instance.project.main_project
+        telescope = instance.telescope
+        calibration = None
         for pulsar in [instance.pulsar, None]:
-            for telescope in [instance.telescope, None]:
-                for project in [instance.project, None]:
-                    for calibration in [instance.calibration, None]:
-                        ObservationSummary.update_or_create(obs_type, pulsar, telescope, project, calibration)
+            for project in [instance.project, None]:
+                ObservationSummary.update_or_create(obs_type, pulsar, telescope, project, calibration)
+    elif instance.obs_type == "search":
+        # Update search summaries
+        obs_type = "search"
+        #main_project = None
+        telescope = None
+        calibration = None
+        for pulsar in [instance.pulsar, None]:
+            for project in [instance.project, None]:
+                ObservationSummary.update_or_create(obs_type, pulsar, telescope, project, calibration)
+    # Always update calibration summaries
+    pulsar = None
+    calibration = instance.calibration
+    obs_type = None
+    #main_project = None
+    telescope = None
+    for project in [instance.project, None]:
+        ObservationSummary.update_or_create(obs_type, pulsar, telescope, project, calibration)
 
