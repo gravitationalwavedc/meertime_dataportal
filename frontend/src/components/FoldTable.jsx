@@ -15,14 +15,14 @@ const foldTableQuery = graphql`
     mostCommonProject: { type: "String", defaultValue: "All" }
     pulsar: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
-    telescope: { type: "String", defaultValue: "All" }
   ) {
     observationSummary (
       pulsar_Name: $pulsar,
       obsType: "fold",
       calibration_Id: "All",
+      mainProject: $mainProject,
       project_Short: $project,
-      telescope_Name: $telescope,
+      band: $band,
     ) {
       edges {
         node {

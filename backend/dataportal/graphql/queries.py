@@ -266,7 +266,7 @@ class ObservationSummaryNode(DjangoObjectType):
 
     # ForeignKey fields
     pulsar = graphene.Field(PulsarNode)
-    telescope = graphene.Field(TelescopeNode)
+    main_project = graphene.Field(MainProjectNode)
     project = graphene.Field(ProjectNode)
     calibration = graphene.Field(CalibrationNode)
 
@@ -715,12 +715,13 @@ class Query(graphene.ObjectType):
     observation_summary = relay.ConnectionField(
         ObservationSummaryConnection,
         pulsar__name=graphene.String(),
-        telescope__name=graphene.String(),
+        main_project=graphene.String(),
         project__id=graphene.Int(),
         project__short=graphene.String(),
         calibration__id=graphene.String(),
         calibration_int=graphene.Int(),
         obs_type=graphene.String(),
+        band=graphene.String(),
     )
     @login_required
     def resolve_observation_summary(self, info, **kwargs):
@@ -732,11 +733,11 @@ class Query(graphene.ObjectType):
                 pulsar_name = None
             queryset = queryset.filter(pulsar__name=pulsar_name)
 
-        telescope_name = kwargs.get('telescope__name')
-        if telescope_name:
-            if telescope_name == "All":
-                telescope_name = None
-            queryset = queryset.filter(telescope__name=telescope_name)
+        main_project = kwargs.get('main_project')
+        if main_project:
+            if main_project == "All":
+                main_project = None
+            queryset = queryset.filter(main_project__name__iexact=main_project)
 
         project_id = kwargs.get('project__id')
         if project_id:
@@ -763,6 +764,12 @@ class Query(graphene.ObjectType):
             if obs_type == "All":
                 obs_type = None
             queryset = queryset.filter(obs_type=obs_type)
+
+        band = kwargs.get('band')
+        if band:
+            if band == "All":
+                band = None
+            queryset = queryset.filter(band=band)
 
         return queryset
 

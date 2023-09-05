@@ -22,8 +22,9 @@ const sessionTableQuery = graphql`
       pulsar_Name: "All",
       obsType: "All",
       calibrationInt: $id,
+      mainProject: "All",
       project_Short: "All",
-      telescope_Name: "All",
+      band: "All",
     ) {
       edges {
         node {

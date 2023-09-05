@@ -14,8 +14,9 @@ const query = graphql`
       pulsar_Name: $jname,
       obsType: "fold",
       calibration_Id: "All",
+      mainProject: $mainProject,
       project_Short: "All",
-      telescope_Name: "All",
+      band: "All",
     ) {
       edges {
         node {

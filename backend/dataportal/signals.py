@@ -45,27 +45,26 @@ def handle_calibration_update(sender, instance, **kwargs):
     if instance.obs_type == "fold":
         # Update fold summaries
         obs_type = "fold"
-        #main_project = instance.project.main_project
-        telescope = instance.telescope
+        main_project = instance.project.main_project
         calibration = None
         for pulsar in [instance.pulsar, None]:
             for project in [instance.project, None]:
-                ObservationSummary.update_or_create(obs_type, pulsar, telescope, project, calibration)
+                for band in [instance.band, None]:
+                    ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration, band)
     elif instance.obs_type == "search":
         # Update search summaries
         obs_type = "search"
-        #main_project = None
-        telescope = None
+        main_project = None
         calibration = None
         for pulsar in [instance.pulsar, None]:
             for project in [instance.project, None]:
-                ObservationSummary.update_or_create(obs_type, pulsar, telescope, project, calibration)
+                for band in [instance.band, None]:
+                    ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration, band)
     # Always update calibration summaries
     pulsar = None
     calibration = instance.calibration
     obs_type = None
-    #main_project = None
-    telescope = None
+    main_project = None
     for project in [instance.project, None]:
-        ObservationSummary.update_or_create(obs_type, pulsar, telescope, project, calibration)
+        ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration)
 

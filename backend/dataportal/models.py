@@ -285,10 +285,11 @@ class Observation(models.Model):
 class ObservationSummary(Model):
     # Foreign Keys that can be none when they're summarising all instead of an individual model
     pulsar = models.ForeignKey(Pulsar, models.CASCADE, null=True)
-    telescope = models.ForeignKey(Telescope, models.CASCADE, null=True)
+    main_project = models.ForeignKey(MainProject, models.CASCADE, null=True)
     project = models.ForeignKey(Project, models.CASCADE, null=True)
     calibration = models.ForeignKey(Calibration, models.CASCADE, null=True, related_name="observation_summaries")
     obs_type = models.CharField(max_length=6, choices=OBS_TYPE_CHOICES, null=True)
+    band = models.CharField(max_length=7, choices=BAND_CHOICES, null=True)
 
     # Summary values
     observations = models.IntegerField(blank=True, null=True)
@@ -301,7 +302,7 @@ class ObservationSummary(Model):
     max_duration = models.FloatField(blank=True, null=True)
 
     @classmethod
-    def update_or_create(cls, obs_type, pulsar, telescope, project, calibration):
+    def update_or_create(cls, obs_type, pulsar, main_project, project, calibration, band):
         """
         Every time a Observation is saved, we want to update the ObservationSummary
         model so it accurately summaries all observations for the input filters.
@@ -318,12 +319,14 @@ class ObservationSummary(Model):
             kwargs["obs_type"] = obs_type
         if pulsar is not None:
             kwargs["pulsar"] = pulsar
-        if telescope is not None:
-            kwargs["telescope"] = telescope
+        if main_project is not None:
+            kwargs["project__main_project"] = main_project
         if project is not None:
             kwargs["project"] = project
         if calibration is not None:
             kwargs["calibration"] = calibration
+        if band is not None:
+            kwargs["band"] = band
         all_observations = Observation.objects.filter(**kwargs).order_by("utc_start")
         if len(all_observations) == 0:
             # No observations for this combo so do not create a summary
@@ -363,10 +366,11 @@ class ObservationSummary(Model):
         # Update oc create the model
         new_observation_summary, created = ObservationSummary.objects.update_or_create(
             pulsar=pulsar,
-            telescope=telescope,
+            main_project=main_project,
             project=project,
             calibration=calibration,
             obs_type=obs_type,
+            band=band,
             defaults={
                 "observations": observations,
                 "pulsars": pulsars,
