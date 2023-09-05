@@ -9,6 +9,7 @@ import { useScreenSize } from "../context/screenSize-context";
 
 const searchTableQuery = graphql`
   fragment SearchTable_data on Query
+  @refetchable(queryName: "SearchTableQuery")
   @argumentDefinitions(
     mainProject: { type: "String", defaultValue: "MeerTIME" }
     project: { type: "String", defaultValue: "All" }
@@ -57,13 +58,11 @@ const searchTableQuery = graphql`
     }
   }
 `;
-const SearchTable = ({
-  data: {
-    observationSummary: observationData,
-    pulsarSearchSummary: searchData,
-  },
-  relay
-}) => {
+const SearchTable = ({ data }) => {
+  const [fragmentData, refetch] = useRefetchableFragment(
+    searchTableQuery,
+    data
+  );
   const { screenSize } = useScreenSize();
   const [mainProject, setMainProject] = useState("meertime");
   const [project, setProject] = useState("All");
@@ -73,9 +72,9 @@ const SearchTable = ({
     refetch({ mainProject: mainProject, project: project, band: band });
   }, [band, mainProject, project, refetch]);
 
-  console.log("searchData", searchData);
-  console.log("observationData", observationData);
-  const rows = searchData.edges.reduce((result, edge) => {
+  console.log("searchData", fragmentData.observationSummary);
+  console.log("observationData", fragmentData.pulsarSearchSummary);
+  const rows = fragmentData.pulsarSearchSummary.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     row.projectKey = mainProject;
     row.latestObservation = formatUTC(row.latestObservation);
@@ -170,7 +169,7 @@ const SearchTable = ({
 
   const columnsForScreenSize = columnsSizeFilter(columns, screenSize);
 
-  const summaryNode = observationData.edges[0]?.node;
+  const summaryNode = fragmentData.observationSummary.edges[0]?.node;
   const summaryData = [
     { title: "Observations", value: summaryNode.observations },
     { title: "Pulsars", value: summaryNode.pulsars },
