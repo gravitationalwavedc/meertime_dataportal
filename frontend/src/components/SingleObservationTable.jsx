@@ -9,10 +9,8 @@ import MainLayout from "./MainLayout";
 import MolongloImageGrid from "./MolongloImageGrid";
 import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
 
-const SingleObservationTable = ({
-  data: { pulsarFoldResult },
-  jname,
-}) => {
+const SingleObservationTable = ({ data, jname }) => {
+  const { pulsarFoldResult } = data;
   const relayObservationModel = pulsarFoldResult.edges[0].node;
 
   // const projectChoices = Array.from(

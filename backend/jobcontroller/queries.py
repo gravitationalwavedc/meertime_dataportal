@@ -1,8 +1,11 @@
+from datetime import datetime
+
 import graphene
 from graphene import relay
 from jobcontroller import request_file_list, get_fluxcal_archive_path
 from graphql_jwt.decorators import login_required
 
+from dataportal.models import PulsarFoldResult
 
 class JobControllerFile(graphene.ObjectType):
     class Meta:
@@ -29,10 +32,10 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_file_list(self, info, **kwargs):
 
-        fold_pulsar_detail = FoldPulsarDetail.objects.get(
-            fold_pulsar__jname=kwargs.get("jname"),
-            utc=FoldPulsarDetail.format_utc(kwargs.get("utc")),
-            beam=kwargs.get("beam"),
+        fold_pulsar_detail = PulsarFoldResult.objects.get(
+            pulsar__name=kwargs.get("jname"),
+            observation__utc_start=datetime.strptime(kwargs.get("utc"), "%Y-%m-%d-%H:%M:%S"),
+            observation__beam=kwargs.get("beam"),
         )
 
         # Only allow files if the user passes has access to this

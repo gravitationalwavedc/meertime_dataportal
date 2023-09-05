@@ -1,5 +1,6 @@
 import math
 import json
+import pytz
 import hashlib
 from datetime import datetime, timedelta
 
@@ -16,6 +17,7 @@ from .storage import OverwriteStorage, get_upload_location, get_template_upload_
 from user_manage.models import User
 from utils.observing_bands import get_band
 from utils.binary_phase import get_binary_phase, is_binary
+from utils.constants import UserRole
 
 
 DATA_QUALITY_CHOICES = [
@@ -436,9 +438,19 @@ class PulsarFoldResult(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.CASCADE)
 
     embargo_end_date = models.DateTimeField(null=True)
+
     @classmethod
     def get_query(cls, **kwargs):
         return cls.objects.filter(**kwargs)
+
+    def is_restricted(self, user):
+        # If the user role isn't restricted they can access everything
+        if user.role.upper() in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]:
+            return False
+
+        # If there's no embargo then it's not restricted
+        return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
+
 
 
 class PulsarFoldSummary(models.Model):
