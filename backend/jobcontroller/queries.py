@@ -1,7 +1,6 @@
 import graphene
 from graphene import relay
 from jobcontroller import request_file_list, get_fluxcal_archive_path
-from web_cache.models import FoldPulsarDetail
 from graphql_jwt.decorators import login_required
 
 

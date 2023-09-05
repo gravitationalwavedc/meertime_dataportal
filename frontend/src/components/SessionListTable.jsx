@@ -5,8 +5,31 @@ import DataView from "./DataView";
 import { Link } from "found";
 import { formatUTC } from "../helpers";
 
-const SessionListTable = ({ data: { calibration } }) => {
-  const allRows = calibration.edges.reduce((result, edge) => {
+const sessionListTableQuery = graphql`
+  fragment SessionListTable_data on Query {
+    calibration {
+      edges {
+        node {
+          id
+          idInt
+          start
+          end
+          allProjects
+          nObservations
+          nAntMin
+          nAntMax
+          totalIntegrationTimeSeconds
+        }
+      }
+    }
+  }
+`;
+
+
+const SessionListTable = ({ data }) => {
+  const fragmentData = useFragment(sessionListTableQuery, data);
+
+  const allRows = fragmentData.calibration.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     console.log(row);
     row.start = formatUTC(row.start);
@@ -111,33 +134,4 @@ const SessionListTable = ({ data: { calibration } }) => {
   );
 };
 
-export default createRefetchContainer(
-  SessionListTable,
-  {
-    data: graphql`
-      fragment SessionListTable_data on Query {
-        calibration {
-          edges {
-            node {
-              id
-              idInt
-              start
-              end
-              allProjects
-              nObservations
-              nAntMin
-              nAntMax
-              totalIntegrationTimeSeconds
-            }
-          }
-        }
-      }
-
-    `,
-  },
-  graphql`
-    query SessionListTableRefetchQuery {
-      ...SessionListTable_data
-    }
-  `
-);
+export default SessionListTable;

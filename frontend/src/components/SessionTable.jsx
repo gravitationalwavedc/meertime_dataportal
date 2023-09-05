@@ -12,7 +12,82 @@ import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 import image404 from "../assets/images/image404.png";
 
+
+const sessionTableQuery = graphql`
+  fragment SessionTable_data on Query
+  @argumentDefinitions(
+    id: { type: "Int" }
+  ) {
+    observationSummary (
+      pulsar_Name: "All",
+      obsType: "All",
+      calibrationInt: $id,
+      project_Short: "All",
+      telescope_Name: "All",
+    ) {
+      edges {
+        node {
+          observations
+          projects
+          pulsars
+        }
+      }
+    }
+    calibration (id: $id) {
+      edges {
+        node {
+          id
+          idInt
+          start
+          end
+          observations {
+            edges {
+              node {
+                id
+                pulsar {
+                  name
+                }
+                utcStart
+                obsType
+                duration
+                frequency
+                project {
+                  short
+                }
+                pulsarFoldResults {
+                  edges {
+                    node {
+                      images {
+                        edges {
+                          node {
+                            url
+                            imageType
+                            cleaned
+                          }
+                        }
+                      }
+                      pipelineRun {
+                        sn
+                        percentRfiZapped
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+
 const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) => {
+  const [fragmentData, refetch] = useRefetchableFragment(
+    sessionTableQuery,
+    data
+  );
   const { screenSize } = useScreenSize();
   const [project, setProject] = useState("All");
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -279,84 +354,4 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
   );
 };
 
-export default createRefetchContainer(
-  SessionTable,
-  {
-    data: graphql`
-      fragment SessionTable_data on Query
-      @argumentDefinitions(
-        id: { type: "Int" }
-      ) {
-        observationSummary (
-          pulsar_Name: "All",
-          obsType: "All",
-          calibrationInt: $id,
-          project_Short: "All",
-          telescope_Name: "All",
-        ) {
-          edges {
-            node {
-              observations
-              projects
-              pulsars
-            }
-          }
-        }
-        calibration (id: $id) {
-          edges {
-            node {
-              id
-              idInt
-              start
-              end
-              observations {
-                edges {
-                  node {
-                    id
-                    pulsar {
-                      name
-                    }
-                    utcStart
-                    obsType
-                    duration
-                    frequency
-                    project {
-                      short
-                    }
-                    pulsarFoldResults {
-                      edges {
-                        node {
-                          images {
-                            edges {
-                              node {
-                                url
-                                imageType
-                                cleaned
-                              }
-                            }
-                          }
-                          pipelineRun {
-                            sn
-                            percentRfiZapped
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    `,
-  },
-  graphql`
-    query SessionTableRefetchQuery(
-      $id: Int
-    ) {
-      ...SessionTable_data
-        @arguments(id: $id)
-    }
-  `
-);
+export default SessionTable;

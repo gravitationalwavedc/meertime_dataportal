@@ -10,13 +10,31 @@ const foldTableQuery = graphql`
   fragment FoldTable_data on Query
   @refetchable(queryName: "FoldTableRefetchQuery")
   @argumentDefinitions(
-    mainProject: { type: "String", defaultValue: "MEERTIME" }
+    mainProject: { type: "String", defaultValue: "MeerTIME" }
     project: { type: "String", defaultValue: "All" }
+    mostCommonProject: { type: "String", defaultValue: "All" }
+    pulsar: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
+    telescope: { type: "String", defaultValue: "All" }
   ) {
-    foldObservations(
+    observationSummary (
+      pulsar_Name: $pulsar,
+      obsType: "fold",
+      calibration_Id: "All",
+      project_Short: $project,
+      telescope_Name: $telescope,
+    ) {
+      edges {
+        node {
+          observations
+          pulsars
+          observationHours
+        }
+      }
+    }
+    pulsarFoldSummary (
       mainProject: $mainProject
-      project: $project
+      mostCommonProject: $mostCommonProject
       band: $band
     ) {
       totalObservations
@@ -25,17 +43,16 @@ const foldTableQuery = graphql`
       totalProjectTime
       edges {
         node {
-          jname
-          beam
+          pulsar {name}
           latestObservation
           firstObservation
           allProjects
-          project
+          mostCommonProject
           timespan
           numberOfObservations
-          lastSnRaw
-          highestSnRaw
-          lowestSnRaw
+          lastSn
+          highestSn
+          lowestSn
           lastIntegrationMinutes
           maxSnPipe
           avgSnPipe
@@ -47,16 +64,15 @@ const foldTableQuery = graphql`
 `;
 
 const FoldTable = ({
-  data: {
-    observationSummary: observationData,
-    pulsarFoldSummary: relayData,
-  },
-  relay,
+  data,
   match: {
     location: { query },
   },
 }) => {
   const [relayData, refetch] = useRefetchableFragment(foldTableQuery, data);
+  console.log("observationData:", relayData.observationSummary);
+  console.log("relayData:", relayData.pulsarFoldSummary);
+
 
   const { screenSize } = useScreenSize();
   const [mainProject, setMainProject] = useState(
@@ -66,13 +82,13 @@ const FoldTable = ({
   const [band, setBand] = useState(query.band || "All");
 
   useEffect(() => {
-    relay.refetch({ mainProject: mainProject, mostCommonProject: mostCommonProject, band: band });
+    refetch({ mainProject: mainProject, mostCommonProject: mostCommonProject, band: band });
     const url = new URL(window.location);
     url.searchParams.set("mainProject", mainProject);
     url.searchParams.set("mostCommonProject", mostCommonProject);
     url.searchParams.set("band", band);
     window.history.pushState({}, "", url);
-  }, [band, mostCommonProject, mainProject, query, relay]);
+  }, [band, mostCommonProject, mainProject, query, refetch]);
 
   const handleMainProjectChange = (newMainProject) => {
     setMainProject(newMainProject);
@@ -80,7 +96,7 @@ const FoldTable = ({
     setBand("All");
   };
 
-  const rows = relayData.foldObservations.edges.reduce((result, edge) => {
+  const rows = relayData.pulsarFoldSummary.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     row.projectKey = mainProject;
     row.latestObservation = formatUTC(row.latestObservation);
@@ -211,8 +227,8 @@ const FoldTable = ({
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
-  console.log(observationData);
-  const summaryNode = observationData.edges[0]?.node;
+  console.log(relayData.observationSummary);
+  const summaryNode = relayData.observationSummary.edges[0]?.node;
   console.log(summaryNode);
   const summaryData = [
     { title: "Observations", value: summaryNode.observations },
@@ -238,73 +254,4 @@ const FoldTable = ({
   );
 };
 
-export default createRefetchContainer(
-  FoldTable,
-  {
-    data: graphql`
-      fragment FoldTable_data on Query
-      @argumentDefinitions(
-        mainProject: { type: "String", defaultValue: "MeerTIME" }
-        project: { type: "String", defaultValue: "All" }
-        mostCommonProject: { type: "String", defaultValue: "All" }
-        pulsar: { type: "String", defaultValue: "All" }
-        band: { type: "String", defaultValue: "All" }
-        telescope: { type: "String", defaultValue: "All" }
-      ) {
-        observationSummary (
-          pulsar_Name: $pulsar,
-          obsType: "fold",
-          calibration_Id: "All",
-          project_Short: $project,
-          telescope_Name: $telescope,
-        ) {
-          edges {
-            node {
-              observations
-              pulsars
-              observationHours
-            }
-          }
-        }
-        pulsarFoldSummary (
-          mainProject: $mainProject
-          mostCommonProject: $mostCommonProject
-          band: $band
-        ) {
-          totalObservations
-          totalPulsars
-          totalObservationTime
-          totalProjectTime
-          edges {
-            node {
-              pulsar {name}
-              latestObservation
-              firstObservation
-              allProjects
-              mostCommonProject
-              timespan
-              numberOfObservations
-              lastSn
-              highestSn
-              lowestSn
-              lastIntegrationMinutes
-              maxSnPipe
-              avgSnPipe
-              totalIntegrationHours
-            }
-          }
-        }
-      }
-    `,
-  },
-  graphql`
-    query FoldTableRefetchQuery(
-      $mainProject: String
-      $mostCommonProject: String
-      $band: String
-    ) {
-      ...FoldTable_data
-        @arguments(mainProject: $mainProject, mostCommonProject: $mostCommonProject, band: $band)
-    }
-  `
-);
+export default FoldTable;

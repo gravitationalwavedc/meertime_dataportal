@@ -3,7 +3,7 @@ import SingleObservationTable from "../components/SingleObservationTable";
 import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
-  query SingleObservationQuery($jname: String!, $utc: String, $beam: Int) {
+  query SingleObservationQuery($jname: String!, $utc: String!, $beam: Int!) {
     pulsarFoldResult(pulsar: $jname, utcStart: $utc, beam: $beam) {
       edges {
         node {
