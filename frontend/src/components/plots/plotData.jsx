@@ -110,11 +110,10 @@ export const filterBandData = (data) => {
       .map((row) => row.value)
   );
 
-  console.log("data:", data);
-  const ticks = Array.from(
+  const unsortedTicks = Array.from(
     new Set(data.map((row) => moment(moment(row.utc).format("YYYY")).valueOf()))
   );
-  console.log("ticks:", ticks);
+  const ticks = unsortedTicks.sort((a, b) => a - b);
 
   const plotData = [ lBand, UHF, sband0, sband1, sband2, sband3, sband4 ];
 
