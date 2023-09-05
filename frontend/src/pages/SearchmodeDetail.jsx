@@ -21,6 +21,7 @@ const query = graphql`
           }
         }
         observation (
+          pulsar_Name: [$jname],
           mainProject: $mainProject
           obsType: "search",
         ) {

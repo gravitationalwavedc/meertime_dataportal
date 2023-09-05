@@ -7,15 +7,11 @@ import { formatUTC } from "../helpers";
 import { useScreenSize } from "../context/screenSize-context";
 
 const SearchmodeDetailTable = ({
-  data: {
-    observationSummary: summaryQuery,
-    observation: observationData,
-  },
+  data,
   jname,
-  mainProject
 }) => {
   const { screenSize } = useScreenSize();
-  const allRows = observationData.edges.reduce(
+  const allRows = data.observation.edges.reduce(
     (result, edge) => [
       ...result,
       {
@@ -176,7 +172,7 @@ const SearchmodeDetailTable = ({
     setRows(newRows);
   };
 
-  const summaryNode = summaryQuery.edges[0]?.node;
+  const summaryNode = data.observationSummary.edges[0]?.node;
   const summaryData = [
     {
       title: "Observations",
