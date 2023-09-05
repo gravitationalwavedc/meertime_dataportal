@@ -66,5 +66,5 @@ def handle_calibration_update(sender, instance, **kwargs):
     obs_type = None
     main_project = None
     for project in [instance.project, None]:
-        ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration)
+        ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration, band)
 

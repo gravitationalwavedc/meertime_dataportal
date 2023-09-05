@@ -41,7 +41,7 @@ def create_basic_data():
     ephemeris, created = Ephemeris.objects.get_or_create(
         pulsar=pulsar,
         project=project,
-        # TODO add created_by
+        created_at=datetime.strptime('2023-09-05-09:48:46', "%Y-%m-%d-%H:%M:%S"),
         ephemeris_data=json.dumps(ephemeris_dict),
         p0=ephemeris_dict["P0"],
         dm=ephemeris_dict["DM"],
@@ -77,7 +77,6 @@ def create_observation(json_path, pulsar, telescope, project, ephemeris):
     )
 
     utc_start_dt = datetime.strptime(f"{meertime_data['utcStart']} +0000", "%Y-%m-%d-%H:%M:%S %z")
-    utc_start_dt = utc_start_dt.strftime("%Y-%m-%dT%H:%M:%S+0000")
     observation = Observation.objects.create(
         pulsar=pulsar,
         telescope=telescope,

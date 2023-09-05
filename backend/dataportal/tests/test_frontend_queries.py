@@ -14,18 +14,6 @@ def setup_query_test():
     return client, user, pulsar, telescope, project, ephemeris, template, pipeline_run
 
 
-def create_test_session():
-    t = Telescope.objects.create(name="MeerKat")
-    return Sessions.objects.create(
-        telescope=t,
-        start=FoldPulsarDetail.objects.first().utc,
-        end=FoldPulsarDetail.objects.last().utc,
-    )@pytest.mark.django_db
-
-
-
-
-
 
 @pytest.mark.django_db
 @pytest.mark.enable_signals
@@ -121,8 +109,9 @@ def test_fold_query():
                 pulsar_Name: "All",
                 obsType: "fold",
                 calibration_Id: "All",
+                mainProject: "MeerTIME",
                 project_Short: "All",
-                telescope_Name: "All",
+                band: "All",
             ) {
             edges {
                 node {
@@ -213,8 +202,9 @@ def test_fold_detail_query():
                 pulsar_Name: "J0125-2327",
                 obsType: "fold",
                 calibration_Id: "All",
+                mainProject: "MeerTIME",
                 project_Short: "All",
-                telescope_Name: "All",
+                band: "All",
             ) {
                 edges {
                     node {
@@ -234,8 +224,11 @@ def test_fold_detail_query():
                 mainProject: "MeerTime",
             ) {
                 description
-                ephemerisLink
                 toasLink
+                residualEphemeris {
+                    ephemerisData
+                    createdAt
+                }
                 edges {
                     node {
                         observation {
@@ -309,8 +302,10 @@ def test_fold_detail_query():
         },
         "pulsarFoldResult": {
             "description": None,
-            "ephemerisLink": None,
             "toasLink": None,
+            "residualEphemeris": {
+                'ephemerisData': '"{\\"PSRJ\\": \\"J0125-2327\\", \\"RAJ\\": \\"01:25:01.0743144\\", \\"RAJ_ERR\\": 1.2799484500709e-06, \\"DECJ\\": \\"-23:27:08.13506\\", \\"DECJ_ERR\\": 1.918386314202124e-05, \\"F0\\": 272.08108426663085, \\"F0_ERR\\": 6.475925761376348e-13, \\"F1\\": -1.3634461197849394e-15, \\"F1_ERR\\": 2.8611605694875965e-20, \\"PEPOCH\\": 59040.0, \\"POSEPOCH\\": 59040.0, \\"POSEPOCH_ERR\\": 0.0, \\"DMEPOCH\\": 59000.0, \\"DM\\": 9.593172234774427, \\"DM_ERR\\": 0.000840292114365348, \\"DM1\\": -4.550186362449281e-05, \\"DM1_ERR\\": 2.866849975313738e-05, \\"DM2\\": 0.0008473829314709747, \\"DM2_ERR\\": 4.445334526905498e-05, \\"DM3\\": -0.0012503975851400912, \\"DM3_ERR\\": 5.554336608194772e-05, \\"PMRA\\": 37.12252111446872, \\"PMRA_ERR\\": 0.016981816168441643, \\"PMDEC\\": 10.783483810973774, \\"PMDEC_ERR\\": 0.020762535094482653, \\"PX\\": 0.9625766364575671, \\"PX_ERR\\": 0.04876126384389193, \\"BINARY\\": \\"ELL1\\", \\"PB\\": 7.277199751931904, \\"PB_ERR\\": 1.2218737166e-10, \\"A1\\": 4.729805939931686, \\"A1_ERR\\": 1.8566063704366e-07, \\"XDOT\\": -3.724535301864433e-14, \\"XDOT_ERR\\": 9.611886578212533e-16, \\"TASC\\": 57089.073682561524, \\"TASC_ERR\\": 3.74730327085e-08, \\"EPS1\\": 6.04039114241693e-08, \\"EPS1_ERR\\": 1.036524801089e-08, \\"EPS2\\": 3.823849574883707e-07, \\"EPS2_ERR\\": 9.71727142073e-09, \\"START\\": \\"2019-04-23T06:13:48.323095Z\\", \\"FINISH\\": \\"2022-07-27T00:46:33.004474Z\\", \\"TRACK\\": -2.0, \\"TZRMJD\\": 59191.764430068564, \\"TZRFRQ\\": 1453.265767, \\"TZRSITE\\": \\"meerkat\\", \\"FD1\\": -3.7031665758945584e-05, \\"FD1_ERR\\": 6.70814076275845e-06, \\"FD2\\": 2.9633689096210766e-05, \\"FD2_ERR\\": 4.68543125704137e-06, \\"TRES\\": 0.477, \\"EPHVER\\": 5.0, \\"NE_SW\\": 4.0, \\"CLK\\": \\"TT(BIPM2019)\\", \\"MODE\\": 1.0, \\"UNITS\\": \\"TCB\\", \\"TIMEEPH\\": \\"IF99\\", \\"DILATEFREQ\\": \\"Y\\", \\"PLANET_SHAPIRO\\": \\"N\\", \\"T2CMETHOD\\": \\"IAU2000B\\", \\"CORRECT_TROPOSPHERE\\": \\"Y\\", \\"EPHEM\\": \\"DE438\\", \\"NITS\\": 1.0, \\"NTOA\\": 1233.0, \\"CHI2R\\": 1.2315, \\"CHI2R_ERR\\": 1213.0, \\"TIMEOFFSETS\\": [{\\"type\\": \\"JUMP\\", \\"mjd\\": \\"-MJD_58526_59621_1K\\", \\"display\\": \\"-1.1962616822e-06\\", \\"offset\\": \\"-1.1962616822e-06\\", \\"fit\\": \\"-1.1962616822e-06\\"}, {\\"type\\": \\"JUMP\\", \\"mjd\\": \\"-MJD_58550_58690_1K\\", \\"display\\": \\"-0.000306243\\", \\"offset\\": \\"-0.000306243\\", \\"fit\\": \\"-0.000306243\\"}, {\\"type\\": \\"JUMP\\", \\"mjd\\": \\"-MJD_58526.21089_1K\\", \\"display\\": \\"-2.4628e-05\\", \\"offset\\": \\"-2.4628e-05\\", \\"fit\\": \\"-2.4628e-05\\"}, {\\"type\\": \\"JUMP\\", \\"mjd\\": \\"-MJD_58550.14921_1K\\", \\"display\\": \\"2.463e-05\\", \\"offset\\": \\"2.463e-05\\", \\"fit\\": \\"2.463e-05\\"}, {\\"type\\": \\"JUMP\\", \\"mjd\\": \\"-MJD_58550.14921B_1K\\", \\"display\\": \\"-1.196e-06\\", \\"offset\\": \\"-1.196e-06\\", \\"fit\\": \\"-1.196e-06\\"}, {\\"type\\": \\"JUMP\\", \\"mjd\\": \\"-MJD_58557.14847_1K\\", \\"display\\": \\"-4.785e-06\\", \\"offset\\": \\"-4.785e-06\\", \\"fit\\": \\"-4.785e-06\\"}, {\\"type\\": \\"JUMP\\", \\"mjd\\": \\"-MJD_58575.9591_1K\\", \\"display\\": \\"5.981308411e-07\\", \\"offset\\": \\"5.981308411e-07\\", \\"fit\\": \\"5.981308411e-07\\"}], \\"DM_SERIES\\": \\"TAYLOR\\", \\"P0\\": 0.003675374944551572, \\"P0_ERR\\": 9e-18}"',
+            },
             "edges": [
                 {
                     "node": {
@@ -396,6 +391,7 @@ def test_fold_detail_query():
         }
     }
     assert not response.errors
+    del response.data["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
     assert response.data == expected
 
 
@@ -520,8 +516,9 @@ def test_session_query():
                 pulsar_Name: "All",
                 obsType: "All",
                 calibrationInt: 10,
+                mainProject: "All",
                 project_Short: "All",
-                telescope_Name: "All",
+                band: "All",
             ) {
                 edges {
                     node {
