@@ -37,10 +37,6 @@ const foldTableQuery = graphql`
       mostCommonProject: $mostCommonProject
       band: $band
     ) {
-      totalObservations
-      totalPulsars
-      totalObservationTime
-      totalProjectTime
       edges {
         node {
           pulsar {name}

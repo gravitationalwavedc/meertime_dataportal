@@ -10,12 +10,12 @@ import {
 import React from "react";
 import ScatterPlot from "./ScatterPlot";
 import moment from "moment";
-import { snrPlotData, formatYAxisTick  } from "./plotData";
+import { snrPlotData, getXaxisFormatter, getXaxisLabel } from "./plotData";
 
 
 const SNRPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
   console.log(data);
-  const { plotData, minValue, maxValue } = snrPlotData(
+  const { plotData, minValue, maxValue, ticks } = snrPlotData(
     data,
     columns,
     search,
@@ -37,51 +37,16 @@ const SNRPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
   return (
     <ScatterPlot data={plotData} >
       <CartesianGrid />
-      { xAxis === "utc" ? (
-        <XAxis
-          type="number"
-          dataKey="utc"
-          name="UTC"
-          tickCount={8}
-          domain={["auto", "auto"]}
-          tickFormatter={(unixTime) => moment(unixTime).format("DD/MM/YY")}
-        >
-          <Label value="UTC" position="bottom" />
-        </XAxis>
-      ) : xAxis === "day" ? (
-        <XAxis
-          type="number"
-          dataKey="day"
-          name="UTC"
-          tickCount={8}
-          domain={["auto", "auto"]}
-          tickFormatter={formatYAxisTick}
-        >
-          <Label value="Day of the year" position="bottom" />
-        </XAxis>
-      ) : xAxis === "phase" ? (
-        <XAxis
-          type="number"
-          dataKey="phase"
-          name="UTC"
-          tickCount={8}
-          domain={["auto", "auto"]}
-          tickFormatter={formatYAxisTick}
-        >
-          <Label value="Binary phase" position="bottom" />
-        </XAxis>
-      ) : (
-        <XAxis
-          type="number"
-          dataKey="utc"
-          name="UTC"
-          tickCount={8}
-          domain={["auto", "auto"]}
-          tickFormatter={(unixTime) => moment(unixTime).format("DD/MM/YY")}
-        >
-          <Label value="UTC" position="bottom" />
-        </XAxis>
-      )}
+      <XAxis
+        type="number"
+        dataKey={xAxis}
+        name={getXaxisLabel(xAxis)}
+        domain={["auto", "auto"]}
+        ticks={xAxis === "utc" ? ticks : undefined}
+        tickFormatter={getXaxisFormatter(xAxis)}
+      >
+        <Label value={getXaxisLabel(xAxis)} position="bottom" />
+      </XAxis>
       <YAxis type="number" dataKey="value" name="S/N">
         <Label value="S/N" position="left" angle="-90" />
       </YAxis>

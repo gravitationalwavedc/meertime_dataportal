@@ -9,11 +9,11 @@ import {
 } from "recharts";
 import React from "react";
 import ScatterPlot from "./ScatterPlot";
-import { fluxPlotData, formatYAxisTick  } from "./plotData";
+import { fluxPlotData, getXaxisFormatter, getXaxisLabel } from "./plotData";
 import moment from "moment";
 
 const FluxPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
-  const { plotData, minValue, maxValue } = fluxPlotData(
+  const { plotData, minValue, maxValue, ticks } = fluxPlotData(
     data,
     columns,
     search,
@@ -31,18 +31,7 @@ const FluxPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
 
     return [value, name];
   };
-
-  const getXaxisFormatter = (xAxis) => {
-    if (xAxis === "utc") {
-      return (unixTime) => moment(unixTime).format("YYYY");
-    } else if (xAxis === "day") {
-      return formatYAxisTick;
-    } else if (xAxis === "phase") {
-      return formatYAxisTick;
-    } else {
-      return (unixTime) => moment(unixTime).format("YYYY");
-    }
-  };
+  console.log(getXaxisLabel(xAxis));
 
   return (
     <ScatterPlot data={plotData}>
@@ -50,12 +39,12 @@ const FluxPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
       <XAxis
         type="number"
         dataKey={xAxis}
-        name="UTC"
+        name={getXaxisLabel(xAxis)}
         domain={["auto", "auto"]}
-        ticks={ticks}
+        ticks={xAxis === "utc" ? ticks : undefined}
         tickFormatter={getXaxisFormatter(xAxis)}
       >
-        <Label value="UTC" position="bottom" />
+        <Label value={getXaxisLabel(xAxis)} position="bottom" />
       </XAxis>
       <YAxis type="number" dataKey="value" name="Flux" domain={[minValue, maxValue]}>
         <Label value="Flux Density (mJy)" position="left" angle="-90" />

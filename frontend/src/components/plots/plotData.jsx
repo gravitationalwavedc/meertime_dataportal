@@ -1,9 +1,37 @@
 import { handleSearch, mjdToUnixTimestamp } from "../../helpers";
 import moment from "moment";
 
+
 export const formatYAxisTick = (value) => {
   return value.toFixed(2);
 };
+
+
+export const getXaxisFormatter = (xAxis) => {
+  if (xAxis === "utc") {
+    return (unixTime) => moment(unixTime).format("YYYY");
+  } else if (xAxis === "day") {
+    return formatYAxisTick;
+  } else if (xAxis === "phase") {
+    return formatYAxisTick;
+  } else {
+    return (unixTime) => moment(unixTime).format("YYYY");
+  }
+};
+
+
+export const getXaxisLabel = (xAxis) => {
+  if (xAxis === "utc") {
+    return "UTC";
+  } else if (xAxis === "day") {
+    return "Day of the year";
+  } else if (xAxis === "phase") {
+    return "Binary orbit phase";
+  } else {
+    return "UTC";
+  }
+};
+
 
 export const filterBandData = (data) => {
   data = data.filter((row) => row.value !== null);
@@ -82,9 +110,11 @@ export const filterBandData = (data) => {
       .map((row) => row.value)
   );
 
+  console.log("data:", data);
   const ticks = Array.from(
-    new Set(data.map((row) => moment(row.utc.slice(0, 4), "YYYY").valueOf()))
+    new Set(data.map((row) => moment(moment(row.utc).format("YYYY")).valueOf()))
   );
+  console.log("ticks:", ticks);
 
   const plotData = [ lBand, UHF, sband0, sband1, sband2, sband3, sband4 ];
 
