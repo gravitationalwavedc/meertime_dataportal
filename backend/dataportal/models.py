@@ -12,8 +12,9 @@ from django.db import models
 from django.db.models.constraints import UniqueConstraint
 from django.utils.translation import ugettext_lazy as _
 from django_mysql.models import Model
-from .storage import OverwriteStorage, get_upload_location, get_template_upload_location, create_file_hash
+from django.db.models import F, Sum
 
+from .storage import OverwriteStorage, get_upload_location, get_template_upload_location, create_file_hash
 from user_manage.models import User
 from utils.observing_bands import get_band
 from utils.binary_phase import get_binary_phase, is_binary
@@ -336,9 +337,9 @@ class ObservationSummary(Model):
         max_utc = all_observations.last().utc_start
 
         observations = len(all_observations)
-        pulsars = len({obs.pulsar.name for obs in all_observations})
-        projects = len({obs.project for obs in all_observations})
-        observation_hours = sum(float(obs.duration) for obs in all_observations) / 3600
+        pulsars = len(all_observations.values_list('pulsar__name', flat=True).distinct())
+        projects = len(all_observations.values_list('project', flat=True).distinct())
+        observation_hours = all_observations.aggregate(total=Sum('duration'))['total'] / 3600
         min_duration = all_observations.order_by("duration").first().duration
         max_duration = all_observations.order_by("duration").last().duration
 
@@ -346,21 +347,15 @@ class ObservationSummary(Model):
         # Add 1 day to the end result because the timespan should show the rounded up number of days
         timespan_days = duration.days + 1
 
-        estimated_sizes = []
-        for obs in all_observations:
-            if obs.obs_type == "fold":
-                try:
-                    estimated_sizes.append(
-                        math.ceil(obs.duration / float(obs.fold_tsubint))
-                        * obs.fold_nbin
-                        * obs.fold_nchan
-                        * obs.npol
-                        * 2
-                    )
-                except ZeroDivisionError:
-                    estimated_sizes.append(0)
-
-        total_bytes = sum(estimated_sizes)
+        if obs_type == "fold":
+            try:
+                total_bytes = all_observations.aggregate(total_bytes=Sum(
+                    F('duration') / F('fold_tsubint') * F('fold_nbin') * F('fold_nchan') * F('npol') * 2
+                ))['total_bytes']
+            except ZeroDivisionError:
+                total_bytes = 0
+        else:
+            total_bytes = 0
         estimated_disk_space_gb = total_bytes/ (1024 ** 3)
 
         # Update oc create the model
