@@ -18,7 +18,9 @@ from .models import (
     Residual,
 )
 
-admin.site.register(Pulsar)
+@admin.register(Pulsar)
+class PulsarAdmin(admin.ModelAdmin):
+    search_fields = ['name']
 admin.site.register(Telescope)
 admin.site.register(MainProject)
 admin.site.register(Project)
