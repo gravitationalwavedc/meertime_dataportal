@@ -1,5 +1,6 @@
 from decimal import Decimal, getcontext
 
+
 def convert_to_int_or_float_if_possible(value):
     try:
         int_value = int(value)
@@ -10,6 +11,14 @@ def convert_to_int_or_float_if_possible(value):
             return float_value
         except ValueError:
             return value
+
+
+def format_float(value, threshold=1e3, decimal_places=2):
+    print(value)
+    if abs(value) >= threshold:
+        return "{:.{}e}".format(value, decimal_places)
+    else:
+        return f"{value}"
 
 
 def toa_line_to_dict(toa_line):
@@ -40,6 +49,7 @@ def toa_line_to_dict(toa_line):
 
     return toa_dict
 
+
 def toa_dict_to_line(toa_dict):
     """
     Convert a dictionary to a line in a .toa file.
@@ -54,5 +64,8 @@ def toa_dict_to_line(toa_dict):
     toa_line += f"{toa_dict['archive']} {toa_dict['freq_MHz']:.6f} {toa_dict['mjd']} {toa_dict['mjd_err']:>7.3f}  {toa_dict['telescope']} "
     for key, value in toa_dict.items():
         if key not in ["archive", "freq_MHz", "mjd", "mjd_err", "telescope"]:
-            toa_line += f" -{key} {value}"
+            if type(value) == float and key == "gof":
+                toa_line += f" -{key} {format_float(value, threshold=1e3, decimal_places=2)}"
+            else:
+                toa_line += f" -{key} {value}"
     return toa_line
