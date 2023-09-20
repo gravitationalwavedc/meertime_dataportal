@@ -52,18 +52,13 @@ const FoldTable = ({
     location: { query },
   },
 }) => {
-  const {
-    project: defaultProject,
-    mainProject: defaultMainProject,
-    band: defaultBand,
-  } = query;
   const [relayData, refetch] = useRefetchableFragment(foldTableQuery, data);
   const { screenSize } = useScreenSize();
   const [mainProject, setMainProject] = useState(
-    defaultMainProject || "meertime"
+    query.mainProject || "meertime"
   );
-  const [project, setProject] = useState(defaultProject || "All");
-  const [band, setBand] = useState(defaultBand || "All");
+  const [project, setProject] = useState(query.project || "All");
+  const [band, setBand] = useState(query.band || "All");
 
   const handleRefetch = ({
     newMainProject = mainProject,

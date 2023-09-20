@@ -42,7 +42,6 @@ describe("fold detail component", () => {
       )
     );
 
-    screen.debug();
     expect(screen.getByText("J111-222")).toBeInTheDocument();
     cleanupMockResizeObserver();
   });
