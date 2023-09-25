@@ -9,7 +9,7 @@ import MainLayout from "./MainLayout";
 import MolongloImageGrid from "./MolongloImageGrid";
 import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
 
-const SingleObservationTable = ({ data, jname }) => {
+const SingleObservationTable = ({ data, jname, mainProject }) => {
   const { foldObservationDetails } = data;
   const relayObservationModel = foldObservationDetails.edges[0].node;
 
@@ -23,7 +23,7 @@ const SingleObservationTable = ({ data, jname }) => {
   const [project, setProject] = useState(projectChoices[0]);
 
   const title = (
-    <Link size="sm" to={`/fold/meertime/${jname}/`}>
+    <Link size="sm" to={`/fold/${mainProject}/${jname}/`}>
       {jname}
     </Link>
   );

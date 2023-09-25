@@ -1239,7 +1239,7 @@ type PulsarsNode implements Node {
   jname: String!
   state: String
   comment: String
-  ephemeridesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection!
+  ephemeridesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Decimal, p0_Lt: Decimal, p0_Lte: Decimal, p0_Gt: Decimal, p0_Gte: Decimal, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection!
   launchesSet(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection!
   pulsaraliasesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, alias: String): PulsaraliasesNodeConnection!
   pulsartargetsSet(offset: Int, before: String, after: String, first: Int, last: Int, target_Id: ID, target_Name: String, pulsar_Id: ID, pulsar_Jname: String): PulsartargetsNodeConnection!
@@ -1261,7 +1261,7 @@ type PulsarsType {
   jname: String!
   state: String
   comment: String
-  ephemeridesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection!
+  ephemeridesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Decimal, p0_Lt: Decimal, p0_Lte: Decimal, p0_Gt: Decimal, p0_Gte: Decimal, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection!
   launchesSet(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection!
   pulsaraliasesSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, alias: String): PulsaraliasesNodeConnection!
   pulsartargetsSet(offset: Int, before: String, after: String, first: Int, last: Int, target_Id: ID, target_Name: String, pulsar_Id: ID, pulsar_Jname: String): PulsartargetsNodeConnection!
@@ -1341,17 +1341,17 @@ type Query {
   launch(id: ID!): LaunchesNode
   allLaunches(offset: Int, before: String, after: String, first: Int, last: Int, pipeline: ID, parentPipeline: ID, pulsar: ID): LaunchesNodeConnection
   instrumentconfig(id: ID!): InstrumentconfigsNode
-  allInstrumentconfigs(offset: Int, before: String, after: String, first: Int, last: Int, name: String, bandwidth: Float, frequency: Float, nchan: Int, npol: Int, beam: String): InstrumentconfigsNodeConnection
+  allInstrumentconfigs(offset: Int, before: String, after: String, first: Int, last: Int, name: String, bandwidth: Decimal, frequency: Decimal, nchan: Int, npol: Int, beam: String): InstrumentconfigsNodeConnection
   folding(id: ID!): FoldingsNode
   allFoldings(offset: Int, before: String, after: String, first: Int, last: Int, nbin: Int, npol: Int, nchan: Int, processingId: ID, foldingEphemerisId: ID, foldingEphemeris_Pulsar_Id: ID, foldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String): FoldingsNodeConnection
   filterbanking(id: ID!): FilterbankingsNode
   allFilterbankings(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID, nbit: Int, npol: Int, nchan: Int, tsamp: Float, dm: Float): FilterbankingsNodeConnection
   ephemeris(id: ID!): EphemeridesNode
-  allEphemerides(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection
+  allEphemerides(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Id: ID, p0: Decimal, p0_Lt: Decimal, p0_Lte: Decimal, p0_Gt: Decimal, p0_Gte: Decimal, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, ephemerisHash: String): EphemeridesNodeConnection
   collection(id: ID!): CollectionsNode
   allCollections(offset: Int, before: String, after: String, first: Int, last: Int, name: String, description: String): CollectionsNodeConnection
   calibration(id: ID!): CalibrationsNode
-  allCalibrations(offset: Int, before: String, after: String, first: Int, last: Int, calibrationType: String, location: String): CalibrationsNodeConnection
+  allCalibrations(offset: Int, before: String, after: String, first: Int, last: Int, calibrationType: CalibrationsCalibrationType, location: String): CalibrationsNodeConnection
   basebanding(id: ID!): BasebandingsNode
   allBasebandings(offset: Int, before: String, after: String, first: Int, last: Int, processing: ID): BasebandingsNodeConnection
 }

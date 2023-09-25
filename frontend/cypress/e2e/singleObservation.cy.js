@@ -26,7 +26,7 @@ describe("Single Observation Page", () => {
       aliasQuery(req, "SingleObservationQuery", "foldObservationDetails.json");
     });
 
-    cy.visit("/J0125-2327/2020-02-04-00:21:21/2/");
+    cy.visit("/meertime/J0125-2327/2020-02-04-00:21:21/2/");
 
     cy.wait("@SingleObservationQuery");
 
@@ -46,7 +46,7 @@ describe("Single Observation Page", () => {
       );
     });
 
-    cy.visit("/J0125-2327/2020-02-04-00:21:21/2/");
+    cy.visit("/meertime/J0125-2327/2020-02-04-00:21:21/2/");
 
     cy.wait("@SingleObservationQuery");
 

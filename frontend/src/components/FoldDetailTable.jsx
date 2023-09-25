@@ -48,7 +48,9 @@ const FoldDetailTable = ({
         ) : (
           <ButtonGroup vertical>
             <Link
-              to={`/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`}
+              to={`/${mainProject}/${jname}/${formatUTC(edge.node.utc)}/${
+                edge.node.beam
+              }/`}
               size="sm"
               variant="outline-secondary"
               as={Button}
