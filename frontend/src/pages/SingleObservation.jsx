@@ -1,7 +1,7 @@
 import { QueryRenderer, graphql } from "react-relay";
 import SingleObservationTable from "../components/SingleObservationTable";
 import environment from "../relayEnvironment";
-import { performRefreshTokenMutation } from "./RefreshToken.jsx";
+// import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
   query SingleObservationQuery($jname: String!, $utc: String!, $beam: Int!) {
@@ -41,12 +41,12 @@ const query = graphql`
 `;
 
 const SingleObservation = ({
-  router,
+  // router,
   match: {
     params: { jname, utc, beam },
   },
 }) => {
-  performRefreshTokenMutation(router);
+  // performRefreshTokenMutation(router);
 
   return (
     <QueryRenderer

@@ -381,26 +381,6 @@ type EphemeridesType {
   toasSet(offset: Int, before: String, after: String, first: Int, last: Int, processingId: ID, inputFoldingId: ID, timingEphemerisId: ID, templateId: ID, inputFolding_FoldingEphemerisId: ID, inputFolding_FoldingEphemeris_Pulsar_Id: ID, inputFolding_FoldingEphemeris_Pulsar_Jname: String, processing_Observation_UtcStart: DateTime, processing_Observation_UtcStart_Isnull: Boolean, processing_Observation_UtcStart_Lt: DateTime, processing_Observation_UtcStart_Lte: DateTime, processing_Observation_UtcStart_Gt: DateTime, processing_Observation_UtcStart_Gte: DateTime, processing_Observation_UtcStart_Month: DateTime, processing_Observation_UtcStart_Year: DateTime, processing_Observation_UtcStart_Date: DateTime, processing_Observation_Duration: Float, processing_Observation_Duration_Lt: Float, processing_Observation_Duration_Lte: Float, processing_Observation_Duration_Gt: Float, processing_Observation_Duration_Gte: Float, processing_Observation_Suspect: Boolean, processing_Observation_Telescope_Id: ID, processing_Observation_Telescope_Name: String, processing_Observation_Project_Id: ID, processing_Observation_Project_Code: String, processing_Observation_InstrumentConfig_Id: ID, processing_Observation_InstrumentConfig_Name: String, processing_Pipeline_Id: ID, processing_Pipeline_Name: String): ToasNodeConnection!
 }
 
-type FileConnection {
-  pageInfo: PageInfo!
-  edges: [FileEdge]!
-}
-
-input FileDownloadTokenMutationInput {
-  path: String!
-  clientMutationId: String
-}
-
-type FileDownloadTokenMutationPayload {
-  downloadToken: String
-  clientMutationId: String
-}
-
-type FileEdge {
-  node: JobControllerFile
-  cursor: String!
-}
-
 input FilterbankingsInput {
   processing_id: Int!
   nbit: Int
@@ -683,13 +663,6 @@ type InstrumentconfigsType {
 
 scalar JSONString
 
-type JobControllerFile implements Node {
-  id: ID!
-  fileSize: Int
-  isDir: Boolean
-  path: String
-}
-
 input LaunchesInput {
   pipeline_id: Int!
   parent_pipeline_id: Int!
@@ -721,7 +694,6 @@ type LaunchesType {
 }
 
 type Mutation {
-  getFileDownloadToken(input: FileDownloadTokenMutationInput!): FileDownloadTokenMutationPayload
   createProvisionalUser(email: String!, role: String!): CreateProvisionalUser
   deleteUser(username: String): DeleteUser
   activateUser(username: String): ActivateUser
@@ -1296,7 +1268,6 @@ type PulsartargetsType {
 }
 
 type Query {
-  fileList(jname: String!, utc: String!, beam: Int!, before: String, after: String, first: Int, last: Int): FileConnection
   foldPulsar(jname: String!, mainProject: String): FoldPulsarNode
   foldObservations(mainProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): FoldPulsarConnection
   foldObservationDetails(jname: String!, mainProject: String, project: String, utc: String, beam: Int, before: String, after: String, first: Int, last: Int): FoldPulsarDetailConnection
