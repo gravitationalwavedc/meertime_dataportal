@@ -3,7 +3,7 @@ import ComparisonImageGrid from "./ComparisonImageGrid";
 import LightBox from "react-image-lightbox";
 import PlotImage from "./PlotImage";
 import ToaImages from "./ToaImages";
-import { getImageData } from "../pages/RefreshToken.jsx";
+// import { getImageData } from "../pages/RefreshToken.jsx";
 
 const ImageGrid = ({ images, project }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -25,21 +25,29 @@ const ImageGrid = ({ images, project }) => {
   ];
 
   const [lightBoxImages, setLightBoxImages] = useState({
-    images: [],
+    // images: [],
+    images: urls,
     imagesIndex: 0,
   });
 
-  const openLightBox = async (imageUrl) => {
-    const imagePromises = urls.map((url) => getImageData(url));
-    const imageData = await Promise.all(imagePromises);
-    const images = imageData
-      .filter((data) => data !== null)
-      .map((data) => data);
-    const imageIndex = urls.indexOf(imageUrl);
-
-    setLightBoxImages({ images, imagesIndex: imageIndex });
+  const openLightBox = (imageUrl) => {
+    const images = lightBoxImages.images;
+    const imageIndex = images.indexOf(imageUrl);
     setIsLightBoxOpen(true);
+    setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
+
+  // const openLightBox = async (imageUrl) => {
+  //   const imagePromises = urls.map((url) => getImageData(url));
+  //   const imageData = await Promise.all(imagePromises);
+  //   const images = imageData
+  //     .filter((data) => data !== null)
+  //     .map((data) => data);
+  //   const imageIndex = urls.indexOf(imageUrl);
+  //
+  //   setLightBoxImages({ images, imagesIndex: imageIndex });
+  //   setIsLightBoxOpen(true);
+  // };
 
   return (
     <>
@@ -65,7 +73,11 @@ const ImageGrid = ({ images, project }) => {
       )}
       {isLightBoxOpen && (
         <LightBox
-          mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
+          // mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
+          mainSrc={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${
+            lightBoxImages.images[lightBoxImages.imagesIndex]
+          }`}
+
           nextSrc={
             lightBoxImages.images[
               (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length
