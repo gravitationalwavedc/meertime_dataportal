@@ -117,7 +117,9 @@ const FoldDetailTable = ({
       value: summaryNode.timespanDays,
     },
     { title: "Hours", value: summaryNode.observationHours },
-    { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb.toFixed(1) },
+    summaryNode.estimatedDiskSpaceGb
+      ? { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb.toFixed(1) }
+      : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb }
   ];
 
   return (
