@@ -7,6 +7,7 @@ import {
   formatUTC,
   meerWatchLink,
 } from "../helpers";
+import { graphql, useRefetchableFragment } from "react-relay";
 import { meertime, molonglo } from "../telescopes";
 import DataView from "./DataView";
 import Ephemeris from "./Ephemeris";
@@ -16,14 +17,119 @@ import ReactMarkdown from "react-markdown";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
+const foldDetailTableQuery = graphql`
+  fragment FoldDetailTable_data on Query
+  @refetchable(queryName: "FoldDetailTableRefetchQuery")
+  @argumentDefinitions(
+    jname: { type: "String" }
+    mainProject: { type: "String", defaultValue: "MeerTIME" }
+    dmCorrected: { type: "Boolean", defaultValue: false }
+    minimumNsubs: { type: "Boolean", defaultValue: true }
+    obsNchan: { type: "Int", defaultValue: 1 }
+  ) {
+    observationSummary (
+      pulsar_Name: $jname,
+      obsType: "fold",
+      calibration_Id: "All",
+      mainProject: $mainProject,
+      project_Short: "All",
+      band: "All",
+    ) {
+      edges {
+        node {
+          observations
+          observationHours
+          projects
+          pulsars
+          estimatedDiskSpaceGb
+          timespanDays
+          maxDuration
+          minDuration
+        }
+      }
+    }
+    pulsarFoldResult(
+        pulsar: $jname,
+        mainProject: $mainProject
+      ) {
+      residualEphemeris {
+        ephemerisData
+        createdAt
+      }
+      description
+      toasLink
+      edges {
+        node {
+          observation{
+            utcStart
+            dayOfYear
+            binaryOrbitalPhase
+            duration
+            beam
+            bandwidth
+            nchan
+            band
+            foldNbin
+            nant
+            nantEff
+            project{
+              short
+            }
+            ephemeris {
+              dm
+            }
+          }
+          pipelineRun{
+            dm
+            dmErr
+            rm
+            rmErr
+            sn
+            flux
+            toas (
+              dmCorrected: $dmCorrected,
+              minimumNsubs: $minimumNsubs,
+              obsNchan: $obsNchan,
+            ){
+              edges {
+                node {
+                  freqMhz
+                  length
+                  residual {
+                    mjd
+                    dayOfYear
+                    binaryOrbitalPhase
+                    residualSec
+                    residualSecErr
+                    residualPhase
+                    residualPhaseErr
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
 /* eslint-disable complexity */
 const FoldDetailTable = ({
-  data: { observationSummary, pulsarFoldResult },
-  jname,
-  project,
+  data,
+  match,
 }) => {
+  const dmCorrected = false;
+  const minimumNsubs = true;
+  const obsNchan = 1;
+  const { jname, mainProject } = match.params;
+  console.log("Input arguments:", jname, mainProject, dmCorrected, minimumNsubs, obsNchan);
+  const [relayData, refetch] = useRefetchableFragment(foldDetailTableQuery, data);
+  console.log("data:", relayData);
+  console.log("observationData:", relayData.observationSummary);
+  console.log("pulsarFoldResult:", relayData.pulsarFoldResult);
+  const summaryNode = observationSummary?.edges[0]?.node;
   const { screenSize } = useScreenSize();
-  const summaryNode = observationSummary.edges[0]?.node;
   const allRows = pulsarFoldResult.edges.reduce(
     (result, edge) => [
       ...result,
