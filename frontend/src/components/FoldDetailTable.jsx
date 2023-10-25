@@ -17,118 +17,24 @@ import ReactMarkdown from "react-markdown";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
-const foldDetailTableQuery = graphql`
-  fragment FoldDetailTable_data on Query
-  @refetchable(queryName: "FoldDetailTableRefetchQuery")
-  @argumentDefinitions(
-    jname: { type: "String" }
-    mainProject: { type: "String", defaultValue: "MeerTIME" }
-    dmCorrected: { type: "Boolean", defaultValue: false }
-    minimumNsubs: { type: "Boolean", defaultValue: true }
-    obsNchan: { type: "Int", defaultValue: 1 }
-  ) {
-    observationSummary (
-      pulsar_Name: $jname,
-      obsType: "fold",
-      calibration_Id: "All",
-      mainProject: $mainProject,
-      project_Short: "All",
-      band: "All",
-    ) {
-      edges {
-        node {
-          observations
-          observationHours
-          projects
-          pulsars
-          estimatedDiskSpaceGb
-          timespanDays
-          maxDuration
-          minDuration
-        }
-      }
-    }
-    pulsarFoldResult(
-        pulsar: $jname,
-        mainProject: $mainProject
-      ) {
-      residualEphemeris {
-        ephemerisData
-        createdAt
-      }
-      description
-      toasLink
-      edges {
-        node {
-          observation{
-            utcStart
-            dayOfYear
-            binaryOrbitalPhase
-            duration
-            beam
-            bandwidth
-            nchan
-            band
-            foldNbin
-            nant
-            nantEff
-            project{
-              short
-            }
-            ephemeris {
-              dm
-            }
-          }
-          pipelineRun{
-            dm
-            dmErr
-            rm
-            rmErr
-            sn
-            flux
-            toas (
-              dmCorrected: $dmCorrected,
-              minimumNsubs: $minimumNsubs,
-              obsNchan: $obsNchan,
-            ){
-              edges {
-                node {
-                  freqMhz
-                  length
-                  residual {
-                    mjd
-                    dayOfYear
-                    binaryOrbitalPhase
-                    residualSec
-                    residualSecErr
-                    residualPhase
-                    residualPhaseErr
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`;
-
 /* eslint-disable complexity */
 const FoldDetailTable = ({
-  data,
-  match,
+  tableData,
+  // graphqlData,
+  jname,
+  mainProject,
 }) => {
   const dmCorrected = false;
   const minimumNsubs = true;
   const obsNchan = 1;
-  const { jname, mainProject } = match.params;
   console.log("Input arguments:", jname, mainProject, dmCorrected, minimumNsubs, obsNchan);
-  const [relayData, refetch] = useRefetchableFragment(foldDetailTableQuery, data);
-  console.log("data:", relayData);
-  console.log("observationData:", relayData.observationSummary);
-  console.log("pulsarFoldResult:", relayData.pulsarFoldResult);
-  const summaryNode = observationSummary?.edges[0]?.node;
+  console.log("tableData:", tableData);
+  // const [relayData, refetch] = useRefetchableFragment(foldDetailTableQuery, tableData);
+  console.log("data:", tableData);
+  console.log("observationData:", tableData.observationSummary);
+  console.log("pulsarFoldResult:", tableData.pulsarFoldResult);
+  const summaryNode = tableData.observationSummary?.edges[0]?.node;
+  const pulsarFoldResult = tableData.pulsarFoldResult;
   const { screenSize } = useScreenSize();
   const allRows = pulsarFoldResult.edges.reduce(
     (result, edge) => [
@@ -186,7 +92,7 @@ const FoldDetailTable = ({
   const ephemerisUpdated = pulsarFoldResult.residualEphemeris ? pulsarFoldResult.residualEphemeris.createdAt     : null;
 
   const columns =
-    project === "MONSPSR" ? molonglo.columns : meertime.columns;
+    mainProject === "MONSPSR" ? molonglo.columns : meertime.columns;
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
@@ -248,7 +154,7 @@ const FoldDetailTable = ({
               ? "View folding ephemeris"
               : "Folding ephemeris unavailable"}
           </Button>
-          {project !== "MONSPSR" && (
+          {mainProject !== "MONSPSR" && (
             <Button
               size="sm"
               className="mr-2 mb-2"
@@ -318,7 +224,7 @@ const FoldDetailTable = ({
         plot
         maxPlotLength={summaryNode.maxDuration}
         minPlotLength={summaryNode.minDuration}
-        project={project}
+        mainProject={mainProject}
         keyField="key"
         card={FoldDetailCard}
       />
