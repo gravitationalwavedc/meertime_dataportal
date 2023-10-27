@@ -1,6 +1,7 @@
 import { graphql, useLazyLoadQuery } from "react-relay";
 import SingleObservationTable from "../components/SingleObservationTable";
-import environment from "../relayEnvironment";
+import MainLayout from "../components/MainLayout";
+import { Link } from "found";
 // import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
@@ -26,7 +27,17 @@ const SingleObservation = ({
     beam: beam,
   });
 
-  return <SingleObservationTable data={data} jname={jname} />;
+  const title = (
+    <Link size="sm" to={`/fold/meertime/${jname}/`}>
+      {jname}
+    </Link>
+  );
+
+  return (
+    <MainLayout title={title}>
+      <SingleObservationTable data={data} jname={jname}/>
+    </MainLayout>
+  );
 };
 
 export default SingleObservation;

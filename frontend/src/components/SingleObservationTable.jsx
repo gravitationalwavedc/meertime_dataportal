@@ -5,8 +5,6 @@ import { formatProjectName, formatSingleObservationData } from "../helpers";
 import { formatUTC, kronosLink, sessionLink } from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
-import { Link } from "found";
-import MainLayout from "./MainLayout";
 import MolongloImageGrid from "./MolongloImageGrid";
 import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
 
@@ -77,11 +75,7 @@ const SingleObservationTable = ({ data, jname }) => {
 
   const [project, setProject] = useState(projectChoices[0]);
 
-  const title = (
-    <Link size="sm" to={`/fold/meertime/${jname}/`}>
-      {jname}
-    </Link>
-  );
+
 
   const displayDate = formatUTC(relayObservationModel.observation.utcStart);
 
@@ -96,7 +90,7 @@ const SingleObservationTable = ({ data, jname }) => {
   console.log(relayObservationModel);
   console.log(relayObservationModel.observation.calibration.idInt);
   return (
-    <MainLayout title={title}>
+    <div className="single-observation">
       <h5 className="single-observation-subheading">{displayDate}</h5>
       <h5>Beam {relayObservationModel.observation.beam}</h5>
       <Row>
@@ -169,7 +163,7 @@ const SingleObservationTable = ({ data, jname }) => {
           ))}
         </Col>
       </Row>
-    </MainLayout>
+    </div>
   );
 };
 
