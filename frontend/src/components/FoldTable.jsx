@@ -16,13 +16,13 @@ const FoldTableFragment = graphql`
     mostCommonProject: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
   ) {
-    observationSummary (
-      pulsar_Name: $pulsar,
-      obsType: "fold",
-      calibration_Id: "All",
-      mainProject: $mainProject,
-      project_Short: $project,
-      band: $band,
+    observationSummary(
+      pulsar_Name: $pulsar
+      obsType: "fold"
+      calibration_Id: "All"
+      mainProject: $mainProject
+      project_Short: $project
+      band: $band
     ) {
       edges {
         node {
@@ -32,14 +32,16 @@ const FoldTableFragment = graphql`
         }
       }
     }
-    pulsarFoldSummary (
+    pulsarFoldSummary(
       mainProject: $mainProject
       mostCommonProject: $mostCommonProject
       band: $band
     ) {
       edges {
         node {
-          pulsar {name}
+          pulsar {
+            name
+          }
           latestObservation
           firstObservation
           allProjects
@@ -70,16 +72,21 @@ const FoldTable = ({
   console.log("observationData:", relayData.observationSummary);
   console.log("relayData:", relayData.pulsarFoldSummary);
 
-
   const { screenSize } = useScreenSize();
   const [mainProject, setMainProject] = useState(
     query.mainProject || "meertime"
   );
-  const [mostCommonProject, setMostCommonProject] = useState(query.mostCommonProject || "All");
+  const [mostCommonProject, setMostCommonProject] = useState(
+    query.mostCommonProject || "All"
+  );
   const [band, setBand] = useState(query.band || "All");
 
   useEffect(() => {
-    refetch({ mainProject: mainProject, mostCommonProject: mostCommonProject, band: band });
+    refetch({
+      mainProject: mainProject,
+      mostCommonProject: mostCommonProject,
+      band: band,
+    });
     const url = new URL(window.location);
     url.searchParams.set("mainProject", mainProject);
     url.searchParams.set("mostCommonProject", mostCommonProject);

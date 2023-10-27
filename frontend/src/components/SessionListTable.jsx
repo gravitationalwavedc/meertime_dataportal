@@ -25,7 +25,6 @@ const sessionListTableQuery = graphql`
   }
 `;
 
-
 const SessionListTable = ({ data }) => {
   const fragmentData = useFragment(sessionListTableQuery, data);
 

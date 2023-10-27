@@ -3,99 +3,99 @@ import SearchmodeDetailTable from "./SearchmodeDetailTable";
 
 describe("search mode detail table", () => {
   const data = {
-    "observationSummary": {
-      "edges": [
+    observationSummary: {
+      edges: [
         {
-          "node": {
-            "observations": 1,
-            "projects": 1,
-            "observationHours": 3,
-            "timespanDays": 1
-          }
-        }
-      ]
+          node: {
+            observations: 1,
+            projects: 1,
+            observationHours: 3,
+            timespanDays: 1,
+          },
+        },
+      ],
     },
-    "observation": {
-      "edges": [
+    observation: {
+      edges: [
         {
-          "node": {
-            "id": "1",
-            "utcStart": "2023-06-27T11:37:31+00:00",
-            "raj": "13:26:47.24",
-            "decj": "-47:28:46.5",
-            "beam": 1,
-            "duration": 14399.068999999645,
-            "frequency": 1283.89550781,
-            "nantEff": 41,
-            "filterbankNbit": 8,
-            "filterbankNpol": 4,
-            "filterbankNchan": 256,
-            "filterbankTsamp": 19.14,
-            "filterbankDm": 99.9,
-            "project": {
-              "short": "RelBin"
+          node: {
+            id: "1",
+            utcStart: "2023-06-27T11:37:31+00:00",
+            raj: "13:26:47.24",
+            decj: "-47:28:46.5",
+            beam: 1,
+            duration: 14399.068999999645,
+            frequency: 1283.89550781,
+            nantEff: 41,
+            filterbankNbit: 8,
+            filterbankNpol: 4,
+            filterbankNchan: 256,
+            filterbankTsamp: 19.14,
+            filterbankDm: 99.9,
+            project: {
+              short: "RelBin",
             },
-          }
+          },
         },
         {
-          "node": {
-            "id": "2",
-            "utcStart": "2023-06-27T11:37:31+00:00",
-            "raj": "13:26:47.24",
-            "decj": "-47:28:46.5",
-            "beam": 1,
-            "duration": 14399.068999999645,
-            "frequency": 1283.89550781,
-            "nantEff": 41,
-            "filterbankNbit": 8,
-            "filterbankNpol": 4,
-            "filterbankNchan": 256,
-            "filterbankTsamp": 19.14,
-            "filterbankDm": 99.9,
-            "project": {
-              "short": "RelBin"
+          node: {
+            id: "2",
+            utcStart: "2023-06-27T11:37:31+00:00",
+            raj: "13:26:47.24",
+            decj: "-47:28:46.5",
+            beam: 1,
+            duration: 14399.068999999645,
+            frequency: 1283.89550781,
+            nantEff: 41,
+            filterbankNbit: 8,
+            filterbankNpol: 4,
+            filterbankNchan: 256,
+            filterbankTsamp: 19.14,
+            filterbankDm: 99.9,
+            project: {
+              short: "RelBin",
             },
-          }
+          },
         },
         {
-          "node": {
-            "id": "3",
-            "utcStart": "2023-06-27T11:37:31+00:00",
-            "raj": "13:26:47.24",
-            "decj": "-47:28:46.5",
-            "beam": 1,
-            "duration": 14399.068999999645,
-            "frequency": 1283.89550781,
-            "nantEff": 41,
-            "filterbankNbit": 8,
-            "filterbankNpol": 4,
-            "filterbankNchan": 256,
-            "filterbankTsamp": 19.14,
-            "filterbankDm": 99.9,
-            "project": {
-              "short": "TPA"
+          node: {
+            id: "3",
+            utcStart: "2023-06-27T11:37:31+00:00",
+            raj: "13:26:47.24",
+            decj: "-47:28:46.5",
+            beam: 1,
+            duration: 14399.068999999645,
+            frequency: 1283.89550781,
+            nantEff: 41,
+            filterbankNbit: 8,
+            filterbankNpol: 4,
+            filterbankNchan: 256,
+            filterbankTsamp: 19.14,
+            filterbankDm: 99.9,
+            project: {
+              short: "TPA",
             },
-          }
+          },
         },
         {
-          "node": {
-            "id": "4",
-            "utcStart": "2023-06-27T11:37:31+00:00",
-            "raj": "13:26:47.24",
-            "decj": "-47:28:46.5",
-            "beam": 1,
-            "duration": 14399.068999999645,
-            "frequency": 1283.89550781,
-            "nantEff": 41,
-            "filterbankNbit": 8,
-            "filterbankNpol": 4,
-            "filterbankNchan": 256,
-            "filterbankTsamp": 19.14,
-            "filterbankDm": 99.9,
-            "project": {
-              "short": "TPA"
+          node: {
+            id: "4",
+            utcStart: "2023-06-27T11:37:31+00:00",
+            raj: "13:26:47.24",
+            decj: "-47:28:46.5",
+            beam: 1,
+            duration: 14399.068999999645,
+            frequency: 1283.89550781,
+            nantEff: 41,
+            filterbankNbit: 8,
+            filterbankNpol: 4,
+            filterbankNchan: 256,
+            filterbankTsamp: 19.14,
+            filterbankDm: 99.9,
+            project: {
+              short: "TPA",
             },
-          }
+          },
         },
       ],
     },
@@ -104,7 +104,9 @@ describe("search mode detail table", () => {
   const mainProject = "MeerTIME";
   it("should render data onto the table", () => {
     expect.hasAssertions();
-    const { getByText } = render(<SearchmodeDetailTable data={data} mainProject={mainProject}/>);
+    const { getByText } = render(
+      <SearchmodeDetailTable data={data} mainProject={mainProject} />
+    );
     expect(getByText("Observations")).toBeInTheDocument();
     expect(getByText("2023-06-27-11:37:31")).toBeInTheDocument();
   });

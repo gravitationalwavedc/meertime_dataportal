@@ -6,10 +6,7 @@ import SearchmodeDetailCard from "./SearchmodeDetailCard";
 import { formatUTC } from "../helpers";
 import { useScreenSize } from "../context/screenSize-context";
 
-const SearchmodeDetailTable = ({
-  data,
-  jname,
-}) => {
+const SearchmodeDetailTable = ({ data, jname }) => {
   const { screenSize } = useScreenSize();
   const allRows = data.observation.edges.reduce(
     (result, edge) => [
@@ -21,7 +18,11 @@ const SearchmodeDetailTable = ({
         utc: formatUTC(edge.node.utcStart),
         action: (
           <Button
-            href={kronosLink(edge.node.beam, jname, formatUTC(edge.node.utcStart))}
+            href={kronosLink(
+              edge.node.beam,
+              jname,
+              formatUTC(edge.node.utcStart)
+            )}
             as="a"
             size="sm"
             variant="outline-secondary"

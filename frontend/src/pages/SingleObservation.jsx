@@ -4,21 +4,11 @@ import environment from "../relayEnvironment";
 // import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
-  query SingleObservationQuery (
-    $pulsar: String!,
-    $utc: String!,
-    $beam: Int!
-  ) {
-    ...SingleObservationTableFragment @arguments(
-      pulsar: $pulsar,
-      utc: $utc,
-      beam: $beam
-    )
-    ...DownloadFluxcalButtons_data @arguments(
-      jname: $pulsar,
-      utc: $utc,
-      beam: $beam
-    )
+  query SingleObservationQuery($pulsar: String!, $utc: String!, $beam: Int!) {
+    ...SingleObservationTableFragment
+      @arguments(pulsar: $pulsar, utc: $utc, beam: $beam)
+    ...DownloadFluxcalButtons_data
+      @arguments(jname: $pulsar, utc: $utc, beam: $beam)
   }
 `;
 

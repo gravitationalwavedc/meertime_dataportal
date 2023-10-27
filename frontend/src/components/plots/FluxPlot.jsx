@@ -46,7 +46,12 @@ const FluxPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
       >
         <Label value={getXaxisLabel(xAxis)} position="bottom" />
       </XAxis>
-      <YAxis type="number" dataKey="value" name="Flux" domain={[minValue, maxValue]}>
+      <YAxis
+        type="number"
+        dataKey="value"
+        name="Flux"
+        domain={[minValue, maxValue]}
+      >
         <Label value="Flux Density (mJy)" position="left" angle="-90" />
       </YAxis>
       <ZAxis type="number" dataKey="size" name="Size" range={[40, 600]} />
@@ -58,8 +63,8 @@ const FluxPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
         align="right"
         verticalAlign="top"
         payload={[
-          { id: "1", type: "square",   value: "UHF",      color: "#0d0887" },
-          { id: "2", type: "circle",   value: "L-Band",   color: "#6001a6" },
+          { id: "1", type: "square", value: "UHF", color: "#0d0887" },
+          { id: "2", type: "circle", value: "L-Band", color: "#6001a6" },
           { id: "3", type: "triangle", value: "S-Band_0", color: "#cd4a76" },
           { id: "4", type: "triangle", value: "S-Band_1", color: "#df6263" },
           { id: "5", type: "triangle", value: "S-Band_2", color: "#ee7b51" },

@@ -10,7 +10,7 @@ const SessionImage = ({
 }) => {
   if (imageHi && imageHi.url) {
     const thumbnail = `${import.meta.env.VITE_DJANGO_MEDIA_URL}${
-      (imageLo && imageLo.url) ? imageLo.url : imageHi.url
+      imageLo && imageLo.url ? imageLo.url : imageHi.url
     }`;
     return (
       <Image

@@ -3,20 +3,21 @@ import FoldDetailTable from "../components/FoldDetailTable";
 import MainLayout from "../components/MainLayout";
 
 const query = graphql`
-  query FoldDetailQuery (
-    $pulsar: String!,
-    $mainProject: String,
-    $dmCorrected: Boolean,
-    $minimumNsubs: Boolean,
-    $obsNchan: Int  # Ensure this variable is defined
+  query FoldDetailQuery(
+    $pulsar: String!
+    $mainProject: String
+    $dmCorrected: Boolean
+    $minimumNsubs: Boolean
+    $obsNchan: Int # Ensure this variable is defined
   ) {
-    ...FoldDetailTableFragment @arguments(
-      pulsar: $pulsar
-      mainProject: $mainProject
-      dmCorrected: $dmCorrected
-      minimumNsubs: $minimumNsubs
-      obsNchan: $obsNchan
-    )
+    ...FoldDetailTableFragment
+      @arguments(
+        pulsar: $pulsar
+        mainProject: $mainProject
+        dmCorrected: $dmCorrected
+        minimumNsubs: $minimumNsubs
+        obsNchan: $obsNchan
+      )
   }
 `;
 
@@ -34,7 +35,12 @@ const FoldDetail = ({ match }) => {
 
   return (
     <MainLayout title={jname}>
-      <FoldDetailTable query={query} tableData={tableData} jname={jname} mainProject={mainProject} />
+      <FoldDetailTable
+        query={query}
+        tableData={tableData}
+        jname={jname}
+        mainProject={mainProject}
+      />
     </MainLayout>
   );
 };

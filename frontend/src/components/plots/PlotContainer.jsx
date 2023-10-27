@@ -47,7 +47,7 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
         Drag to zoom, click empty area to reset, double click to view utc.
       </Form.Text>
       <div className="pulsar-plot-wrapper">
-        { activePlot === "snr" ? (
+        {activePlot === "snr" ? (
           <SNRPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
         ) : activePlot === "flux" ? (
           <FluxPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />

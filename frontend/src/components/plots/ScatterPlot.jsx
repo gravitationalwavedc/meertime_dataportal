@@ -68,21 +68,11 @@ const ScatterPlot = ({ data, children }) => {
           (dataPoint) =>
             dataPoint.value >= y1 &&
             dataPoint.value <= y2 &&
-            ( (
-              dataPoint.time >= x1 &&
-              dataPoint.time <= x2
-            ) || (
-              dataPoint.utc >= x1 &&
-              dataPoint.utc <= x2
-            ) || (
-              dataPoint.date >= x1 &&
-              dataPoint.date <= x2
-            ) || (
-              dataPoint.phase >= x1 &&
-              dataPoint.phase <= x2
-            ) )
-
-        )
+            ((dataPoint.time >= x1 && dataPoint.time <= x2) ||
+              (dataPoint.utc >= x1 && dataPoint.utc <= x2) ||
+              (dataPoint.date >= x1 && dataPoint.date <= x2) ||
+              (dataPoint.phase >= x1 && dataPoint.phase <= x2))
+        ),
       }));
 
       setFilteredData(DataInRange);
@@ -121,7 +111,13 @@ const ScatterPlot = ({ data, children }) => {
               shape={dataBand.shape}
               onMouseUp={handleSymbolClick}
             >
-              <ErrorBar dataKey="error" width={5} strokeWidth={2} stroke={dataBand.colour} direction="y" />
+              <ErrorBar
+                dataKey="error"
+                width={5}
+                strokeWidth={2}
+                stroke={dataBand.colour}
+                direction="y"
+              />
             </Scatter>
           ))}
           <ReferenceArea

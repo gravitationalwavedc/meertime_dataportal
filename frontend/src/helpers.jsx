@@ -48,7 +48,6 @@ export const mjdToUnixTimestamp = (mjdValue) =>
   // Calculate the Unix timestamp (in milliseconds) from MJD
   (mjdValue - 40587) * 86400 * 1000;
 
-
 export const kronosLink = (beam, jname, utc) =>
   `http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam=${beam}&utc_start=${utc}&jname=${jname}&data=${localStorage.meerWatchKey}`;
 
@@ -58,8 +57,7 @@ export const meerWatchLink = (jname) =>
 
 export const nullCellFormatter = (cell) => cell || "-";
 
-export const sessionLink = (calid) =>
-  `/session/${calid}/`;
+export const sessionLink = (calid) => `/session/${calid}/`;
 
 export const columnsSizeFilter = (columns, screenSize) => {
   columns
@@ -121,7 +119,10 @@ export const formatSingleObservationData = (data) => {
   };
 
   return Object.keys(data)
-  .filter((key) => !excludeTitles.includes(key) && key !== "images" && key !== "project")
+    .filter(
+      (key) =>
+        !excludeTitles.includes(key) && key !== "images" && key !== "project"
+    )
     .reduce(
       (result, key) => ({ ...result, [displayTitles[key]]: data[key] }),
       {}

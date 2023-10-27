@@ -12,7 +12,6 @@ import ScatterPlot from "./ScatterPlot";
 import moment from "moment";
 import { snrPlotData, getXaxisFormatter, getXaxisLabel } from "./plotData";
 
-
 const SNRPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
   console.log(data);
   const { plotData, minValue, maxValue, ticks } = snrPlotData(
@@ -35,7 +34,7 @@ const SNRPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
   };
 
   return (
-    <ScatterPlot data={plotData} >
+    <ScatterPlot data={plotData}>
       <CartesianGrid />
       <XAxis
         type="number"
@@ -50,7 +49,13 @@ const SNRPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
       <YAxis type="number" dataKey="value" name="S/N">
         <Label value="S/N" position="left" angle="-90" />
       </YAxis>
-      <ZAxis type="number" dataKey="size" name="Size" domain={[minValue, maxValue]} range={[60, 400]} />
+      <ZAxis
+        type="number"
+        dataKey="size"
+        name="Size"
+        domain={[minValue, maxValue]}
+        range={[60, 400]}
+      />
       <Tooltip
         cursor={{ strokeDasharray: "3 3" }}
         formatter={toolTipFormatter}
@@ -59,8 +64,8 @@ const SNRPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
         align="right"
         verticalAlign="top"
         payload={[
-          { id: "1", type: "square",   value: "UHF",      color: "#0d0887" },
-          { id: "2", type: "circle",   value: "L-Band",   color: "#6001a6" },
+          { id: "1", type: "square", value: "UHF", color: "#0d0887" },
+          { id: "2", type: "circle", value: "L-Band", color: "#6001a6" },
           { id: "3", type: "triangle", value: "S-Band_0", color: "#cd4a76" },
           { id: "4", type: "triangle", value: "S-Band_1", color: "#df6263" },
           { id: "5", type: "triangle", value: "S-Band_2", color: "#ee7b51" },

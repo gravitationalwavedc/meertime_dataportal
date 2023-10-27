@@ -20,26 +20,28 @@ const Ephemeris = ({ ephemeris, updated, show, setShow }) => {
       <Modal.Body>
         <Table>
           <tbody>
-            {Object.keys(ephemerisJSON).map((key, index) => (
-              key === "TIMEOFFSETS" ? (
-                ephemerisJSON[key].map((item, index) => (
-                  <tr key={index}>
-                    <th>{key}</th>
-                    <td className="ephemris-item">{item["type"]}   </td>
-                    <td className="ephemris-item">{item["mjd"]}    </td>
-                    <td className="ephemris-item">{item["display"]}</td>
-                    <td className="ephemris-item">{item["offset"]} </td>
-                    <td className="ephemris-item">{item["fit"]}    </td>
-                  </tr>
-                ))
-              ) : (!key.includes("_ERR") && (
-                <tr key={key}>
-                  <th>{key}</th>
-                  <td className="ephemris-item">{ephemerisJSON[key]}        </td>
-                  <td className="ephemris-item">{ephemerisJSON[key + "_ERR"]}</td>
-                </tr>
-              ))
-            ))}
+            {Object.keys(ephemerisJSON).map((key, index) =>
+              key === "TIMEOFFSETS"
+                ? ephemerisJSON[key].map((item, index) => (
+                    <tr key={index}>
+                      <th>{key}</th>
+                      <td className="ephemris-item">{item["type"]} </td>
+                      <td className="ephemris-item">{item["mjd"]} </td>
+                      <td className="ephemris-item">{item["display"]}</td>
+                      <td className="ephemris-item">{item["offset"]} </td>
+                      <td className="ephemris-item">{item["fit"]} </td>
+                    </tr>
+                  ))
+                : !key.includes("_ERR") && (
+                    <tr key={key}>
+                      <th>{key}</th>
+                      <td className="ephemris-item">{ephemerisJSON[key]} </td>
+                      <td className="ephemris-item">
+                        {ephemerisJSON[key + "_ERR"]}
+                      </td>
+                    </tr>
+                  )
+            )}
           </tbody>
         </Table>
       </Modal.Body>

@@ -12,19 +12,16 @@ import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 import image404 from "../assets/images/image404.png";
 
-
 const sessionTableQuery = graphql`
   fragment SessionTable_data on Query
-  @argumentDefinitions(
-    id: { type: "Int" }
-  ) {
-    observationSummary (
-      pulsar_Name: "All",
-      obsType: "All",
-      calibrationInt: $id,
-      mainProject: "All",
-      project_Short: "All",
-      band: "All",
+  @argumentDefinitions(id: { type: "Int" }) {
+    observationSummary(
+      pulsar_Name: "All"
+      obsType: "All"
+      calibrationInt: $id
+      mainProject: "All"
+      project_Short: "All"
+      band: "All"
     ) {
       edges {
         node {
@@ -34,7 +31,7 @@ const sessionTableQuery = graphql`
         }
       }
     }
-    calibration (id: $id) {
+    calibration(id: $id) {
       edges {
         node {
           id
@@ -83,8 +80,11 @@ const sessionTableQuery = graphql`
   }
 `;
 
-
-const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) => {
+const SessionTable = ({
+  data: { observationSummary, calibration },
+  relay,
+  id,
+}) => {
   const [fragmentData, refetch] = useRefetchableFragment(
     sessionTableQuery,
     data
@@ -102,7 +102,7 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
       relay.refetch({ id: null });
     } else {
       relay.refetch({
-        id: id
+        id: id,
       });
     }
   }, [project, relay, id]);
@@ -133,22 +133,23 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
     row.sn = pulsarFoldResult.pipelineRun.sn;
 
     // Grab the three images
-    const flux = pulsarFoldResult.images.edges
-      .filter(
-        (edge) => edge.node.imageType === "PROFILE" && edge.node.cleaned
-      )[0]?.node;
-    const phaseVsTime = pulsarFoldResult.images.edges
-      .filter(
-        (edge) => edge.node.imageType === "PHASE_TIME" && edge.node.cleaned
-      )[0]?.node;
-    const phaseVsFrequency = pulsarFoldResult.images.edges
-      .filter(
-        (edge) => edge.node.imageType === "PHASE_FREQ" && edge.node.cleaned
-      )[0]?.node;
+    const flux = pulsarFoldResult.images.edges.filter(
+      (edge) => edge.node.imageType === "PROFILE" && edge.node.cleaned
+    )[0]?.node;
+    const phaseVsTime = pulsarFoldResult.images.edges.filter(
+      (edge) => edge.node.imageType === "PHASE_TIME" && edge.node.cleaned
+    )[0]?.node;
+    const phaseVsFrequency = pulsarFoldResult.images.edges.filter(
+      (edge) => edge.node.imageType === "PHASE_FREQ" && edge.node.cleaned
+    )[0]?.node;
     const images = [
-      flux             ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}`             : image404,
-      phaseVsTime      ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`      : image404,
-      phaseVsFrequency ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}` : image404,
+      flux ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}` : image404,
+      phaseVsTime
+        ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`
+        : image404,
+      phaseVsFrequency
+        ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}`
+        : image404,
     ];
 
     row.flux = (
@@ -214,7 +215,7 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
       text: "UTC",
       sort: true,
       formatter: (cell) => formatUTC(cell),
-      screenSizes: ["xl", "xxl"]
+      screenSizes: ["xl", "xxl"],
     },
     {
       dataField: "sn",
@@ -222,7 +223,7 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => cell ? cell.toFixed(1) : NaN,
+      formatter: (cell) => (cell ? cell.toFixed(1) : NaN),
       screenSizes: ["xl", "xxl"],
     },
     {
@@ -231,7 +232,7 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => cell ? `${cell.toFixed(1)} [s]` : NaN,
+      formatter: (cell) => (cell ? `${cell.toFixed(1)} [s]` : NaN),
       screenSizes: ["xl", "xxl"],
     },
     {
@@ -240,7 +241,7 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => cell ? `${cell.toFixed(1)} [Mhz]` : NaN,
+      formatter: (cell) => (cell ? `${cell.toFixed(1)} [Mhz]` : NaN),
       screenSizes: ["xxl"],
     },
     {
@@ -287,7 +288,8 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
           {
             title: edge.node.project.short,
             value: calibration_node.observations.edges.filter(
-              (newEdge) => newEdge.node.project.short === edge.node.project.short
+              (newEdge) =>
+                newEdge.node.project.short === edge.node.project.short
             ).length,
           },
         ];
@@ -299,7 +301,10 @@ const SessionTable = ({ data: { observationSummary, calibration }, relay, id }) 
   );
 
   const summaryData = [
-    { title: "Observations", value: observationSummary.edges[0]?.node.observations },
+    {
+      title: "Observations",
+      value: observationSummary.edges[0]?.node.observations,
+    },
     { title: "Pulsars", value: observationSummary.edges[0]?.node.pulsars },
     ...projectData,
   ];

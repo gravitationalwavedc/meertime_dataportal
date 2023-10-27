@@ -17,13 +17,13 @@ const searchTableQuery = graphql`
     pulsar: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
   ) {
-    observationSummary (
-      pulsar_Name: $pulsar,
-      obsType: "search",
-      calibration_Id: "All",
-      mainProject: $mainProject,
-      project_Short: $project,
-      band: $band,
+    observationSummary(
+      pulsar_Name: $pulsar
+      obsType: "search"
+      calibration_Id: "All"
+      mainProject: $mainProject
+      project_Short: $project
+      band: $band
     ) {
       edges {
         node {
@@ -33,7 +33,7 @@ const searchTableQuery = graphql`
         }
       }
     }
-    pulsarSearchSummary (
+    pulsarSearchSummary(
       mainProject: $mainProject
       mostCommonProject: $mostCommonProject
       band: $band
@@ -44,7 +44,9 @@ const searchTableQuery = graphql`
       totalProjectTime
       edges {
         node {
-          pulsar {name}
+          pulsar {
+            name
+          }
           latestObservation
           firstObservation
           allProjects

@@ -10,7 +10,6 @@ import MainLayout from "./MainLayout";
 import MolongloImageGrid from "./MolongloImageGrid";
 import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
 
-
 const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
   @argumentDefinitions(
@@ -18,14 +17,10 @@ const SingleObservationTableFragment = graphql`
     utc: { type: "String" }
     beam: { type: "Int" }
   ) {
-    pulsarFoldResult(
-      pulsar: $pulsar,
-      utcStart: $utc,
-      beam: $beam
-    ) {
+    pulsarFoldResult(pulsar: $pulsar, utcStart: $utc, beam: $beam) {
       edges {
         node {
-          observation{
+          observation {
             calibration {
               id
               idInt
@@ -67,15 +62,8 @@ const SingleObservationTableFragment = graphql`
   }
 `;
 
-
-const SingleObservationTable = ({
-  data,
-  jname
-}) => {
-  const relayData = useFragment(
-    SingleObservationTableFragment,
-    data,
-  );
+const SingleObservationTable = ({ data, jname }) => {
+  const relayData = useFragment(SingleObservationTableFragment, data);
   const { pulsarFoldResult } = relayData;
   const relayObservationModel = pulsarFoldResult.edges[0].node;
 
@@ -85,8 +73,7 @@ const SingleObservationTable = ({
   //     new Set()
   //   )
   // )
-  const projectChoices = ['pta'];
-
+  const projectChoices = ["pta"];
 
   const [project, setProject] = useState(projectChoices[0]);
 
@@ -98,7 +85,9 @@ const SingleObservationTable = ({
 
   const displayDate = formatUTC(relayObservationModel.observation.utcStart);
 
-  const dataItems = formatSingleObservationData(relayObservationModel.observation);
+  const dataItems = formatSingleObservationData(
+    relayObservationModel.observation
+  );
 
   const isMolonglo = relayObservationModel.observation.project.mainProject.name
     .toLowerCase()
@@ -116,7 +105,11 @@ const SingleObservationTable = ({
             size="sm"
             as="a"
             className="mr-2"
-            href={kronosLink(relayObservationModel.observation.beam, jname, displayDate)}
+            href={kronosLink(
+              relayObservationModel.observation.beam,
+              jname,
+              displayDate
+            )}
             variant="outline-secondary"
           >
             View Kronos
@@ -126,7 +119,9 @@ const SingleObservationTable = ({
             size="sm"
             as="a"
             className="mr-2"
-            href={sessionLink(relayObservationModel.observation.calibration.idInt)}
+            href={sessionLink(
+              relayObservationModel.observation.calibration.idInt
+            )}
             variant="outline-secondary"
           >
             View Observation Session

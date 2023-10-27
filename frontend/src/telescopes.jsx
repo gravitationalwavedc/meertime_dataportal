@@ -1,4 +1,3 @@
-
 const getSubProjectOptions = (subprojects) =>
   subprojects.map((subproject) => (
     <option value={subproject} key={subproject}>
@@ -129,7 +128,17 @@ const trapum = {
   value: "trapum",
   title: "Trapum",
   subprojects: ["All"],
-  bandOptions: ["All", "LBAND", "UHF", "SBAND_0", "SBAND_1", "SBAND_2", "SBAND_3", "SBAND_4", "UNKNOWN"],
+  bandOptions: [
+    "All",
+    "LBAND",
+    "UHF",
+    "SBAND_0",
+    "SBAND_1",
+    "SBAND_2",
+    "SBAND_3",
+    "SBAND_4",
+    "UNKNOWN",
+  ],
 };
 
 const meertime = {
@@ -181,7 +190,7 @@ const meertime = {
       text: "Length",
       sort: true,
       screenSizes: ["sm", "md", "lg", "xl", "xxl"],
-      formatter: (cell) => `${parseFloat(cell/60).toFixed(2)} [m]`,
+      formatter: (cell) => `${parseFloat(cell / 60).toFixed(2)} [m]`,
       align: "right",
       headerAlign: "right",
     },

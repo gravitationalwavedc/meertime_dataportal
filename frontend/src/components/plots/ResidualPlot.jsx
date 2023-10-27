@@ -9,19 +9,23 @@ import {
 } from "recharts";
 import React from "react";
 import ScatterPlot from "./ScatterPlot";
-import { residualPlotData, formatYAxisTick, getXaxisFormatter, getXaxisLabel } from "./plotData";
+import {
+  residualPlotData,
+  formatYAxisTick,
+  getXaxisFormatter,
+  getXaxisLabel,
+} from "./plotData";
 import moment from "moment";
 
-
 const ResidualPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
-  console.log("ResidualPlot: " , data);
+  console.log("ResidualPlot: ", data);
   const { plotData, minValue, maxValue, ticks } = residualPlotData(
     data,
     columns,
     search,
     maxPlotLength
   );
-  console.log("plotData: " , plotData);
+  console.log("plotData: ", plotData);
 
   const toolTipFormatter = (value, name) => {
     if (name === "UTC") {
@@ -48,7 +52,13 @@ const ResidualPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
       >
         <Label value={getXaxisLabel(xAxis)} position="bottom" />
       </XAxis>
-      <YAxis type="number" dataKey="value" name="Residual" domain={[minValue, maxValue]} tickFormatter={formatYAxisTick}>
+      <YAxis
+        type="number"
+        dataKey="value"
+        name="Residual"
+        domain={[minValue, maxValue]}
+        tickFormatter={formatYAxisTick}
+      >
         <Label value="Residual (μs)" position="left" angle="-90" />
       </YAxis>
       <ZAxis type="number" dataKey="size" name="Size" range={[20, 300]} />
@@ -60,8 +70,8 @@ const ResidualPlot = ({ data, columns, search, maxPlotLength, xAxis }) => {
         align="right"
         verticalAlign="top"
         payload={[
-          { id: "1", type: "square",   value: "UHF",      color: "#0d0887" },
-          { id: "2", type: "circle",   value: "L-Band",   color: "#6001a6" },
+          { id: "1", type: "square", value: "UHF", color: "#0d0887" },
+          { id: "2", type: "circle", value: "L-Band", color: "#6001a6" },
           { id: "3", type: "triangle", value: "S-Band_0", color: "#cd4a76" },
           { id: "4", type: "triangle", value: "S-Band_1", color: "#df6263" },
           { id: "5", type: "triangle", value: "S-Band_2", color: "#ee7b51" },

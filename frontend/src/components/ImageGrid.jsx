@@ -9,15 +9,10 @@ const ImageGrid = ({ images, project }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
 
   const rawImages = images.edges.filter(
-    ({ node }) =>
-      console.log(node) ||
-      ! node.cleaned
+    ({ node }) => console.log(node) || !node.cleaned
   );
 
-  const processedImages = images.edges.filter(
-    ({ node }) =>
-      node.cleaned
-  );
+  const processedImages = images.edges.filter(({ node }) => node.cleaned);
 
   const urls = [
     ...rawImages.map(({ node }) => node.url),
@@ -77,7 +72,6 @@ const ImageGrid = ({ images, project }) => {
           mainSrc={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${
             lightBoxImages.images[lightBoxImages.imagesIndex]
           }`}
-
           nextSrc={
             lightBoxImages.images[
               (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length
