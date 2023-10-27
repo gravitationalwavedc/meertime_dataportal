@@ -155,7 +155,17 @@ const meertime = {
     "Flux",
     "Unknown",
   ],
-  bandOptions: ["All", "L-BAND", "UHF", "S-BAND", "UNKNOWN"],
+  bandOptions: [
+    "All",
+    "LBAND",
+    "UHF",
+    "SBAND_0",
+    "SBAND_1",
+    "SBAND_2",
+    "SBAND_3",
+    "SBAND_4",
+    "UNKNOWN",
+  ],
   columns: [
     {
       dataField: "key",

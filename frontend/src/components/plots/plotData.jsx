@@ -33,27 +33,27 @@ export const filterBandData = (data) => {
   data = data.filter((row) => row.value !== null);
 
   // Process the table data in a way that react-vis understands.
-  const lBandData = data.filter((row) => row.band === "LBAND");
-  const lBand = {
-    data: lBandData,
-    name: "LBAND",
-    colour: "#440154", // #8884d8
-    shape: "circle",
-  };
-
   const UHFData = data.filter((row) => row.band === "UHF");
   const UHF = {
     data: UHFData,
     name: "UHF",
-    colour: "#3e4a89", // #e07761
+    colour: "#0d0887",
     shape: "square",
+  };
+
+  const lBandData = data.filter((row) => row.band === "LBAND");
+  const lBand = {
+    data: lBandData,
+    name: "LBAND",
+    colour: "#6001a6",
+    shape: "circle",
   };
 
   const sband0Data = data.filter((row) => row.band === "SBAND_0");
   const sband0 = {
     data: sband0Data,
     name: "SBAND_0",
-    colour: "#31688e",
+    colour: "#cd4a76",
     shape: "triangle",
   };
 
@@ -61,7 +61,7 @@ export const filterBandData = (data) => {
   const sband1 = {
     data: sband1Data,
     name: "SBAND_1",
-    colour: "#26828e",
+    colour: "#df6263",
     shape: "triangle",
   };
 
@@ -69,7 +69,7 @@ export const filterBandData = (data) => {
   const sband2 = {
     data: sband2Data,
     name: "SBAND_2",
-    colour: "#1f9e89",
+    colour: "#ee7b51",
     shape: "triangle",
   };
 
@@ -77,7 +77,7 @@ export const filterBandData = (data) => {
   const sband3 = {
     data: sband3Data,
     name: "SBAND_3",
-    colour: "#35b779",
+    colour: "#f9973f",
     shape: "triangle",
   };
 
@@ -85,7 +85,7 @@ export const filterBandData = (data) => {
   const sband4 = {
     data: sband4Data,
     name: "SBAND_4",
-    colour: "#6ece58",
+    colour: "#fdb52e",
     shape: "triangle",
   };
 
