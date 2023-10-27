@@ -6,14 +6,14 @@ import DataView from "./DataView";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
-const foldTableQuery = graphql`
-  fragment FoldTable_data on Query
+const FoldTableFragment = graphql`
+  fragment FoldTableFragment on Query
   @refetchable(queryName: "FoldTableRefetchQuery")
   @argumentDefinitions(
+    pulsar: { type: "String", defaultValue: "All" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
     project: { type: "String", defaultValue: "All" }
     mostCommonProject: { type: "String", defaultValue: "All" }
-    pulsar: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
   ) {
     observationSummary (
@@ -66,7 +66,8 @@ const FoldTable = ({
     location: { query },
   },
 }) => {
-  const [relayData, refetch] = useRefetchableFragment(foldTableQuery, data);
+  console.log("data:", data);
+  const [relayData, refetch] = useRefetchableFragment(FoldTableFragment, data);
   console.log("observationData:", relayData.observationSummary);
   console.log("relayData:", relayData.pulsarFoldSummary);
 
