@@ -292,7 +292,7 @@ def test_fold_detail_query():
                         "observationHours": 0,
                         "projects": 1,
                         "pulsars": 1,
-                        "estimatedDiskSpaceGb": 0.5770263671875,
+                        "estimatedDiskSpaceGb": 0.5770263671874999,
                         "timespanDays": 22,
                         "maxDuration": 1039.9999999999998,
                         "minDuration": 263.99999999999994
