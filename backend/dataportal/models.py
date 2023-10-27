@@ -328,13 +328,13 @@ class ObservationSummary(Model):
             kwargs["calibration"] = calibration
         if band is not None:
             kwargs["band"] = band
-        all_observations = Observation.objects.filter(**kwargs).order_by("utc_start")
+        all_observations = Observation.objects.filter(**kwargs)
         if len(all_observations) == 0:
             # No observations for this combo so do not create a summary
             return None, False
 
-        min_utc = all_observations.first().utc_start
-        max_utc = all_observations.last().utc_start
+        min_utc = all_observations.order_by("utc_start").first().utc_start
+        max_utc = all_observations.order_by("utc_start").last().utc_start
 
         observations = len(all_observations)
         pulsars = len(all_observations.values_list('pulsar__name', flat=True).distinct())
