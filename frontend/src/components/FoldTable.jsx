@@ -60,8 +60,7 @@ const FoldTableFragment = graphql`
 `;
 
 const FoldTable = ({
-  data: { foldPulsarSummary: relayData },
-  relay,
+  data,
   match: {
     location: { query },
   },
