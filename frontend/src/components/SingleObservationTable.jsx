@@ -1,5 +1,6 @@
 import { Button, Col, Form, Row } from "react-bootstrap";
 import { useState } from "react";
+import { graphql, useFragment } from "react-relay";
 import { formatProjectName, formatSingleObservationData } from "../helpers";
 import { formatUTC, kronosLink, sessionLink } from "../helpers";
 import DataDisplay from "./DataDisplay";
@@ -9,8 +10,73 @@ import MainLayout from "./MainLayout";
 import MolongloImageGrid from "./MolongloImageGrid";
 import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
 
-const SingleObservationTable = ({ data, jname }) => {
-  const { pulsarFoldResult } = data;
+
+const SingleObservationTableFragment = graphql`
+  fragment SingleObservationTableFragment on Query
+  @argumentDefinitions(
+    pulsar: { type: "String!" }
+    utc: { type: "String" }
+    beam: { type: "Int" }
+  ) {
+    pulsarFoldResult(
+      pulsar: $pulsar,
+      utcStart: $utc,
+      beam: $beam
+    ) {
+      edges {
+        node {
+          observation{
+            calibration {
+              id
+              idInt
+            }
+            beam
+            utcStart
+            obsType
+            project {
+              id
+              short
+              mainProject {
+                name
+              }
+            }
+            frequency
+            bandwidth
+            raj
+            decj
+            duration
+            foldNbin
+            foldNchan
+            foldTsubint
+            nant
+          }
+          images {
+            edges {
+              node {
+                image
+                cleaned
+                imageType
+                resolution
+                url
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+
+const SingleObservationTable = ({
+  data,
+  jname
+}) => {
+  const relayData = useFragment(
+    SingleObservationTableFragment,
+    data,
+  );
+  const { pulsarFoldResult } = relayData;
   const relayObservationModel = pulsarFoldResult.edges[0].node;
 
   // const projectChoices = Array.from(
