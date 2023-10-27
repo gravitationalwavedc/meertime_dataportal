@@ -463,6 +463,7 @@ class PulsarFoldSummary(models.Model):
     # Obs summary
     first_observation = models.DateTimeField()
     latest_observation = models.DateTimeField()
+    latest_observation_beam = models.IntegerField()
     timespan = models.IntegerField()
     number_of_observations = models.IntegerField()
     total_integration_hours = models.FloatField()
@@ -584,6 +585,7 @@ class PulsarFoldSummary(models.Model):
             defaults={
                 "first_observation": first_observation.utc_start,
                 "latest_observation": latest_observation.utc_start,
+                "latest_observation_beam": latest_observation.beam,
                 "timespan": timespan,
                 "number_of_observations": number_of_observations,
                 "total_integration_hours": total_integration_hours,
@@ -602,6 +604,7 @@ class PulsarFoldSummary(models.Model):
             # If updating a model need to save the new values as defaults will not be used
             new_pulsar_fold_summary.first_observation
             new_pulsar_fold_summary.latest_observation
+            new_pulsar_fold_summary.latest_observation_beam
             new_pulsar_fold_summary.timespan
             new_pulsar_fold_summary.number_of_observations
             new_pulsar_fold_summary.total_integration_hours

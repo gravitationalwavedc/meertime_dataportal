@@ -274,7 +274,7 @@ type MainProjectNode implements Node {
   name: String!
   projectSet(offset: Int, before: String, after: String, first: Int, last: Int, mainProject: ID, code: String, short: String, embargoPeriod: Float, description: String): ProjectNodeConnection!
   observationsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, project: ID, calibration: ID, obsType: ObservationSummaryObsType, band: ObservationSummaryBand, observations: Int, pulsars: Int, projects: Int, estimatedDiskSpaceGb: Float, observationHours: Int, timespanDays: Int, minDuration: Float, maxDuration: Float): ObservationSummaryNodeConnection!
-  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
+  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, latestObservationBeam: Int, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
   pulsarsearchsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, mostCommonProject: String, allProjects: String): PulsarSearchSummaryNodeConnection!
 }
 
@@ -821,6 +821,7 @@ type PulsarFoldSummaryNode implements Node {
   mainProject: MainProjectNode
   firstObservation: DateTime!
   latestObservation: DateTime!
+  latestObservationBeam: Int!
   timespan: Int!
   numberOfObservations: Int!
   totalIntegrationHours: Float!
@@ -854,7 +855,7 @@ type PulsarNode implements Node {
   observationSet(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
   observationsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, project: ID, calibration: ID, obsType: ObservationSummaryObsType, band: ObservationSummaryBand, observations: Int, pulsars: Int, projects: Int, estimatedDiskSpaceGb: Float, observationHours: Int, timespanDays: Int, minDuration: Float, maxDuration: Float): ObservationSummaryNodeConnection!
   pulsarfoldresultSet(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID, embargoEndDate: DateTime): PulsarFoldResultNodeConnection!
-  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
+  pulsarfoldsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, latestObservationBeam: Int, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, lastSn: Float, highestSn: Float, lowestSn: Float, avgSnPipe: Float, maxSnPipe: Float, mostCommonProject: String, allProjects: String): PulsarFoldSummaryNodeConnection!
   pulsarsearchsummarySet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, mainProject: ID, firstObservation: DateTime, latestObservation: DateTime, timespan: Int, numberOfObservations: Int, totalIntegrationHours: Float, lastIntegrationMinutes: Float, allBands: String, mostCommonProject: String, allProjects: String): PulsarSearchSummaryNodeConnection!
   residualSet(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: ID, toa_DmCorrected: Boolean, toa_MinimumNsubs: Boolean, toa_MaximumNsubs: Boolean, toa_ObsNchan: Int): ResidualNodeConnection!
 }

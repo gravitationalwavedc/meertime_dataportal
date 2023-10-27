@@ -43,6 +43,7 @@ const FoldTableFragment = graphql`
             name
           }
           latestObservation
+          latestObservationBeam
           firstObservation
           allProjects
           mostCommonProject
@@ -117,7 +118,7 @@ const FoldTable = ({
           View all
         </Link>
         <Link
-          to={`/${row.jname}/${row.latestObservation}/${row.beam}/`}
+          to={`/${row.jname}/${row.latestObservation}/${row.latestObservationBeam}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}

@@ -74,6 +74,9 @@ const FoldDetailTableFragment = graphql`
             ephemeris {
               dm
             }
+            calibration {
+              idInt
+            }
           }
           pipelineRun {
             dm
@@ -169,7 +172,7 @@ const FoldDetailTable = ({ tableData, jname, mainProject }) => {
               View
             </Link>
             <Link
-              to={`/session/${formatUTC(edge.node.observation.utcStart)}/`}
+              to={`/session/${edge.node.observation.calibration.idInt}/`}
               size="sm"
               variant="outline-secondary"
               as={Button}
