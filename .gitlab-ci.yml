@@ -18,7 +18,7 @@ default:
   before_script:
     - apt -y update
     - apt -y install apt-utils
-    - apt -y install net-tools python9 python3-pip git curl wget python3.9-venv mysql-client libmysqlclient-dev
+    - apt -y install net-tools python3.9 python3-pip git curl wget python3.9-venv mysql-client libmysqlclient-dev
     - apt -y upgrade
     - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
     - echo $POETRY_HOME
