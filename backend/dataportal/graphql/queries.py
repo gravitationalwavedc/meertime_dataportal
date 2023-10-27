@@ -657,7 +657,10 @@ class Query(graphene.ObjectType):
 
         calibration_id = kwargs.get('id')
         if calibration_id:
-            queryset = queryset.filter(id=calibration_id)
+            if calibration_id == -1:
+                queryset = [queryset.order_by("start").last()]
+            else:
+                queryset = queryset.filter(id=calibration_id)
 
         return queryset
 
@@ -753,11 +756,20 @@ class Query(graphene.ObjectType):
         if calibration__id:
             if calibration__id == "All":
                 calibration__id = None
-            queryset = queryset.filter(calibration__id=calibration__id)
+            else:
+                queryset = queryset.filter(calibration__id=calibration__id)
 
         calibration_int = kwargs.get('calibration_int')
         if calibration_int:
-            queryset = queryset.filter(calibration__id=calibration_int)
+            print(calibration_int)
+            if calibration_int == -1:
+                last_cal_id = Calibration.objects.all().order_by("start").last().id
+                print(last_cal_id)
+                queryset = queryset.filter(calibration__id=last_cal_id)
+                print(queryset)
+            else:
+                print("else")
+                queryset = queryset.filter(calibration__id=calibration_int)
 
         obs_type = kwargs.get('obs_type')
         if obs_type:

@@ -1,7 +1,7 @@
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { columnsSizeFilter, formatUTC } from "../helpers";
-import { graphql, useRefetchableFragment } from "react-relay";
+import { graphql, useFragment } from "react-relay";
 
 import DataView from "./DataView";
 import LightBox from "react-image-lightbox";
@@ -81,11 +81,10 @@ const sessionTableQuery = graphql`
 `;
 
 const SessionTable = ({
-  data: { observationSummary, calibration },
-  relay,
+  data,
   id,
 }) => {
-  const [fragmentData, refetch] = useRefetchableFragment(
+  const sessionData = useFragment(
     sessionTableQuery,
     data
   );
@@ -97,18 +96,9 @@ const SessionTable = ({
     imagesIndex: 0,
   });
 
-  useEffect(() => {
-    if (id !== undefined) {
-      relay.refetch({ id: null });
-    } else {
-      relay.refetch({
-        id: id,
-      });
-    }
-  }, [project, relay, id]);
-
+  console.log("calibration", sessionData.calibration);
   // Grab the single item from the edges array
-  const calibration_node = calibration.edges[0]?.node;
+  const calibration_node = sessionData.calibration.edges[0]?.node;
   const startDate = moment
     .parseZone(calibration_node.start, moment.ISO_8601)
     .format("h:mma DD/MM/YYYY");
@@ -129,10 +119,12 @@ const SessionTable = ({
     if (row.pulsarFoldResults.edges.length === 0) {
       return [...result];
     }
+    console.log("row.pulsarFoldResults", row.pulsarFoldResults);
     const pulsarFoldResult = row.pulsarFoldResults.edges[0]?.node;
     row.sn = pulsarFoldResult.pipelineRun.sn;
 
     // Grab the three images
+    console.log("pulsarFoldResult.images", pulsarFoldResult.images);
     const flux = pulsarFoldResult.images.edges.filter(
       (edge) => edge.node.imageType === "PROFILE" && edge.node.cleaned
     )[0]?.node;
@@ -303,9 +295,9 @@ const SessionTable = ({
   const summaryData = [
     {
       title: "Observations",
-      value: observationSummary.edges[0]?.node.observations,
+      value: sessionData.observationSummary.edges[0]?.node.observations,
     },
-    { title: "Pulsars", value: observationSummary.edges[0]?.node.pulsars },
+    { title: "Pulsars", value: sessionData.observationSummary.edges[0]?.node.pulsars },
     ...projectData,
   ];
 

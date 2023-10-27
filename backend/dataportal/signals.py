@@ -61,10 +61,11 @@ def handle_calibration_update(sender, instance, **kwargs):
                 for band in [instance.band, None]:
                     ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration, band)
     # Always update calibration summaries
-    pulsar = None
-    calibration = instance.calibration
     obs_type = None
+    pulsar = None
     main_project = None
+    calibration = instance.calibration
+    band = None
     for project in [instance.project, None]:
         ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration, band)
 

@@ -16,9 +16,18 @@ const getTitle = (id) => {
 const Session = ({ match }) => {
   const { id } = match.params;
 
+  let params;
+  if (id) {
+    params = { id: id };
+  } else {
+    params = { id: -1 };
+  }
+
+  const data = useLazyLoadQuery(query, params);
+
   return (
-    <MainLayout title={getTitle(start, utc)}>
-      <SessionTable data={data} utc={utc} />
+    <MainLayout title={getTitle(id)}>
+      <SessionTable data={data} id={id} />
     </MainLayout>
   );
 };
