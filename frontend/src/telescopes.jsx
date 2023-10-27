@@ -184,7 +184,7 @@ const meertime = {
       csvExport: false,
     },
     {
-      dataField: "observation.utcStart",
+      dataField: "utc",
       text: "Timestamp",
       sort: true,
       headerClasses: "fold-detail-utc",
