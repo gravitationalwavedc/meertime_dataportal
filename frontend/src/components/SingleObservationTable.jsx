@@ -75,8 +75,6 @@ const SingleObservationTable = ({ data, jname }) => {
 
   const [project, setProject] = useState(projectChoices[0]);
 
-
-
   const displayDate = formatUTC(relayObservationModel.observation.utcStart);
 
   const dataItems = formatSingleObservationData(

@@ -35,7 +35,7 @@ const SingleObservation = ({
 
   return (
     <MainLayout title={title}>
-      <SingleObservationTable data={data} jname={jname}/>
+      <SingleObservationTable data={data} jname={jname} />
     </MainLayout>
   );
 };

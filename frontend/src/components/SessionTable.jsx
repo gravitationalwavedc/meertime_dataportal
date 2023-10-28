@@ -80,14 +80,8 @@ const sessionTableQuery = graphql`
   }
 `;
 
-const SessionTable = ({
-  data,
-  id,
-}) => {
-  const sessionData = useFragment(
-    sessionTableQuery,
-    data
-  );
+const SessionTable = ({ data, id }) => {
+  const sessionData = useFragment(sessionTableQuery, data);
   const { screenSize } = useScreenSize();
   const [project, setProject] = useState("All");
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -297,7 +291,10 @@ const SessionTable = ({
       title: "Observations",
       value: sessionData.observationSummary.edges[0]?.node.observations,
     },
-    { title: "Pulsars", value: sessionData.observationSummary.edges[0]?.node.pulsars },
+    {
+      title: "Pulsars",
+      value: sessionData.observationSummary.edges[0]?.node.pulsars,
+    },
     ...projectData,
   ];
 
