@@ -106,14 +106,14 @@ class CreateObservation(graphene.Mutation):
             filterbank_dm    = None
 
         # Use get_or_create to create the observations with the required fields and everything else put as defaults
-        observation, _ = Observation.objects.get_or_create(
+        observation, created = Observation.objects.get_or_create(
             pulsar=pulsar,
             telescope=telescope,
             project=project,
-            calibration=calibration,
             utc_start=input["utcStart"],
             beam=input["beam"],
             defaults={
+                "calibration": calibration,
                 "frequency": input["frequency"],
                 "bandwidth": input["bandwidth"],
                 "nchan": input["nchan"],
@@ -137,6 +137,31 @@ class CreateObservation(graphene.Mutation):
                 "filterbank_dm": filterbank_dm,
             }
         )
+        if not created:
+            # If the observation already exists, update the values
+            observation.calibration = calibration
+            observation.frequency = input["frequency"]
+            observation.bandwidth = input["bandwidth"]
+            observation.nchan = input["nchan"]
+            observation.nant = input["nant"]
+            observation.nant_eff = input["nantEff"]
+            observation.npol = input["npol"]
+            observation.obs_type = input["obsType"]
+            observation.raj = input["raj"]
+            observation.decj = input["decj"]
+            observation.duration = input["duration"]
+            observation.nbit = input["nbit"]
+            observation.tsamp = input["tsamp"]
+            observation.ephemeris = ephemeris
+            observation.fold_nbin = fold_nbin
+            observation.fold_nchan = fold_nchan
+            observation.fold_tsubint = fold_tsubint
+            observation.filterbank_nbit = filterbank_nbit
+            observation.filterbank_npol = filterbank_npol
+            observation.filterbank_nchan = filterbank_nchan
+            observation.filterbank_tsamp = filterbank_tsamp
+            observation.filterbank_dm = filterbank_dm
+            observation.save()
         return CreateObservation(observation=observation)
 
 
