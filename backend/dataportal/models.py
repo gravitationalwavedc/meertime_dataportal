@@ -168,8 +168,7 @@ class Calibration(models.Model):
         ("post", "post"),
         ("none", "none"),
     ]
-    delay_cal_id = models.CharField(max_length=16, blank=True, null=True)
-    phase_up_id = models.CharField(max_length=16, blank=True, null=True)
+    schedule_block_id = models.CharField(max_length=16, blank=True, null=True)
     calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
     location = models.CharField(max_length=255, blank=True, null=True)
 
@@ -219,7 +218,7 @@ class Calibration(models.Model):
 
 
     def __str__(self):
-        return f"{self.id}_{self.delay_cal_id}"
+        return f"{self.id}_{self.schedule_block_id}"
 
     class Meta:
         ordering = ["-start"]

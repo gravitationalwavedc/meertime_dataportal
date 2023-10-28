@@ -6,8 +6,7 @@ from dataportal.graphql.queries import CalibrationNode
 
 
 class CalibrationInput(graphene.InputObjectType):
-    delay_cal_id = graphene.String()
-    phase_up_id = graphene.String()
+    schedule_block_id = graphene.String()
     calibration_type = graphene.String(required=True)
     location = graphene.String()
 
