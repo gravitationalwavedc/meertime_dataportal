@@ -1,6 +1,6 @@
 import os
 
-from utils.ephemeris import parse_ephemeris_file, convert_frequency_to_period
+from utils.ephemeris import parse_ephemeris_file, convert_frequency_to_period, convert_to_float_if_possible
 
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
@@ -29,3 +29,16 @@ def test_ephemeris_parse():
     for test_ephem in tests:
         ephemeris_dict = parse_ephemeris_file(test_ephem)
         # TODO actually test something
+
+def test_convert_to_float_if_possible():
+    tests = [
+        ("J1705-1903", str, "J1705-1903"),
+        ("0.00000548050814133282", float, 0.00000548050814133282),
+        ("-2.4915298403920358929e-17", float, -2.4915298403920358929e-17),
+        ("-2.4915298403920358929E-17", float, -2.4915298403920358929e-17),
+        ("-2.4915298403920358929D-17", float, -2.4915298403920358929e-17),
+    ]
+    for test_value, test_type, expected_value in tests:
+        possible_float = convert_to_float_if_possible(test_value)
+        assert possible_float == expected_value
+        assert type(possible_float) == test_type
