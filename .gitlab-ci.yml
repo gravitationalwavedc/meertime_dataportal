@@ -9,6 +9,7 @@ variables:
   MYSQL_PASSWORD: "islayvampires"
   DB_HOST: "mysql"
   MYSQL_PORT: "3306"
+  DEBIAN_FRONTEND: "noninteractive"
 
 default:
   image:
