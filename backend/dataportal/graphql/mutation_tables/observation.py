@@ -2,6 +2,7 @@ import json
 
 import graphene
 from graphql_jwt.decorators import permission_required
+from django.db import IntegrityError
 
 from utils.ephemeris import parse_ephemeris_file
 from dataportal.models import (
@@ -72,16 +73,23 @@ class CreateObservation(graphene.Mutation):
         if input["obsType"] == "fold":
             # Get Ephemeris from the ephemeris file
             ephemeris_dict = parse_ephemeris_file(input["ephemerisText"])
-            ephemeris, _ = Ephemeris.objects.get_or_create(
-                pulsar=pulsar,
-                project=project,
-                # TODO add created_by
-                ephemeris_data=json.dumps(ephemeris_dict),
-                p0=ephemeris_dict["P0"],
-                dm=ephemeris_dict["DM"],
-                valid_from=ephemeris_dict["START"],
-                valid_to=ephemeris_dict["FINISH"],
-            )
+            try:
+                ephemeris, _ = Ephemeris.objects.get_or_create(
+                    pulsar=pulsar,
+                    project=project,
+                    # TODO add created_by
+                    ephemeris_data=json.dumps(ephemeris_dict),
+                    p0=ephemeris_dict["P0"],
+                    dm=ephemeris_dict["DM"],
+                    valid_from=ephemeris_dict["START"],
+                    valid_to=ephemeris_dict["FINISH"],
+                )
+            except IntegrityError:
+                # Handle the IntegrityError gracefully by grabbing the already created ephem
+                ephemeris = Ephemeris.objects.get(
+                    project=project,
+                    ephemeris_data=json.dumps(ephemeris_dict),
+                )
             fold_nbin     = input["foldNbin"]
             fold_nchan    = input["foldNchan"]
             fold_tsubint  = input["foldTsubint"]

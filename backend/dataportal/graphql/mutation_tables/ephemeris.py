@@ -50,7 +50,7 @@ class CreateEphemeris(graphene.Mutation):
         # Load the ephemeris file
         ephemeris_dict = parse_ephemeris_file(input["ephemerisText"])
         try:
-            ephemeris, created = Ephemeris.objects.get_or_create(
+            ephemeris, _ = Ephemeris.objects.get_or_create(
                 pulsar=pulsar,
                 project=project,
                 # TODO add created_by
