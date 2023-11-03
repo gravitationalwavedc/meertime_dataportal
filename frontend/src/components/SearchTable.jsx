@@ -11,15 +11,16 @@ const searchTableQuery = graphql`
   fragment SearchTable_data on Query
   @refetchable(queryName: "SearchTableQuery")
   @argumentDefinitions(
-    mainProject: { type: "String", defaultValue: "MeerTIME" }
+    pulsar: { type: "String", defaultValue: "All" }
+    mainProject: { type: "String", defaultValue: "All" }
     project: { type: "String", defaultValue: "All" }
     mostCommonProject: { type: "String", defaultValue: "All" }
-    pulsar: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
+    obsType: { type: "String", defaultValue: "search" }
   ) {
     observationSummary(
       pulsar_Name: $pulsar
-      obsType: "search"
+      obsType: $obsType
       calibration_Id: "All"
       mainProject: $mainProject
       project_Short: $project
@@ -38,10 +39,6 @@ const searchTableQuery = graphql`
       mostCommonProject: $mostCommonProject
       band: $band
     ) {
-      totalObservations
-      totalPulsars
-      totalObservationTime
-      totalProjectTime
       edges {
         node {
           pulsar {
@@ -66,7 +63,7 @@ const SearchTable = ({ data }) => {
     data
   );
   const { screenSize } = useScreenSize();
-  const [mainProject, setMainProject] = useState("meertime");
+  const [mainProject, setMainProject] = useState("All");
   const [project, setProject] = useState("All");
   const [band, setBand] = useState("All");
 
@@ -74,8 +71,8 @@ const SearchTable = ({ data }) => {
     refetch({ mainProject: mainProject, project: project, band: band });
   }, [band, mainProject, project, refetch]);
 
-  console.log("searchData", fragmentData.observationSummary);
-  console.log("observationData", fragmentData.pulsarSearchSummary);
+  console.log("observationSummary", fragmentData.observationSummary);
+  console.log("pulsarSearchSummary", fragmentData.pulsarSearchSummary);
   const rows = fragmentData.pulsarSearchSummary.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     row.projectKey = mainProject;
