@@ -787,6 +787,26 @@ class PipelineImage(models.Model):
             self.url = self.image.url
         super(PipelineImage, self).save(*args, **kwargs)
 
+class PipelineFile(models.Model):
+    pulsar_fold_result = models.ForeignKey(PulsarFoldResult, models.CASCADE, related_name="files",)
+    file = models.FileField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    FILE_TYPE_CHOICES = [
+        ("FTS",  "FTS"),
+    ]
+    file_type = models.CharField(max_length=16, choices=FILE_TYPE_CHOICES)
+
+    class Meta:
+        constraints = [
+            # TODO this may no longer be necessary with pipeline run
+            UniqueConstraint(
+                fields=[
+                    "pulsar_fold_result",
+                    "file_type",
+                ],
+                name="Unique file type for a PulsarFoldResult"
+            )
+        ]
+
 
 class Residual(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.CASCADE)
