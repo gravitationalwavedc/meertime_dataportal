@@ -2,10 +2,9 @@ import { aliasMutation, aliasQuery } from "../utils/graphql-test-utils";
 
 describe("The Login Page", () => {
   beforeEach(() => {
-    cy.intercept("http://localhost:8000/graphql/", (req) => {
+    cy.intercept("/api/graphql/", (req) => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasQuery(req, "FoldQuery", "foldQuery.json");
-      aliasQuery(req, "FoldTableRefetchQuery", "foldQuery.json");
       aliasQuery(req, "SearchQuery", "searchQuery.json");
     });
   });
@@ -47,7 +46,7 @@ describe("The Login Page", () => {
     cy.wait("@SearchQuery");
 
     cy.contains("Loading...").should("not.exist");
-    cy.contains("Search mode Observations").should("be.visible");
+    cy.contains("Search Mode Observations").should("be.visible");
     cy.contains("Pulsars").should("be.visible");
 
     cy.location("pathname").should("equal", "/search/");

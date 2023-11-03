@@ -1,51 +1,95 @@
 {
   "data": {
-    "searchmodeObservations": {
-      "totalObservations": 11574,
-      "totalPulsars": 1324,
+    "observationSummary": {
       "edges": [
         {
           "node": {
-            "jname": "J0737-3039A",
-            "latestObservation": "2021-10-17T07:19:01+00:00",
-            "firstObservation": "2019-05-20T17:12:49+00:00",
-            "project": "RelBin",
-            "timespan": 881,
-            "numberOfObservations": 59,
-            "id": "U2VhcmNobW9kZVB1bHNhck5vZGU6MzExNTQ="
+            "observations": 67,
+            "pulsars": 5,
+            "observationHours": 7
+          }
+        }
+      ]
+    },
+    "pulsarSearchSummary": {
+      "totalObservations": 67,
+      "totalPulsars": 5,
+      "totalObservationTime": 7,
+      "totalProjectTime": 1492,
+      "edges": [
+        {
+          "node": {
+            "pulsar": {
+              "name": "J1709-3626"
+            },
+            "latestObservation": "2023-10-10T15:09:15+00:00",
+            "firstObservation": "2020-03-15T22:58:52+00:00",
+            "allProjects": "TPA",
+            "mostCommonProject": "TPA",
+            "timespan": 1304,
+            "numberOfObservations": 32,
+            "lastIntegrationMinutes": 2.27105,
+            "totalIntegrationHours": 1.6462197222222223
           }
         },
         {
           "node": {
-            "jname": "J0514-4002A",
-            "latestObservation": "2021-09-30T22:37:32+00:00",
-            "firstObservation": "2021-01-15T15:00:59+00:00",
-            "project": "None",
-            "timespan": 259,
-            "numberOfObservations": 11,
-            "id": "U2VhcmNobW9kZVB1bHNhck5vZGU6MzExMDA="
+            "pulsar": {
+              "name": "J1614+0737"
+            },
+            "latestObservation": "2023-08-01T18:21:59+00:00",
+            "firstObservation": "2020-01-11T03:16:05+00:00",
+            "allProjects": "TPA",
+            "mostCommonProject": "TPA",
+            "timespan": 1299,
+            "numberOfObservations": 31,
+            "lastIntegrationMinutes": 2.0044833333333334,
+            "totalIntegrationHours": 1.8249666666666682
           }
         },
         {
           "node": {
-            "jname": "J1946+1805",
-            "latestObservation": "2021-09-30T15:40:34+00:00",
-            "firstObservation": "2019-10-18T16:50:11+00:00",
-            "project": "TPA",
-            "timespan": 713,
-            "numberOfObservations": 22,
-            "id": "U2VhcmNobW9kZVB1bHNhck5vZGU6MzIzMjM="
+            "pulsar": {
+              "name": "OmegaCen1"
+            },
+            "latestObservation": "2023-06-27T11:37:31+00:00",
+            "firstObservation": "2023-06-27T11:37:31+00:00",
+            "allProjects": "GC",
+            "mostCommonProject": "GC",
+            "timespan": 1,
+            "numberOfObservations": 1,
+            "lastIntegrationMinutes": 239.9844833333274,
+            "totalIntegrationHours": 3.9997413888887903
           }
         },
         {
           "node": {
-            "jname": "J1943+0609",
-            "latestObservation": "2021-09-30T15:38:42+00:00",
-            "firstObservation": "2019-10-18T16:08:31+00:00",
-            "project": "TPA",
-            "timespan": 713,
-            "numberOfObservations": 21,
-            "id": "U2VhcmNobW9kZVB1bHNhck5vZGU6MzIzMTg="
+            "pulsar": {
+              "name": "J1554-5209"
+            },
+            "latestObservation": "2022-01-05T07:52:33+00:00",
+            "firstObservation": "2020-04-12T00:31:04+00:00",
+            "allProjects": "TPA",
+            "mostCommonProject": "TPA",
+            "timespan": 634,
+            "numberOfObservations": 2,
+            "lastIntegrationMinutes": 1.5316833333333335,
+            "totalIntegrationHours": 0.08202111111111114
+          }
+        },
+        {
+          "node": {
+            "pulsar": {
+              "name": "J1056-7117"
+            },
+            "latestObservation": "2019-07-01T12:38:37+00:00",
+            "firstObservation": "2019-07-01T12:38:37+00:00",
+            "allProjects": "PTA",
+            "mostCommonProject": "PTA",
+            "timespan": 1,
+            "numberOfObservations": 1,
+            "lastIntegrationMinutes": 17.09314999999998,
+            "totalIntegrationHours": 0.284885833333333
           }
         }
       ]

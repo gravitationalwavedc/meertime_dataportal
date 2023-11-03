@@ -1,549 +1,79 @@
 {
   "data": {
-    "foldObservations": {
-      "totalObservations": 34507,
-      "totalPulsars": 1548,
-      "totalObservationTime": 4321,
-      "totalProjectTime": 1070,
+    "observationSummary": {
       "edges": [
         {
           "node": {
-            "jname": "J1906+0746",
-            "beam": "1",
-            "latestObservation": "2023-06-04T04:36:41+00:00",
-            "firstObservation": "2020-02-02T10:36:44+00:00",
-            "allProjects": "TPA, RelBin",
-            "project": "RelBin",
-            "timespan": 1218,
-            "numberOfObservations": 98,
-            "lastSnRaw": 9.5,
-            "highestSnRaw": 42.3,
-            "lowestSnRaw": 4.1,
-            "lastIntegrationMinutes": 15.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 26.9,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1MDAw"
+            "observations": 34749,
+            "pulsars": 1548,
+            "observationHours": 4375
           }
-        },
+        }
+      ]
+    },
+    "pulsarFoldSummary": {
+      "edges": [
         {
           "node": {
-            "jname": "J1902-5105",
-            "beam": "1",
-            "latestObservation": "2023-06-04T02:48:53+00:00",
-            "firstObservation": "2019-04-16T23:34:38+00:00",
-            "allProjects": "RelBin, PTA",
-            "project": "PTA",
-            "timespan": 1510,
-            "numberOfObservations": 128,
-            "lastSnRaw": 821.6,
-            "highestSnRaw": 1025.3,
-            "lowestSnRaw": 14.1,
-            "lastIntegrationMinutes": 60.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 35.6,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0NDMz"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1901-0312",
-            "beam": "3",
-            "latestObservation": "2023-06-04T02:05:54+00:00",
-            "firstObservation": "2019-05-21T00:45:05+00:00",
+            "pulsar": {
+              "name": "J1648-6044"
+            },
+            "latestObservation": "2023-09-03T20:40:23+00:00",
+            "latestObservationBeam": 1,
+            "firstObservation": "2019-09-29T11:59:17+00:00",
             "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1476,
-            "numberOfObservations": 36,
-            "lastSnRaw": 19.3,
-            "highestSnRaw": 185.1,
-            "lowestSnRaw": 7.2,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.6,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0NTQx"
+            "mostCommonProject": "TPA",
+            "timespan": 1436,
+            "numberOfObservations": 61,
+            "lastSn": 104.514793395996,
+            "highestSn": 631.44677734375,
+            "lowestSn": 20.7085914611816,
+            "lastIntegrationMinutes": 1.9758818292834923,
+            "maxSnPipe": 312.5614232003624,
+            "avgSnPipe": 162.8876432242,
+            "totalIntegrationHours": 2.5482140358047802
           }
         },
         {
           "node": {
-            "jname": "J1901+0716",
-            "beam": "3",
-            "latestObservation": "2023-06-04T02:02:55+00:00",
-            "firstObservation": "2019-05-21T00:49:00+00:00",
+            "pulsar": {
+              "name": "J1634-5640"
+            },
+            "latestObservation": "2023-09-03T20:20:30+00:00",
+            "latestObservationBeam": 1,
+            "firstObservation": "2019-04-23T01:39:31+00:00",
             "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1476,
-            "numberOfObservations": 56,
-            "lastSnRaw": 106.9,
-            "highestSnRaw": 328.5,
-            "lowestSnRaw": 48.8,
-            "lastIntegrationMinutes": 2.6,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 2.7,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0MzI1"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1901+0331",
-            "beam": "3",
-            "latestObservation": "2023-06-04T02:00:40+00:00",
-            "firstObservation": "2019-10-18T15:41:38+00:00",
-            "allProjects": "unknown, TPA",
-            "project": "TPA",
-            "timespan": 1325,
+            "mostCommonProject": "TPA",
+            "timespan": 1595,
             "numberOfObservations": 35,
-            "lastSnRaw": 223.1,
-            "highestSnRaw": 2065.6,
-            "lowestSnRaw": 146.7,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.6,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0Nzc1"
+            "lastSn": 53.586742401123,
+            "highestSn": 240.195709228516,
+            "lowestSn": 37.3283042907715,
+            "lastIntegrationMinutes": 1.9924840074766388,
+            "maxSnPipe": 289.4591833869466,
+            "avgSnPipe": 100.6534460957151,
+            "totalIntegrationHours": 2.062844769595018
           }
         },
         {
           "node": {
-            "jname": "J1901+0156",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:58:27+00:00",
-            "firstObservation": "2020-04-14T04:24:53+00:00",
+            "pulsar": {
+              "name": "J1841-0345"
+            },
+            "latestObservation": "2023-09-03T19:40:22+00:00",
+            "latestObservationBeam": 3,
+            "firstObservation": "2019-11-15T18:10:37+00:00",
             "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1146,
-            "numberOfObservations": 30,
-            "lastSnRaw": 42.9,
-            "highestSnRaw": 174.7,
-            "lowestSnRaw": 22.4,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.5,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1Njkx"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1652-1400",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:57:13+00:00",
-            "firstObservation": "2020-03-11T00:58:49+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1181,
-            "numberOfObservations": 30,
-            "lastSnRaw": 14.0,
-            "highestSnRaw": 77.1,
-            "lowestSnRaw": 5.3,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.3,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1NTU1"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1901+0124",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:56:16+00:00",
-            "firstObservation": "2020-04-14T04:18:49+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1146,
-            "numberOfObservations": 30,
-            "lastSnRaw": 25.7,
-            "highestSnRaw": 78.0,
-            "lowestSnRaw": 11.2,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.9,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1Njkw"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1650-1654",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:55:01+00:00",
-            "firstObservation": "2019-10-09T17:01:42+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1334,
-            "numberOfObservations": 33,
-            "lastSnRaw": 90.5,
-            "highestSnRaw": 318.6,
-            "lowestSnRaw": 40.0,
-            "lastIntegrationMinutes": 1.9,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 2.5,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0NzE3"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1651-1709",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:52:52+00:00",
-            "firstObservation": "2019-05-21T03:08:30+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1475,
-            "numberOfObservations": 33,
-            "lastSnRaw": 72.3,
-            "highestSnRaw": 160.9,
-            "lowestSnRaw": 23.5,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 2.3,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0NTU2"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1900-0933",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:50:59+00:00",
-            "firstObservation": "2020-03-23T03:01:05+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1168,
-            "numberOfObservations": 55,
-            "lastSnRaw": 240.0,
-            "highestSnRaw": 657.8,
-            "lowestSnRaw": 12.6,
-            "lastIntegrationMinutes": 4.9,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 5.4,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1Njg4"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1655-3048",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:50:33+00:00",
-            "firstObservation": "2020-01-03T03:08:21+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1248,
-            "numberOfObservations": 32,
-            "lastSnRaw": 118.5,
-            "highestSnRaw": 270.2,
-            "lowestSnRaw": 46.5,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.2,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1NTU3"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1900-0051",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:48:41+00:00",
-            "firstObservation": "2020-04-14T04:11:46+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1146,
-            "numberOfObservations": 30,
-            "lastSnRaw": 23.9,
-            "highestSnRaw": 130.3,
-            "lowestSnRaw": 15.0,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.2,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1Njg1"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1656-3621",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:48:19+00:00",
-            "firstObservation": "2019-05-21T00:13:14+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1476,
+            "mostCommonProject": "TPA",
+            "timespan": 1389,
             "numberOfObservations": 35,
-            "lastSnRaw": 19.5,
-            "highestSnRaw": 146.6,
-            "lowestSnRaw": 13.6,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 2.6,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0NTM2"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1900+0634",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:46:22+00:00",
-            "firstObservation": "2020-04-14T04:04:30+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1146,
-            "numberOfObservations": 28,
-            "lastSnRaw": 13.1,
-            "highestSnRaw": 303.0,
-            "lowestSnRaw": 10.8,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 2.5,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1MTE0"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1659-4439",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:46:02+00:00",
-            "firstObservation": "2020-03-11T01:25:44+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1181,
-            "numberOfObservations": 28,
-            "lastSnRaw": 19.3,
-            "highestSnRaw": 344.4,
-            "lowestSnRaw": 14.3,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 2.2,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1NTU5"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1857+0212",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:44:07+00:00",
-            "firstObservation": "2019-10-18T15:49:09+00:00",
-            "allProjects": "unknown, TPA",
-            "project": "TPA",
-            "timespan": 1325,
-            "numberOfObservations": 34,
-            "lastSnRaw": 174.2,
-            "highestSnRaw": 324.2,
-            "lowestSnRaw": 33.5,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.2,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0Nzc4"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1658-4958",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:43:48+00:00",
-            "firstObservation": "2019-09-29T12:06:55+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1344,
-            "numberOfObservations": 57,
-            "lastSnRaw": 40.0,
-            "highestSnRaw": 197.3,
-            "lowestSnRaw": 29.1,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.7,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0Mjkz"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1857+0057",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:41:54+00:00",
-            "firstObservation": "2019-10-18T15:56:39+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1325,
-            "numberOfObservations": 33,
-            "lastSnRaw": 54.6,
-            "highestSnRaw": 92.5,
-            "lowestSnRaw": 27.8,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.4,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0Nzgw"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1657-4432",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:41:34+00:00",
-            "firstObservation": "2019-05-20T23:48:54+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1476,
-            "numberOfObservations": 32,
-            "lastSnRaw": 11.4,
-            "highestSnRaw": 244.3,
-            "lowestSnRaw": 11.4,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.9,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0NTMy"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1856-0526",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:39:37+00:00",
-            "firstObservation": "2019-05-21T01:13:20+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1476,
-            "numberOfObservations": 59,
-            "lastSnRaw": 41.7,
-            "highestSnRaw": 255.3,
-            "lowestSnRaw": 21.3,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 2.2,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0MzI0"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1651-4246",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:38:24+00:00",
-            "firstObservation": "2019-03-08T07:14:49+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1549,
-            "numberOfObservations": 60,
-            "lastSnRaw": 943.4,
-            "highestSnRaw": 3948.8,
-            "lowestSnRaw": 520.2,
-            "lastIntegrationMinutes": 3.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 3.5,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0MzYw"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1855-0941",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:37:22+00:00",
-            "firstObservation": "2020-02-02T12:53:30+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1218,
-            "numberOfObservations": 31,
-            "lastSnRaw": 99.8,
-            "highestSnRaw": 201.9,
-            "lowestSnRaw": 34.7,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.3,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1Njc1"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1650-4921",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:36:08+00:00",
-            "firstObservation": "2020-03-08T05:05:20+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1183,
-            "numberOfObservations": 30,
-            "lastSnRaw": 9.0,
-            "highestSnRaw": 18.5,
-            "lowestSnRaw": 7.6,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.5,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1NTU0"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1855+0307",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:34:59+00:00",
-            "firstObservation": "2019-10-18T15:45:22+00:00",
-            "allProjects": "unknown, TPA",
-            "project": "TPA",
-            "timespan": 1325,
-            "numberOfObservations": 34,
-            "lastSnRaw": 44.5,
-            "highestSnRaw": 469.5,
-            "lowestSnRaw": 18.8,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.7,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0Nzc3"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1650-4126",
-            "beam": "1",
-            "latestObservation": "2023-06-04T01:33:52+00:00",
-            "firstObservation": "2020-03-08T04:50:24+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1183,
-            "numberOfObservations": 30,
-            "lastSnRaw": 21.2,
-            "highestSnRaw": 50.5,
-            "lowestSnRaw": 10.7,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 2.3,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA1NTUx"
-          }
-        },
-        {
-          "node": {
-            "jname": "J1853-0004",
-            "beam": "3",
-            "latestObservation": "2023-06-04T01:32:44+00:00",
-            "firstObservation": "2019-11-15T18:21:18+00:00",
-            "allProjects": "TPA",
-            "project": "TPA",
-            "timespan": 1297,
-            "numberOfObservations": 57,
-            "lastSnRaw": 24.5,
-            "highestSnRaw": 49.9,
-            "lowestSnRaw": 7.0,
-            "lastIntegrationMinutes": 2.0,
-            "maxSnPipe": null,
-            "avgSnPipe": null,
-            "totalIntegrationHours": 1.6,
-            "id": "Rm9sZFB1bHNhck5vZGU6NTA0OTg4"
+            "lastSn": 52.7208480834961,
+            "highestSn": 145.109817504883,
+            "lowestSn": 14.0027933120728,
+            "lastIntegrationMinutes": 1.992313061682238,
+            "maxSnPipe": 167.7341411875062,
+            "avgSnPipe": 79.19346058795759,
+            "totalIntegrationHours": 1.0983949310512469
           }
         }
       ]
