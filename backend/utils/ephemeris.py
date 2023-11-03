@@ -37,7 +37,7 @@ def convert_frequency_to_period(
 
 def convert_to_float_if_possible(s):
     try:
-        return float(s.replace("D-", "E-"))
+        return float(s.replace("D-", "E-").replace(".000e-", "e-"))
     except (ValueError, TypeError):
         return s
 
