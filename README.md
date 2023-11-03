@@ -31,21 +31,25 @@ Run `poetry install` to also install development packages such as testing tools.
 
 3. Prepare the environment by copying the `.env.template` to `.env` and make changes to it such as generating your own django secret key.
 
-4. Install `mysql` with `sudo apt install mysql-server libmysqlclient-dev`
+4. Install `postgresql` with `sudo apt install postgresql postgresql-contrib libpq-dev`
 
-5. Create the `mysql` database using the following commands (changing the `$` values with what you set in your `.env`):
+5. Create the `postgresql` database using the following commands (changing the `$` values with what you set in your `.env`):
 
 ```
-CREATE DATABASE $MYSQL_DATABASE;
-CREATE USER '$MYSQL_USER'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD';
-GRANT ALL PRIVILEGES ON $MYSQL_DATABASE.* TO '$MYSQL_USER'@'localhost';
-FLUSH PRIVILEGES;
+sudo -u postgres psql
+
+CREATE DATABASE $POSTGRES_DATABASE;
+CREATE USER $POSTGRES_USER WITH ENCRYPTED PASSWORD '$POSTGRES_PASSWORD';
+
+ALTER ROLE $POSTGRES_USER SET client_encoding TO 'utf8';
+ALTER ROLE $POSTGRES_USER SET default_transaction_isolation TO 'read committed';
+ALTER ROLE $POSTGRES_USER SET timezone TO 'UTC';
 ```
 
 6. Migrate all the changes to the database so it is in the correct format `poetry run python manage.py migrate`
 
 7. Start the development server.
-  Run `poetry run python manage.py runserver` and open the [development server](http://localhost:8000/meertime).
+  Run `poetry run python manage.py runserver` and open the [development server](http://localhost:8000).
 
 ### To run the application using docker-compose
 

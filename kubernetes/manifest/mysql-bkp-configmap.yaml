@@ -41,9 +41,9 @@ data:
     echo "delete old backups"
     find ${BACKUP_DIR} -maxdepth 2 -mtime +${KEEP_DAYS} -regex "^${BACKUP_DIR}/.*[0-9]*_.*\.sql.tar.gz$" -type f -exec rm {} \;
 
-    echo "Backing up db ${MYSQL_DATABASE}"
+    echo "Backing up db ${POSTGRES_DATABASE}"
 
-    mysqldump ${MYSQL_OPTS} -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD} --databases ${MYSQL_DATABASE} > ${TIMESTAMP}_${MYSQL_DATABASE}.sql
+    mysqldump ${MYSQL_OPTS} -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u root -p${MYSQL_ROOT_PASSWORD} --databases ${POSTGRES_DATABASE} > ${TIMESTAMP}_${POSTGRES_DATABASE}.sql
     rc=$?
 
     if [ "$rc" != "0" ]; then

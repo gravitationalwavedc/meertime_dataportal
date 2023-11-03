@@ -4,9 +4,9 @@ services:
 variables:
   POETRY_HOME: "/opt/poetry"
   MYSQL_ROOT_PASSWORD: "mysqlrootpassword"
-  MYSQL_DATABASE: "meertime"
-  MYSQL_USER: "buffy"
-  MYSQL_PASSWORD: "islayvampires"
+  POSTGRES_DATABASE: "meertime"
+  POSTGRES_USER: "buffy"
+  POSTGRES_PASSWORD: "islayvampires"
   DB_HOST: "mysql"
   MYSQL_PORT: "3306"
   DEBIAN_FRONTEND: "noninteractive"
@@ -28,7 +28,7 @@ default:
     - $POETRY_HOME/bin/poetry --version
     - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
     - cp backend/.env.template backend/.env
-    - echo "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql
+    - echo "GRANT ALL PRIVILEGES ON *.* TO '${POSTGRES_USER}'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql
 
 cache:
   - key:
