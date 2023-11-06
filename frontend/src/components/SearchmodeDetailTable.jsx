@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { graphql, useFragment } from "react-relay";
 import { columnsSizeFilter, kronosLink } from "../helpers";
 import Button from "react-bootstrap/Button";
 import DataView from "./DataView";
@@ -6,9 +7,64 @@ import SearchmodeDetailCard from "./SearchmodeDetailCard";
 import { formatUTC } from "../helpers";
 import { useScreenSize } from "../context/screenSize-context";
 
-const SearchmodeDetailTable = ({ data, jname }) => {
+
+const SearchmodeDetailTableFragment = graphql`
+  fragment SearchmodeDetailTableFragment on Query
+  @argumentDefinitions(
+    jname: { type: "String", defaultValue: "All" }
+    mainProject: { type: "String", defaultValue: "MeerTIME" }
+  ) {
+    observationSummary(
+      pulsar_Name: $jname
+      obsType: "search"
+      calibration_Id: "All"
+      mainProject: $mainProject
+      project_Short: "All"
+      band: "All"
+    ) {
+      edges {
+        node {
+          observations
+          projects
+          observationHours
+          timespanDays
+        }
+      }
+    }
+    observation(
+      pulsar_Name: [$jname]
+      mainProject: $mainProject
+      obsType: "search"
+    ) {
+      edges {
+        node {
+          id
+          utcStart
+          project {
+            short
+          }
+          raj
+          decj
+          beam
+          duration
+          frequency
+          nantEff
+          filterbankNbit
+          filterbankNpol
+          filterbankNchan
+          filterbankTsamp
+          filterbankDm
+        }
+      }
+    }
+  }
+`;
+
+
+const SearchmodeDetailTable = ({ data, jname, mainProject }) => {
   const { screenSize } = useScreenSize();
-  const allRows = data.observation.edges.reduce(
+  const relayData = useFragment(SearchmodeDetailTableFragment, data);
+  const allRows = relayData.observation.edges.reduce(
     (result, edge) => [
       ...result,
       {
@@ -173,7 +229,7 @@ const SearchmodeDetailTable = ({ data, jname }) => {
     setRows(newRows);
   };
 
-  const summaryNode = data.observationSummary.edges[0]?.node;
+  const summaryNode = relayData.observationSummary.edges[0]?.node;
   const summaryData = [
     {
       title: "Observations",

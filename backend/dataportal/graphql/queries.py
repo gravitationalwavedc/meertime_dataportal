@@ -711,7 +711,8 @@ class Query(graphene.ObjectType):
 
         main_project = kwargs.get('main_project')
         if main_project:
-            queryset = queryset.filter(project__main_project__name__iexact=main_project)
+            if main_project != "All":
+                queryset = queryset.filter(project__main_project__name__iexact=main_project)
 
         project_id = kwargs.get('project__id')
         if project_id:
