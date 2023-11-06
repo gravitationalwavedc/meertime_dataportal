@@ -1,34 +1,34 @@
-services:
-  - mysql:8.0
-
 variables:
   POETRY_HOME: "/opt/poetry"
-  MYSQL_ROOT_PASSWORD: "mysqlrootpassword"
+  POSTGRES_ROOT_PASSWORD: "postgresrootpassword"
   POSTGRES_DATABASE: "meertime"
   POSTGRES_USER: "buffy"
   POSTGRES_PASSWORD: "islayvampires"
-  DB_HOST: "mysql"
-  MYSQL_PORT: "3306"
+  DB_HOST: "postgres"
+  POSTGRES_PORT: "3306"
   DEBIAN_FRONTEND: "noninteractive"
 
-default:
-  image:
-    name: ubuntu:20.04
-    entrypoint: ["/usr/bin/env"]
+image:
+  name: ubuntu:20.04
+  entrypoint: ["/usr/bin/env"]
 
-  before_script:
-    - apt -y update
-    - apt -y install apt-utils
-    - apt -y install net-tools python3.9 python3-pip git curl wget python3.9-venv mysql-client libmysqlclient-dev
-    - apt -y upgrade
-    - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-    - echo $POETRY_HOME
-    - python3 -m venv $POETRY_HOME
-    - $POETRY_HOME/bin/pip install poetry
-    - $POETRY_HOME/bin/poetry --version
-    - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
-    - cp backend/.env.template backend/.env
-    - echo "GRANT ALL PRIVILEGES ON *.* TO '${POSTGRES_USER}'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql
+services:
+- postgres:12.2-alpine
+
+before_script:
+  - apt -y update
+  - apt -y install apt-utils
+  - apt -y install net-tools git curl wget python3.9 python3-pip python3.8-venv python3.9-dev postgresql postgresql-client libpq-dev
+  - apt -y upgrade
+  - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+  - echo $POETRY_HOME
+  - python3 -m venv $POETRY_HOME
+  - $POETRY_HOME/bin/pip install poetry
+  - $POETRY_HOME/bin/poetry --version
+  - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
+  - cp backend/.env.template backend/.env
+  - export PGPASSWORD=$POSTGRES_PASSWORD
+
 
 cache:
   - key:
