@@ -27,4 +27,20 @@ describe("The Fold Detail Page", () => {
     cy.contains("Loading...").should("not.exist");
     cy.contains("PSR J0125-2327 is a millisecond pulsar").should("be.visible");
   });
+
+  it("should toggle the ephemeris modal", () => {
+    cy.wait("@FoldDetailQuery");
+    cy.contains("View folding ephemeris").should("be.visible");
+    cy.contains("Folding Ephemeris").should('not.exist')
+    cy.contains("View folding ephemeris").click();
+    cy.contains("Folding Ephemeris").should('be.visible')
+  });
+
+  it("should disable the view ephemeris button if the data is missing", () => {
+    cy.intercept("http://localhost:8000/graphql/", (req) => {
+      aliasQuery(req, "FoldDetailQuery", "foldDetailQueryNoEphem.json");
+    });
+    cy.wait("@FoldDetailQuery");
+    cy.contains("Folding ephemeris unavailable").should("be.visible");
+  });
 });

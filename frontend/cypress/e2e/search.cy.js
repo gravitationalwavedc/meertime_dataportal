@@ -5,6 +5,7 @@ describe("The Search Page", () => {
     cy.intercept("http://localhost:8000/graphql/", (req) => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasQuery(req, "SearchQuery", "searchQuery.json");
+      aliasQuery(req, "SearchTableQuery", "searchQueryFewer.json");
     });
     cy.visit("/search/");
     cy.location("pathname").should("equal", "/login");
@@ -27,5 +28,27 @@ describe("The Search Page", () => {
     cy.contains("Loading...").should("not.exist");
     cy.contains("Pulsars").should("be.visible");
     cy.location("pathname").should("equal", "/search/");
+  });
+
+  it("changes band when selected", () => {
+    cy.wait("@SearchQuery");
+    cy.get('table').get('tbody').find('tr').should('have.length', 3);
+
+    cy.get('#bandSelect').select("LBAND", {force: true});
+
+    cy.wait("@SearchTableQuery");
+    // cy.url().should('eq', 'http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&band=LBAND');
+    cy.get('table').get('tbody').find('tr').should('have.length', 2);
+  });
+
+  it("changes project when selected", () => {
+    cy.wait("@SearchQuery");
+    cy.get('table').get('tbody').find('tr').should('have.length', 3);
+
+    cy.get('#projectSelect').select("PTA", {force: true});
+
+    cy.wait("@SearchTableQuery");
+    // cy.url().should('eq', 'http://localhost:5173/?search=&mainProject=trapum&mostCommonProject=All&band=All');
+    cy.get('table').get('tbody').find('tr').should('have.length', 2);
   });
 });

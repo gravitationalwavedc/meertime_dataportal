@@ -62,4 +62,33 @@ describe("Single Observation Page", () => {
     // Download buttons should not show.
     cy.contains("Download Fluxcal Archive").should("not.exist");
   });
+
+  it("should render the page with images", () => {
+    cy.wait("@SingleObservationQuery");
+
+    cy.get('img[alt="Plot PROFILE raw"').should('be.visible');
+    cy.get('img[alt="Plot PROFILE cleaned').should('be.visible');
+    cy.get('img[alt="Plot PROFILE_POL raw').should('be.visible');
+    cy.get('img[alt="Plot PROFILE_POL cleaned').should('be.visible');
+    cy.get('img[alt="Plot PHASE_TIME raw').should('be.visible');
+    cy.get('img[alt="Plot PHASE_TIME cleaned').should('be.visible');
+    cy.get('img[alt="Plot PHASE_FREQ raw').should('be.visible');
+    cy.get('img[alt="Plot PHASE_FREQ cleaned').should('be.visible');
+    cy.get('img[alt="Plot BANDPASS raw').should('be.visible');
+    cy.get('img[alt="Plot BANDPASS cleaned').should('be.visible');
+    cy.get('img[alt="Plot SNR_CUMUL raw').should('be.visible');
+    cy.get('img[alt="Plot SNR_CUMUL cleaned').should('be.visible');
+    cy.get('img[alt="Plot SNR_SINGLE raw').should('be.visible');
+    cy.get('img[alt="Plot SNR_SINGLE cleaned').should('be.visible');
+  });
+
+  it("should render even without images", () => {
+
+    cy.intercept("http://localhost:8000/graphql/", (req) => {
+      aliasQuery(req, "SingleObservationQuery", "foldObservationDetailsNoImages.json");
+    });
+    cy.wait("@SingleObservationQuery");
+
+    cy.contains("J0125-2327").should("be.visible");
+  });
 });
