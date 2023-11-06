@@ -4,7 +4,6 @@ import pytest
 from django.contrib.auth import get_user_model
 from graphql_jwt.testcases import JSONWebTokenClient
 from dataportal.tests.testing_utils import create_pulsar_with_observations, create_toas_and_residuals
-from dataportal.models import Telescope
 
 
 def setup_query_test():

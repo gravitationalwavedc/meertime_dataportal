@@ -16,9 +16,6 @@ from dataportal.models import (
     Calibration,
     Observation,
     PipelineRun,
-    PulsarFoldResult,
-    PulsarFoldSummary,
-    # PipelineImage,
     Toa,
     Residual,
 )
@@ -70,8 +67,7 @@ def create_observation(json_path, pulsar, telescope, project, ephemeris):
 
     # Get or upload calibration
     calibration = Calibration.objects.create(
-        delay_cal_id=meertime_data["delaycal_id"],
-        phase_up_id=meertime_data["phaseup_id"],
+        schedule_block_id=meertime_data["schedule_block_id"],
         calibration_type=meertime_data["cal_type"],
         location=meertime_data["cal_location"],
     )
