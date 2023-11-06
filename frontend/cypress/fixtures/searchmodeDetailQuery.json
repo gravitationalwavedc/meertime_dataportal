@@ -1,0 +1,100 @@
+{
+  "data": {
+    "observationSummary": {
+      "edges": [
+        {
+          "node": {
+            "observations": 4,
+            "projects": 1,
+            "observationHours": 0,
+            "timespanDays": 1006
+          }
+        }
+      ]
+    },
+    "observation": {
+      "edges": [
+        {
+          "node": {
+            "id": "T2JzZXJ2YXRpb25Ob2RlOjQwMjE3",
+            "utcStart": "2023-03-03T08:24:57+00:00",
+            "project": {
+              "short": "TPA"
+            },
+            "raj": "19:44:31.80",
+            "decj": "17:55:42.4",
+            "beam": 4,
+            "duration": 471.2329999999996,
+            "frequency": 815.734375,
+            "nantEff": 30,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 1024,
+            "filterbankTsamp": 30.18,
+            "filterbankDm": 175
+          }
+        },
+        {
+          "node": {
+            "id": "T2JzZXJ2YXRpb25Ob2RlOjQwMjE4",
+            "utcStart": "2020-07-13T00:03:52+00:00",
+            "project": {
+              "short": "TPA"
+            },
+            "raj": "19:44:31.80",
+            "decj": "17:55:42.4",
+            "beam": 2,
+            "duration": 1080.782,
+            "frequency": 1283.58203125,
+            "nantEff": 58,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 1024,
+            "filterbankTsamp": 38.28,
+            "filterbankDm": 175
+          }
+        },
+        {
+          "node": {
+            "id": "T2JzZXJ2YXRpb25Ob2RlOjQwMjE5",
+            "utcStart": "2020-06-01T00:21:48+00:00",
+            "project": {
+              "short": "GC"
+            },
+            "raj": "19:44:31.80",
+            "decj": "17:55:42.4",
+            "beam": 1,
+            "duration": 600.7160000000001,
+            "frequency": 1283.58203125,
+            "nantEff": 59,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 1024,
+            "filterbankTsamp": 38.28,
+            "filterbankDm": 175
+          }
+        },
+        {
+          "node": {
+            "id": "T2JzZXJ2YXRpb25Ob2RlOjQwMjIw",
+            "utcStart": "2022-03-01T09:51:17+00:00",
+            "project": {
+              "short": "GC"
+            },
+            "raj": "19:44:31.80",
+            "decj": "17:55:42.4",
+            "beam": 4,
+            "duration": 470.9859999999996,
+            "frequency": 815.93359375,
+            "nantEff": 28,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 4096,
+            "filterbankTsamp": 30.18,
+            "filterbankDm": 175
+          }
+        }
+      ]
+    }
+  }
+}
