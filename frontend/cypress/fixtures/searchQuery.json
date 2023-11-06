@@ -12,10 +12,6 @@
       ]
     },
     "pulsarSearchSummary": {
-      "totalObservations": 67,
-      "totalPulsars": 5,
-      "totalObservationTime": 7,
-      "totalProjectTime": 1492,
       "edges": [
         {
           "node": {
@@ -60,36 +56,6 @@
             "numberOfObservations": 1,
             "lastIntegrationMinutes": 239.9844833333274,
             "totalIntegrationHours": 3.9997413888887903
-          }
-        },
-        {
-          "node": {
-            "pulsar": {
-              "name": "J1554-5209"
-            },
-            "latestObservation": "2022-01-05T07:52:33+00:00",
-            "firstObservation": "2020-04-12T00:31:04+00:00",
-            "allProjects": "TPA",
-            "mostCommonProject": "TPA",
-            "timespan": 634,
-            "numberOfObservations": 2,
-            "lastIntegrationMinutes": 1.5316833333333335,
-            "totalIntegrationHours": 0.08202111111111114
-          }
-        },
-        {
-          "node": {
-            "pulsar": {
-              "name": "J1056-7117"
-            },
-            "latestObservation": "2019-07-01T12:38:37+00:00",
-            "firstObservation": "2019-07-01T12:38:37+00:00",
-            "allProjects": "PTA",
-            "mostCommonProject": "PTA",
-            "timespan": 1,
-            "numberOfObservations": 1,
-            "lastIntegrationMinutes": 17.09314999999998,
-            "totalIntegrationHours": 0.284885833333333
           }
         }
       ]
