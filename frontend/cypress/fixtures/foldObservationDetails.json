@@ -158,17 +158,17 @@
                   }
                 }
               ]
-            },
-            "files": {
-              "edges": [
-                {
-                  "node": {
-                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/J0125-2327.FTS.ar",
-                    "fileType": "FTS"
-                  }
-                }
-              ]
             }
+          }
+        }
+      ]
+    },
+    "fileList": {
+      "edges": [
+        {
+          "node": {
+            "path": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/J0125-2327.FTS.ar",
+            "fileSize": "1GB"
           }
         }
       ]

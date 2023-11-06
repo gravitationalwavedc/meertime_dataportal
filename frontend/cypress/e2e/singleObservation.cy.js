@@ -30,36 +30,36 @@ describe("Single Observation Page", () => {
     cy.location("pathname").should("equal", "/J0125-2327/2023-04-29-06:47:34/2/");
   });
 
-  // it("should display the download buttons where there are files", () => {
+  it("should display the download buttons where there are files", () => {
 
-  //   cy.visit("/J0125-2327/2023-04-29-06:47:34/2/");
+    cy.visit("/J0125-2327/2023-04-29-06:47:34/2/");
 
-  //   cy.wait("@SingleObservationQuery");
+    cy.wait("@SingleObservationQuery");
 
-  //   // Correct page loads
-  //   cy.contains("J0125-2327").should("be.visible");
+    // Correct page loads
+    cy.contains("J0125-2327").should("be.visible");
 
-  //   // The download buttons are visible
-  //   cy.contains("Download Fluxcal Archive").should("be.visible");
-  // });
+    // The download buttons are visible
+    cy.contains("Download Fluxcal Archive").should("be.visible");
+  });
 
-  // it("should hide download buttons when there are no files", () => {
-  //   cy.intercept("/api/graphql/", (req) => {
-  //     aliasQuery(
-  //       req,
-  //       "SingleObservationQuery",
-  //       "foldObservationDetailsNoFiles.json"
-  //     );
-  //   });
+  it("should hide download buttons when there are no files", () => {
+    cy.intercept("http://localhost:8000/graphql/", (req) => {
+      aliasQuery(
+        req,
+        "SingleObservationQuery",
+        "foldObservationDetailsNoFiles.json"
+      );
+    });
 
-  //   cy.visit("/J0125-2327/2020-02-04-00:21:21/2/");
+    cy.visit("/J0125-2327/2020-02-04-00:21:21/2/");
 
-  //   cy.wait("@SingleObservationQuery");
+    cy.wait("@SingleObservationQuery");
 
-  //   // Correct page loads
-  //   cy.contains("J0125-2327").should("be.visible");
+    // Correct page loads
+    cy.contains("J0125-2327").should("be.visible");
 
-  //   // Download buttons should not show.
-  //   cy.contains("Download Fluxcal Archive").should("not.exist");
-  // });
+    // Download buttons should not show.
+    cy.contains("Download Fluxcal Archive").should("not.exist");
+  });
 });
