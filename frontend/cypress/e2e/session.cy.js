@@ -25,7 +25,7 @@ describe("The Session Page", () => {
     cy.wait("@SessionQuery");
 
     cy.contains("Loading...").should("not.exist");
-    cy.contains("Start").should("be.visible");
+    cy.contains("JName").should("be.visible");
     cy.location("pathname").should("equal", "/session/2419/");
   });
 });

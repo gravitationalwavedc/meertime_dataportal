@@ -1,4 +1,8 @@
-import { aliasMutation, aliasQuery, aliasQueryWithVariables } from "../utils/graphql-test-utils";
+import {
+  aliasMutation,
+  aliasQuery,
+  aliasQueryWithVariables,
+} from "../utils/graphql-test-utils";
 
 describe("The Fold Page", () => {
   beforeEach(() => {
@@ -34,29 +38,35 @@ describe("The Fold Page", () => {
 
   it("changes band when selected", () => {
     cy.wait("@FoldQuery");
-    cy.get('table').get('tbody').find('tr').should('have.length', 3);
+    cy.get("table").get("tbody").find("tr").should("have.length", 3);
 
-    cy.get('#bandSelect').select("LBAND", {force: true});
+    cy.get("#bandSelect").select("LBAND", { force: true });
 
     cy.wait("@FoldTableRefetchQuery");
-    cy.url().should('eq', 'http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&band=LBAND');
-    cy.get('table').get('tbody').find('tr').should('have.length', 2);
+    cy.url().should(
+      "eq",
+      "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&band=LBAND"
+    );
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 
   it("changes project when selected", () => {
     cy.wait("@FoldQuery");
-    cy.get('table').get('tbody').find('tr').should('have.length', 3);
+    cy.get("table").get("tbody").find("tr").should("have.length", 3);
 
-    cy.get('#mainProjectSelect').select("Trapum", {force: true});
+    cy.get("#mainProjectSelect").select("Trapum", { force: true });
 
     cy.wait("@FoldTableRefetchQuery");
-    cy.url().should('eq', 'http://localhost:5173/?search=&mainProject=trapum&mostCommonProject=All&band=All');
-    cy.get('table').get('tbody').find('tr').should('have.length', 2);
+    cy.url().should(
+      "eq",
+      "http://localhost:5173/?search=&mainProject=trapum&mostCommonProject=All&band=All"
+    );
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 
   it("check view all button", () => {
     cy.wait("@FoldQuery");
-    cy.contains('View all').click();
+    cy.contains("View all").click();
     cy.location("pathname").should("equal", "/fold/meertime/J1648-6044/");
 
     cy.wait("@FoldDetailQuery");
@@ -67,8 +77,11 @@ describe("The Fold Page", () => {
 
   it("check view last button", () => {
     cy.wait("@FoldQuery");
-    cy.contains('View last').click();
-    cy.location("pathname").should("equal", "/J1648-6044/2023-09-03-20:40:23/1/");
+    cy.contains("View last").click();
+    cy.location("pathname").should(
+      "equal",
+      "/J1648-6044/2023-09-03-20:40:23/1/"
+    );
 
     cy.wait("@SingleObservationQuery");
     cy.contains("Loading...").should("not.exist");

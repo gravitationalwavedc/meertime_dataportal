@@ -3,15 +3,9 @@ import MainLayout from "../components/MainLayout";
 import SearchmodeDetailTable from "../components/SearchmodeDetailTable";
 
 const query = graphql`
-  query SearchmodeDetailQuery(
-    $jname: String!,
-    $mainProject: String
-  ) {
+  query SearchmodeDetailQuery($jname: String!, $mainProject: String) {
     ...SearchmodeDetailTableFragment
-      @arguments(
-        jname: $jname
-        mainProject: $mainProject
-      )
+      @arguments(jname: $jname, mainProject: $mainProject)
   }
 `;
 

@@ -7,7 +7,6 @@ import SearchmodeDetailCard from "./SearchmodeDetailCard";
 import { formatUTC } from "../helpers";
 import { useScreenSize } from "../context/screenSize-context";
 
-
 const SearchmodeDetailTableFragment = graphql`
   fragment SearchmodeDetailTableFragment on Query
   @argumentDefinitions(
@@ -59,7 +58,6 @@ const SearchmodeDetailTableFragment = graphql`
     }
   }
 `;
-
 
 const SearchmodeDetailTable = ({ data, jname, mainProject }) => {
   const { screenSize } = useScreenSize();

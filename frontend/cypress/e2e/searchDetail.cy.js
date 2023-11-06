@@ -29,12 +29,11 @@ describe("The Search Detail Page", () => {
     cy.location("pathname").should("equal", "/search/All/J1944%201755/");
   });
 
-
   it("changes project when selected", () => {
     cy.wait("@SearchmodeDetailQuery");
-    cy.get('table').get('tbody').find('tr').should('have.length', 4);
+    cy.get("table").get("tbody").find("tr").should("have.length", 4);
 
-    cy.get('#projectSelect').select("GC", {force: true});
-    cy.get('table').get('tbody').find('tr').should('have.length', 2);
+    cy.get("#projectSelect").select("GC", { force: true });
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 });

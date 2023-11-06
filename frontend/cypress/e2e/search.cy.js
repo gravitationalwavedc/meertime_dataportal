@@ -6,6 +6,7 @@ describe("The Search Page", () => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasQuery(req, "SearchQuery", "searchQuery.json");
       aliasQuery(req, "SearchTableQuery", "searchQueryFewer.json");
+      aliasQuery(req, "SearchmodeDetailQuery", "searchmodeDetailQuery.json");
     });
     cy.visit("/search/");
     cy.location("pathname").should("equal", "/login");
@@ -32,23 +33,34 @@ describe("The Search Page", () => {
 
   it("changes band when selected", () => {
     cy.wait("@SearchQuery");
-    cy.get('table').get('tbody').find('tr').should('have.length', 3);
+    cy.get("table").get("tbody").find("tr").should("have.length", 3);
 
-    cy.get('#bandSelect').select("LBAND", {force: true});
+    cy.get("#bandSelect").select("LBAND", { force: true });
 
     cy.wait("@SearchTableQuery");
     // cy.url().should('eq', 'http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&band=LBAND');
-    cy.get('table').get('tbody').find('tr').should('have.length', 2);
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 
   it("changes project when selected", () => {
     cy.wait("@SearchQuery");
-    cy.get('table').get('tbody').find('tr').should('have.length', 3);
+    cy.get("table").get("tbody").find("tr").should("have.length", 3);
 
-    cy.get('#projectSelect').select("PTA", {force: true});
+    cy.get("#projectSelect").select("PTA", { force: true });
 
     cy.wait("@SearchTableQuery");
     // cy.url().should('eq', 'http://localhost:5173/?search=&mainProject=trapum&mostCommonProject=All&band=All');
-    cy.get('table').get('tbody').find('tr').should('have.length', 2);
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+  });
+
+  it("check view all button", () => {
+    cy.wait("@SearchQuery");
+    cy.contains("View all").click();
+    cy.location("pathname").should("equal", "/search/All/J1709-3626/");
+
+    cy.wait("@SearchmodeDetailQuery");
+
+    cy.contains("Loading...").should("not.exist");
+    cy.contains("Timestamp").should("be.visible");
   });
 });
