@@ -31,16 +31,14 @@ type CalibrationEdge {
 }
 
 input CalibrationInput {
-  delayCalId: String
-  phaseUpId: String
+  scheduleBlockId: String
   calibrationType: String!
   location: String
 }
 
 type CalibrationNode implements Node {
   id: ID!
-  delayCalId: String
-  phaseUpId: String
+  scheduleBlockId: String
   calibrationType: CalibrationCalibrationType!
   location: String
   start: DateTime
@@ -555,6 +553,37 @@ type PasswordResetRequestType implements Node {
   lastUpdated: DateTime!
 }
 
+type PipelineFileConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineFileEdge]!
+}
+
+type PipelineFileEdge {
+  node: PipelineFileNode
+  cursor: String!
+}
+
+enum PipelineFileFileType {
+  FTS
+}
+
+type PipelineFileNode implements Node {
+  id: ID!
+  pulsarFoldResult: PulsarFoldResultNode
+  file: String
+  fileType: PipelineFileFileType!
+}
+
+type PipelineFileNodeConnection {
+  pageInfo: PageInfo!
+  edges: [PipelineFileNodeEdge]!
+}
+
+type PipelineFileNodeEdge {
+  node: PipelineFileNode
+  cursor: String!
+}
+
 type PipelineImageConnection {
   pageInfo: PageInfo!
   edges: [PipelineImageEdge]!
@@ -788,6 +817,7 @@ type PulsarFoldResultNode implements Node {
   pulsar: PulsarNode!
   embargoEndDate: DateTime
   images(offset: Int, before: String, after: String, first: Int, last: Int): PipelineImageNodeConnection!
+  files(offset: Int, before: String, after: String, first: Int, last: Int): PipelineFileNodeConnection!
   project: ProjectNode
 }
 
@@ -920,6 +950,7 @@ type Query {
   pulsarFoldSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
   pulsarSearchSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarSearchSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
+  pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
   toa(pipelineRunId: Int, pulsar: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, ephemeris: ID, template: ID, residual: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int): ToaNodeConnection
   residual(pulsar: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, before: String, after: String, first: Int, last: Int): ResidualConnection
 }
