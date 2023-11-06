@@ -35,6 +35,7 @@ BAND_CHOICES = [
     ("SBAND_2", "SBAND_2"),
     ("SBAND_3", "SBAND_3"),
     ("SBAND_4", "SBAND_4"),
+    ("OTHER", "OTHER"),
 ]
 
 OBS_TYPE_CHOICES = [
