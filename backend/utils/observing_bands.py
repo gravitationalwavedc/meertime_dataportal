@@ -16,5 +16,5 @@ def get_band(freq, bw):
     elif (bw == 875.0) and (freq < 3064) and (freq > 3060):
         rcvr = "SBAND_4"
     else:
-        rcvr = None
+        rcvr = "OTHER"
     return rcvr
