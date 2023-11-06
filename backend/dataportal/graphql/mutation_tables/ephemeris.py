@@ -2,7 +2,7 @@ import json
 import graphene
 from decimal import Decimal
 from graphql_jwt.decorators import permission_required
-from django_mysql.models import JSONField
+from django.contrib.postgres.fields import JSONField
 from graphene_django.converter import convert_django_field
 from django.db import IntegrityError
 

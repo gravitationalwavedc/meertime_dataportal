@@ -11,8 +11,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
 from django.utils.translation import ugettext_lazy as _
-from django_mysql.models import Model
-from django.db.models import F, Sum
+from django.db import models
+from django.db.models import Model, F, Sum
 
 from .storage import OverwriteStorage, get_upload_location, get_template_upload_location, create_file_hash
 from user_manage.models import User
