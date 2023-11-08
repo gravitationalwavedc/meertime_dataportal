@@ -101,34 +101,6 @@ export const formatProjectName = (projectName) => {
   return projectName;
 };
 
-export const formatSingleObservationData = (data) => {
-  const excludeTitles = ["jname", "beam", "utcStart"];
-
-  const displayTitles = {
-    // proposal: "Proposal",
-    // project: "Project",
-    duration: "Duration (seconds)",
-    foldNbin: "Nbin",
-    foldNchan: "Nchan",
-    frequency: "Frequency (MHz)",
-    bandwidth: "Bandwidth (MHz)",
-    raj: "RA",
-    decj: "DEC",
-    foldTsubint: "Subint Time (s)",
-    nant: "Number of Antennas",
-  };
-
-  return Object.keys(data)
-    .filter(
-      (key) =>
-        !excludeTitles.includes(key) && key !== "images" && key !== "project"
-    )
-    .reduce(
-      (result, key) => ({ ...result, [displayTitles[key]]: data[key] }),
-      {}
-    );
-};
-
 export default {
   columnsSizeFilter,
   handleSearch,
