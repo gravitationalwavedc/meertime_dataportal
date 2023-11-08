@@ -13,7 +13,6 @@ const FoldTableFragment = graphql`
     pulsar: { type: "String", defaultValue: "All" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
     project: { type: "String", defaultValue: "All" }
-    mostCommonProject: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
   ) {
     observationSummary(
@@ -34,7 +33,7 @@ const FoldTableFragment = graphql`
     }
     pulsarFoldSummary(
       mainProject: $mainProject
-      mostCommonProject: $mostCommonProject
+      project: $project
       band: $band
     ) {
       edges {
@@ -77,27 +76,27 @@ const FoldTable = ({
   const [mainProject, setMainProject] = useState(
     query.mainProject || "meertime"
   );
-  const [mostCommonProject, setMostCommonProject] = useState(
-    query.mostCommonProject || "All"
+  const [project, setProject] = useState(
+    query.project || "All"
   );
   const [band, setBand] = useState(query.band || "All");
 
   useEffect(() => {
     refetch({
       mainProject: mainProject,
-      mostCommonProject: mostCommonProject,
+      project: project,
       band: band,
     });
     const url = new URL(window.location);
     url.searchParams.set("mainProject", mainProject);
-    url.searchParams.set("mostCommonProject", mostCommonProject);
+    url.searchParams.set("project", project);
     url.searchParams.set("band", band);
     window.history.pushState({}, "", url);
-  }, [band, mostCommonProject, mainProject, query, refetch]);
+  }, [band, project, mainProject, query, refetch]);
 
   const handleMainProjectChange = (newMainProject) => {
     setMainProject(newMainProject);
-    setMostCommonProject("All");
+    setProject("All");
     setBand("All");
   };
 
@@ -246,8 +245,8 @@ const FoldTable = ({
       summaryData={summaryData}
       columns={columnsSizeFiltered}
       rows={rows}
-      setMostCommonProject={setMostCommonProject}
-      mostCommonProject={mostCommonProject}
+      setProject={setProject}
+      project={project}
       mainProject={mainProject}
       setMainProject={handleMainProjectChange}
       band={band}

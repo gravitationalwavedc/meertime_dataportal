@@ -14,7 +14,7 @@ const searchTableQuery = graphql`
     pulsar: { type: "String", defaultValue: "All" }
     mainProject: { type: "String", defaultValue: "All" }
     project: { type: "String", defaultValue: "All" }
-    mostCommonProject: { type: "String", defaultValue: "All" }
+    project: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
     obsType: { type: "String", defaultValue: "search" }
   ) {
@@ -36,7 +36,7 @@ const searchTableQuery = graphql`
     }
     pulsarSearchSummary(
       mainProject: $mainProject
-      mostCommonProject: $mostCommonProject
+      project: $project
       band: $band
     ) {
       edges {

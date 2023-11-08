@@ -38,7 +38,6 @@ describe("The Search Page", () => {
     cy.get("#bandSelect").select("LBAND", { force: true });
 
     cy.wait("@SearchTableQuery");
-    // cy.url().should('eq', 'http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&band=LBAND');
     cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 
@@ -49,7 +48,6 @@ describe("The Search Page", () => {
     cy.get("#projectSelect").select("PTA", { force: true });
 
     cy.wait("@SearchTableQuery");
-    // cy.url().should('eq', 'http://localhost:5173/?search=&mainProject=trapum&mostCommonProject=All&band=All');
     cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 

@@ -111,6 +111,5 @@ export default {
   nullCellFormatter,
   scaleValue,
   formatProjectName,
-  formatSingleObservationData,
   mjdToUnixTimestamp,
 };
