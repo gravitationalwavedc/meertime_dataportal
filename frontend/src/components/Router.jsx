@@ -7,6 +7,7 @@ import FoldDetail from "../pages/FoldDetail";
 import Login from "../pages/Login";
 import PasswordChange from "../pages/PasswordChange";
 import PasswordReset from "../pages/PasswordReset";
+import GenerateToken from "../pages/GenerateToken";
 import PasswordResetRequest from "../pages/PasswordResetRequest";
 import ReactGA from "react-ga";
 import { RedirectException } from "found";
@@ -86,6 +87,11 @@ const routeConfig = () =>
       <Route
         path="/password_change/"
         Component={PasswordChange}
+        render={({ Component, props }) => renderPrivateRoute(Component, props)}
+      />
+      <Route
+        path="/token_generate/"
+        Component={GenerateToken}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
