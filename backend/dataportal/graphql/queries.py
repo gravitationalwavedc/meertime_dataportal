@@ -783,14 +783,10 @@ class Query(graphene.ObjectType):
 
         calibration_int = kwargs.get('calibration_int')
         if calibration_int:
-            print(calibration_int)
             if calibration_int == -1:
                 last_cal_id = Calibration.objects.all().order_by("start").last().id
-                print(last_cal_id)
                 queryset = queryset.filter(calibration__id=last_cal_id)
-                print(queryset)
             else:
-                print("else")
                 queryset = queryset.filter(calibration__id=calibration_int)
 
         obs_type = kwargs.get('obs_type')

@@ -44,7 +44,6 @@ class UploadTemplate(ViewSet):
         project_code    = request.data.get('project_code')
         project_short   = request.data.get('project_short')
         band            = request.data.get('band')
-        print(template_upload, type(template_upload))
 
         # Get foreign key models
         try:
