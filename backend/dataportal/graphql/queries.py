@@ -1,16 +1,14 @@
 import math
 from datetime import datetime
 
+from django.db.models import Subquery
 from django.template.defaultfilters import filesizeformat
 
 import graphene
-from graphene import relay, ObjectType
+from graphene import relay
 from graphene_django import DjangoObjectType
 from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
-from graphql_relay import from_global_id
-from graphql import GraphQLError
-
 
 from dataportal.models import (
     Pulsar,
@@ -696,6 +694,8 @@ class Query(graphene.ObjectType):
         utcStart_gte=graphene.String(),
         utcStart_lte=graphene.String(),
         obs_type=graphene.String(),
+        unprocessed=graphene.Boolean(),
+        incomplete=graphene.Boolean(),
     )
     @login_required
     def resolve_observation(self, info, **kwargs):
@@ -733,6 +733,18 @@ class Query(graphene.ObjectType):
         obs_type = kwargs.get('obs_type')
         if obs_type:
             queryset = queryset.filter(obs_type=obs_type)
+
+        unprocessed = kwargs.get('unprocessed')
+        if unprocessed:
+            # Find all observations that have not been processed by finding observations that don't have PulsarFoldResults
+            observations_with_fold_results = PulsarFoldResult.objects.values('observation')
+            queryset = queryset.exclude(id__in=Subquery(observations_with_fold_results))
+
+        incomplete = kwargs.get('incomplete')
+        if incomplete:
+            # Find all observations that do not have "Completed" as their most recent job state
+            observations_failed = PulsarFoldResult.objects.exclude(pipeline_run__job_state="Completed")
+            queryset = queryset.filter(id__in=Subquery(observations_failed.values('id')))
 
         return queryset
 
