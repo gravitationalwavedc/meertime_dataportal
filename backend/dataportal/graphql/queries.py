@@ -744,7 +744,7 @@ class Query(graphene.ObjectType):
         if incomplete:
             # Find all observations that do not have "Completed" as their most recent job state
             observations_failed = PulsarFoldResult.objects.exclude(pipeline_run__job_state="Completed")
-            queryset = queryset.filter(id__in=Subquery(observations_failed.values('id')))
+            queryset = queryset.filter(id__in=Subquery(observations_failed.values('observation__id')))
 
         return queryset
 
