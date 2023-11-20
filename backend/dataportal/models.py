@@ -10,8 +10,6 @@ from astropy.time import Time
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.constraints import UniqueConstraint
-from django.utils.translation import ugettext_lazy as _
-from django.db import models
 from django.db.models import Model, F, Sum
 
 from .storage import OverwriteStorage, get_upload_location, get_template_upload_location, create_file_hash
@@ -439,10 +437,6 @@ class PulsarFoldResult(models.Model):
 
     embargo_end_date = models.DateTimeField(null=True)
 
-    @classmethod
-    def get_query(cls, **kwargs):
-        return cls.objects.filter(**kwargs)
-
     def is_restricted(self, user):
         # If the user role isn't restricted they can access everything
         if user.role.upper() in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]:
@@ -510,7 +504,7 @@ class PulsarFoldSummary(models.Model):
         elif "main_project" in kwargs:
             kwargs["main_project__name__icontains"] = kwargs.pop("main_project")
 
-        return cls.objects.filter(**kwargs)
+        return cls.objects.select_related("pulsar").filter(**kwargs)
 
     @classmethod
     def get_most_common_project(cls, observations):

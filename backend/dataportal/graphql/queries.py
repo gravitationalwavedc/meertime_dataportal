@@ -840,7 +840,7 @@ class Query(graphene.ObjectType):
     )
     @login_required
     def resolve_pulsar_fold_result(self, info, **kwargs):
-        queryset = PulsarFoldResult.objects.all()
+        queryset = PulsarFoldResult.objects.select_related().all()
 
         pulsar_name = kwargs.get('pulsar')
         if pulsar_name:
@@ -859,7 +859,6 @@ class Query(graphene.ObjectType):
             queryset = queryset.filter(observation__beam=beam)
 
         return queryset
-        # return PulsarFoldResult.get_query(**kwargs)
 
 
     pulsar_fold_summary = relay.ConnectionField(
