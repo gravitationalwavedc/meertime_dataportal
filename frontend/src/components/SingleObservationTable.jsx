@@ -140,7 +140,7 @@ const SingleObservationTable = ({ data, jname }) => {
               variant="outline-secondary"
               onClick={() => setDownloadModalVisible(true)}
             >
-              Download data files
+              Download Data Files
             </Button>
           )}
         </Col>

@@ -42,7 +42,7 @@ describe("Single Observation Page", () => {
     cy.contains("J0125-2327").should("be.visible");
 
     // The download buttons are visible
-    cy.contains("Download Fluxcal Archive").should("be.visible");
+    cy.contains("Download Data Files").should("be.visible");
   });
 
   it("should hide download buttons when there are no files", () => {
@@ -62,7 +62,7 @@ describe("Single Observation Page", () => {
     cy.contains("J0125-2327").should("be.visible");
 
     // Download buttons should not show.
-    cy.contains("Download Fluxcal Archive").should("not.exist");
+    cy.contains("Download Data Files").should("not.exist");
   });
 
   it("should render the page with images", () => {
