@@ -76,9 +76,7 @@ const FoldTable = ({
   const [mainProject, setMainProject] = useState(
     query.mainProject || "meertime"
   );
-  const [project, setProject] = useState(
-    query.project || "All"
-  );
+  const [project, setProject] = useState(query.project || "All");
   const [band, setBand] = useState(query.band || "All");
 
   useEffect(() => {

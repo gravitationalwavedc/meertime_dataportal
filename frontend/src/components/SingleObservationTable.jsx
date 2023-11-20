@@ -81,15 +81,19 @@ const SingleObservationTable = ({ data, jname }) => {
   const displayDate = formatUTC(relayObservationModel.observation.utcStart);
 
   const dataItems = {
-    "Project" : relayObservationModel.observation.project.code + " (" + relayObservationModel.observation.project.short + ")",
+    Project:
+      relayObservationModel.observation.project.code +
+      " (" +
+      relayObservationModel.observation.project.short +
+      ")",
     "Duration (seconds)": relayObservationModel.observation.duration.toFixed(2),
     "Frequency (MHz)": relayObservationModel.observation.frequency.toFixed(2),
     "Bandwidth (MHz)": relayObservationModel.observation.bandwidth.toFixed(2),
-    "RA": relayObservationModel.observation.raj,
-    "DEC": relayObservationModel.observation.decj,
+    RA: relayObservationModel.observation.raj,
+    DEC: relayObservationModel.observation.decj,
     "Number of Antennas": relayObservationModel.observation.nant,
-    "Nbin": relayObservationModel.observation.foldNbin,
-    "Nchan": relayObservationModel.observation.foldNchan,
+    Nbin: relayObservationModel.observation.foldNbin,
+    Nchan: relayObservationModel.observation.foldNchan,
     "Subint Time (s)": relayObservationModel.observation.foldTsubint,
   };
 

@@ -3,15 +3,12 @@ import { graphql, commitMutation } from "react-relay";
 import environment from "../relayEnvironment";
 
 const FileDownloadModalMutation = graphql`
-  mutation FileDownloadModalMutation (
-    $input: FileDownloadTokenMutationInput!
-  ) {
+  mutation FileDownloadModalMutation($input: FileDownloadTokenMutationInput!) {
     getFileDownloadToken(input: $input) {
       downloadToken
     }
   }
 `;
-
 
 const generateDownload = (url) => {
   // Generate a file download link and click it to download the file
@@ -66,14 +63,20 @@ const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
     const extensionArray = row.fileName.split(".");
     const fileExtension = extensionArray[extensionArray.length - 1];
 
-    if ( row.fileName.includes("ch") && row.fileName.includes("t") && row.fileName.includes("p") ) {
+    if (
+      row.fileName.includes("ch") &&
+      row.fileName.includes("t") &&
+      row.fileName.includes("p")
+    ) {
       row.fileType = "Cleaned Decimated Archive";
     } else {
       row.fileType = "Cleaned Archive";
     }
     return [...result, { ...row }];
   }, []);
-  const sortedFiles = files.sort((a, b) => b.fileName.localeCompare(a.fileName));
+  const sortedFiles = files.sort((a, b) =>
+    b.fileName.localeCompare(a.fileName)
+  );
   console.log("files:", sortedFiles);
   return (
     <Modal show={visible} onHide={() => setShow(false)} size="xl">
@@ -93,7 +96,7 @@ const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
               <tr key={file.path}>
                 <td>{file.fileName} </td>
                 <td>{file.fileType}</td>
-                <td>{(file.fileSize / (1024 ** 2)).toFixed(2)} MB</td>
+                <td>{(file.fileSize / 1024 ** 2).toFixed(2)} MB</td>
                 <td>
                   <Button
                     size="sm"

@@ -1,7 +1,6 @@
 import { graphql, useFragment } from "react-relay";
 import FileDownloadModal from "./FileDownloadModal";
 
-
 const SingleObservationFileDownloadQuery = graphql`
   fragment SingleObservationFileDownloadFragment on Query
   @argumentDefinitions(
@@ -19,7 +18,6 @@ const SingleObservationFileDownloadQuery = graphql`
     }
   }
 `;
-
 
 const SingleObservationFileDownload = ({ visible, data, setShow }) => {
   const fragmentData = useFragment(SingleObservationFileDownloadQuery, data);

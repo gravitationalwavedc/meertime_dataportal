@@ -18,8 +18,7 @@ const query = graphql`
         minimumNsubs: $minimumNsubs
         obsNchan: $obsNchan
       )
-    ...FoldDetailFileDownloadFragment
-      @arguments(jname: $pulsar)
+    ...FoldDetailFileDownloadFragment @arguments(jname: $pulsar)
   }
 `;
 

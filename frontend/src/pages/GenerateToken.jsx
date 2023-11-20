@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState } from "react";
 import environment from "../relayEnvironment";
 import { Alert, Button, Col, Form, Row } from "react-bootstrap";
 import { Field, Formik } from "formik";
@@ -8,10 +8,7 @@ import MainLayout from "../components/MainLayout";
 import CopyToClipboard from "../components/CopyToClipboard";
 
 const mutation = graphql`
-  mutation GenerateTokenMutation(
-    $username: String!
-    $password: String!
-  ) {
+  mutation GenerateTokenMutation($username: String!, $password: String!) {
     tokenAuth(input: { username: $username, password: $password }) {
       token
     }
@@ -53,7 +50,7 @@ const GenerateToken = () => {
     // Select the text in the textarea
     textAreaRef.current.select();
     // Execute the copy command
-    document.execCommand('copy');
+    document.execCommand("copy");
     // Deselect the text
     window.getSelection().removeAllRanges();
   };
@@ -78,10 +75,7 @@ const GenerateToken = () => {
                 password: "",
               }}
               onSubmit={(values) =>
-                tokenAuth(
-                  localStorage.username,
-                  values.password
-                )
+                tokenAuth(localStorage.username, values.password)
               }
             >
               {({ handleSubmit }) => (

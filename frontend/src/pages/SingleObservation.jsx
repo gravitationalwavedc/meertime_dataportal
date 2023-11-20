@@ -18,7 +18,6 @@ const SingleObservation = ({
     params: { jname, utc, beam },
   },
 }) => {
-
   const data = useLazyLoadQuery(query, {
     pulsar: jname,
     utc: utc,

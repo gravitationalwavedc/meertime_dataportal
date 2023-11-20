@@ -1,12 +1,9 @@
-import { graphql, useFragment} from "react-relay";
+import { graphql, useFragment } from "react-relay";
 import FileDownloadModal from "./FileDownloadModal";
-
 
 const FoldDetailFileDownloadQuery = graphql`
   fragment FoldDetailFileDownloadFragment on Query
-  @argumentDefinitions(
-    jname: { type: "String!" }
-  ) {
+  @argumentDefinitions(jname: { type: "String!" }) {
     filePulsarList(jname: $jname) {
       edges {
         node {
@@ -17,7 +14,6 @@ const FoldDetailFileDownloadQuery = graphql`
     }
   }
 `;
-
 
 const FoldDetailFileDownload = ({ visible, data, setShow }) => {
   const fragmentData = useFragment(FoldDetailFileDownloadQuery, data);
