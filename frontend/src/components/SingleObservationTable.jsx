@@ -6,14 +6,14 @@ import { formatUTC, kronosLink, sessionLink } from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
 import MolongloImageGrid from "./MolongloImageGrid";
-import DownloadFluxcalButtons from "./DownloadFluxcalButtons";
+import SingleObservationFileDownload from "./SingleObservationFileDownload";
 
 const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
   @argumentDefinitions(
     pulsar: { type: "String!" }
-    utc: { type: "String" }
-    beam: { type: "Int" }
+    utc: { type: "String!" }
+    beam: { type: "Int!" }
   ) {
     pulsarFoldResult(pulsar: $pulsar, utcStart: $utc, beam: $beam) {
       edges {
@@ -62,6 +62,8 @@ const SingleObservationTableFragment = graphql`
 `;
 
 const SingleObservationTable = ({ data, jname }) => {
+  const [downloadModalVisible, setDownloadModalVisible] = useState(false);
+
   const relayData = useFragment(SingleObservationTableFragment, data);
   const { pulsarFoldResult } = relayData;
   const relayObservationModel = pulsarFoldResult.edges[0].node;
@@ -106,7 +108,7 @@ const SingleObservationTable = ({ data, jname }) => {
           <Button
             size="sm"
             as="a"
-            className="mr-2"
+            className="mr-2 mb-2"
             href={kronosLink(
               relayObservationModel.observation.beam,
               jname,
@@ -116,11 +118,10 @@ const SingleObservationTable = ({ data, jname }) => {
           >
             View Kronos
           </Button>
-          <DownloadFluxcalButtons data={data} />
           <Button
             size="sm"
             as="a"
-            className="mr-2"
+            className="mr-2 mb-2"
             href={sessionLink(
               relayObservationModel.observation.calibration.idInt
             )}
@@ -128,8 +129,25 @@ const SingleObservationTable = ({ data, jname }) => {
           >
             View Observation Session
           </Button>
+          {localStorage.isStaff === "true" && (
+            <Button
+              size="sm"
+              className="mr-2 mb-2"
+              variant="outline-secondary"
+              onClick={() => setDownloadModalVisible(true)}
+            >
+              Download data files
+            </Button>
+          )}
         </Col>
       </Row>
+      {localStorage.isStaff === "true" && (
+        <SingleObservationFileDownload
+          visible={downloadModalVisible}
+          data={data}
+          setShow={setDownloadModalVisible}
+        />
+      )}
       {projectChoices.length >= 1 ? (
         <Row className="mt-2">
           <Col sm={4} md={4}>

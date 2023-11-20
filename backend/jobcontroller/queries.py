@@ -22,7 +22,7 @@ class FileConnection(relay.Connection):
 
 
 class Query(graphene.ObjectType):
-    file_list = relay.ConnectionField(
+    file_single_list = relay.ConnectionField(
         FileConnection,
         jname=graphene.String(required=True),
         utc=graphene.String(required=True),
@@ -30,9 +30,9 @@ class Query(graphene.ObjectType):
     )
 
     @login_required
-    def resolve_file_list(self, info, **kwargs):
+    def resolve_file_single_list(self, info, **kwargs):
 
-        fold_pulsar_detail = PulsarFoldResult.objects.get(
+        pulsar_fold_result = PulsarFoldResult.objects.get(
             pulsar__name=kwargs.get("jname"),
             observation__utc_start=datetime.strptime(kwargs.get("utc"), "%Y-%m-%d-%H:%M:%S"),
             observation__beam=kwargs.get("beam"),
@@ -40,13 +40,11 @@ class Query(graphene.ObjectType):
 
         # Only allow files if the user passes has access to this
         # fold pulsar observation.
-        if not fold_pulsar_detail.is_restricted(info.context.user):
+        if not pulsar_fold_result.is_restricted(info.context.user):
             path = get_fluxcal_archive_path(
-                project=fold_pulsar_detail.project,
                 jname=kwargs.get("jname"),
                 utc=kwargs.get("utc"),
                 beam=kwargs.get("beam"),
-                band=fold_pulsar_detail.get_band_centre_frequency(),
             )
 
             has_files, files = request_file_list(path, False)
@@ -61,5 +59,36 @@ class Query(graphene.ObjectType):
                     )
                     for file in files
                 ]
+
+        return []
+
+
+    file_pulsar_list = relay.ConnectionField(
+        FileConnection,
+        jname=graphene.String(required=True),
+    )
+
+    @login_required
+    def resolve_file_pulsar_list(self, info, **kwargs):
+
+        path = get_fluxcal_archive_path(
+            jname=kwargs.get("jname"),
+        )
+        has_files, files = request_file_list(path, True)
+
+        if has_files:
+            returned_files = []
+            for file in files:
+                if file["path"].endswith(".ar"):
+                        returned_files.append(
+                            JobControllerFile(
+                            id=file["path"].split("/")[-1],
+                            file_size=file["fileSize"],
+                            is_dir=file["isDir"],
+                            path=file["path"],
+                        )
+                    )
+            print(returned_files)
+            return returned_files
 
         return []

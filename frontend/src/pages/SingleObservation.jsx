@@ -2,13 +2,12 @@ import { graphql, useLazyLoadQuery } from "react-relay";
 import SingleObservationTable from "../components/SingleObservationTable";
 import MainLayout from "../components/MainLayout";
 import { Link } from "found";
-// import { performRefreshTokenMutation } from "./RefreshToken.jsx";
 
 const query = graphql`
   query SingleObservationQuery($pulsar: String!, $utc: String!, $beam: Int!) {
     ...SingleObservationTableFragment
       @arguments(pulsar: $pulsar, utc: $utc, beam: $beam)
-    ...DownloadFluxcalButtons_data
+    ...SingleObservationFileDownloadFragment
       @arguments(jname: $pulsar, utc: $utc, beam: $beam)
   }
 `;
@@ -19,7 +18,6 @@ const SingleObservation = ({
     params: { jname, utc, beam },
   },
 }) => {
-  // performRefreshTokenMutation(router);
 
   const data = useLazyLoadQuery(query, {
     pulsar: jname,

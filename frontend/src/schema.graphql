@@ -347,6 +347,7 @@ enum ObservationBand {
   SBAND_2
   SBAND_3
   SBAND_4
+  OTHER
 }
 
 type ObservationConnection {
@@ -459,6 +460,7 @@ enum ObservationSummaryBand {
   SBAND_2
   SBAND_3
   SBAND_4
+  OTHER
 }
 
 type ObservationSummaryConnection {
@@ -935,7 +937,8 @@ input PulsarsInput {
 }
 
 type Query {
-  fileList(jname: String!, utc: String!, beam: Int!, before: String, after: String, first: Int, last: Int): FileConnection
+  fileSingleList(jname: String!, utc: String!, beam: Int!, before: String, after: String, first: Int, last: Int): FileConnection
+  filePulsarList(jname: String!, before: String, after: String, first: Int, last: Int): FileConnection
   pulsar(name: String, before: String, after: String, first: Int, last: Int): PulsarConnection
   telescope(before: String, after: String, first: Int, last: Int): TelescopeConnection
   mainProject(name: String!, before: String, after: String, first: Int, last: Int): MainProjectConnection
@@ -943,7 +946,7 @@ type Query {
   ephemeris(before: String, after: String, first: Int, last: Int): EphemerisConnection
   template(before: String, after: String, first: Int, last: Int): TemplateConnection
   calibration(id: Int, before: String, after: String, first: Int, last: Int): CalibrationConnection
-  observation(pulsar_Name: [String], telescope_Name: String, mainProject: String, project_Id: Int, project_Short: String, utcStartGte: String, utcStartLte: String, obsType: String, before: String, after: String, first: Int, last: Int): ObservationConnection
+  observation(pulsar_Name: [String], telescope_Name: String, mainProject: String, project_Id: Int, project_Short: String, utcStartGte: String, utcStartLte: String, obsType: String, unprocessed: Boolean, incomplete: Boolean, before: String, after: String, first: Int, last: Int): ObservationConnection
   observationSummary(pulsar_Name: String, mainProject: String, project_Id: Int, project_Short: String, calibration_Id: String, calibrationInt: Int, obsType: String, band: String, before: String, after: String, first: Int, last: Int): ObservationSummaryConnection
   pipelineRun(id: Int, before: String, after: String, first: Int, last: Int): PipelineRunConnection
   pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
@@ -1074,6 +1077,7 @@ enum TemplateBand {
   SBAND_2
   SBAND_3
   SBAND_4
+  OTHER
 }
 
 type TemplateConnection {

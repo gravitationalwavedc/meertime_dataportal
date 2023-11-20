@@ -1,5 +1,8 @@
 import { Button, ButtonGroup, Col, Row } from "react-bootstrap";
 import { useState } from "react";
+import { graphql, useFragment } from "react-relay";
+import ReactMarkdown from "react-markdown";
+import { Link } from "found";
 import {
   columnsSizeFilter,
   createLink,
@@ -7,15 +10,12 @@ import {
   formatUTC,
   meerWatchLink,
 } from "../helpers";
-import { graphql, useFragment } from "react-relay";
+import { useScreenSize } from "../context/screenSize-context";
 import { meertime, molonglo } from "../telescopes";
 import DataView from "./DataView";
 import Ephemeris from "./Ephemeris";
-import FileDownloadModal from "./FileDownloadModal";
 import FoldDetailCard from "./FoldDetailCard";
-import ReactMarkdown from "react-markdown";
-import { Link } from "found";
-import { useScreenSize } from "../context/screenSize-context";
+import FoldDetailFileDownload from "./FoldDetailFileDownload";
 
 const FoldDetailTableFragment = graphql`
   fragment FoldDetailTableFragment on Query
@@ -294,17 +294,16 @@ const FoldDetailTable = ({ tableData, jname, mainProject }) => {
               Download TOAs
             </Button>
           )}
-          {/* {localStorage.isStaff === "true" &&
-            foldPulsar.files.edges.length > 0 && (
-              <Button
-                size="sm"
-                className="mr-2 mb-2"
-                variant="outline-secondary"
-                onClick={() => setDownloadModalVisible(true)}
-              >
-                Download data files
-              </Button>
-            )} */}
+          {localStorage.isStaff === "true" && (
+            <Button
+              size="sm"
+              className="mr-2 mb-2"
+              variant="outline-secondary"
+              onClick={() => setDownloadModalVisible(true)}
+            >
+              Download data files
+            </Button>
+          )}
         </Col>
       </Row>
       {ephemeris && (
@@ -315,13 +314,13 @@ const FoldDetailTable = ({ tableData, jname, mainProject }) => {
           setShow={setEphemerisVisible}
         />
       )}
-      {/* {localStorage.isStaff === "true" && foldPulsar.files && (
-        <FileDownloadModal
+      {localStorage.isStaff === "true" && (
+        <FoldDetailFileDownload
           visible={downloadModalVisible}
-          files={foldPulsar.files}
+          data={tableData}
           setShow={setDownloadModalVisible}
         />
-      )} */}
+      )}
       <DataView
         summaryData={summaryData}
         columns={columnsSizeFiltered}
