@@ -15,7 +15,6 @@ import { meertime, molonglo } from "../telescopes";
 import DataView from "./DataView";
 import Ephemeris from "./Ephemeris";
 import FoldDetailCard from "./FoldDetailCard";
-import FoldDetailFileDownload from "./FoldDetailFileDownload";
 
 const FoldDetailTableFragment = graphql`
   fragment FoldDetailTableFragment on Query
@@ -114,7 +113,7 @@ const FoldDetailTableFragment = graphql`
 `;
 
 /* eslint-disable complexity */
-const FoldDetailTable = ({ tableData, jname, mainProject }) => {
+const FoldDetailTable = ({ tableData, jname, mainProject, setShow}) => {
   const dmCorrected = false;
   const minimumNsubs = true;
   const obsNchan = 1;
@@ -188,7 +187,6 @@ const FoldDetailTable = ({ tableData, jname, mainProject }) => {
 
   const [rows, setRows] = useState(allRows);
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
-  const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
   const ephemeris = pulsarFoldResult.residualEphemeris
     ? pulsarFoldResult.residualEphemeris.ephemerisData
@@ -299,7 +297,7 @@ const FoldDetailTable = ({ tableData, jname, mainProject }) => {
               size="sm"
               className="mr-2 mb-2"
               variant="outline-secondary"
-              onClick={() => setDownloadModalVisible(true)}
+              onClick={() => setShow(true)}
             >
               Download data files
             </Button>
@@ -312,13 +310,6 @@ const FoldDetailTable = ({ tableData, jname, mainProject }) => {
           updated={ephemerisUpdated}
           show={ephemerisVisible}
           setShow={setEphemerisVisible}
-        />
-      )}
-      {localStorage.isStaff === "true" && (
-        <FoldDetailFileDownload
-          visible={downloadModalVisible}
-          data={tableData}
-          setShow={setDownloadModalVisible}
         />
       )}
       <DataView
