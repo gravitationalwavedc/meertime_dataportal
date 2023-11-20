@@ -46,6 +46,7 @@ const sessionTableQuery = graphql`
                   name
                 }
                 utcStart
+                beam
                 obsType
                 duration
                 frequency
@@ -90,7 +91,6 @@ const SessionTable = ({ data, id }) => {
     imagesIndex: 0,
   });
 
-  console.log("calibration", sessionData.calibration);
   // Grab the single item from the edges array
   const calibration_node = sessionData.calibration.edges[0]?.node;
   const startDate = moment
@@ -110,61 +110,66 @@ const SessionTable = ({ data, id }) => {
     row.utc = formatUTC(row.utcStart);
     row.projectKey = project;
 
-    if (row.pulsarFoldResults.edges.length === 0) {
-      return [...result];
-    }
     console.log("row.pulsarFoldResults", row.pulsarFoldResults);
-    const pulsarFoldResult = row.pulsarFoldResults.edges[0]?.node;
-    row.sn = pulsarFoldResult.pipelineRun.sn;
+    if (row.pulsarFoldResults.edges.length === 0) {
+      row.sn = null;
+      row.flux = null;
+      row.phaseVsTime = null;
+      row.phaseVsFrequency = null;
+    } else {
+      const pulsarFoldResult = row.pulsarFoldResults.edges[0]?.node;
+      row.sn = pulsarFoldResult.pipelineRun.sn;
 
-    // Grab the three images
-    console.log("pulsarFoldResult.images", pulsarFoldResult.images);
-    const flux = pulsarFoldResult.images.edges.filter(
-      (edge) => edge.node.imageType === "PROFILE" && edge.node.cleaned
-    )[0]?.node;
-    const phaseVsTime = pulsarFoldResult.images.edges.filter(
-      (edge) => edge.node.imageType === "PHASE_TIME" && edge.node.cleaned
-    )[0]?.node;
-    const phaseVsFrequency = pulsarFoldResult.images.edges.filter(
-      (edge) => edge.node.imageType === "PHASE_FREQ" && edge.node.cleaned
-    )[0]?.node;
-    const images = [
-      flux ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}` : image404,
-      phaseVsTime
-        ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`
-        : image404,
-      phaseVsFrequency
-        ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}`
-        : image404,
-    ];
+      // Grab the three images
+      console.log("pulsarFoldResult.images", pulsarFoldResult.images);
+      const flux = pulsarFoldResult.images.edges.filter(
+        (edge) => edge.node.imageType === "PROFILE" && edge.node.cleaned
+      )[0]?.node;
+      const phaseVsTime = pulsarFoldResult.images.edges.filter(
+        (edge) => edge.node.imageType === "PHASE_TIME" && edge.node.cleaned
+      )[0]?.node;
+      const phaseVsFrequency = pulsarFoldResult.images.edges.filter(
+        (edge) => edge.node.imageType === "PHASE_FREQ" && edge.node.cleaned
+      )[0]?.node;
+      const images = [
+        flux ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}` : image404,
+        phaseVsTime
+          ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`
+          : image404,
+        phaseVsFrequency
+          ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}`
+          : image404,
+      ];
 
-    row.flux = (
-      <SessionImage
-        imageHi={flux}
-        imageLo={flux}
-        images={images}
-        imageIndex={0}
-        openLightBox={openLightBox}
-      />
-    );
-    row.phaseVsTime = (
-      <SessionImage
-        imageHi={phaseVsTime}
-        imageLo={phaseVsTime}
-        images={images}
-        imageIndex={1}
-        openLightBox={openLightBox}
-      />
-    );
-    row.phaseVsFrequency = (
-      <SessionImage
-        imageHi={phaseVsFrequency}
-        imageLo={phaseVsFrequency}
-        images={images}
-        imageIndex={2}
-        openLightBox={openLightBox}
-      />
-    );
+      row.flux = (
+        <SessionImage
+          imageHi={flux}
+          imageLo={flux}
+          images={images}
+          imageIndex={0}
+          openLightBox={openLightBox}
+        />
+      );
+      row.phaseVsTime = (
+        <SessionImage
+          imageHi={phaseVsTime}
+          imageLo={phaseVsTime}
+          images={images}
+          imageIndex={1}
+          openLightBox={openLightBox}
+        />
+      );
+      row.phaseVsFrequency = (
+        <SessionImage
+          imageHi={phaseVsFrequency}
+          imageLo={phaseVsFrequency}
+          images={images}
+          imageIndex={2}
+          openLightBox={openLightBox}
+        />
+      );
+    }
+
     row.action = (
       <ButtonGroup vertical>
         <Link
@@ -175,14 +180,16 @@ const SessionTable = ({ data, id }) => {
         >
           View all
         </Link>
-        <Link
-          to={`/${row.pulsar.name}/${row.utc}/${row.beam}/`}
-          size="sm"
-          variant="outline-secondary"
-          as={Button}
-        >
-          View last
-        </Link>
+        {(row.pulsarFoldResults.edges.length != 0 &&
+          <Link
+            to={`/${row.pulsar.name}/${row.utc}/${row.beam}/`}
+            size="sm"
+            variant="outline-secondary"
+            as={Button}
+          >
+            View this
+          </Link>
+        )}
       </ButtonGroup>
     );
     return [...result, { ...row }];
