@@ -1,4 +1,3 @@
-
 import { useState, Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { Col, Container, Row, Modal } from "react-bootstrap";
@@ -30,9 +29,7 @@ const FoldDetailQuery = graphql`
 `;
 
 const FoldDetailFileDownloadQuery = graphql`
-  query FoldDetailFileDownloadQuery(
-    $pulsar: String!
-  ) {
+  query FoldDetailFileDownloadQuery($pulsar: String!) {
     ...FoldDetailFileDownloadFragment @arguments(jname: $pulsar)
   }
 `;
@@ -90,21 +87,25 @@ const FoldDetail = ({ match }) => {
         </Suspense>
         <Suspense
           fallback={
-            <Modal show={downloadModalVisible} onHide={() => setDownloadModalVisible(false)} size="xl">
+            <Modal
+              show={downloadModalVisible}
+              onHide={() => setDownloadModalVisible(false)}
+              size="xl"
+            >
               <Modal.Body>
                 <h4 className="text-primary">Loading</h4>
               </Modal.Body>
             </Modal>
           }
         >
-        {localStorage.isStaff === "true" && (
-          <FoldDetailFileDownload
-            visible={downloadModalVisible}
-            data={fileDownloadData}
-            setShow={setDownloadModalVisible}
-          />
-        )}
-      </Suspense>
+          {localStorage.isStaff === "true" && (
+            <FoldDetailFileDownload
+              visible={downloadModalVisible}
+              data={fileDownloadData}
+              setShow={setDownloadModalVisible}
+            />
+          )}
+        </Suspense>
       </Container>
       <Footer />
     </>

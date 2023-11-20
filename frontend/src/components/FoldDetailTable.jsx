@@ -113,7 +113,7 @@ const FoldDetailTableFragment = graphql`
 `;
 
 /* eslint-disable complexity */
-const FoldDetailTable = ({ tableData, jname, mainProject, setShow}) => {
+const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
   const dmCorrected = false;
   const minimumNsubs = true;
   const obsNchan = 1;

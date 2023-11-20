@@ -180,7 +180,7 @@ const SessionTable = ({ data, id }) => {
         >
           View all
         </Link>
-        {(row.pulsarFoldResults.edges.length != 0 &&
+        {row.pulsarFoldResults.edges.length != 0 && (
           <Link
             to={`/${row.pulsar.name}/${row.utc}/${row.beam}/`}
             size="sm"

@@ -11,7 +11,11 @@ describe("The Fold Page", () => {
       aliasQuery(req, "FoldQuery", "foldQuery.json");
       aliasQuery(req, "FoldTableRefetchQuery", "foldQueryFewer.json");
       aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
-      aliasQuery(req, "FoldDetailFileDownloadQuery", "foldDetailFileDownloadQuery.json");
+      aliasQuery(
+        req,
+        "FoldDetailFileDownloadQuery",
+        "foldDetailFileDownloadQuery.json"
+      );
       aliasQuery(req, "SingleObservationQuery", "foldObservationDetails.json");
     });
     cy.visit("/");
