@@ -47,18 +47,21 @@ class Query(graphene.ObjectType):
                 beam=kwargs.get("beam"),
             )
 
-            has_files, files = request_file_list(path, False)
+            has_files, files = request_file_list(path, True)
 
             if has_files:
-                return [
-                    JobControllerFile(
-                        id=file["path"].split("/")[-1],
-                        file_size=file["fileSize"],
-                        is_dir=file["isDir"],
-                        path=file["path"],
-                    )
-                    for file in files
-                ]
+                returned_files = []
+                for file in files:
+                    if file["path"].endswith(".ar"):
+                            returned_files.append(
+                                JobControllerFile(
+                                id=file["path"].split("/")[-1],
+                                file_size=file["fileSize"],
+                                is_dir=file["isDir"],
+                                path=file["path"],
+                            )
+                        )
+                return returned_files
 
         return []
 
@@ -88,7 +91,6 @@ class Query(graphene.ObjectType):
                             path=file["path"],
                         )
                     )
-            print(returned_files)
             return returned_files
 
         return []

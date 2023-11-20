@@ -58,22 +58,23 @@ const performFileDownload = (e, path) => {
 
 const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
   // Work out file types and other info
-  const fileTypes = {
-    "ar": "Archive",
-  };
   const files = fragmentData.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     const pathArray = row.path.split("/");
     row.fileName = pathArray[pathArray.length - 1];
-    console.log("row.fileName:", row.fileName);
+
     const extensionArray = row.fileName.split(".");
     const fileExtension = extensionArray[extensionArray.length - 1];
-    if (Object.keys(fileTypes).includes(fileExtension)) {
-      row.fileType = fileTypes[fileExtension];
-      return [...result, { ...row }];
+
+    if ( row.fileName.includes("ch") && row.fileName.includes("t") && row.fileName.includes("p") ) {
+      row.fileType = "Cleaned Decimated Archive";
+    } else {
+      row.fileType = "Cleaned Archive";
     }
+    return [...result, { ...row }];
   }, []);
-  console.log("files:", files);
+  const sortedFiles = files.sort((a, b) => b.fileName.localeCompare(a.fileName));
+  console.log("files:", sortedFiles);
   return (
     <Modal show={visible} onHide={() => setShow(false)} size="xl">
       <Modal.Body>
@@ -88,11 +89,11 @@ const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
             </tr>
           </thead>
           <tbody>
-            {files.map((file) => (
+            {sortedFiles.map((file) => (
               <tr key={file.path}>
                 <td>{file.fileName} </td>
                 <td>{file.fileType}</td>
-                <td>{file.fileSize}</td>
+                <td>{(file.fileSize / (1024 ** 2)).toFixed(2)} MB</td>
                 <td>
                   <Button
                     size="sm"

@@ -21,7 +21,7 @@ def get_fluxcal_archive_path(jname, utc=None, beam=None):
     if utc is None and beam is None:
         return f"/users/nswainst/meerpipe_testing_outputs/{jname}/"
     else:
-        return f"/users/nswainst/meerpipe_testing_outputs/{jname}/{utc}/{beam}/decimated/"
+        return f"/users/nswainst/meerpipe_testing_outputs/{jname}/{utc}/{beam}/"
 
 
 def request_file_list(path, recursive):
