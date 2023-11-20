@@ -5,6 +5,7 @@ describe("The Fold Detail Page", () => {
     cy.intercept("http://localhost:8000/graphql/", (req) => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
+      aliasQuery(req, "FoldDetailFileDownloadQuery", "foldDetailFileDownloadQuery.json");
       aliasQuery(req, "SingleObservationQuery", "foldObservationDetails.json");
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
     });
