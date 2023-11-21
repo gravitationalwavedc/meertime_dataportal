@@ -319,8 +319,6 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
         setProject={handleProjectFilter}
         setBand={handleBandFilter}
         plot
-        maxPlotLength={summaryNode.maxDuration}
-        minPlotLength={summaryNode.minDuration}
         mainProject={mainProject}
         keyField="key"
         card={FoldDetailCard}

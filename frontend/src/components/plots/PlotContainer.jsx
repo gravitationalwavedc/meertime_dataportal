@@ -1,15 +1,66 @@
 import React, { useState } from "react";
-import { Col } from "react-bootstrap";
+import { Col, Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import FluxPlot from "./FluxPlot";
-import SNRPlot from "./SNRPlot";
-import DMPlot from "./DMPlot";
-import RMPlot from "./RMPlot";
-import ResidualPlot from "./ResidualPlot";
+import {
+  CartesianGrid,
+  ResponsiveContainer,
+  ScatterChart,
+} from "recharts";
+import ZoomPlot from "./ZoomPlot";
 
-const PlotContainer = ({ maxPlotLength, ...rest }) => {
-  const [activePlot, setActivePlot] = useState("residual");
+const DEFAULT_ZOOM = { xMin: null, xMax: null, yMin: null, yMax: null };
+
+const PlotContainer = ( data ) => {
+  const [activePlot, setActivePlot] = useState("Residual");
   const [xAxis, setXAxis] = useState("utc");
+  const [zoomArea, setZoomArea] = useState(DEFAULT_ZOOM);
+  const [isZooming, setIsZooming] = useState(false);
+  const [isDrag, setIsDrag] = useState(false);
+  const [axisMin, setAxisMin] = useState({ xMin: null, yMin: null });
+  const [axisMax, setAxisMax] = useState({ xMax: null, yMax: null });
+
+  const handleSymbolClick = (symbolData) => {
+    if (!isDrag) {
+      router.push(symbolData.link);
+    }
+  };
+
+  const handleZoomOut = () => {
+    setIsDrag(false);
+    setIsZooming(false);
+    setZoomArea(DEFAULT_ZOOM)
+  };
+
+  const handleMouseDown = (e) => {
+    setIsZooming(true);
+    const { xValue, yValue } = e || {};
+    setAxisMin({ xMin: xValue, yMin: yValue });
+  };
+
+  const handleMouseMove = (e) => {
+    if (isZooming) {
+      setIsDrag(true);
+      const { xValue, yValue } = e || {};
+      setAxisMax({ xMax: xValue, yMax: yValue });
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (isDrag && isZooming) {
+      setIsZooming(false);
+      setIsDrag(false);
+      let { xMin, yMin } = axisMin;
+      let { xMax, yMax } = axisMax;
+
+      // ensure xMin <= xMax and yMin <= yMax
+      if (xMin > xMax) [xMin, xMax] = [xMax, xMin];
+      if (yMin > yMax) [yMin, yMax] = [yMax, yMin];
+
+      const newZoomArea = { xMin, xMax, yMin, yMax };
+
+      setZoomArea(newZoomArea);
+    }
+  };
 
   return (
     <Col md={10} className="pulsar-plot-display">
@@ -22,11 +73,11 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
             value={activePlot}
             onChange={(event) => setActivePlot(event.target.value)}
           >
-            <option value="residual">Timing Residuals</option>
-            <option value="flux">Flux Density</option>
-            <option value="snr">S/N</option>
-            <option value="dm">DM</option>
-            <option value="rm">RM</option>
+            <option value="Residual">Timing Residuals</option>
+            <option value="Flux Density">Flux Density</option>
+            <option value="S/N">S/N</option>
+            <option value="DM">DM</option>
+            <option value="RM">RM</option>
           </Form.Control>
         </Form.Group>
         <Form.Group controlId="xAxisController" className="col-md-2">
@@ -42,24 +93,29 @@ const PlotContainer = ({ maxPlotLength, ...rest }) => {
             <option value="phase">Binary Phase</option>
           </Form.Control>
         </Form.Group>
+        <Button
+          variant="outline-secondary"
+          size="sm"
+          className="mb-2"
+          onClick={handleZoomOut}
+        >
+          Zoom out
+        </Button>
       </Form.Row>
       <Form.Text className="text-muted">
         Drag to zoom, click empty area to reset, double click to view utc.
       </Form.Text>
       <div className="pulsar-plot-wrapper">
-        {activePlot === "snr" ? (
-          <SNRPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
-        ) : activePlot === "flux" ? (
-          <FluxPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
-        ) : activePlot === "dm" ? (
-          <DMPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
-        ) : activePlot === "rm" ? (
-          <RMPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
-        ) : activePlot === "residual" ? (
-          <ResidualPlot maxPlotLength={maxPlotLength} xAxis={xAxis} {...rest} />
-        ) : (
-          <div>No known active plot</div>
-        )}
+        <ZoomPlot
+          data={data.data}
+          xAxis={xAxis}
+          activePlot={activePlot}
+          zoomArea={zoomArea}
+          handleSymbolClick={handleSymbolClick}
+          handleMouseDown={handleMouseDown}
+          handleMouseMove={handleMouseMove}
+          handleMouseUp={handleMouseUp}
+        />
       </div>
     </Col>
   );

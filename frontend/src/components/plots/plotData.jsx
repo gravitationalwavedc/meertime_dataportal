@@ -1,4 +1,4 @@
-import { handleSearch, mjdToUnixTimestamp } from "../../helpers";
+import { mjdToUnixTimestamp } from "../../helpers";
 import moment from "moment";
 
 export const formatYAxisTick = (value) => {
@@ -29,9 +29,81 @@ export const getXaxisLabel = (xAxis) => {
   }
 };
 
-export const filterBandData = (data) => {
+export const getYaxisLabel = (yAxis) => {
+  if (yAxis === "S/N") {
+    return "S/N";
+  } else if (yAxis === "Flux Density") {
+    return "Flux Density (mJy)";
+  } else if (yAxis === "DM") {
+    return "Fit DM (pc cm^-3)";
+  } else if (yAxis === "RM") {
+    return "Fit RM (rad m^-2)";
+  } else if (yAxis === "Residual") {
+    return "Residual (μs)";
+  }
+};
+
+export const getZRange = (yAxis) => {
+  if (yAxis === "S/N") {
+    return [40, 400];
+  } else if (yAxis === "Flux Density") {
+    return [40, 400];
+  } else if (yAxis === "DM") {
+    return [40, 400];
+  } else if (yAxis === "RM") {
+    return [40, 400]
+  } else if (yAxis === "Residual") {
+    return [20, 300];
+  }
+};
+
+
+export const toolTipFormatter = (value, name) => {
+  if (name === "UTC") {
+    return [moment(value).format("DD-MM-YYYY-hh:mm:ss"), name];
+  }
+
+  if (name === "Size") {
+    return [`${value} [m]`, "Integration time"];
+  }
+
+  return [value, name];
+};
+
+export const getActivePlotData = (data, activePlot, zoomArea) => {
+  const plotFunctions = {
+    "S/N": snrPlotData,
+    "Flux Density": fluxPlotData,
+    "DM": dmPlotData,
+    "RM": rmPlotData,
+    "Residual": residualPlotData,
+  };
+  const plotFunction = plotFunctions[activePlot];
+  if (plotFunction) {
+    const { plotData, minValue, maxValue, ticks } = plotFunction(data, zoomArea);
+    return { plotData, minValue, maxValue, ticks };
+  } else {
+    // Handle the case when activePlot is not recognized
+    console.error(`Unknown activePlot: ${activePlot}`);
+    // You might want to return default values or throw an error, depending on your use case
+    return { plotData: [], minValue: 0, maxValue: 0, ticks: [] };
+  }
+}
+
+export const filterBandData = (data, zoomArea) => {
   data = data.filter((row) => row.value !== null);
 
+  const { xMin, xMax, yMin, yMax } = zoomArea;
+  if (xMin != null && xMax != null && yMin != null && yMax != null) {
+    data = data.filter(
+      (dataPoint) =>
+        dataPoint.value >= yMin && dataPoint.value <= yMax &&
+        ((dataPoint.time >= xMin && dataPoint.time <= xMax) ||
+          (dataPoint.utc >= xMin && dataPoint.utc <= xMax) ||
+          (dataPoint.date >= xMin && dataPoint.date <= xMax) ||
+          (dataPoint.phase >= xMin && dataPoint.phase <= xMax))
+    );
+  }
   // Process the table data in a way that react-vis understands.
   const UHFData = data.filter((row) => row.band === "UHF");
   const UHF = {
@@ -103,14 +175,9 @@ export const filterBandData = (data) => {
   return { plotData, minValue, maxValue, ticks };
 };
 
-export const snrPlotData = (data, columns, search) => {
-  // Pass table data through the search filter to enable searching pulsars on chart.
-  const results = search.searchText
-    ? handleSearch(data, columns, search)
-    : data;
-
+export const snrPlotData = (data, zoomArea) => {
   // Process the table data in a way that react-vis understands.
-  const allData = results.map((row) => ({
+  const allData = data.map((row) => ({
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -120,16 +187,11 @@ export const snrPlotData = (data, columns, search) => {
     band: row.observation.band,
   }));
 
-  return filterBandData(allData);
+  return filterBandData(allData, zoomArea);
 };
 
-export const fluxPlotData = (data, columns, search) => {
-  // Pass table data through the search filter to enable searching pulsars on chart.
-  const results = search.searchText
-    ? handleSearch(data, columns, search)
-    : data;
-
-  const allData = results.map((row) => ({
+export const fluxPlotData = (data, zoomArea) => {
+  const allData = data.map((row) => ({
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -139,16 +201,12 @@ export const fluxPlotData = (data, columns, search) => {
     band: row.observation.band,
   }));
 
-  return filterBandData(allData);
+  return filterBandData(allData, zoomArea);
 };
 
-export const dmPlotData = (data, columns, search) => {
-  // Pass table data through the search filter to enable searching pulsars on chart.
-  const results = search.searchText
-    ? handleSearch(data, columns, search)
-    : data;
+export const dmPlotData = (data, zoomArea) => {
   // Process the table data in a way that react-vis understands.
-  const allData = results.map((row) => ({
+  const allData = data.map((row) => ({
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -159,16 +217,12 @@ export const dmPlotData = (data, columns, search) => {
     band: row.observation.band,
   }));
 
-  return filterBandData(allData);
+  return filterBandData(allData, zoomArea);
 };
 
-export const rmPlotData = (data, columns, search) => {
-  // Pass table data through the search filter to enable searching pulsars on chart.
-  const results = search.searchText
-    ? handleSearch(data, columns, search)
-    : data;
+export const rmPlotData = (data, zoomArea) => {
   // Process the table data in a way that react-vis understands.
-  const allData = results.map((row) => ({
+  const allData = data.map((row) => ({
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -179,16 +233,11 @@ export const rmPlotData = (data, columns, search) => {
     band: row.observation.band,
   }));
 
-  return filterBandData(allData);
+  return filterBandData(allData, zoomArea);
 };
 
-export const residualPlotData = (data, columns, search) => {
-  // Pass table data through the search filter to enable searching pulsars on chart.
-  const results = search.searchText
-    ? handleSearch(residual, columns, search)
-    : data;
-
-  const run_toas = results.reduce((result_returned, run_result) => {
+export const residualPlotData = (data, zoomArea) => {
+  const run_toas = data.reduce((result_returned, run_result) => {
     // Run for each pipelineRun
     const run_results = run_result.pipelineRun.toas.edges.reduce(
       (result, edge) => {
@@ -228,7 +277,6 @@ export const residualPlotData = (data, columns, search) => {
     link: row.plotLink,
     band: row.band,
   }));
-  console.log("toas:", allData);
 
-  return filterBandData(allData);
+  return filterBandData(allData, zoomArea);
 };

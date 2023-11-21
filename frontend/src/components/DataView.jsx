@@ -25,7 +25,6 @@ const DataView = ({
   setBand,
   options,
   plot,
-  maxPlotLength,
   keyField,
   card,
   query,
@@ -60,7 +59,7 @@ const DataView = ({
               {plot && (
                 <Row className="d-none d-sm-block">
                   <PlotContainer
-                    maxPlotLength={maxPlotLength}
+                    data={rows}
                     {...props.baseProps}
                   />
                 </Row>
