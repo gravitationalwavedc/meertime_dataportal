@@ -22,7 +22,7 @@ const PlotContainer = (data) => {
   const handleSetActivePlot = (activePlot) => {
     setActivePlot(activePlot);
     setZoomArea(DEFAULT_ZOOM);
-  }
+  };
 
   const handleZoomOut = () => {
     setIsDrag(false);
@@ -74,11 +74,11 @@ const PlotContainer = (data) => {
 
   const handleScatterMouseEnter = () => {
     setOverScatter(true);
-  }
+  };
 
   const handleScatterMouseLeave = () => {
     setOverScatter(false);
-  }
+  };
 
   const activePlotData = getActivePlotData(data.data, activePlot);
 
@@ -114,15 +114,15 @@ const PlotContainer = (data) => {
           </Form.Control>
         </Form.Group>
         <div>
-        <Button
-          style={{height: '50%', margin: "25% 0 25% 0"}}
-          variant="outline-secondary"
-          size="sm"
-          className="mb-2"
-          onClick={handleZoomOut}
-        >
-          Zoom out
-        </Button>
+          <Button
+            style={{ height: "50%", margin: "25% 0 25% 0" }}
+            variant="outline-secondary"
+            size="sm"
+            className="mb-2"
+            onClick={handleZoomOut}
+          >
+            Zoom out
+          </Button>
         </div>
       </Form.Row>
       <Form.Text className="text-muted">

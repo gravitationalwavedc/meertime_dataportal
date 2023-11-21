@@ -74,9 +74,9 @@ export const getActivePlotData = (data, activePlot) => {
   const plotFunctions = {
     "S/N": snrPlotData,
     "Flux Density": fluxPlotData,
-    "DM": dmPlotData,
-    "RM": rmPlotData,
-    "Residual": residualPlotData,
+    DM: dmPlotData,
+    RM: rmPlotData,
+    Residual: residualPlotData,
   };
   const plotFunction = plotFunctions[activePlot];
   if (plotFunction) {
