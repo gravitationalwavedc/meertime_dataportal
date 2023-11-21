@@ -51,12 +51,11 @@ export const getZRange = (yAxis) => {
   } else if (yAxis === "DM") {
     return [40, 400];
   } else if (yAxis === "RM") {
-    return [40, 400]
+    return [40, 400];
   } else if (yAxis === "Residual") {
     return [20, 300];
   }
 };
-
 
 export const toolTipFormatter = (value, name) => {
   if (name === "UTC") {
@@ -74,13 +73,16 @@ export const getActivePlotData = (data, activePlot, zoomArea) => {
   const plotFunctions = {
     "S/N": snrPlotData,
     "Flux Density": fluxPlotData,
-    "DM": dmPlotData,
-    "RM": rmPlotData,
-    "Residual": residualPlotData,
+    DM: dmPlotData,
+    RM: rmPlotData,
+    Residual: residualPlotData,
   };
   const plotFunction = plotFunctions[activePlot];
   if (plotFunction) {
-    const { plotData, minValue, maxValue, ticks } = plotFunction(data, zoomArea);
+    const { plotData, minValue, maxValue, ticks } = plotFunction(
+      data,
+      zoomArea
+    );
     return { plotData, minValue, maxValue, ticks };
   } else {
     // Handle the case when activePlot is not recognized
@@ -88,7 +90,7 @@ export const getActivePlotData = (data, activePlot, zoomArea) => {
     // You might want to return default values or throw an error, depending on your use case
     return { plotData: [], minValue: 0, maxValue: 0, ticks: [] };
   }
-}
+};
 
 export const filterBandData = (data, zoomArea) => {
   data = data.filter((row) => row.value !== null);
@@ -97,7 +99,8 @@ export const filterBandData = (data, zoomArea) => {
   if (xMin != null && xMax != null && yMin != null && yMax != null) {
     data = data.filter(
       (dataPoint) =>
-        dataPoint.value >= yMin && dataPoint.value <= yMax &&
+        dataPoint.value >= yMin &&
+        dataPoint.value <= yMax &&
         ((dataPoint.time >= xMin && dataPoint.time <= xMax) ||
           (dataPoint.utc >= xMin && dataPoint.utc <= xMax) ||
           (dataPoint.date >= xMin && dataPoint.date <= xMax) ||

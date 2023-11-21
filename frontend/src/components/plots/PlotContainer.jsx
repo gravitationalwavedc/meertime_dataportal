@@ -1,16 +1,12 @@
 import React, { useState } from "react";
 import { Col, Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import {
-  CartesianGrid,
-  ResponsiveContainer,
-  ScatterChart,
-} from "recharts";
+import { CartesianGrid, ResponsiveContainer, ScatterChart } from "recharts";
 import ZoomPlot from "./ZoomPlot";
 
 const DEFAULT_ZOOM = { xMin: null, xMax: null, yMin: null, yMax: null };
 
-const PlotContainer = ( data ) => {
+const PlotContainer = (data) => {
   const [activePlot, setActivePlot] = useState("Residual");
   const [xAxis, setXAxis] = useState("utc");
   const [zoomArea, setZoomArea] = useState(DEFAULT_ZOOM);
@@ -28,7 +24,7 @@ const PlotContainer = ( data ) => {
   const handleZoomOut = () => {
     setIsDrag(false);
     setIsZooming(false);
-    setZoomArea(DEFAULT_ZOOM)
+    setZoomArea(DEFAULT_ZOOM);
   };
 
   const handleMouseDown = (e) => {
