@@ -1,6 +1,15 @@
 import _ from "lodash";
 import moment from "moment";
 
+export const calculateMedian = (arr) => {
+  const sorted = arr.slice().sort((a, b) => a.value - b.value);
+  const middle = Math.floor(sorted.length / 2);
+
+  return sorted.length % 2 === 0
+    ? (sorted[middle - 1].value + sorted[middle].value) / 2
+    : sorted[middle].value;
+};
+
 /* eslint-disable complexity */
 export const createLink = async (url) => {
   const link = document.createElement("a");
@@ -102,6 +111,7 @@ export const formatProjectName = (projectName) => {
 };
 
 export default {
+  calculateMedian,
   columnsSizeFilter,
   handleSearch,
   formatUTC,

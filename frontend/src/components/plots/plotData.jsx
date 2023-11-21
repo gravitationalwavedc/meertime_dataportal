@@ -1,4 +1,4 @@
-import { mjdToUnixTimestamp } from "../../helpers";
+import { calculateMedian, mjdToUnixTimestamp } from "../../helpers";
 import moment from "moment";
 
 export const formatYAxisTick = (value) => {
@@ -40,6 +40,46 @@ export const getYaxisLabel = (yAxis) => {
     return "Fit RM (rad m^-2)";
   } else if (yAxis === "Residual") {
     return "Residual (μs)";
+  }
+};
+
+export const getYaxisDomain = (yAxis, minValue, maxValue, medianValue) => {
+  if (yAxis === "S/N") {
+    return [minValue, maxValue];
+  } else if (yAxis === "Flux Density") {
+    return [minValue, maxValue];
+  } else if (yAxis === "DM" || yAxis === "RM") {
+    const absDiff = Math.max(
+      Math.abs(minValue - medianValue),
+      Math.abs(maxValue - medianValue)
+    );
+    return [medianValue - absDiff, medianValue + absDiff];
+  } else if (yAxis === "Residual") {
+    const absMax = Math.max(Math.abs(minValue), Math.abs(maxValue));
+    return [-absMax, absMax];
+  }
+};
+
+export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
+  if (yAxis === "S/N") {
+    return null;
+  } else if (yAxis === "Flux Density") {
+    return null;
+  } else if (yAxis === "DM" || yAxis === "RM") {
+    const absDiff = Math.max(
+      Math.abs(minValue - medianValue),
+      Math.abs(maxValue - medianValue)
+    );
+    return [
+      medianValue - absDiff,
+      medianValue - absDiff * 0.5,
+      medianValue,
+      medianValue + absDiff * 0.5,
+      medianValue + absDiff,
+    ];
+  } else if (yAxis === "Residual") {
+    const absMax = Math.max(Math.abs(minValue), Math.abs(maxValue));
+    return [-absMax, -absMax * 0.5, 0, absMax * 0.5, absMax];
   }
 };
 
@@ -162,9 +202,11 @@ export const filterBandData = (data, zoomArea) => {
     shape: "triangle",
   };
 
-  const minValue = Math.min(...data.map((row) => row.value));
+  const minValue = Math.min(...data.map((row) => row.value - row.error));
 
-  const maxValue = Math.max(...data.map((row) => row.value));
+  const maxValue = Math.max(...data.map((row) => row.value + row.error));
+
+  const medianValue = calculateMedian(data);
 
   const unsortedTicks = Array.from(
     new Set(data.map((row) => moment(moment(row.utc).format("YYYY")).valueOf()))
@@ -173,7 +215,7 @@ export const filterBandData = (data, zoomArea) => {
 
   const plotData = [lBand, UHF, sband0, sband1, sband2, sband3, sband4];
 
-  return { plotData, minValue, maxValue, ticks };
+  return { plotData, minValue, maxValue, medianValue, ticks };
 };
 
 export const snrPlotData = (data) => {

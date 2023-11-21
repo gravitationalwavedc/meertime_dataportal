@@ -18,7 +18,9 @@ import {
   formatYAxisTick,
   getXaxisFormatter,
   getXaxisLabel,
+  getYaxisDomain,
   getYaxisLabel,
+  getYaxisTicks,
   getZRange,
   toolTipFormatter,
 } from "./plotData";
@@ -38,13 +40,10 @@ const ZoomPlot = ({
   handleScatterMouseLeave,
   handleScatterMouseEnter,
 }) => {
-  const { plotData, minValue, maxValue, ticks } = filterBandData(
+  const { plotData, minValue, maxValue, medianValue, ticks } = filterBandData(
     data,
     zoomArea
   );
-  console.log("axisMin:", axisMin);
-  console.log("axisMax:", axisMax);
-
   return (
     <>
       <ResponsiveContainer>
@@ -142,7 +141,8 @@ const ZoomPlot = ({
             type="number"
             dataKey="value"
             name={activePlot}
-            domain={[minValue, maxValue]}
+            domain={getYaxisDomain(activePlot, minValue, maxValue)}
+            ticks={getYaxisTicks(activePlot, minValue, maxValue, medianValue)}
             tickFormatter={formatYAxisTick}
           >
             <Label
