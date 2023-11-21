@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { Col, Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import { CartesianGrid, ResponsiveContainer, ScatterChart } from "recharts";
+import { useRouter } from "found";
 import ZoomPlot from "./ZoomPlot";
+import { getActivePlotData } from "./plotData";
 
 const DEFAULT_ZOOM = { xMin: null, xMax: null, yMin: null, yMax: null };
 
@@ -14,34 +15,45 @@ const PlotContainer = (data) => {
   const [isDrag, setIsDrag] = useState(false);
   const [axisMin, setAxisMin] = useState({ xMin: null, yMin: null });
   const [axisMax, setAxisMax] = useState({ xMax: null, yMax: null });
+  const [overScatter, setOverScatter] = useState(false);
 
-  const handleSymbolClick = (symbolData) => {
-    if (!isDrag) {
-      router.push(symbolData.link);
-    }
-  };
+  const { router } = useRouter();
+
+  const handleSetActivePlot = (activePlot) => {
+    setActivePlot(activePlot);
+    setZoomArea(DEFAULT_ZOOM);
+  }
 
   const handleZoomOut = () => {
     setIsDrag(false);
     setIsZooming(false);
+    setAxisMin({ xMin: null, yMin: null });
+    setAxisMax({ xMax: null, yMax: null });
     setZoomArea(DEFAULT_ZOOM);
   };
 
+  const handleMouseLeave = () => {
+    console.log("handleMouseLeave");
+    setAxisMax({ xMax: axisMin.xMin, yMax: axisMin.yMin });
+  };
+
   const handleMouseDown = (e) => {
-    setIsZooming(true);
-    const { xValue, yValue } = e || {};
-    setAxisMin({ xMin: xValue, yMin: yValue });
+    if (!overScatter) {
+      setIsZooming(true);
+      const { xValue, yValue } = e || {};
+      setAxisMin({ xMin: xValue, yMin: yValue });
+    }
   };
 
   const handleMouseMove = (e) => {
     if (isZooming) {
-      setIsDrag(true);
       const { xValue, yValue } = e || {};
+      setIsDrag(true);
       setAxisMax({ xMax: xValue, yMax: yValue });
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (symbolData) => {
     if (isDrag && isZooming) {
       setIsZooming(false);
       setIsDrag(false);
@@ -55,8 +67,20 @@ const PlotContainer = (data) => {
       const newZoomArea = { xMin, xMax, yMin, yMax };
 
       setZoomArea(newZoomArea);
+    } else if (overScatter) {
+      router.push(symbolData.link);
     }
   };
+
+  const handleScatterMouseEnter = () => {
+    setOverScatter(true);
+  }
+
+  const handleScatterMouseLeave = () => {
+    setOverScatter(false);
+  }
+
+  const activePlotData = getActivePlotData(data.data, activePlot);
 
   return (
     <Col md={10} className="pulsar-plot-display">
@@ -67,7 +91,7 @@ const PlotContainer = (data) => {
             custom
             as="select"
             value={activePlot}
-            onChange={(event) => setActivePlot(event.target.value)}
+            onChange={(event) => handleSetActivePlot(event.target.value)}
           >
             <option value="Residual">Timing Residuals</option>
             <option value="Flux Density">Flux Density</option>
@@ -89,7 +113,9 @@ const PlotContainer = (data) => {
             <option value="phase">Binary Phase</option>
           </Form.Control>
         </Form.Group>
+        <div>
         <Button
+          style={{height: '50%', margin: "25% 0 25% 0"}}
           variant="outline-secondary"
           size="sm"
           className="mb-2"
@@ -97,20 +123,25 @@ const PlotContainer = (data) => {
         >
           Zoom out
         </Button>
+        </div>
       </Form.Row>
       <Form.Text className="text-muted">
         Drag to zoom, click empty area to reset, double click to view utc.
       </Form.Text>
       <div className="pulsar-plot-wrapper">
         <ZoomPlot
-          data={data.data}
+          data={activePlotData}
           xAxis={xAxis}
           activePlot={activePlot}
           zoomArea={zoomArea}
-          handleSymbolClick={handleSymbolClick}
+          axisMin={axisMin}
+          axisMax={axisMax}
           handleMouseDown={handleMouseDown}
           handleMouseMove={handleMouseMove}
           handleMouseUp={handleMouseUp}
+          handleMouseLeave={handleMouseLeave}
+          handleScatterMouseLeave={handleScatterMouseLeave}
+          handleScatterMouseEnter={handleScatterMouseEnter}
         />
       </div>
     </Col>

@@ -69,26 +69,24 @@ export const toolTipFormatter = (value, name) => {
   return [value, name];
 };
 
-export const getActivePlotData = (data, activePlot, zoomArea) => {
+export const getActivePlotData = (data, activePlot) => {
+  console.log("getActivePlotData");
   const plotFunctions = {
     "S/N": snrPlotData,
     "Flux Density": fluxPlotData,
-    DM: dmPlotData,
-    RM: rmPlotData,
-    Residual: residualPlotData,
+    "DM": dmPlotData,
+    "RM": rmPlotData,
+    "Residual": residualPlotData,
   };
   const plotFunction = plotFunctions[activePlot];
   if (plotFunction) {
-    const { plotData, minValue, maxValue, ticks } = plotFunction(
-      data,
-      zoomArea
-    );
-    return { plotData, minValue, maxValue, ticks };
+    const activePlotData = plotFunction(data);
+    return activePlotData;
   } else {
     // Handle the case when activePlot is not recognized
     console.error(`Unknown activePlot: ${activePlot}`);
     // You might want to return default values or throw an error, depending on your use case
-    return { plotData: [], minValue: 0, maxValue: 0, ticks: [] };
+    return [];
   }
 };
 
@@ -178,7 +176,7 @@ export const filterBandData = (data, zoomArea) => {
   return { plotData, minValue, maxValue, ticks };
 };
 
-export const snrPlotData = (data, zoomArea) => {
+export const snrPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
@@ -190,10 +188,10 @@ export const snrPlotData = (data, zoomArea) => {
     band: row.observation.band,
   }));
 
-  return filterBandData(allData, zoomArea);
+  return allData;
 };
 
-export const fluxPlotData = (data, zoomArea) => {
+export const fluxPlotData = (data) => {
   const allData = data.map((row) => ({
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
@@ -204,10 +202,10 @@ export const fluxPlotData = (data, zoomArea) => {
     band: row.observation.band,
   }));
 
-  return filterBandData(allData, zoomArea);
+  return allData;
 };
 
-export const dmPlotData = (data, zoomArea) => {
+export const dmPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
@@ -220,10 +218,10 @@ export const dmPlotData = (data, zoomArea) => {
     band: row.observation.band,
   }));
 
-  return filterBandData(allData, zoomArea);
+  return allData;
 };
 
-export const rmPlotData = (data, zoomArea) => {
+export const rmPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
@@ -236,10 +234,10 @@ export const rmPlotData = (data, zoomArea) => {
     band: row.observation.band,
   }));
 
-  return filterBandData(allData, zoomArea);
+  return allData;
 };
 
-export const residualPlotData = (data, zoomArea) => {
+export const residualPlotData = (data) => {
   const run_toas = data.reduce((result_returned, run_result) => {
     // Run for each pipelineRun
     const run_results = run_result.pipelineRun.toas.edges.reduce(
@@ -281,5 +279,5 @@ export const residualPlotData = (data, zoomArea) => {
     band: row.band,
   }));
 
-  return filterBandData(allData, zoomArea);
+  return allData;
 };

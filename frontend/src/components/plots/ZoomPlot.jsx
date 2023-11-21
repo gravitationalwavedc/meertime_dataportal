@@ -14,8 +14,8 @@ import {
   ZAxis,
 } from "recharts";
 import {
+  filterBandData,
   formatYAxisTick,
-  getActivePlotData,
   getXaxisFormatter,
   getXaxisLabel,
   getYaxisLabel,
@@ -29,16 +29,21 @@ const ZoomPlot = ({
   xAxis,
   activePlot,
   zoomArea,
-  handleSymbolClick,
+  axisMin,
+  axisMax,
   handleMouseDown,
   handleMouseMove,
   handleMouseUp,
+  handleMouseLeave,
+  handleScatterMouseLeave,
+  handleScatterMouseEnter,
 }) => {
-  const { plotData, minValue, maxValue, ticks } = getActivePlotData(
+  const { plotData, minValue, maxValue, ticks } = filterBandData(
     data,
-    activePlot,
     zoomArea
   );
+  console.log("axisMin:", axisMin);
+  console.log("axisMax:", axisMax);
 
   return (
     <>
@@ -53,6 +58,7 @@ const ZoomPlot = ({
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
         >
           <CartesianGrid />
           {plotData.map((dataBand, index) => (
@@ -61,7 +67,9 @@ const ZoomPlot = ({
               data={dataBand.data}
               fill={dataBand.colour}
               shape={dataBand.shape}
-              onMouseUp={handleSymbolClick}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleScatterMouseLeave}
+              onMouseEnter={handleScatterMouseEnter}
             >
               <ErrorBar
                 dataKey="error"
@@ -73,10 +81,10 @@ const ZoomPlot = ({
             </Scatter>
           ))}
           <ReferenceArea
-            xMin={zoomArea.xMin ? zoomArea.xMin : null}
-            xMax={zoomArea.xMax ? zoomArea.xMax : null}
-            yMin={zoomArea.yMin ? zoomArea.yMin : null}
-            yMax={zoomArea.yMax ? zoomArea.yMax : null}
+            x1={axisMin.xMin ? axisMin.xMin : null}
+            x2={axisMax.xMax ? axisMax.xMax : null}
+            y1={axisMin.yMin ? axisMin.yMin : null}
+            y2={axisMax.yMax ? axisMax.yMax : null}
           />
           <Legend
             align="right"
