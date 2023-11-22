@@ -99,13 +99,26 @@ export const getZRange = (yAxis) => {
 
 export const toolTipFormatter = (value, name) => {
   if (name === "UTC") {
-    return [moment(value).format("DD-MM-YYYY-hh:mm:ss"), name];
+    return [moment(value).format("YYYY-MM-DD-hh:mm:ss"), name];
   }
-
   if (name === "Size") {
-    return [`${value} [m]`, "Integration time"];
+    return [`${(value / 60).toFixed(2)} [m]`, "Integration time"];
   }
-
+  if (name === "DM") {
+    return [`${value.toFixed(4)} [pc cm^-3]`, name];
+  }
+  if (name === "RM") {
+    return [`${value.toFixed(4)} [rad m^-2]`, name];
+  }
+  if (name === "Residual") {
+    return [`${value.toFixed(4)} [μs]`, name];
+  }
+  if (name === "S/N") {
+    return [`${value.toFixed(2)}`, name];
+  }
+  if (name === "Flux Density") {
+    return [`${value.toFixed(2)} [mJy]`, name];
+  }
   return [value, name];
 };
 
