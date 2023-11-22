@@ -45,7 +45,7 @@ export const getYaxisLabel = (yAxis) => {
 
 export const getYaxisDomain = (yAxis, minValue, maxValue, medianValue) => {
   if (yAxis === "S/N") {
-    return [minValue, maxValue];
+    return [0, maxValue];
   } else if (yAxis === "Flux Density") {
     return [minValue, maxValue];
   } else if (yAxis === "DM" || yAxis === "RM") {
@@ -62,7 +62,7 @@ export const getYaxisDomain = (yAxis, minValue, maxValue, medianValue) => {
 
 export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
   if (yAxis === "S/N") {
-    return null;
+    return [0, maxValue * 0.25, maxValue * 0.5, maxValue * 0.75, maxValue];
   } else if (yAxis === "Flux Density") {
     return null;
   } else if (yAxis === "DM" || yAxis === "RM") {
@@ -215,9 +215,9 @@ export const filterBandData = (data, zoomArea) => {
     shape: "triangle",
   };
 
-  const minValue = Math.min(...data.map((row) => row.value - row.error));
+  const minValue = Math.min(...data.map((row) => row.value - (row.error || 0)));
 
-  const maxValue = Math.max(...data.map((row) => row.value + row.error));
+  const maxValue = Math.max(...data.map((row) => row.value + (row.error || 0)));
 
   const medianValue = calculateMedian(data);
 
