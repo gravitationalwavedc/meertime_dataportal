@@ -155,7 +155,7 @@ const SearchTable = ({ data }) => {
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
-      formatter: (cell) => `${parseFloat(cell).toFixed(2)} [m]`,
+      formatter: (cell) => `${parseFloat(cell * 60).toFixed(2)} [s]`,
     },
     {
       dataField: "action",

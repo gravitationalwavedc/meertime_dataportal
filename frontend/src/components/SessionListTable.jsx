@@ -77,7 +77,7 @@ const SessionListTable = ({ data }) => {
     {
       dataField: "totalIntegrationTimeSeconds",
       text: "Total Int",
-      formatter: (cell) => `${(parseFloat(cell) / 60).toFixed(1)} [m]`,
+      formatter: (cell) => `${parseFloat(cell).toFixed(1)} [s]`,
       align: "right",
       headerAlign: "right",
     },

@@ -200,7 +200,7 @@ const meertime = {
       text: "Length",
       sort: true,
       screenSizes: ["sm", "md", "lg", "xl", "xxl"],
-      formatter: (cell) => `${parseFloat(cell / 60).toFixed(2)} [m]`,
+      formatter: (cell) => `${parseFloat(cell).toFixed(2)} [s]`,
       align: "right",
       headerAlign: "right",
     },

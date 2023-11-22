@@ -102,7 +102,7 @@ export const toolTipFormatter = (value, name) => {
     return [moment(value).format("YYYY-MM-DD-hh:mm:ss"), name];
   }
   if (name === "Size") {
-    return [`${(value / 60).toFixed(2)} [m]`, "Integration time"];
+    return [`${value.toFixed(2)} [s]`, "Integration time"];
   }
   if (name === "DM") {
     return [`${value.toFixed(4)} [pc cm^-3]`, name];
