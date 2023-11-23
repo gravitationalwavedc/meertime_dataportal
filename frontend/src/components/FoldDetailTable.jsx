@@ -144,7 +144,8 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
         jname: jname,
         band: edge.node.observation.band,
         embargo: edge.node.observation.restricted
-          ? "Embargoed until " + formatDDMonYYYY(edge.node.observation.embargoEndDate)
+          ? "Embargoed until " +
+            formatDDMonYYYY(edge.node.observation.embargoEndDate)
           : "",
         utc: formatUTC(edge.node.observation.utcStart),
         plotLink: `/${jname}/${formatUTC(edge.node.observation.utcStart)}/${
