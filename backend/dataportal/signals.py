@@ -18,7 +18,6 @@ def handle_pulsar_fold_summary_update(sender, instance, **kwargs):
         pulsar=instance.observation.pulsar,
         defaults={
             "pipeline_run": instance,
-            "embargo_end_date": datetime.now() + instance.observation.project.embargo_period,
         },
     )
     if instance.job_state == "Completed":
