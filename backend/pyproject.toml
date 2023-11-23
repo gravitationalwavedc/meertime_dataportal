@@ -29,6 +29,7 @@ tqdm = "^4.64.1"
 django-jenkins = "^0.110.0"
 python-dateutil = "^2.8.2"
 responses = "^0.23.1"
+pyyaml = "6.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.0"
@@ -44,7 +45,7 @@ coverage = "^5.2.1"
 django_coverage_plugin = "^1.8.0"
 django-graphiql = "^0.4.4"
 django-cprofile-middleware = "^1.0.5"
-xenon = "^0.7.1"
+xenon = "^0.9.1"
 model_bakery = "^1.2.1"
 django-stubs = "^1.8.0"
 

@@ -1,7 +1,7 @@
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { columnsSizeFilter, formatUTC } from "../helpers";
-import { createRefetchContainer, graphql } from "react-relay";
+import { graphql, useRefetchableFragment } from "react-relay";
 
 import DataView from "./DataView";
 import LightBox from "react-image-lightbox";
@@ -11,7 +11,49 @@ import moment from "moment";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
-const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
+const sessionTableQuery = graphql`
+  fragment SessionTable_data on Query
+  @refetchable(queryName: "SessionTableQuery")
+  @argumentDefinitions(
+    start: { type: "String" }
+    end: { type: "String" }
+    utc: { type: "String" }
+    project: { type: "String", defaultValue: "All" }
+  ) {
+    sessionDisplay(start: $start, end: $end, utc: $utc) {
+      start
+      end
+      numberOfObservations
+      numberOfPulsars
+      sessionPulsars(project: $project) {
+        edges {
+          node {
+            jname
+            pulsarType
+            project
+            utc
+            beam
+            integrations
+            frequency
+            backendSN
+            fluxHi
+            phaseVsTimeHi
+            phaseVsFrequencyHi
+            fluxLo
+            phaseVsTimeLo
+            phaseVsFrequencyLo
+          }
+        }
+      }
+    }
+  }
+`;
+
+const SessionTable = ({ data, utc }) => {
+  const [fragmentData, refetch] = useRefetchableFragment(
+    sessionTableQuery,
+    data
+  );
   const { screenSize } = useScreenSize();
   const [project, setProject] = useState("All");
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -22,22 +64,22 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
 
   useEffect(() => {
     if (utc !== undefined) {
-      relay.refetch({ start: null, end: null, utc: utc, project: project });
+      refetch({ start: null, end: null, utc: utc, project: project });
     } else {
-      relay.refetch({
-        start: sessionDisplay.start,
-        end: sessionDisplay.end,
+      refetch({
+        start: fragmentData.sessionDisplay.start,
+        end: fragmentData.sessionDisplay.end,
         utc: null,
         project: project,
       });
     }
-  }, [project, relay, sessionDisplay.end, sessionDisplay.start, utc]);
+  }, [project, utc, refetch, fragmentData.sessionDisplay]);
 
   const startDate = moment
-    .parseZone(sessionDisplay.start, moment.ISO_8601)
+    .parseZone(fragmentData.sessionDisplay.start, moment.ISO_8601)
     .format("h:mma DD/MM/YYYY");
   const endDate = moment
-    .parseZone(sessionDisplay.end, moment.ISO_8601)
+    .parseZone(fragmentData.sessionDisplay.end, moment.ISO_8601)
     .format("h:mma DD/MM/YYYY");
 
   const openLightBox = (images, imageIndex) => {
@@ -45,66 +87,69 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
     setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
 
-  const rows = sessionDisplay.sessionPulsars.edges.reduce((result, edge) => {
-    const row = { ...edge.node };
-    row.utc = formatUTC(row.utc);
-    row.projectKey = project;
+  const rows = fragmentData.sessionDisplay.sessionPulsars.edges.reduce(
+    (result, edge) => {
+      const row = { ...edge.node };
+      row.utc = formatUTC(row.utc);
+      row.projectKey = project;
 
-    const images = [
-      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.fluxHi}`,
-      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.phaseVsTimeHi}`,
-      `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.phaseVsFrequencyHi}`,
-    ];
+      const images = [
+        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.fluxHi}`,
+        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.phaseVsTimeHi}`,
+        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.phaseVsFrequencyHi}`,
+      ];
 
-    row.flux = (
-      <SessionImage
-        imageHi={row.fluxHi}
-        imageLo={row.fluxLo}
-        images={images}
-        imageIndex={0}
-        openLightBox={openLightBox}
-      />
-    );
-    row.phaseVsTime = (
-      <SessionImage
-        imageHi={row.phaseVsTimeHi}
-        imageLo={row.phaseVsTimeLo}
-        images={images}
-        imageIndex={1}
-        openLightBox={openLightBox}
-      />
-    );
-    row.phaseVsFrequency = (
-      <SessionImage
-        imageHi={row.phaseVsFrequencyHi}
-        imageLo={row.phaseVsFrequencyLo}
-        images={images}
-        imageIndex={2}
-        openLightBox={openLightBox}
-      />
-    );
-    row.action = (
-      <ButtonGroup vertical>
-        <Link
-          to={`/${row.pulsarType}/meertime/${row.jname}/`}
-          size="sm"
-          variant="outline-secondary"
-          as={Button}
-        >
-          View all
-        </Link>
-        <Link
-          to={`/${row.jname}/${row.utc}/${row.beam}/`}
-          size="sm"
-          variant="outline-secondary"
-          as={Button}
-        >
-          View last
-        </Link>
-      </ButtonGroup>
-    );
-    return [...result, { ...row }];
-  }, []);
+      row.flux = (
+        <SessionImage
+          imageHi={row.fluxHi}
+          imageLo={row.fluxLo}
+          images={images}
+          imageIndex={0}
+          openLightBox={openLightBox}
+        />
+      );
+      row.phaseVsTime = (
+        <SessionImage
+          imageHi={row.phaseVsTimeHi}
+          imageLo={row.phaseVsTimeLo}
+          images={images}
+          imageIndex={1}
+          openLightBox={openLightBox}
+        />
+      );
+      row.phaseVsFrequency = (
+        <SessionImage
+          imageHi={row.phaseVsFrequencyHi}
+          imageLo={row.phaseVsFrequencyLo}
+          images={images}
+          imageIndex={2}
+          openLightBox={openLightBox}
+        />
+      );
+      row.action = (
+        <ButtonGroup vertical>
+          <Link
+            to={`/${row.pulsarType}/meertime/${row.jname}/`}
+            size="sm"
+            variant="outline-secondary"
+            as={Button}
+          >
+            View all
+          </Link>
+          <Link
+            to={`/${row.jname}/${row.utc}/${row.beam}/`}
+            size="sm"
+            variant="outline-secondary"
+            as={Button}
+          >
+            View last
+          </Link>
+        </ButtonGroup>
+      );
+      return [...result, { ...row }];
+    },
+    []
+  );
 
   const columns = [
     { dataField: "jname", text: "JName", sort: true },
@@ -175,7 +220,7 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
-  const projectData = sessionDisplay.sessionPulsars.edges.reduce(
+  const projectData = fragmentData.sessionDisplay.sessionPulsars.edges.reduce(
     (result, edge) => {
       if (
         result.filter((project) => project.title === edge.node.project)
@@ -185,7 +230,7 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
           ...result,
           {
             title: edge.node.project,
-            value: sessionDisplay.sessionPulsars.edges.filter(
+            value: fragmentData.sessionDisplay.sessionPulsars.edges.filter(
               (newEdge) => newEdge.node.project === edge.node.project
             ).length,
           },
@@ -198,8 +243,11 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
   );
 
   const summaryData = [
-    { title: "Observations", value: sessionDisplay.numberOfObservations },
-    { title: "Pulsars", value: sessionDisplay.numberOfPulsars },
+    {
+      title: "Observations",
+      value: fragmentData.sessionDisplay.numberOfObservations,
+    },
+    { title: "Pulsars", value: fragmentData.sessionDisplay.numberOfPulsars },
     ...projectData,
   ];
 
@@ -254,55 +302,4 @@ const SessionTable = ({ data: { sessionDisplay }, relay, utc }) => {
   );
 };
 
-export default createRefetchContainer(
-  SessionTable,
-  {
-    data: graphql`
-      fragment SessionTable_data on Query
-      @argumentDefinitions(
-        start: { type: "String" }
-        end: { type: "String" }
-        utc: { type: "String" }
-        project: { type: "String", defaultValue: "All" }
-      ) {
-        sessionDisplay(start: $start, end: $end, utc: $utc) {
-          start
-          end
-          numberOfObservations
-          numberOfPulsars
-          sessionPulsars(project: $project) {
-            edges {
-              node {
-                jname
-                pulsarType
-                project
-                utc
-                beam
-                integrations
-                frequency
-                backendSN
-                fluxHi
-                phaseVsTimeHi
-                phaseVsFrequencyHi
-                fluxLo
-                phaseVsTimeLo
-                phaseVsFrequencyLo
-              }
-            }
-          }
-        }
-      }
-    `,
-  },
-  graphql`
-    query SessionTableRefetchQuery(
-      $start: String
-      $end: String
-      $utc: String
-      $project: String
-    ) {
-      ...SessionTable_data
-        @arguments(start: $start, end: $end, utc: $utc, project: $project)
-    }
-  `
-);
+export default SessionTable;

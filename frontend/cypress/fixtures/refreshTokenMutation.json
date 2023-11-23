@@ -1,0 +1,14 @@
+{
+  "data": {
+    "refreshToken": {
+      "token": "averysecretencodedtokenhere",
+      "clientMutationId": null,
+      "payload": {
+        "username": "buffy@su.edu.ca",
+        "exp": 1690955768,
+        "origIat": 1690430813
+      },
+      "refreshExpiresIn": 1691035613
+    }
+  }
+}

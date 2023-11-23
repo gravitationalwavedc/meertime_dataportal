@@ -1,6 +1,7 @@
 import Fold from "./Fold";
-import React from "react";
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import { createMockEnvironment } from "relay-test-utils";
+import { RelayEnvironmentProvider } from "react-relay";
 
 /* eslint-disable react/display-name */
 
@@ -25,11 +26,22 @@ vi.mock("found", () => ({
   }),
 }));
 
+const match = {
+  location: {
+    query: undefined,
+  },
+};
+
 describe("fold component", () => {
   it("should display a loading message while waiting for data", () => {
     expect.hasAssertions();
-    const { getByText } = render(<Fold />);
-    expect(getByText("Fold Observations")).toBeInTheDocument();
-    expect(getByText("Loading...")).toBeInTheDocument();
+    const environment = createMockEnvironment();
+    render(
+      <RelayEnvironmentProvider environment={environment}>
+        <Fold match={match} />
+      </RelayEnvironmentProvider>
+    );
+    expect(screen.getByText("Fold Observations")).toBeInTheDocument();
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
   });
 });

@@ -1,18 +1,58 @@
 import { Button, ButtonGroup } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { columnsSizeFilter, formatUTC } from "../helpers";
-import { createRefetchContainer, graphql } from "react-relay";
+import { graphql, useRefetchableFragment } from "react-relay";
 import DataView from "./DataView";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
+const foldTableQuery = graphql`
+  fragment FoldTable_data on Query
+  @refetchable(queryName: "FoldTableRefetchQuery")
+  @argumentDefinitions(
+    mainProject: { type: "String", defaultValue: "MEERTIME" }
+    project: { type: "String", defaultValue: "All" }
+    band: { type: "String", defaultValue: "All" }
+  ) {
+    foldObservations(
+      mainProject: $mainProject
+      project: $project
+      band: $band
+    ) {
+      totalObservations
+      totalPulsars
+      totalObservationTime
+      totalProjectTime
+      edges {
+        node {
+          jname
+          beam
+          latestObservation
+          firstObservation
+          allProjects
+          project
+          timespan
+          numberOfObservations
+          lastSnRaw
+          highestSnRaw
+          lowestSnRaw
+          lastIntegrationMinutes
+          maxSnPipe
+          avgSnPipe
+          totalIntegrationHours
+        }
+      }
+    }
+  }
+`;
+
 const FoldTable = ({
-  data: { foldObservations: relayData },
-  relay,
+  data,
   match: {
     location: { query },
   },
 }) => {
+  const [relayData, refetch] = useRefetchableFragment(foldTableQuery, data);
   const { screenSize } = useScreenSize();
   const [mainProject, setMainProject] = useState(
     query.mainProject || "meertime"
@@ -20,22 +60,47 @@ const FoldTable = ({
   const [project, setProject] = useState(query.project || "All");
   const [band, setBand] = useState(query.band || "All");
 
-  useEffect(() => {
-    relay.refetch({ mainProject: mainProject, project: project, band: band });
+  const handleRefetch = ({
+    newMainProject = mainProject,
+    newProject = project,
+    newBand = band,
+  } = {}) => {
     const url = new URL(window.location);
-    url.searchParams.set("mainProject", mainProject);
-    url.searchParams.set("project", project);
-    url.searchParams.set("band", band);
+    url.searchParams.set("mainProject", newMainProject);
+    url.searchParams.set("project", newProject);
+    url.searchParams.set("band", newBand);
     window.history.pushState({}, "", url);
-  }, [band, project, mainProject, query, relay]);
-
-  const handleMainProjectChange = (newMainProject) => {
-    setMainProject(newMainProject);
-    setProject("All");
-    setBand("All");
+    refetch({
+      mainProject: newMainProject,
+      project: newProject,
+      band: newBand,
+    });
   };
 
-  const rows = relayData.edges.reduce((result, edge) => {
+  const handleMainProjectChange = (newMainProject) => {
+    const newProject = "All";
+    const newBand = "All";
+    setMainProject(newMainProject);
+    setProject(newProject);
+    setBand(newBand);
+    handleRefetch({
+      newMainProject: newMainProject,
+      newProject: newProject,
+      newBand: newBand,
+    });
+  };
+
+  const handleProjectChange = (newProject) => {
+    setProject(newProject);
+    handleRefetch({ newProject: newProject });
+  };
+
+  const handleBandChange = (newBand) => {
+    setProject(newBand);
+    handleRefetch({ newBand: newBand });
+  };
+
+  const rows = relayData.foldObservations.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     row.projectKey = mainProject;
     row.latestObservation = formatUTC(row.latestObservation);
@@ -163,15 +228,21 @@ const FoldTable = ({
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
   const summaryData = [
-    { title: "Observations", value: relayData.totalObservations },
-    { title: "Unique Pulsars", value: relayData.totalPulsars },
-    { title: "Pulsar Hours", value: relayData.totalObservationTime },
+    {
+      title: "Observations",
+      value: relayData.foldObservations.totalObservations,
+    },
+    { title: "Unique Pulsars", value: relayData.foldObservations.totalPulsars },
+    {
+      title: "Pulsar Hours",
+      value: relayData.foldObservations.totalObservationTime,
+    },
   ];
 
   if (project !== "All") {
     summaryData.push({
       title: "Project Hours",
-      value: relayData.totalProjectTime,
+      value: relayData.foldObservations.totalProjectTime,
     });
   }
 
@@ -180,12 +251,12 @@ const FoldTable = ({
       summaryData={summaryData}
       columns={columnsSizeFiltered}
       rows={rows}
-      setProject={setProject}
+      setProject={handleProjectChange}
       project={project}
       mainProject={mainProject}
       setMainProject={handleMainProjectChange}
       band={band}
-      setBand={setBand}
+      setBand={handleBandChange}
       query={query}
       mainProjectSelect
       rememberSearch={true}
@@ -193,56 +264,4 @@ const FoldTable = ({
   );
 };
 
-export default createRefetchContainer(
-  FoldTable,
-  {
-    data: graphql`
-      fragment FoldTable_data on Query
-      @argumentDefinitions(
-        mainProject: { type: "String", defaultValue: "MEERTIME" }
-        project: { type: "String", defaultValue: "All" }
-        band: { type: "String", defaultValue: "All" }
-      ) {
-        foldObservations(
-          mainProject: $mainProject
-          project: $project
-          band: $band
-        ) {
-          totalObservations
-          totalPulsars
-          totalObservationTime
-          totalProjectTime
-          edges {
-            node {
-              jname
-              beam
-              latestObservation
-              firstObservation
-              allProjects
-              project
-              timespan
-              numberOfObservations
-              lastSnRaw
-              highestSnRaw
-              lowestSnRaw
-              lastIntegrationMinutes
-              maxSnPipe
-              avgSnPipe
-              totalIntegrationHours
-            }
-          }
-        }
-      }
-    `,
-  },
-  graphql`
-    query FoldTableRefetchQuery(
-      $mainProject: String
-      $project: String
-      $band: String
-    ) {
-      ...FoldTable_data
-        @arguments(mainProject: $mainProject, project: $project, band: $band)
-    }
-  `
-);
+export default FoldTable;

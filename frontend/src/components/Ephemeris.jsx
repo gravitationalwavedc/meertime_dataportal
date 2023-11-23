@@ -1,6 +1,4 @@
 import { Modal, Table } from "react-bootstrap";
-
-import React from "react";
 import { formatUTC } from "../helpers";
 
 const Ephemeris = ({ ephemeris, updated, show, setShow }) => {

@@ -1,17 +1,28 @@
 import { useRouter } from "found";
 import SearchmodeDetail from "./SearchmodeDetail";
-import { render } from "@testing-library/react";
+import { waitFor, render, screen } from "@testing-library/react";
+import { RelayEnvironmentProvider } from "react-relay";
+import { createMockEnvironment, MockPayloadGenerator } from "relay-test-utils";
 
 describe("searchmode detail component", () => {
-  it("should render with the correct title", () => {
-    const router = useRouter();
+  it("should render with the correct title", async () => {
     expect.hasAssertions();
-    const { getByText } = render(
-      <SearchmodeDetail
-        match={{ params: { jname: "J111-222", project: "meertime" } }}
-        router={router}
-      />
+    const router = useRouter();
+    const environment = createMockEnvironment();
+    render(
+      <RelayEnvironmentProvider environment={environment}>
+        <SearchmodeDetail
+          match={{ params: { jname: "J111-222", project: "meertime" } }}
+          router={router}
+        />
+      </RelayEnvironmentProvider>
     );
-    expect(getByText("J111-222")).toBeInTheDocument();
+
+    await waitFor(() =>
+      environment.mock.resolveMostRecentOperation((operation) =>
+        MockPayloadGenerator.generate(operation)
+      )
+    );
+    expect(screen.getByText("J111-222")).toBeInTheDocument();
   });
 });
