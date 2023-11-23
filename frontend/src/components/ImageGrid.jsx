@@ -77,7 +77,6 @@ const ImageGrid = ({ images, project }) => {
           mainSrc={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${
             lightBoxImages.images[lightBoxImages.imagesIndex]
           }`}
-
           nextSrc={
             lightBoxImages.images[
               (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length
