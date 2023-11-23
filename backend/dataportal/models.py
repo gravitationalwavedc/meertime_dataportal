@@ -229,6 +229,8 @@ class Observation(models.Model):
     project = models.ForeignKey(Project, models.CASCADE)
     calibration = models.ForeignKey(Calibration, models.SET_NULL, null=True, related_name="observations")
 
+    embargo_end_date = models.DateTimeField(null=True)
+
     # Frequency fields
     band = models.CharField(max_length=7, choices=BAND_CHOICES)
     frequency = models.FloatField()
@@ -275,7 +277,16 @@ class Observation(models.Model):
             if is_binary(ephemeris_dict):
                 centre_obs_mjd = self.utc_start + timedelta(seconds=self.duration/2)
                 self.binary_orbital_phase = get_binary_phase(np.array([Time(centre_obs_mjd).mjd]), ephemeris_dict)
+        self.embargo_end_date = self.utc_start + self.project.embargo_period
         super(Observation, self).save(*args, **kwargs)
+
+    def is_restricted(self, user):
+        # If the user role isn't restricted they can access everything
+        if user.role.upper() in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]:
+            return False
+
+        # If there's no embargo then it's not restricted
+        return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
 
     def __str__(self):
         return f"{self.utc_start} {self.beam}"
@@ -434,16 +445,6 @@ class PulsarFoldResult(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.CASCADE, related_name="pulsar_fold_results")
     pipeline_run = models.ForeignKey(PipelineRun, on_delete=models.CASCADE)
     pulsar = models.ForeignKey(Pulsar, models.CASCADE)
-
-    embargo_end_date = models.DateTimeField(null=True)
-
-    def is_restricted(self, user):
-        # If the user role isn't restricted they can access everything
-        if user.role.upper() in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]:
-            return False
-
-        # If there's no embargo then it's not restricted
-        return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
 
 
 

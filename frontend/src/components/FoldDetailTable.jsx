@@ -67,6 +67,8 @@ const FoldDetailTableFragment = graphql`
             foldNbin
             nant
             nantEff
+            restricted
+            embargoEndDate
             project {
               short
             }
@@ -141,21 +143,21 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
         key: `${edge.node.observation.utcStart}:${edge.node.observation.beam}`,
         jname: jname,
         band: edge.node.observation.band,
-        embargo: edge.node.restricted
-          ? "Embargoed until " + formatDDMonYYYY(edge.node.embargoEndDate)
+        embargo: edge.node.observation.restricted
+          ? "Embargoed until " + formatDDMonYYYY(edge.node.observation.embargoEndDate)
           : "",
         utc: formatUTC(edge.node.observation.utcStart),
         plotLink: `/${jname}/${formatUTC(edge.node.observation.utcStart)}/${
           edge.node.observation.beam
         }/`,
-        action: edge.node.restricted ? (
+        action: edge.node.observation.restricted ? (
           <Button size="sm" variant="outline-dark">
             <span className="small">
               Embargoed
               <br />
               until
               <br />
-              {formatDDMonYYYY(edge.node.embargoEndDate)}
+              {formatDDMonYYYY(edge.node.observation.embargoEndDate)}
             </span>
           </Button>
         ) : (

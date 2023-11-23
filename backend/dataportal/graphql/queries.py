@@ -1,4 +1,5 @@
 import math
+import pytz
 from datetime import datetime
 
 from django.db.models import Subquery
@@ -29,6 +30,7 @@ from dataportal.models import (
     Toa,
     Residual,
 )
+from utils import constants
 
 DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
 NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
@@ -217,6 +219,23 @@ class ObservationNode(DjangoObjectType):
     project = graphene.Field(ProjectNode)
     calibration = graphene.Field(CalibrationNode)
     ephemeris = graphene.Field(EphemerisNode)
+    restricted = graphene.Boolean()
+
+    def resolve_restricted(self, info):
+        # by default, we assume that the user is restricted
+        try:
+            # checking whether the user is restricted or not
+            user_restricted = info.context.user.role.casefold() == constants.UserRole.RESTRICTED.value.casefold()
+
+            if user_restricted:
+                # if the user is restricted, then we check this Pulsar's embargo date
+                return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
+            else:
+                # if the user is not restricted, we return False (restricted)
+                return False
+        except Exception:
+            # default fallback to restricted (True)
+            return True
 
     @classmethod
     @login_required
