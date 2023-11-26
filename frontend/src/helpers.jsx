@@ -2,7 +2,7 @@ import _ from "lodash";
 import moment from "moment";
 
 export const calculateMedian = (arr) => {
-  if ( arr[0]?.value ) {
+  if (arr[0]?.value) {
     const sorted = arr.slice().sort((a, b) => a.value - b.value);
     const middle = Math.floor(sorted.length / 2);
 
