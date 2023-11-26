@@ -8,7 +8,6 @@ from django.template.defaultfilters import filesizeformat
 import graphene
 from graphene import relay
 from graphene_django import DjangoObjectType
-from graphene_django.filter import DjangoFilterConnectionField
 from graphql_jwt.decorators import login_required
 
 from dataportal.models import (
@@ -373,6 +372,11 @@ class PulsarFoldResultConnection(relay.Connection):
     description = graphene.String()
     residual_ephemeris = graphene.Field(EphemerisNode)
     toas_link = graphene.String()
+    all_projects = graphene.List(graphene.String)
+
+    def resolve_all_projects(self, instance):
+        print(instance.variable_values['pulsar'])
+        return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('project__short', flat=True).distinct())
 
     def resolve_toas_link(self, instance):
         return (
@@ -383,8 +387,7 @@ class PulsarFoldResultConnection(relay.Connection):
     def resolve_residual_ephemeris(self, instance):
         for pulsar_fold_result in self.iterable:
             for toa in Toa.objects.filter(pipeline_run=pulsar_fold_result.pipeline_run):
-                if toa.residual:
-                    return toa.residual.ephemeris
+                return toa.ephemeris
         return None
 
     def resolve_description(self, instance):
@@ -718,7 +721,7 @@ class Query(graphene.ObjectType):
     )
     @login_required
     def resolve_observation(self, info, **kwargs):
-        queryset = Observation.objects.all()
+        queryset = Observation.objects.select_related("pulsar", "telescope", "project__main_project", "calibration").all()
 
         pulsar_name = kwargs.get('pulsar__name')
         if pulsar_name:
@@ -859,7 +862,12 @@ class Query(graphene.ObjectType):
     )
     @login_required
     def resolve_pulsar_fold_result(self, info, **kwargs):
-        queryset = PulsarFoldResult.objects.select_related().all()
+        queryset = PulsarFoldResult.objects.select_related(
+            "observation__project",
+            "observation__ephemeris",
+            "observation__calibration",
+            "pipeline_run",
+        ).all()
 
         pulsar_name = kwargs.get('pulsar')
         if pulsar_name:
@@ -924,10 +932,11 @@ class Query(graphene.ObjectType):
         return queryset
 
 
-    toa = DjangoFilterConnectionField(
-        ToaNode,
+    toa = relay.ConnectionField(
+        ToaConnection,
         pipelineRunId=graphene.Int(),
         pulsar=graphene.String(),
+        projectShort=graphene.String(),
         dmCorrected=graphene.Boolean(),
         minimumNsubs=graphene.Boolean(),
         maximumNsubs=graphene.Boolean(),
@@ -935,7 +944,12 @@ class Query(graphene.ObjectType):
     )
     @login_required
     def resolve_toa(self, info, **kwargs):
-        queryset = Toa.objects.all()
+        queryset = Toa.objects.select_related(
+            "observation__pulsar",
+            "pipeline_run",
+            "project",
+            "residual",
+        ).all()
 
         pipelineRunId = kwargs.get('pipelineRunId')
         if pipelineRunId:
@@ -943,7 +957,11 @@ class Query(graphene.ObjectType):
 
         pulsar_name = kwargs.get('pulsar')
         if pulsar_name:
-            queryset = queryset.filter(pipeline_run__observation__pulsar__name=pulsar_name)
+            queryset = queryset.filter(observation__pulsar__name=pulsar_name)
+
+        project_short = kwargs.get('projectShort')
+        if project_short:
+            queryset = queryset.filter(project__short=project_short)
 
         dm_corrected = kwargs.get('dmCorrected')
         if dm_corrected is not None:

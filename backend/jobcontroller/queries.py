@@ -40,7 +40,7 @@ class Query(graphene.ObjectType):
 
         # Only allow files if the user passes has access to this
         # fold pulsar observation.
-        if not pulsar_fold_result.is_restricted(info.context.user):
+        if not pulsar_fold_result.observation.is_restricted(info.context.user):
             path = get_fluxcal_archive_path(
                 jname=kwargs.get("jname"),
                 utc=kwargs.get("utc"),

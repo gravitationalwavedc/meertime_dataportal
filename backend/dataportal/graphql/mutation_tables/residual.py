@@ -5,21 +5,14 @@ from decimal import Decimal, getcontext
 
 import graphene
 from graphql_jwt.decorators import permission_required
-from django.db import IntegrityError
 
 from dataportal.models import Pulsar, Ephemeris, Project, Residual, Toa
 from dataportal.graphql.queries import ResidualNode
-from utils.ephemeris import parse_ephemeris_file
 from utils.binary_phase import get_binary_phase, is_binary
 
 
 
 class ResidualInput(graphene.InputObjectType):
-    # foreign keys
-    pulsar       = graphene.String(required=True)
-    projectShort = graphene.String(required=True)
-    ephemerisText  = graphene.String(required=True)
-
     residualLines = graphene.List(graphene.String, required=True)
 
 
@@ -37,30 +30,7 @@ class CreateResidual(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_residual")
     def mutate(cls, self, info, input):
-        # Get foreign keys
-        pulsar    = Pulsar.objects.get(name=input["pulsar"])
-        project   = Project.objects.get(short=input["projectShort"])
 
-        # Load the ephemeris file and create get or create the ephemeris
-        ephemeris_dict = parse_ephemeris_file(input["ephemerisText"])
-        try:
-            ephemeris, created = Ephemeris.objects.get_or_create(
-                pulsar=pulsar,
-                project=project,
-                # TODO add created_by
-                ephemeris_data=json.dumps(ephemeris_dict),
-                p0=ephemeris_dict["P0"],
-                dm=ephemeris_dict["DM"],
-                valid_from=ephemeris_dict["START"],
-                valid_to=ephemeris_dict["FINISH"],
-            )
-        except IntegrityError:
-            # Handle the IntegrityError gracefully by grabbing the already created ephem
-            ephemeris = Ephemeris.objects.get(
-                pulsar=pulsar,
-                project=project,
-                ephemeris_data=json.dumps(ephemeris_dict),
-            )
 
         # MJDs are stored as Decimals as standard floats don't have enough precision
         getcontext().prec = 12
@@ -72,6 +42,8 @@ class CreateResidual(graphene.Mutation):
         for residual_line in residual_lines:
             # Loop over residual lines and and split them to get the important values
             id, mjd, residual, residual_err, residual_phase = residual_line.split(",")
+            toa = Toa.objects.get(id=int(id))
+            ephemeris_dict = json.loads(toa.ephemeris.ephemeris_data)
 
             # Get the day of the year as a float
             date = base_date + timedelta(days=float(mjd))
@@ -89,9 +61,6 @@ class CreateResidual(graphene.Mutation):
             # Upload the residual
             residual_to_create.append(
                 Residual(
-                    pulsar=pulsar,
-                    project=project,
-                    ephemeris=ephemeris,
                     # X axis types
                     mjd                 =Decimal(mjd),
                     day_of_year         =day_of_year,
@@ -106,7 +75,7 @@ class CreateResidual(graphene.Mutation):
             )
 
             # Get toa which we will update the residual foreign key of
-            toas_to_update.append(Toa.objects.get(id=int(id)))
+            toas_to_update.append(toa)
 
         # Launch bulk creation of residuals
         created_residuals = Residual.objects.bulk_create(residual_to_create)

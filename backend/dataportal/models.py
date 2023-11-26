@@ -805,10 +805,6 @@ class PipelineFile(models.Model):
 
 
 class Residual(models.Model):
-    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
-    project = models.ForeignKey(Project, models.CASCADE)
-    ephemeris = models.ForeignKey(Ephemeris, models.CASCADE)
-
     # X axis types
     mjd = models.DecimalField(decimal_places=12, max_digits=18)
     day_of_year = models.FloatField()
@@ -827,10 +823,12 @@ class Residual(models.Model):
 class Toa(models.Model):
     # foreign keys
     pipeline_run = models.ForeignKey(PipelineRun, models.CASCADE, related_name="toas")
-    ephemeris = models.ForeignKey(Ephemeris, models.CASCADE)
-    template = models.ForeignKey(Template, models.CASCADE)
+    observation  = models.ForeignKey(Observation, models.CASCADE, related_name="toas")
+    project      = models.ForeignKey(Project, models.CASCADE)
+    ephemeris    = models.ForeignKey(Ephemeris, models.CASCADE)
+    template     = models.ForeignKey(Template, models.CASCADE)
     # Residual will be set after this model which is why it can be null
-    residual = models.ForeignKey(Residual, models.SET_NULL, null=True)
+    residual     = models.ForeignKey(Residual, models.SET_NULL, null=True)
 
     # toa results
     archive   = models.CharField(max_length=128)
@@ -864,3 +862,22 @@ class Toa(models.Model):
     @classmethod
     def get_query(cls, **kwargs):
         return cls.objects.filter(**kwargs)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=[
+                    "observation",
+                    "project",
+                    "dm_corrected",
+                    # Frequency
+                    "obs_nchan", # Number of channels
+                    "chan", # Chan ID
+                    # Time
+                    "minimum_nsubs",
+                    "maximum_nsubs",
+                    "subint", # Time ID
+                ],
+                name="Unique ToA for observations, project and type of ToA (decimations)."
+            )
+        ]

@@ -64,13 +64,13 @@ class UploadTemplate(ViewSet):
 
         # Create Template object
         with template_upload.open('rb') as file:
-            tempalte_hash = create_file_hash(file)
+            template_hash = create_file_hash(file)
             # Check if a template with the same hash already exists
             template_check = Template.objects.filter(
                 pulsar=pulsar,
                 project=project,
                 band=band,
-                template_hash=tempalte_hash,
+                template_hash=template_hash,
             )
             if template_check.exists():
                 id = template_check.first().id
@@ -81,7 +81,7 @@ class UploadTemplate(ViewSet):
                     pulsar=pulsar,
                     project=project,
                     band=band,
-                    template_hash=tempalte_hash,
+                    template_hash=template_hash,
                     template_file=file
                 )
                 template.save()

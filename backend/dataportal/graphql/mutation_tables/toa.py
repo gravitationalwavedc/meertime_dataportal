@@ -1,16 +1,21 @@
+import json
 import graphene
 from graphql_jwt.decorators import permission_required
 from graphql import GraphQLError
+from django.db import IntegrityError
 
-from dataportal.models import Toa, PipelineRun, Ephemeris, Template
+from dataportal.models import Toa, PipelineRun, Ephemeris, Template, Observation, Project
 from dataportal.graphql.queries import ToaNode
 from utils.toa import toa_line_to_dict, toa_dict_to_line
+from utils.ephemeris import parse_ephemeris_file
 
 
 class ToaInput(graphene.InputObjectType):
     # foreign keys
     pipelineRunId = graphene.Int(required=True)
-    ephemerisId   = graphene.Int(required=True)
+    projectShort  = graphene.String(required=True)
+
+    ephemerisText = graphene.String(required=True)
     templateId    = graphene.Int(required=True)
 
     toaLines = graphene.List(graphene.String, required=True)
@@ -35,8 +40,29 @@ class CreateToa(graphene.Mutation):
     @permission_required("dataportal.add_toa")
     def mutate(cls, self, info, input):
         pipeline_run = PipelineRun.objects.get(id=input["pipelineRunId"])
-        ephemeris    = Ephemeris.objects.get(id=input["ephemerisId"])
+        observation  = pipeline_run.observation
+        project      = Project.objects.get(short=input["projectShort"])
         template     = Template.objects.get(id=input["templateId"])
+
+        ephemeris_dict = parse_ephemeris_file(input["ephemerisText"])
+        try:
+            ephemeris, _ = Ephemeris.objects.get_or_create(
+                pulsar=observation.pulsar,
+                project=project,
+                # TODO add created_by
+                ephemeris_data=json.dumps(ephemeris_dict),
+                p0=ephemeris_dict["P0"],
+                dm=ephemeris_dict["DM"],
+                valid_from=ephemeris_dict["START"],
+                valid_to=ephemeris_dict["FINISH"],
+            )
+        except IntegrityError:
+            # Handle the IntegrityError gracefully by grabbing the already created ephem
+            ephemeris = Ephemeris.objects.get(
+                pulsar=observation.pulsar,
+                project=project,
+                ephemeris_data=json.dumps(ephemeris_dict),
+            )
 
         # created_toas = []
         toas_to_create = []
@@ -54,6 +80,8 @@ class CreateToa(graphene.Mutation):
             toas_to_create.append(
                 Toa(
                     pipeline_run=pipeline_run,
+                    observation =observation,
+                    project     =project,
                     ephemeris   =ephemeris,
                     template    =template,
                     archive     =toa_dict["archive"],
@@ -78,10 +106,55 @@ class CreateToa(graphene.Mutation):
                     dm_corrected  =input["dmCorrected"],
                     minimum_nsubs =input["minimumNsubs"],
                     maximum_nsubs =input["maximumNsubs"],
-                    obs_nchan = int(pipeline_run.observation.nchan) // int(toa_dict["nch"])
+                    obs_nchan = int(observation.nchan) // int(toa_dict["nch"])
                 )
             )
-        created_toas = Toa.objects.bulk_create(toas_to_create)
+        created_toas = Toa.objects.bulk_create(
+            toas_to_create,
+            update_conflicts=True,
+            unique_fields=[
+                "observation",
+                "project",
+                "dm_corrected",
+                # Frequency
+                "obs_nchan", # Number of channels
+                "chan", # Chan ID
+                # Time
+                "minimum_nsubs",
+                "maximum_nsubs",
+                "subint", # Time ID
+            ],
+            update_fields=[
+                "pipeline_run",
+                "observation",
+                "project",
+                "ephemeris",
+                "template",
+                "archive",
+                "freq_MHz",
+                "mjd",
+                "mjd_err",
+                "telescope",
+                "fe",
+                "be",
+                "f",
+                "bw",
+                "tobs",
+                "tmplt",
+                "gof",
+                "nbin",
+                "nch",
+                "chan",
+                "rcvr",
+                "snr",
+                "length",
+                "subint",
+                "dm_corrected",
+                "minimum_nsubs",
+                "maximum_nsubs",
+                "obs_nchan",
+            ],
+        )
         return CreateToaOutput(toa=created_toas)
 
 
