@@ -375,8 +375,10 @@ class PulsarFoldResultConnection(relay.Connection):
     all_projects = graphene.List(graphene.String)
 
     def resolve_all_projects(self, instance):
-        print(instance.variable_values['pulsar'])
-        return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('project__short', flat=True).distinct())
+        if "pulsar" in instance.variable_values.keys():
+            return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('project__short', flat=True).distinct())
+        else:
+            return []
 
     def resolve_toas_link(self, instance):
         return (

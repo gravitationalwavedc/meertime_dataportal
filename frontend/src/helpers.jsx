@@ -2,12 +2,15 @@ import _ from "lodash";
 import moment from "moment";
 
 export const calculateMedian = (arr) => {
-  const sorted = arr.slice().sort((a, b) => a.value - b.value);
-  const middle = Math.floor(sorted.length / 2);
+  if ( arr[0]?.value ) {
+    const sorted = arr.slice().sort((a, b) => a.value - b.value);
+    const middle = Math.floor(sorted.length / 2);
 
-  return sorted.length % 2 === 0
-    ? (sorted[middle - 1].value + sorted[middle].value) / 2
-    : sorted[middle].value;
+    return sorted.length % 2 === 0
+      ? (sorted[middle - 1].value + sorted[middle].value) / 2
+      : sorted[middle].value;
+  }
+  return null;
 };
 
 /* eslint-disable complexity */

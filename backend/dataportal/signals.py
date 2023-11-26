@@ -53,7 +53,7 @@ def handle_calibration_update(sender, instance, **kwargs):
     elif instance.obs_type == "search":
         # Update search summaries
         obs_type = "search"
-        main_project = None
+        main_project = instance.project.main_project
         calibration = None
         for pulsar in [instance.pulsar, None]:
             for project in [instance.project, None]:
