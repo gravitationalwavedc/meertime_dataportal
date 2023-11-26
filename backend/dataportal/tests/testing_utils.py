@@ -21,30 +21,38 @@ from dataportal.models import (
 )
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
+CYPRESS_FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "../../../frontend/cypress/fixtures")
 
 
 def create_basic_data():
-    pulsar = Pulsar.objects.create(name="J0125-2327")
-
     telescope = Telescope.objects.create(name="my first telescope")
 
+    pulsar = Pulsar.objects.create(
+        name="J0125-2327",
+        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
+    )
+
     main_project = MainProject.objects.create(name="MeerTIME", telescope=telescope)
+
+    project = Project.objects.create(code="SCI-20180516-MB-05", short="PTA", main_project=main_project)
+    project = Project.objects.create(code="SCI-20180516-MB-02", short="TPA", main_project=main_project)
+    project = Project.objects.create(code="SCI-20180516-MB-04", short="GC", main_project=main_project)
 
     project = Project.objects.create(code="SCI_thinga_MB", short="RelBin", main_project=main_project)
 
     with open(os.path.join(TEST_DATA_DIR, "J0125-2327.par"), 'r') as par_file:
         par_text = par_file.read()
     ephemeris_dict = parse_ephemeris_file(par_text)
-    ephemeris, created = Ephemeris.objects.get_or_create(
+    ephemeris, _ = Ephemeris.objects.get_or_create(
         pulsar=pulsar,
         project=project,
-        created_at=datetime.strptime('2023-09-05-09:48:46', "%Y-%m-%d-%H:%M:%S"),
         ephemeris_data=json.dumps(ephemeris_dict),
         p0=ephemeris_dict["P0"],
         dm=ephemeris_dict["DM"],
         valid_from=ephemeris_dict["START"],
         valid_to=ephemeris_dict["FINISH"],
     )
+
 
     with open(os.path.join(TEST_DATA_DIR, "J0125-2327.std"), 'rb') as template_file:
         file_content = template_file.read()
@@ -57,10 +65,10 @@ def create_basic_data():
         # template.save()
         template.template_file.save(template_file.name, ContentFile(file_content), save=True)
 
-    return pulsar, telescope, project, ephemeris, template
+    return telescope, project, ephemeris, template
 
 
-def create_observation(json_path, pulsar, telescope, project, ephemeris):
+def create_observation(json_path, telescope):
     # Load data from json
     with open(json_path, 'r') as json_file:
         meertime_data = json.load(json_file)
@@ -71,6 +79,28 @@ def create_observation(json_path, pulsar, telescope, project, ephemeris):
         calibration_type=meertime_data["cal_type"],
         location=meertime_data["cal_location"],
     )
+    print(calibration.id)
+
+    pulsar, _ = Pulsar.objects.get_or_create(
+        name=meertime_data["pulsarName"],
+        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
+    )
+
+    project = Project.objects.get(code=meertime_data["projectCode"])
+
+    if meertime_data["ephemerisText"] == "":
+        ephemeris = None
+    else:
+        ephemeris_dict = parse_ephemeris_file(meertime_data["ephemerisText"])
+        ephemeris, _ = Ephemeris.objects.get_or_create(
+            pulsar=pulsar,
+            project=project,
+            ephemeris_data=json.dumps(ephemeris_dict),
+            p0=ephemeris_dict["P0"],
+            dm=ephemeris_dict["DM"],
+            valid_from=ephemeris_dict["START"],
+            valid_to=ephemeris_dict["FINISH"],
+        )
 
     utc_start_dt = datetime.strptime(f"{meertime_data['utcStart']} +0000", "%Y-%m-%d-%H:%M:%S %z")
     observation = Observation.objects.create(
@@ -103,17 +133,11 @@ def create_observation(json_path, pulsar, telescope, project, ephemeris):
         filterbank_dm=meertime_data["filterbankDm"],
     )
 
-    return observation
+    return observation, calibration
 
-
-def create_pulsar_with_observations():
-    pulsar, telescope, project, ephemeris, template = create_basic_data()
-
-    obs1 = create_observation(os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), pulsar, telescope, project, ephemeris)
-    obs2 = create_observation(os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"), pulsar, telescope, project, ephemeris)
-
-    pipeline_run1 = PipelineRun.objects.create(
-        observation=obs1,
+def create_pipeline_run(obs, ephemeris, template):
+    pipeline_run = PipelineRun.objects.create(
+        observation=obs,
         ephemeris=ephemeris,
         template=template,
         pipeline_name = "meerpipe",
@@ -123,54 +147,47 @@ def create_pulsar_with_observations():
         job_state = "done",
         location = "/test/location",
         dm=20.,
-        # dm_err   = models.FloatField(null=True)
-        # dm_epoch = models.FloatField(null=True)
-        # dm_chi2r = models.FloatField(null=True)
-        # dm_tres  = models.FloatField(null=True)
+        dm_err=1.,
+        dm_epoch=1.,
+        dm_chi2r=1.,
+        dm_tres=1.,
         sn=100.0,
         flux=25.,
         rm=10.,
-        # percent_rfi_zapped = models.FloatField(null=True)
+        rm_err=1.,
+        percent_rfi_zapped=10,
     )
-    pipeline_run2 = PipelineRun.objects.create(
-        observation=obs2,
-        ephemeris=ephemeris,
-        template=template,
-        pipeline_name = "meerpipe",
-        pipeline_description = "MeerTime pipeline",
-        pipeline_version = "3.0.0",
-        created_by = "test",
-        job_state = "done",
-        location = "/test/location",
-        dm=20.1,
-        # dm_err   = models.FloatField(null=True)
-        # dm_epoch = models.FloatField(null=True)
-        # dm_chi2r = models.FloatField(null=True)
-        # dm_tres  = models.FloatField(null=True)
-        sn=50.0,
-        flux=25.1,
-        rm=10.1,
-        # flux = models.FloatField(null=True)
-        # rm = models.FloatField(null=True)
-        # percent_rfi_zapped = models.FloatField(null=True)
-    )
-
-    return pulsar, telescope, project, ephemeris, template, pipeline_run1
+    return pipeline_run
 
 
+def create_pulsar_with_observations():
+    telescope, project, ephemeris, template = create_basic_data()
+
+    # Search
+    obs1, cal1 = create_observation(os.path.join(TEST_DATA_DIR, "J1614+0737_2023-08-01-18:21:59.json"), telescope)
+    obs2, cal2 = create_observation(os.path.join(TEST_DATA_DIR, "J1709-3626_2020-03-15-22:58:52.json"), telescope)
+    obs3, cal3 = create_observation(os.path.join(TEST_DATA_DIR, "OmegaCen1_2023-06-27-11:37:31.json"), telescope)
+
+    # Fold
+    obs4, cal4 = create_observation(os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope)
+    obs5, cal5 = create_observation(os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"), telescope)
+    obs6, cal6 = create_observation(os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope)
+
+    pipeline_run1 = create_pipeline_run(obs4, ephemeris, template)
+    pipeline_run2 = create_pipeline_run(obs5, ephemeris, template)
+    pipeline_run3 = create_pipeline_run(obs6, ephemeris, template)
+
+    return telescope, project, ephemeris, template, pipeline_run1, obs4, cal4
 
 
 def create_toas_and_residuals(
-        pulsar,
+        observation,
         project,
         ephemeris,
         pipeline_run,
         template,
     ):
     residual = Residual.objects.create(
-        pulsar=pulsar,
-        project=project,
-        ephemeris=ephemeris,
         mjd=1,
         day_of_year=1,
         residual_sec=2,
@@ -180,6 +197,8 @@ def create_toas_and_residuals(
     )
     toa = Toa.objects.create(
         pipeline_run=pipeline_run,
+        observation=observation,
+        project=project,
         ephemeris=ephemeris,
         template=template,
         residual=residual,

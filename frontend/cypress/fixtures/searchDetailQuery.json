@@ -1,0 +1,40 @@
+{
+  "data": {
+    "observationSummary": {
+      "edges": [
+        {
+          "node": {
+            "observations": 1,
+            "projects": 1,
+            "observationHours": 3,
+            "timespanDays": 1
+          }
+        }
+      ]
+    },
+    "observation": {
+      "edges": [
+        {
+          "node": {
+            "id": "T2JzZXJ2YXRpb25Ob2RlOjM5",
+            "utcStart": "2023-06-27T11:37:31+00:00",
+            "project": {
+              "short": "GC"
+            },
+            "raj": "13:26:47.24",
+            "decj": "-47:28:46.5",
+            "beam": 1,
+            "duration": 14399.068999999645,
+            "frequency": 1283.89550781,
+            "nantEff": 41,
+            "filterbankNbit": 8,
+            "filterbankNpol": 4,
+            "filterbankNchan": 256,
+            "filterbankTsamp": 19.14,
+            "filterbankDm": 99.9
+          }
+        }
+      ]
+    }
+  }
+}

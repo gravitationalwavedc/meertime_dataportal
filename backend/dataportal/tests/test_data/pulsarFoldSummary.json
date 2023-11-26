@@ -1,0 +1,27 @@
+{
+  "pulsarFoldSummary": {
+    "totalObservations": 3,
+    "totalPulsars": 1,
+    "totalObservationTime": 0,
+    "totalProjectTime": 0,
+    "edges": [
+      {
+        "node": {
+          "pulsar": {
+            "name": "J0125-2327"
+          },
+          "latestObservation": "2020-07-10T05:07:28+00:00",
+          "firstObservation": "2019-04-23T06:11:30+00:00",
+          "mostCommonProject": "PTA",
+          "timespan": 444,
+          "numberOfObservations": 3,
+          "totalIntegrationHours": 0.6464681673202614,
+          "avgSnPipe": 71.48481915250221,
+          "highestSn": 100.0,
+          "lastSn": 100.0,
+          "lastIntegrationMinutes": 17.05475670588235
+        }
+      }
+    ]
+  }
+}

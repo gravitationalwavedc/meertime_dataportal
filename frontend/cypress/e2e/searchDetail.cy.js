@@ -4,7 +4,7 @@ describe("The Search Detail Page", () => {
   beforeEach(() => {
     cy.intercept("http://localhost:8000/graphql/", (req) => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
-      aliasQuery(req, "SearchmodeDetailQuery", "searchmodeDetailQuery.json");
+      aliasQuery(req, "SearchDetailQuery", "searchDetailQuery.json");
     });
     cy.visit("search/All/J1944+1755/");
     cy.location("pathname").should("equal", "/login");

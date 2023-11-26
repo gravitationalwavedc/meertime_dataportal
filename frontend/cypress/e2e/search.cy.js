@@ -6,7 +6,7 @@ describe("The Search Page", () => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasQuery(req, "SearchQuery", "searchQuery.json");
       aliasQuery(req, "SearchTableQuery", "searchQueryFewer.json");
-      aliasQuery(req, "SearchmodeDetailQuery", "searchmodeDetailQuery.json");
+      aliasQuery(req, "SearchDetailQuery", "searchDetailQuery.json");
     });
     cy.visit("/search/");
     cy.location("pathname").should("equal", "/login");

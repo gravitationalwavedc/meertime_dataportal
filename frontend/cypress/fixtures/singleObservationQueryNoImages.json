@@ -1,0 +1,51 @@
+{
+  "data": {
+    "pulsarFoldResult": {
+      "edges": [
+        {
+          "node": {
+            "observation": {
+              "calibration": {
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjMw",
+                "idInt": 30
+              },
+              "beam": 2,
+              "utcStart": "2020-07-10T05:07:28+00:00",
+              "obsType": "FOLD",
+              "project": {
+                "id": "UHJvamVjdE5vZGU6MTc=",
+                "short": "PTA",
+                "code": "SCI-20180516-MB-05",
+                "mainProject": {
+                  "name": "MeerTIME"
+                }
+              },
+              "frequency": 815.734375,
+              "bandwidth": 544.0,
+              "raj": "01:25:01.0595040",
+              "decj": "-23:27:08.184197",
+              "duration": 1023.2854023529411,
+              "foldNbin": 1024,
+              "foldNchan": 1024,
+              "foldTsubint": 8,
+              "nant": 28
+            },
+            "images": {
+              "edges": []
+            }
+          }
+        }
+      ]
+    },
+    "fileSingleList": {
+      "edges": [
+        {
+          "node": {
+            "path": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/J0125-2327.FTS.ar",
+            "fileSize": "1GB"
+          }
+        }
+      ]
+    }
+  }
+}

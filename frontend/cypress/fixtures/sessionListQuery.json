@@ -4,67 +4,80 @@
       "edges": [
         {
           "node": {
-            "id": "Q2FsaWJyYXRpb25Ob2RlOjM1NjI=",
-            "idInt": 3562,
-            "start": "2023-10-31T11:13:24+00:00",
-            "end": "2023-10-31T14:58:19+00:00",
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjQ5",
+            "idInt": 49,
+            "start": "2023-08-01T18:21:59+00:00",
+            "end": "2023-08-01T18:21:59+00:00",
             "allProjects": "TPA",
-            "nObservations": 79,
-            "nAntMin": 29,
-            "nAntMax": 29,
-            "totalIntegrationTimeSeconds": 10813.040238056075
+            "nObservations": 1,
+            "nAntMin": 31,
+            "nAntMax": 31,
+            "totalIntegrationTimeSeconds": 120.26899999999999
           }
         },
         {
           "node": {
-            "id": "Q2FsaWJyYXRpb25Ob2RlOjM1NjE=",
-            "idInt": 3561,
-            "start": "2023-10-31T11:12:18+00:00",
-            "end": "2023-10-31T14:53:51+00:00",
-            "allProjects": "TPA",
-            "nObservations": 80,
-            "nAntMin": 29,
-            "nAntMax": 29,
-            "totalIntegrationTimeSeconds": 11098.518636859817
-          }
-        },
-        {
-          "node": {
-            "id": "Q2FsaWJyYXRpb25Ob2RlOjM1NjA=",
-            "idInt": 3560,
-            "start": "2023-10-30T15:11:03+00:00",
-            "end": "2023-10-30T19:34:45+00:00",
-            "allProjects": "PTA",
-            "nObservations": 24,
-            "nAntMin": 59,
-            "nAntMax": 59,
-            "totalIntegrationTimeSeconds": 14248.140152822429
-          }
-        },
-        {
-          "node": {
-            "id": "Q2FsaWJyYXRpb25Ob2RlOjI5NzA=",
-            "idInt": 2970,
-            "start": "2023-10-30T09:48:37+00:00",
-            "end": "2023-10-30T13:41:57+00:00",
-            "allProjects": "PTA",
-            "nObservations": 24,
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjUx",
+            "idInt": 51,
+            "start": "2023-06-27T11:37:31+00:00",
+            "end": "2023-06-27T11:37:31+00:00",
+            "allProjects": "GC",
+            "nObservations": 1,
             "nAntMin": 58,
             "nAntMax": 58,
-            "totalIntegrationTimeSeconds": 12510.730074915888
+            "totalIntegrationTimeSeconds": 14399.068999999645
           }
         },
         {
           "node": {
-            "id": "Q2FsaWJyYXRpb25Ob2RlOjI3MTc=",
-            "idInt": 2717,
-            "start": "2023-10-30T02:18:35+00:00",
-            "end": "2023-10-30T06:32:35+00:00",
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjU0",
+            "idInt": 54,
+            "start": "2020-07-10T05:07:28+00:00",
+            "end": "2020-07-10T05:07:28+00:00",
             "allProjects": "PTA",
-            "nObservations": 30,
-            "nAntMin": 63,
-            "nAntMax": 63,
-            "totalIntegrationTimeSeconds": 12494.677110429906
+            "nObservations": 1,
+            "nAntMin": 28,
+            "nAntMax": 28,
+            "totalIntegrationTimeSeconds": 1023.2854023529411
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjUw",
+            "idInt": 50,
+            "start": "2020-03-15T22:58:52+00:00",
+            "end": "2020-03-15T22:58:52+00:00",
+            "allProjects": "TPA",
+            "nObservations": 1,
+            "nAntMin": 57,
+            "nAntMax": 57,
+            "totalIntegrationTimeSeconds": 466.3350000000006
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjUz",
+            "idInt": 53,
+            "start": "2019-05-14T10:14:18+00:00",
+            "end": "2019-05-14T10:14:18+00:00",
+            "allProjects": "PTA",
+            "nObservations": 1,
+            "nAntMin": 54,
+            "nAntMax": 54,
+            "totalIntegrationTimeSeconds": 1039.9999999999998
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjUy",
+            "idInt": 52,
+            "start": "2019-04-23T06:11:30+00:00",
+            "end": "2019-04-23T06:11:30+00:00",
+            "allProjects": "PTA",
+            "nObservations": 1,
+            "nAntMin": 56,
+            "nAntMax": 56,
+            "totalIntegrationTimeSeconds": 263.99999999999994
           }
         }
       ]

@@ -69,7 +69,7 @@ describe("Single Observation Page", () => {
       aliasQuery(
         req,
         "SingleObservationQuery",
-        "foldObservationDetailsNoImages.json"
+        "singleObservationQueryNoImages.json"
       );
     });
     cy.wait("@SingleObservationQuery");

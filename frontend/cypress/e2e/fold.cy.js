@@ -1,7 +1,6 @@
 import {
   aliasMutation,
   aliasQuery,
-  aliasQueryWithVariables,
 } from "../utils/graphql-test-utils";
 
 describe("The Fold Page", () => {

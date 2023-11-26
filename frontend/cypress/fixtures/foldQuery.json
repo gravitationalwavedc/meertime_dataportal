@@ -4,9 +4,9 @@
       "edges": [
         {
           "node": {
-            "observations": 34749,
-            "pulsars": 1548,
-            "observationHours": 4375
+            "observations": 3,
+            "pulsars": 1,
+            "observationHours": 0
           }
         }
       ]
@@ -16,64 +16,22 @@
         {
           "node": {
             "pulsar": {
-              "name": "J1648-6044"
+              "name": "J0125-2327"
             },
-            "latestObservation": "2023-09-03T20:40:23+00:00",
-            "latestObservationBeam": 1,
-            "firstObservation": "2019-09-29T11:59:17+00:00",
-            "allProjects": "TPA",
-            "mostCommonProject": "TPA",
-            "timespan": 1436,
-            "numberOfObservations": 61,
-            "lastSn": 104.514793395996,
-            "highestSn": 631.44677734375,
-            "lowestSn": 20.7085914611816,
-            "lastIntegrationMinutes": 1.9758818292834923,
-            "maxSnPipe": 312.5614232003624,
-            "avgSnPipe": 162.8876432242,
-            "totalIntegrationHours": 2.5482140358047802
-          }
-        },
-        {
-          "node": {
-            "pulsar": {
-              "name": "J1634-5640"
-            },
-            "latestObservation": "2023-09-03T20:20:30+00:00",
-            "latestObservationBeam": 1,
-            "firstObservation": "2019-04-23T01:39:31+00:00",
-            "allProjects": "TPA",
-            "mostCommonProject": "TPA",
-            "timespan": 1595,
-            "numberOfObservations": 35,
-            "lastSn": 53.586742401123,
-            "highestSn": 240.195709228516,
-            "lowestSn": 37.3283042907715,
-            "lastIntegrationMinutes": 1.9924840074766388,
-            "maxSnPipe": 289.4591833869466,
-            "avgSnPipe": 100.6534460957151,
-            "totalIntegrationHours": 2.062844769595018
-          }
-        },
-        {
-          "node": {
-            "pulsar": {
-              "name": "J1841-0345"
-            },
-            "latestObservation": "2023-09-03T19:40:22+00:00",
-            "latestObservationBeam": 3,
-            "firstObservation": "2019-11-15T18:10:37+00:00",
-            "allProjects": "TPA",
-            "mostCommonProject": "TPA",
-            "timespan": 1389,
-            "numberOfObservations": 35,
-            "lastSn": 52.7208480834961,
-            "highestSn": 145.109817504883,
-            "lowestSn": 14.0027933120728,
-            "lastIntegrationMinutes": 1.992313061682238,
-            "maxSnPipe": 167.7341411875062,
-            "avgSnPipe": 79.19346058795759,
-            "totalIntegrationHours": 1.0983949310512469
+            "latestObservation": "2020-07-10T05:07:28+00:00",
+            "latestObservationBeam": 2,
+            "firstObservation": "2019-04-23T06:11:30+00:00",
+            "allProjects": "PTA",
+            "mostCommonProject": "PTA",
+            "timespan": 444,
+            "numberOfObservations": 3,
+            "lastSn": 100.0,
+            "highestSn": 100.0,
+            "lowestSn": 100.0,
+            "lastIntegrationMinutes": 17.05475670588235,
+            "maxSnPipe": 106.60035817780525,
+            "avgSnPipe": 71.48481915250221,
+            "totalIntegrationHours": 0.6464681673202614
           }
         }
       ]
