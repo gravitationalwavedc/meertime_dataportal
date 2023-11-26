@@ -1,10 +1,10 @@
 import { graphql, useLazyLoadQuery } from "react-relay";
 import MainLayout from "../components/MainLayout";
-import SearchmodeDetailTable from "../components/SearchmodeDetailTable";
+import SearchDetailTable from "../components/SearchDetailTable";
 
 const query = graphql`
   query SearchmodeDetailQuery($jname: String!, $mainProject: String) {
-    ...SearchmodeDetailTableFragment
+    ...SearchDetailTableFragment
       @arguments(jname: $jname, mainProject: $mainProject)
   }
 `;
@@ -18,7 +18,7 @@ const SearchmodeDetail = ({ match }) => {
 
   return (
     <MainLayout title={jname}>
-      <SearchmodeDetailTable
+      <SearchDetailTable
         data={data}
         jname={jname}
         mainProject={mainProject}

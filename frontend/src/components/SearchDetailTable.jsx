@@ -7,8 +7,8 @@ import SearchmodeDetailCard from "./SearchmodeDetailCard";
 import { formatUTC } from "../helpers";
 import { useScreenSize } from "../context/screenSize-context";
 
-const SearchmodeDetailTableFragment = graphql`
-  fragment SearchmodeDetailTableFragment on Query
+const SearchDetailTableFragment = graphql`
+  fragment SearchDetailTableFragment on Query
   @argumentDefinitions(
     jname: { type: "String", defaultValue: "All" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
@@ -59,9 +59,9 @@ const SearchmodeDetailTableFragment = graphql`
   }
 `;
 
-const SearchmodeDetailTable = ({ data, jname, mainProject }) => {
+const SearchDetailTable = ({ data, jname, mainProject }) => {
   const { screenSize } = useScreenSize();
-  const relayData = useFragment(SearchmodeDetailTableFragment, data);
+  const relayData = useFragment(SearchDetailTableFragment, data);
   const allRows = relayData.observation.edges.reduce(
     (result, edge) => [
       ...result,
@@ -257,4 +257,4 @@ const SearchmodeDetailTable = ({ data, jname, mainProject }) => {
   );
 };
 
-export default SearchmodeDetailTable;
+export default SearchDetailTable;
