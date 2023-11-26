@@ -22,7 +22,7 @@ describe("The Search Detail Page", () => {
     cy.contains("J1944 1755").should("be.visible");
     cy.contains("Loading...").should("be.visible");
 
-    cy.wait("@SearchmodeDetailQuery");
+    cy.wait("@SearchDetailQuery");
 
     cy.contains("Loading...").should("not.exist");
     cy.contains("Timestamp").should("be.visible");
@@ -30,7 +30,7 @@ describe("The Search Detail Page", () => {
   });
 
   it("changes project when selected", () => {
-    cy.wait("@SearchmodeDetailQuery");
+    cy.wait("@SearchDetailQuery");
     cy.get("table").get("tbody").find("tr").should("have.length", 4);
 
     cy.get("#projectSelect").select("GC", { force: true });

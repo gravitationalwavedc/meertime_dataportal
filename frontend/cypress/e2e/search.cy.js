@@ -56,7 +56,7 @@ describe("The Search Page", () => {
     cy.contains("View all").click();
     cy.location("pathname").should("equal", "/search/All/J1709-3626/");
 
-    cy.wait("@SearchmodeDetailQuery");
+    cy.wait("@SearchDetailQuery");
 
     cy.contains("Loading...").should("not.exist");
     cy.contains("Timestamp").should("be.visible");

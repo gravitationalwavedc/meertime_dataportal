@@ -15,7 +15,7 @@ import Register from "../pages/Register";
 import RegisterVerify from "../pages/RegisterVerify";
 import { Resolver } from "found-relay";
 import Search from "../pages/Search";
-import SearchmodeDetail from "../pages/SearchmodeDetail";
+import SearchDetail from "../pages/SearchDetail";
 import Session from "../pages/Session";
 import SessionList from "../pages/SessionList";
 import SingleObservation from "../pages/SingleObservation";
@@ -101,7 +101,7 @@ const routeConfig = () =>
       />
       <Route
         path="/search/:mainProject/:jname/"
-        Component={SearchmodeDetail}
+        Component={SearchDetail}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
