@@ -7,7 +7,7 @@ import { getActivePlotData } from "./plotData";
 
 const DEFAULT_ZOOM = { xMin: null, xMax: null, yMin: null, yMax: null };
 
-const PlotContainer = ({data, timingProjects}) => {
+const PlotContainer = ({ data, timingProjects }) => {
   const [activePlot, setActivePlot] = useState("Residual");
   const [xAxis, setXAxis] = useState("utc");
   const [timingProject, setTimingProject] = useState(timingProjects[0]);
@@ -25,7 +25,7 @@ const PlotContainer = ({data, timingProjects}) => {
     setZoomArea(DEFAULT_ZOOM);
   };
 
-  const handleSetTimingProject= (timingProject) => {
+  const handleSetTimingProject = (timingProject) => {
     setTimingProject(timingProject);
     setZoomArea(DEFAULT_ZOOM);
   };

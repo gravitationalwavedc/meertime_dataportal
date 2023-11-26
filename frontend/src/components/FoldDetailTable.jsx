@@ -79,11 +79,11 @@ const FoldDetailTableFragment = graphql`
             calibration {
               idInt
             }
-            toas (
-              dmCorrected: $dmCorrected,
-              minimumNsubs: $minimumNsubs,
-              obsNchan: $obsNchan,
-            ){
+            toas(
+              dmCorrected: $dmCorrected
+              minimumNsubs: $minimumNsubs
+              obsNchan: $obsNchan
+            ) {
               edges {
                 node {
                   freqMhz
