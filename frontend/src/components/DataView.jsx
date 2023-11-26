@@ -20,6 +20,7 @@ const DataView = ({
   mainProjectSelect,
   project,
   setProject,
+  timingProjects,
   setMainProject,
   band,
   setBand,
@@ -58,7 +59,7 @@ const DataView = ({
             <React.Fragment>
               {plot && (
                 <Row className="d-none d-sm-block">
-                  <PlotContainer data={rows} {...props.baseProps} />
+                  <PlotContainer data={rows} timingProjects={timingProjects} {...props.baseProps} />
                 </Row>
               )}
               <Row className="bg-gray-100">

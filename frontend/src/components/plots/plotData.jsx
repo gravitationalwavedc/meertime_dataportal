@@ -122,8 +122,8 @@ export const toolTipFormatter = (value, name) => {
   return [value, name];
 };
 
-export const getActivePlotData = (data, activePlot) => {
-  console.log("getActivePlotData");
+export const getActivePlotData = (data, activePlot, timingProject) => {
+  console.log("getActivePlotData", data);
   const plotFunctions = {
     "S/N": snrPlotData,
     "Flux Density": fluxPlotData,
@@ -133,7 +133,7 @@ export const getActivePlotData = (data, activePlot) => {
   };
   const plotFunction = plotFunctions[activePlot];
   if (plotFunction) {
-    const activePlotData = plotFunction(data);
+    const activePlotData = plotFunction(data, timingProject);
     return activePlotData;
   } else {
     // Handle the case when activePlot is not recognized
@@ -292,23 +292,25 @@ export const rmPlotData = (data) => {
   return allData;
 };
 
-export const residualPlotData = (data) => {
+export const residualPlotData = (data, timingProject) => {
   const run_toas = data.reduce((result_returned, run_result) => {
     // Run for each pipelineRun
-    const run_results = run_result.pipelineRun.toas.edges.reduce(
+    const run_results = run_result.observation.toas.edges.reduce(
       (result, edge) => {
         // Grab all of the info needed from the toa
         if (edge.node.residual) {
-          result.push({
-            mjd: edge.node.residual.mjd,
-            dayOfYear: edge.node.residual.dayOfYear,
-            binaryOrbitalPhase: edge.node.residual.binaryOrbitalPhase,
-            residualSec: edge.node.residual.residualSec,
-            residualSecErr: edge.node.residual.residualSecErr,
-            duration: edge.node.length,
-            plotLink: run_result.plotLink,
-            band: run_result.observation.band,
-          });
+          if (edge.node.project.short === timingProject) {
+            result.push({
+              mjd: edge.node.residual.mjd,
+              dayOfYear: edge.node.residual.dayOfYear,
+              binaryOrbitalPhase: edge.node.residual.binaryOrbitalPhase,
+              residualSec: edge.node.residual.residualSec,
+              residualSecErr: edge.node.residual.residualSecErr,
+              duration: edge.node.length,
+              plotLink: run_result.plotLink,
+              band: run_result.observation.band,
+            });
+          }
           return result;
         } else {
           // No residuals for this run so return nothing

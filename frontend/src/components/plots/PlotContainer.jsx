@@ -7,9 +7,10 @@ import { getActivePlotData } from "./plotData";
 
 const DEFAULT_ZOOM = { xMin: null, xMax: null, yMin: null, yMax: null };
 
-const PlotContainer = (data) => {
+const PlotContainer = ({data, timingProjects}) => {
   const [activePlot, setActivePlot] = useState("Residual");
   const [xAxis, setXAxis] = useState("utc");
+  const [timingProject, setTimingProject] = useState(timingProjects[0]);
   const [zoomArea, setZoomArea] = useState(DEFAULT_ZOOM);
   const [isZooming, setIsZooming] = useState(false);
   const [isDrag, setIsDrag] = useState(false);
@@ -21,6 +22,11 @@ const PlotContainer = (data) => {
 
   const handleSetActivePlot = (activePlot) => {
     setActivePlot(activePlot);
+    setZoomArea(DEFAULT_ZOOM);
+  };
+
+  const handleSetTimingProject= (timingProject) => {
+    setTimingProject(timingProject);
     setZoomArea(DEFAULT_ZOOM);
   };
 
@@ -80,7 +86,7 @@ const PlotContainer = (data) => {
     setOverScatter(false);
   };
 
-  const activePlotData = getActivePlotData(data.data, activePlot);
+  const activePlotData = getActivePlotData(data, activePlot, timingProject);
 
   return (
     <Col md={10} className="pulsar-plot-display">
@@ -113,9 +119,24 @@ const PlotContainer = (data) => {
             <option value="phase">Binary Phase</option>
           </Form.Control>
         </Form.Group>
-        <div>
+
+        {activePlot === "Residual" && (
+          <Form.Group controlId="plotProjectController" className="col-md-2">
+            <Form.Label>Timing Project</Form.Label>
+            <Form.Control
+              custom
+              as="select"
+              value={timingProject}
+              onChange={(event) => handleSetTimingProject(event.target.value)}
+            >
+              {timingProjects.map((timingProject, index) => (
+                <option value={timingProject}>{timingProject}</option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+        )}
+        <Form.Group controlId="zoomOut" className="col-md-2">
           <Button
-            style={{ height: "50%", margin: "25% 0 25% 0" }}
             variant="outline-secondary"
             size="sm"
             className="mb-2"
@@ -123,7 +144,7 @@ const PlotContainer = (data) => {
           >
             Zoom out
           </Button>
-        </div>
+        </Form.Group>
       </Form.Row>
       <Form.Text className="text-muted">
         Drag to zoom, click empty area to reset, double click to view utc.

@@ -53,6 +53,7 @@ const FoldDetailTableFragment = graphql`
       }
       description
       toasLink
+      allProjects
       edges {
         node {
           observation {
@@ -78,23 +79,18 @@ const FoldDetailTableFragment = graphql`
             calibration {
               idInt
             }
-          }
-          pipelineRun {
-            dm
-            dmErr
-            rm
-            rmErr
-            sn
-            flux
-            toas(
-              dmCorrected: $dmCorrected
-              minimumNsubs: $minimumNsubs
-              obsNchan: $obsNchan
-            ) {
+            toas (
+              dmCorrected: $dmCorrected,
+              minimumNsubs: $minimumNsubs,
+              obsNchan: $obsNchan,
+            ){
               edges {
                 node {
                   freqMhz
                   length
+                  project {
+                    short
+                  }
                   residual {
                     mjd
                     dayOfYear
@@ -107,6 +103,14 @@ const FoldDetailTableFragment = graphql`
                 }
               }
             }
+          }
+          pipelineRun {
+            dm
+            dmErr
+            rm
+            rmErr
+            sn
+            flux
           }
         }
       }
@@ -320,6 +324,7 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
         columns={columnsSizeFiltered}
         rows={rows}
         setProject={handleProjectFilter}
+        timingProjects={pulsarFoldResult.allProjects}
         setBand={handleBandFilter}
         plot
         mainProject={mainProject}
