@@ -3,13 +3,13 @@ import MainLayout from "../components/MainLayout";
 import SearchDetailTable from "../components/SearchDetailTable";
 
 const query = graphql`
-  query SearchmodeDetailQuery($jname: String!, $mainProject: String) {
+  query SearchDetailQuery($jname: String!, $mainProject: String) {
     ...SearchDetailTableFragment
       @arguments(jname: $jname, mainProject: $mainProject)
   }
 `;
 
-const SearchmodeDetail = ({ match }) => {
+const SearchDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
   const data = useLazyLoadQuery(query, {
     jname: jname,
@@ -23,4 +23,4 @@ const SearchmodeDetail = ({ match }) => {
   );
 };
 
-export default SearchmodeDetail;
+export default SearchDetail;
