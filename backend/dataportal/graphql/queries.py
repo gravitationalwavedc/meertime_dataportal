@@ -2,7 +2,7 @@ import math
 import pytz
 from datetime import datetime
 
-from django.db.models import Subquery
+from django.db.models import Subquery, Prefetch
 from django.template.defaultfilters import filesizeformat
 
 import graphene
@@ -873,7 +873,14 @@ class Query(graphene.ObjectType):
 
         pulsar_name = kwargs.get('pulsar')
         if pulsar_name:
-            queryset = queryset.filter(pulsar__name=pulsar_name)
+            queryset = queryset.filter(
+                pulsar__name=pulsar_name
+            ).prefetch_related(
+                Prefetch(
+                    "observation__toas",
+                    queryset=Toa.objects.select_related("project", "residual", "observation__pulsar").filter(observation__pulsar__name=pulsar_name)
+                ),
+            )
 
         main_project_name = kwargs.get('mainProject')
         if main_project_name:
