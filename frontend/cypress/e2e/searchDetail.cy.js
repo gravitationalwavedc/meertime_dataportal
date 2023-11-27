@@ -31,9 +31,9 @@ describe("The Search Detail Page", () => {
 
   it("changes project when selected", () => {
     cy.wait("@SearchDetailQuery");
-    cy.get("table").get("tbody").find("tr").should("have.length", 4);
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
 
-    cy.get("#projectSelect").select("GC", { force: true });
-    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+    cy.get("#projectSelect").select("PTA", { force: true });
+    cy.get("table").contains("GC").should("not.exist");
   });
 });

@@ -16,6 +16,27 @@
         {
           "node": {
             "pulsar": {
+              "name": "J0437-4715"
+            },
+            "latestObservation": "2023-04-17T15:08:35+00:00",
+            "latestObservationBeam": 1,
+            "firstObservation": "2023-04-17T15:08:35+00:00",
+            "allProjects": "PTA",
+            "mostCommonProject": "PTA",
+            "timespan": 1,
+            "numberOfObservations": 1,
+            "lastSn": 100.0,
+            "highestSn": 100.0,
+            "lowestSn": 100.0,
+            "lastIntegrationMinutes": 4.258317637383176,
+            "maxSnPipe": 108.35924627749955,
+            "avgSnPipe": 108.35924627749955,
+            "totalIntegrationHours": 0.07097196062305294
+          }
+        },
+        {
+          "node": {
+            "pulsar": {
               "name": "J0125-2327"
             },
             "latestObservation": "2020-07-10T05:07:28+00:00",

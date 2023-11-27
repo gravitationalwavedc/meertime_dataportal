@@ -39,7 +39,7 @@ describe("The Fold Page", () => {
 
   it("changes band when selected", () => {
     cy.wait("@FoldQuery");
-    cy.get("table").get("tbody").find("tr").should("have.length", 3);
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
 
     cy.get("#bandSelect").select("LBAND", { force: true });
 
@@ -48,12 +48,12 @@ describe("The Fold Page", () => {
       "eq",
       "http://localhost:5173/?search=&mainProject=meertime&project=All&band=LBAND"
     );
-    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });
 
   it("changes main project when selected", () => {
     cy.wait("@FoldQuery");
-    cy.get("table").get("tbody").find("tr").should("have.length", 3);
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
 
     cy.get("#mainProjectSelect").select("Trapum", { force: true });
 
@@ -62,12 +62,12 @@ describe("The Fold Page", () => {
       "eq",
       "http://localhost:5173/?search=&mainProject=trapum&project=All&band=All"
     );
-    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });
 
   it("changes project when selected", () => {
     cy.wait("@FoldQuery");
-    cy.get("table").get("tbody").find("tr").should("have.length", 3);
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
 
     cy.get("#projectSelect").select("TPA", { force: true });
 
@@ -76,13 +76,13 @@ describe("The Fold Page", () => {
       "eq",
       "http://localhost:5173/?search=&mainProject=meertime&project=TPA&band=All"
     );
-    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });
 
   it("check view all button", () => {
     cy.wait("@FoldQuery");
-    cy.contains("View all").click();
-    cy.location("pathname").should("equal", "/fold/meertime/J1648-6044/");
+    cy.contains("tr", "J0125-2327").contains("View all").click();
+    cy.location("pathname").should("equal", "/fold/meertime/J0125-2327/");
 
     cy.wait("@FoldDetailQuery");
 
@@ -92,10 +92,10 @@ describe("The Fold Page", () => {
 
   it("check view last button", () => {
     cy.wait("@FoldQuery");
-    cy.contains("View last").click();
+    cy.contains("tr", "2020-07-10-05").contains("View last").click();
     cy.location("pathname").should(
       "equal",
-      "/J1648-6044/2023-09-03-20:40:23/1/"
+      "/J0125-2327/2020-07-10-05:07:28/2/"
     );
 
     cy.wait("@SingleObservationQuery");

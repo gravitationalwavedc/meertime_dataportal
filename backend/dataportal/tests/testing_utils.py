@@ -68,7 +68,8 @@ def create_basic_data():
     return telescope, project, ephemeris, template
 
 
-def create_observation(json_path, telescope):
+
+def create_observation_pipeline_run_toa(json_path, telescope, template):
     # Load data from json
     with open(json_path, 'r') as json_file:
         meertime_data = json.load(json_file)
@@ -133,81 +134,71 @@ def create_observation(json_path, telescope):
         filterbank_dm=meertime_data["filterbankDm"],
     )
 
-    return observation, calibration
+    if meertime_data["obsType"] == "fold":
+        pipeline_run = PipelineRun.objects.create(
+            observation=observation,
+            ephemeris=ephemeris,
+            template=template,
+            pipeline_name = "meerpipe",
+            pipeline_description = "MeerTime pipeline",
+            pipeline_version = "3.0.0",
+            created_by = "test",
+            job_state = "done",
+            location = "/test/location",
+            dm=20.,
+            dm_err=1.,
+            dm_epoch=1.,
+            dm_chi2r=1.,
+            dm_tres=1.,
+            sn=100.0,
+            flux=25.,
+            rm=10.,
+            rm_err=1.,
+            percent_rfi_zapped=10,
+        )
 
-def create_pipeline_run(obs, ephemeris, template):
-    pipeline_run = PipelineRun.objects.create(
-        observation=obs,
-        ephemeris=ephemeris,
-        template=template,
-        pipeline_name = "meerpipe",
-        pipeline_description = "MeerTime pipeline",
-        pipeline_version = "3.0.0",
-        created_by = "test",
-        job_state = "done",
-        location = "/test/location",
-        dm=20.,
-        dm_err=1.,
-        dm_epoch=1.,
-        dm_chi2r=1.,
-        dm_tres=1.,
-        sn=100.0,
-        flux=25.,
-        rm=10.,
-        rm_err=1.,
-        percent_rfi_zapped=10,
-    )
-    return pipeline_run
+        residual = Residual.objects.create(
+            mjd=1,
+            day_of_year=1,
+            residual_sec=2,
+            residual_sec_err=3,
+            residual_phase=4,
+            residual_phase_err=5,
+        )
+
+        toa = Toa.objects.create(
+            pipeline_run=pipeline_run,
+            observation=observation,
+            project=project,
+            ephemeris=ephemeris,
+            template=template,
+            residual=residual,
+            freq_MHz=6,
+            mjd=7,
+            mjd_err=8,
+            length=9,
+            dm_corrected=False,
+            minimum_nsubs=True,
+            obs_nchan=1,
+        )
+    else:
+        pipeline_run = None
+
+    return observation, calibration, pipeline_run
 
 
 def create_pulsar_with_observations():
     telescope, project, ephemeris, template = create_basic_data()
 
     # Search
-    obs1, cal1 = create_observation(os.path.join(TEST_DATA_DIR, "J1614+0737_2023-08-01-18:21:59.json"), telescope)
-    obs2, cal2 = create_observation(os.path.join(TEST_DATA_DIR, "J1709-3626_2020-03-15-22:58:52.json"), telescope)
-    obs3, cal3 = create_observation(os.path.join(TEST_DATA_DIR, "OmegaCen1_2023-06-27-11:37:31.json"), telescope)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "J1614+0737_2023-08-01-18:21:59.json"), telescope, template)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "J1709-3626_2020-03-15-22:58:52.json"), telescope, template)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "OmegaCen1_2023-06-27-11:37:31.json"),  telescope, template)
 
     # Fold
-    obs4, cal4 = create_observation(os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope)
-    obs5, cal5 = create_observation(os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"), telescope)
-    obs6, cal6 = create_observation(os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template)
+    obs, cal, pr = create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope, template)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"), telescope, template)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope, template)
 
-    pipeline_run1 = create_pipeline_run(obs4, ephemeris, template)
-    pipeline_run2 = create_pipeline_run(obs5, ephemeris, template)
-    pipeline_run3 = create_pipeline_run(obs6, ephemeris, template)
-
-    return telescope, project, ephemeris, template, pipeline_run1, obs4, cal4
-
-
-def create_toas_and_residuals(
-        observation,
-        project,
-        ephemeris,
-        pipeline_run,
-        template,
-    ):
-    residual = Residual.objects.create(
-        mjd=1,
-        day_of_year=1,
-        residual_sec=2,
-        residual_sec_err=3,
-        residual_phase=4,
-        residual_phase_err=5,
-    )
-    toa = Toa.objects.create(
-        pipeline_run=pipeline_run,
-        observation=observation,
-        project=project,
-        ephemeris=ephemeris,
-        template=template,
-        residual=residual,
-        freq_MHz=6,
-        mjd=7,
-        mjd_err=8,
-        length=9,
-        dm_corrected=False,
-        minimum_nsubs=True,
-        obs_nchan=1,
-    )
-    return
+    return telescope, project, ephemeris, template, pr, obs, cal

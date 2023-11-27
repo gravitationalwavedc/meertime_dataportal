@@ -4,23 +4,81 @@
       "edges": [
         {
           "node": {
-            "observations": 110,
-            "observationHours": 9,
+            "observations": 3,
+            "observationHours": 0,
             "projects": 1,
             "pulsars": 1,
-            "estimatedDiskSpaceGb": 16.570437325915258,
-            "timespanDays": 1652,
-            "maxDuration": 2049.485747439252,
-            "minDuration": 254.40096657943923
+            "estimatedDiskSpaceGb": 1.0766774425551469,
+            "timespanDays": 444,
+            "maxDuration": 1039.9999999999998,
+            "minDuration": 263.99999999999994
           }
         }
       ]
     },
     "pulsarFoldResult": {
-      "residualEphemeris": null,
       "description": "PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
       "toasLink": null,
+      "allProjects": [],
       "edges": [
+        {
+          "node": {
+            "observation": {
+              "utcStart": "2019-04-23T06:11:30+00:00",
+              "dayOfYear": 113.25798611111111,
+              "binaryOrbitalPhase": 0.1107189377501644,
+              "duration": 263.99999999999994,
+              "beam": 1,
+              "bandwidth": 775.75,
+              "nchan": 928,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 56,
+              "nantEff": 56,
+              "restricted": false,
+              "embargoEndDate": "2020-10-22T06:11:30+00:00",
+              "project": {
+                "short": "PTA"
+              },
+              "ephemeris": {
+                "dm": 9.59243
+              },
+              "calibration": {
+                "idInt": 26
+              },
+              "toas": {
+                "edges": [
+                  {
+                    "node": {
+                      "freqMhz": 6.0,
+                      "length": 9,
+                      "project": {
+                        "short": "PTA"
+                      },
+                      "residual": {
+                        "mjd": "1.000000000000",
+                        "dayOfYear": 1.0,
+                        "binaryOrbitalPhase": null,
+                        "residualSec": 2.0,
+                        "residualSecErr": 3.0,
+                        "residualPhase": 4.0,
+                        "residualPhaseErr": 5.0
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "dmErr": 1.0,
+              "rm": 10.0,
+              "rmErr": 1.0,
+              "sn": 100.0,
+              "flux": 25.0
+            }
+          }
+        },
         {
           "node": {
             "observation": {
@@ -35,6 +93,8 @@
               "foldNbin": 1024,
               "nant": 54,
               "nantEff": 54,
+              "restricted": false,
+              "embargoEndDate": "2020-11-12T10:14:18+00:00",
               "project": {
                 "short": "PTA"
               },
@@ -42,52 +102,57 @@
                 "dm": 9.592429
               },
               "calibration": {
-                "idInt": 2656
-              }
-            },
-            "pipelineRun": {
-              "dm": 9.594797144967197,
-              "dmErr": 0.0008205332918313418,
-              "rm": 8.35883,
-              "rmErr": 2.91,
-              "sn": 484.58203125,
-              "flux": 1.643,
+                "idInt": 27
+              },
               "toas": {
                 "edges": [
                   {
                     "node": {
-                      "freqMhz": 1288.243,
-                      "length": 1024,
+                      "freqMhz": 6.0,
+                      "length": 9,
+                      "project": {
+                        "short": "PTA"
+                      },
                       "residual": {
-                        "mjd": "58617.430029045611",
-                        "dayOfYear": 134.43002314814814,
-                        "binaryOrbitalPhase": 0.019842600033063276,
-                        "residualSec": -0.0000022648055338458454,
-                        "residualSecErr": 1.85e-10,
-                        "residualPhase": -0.0006162107453018433,
-                        "residualPhaseErr": 5.0335000589326714e-8
+                        "mjd": "1.000000000000",
+                        "dayOfYear": 1.0,
+                        "binaryOrbitalPhase": null,
+                        "residualSec": 2.0,
+                        "residualSecErr": 3.0,
+                        "residualPhase": 4.0,
+                        "residualPhaseErr": 5.0
                       }
                     }
                   }
                 ]
               }
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "dmErr": 1.0,
+              "rm": 10.0,
+              "rmErr": 1.0,
+              "sn": 100.0,
+              "flux": 25.0
             }
           }
         },
         {
           "node": {
             "observation": {
-              "utcStart": "2019-07-20T03:00:30+00:00",
-              "dayOfYear": 201.12534722222222,
-              "binaryOrbitalPhase": 0.1854581658896749,
-              "duration": 769.7134725981307,
-              "beam": 1,
-              "bandwidth": 775.75,
-              "nchan": 928,
-              "band": "LBAND",
+              "utcStart": "2020-07-10T05:07:28+00:00",
+              "dayOfYear": 192.21351851851853,
+              "binaryOrbitalPhase": 0.11769268443202004,
+              "duration": 1023.2854023529411,
+              "beam": 2,
+              "bandwidth": 544.0,
+              "nchan": 1024,
+              "band": "UHF",
               "foldNbin": 1024,
-              "nant": 60,
-              "nantEff": 60,
+              "nant": 28,
+              "nantEff": 28,
+              "restricted": false,
+              "embargoEndDate": "2022-01-09T05:07:28+00:00",
               "project": {
                 "short": "PTA"
               },
@@ -95,141 +160,38 @@
                 "dm": 9.592429
               },
               "calibration": {
-                "idInt": 2565
-              }
-            },
-            "pipelineRun": {
-              "dm": 9.59381592062818,
-              "dmErr": 0.0005146338407792523,
-              "rm": 5.06279,
-              "rmErr": 0.03,
-              "sn": 331.668884277344,
-              "flux": 1.18,
+                "idInt": 28
+              },
               "toas": {
                 "edges": [
                   {
                     "node": {
-                      "freqMhz": 1284.657,
-                      "length": 760,
+                      "freqMhz": 6.0,
+                      "length": 9,
+                      "project": {
+                        "short": "PTA"
+                      },
                       "residual": {
-                        "mjd": "58684.132301494997",
-                        "dayOfYear": 201.13229166666667,
-                        "binaryOrbitalPhase": 0.1857683843085523,
-                        "residualSec": 2.8701814137338834e-7,
-                        "residualSecErr": 2.7400000000000004e-10,
-                        "residualPhase": 0.00007809220710906464,
-                        "residualPhaseErr": 7.455021708905687e-8
+                        "mjd": "1.000000000000",
+                        "dayOfYear": 1.0,
+                        "binaryOrbitalPhase": null,
+                        "residualSec": 2.0,
+                        "residualSecErr": 3.0,
+                        "residualPhase": 4.0,
+                        "residualPhaseErr": 5.0
                       }
                     }
                   }
                 ]
               }
-            }
-          }
-        },
-        {
-          "node": {
-            "observation": {
-              "utcStart": "2019-09-29T00:27:24+00:00",
-              "dayOfYear": 272.0190277777778,
-              "binaryOrbitalPhase": 0.9283661380320647,
-              "duration": 2049.485747439252,
-              "beam": 1,
-              "bandwidth": 775.75,
-              "nchan": 928,
-              "band": "LBAND",
-              "foldNbin": 1024,
-              "nant": 60,
-              "nantEff": 60,
-              "project": {
-                "short": "PTA"
-              },
-              "ephemeris": {
-                "dm": 9.592429
-              },
-              "calibration": {
-                "idInt": 2374
-              }
             },
             "pipelineRun": {
-              "dm": 9.593334702855591,
-              "dmErr": 0.0002481579026223269,
-              "rm": 4.82083,
-              "rmErr": 0.02,
-              "sn": 1575.94995117188,
-              "flux": 2.961,
-              "toas": {
-                "edges": [
-                  {
-                    "node": {
-                      "freqMhz": 1288.518,
-                      "length": 2040,
-                      "residual": {
-                        "mjd": "58755.036901902212",
-                        "dayOfYear": 272.0368981481481,
-                        "binaryOrbitalPhase": 0.9291590002855558,
-                        "residualSec": 4.6982758739756264e-7,
-                        "residualSecErr": 1.5e-10,
-                        "residualPhase": 0.0001278311993975041,
-                        "residualPhaseErr": 4.081216263999463e-8
-                      }
-                    }
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "node": {
-            "observation": {
-              "utcStart": "2019-10-16T21:31:56+00:00",
-              "dayOfYear": 289.897175925926,
-              "binaryOrbitalPhase": 0.38367658901434143,
-              "duration": 258.556140859813,
-              "beam": 1,
-              "bandwidth": 775.75,
-              "nchan": 928,
-              "band": "LBAND",
-              "foldNbin": 1024,
-              "nant": 55,
-              "nantEff": 55,
-              "project": {
-                "short": "PTA"
-              },
-              "ephemeris": {
-                "dm": 9.592429
-              },
-              "calibration": {
-                "idInt": 2582
-              }
-            },
-            "pipelineRun": {
-              "dm": 9.593296258093261,
-              "dmErr": 0.0001502769059199058,
-              "rm": 5.05253,
-              "rmErr": 5.05253,
-              "sn": 691.9580078125,
-              "flux": 4.435,
-              "toas": {
-                "edges": [
-                  {
-                    "node": {
-                      "freqMhz": 1286.047,
-                      "length": 248,
-                      "residual": {
-                        "mjd": "58772.904552081793",
-                        "dayOfYear": 289.90454861111107,
-                        "binaryOrbitalPhase": 0.3844510616326883,
-                        "residualSec": -0.000002212460381260463,
-                        "residualSecErr": 1.3600000000000002e-10,
-                        "residualPhase": -0.0006019686194303102,
-                        "residualPhaseErr": 3.7003027460261804e-8
-                      }
-                    }
-                  }
-                ]
-              }
+              "dm": 20.0,
+              "dmErr": 1.0,
+              "rm": 10.0,
+              "rmErr": 1.0,
+              "sn": 100.0,
+              "flux": 25.0
             }
           }
         }

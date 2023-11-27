@@ -4,7 +4,7 @@ import copy
 import pytest
 from django.contrib.auth import get_user_model
 from graphql_jwt.testcases import JSONWebTokenClient
-from dataportal.tests.testing_utils import create_pulsar_with_observations, create_toas_and_residuals, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
+from dataportal.tests.testing_utils import create_pulsar_with_observations, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
 
 
 def setup_query_test():
@@ -153,7 +153,6 @@ def test_fold_query():
 def test_fold_detail_query():
     client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
     client.authenticate(user)
-    create_toas_and_residuals(obs, project, ephemeris, pipeline_run, template)
     response = client.execute("""
         query {
             observationSummary(
@@ -252,6 +251,11 @@ def test_fold_detail_query():
     assert not response.errors
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
+    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQueryNoEphem.json"), 'w') as json_file:
+    #     response_copy = copy.deepcopy(response.data)
+    #     test_out = copy.copy({"data": response_copy})
+    #     del test_out["data"]["pulsarFoldResult"]["residualEphemeris"]
+    #     json.dump(test_out, json_file, indent=2)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQuery.json"), 'r') as file:
         expected = json.load(file)["data"]
     del response.data["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
@@ -314,22 +318,22 @@ def test_single_observation_query():
         }
     """)
 
-    # with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "singleObservationQueryNoImages.json"), 'w') as json_file:
-    #     response_copy = copy.copy(response.data)
-    #     test_out = copy.copy({"data": response_copy})
-    #     test_out["data"]["fileSingleList"] = {
-    #         "edges": [
-    #             {
-    #                 "node": {
-    #                     "path": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/J0125-2327.FTS.ar",
-    #                     "fileSize": "1GB"
-    #                 }
-    #             }
-    #         ]
-    #     }
-    #     json.dump(test_out, json_file, indent=2)
+    with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), 'w') as json_file:
+        json.dump({"data": response.data}, json_file, indent=2)
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "singleObservationQueryNoImages.json"), 'w') as json_file:
+        response_copy = copy.copy(response.data)
+        test_out = copy.copy({"data": response_copy})
+        test_out["data"]["fileSingleList"] = {
+            "edges": [
+                {
+                    "node": {
+                        "path": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/J0125-2327.FTS.ar",
+                        "fileSize": "1GB"
+                    }
+                }
+            ]
+        }
+        json.dump(test_out, json_file, indent=2)
     with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), 'r') as file:
         expected = json.load(file)["data"]
     assert not response.errors
@@ -382,8 +386,8 @@ def test_search_query():
     }
     """)
 
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchQuery.json"), 'w') as json_file:
+        json.dump({"data": response.data}, json_file, indent=2)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchQuery.json"), 'r') as file:
         expected = json.load(file)["data"]
     assert not response.errors
@@ -442,8 +446,8 @@ def test_search_details_query():
             }
         }
     """)
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchDetailQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchDetailQuery.json"), 'w') as json_file:
+        json.dump({"data": response.data}, json_file, indent=2)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchDetailQuery.json"), 'r') as file:
         expected = json.load(file)["data"]
     assert not response.errors
@@ -521,8 +525,8 @@ def test_session_query():
             }}
         }}
     """.format(cal=cal.id))
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionQuery.json"), 'w') as json_file:
+        json.dump({"data": response.data}, json_file, indent=2)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionQuery.json"), 'r') as file:
         expected = json.load(file)["data"]
     assert not response.errors
@@ -557,8 +561,8 @@ def test_session_list_query():
         }
     """)
 
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionListQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionListQuery.json"), 'w') as json_file:
+        json.dump({"data": response.data}, json_file, indent=2)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionListQuery.json"), 'r') as file:
         expected = json.load(file)["data"]
     assert not response.errors

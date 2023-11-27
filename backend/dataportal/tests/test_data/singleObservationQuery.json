@@ -6,8 +6,8 @@
           "node": {
             "observation": {
               "calibration": {
-                "id": "Q2FsaWJyYXRpb25Ob2RlOjMw",
-                "idInt": 30
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjM1",
+                "idInt": 35
               },
               "beam": 2,
               "utcStart": "2020-07-10T05:07:28+00:00",

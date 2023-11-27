@@ -53,8 +53,8 @@ describe("The Search Page", () => {
 
   it("check view all button", () => {
     cy.wait("@SearchQuery");
-    cy.contains("View all").click();
-    cy.location("pathname").should("equal", "/search/All/J1709-3626/");
+    cy.contains("tr", "J1614+0737").contains("View all").click();
+    cy.location("pathname").should("equal", "/search/All/J1614+0737/");
 
     cy.wait("@SearchDetailQuery");
 

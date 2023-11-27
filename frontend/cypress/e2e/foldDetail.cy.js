@@ -56,7 +56,7 @@ describe("The Fold Detail Page", () => {
     cy.get("table").contains("View").click();
     cy.location("pathname").should(
       "equal",
-      "/J0125-2327/2019-05-14-10:14:18/1/"
+      "/J0125-2327/2019-04-23-06:11:30/1/"
     );
 
     cy.wait("@SingleObservationQuery");
@@ -68,7 +68,7 @@ describe("The Fold Detail Page", () => {
   it("check view session button", () => {
     cy.wait("@FoldDetailQuery");
     cy.contains("View session").click();
-    cy.location("pathname").should("equal", "/session/2656/");
+    cy.location("pathname").should("equal", "/session/26/");
 
     cy.wait("@SessionQuery");
     cy.contains("Loading...").should("not.exist");
