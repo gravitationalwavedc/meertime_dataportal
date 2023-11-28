@@ -125,7 +125,7 @@ const routeConfig = () =>
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
-        path="/:jname/:utc/:beam/"
+        path="/:mainProject/:jname/:utc/:beam/"
         Component={SingleObservation}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />

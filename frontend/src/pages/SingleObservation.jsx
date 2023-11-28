@@ -15,7 +15,7 @@ const query = graphql`
 const SingleObservation = ({
   // router,
   match: {
-    params: { jname, utc, beam },
+    params: { mainProject, jname, utc, beam },
   },
 }) => {
   const data = useLazyLoadQuery(query, {

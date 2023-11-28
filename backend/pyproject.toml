@@ -31,6 +31,7 @@ djangorestframework = "^3.14.0"
 psycopg2 = "^2.9.7"
 scipy = "^1.11.2"
 astropy = "^5.3.2"
+pyyaml = "6.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.0.0"
@@ -46,10 +47,9 @@ coverage = "^5.2.1"
 django_coverage_plugin = "^1.8.0"
 django-graphiql = "^0.4.4"
 django-cprofile-middleware = "^1.0.5"
-xenon = "^0.7.1"
+xenon = "^0.9.1"
 model_bakery = "^1.2.1"
 django-stubs = "^1.8.0"
-pyyaml = "==5.3.1"
 
 [tool.poetry.group.dev.dependencies]
 freezegun = "^1.2.2"

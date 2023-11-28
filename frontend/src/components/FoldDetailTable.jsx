@@ -168,7 +168,7 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
         ) : (
           <ButtonGroup vertical>
             <Link
-              to={`/${jname}/${formatUTC(edge.node.observation.utcStart)}/${
+              to={`/${mainProject}/${jname}/${formatUTC(edge.node.observation.utcStart)}/${
                 edge.node.observation.beam
               }/`}
               size="sm"
