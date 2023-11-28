@@ -7,8 +7,9 @@ from datetime import datetime, timedelta
 import numpy as np
 from astropy.time import Time
 
+from graphql import GraphQLError
 from django.core.exceptions import ValidationError
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models.constraints import UniqueConstraint
 from django.db.models import Model, F, Sum
 
@@ -17,6 +18,8 @@ from user_manage.models import User
 from utils.observing_bands import get_band
 from utils.binary_phase import get_binary_phase, is_binary
 from utils.constants import UserRole
+from utils.toa import toa_line_to_dict, toa_dict_to_line
+from utils.ephemeris import parse_ephemeris_file
 
 
 DATA_QUALITY_CHOICES = [
@@ -536,21 +539,19 @@ class PulsarFoldSummary(models.Model):
                 A MainProject model instance.
         """
         # Get all the fold observations for that pulsar
-        observations = Observation.objects.filter(pulsar=pulsar, obs_type="fold").order_by("utc_start")
+        observations = Observation.objects.select_related("pulsar", "project").filter(pulsar=pulsar, obs_type="fold").order_by("utc_start")
 
         # Process observation summary
         first_observation  = observations.first()
         latest_observation = observations.last()
         timespan = (latest_observation.utc_start - first_observation.utc_start).days + 1
         number_of_observations = observations.count()
-        total_integration_hours = sum(observation.duration for observation in observations) / 3600
+        total_integration_hours = observations.aggregate(total=Sum('duration'))['total'] / 3600
         last_integration_minutes = latest_observation.duration / 60
-        all_bands = ", ".join(
-            {observation.band for observation in observations}
-        )
+        all_bands = ", ".join(list(set(observations.values_list('band', flat=True))))
 
         # Process results summary
-        results = PulsarFoldResult.objects.filter(pulsar=pulsar).order_by("observation__utc_start")
+        results = PulsarFoldResult.objects.select_related("pulsar", "pipeline_run", "observation").filter(pulsar=pulsar).order_by("observation__utc_start")
         last_sn = results.last().pipeline_run.sn
         sn_list = [result.pipeline_run.sn or 0 for result in results]
         highest_sn = max(sn_list)
@@ -569,9 +570,7 @@ class PulsarFoldSummary(models.Model):
             max_sn_pipe = 0
 
         # Process project summary
-        all_projects = ", ".join(
-            {observation.project.short for observation in observations}
-        )
+        all_projects = ", ".join(list(set(observations.values_list('project__short', flat=True))))
         most_common_project = cls.get_most_common_project(observations)
 
         new_pulsar_fold_summary, created = PulsarFoldSummary.objects.update_or_create(
@@ -698,7 +697,7 @@ class PulsarSearchSummary(models.Model):
         latest_observation = observations.last()
         timespan = (latest_observation.utc_start - first_observation.utc_start).days + 1
         number_of_observations = observations.count()
-        total_integration_hours = sum(observation.duration for observation in observations) / 3600
+        total_integration_hours = observations.aggregate(total=Sum('duration'))['total'] / 3600
         last_integration_minutes = latest_observation.duration / 60
         all_bands = ", ".join(
             {observation.band for observation in observations}
@@ -862,6 +861,135 @@ class Toa(models.Model):
     @classmethod
     def get_query(cls, **kwargs):
         return cls.objects.filter(**kwargs)
+
+    @classmethod
+    def bulk_create(
+            cls,
+            pipeline_run_id,
+            project_short,
+            template_id,
+            ephemeris_text,
+            toa_lines,
+            dm_corrected,
+            minimum_nsubs,
+            maximum_nsubs
+        ):
+        pipeline_run = PipelineRun.objects.get(id=pipeline_run_id)
+        observation  = pipeline_run.observation
+        project      = Project.objects.get(short=project_short)
+        template     = Template.objects.get(id=template_id)
+
+        ephemeris_dict = parse_ephemeris_file(ephemeris_text)
+        try:
+            ephemeris, _ = Ephemeris.objects.get_or_create(
+                pulsar=observation.pulsar,
+                project=project,
+                # TODO add created_by
+                ephemeris_data=json.dumps(ephemeris_dict),
+                p0=ephemeris_dict["P0"],
+                dm=ephemeris_dict["DM"],
+                valid_from=ephemeris_dict["START"],
+                valid_to=ephemeris_dict["FINISH"],
+            )
+        except IntegrityError:
+            # Handle the IntegrityError gracefully by grabbing the already created ephem
+            ephemeris = Ephemeris.objects.get(
+                pulsar=observation.pulsar,
+                project=project,
+                ephemeris_data=json.dumps(ephemeris_dict),
+            )
+
+        # created_toas = []
+        toas_to_create = []
+        for toa_line in toa_lines[1:]:
+            toa_line = toa_line.rstrip("\n")
+            # Loop over toa lines and turn into a dict
+            toa_dict = toa_line_to_dict(toa_line)
+            # Revert it back to a line and check it matches before uploading
+            output_toa_line = toa_dict_to_line(toa_dict)
+            if toa_line != output_toa_line:
+                raise GraphQLError(f"Assertion failed. toa_line and output_toa_line do not match.\n{toa_line}\n{output_toa_line}")
+            # Upload the toa
+            # toa = Toa.objects.create(
+            toas_to_create.append(
+                Toa(
+                    pipeline_run =pipeline_run,
+                    observation  =observation,
+                    project      =project,
+                    ephemeris    =ephemeris,
+                    template     =template,
+                    archive      =toa_dict["archive"],
+                    freq_MHz     =toa_dict["freq_MHz"],
+                    mjd          =toa_dict["mjd"],
+                    mjd_err      =toa_dict["mjd_err"],
+                    telescope    =toa_dict["telescope"],
+                    fe           =toa_dict["fe"],
+                    be           =toa_dict["be"],
+                    f            =toa_dict["f"],
+                    bw           =toa_dict["bw"],
+                    tobs         =toa_dict["tobs"],
+                    tmplt        =toa_dict["tmplt"],
+                    gof          =toa_dict["gof"],
+                    nbin         =toa_dict["nbin"],
+                    nch          =toa_dict["nch"],
+                    chan         =toa_dict["chan"],
+                    rcvr         =toa_dict["rcvr"],
+                    snr          =toa_dict["snr"],
+                    length       =toa_dict["length"],
+                    subint       =toa_dict["subint"],
+                    dm_corrected =dm_corrected,
+                    minimum_nsubs=minimum_nsubs,
+                    maximum_nsubs=maximum_nsubs,
+                    obs_nchan = int(observation.nchan) // int(toa_dict["nch"])
+                )
+            )
+        created_toas = Toa.objects.bulk_create(
+            toas_to_create,
+            update_conflicts=True,
+            unique_fields=[
+                "observation",
+                "project",
+                "dm_corrected",
+                # Frequency
+                "obs_nchan", # Number of channels
+                "chan", # Chan ID
+                # Time
+                "minimum_nsubs",
+                "maximum_nsubs",
+                "subint", # Time ID
+            ],
+            update_fields=[
+                "pipeline_run",
+                "observation",
+                "project",
+                "ephemeris",
+                "template",
+                "archive",
+                "freq_MHz",
+                "mjd",
+                "mjd_err",
+                "telescope",
+                "fe",
+                "be",
+                "f",
+                "bw",
+                "tobs",
+                "tmplt",
+                "gof",
+                "nbin",
+                "nch",
+                "chan",
+                "rcvr",
+                "snr",
+                "length",
+                "subint",
+                "dm_corrected",
+                "minimum_nsubs",
+                "maximum_nsubs",
+                "obs_nchan",
+            ],
+        )
+        return created_toas
 
     class Meta:
         constraints = [
