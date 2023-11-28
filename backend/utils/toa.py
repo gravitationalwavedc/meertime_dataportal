@@ -14,7 +14,6 @@ def convert_to_int_or_float_if_possible(value):
 
 
 def format_float(value, threshold=1e3, decimal_places=2):
-    print(value)
     if abs(value) >= threshold:
         e_format = "{:.{}e}".format(value, decimal_places)
         return e_format.replace("0e", "e").replace("0e", "e").replace(".e", "e") # remove trailing zeros
