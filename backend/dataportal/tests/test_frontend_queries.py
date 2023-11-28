@@ -2,16 +2,7 @@ import os
 import json
 import copy
 import pytest
-from django.contrib.auth import get_user_model
-from graphql_jwt.testcases import JSONWebTokenClient
-from dataportal.tests.testing_utils import create_pulsar_with_observations, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
-
-
-def setup_query_test():
-    client = JSONWebTokenClient()
-    user = get_user_model().objects.create(username="buffy")
-    telescope, project, ephemeris, template, pipeline_run, obs, cal = create_pulsar_with_observations()
-    return client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal
+from dataportal.tests.testing_utils import setup_query_test, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
 
 
 

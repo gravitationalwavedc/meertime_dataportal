@@ -3,6 +3,8 @@ import json
 from datetime import datetime
 
 from django.core.files.base import ContentFile
+from django.contrib.auth import get_user_model
+from graphql_jwt.testcases import JSONWebTokenClient
 
 from utils.ephemeris import parse_ephemeris_file
 from dataportal.storage import create_file_hash
@@ -22,6 +24,14 @@ from dataportal.models import (
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 CYPRESS_FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "../../../frontend/cypress/fixtures")
+
+
+
+def setup_query_test():
+    client = JSONWebTokenClient()
+    user = get_user_model().objects.create(username="buffy")
+    telescope, project, ephemeris, template, pipeline_run, obs, cal = create_pulsar_with_observations()
+    return client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal
 
 
 def create_basic_data():
@@ -69,7 +79,7 @@ def create_basic_data():
 
 
 
-def create_observation_pipeline_run_toa(json_path, telescope, template):
+def create_observation_pipeline_run_toa(json_path, telescope, template, make_toas=True):
     # Load data from json
     with open(json_path, 'r') as json_file:
         meertime_data = json.load(json_file)
@@ -156,31 +166,31 @@ def create_observation_pipeline_run_toa(json_path, telescope, template):
             rm_err=1.,
             percent_rfi_zapped=10,
         )
+        if make_toas:
+            residual = Residual.objects.create(
+                mjd=1,
+                day_of_year=1,
+                residual_sec=2,
+                residual_sec_err=3,
+                residual_phase=4,
+                residual_phase_err=5,
+            )
 
-        residual = Residual.objects.create(
-            mjd=1,
-            day_of_year=1,
-            residual_sec=2,
-            residual_sec_err=3,
-            residual_phase=4,
-            residual_phase_err=5,
-        )
-
-        toa = Toa.objects.create(
-            pipeline_run=pipeline_run,
-            observation=observation,
-            project=project,
-            ephemeris=ephemeris,
-            template=template,
-            residual=residual,
-            freq_MHz=6,
-            mjd=7,
-            mjd_err=8,
-            length=9,
-            dm_corrected=False,
-            minimum_nsubs=True,
-            obs_nchan=1,
-        )
+            toa = Toa.objects.create(
+                pipeline_run=pipeline_run,
+                observation=observation,
+                project=project,
+                ephemeris=ephemeris,
+                template=template,
+                residual=residual,
+                freq_MHz=6,
+                mjd=7,
+                mjd_err=8,
+                length=9,
+                dm_corrected=False,
+                minimum_nsubs=True,
+                obs_nchan=1,
+            )
     else:
         pipeline_run = None
 
@@ -202,3 +212,52 @@ def create_pulsar_with_observations():
     create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope, template)
 
     return telescope, project, ephemeris, template, pr, obs, cal
+
+
+def upload_toa_files(pipeline_run, project_short, template, toa_path):
+    with open(toa_path, 'r') as toa_file:
+        toa_lines = toa_file.readlines()
+        created_toas = Toa.bulk_create(
+            pipeline_run_id=pipeline_run.id,
+            project_short=project_short,
+            template_id=template.id,
+            ephemeris_text=os.path.join(TEST_DATA_DIR, "J0125-2327.par"),
+            toa_lines=toa_lines,
+            dm_corrected=False,
+            minimum_nsubs=True,
+            maximum_nsubs=False,
+        )
+
+def setup_timing_obs():
+    client = JSONWebTokenClient()
+    user = get_user_model().objects.create(username="buffy")
+    telescope, project, ephemeris, template = create_basic_data()
+
+    obs, cal, pr = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "timing_files/2023-10-22-04:41:07_1_J0437-4715.json"),
+        telescope,
+        template,
+        make_toas=False,
+    )
+    # All files
+    upload_toa_files(pr, "PTA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "PTA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
+    # Add last one twice to test duplicate detection
+    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
+
+    obs, cal, pr = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "timing_files/2023-10-30-02:18:35_1_J0437-4715.json"),
+        telescope,
+        template,
+        make_toas=False,
+    )
+    upload_toa_files(pr, "PTA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "PTA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"))
+    # Add last one twice to test duplicate detection
+    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
+
+    return client, user
