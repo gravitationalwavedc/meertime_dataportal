@@ -95,4 +95,4 @@ spec:
       volumes:
         - name: mysql-persistent-storage-dev
           persistentVolumeClaim:
-            claimName: mysql-pv-claim-dev
+            claimName: mysql-persistent-storage-staging

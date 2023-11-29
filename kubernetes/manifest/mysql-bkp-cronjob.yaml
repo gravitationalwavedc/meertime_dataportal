@@ -50,7 +50,7 @@ spec:
           volumes:
             - name: backups
               persistentVolumeClaim:
-                claimName: mysql-bkp-pv-claim-dev
+                claimName: mysql-bkp-pv-claim-staging
             - configMap:
                 name: mysql-bkp-script-configmap
               name: mysql-backup-script
