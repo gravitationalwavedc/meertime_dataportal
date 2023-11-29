@@ -8,7 +8,7 @@ describe("Single Observation Page", () => {
       aliasQuery(req, "SingleObservationQuery", "foldObservationDetails.json");
     });
 
-    cy.visit("/J0125-2327/2023-04-29-06:47:34/2/");
+    cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
 
     cy.get("input[name=username]").type("buffy@sunnydale.com");
     cy.get("input[name=password]").type("slayer!#1");
@@ -29,12 +29,12 @@ describe("Single Observation Page", () => {
     cy.contains("Raw").should("be.visible");
     cy.location("pathname").should(
       "equal",
-      "/J0125-2327/2023-04-29-06:47:34/2/"
+      "/meertime/J0125-2327/2023-04-29-06:47:34/2/"
     );
   });
 
   it("should display the download buttons where there are files", () => {
-    cy.visit("/J0125-2327/2023-04-29-06:47:34/2/");
+    cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
 
     cy.wait("@SingleObservationQuery");
 

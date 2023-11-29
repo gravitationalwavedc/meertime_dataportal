@@ -95,7 +95,7 @@ describe("The Fold Page", () => {
     cy.contains("tr", "2020-07-10-05").contains("View last").click();
     cy.location("pathname").should(
       "equal",
-      "/J0125-2327/2020-07-10-05:07:28/2/"
+      "/meertime/J0125-2327/2020-07-10-05:07:28/2/"
     );
 
     cy.wait("@SingleObservationQuery");

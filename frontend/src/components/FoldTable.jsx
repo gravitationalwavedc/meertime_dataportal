@@ -1,5 +1,5 @@
 import { Button, ButtonGroup } from "react-bootstrap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { columnsSizeFilter, formatUTC } from "../helpers";
 import { graphql, useRefetchableFragment } from "react-relay";
 import DataView from "./DataView";
@@ -79,18 +79,22 @@ const FoldTable = ({
   const [project, setProject] = useState(query.project || "All");
   const [band, setBand] = useState(query.band || "All");
 
-  useEffect(() => {
-    refetch({
-      mainProject: mainProject,
-      project: project,
-      band: band,
-    });
+  const handleRefetch = ({
+    newMainProject = mainProject,
+    newProject = project,
+    newBand = band,
+  } = {}) => {
     const url = new URL(window.location);
     url.searchParams.set("mainProject", newMainProject);
     url.searchParams.set("project", newProject);
     url.searchParams.set("band", newBand);
     window.history.pushState({}, "", url);
-  }, [band, project, mainProject, query, refetch]);
+    refetch({
+      mainProject: newMainProject,
+      project: newProject,
+      band: newBand,
+    });
+  };
 
   const handleMainProjectChange = (newMainProject) => {
     const newProject = "All";
@@ -132,7 +136,7 @@ const FoldTable = ({
           View all
         </Link>
         <Link
-          to={`/${row.jname}/${row.latestObservation}/${row.latestObservationBeam}/`}
+          to={`/${mainProject}/${row.jname}/${row.latestObservation}/${row.latestObservationBeam}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}

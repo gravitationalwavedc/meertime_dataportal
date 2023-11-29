@@ -25,7 +25,7 @@ const SingleObservation = ({
   });
 
   const title = (
-    <Link size="sm" to={`/fold/meertime/${jname}/`}>
+    <Link size="sm" to={`/fold/${mainProject}/${jname}/`}>
       {jname}
     </Link>
   );
