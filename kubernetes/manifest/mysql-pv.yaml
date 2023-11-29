@@ -12,5 +12,5 @@ spec:
   accessModes:
     - ReadWriteMany
   nfs:
-    path: /mnt/sharedfolder/meertime/mysql-dev
+    path: /mnt/sharedfolder/meertime-staging/db
     server: nfs1.private.loc
