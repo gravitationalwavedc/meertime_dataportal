@@ -34,8 +34,6 @@ describe("Single Observation Page", () => {
   });
 
   it("should display the download buttons where there are files", () => {
-    cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
-
     cy.wait("@SingleObservationQuery");
 
     // Correct page loads
