@@ -1,7 +1,6 @@
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: meertime-dev
   name: django
 spec:
   selector:
@@ -16,7 +15,6 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  namespace: meertime-dev
   name: meertime-img-pv-claim-dev
   labels:
     app: dataportal
@@ -32,7 +30,6 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: meertime-dev
   name: django
   labels:
     app: dataportal
@@ -88,7 +85,7 @@ spec:
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
         - name: migrate
-          image: nexus.gwdc.org.au/meertime/django:2.7
+          image: nexus.gwdc.org.au/meertime/django:3.0.0
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -102,25 +99,9 @@ spec:
             - secretRef:
                 name: db-config
           command: ["python", "manage.py", "migrate"]
-# This block will auto sync the web_cache database with the dataportal database on deploy. This opperation takes approx. 40mins.
-#        - name: sync-web-cache
-#          image: nexus.gwdc.org.au/meertime/django:2.4
-#          imagePullPolicy: Always
-#          env:
-#            - name: DB_HOST
-#              valueFrom:
-#                configMapKeyRef:
-#                  name: db-conf
-#                  key: host
-#          envFrom:
-#            - secretRef:
-#                name: django-multi
-#            - secretRef:
-#                name: db-config
-#          command: ["python", "manage.py", "sync_web_cache"]
       containers:
         - name: django
-          image: nexus.gwdc.org.au/meertime/django:2.7
+          image: nexus.gwdc.org.au/meertime/django:3.0.0
           resources: {}
           imagePullPolicy: Always
           env:

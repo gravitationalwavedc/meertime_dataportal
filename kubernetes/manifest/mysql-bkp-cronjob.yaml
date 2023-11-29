@@ -6,7 +6,6 @@ metadata:
     app.kubernetes.io/name: mysql-bkp-cronjob
     app.kubernetes.io/instance: meertime
   name: mysql-bkp-cronjob
-  namespace: meertime-dev
 spec:
   schedule: 20 1 * * *
   concurrencyPolicy: Forbid

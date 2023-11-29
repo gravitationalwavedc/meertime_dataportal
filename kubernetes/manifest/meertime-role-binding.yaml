@@ -8,7 +8,6 @@ metadata:
 subjects:
   - kind: ServiceAccount
     name: meertime
-    namespace: meertime-dev
 roleRef:
   kind: Role
   name: meertime-role
