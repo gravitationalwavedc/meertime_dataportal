@@ -1,19 +1,23 @@
-from datetime import datetime
-
-from django.shortcuts import get_object_or_404
-from django.views import generic
 from django.conf import settings
-from django.db.models import Sum, Count, ExpressionWrapper, Max, Min, DurationField
-import json
-
-
-from .models import Pulsars, Foldings
-from .plots import pulsar_summary_plot
-
-from .logic import get_meertime_filters
-
 from sentry_sdk import last_event_id
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.core.files.base import ContentFile
+
+from rest_framework import status
+from rest_framework.viewsets import ViewSet
+from rest_framework.response import Response
+
+from .serializers import UploadTemplateSerializer, UploadPipelineImageSerializer
+from .storage import create_file_hash
+from .models import (
+    Template,
+    Pulsar,
+    Project,
+    PipelineImage,
+    PipelineRun,
+    PulsarFoldResult,
+)
 
 
 def handler500(request):
@@ -30,228 +34,125 @@ def handler500(request):
         return render(request, "500.html", {})
 
 
-# class SessionView(generic.ListView):
-#    """
-#    Display observations in an observing session
-#    """
-#
-#    context_object_name = "obs_list"
-#    template_name = "dataportal/session.html"
-#    page_title = "last meertime session"
-#    detail_url_name = "pulsar_detail"
-#    get_proposal_filters = get_meertime_filters
-#
-#    def get_queryset(cls):
-#        return Observations.get_last_session_by_gap(get_proposal_filters=cls.get_proposal_filters)
-#
-#    def get_context_data(cls, **kwargs):
-#        context = super().get_context_data(**kwargs)
-#        context["session_meta"] = get_observations_summary(context["obs_list"])
-#        context["detail_url_name"] = cls.detail_url_name
-#        context["title"] = cls.page_title
-#        return context
+
+class UploadTemplate(ViewSet):
+    serializer_class = UploadTemplateSerializer
+
+    def create(self, request):
+        template_upload = request.FILES.get('template_upload')
+        pulsar_name     = request.data.get('pulsar_name')
+        project_code    = request.data.get('project_code')
+        project_short   = request.data.get('project_short')
+        band            = request.data.get('band')
+
+        # Get foreign key models
+        try:
+            pulsar  = Pulsar.objects.get(name=pulsar_name)
+        except Pulsar.DoesNotExist:
+            return JsonResponse({'errors': f'Pulsar {pulsar_name} not found.'}, status=400)
+        try:
+            if project_code is not None:
+                project = Project.objects.get(code=project_code)
+            elif project_short is not None:
+                project = Project.objects.get(short=project_short)
+            else:
+                # Should have a project code or short so I can't create an ephemeris
+                return JsonResponse({'errors': f'Must include either a project_code or a project_short'}, status=400)
+        except Project.DoesNotExist:
+            return JsonResponse({'errors': f'Project code {project_code} not found.'}, status=400)
 
 
-class IndexBaseView(generic.ListView):
-    """
-    Base view for main table views.
-    """
+        # Create Template object
+        with template_upload.open('rb') as file:
+            template_hash = create_file_hash(file)
+            # Check if a template with the same hash already exists
+            template_check = Template.objects.filter(
+                pulsar=pulsar,
+                project=project,
+                band=band,
+                template_hash=template_hash,
+            )
+            if template_check.exists():
+                id = template_check.first().id
+                response = f"POST API and you have uploaded a template file to Template id: {id} (already exists)"
+                created = False
+            else:
+                template = Template.objects.create(
+                    pulsar=pulsar,
+                    project=project,
+                    band=band,
+                    template_hash=template_hash,
+                    template_file=file
+                )
+                template.save()
+                id = template.id
+                response = f"POST API and you have uploaded a template file to Template id: {id}"
+                created = True
 
-    context_object_name = "per_pulsar_list"
-
-    def get_context_data(cls, **kwargs):
-        context = super().get_context_data(**kwargs)
-        # context["project_id"] = cls.request.GET.get("project_id")
-        # context["band"] = cls.request.GET.get("band")
-        # qs = context["per_pulsar_list"]
-        # context["totals"] = qs.aggregate(global_tint_h=Sum("total_tint_h"), global_nobs=Sum("nobs"))
-        # context["totals"]["global_npsr"] = qs.count()
-        return context
-
-
-class FoldView(IndexBaseView):
-    """
-    Display pulsars and the latest meertime observation data.
-    """
-
-    template_name = "dataportal/index.html"
-    page_title = "folded observations"
-    detail_url_name = "pulsar_detail"
-    get_proposal_filters = get_meertime_filters
-
-    def get_queryset(cls):
-        return Pulsars.get_latest_observations(get_proposal_filters=cls.get_proposal_filters)
-
-    def get_context_data(cls, **kwargs):
-        context = super().get_context_data(**kwargs)
-        proposal_filter = cls.get_proposal_filters()
-        # context["projects"] = Proposals.objects.filter(**proposal_filter)
-        # page title
-        context["title"] = cls.page_title
-        context["detail_url_name"] = cls.detail_url_name
-        return context
-
-
-# class SearchmodeView(IndexBaseView):
-#    """
-#    Display pulsars and the latest observation data.
-#    """
-#
-#    template_name = "dataportal/searchmode.html"
-#    get_proposal_filters = get_meertime_filters
-#    detail_url_name = "pulsar_detail_search"
-#    page_title = "searchmode observations"
-#
-#    def get_queryset(cls):
-#        return Pulsars.get_observations(
-#            mode="searchmode",
-#            proposal=cls.request.GET.get("project_id"),
-#            get_proposal_filters=cls.get_proposal_filters,
-#        )
-#
-#    def get_context_data(cls, **kwargs):
-#        context = super().get_context_data(**kwargs)
-#        # page title
-#        context["title"] = cls.page_title
-#        context["detail_url_name"] = cls.detail_url_name
-#        return context
+        return JsonResponse(
+            {
+                'text': response,
+                'success': True,
+                'created': created,
+                'errors': None,
+                'id' : id,
+            },
+            status=201,
+        )
 
 
-class DetailView(generic.ListView):
-    context_object_name = "obs_list"
-    parent_url_name = "fold"
+class UploadPipelineImage(ViewSet):
+    serializer_class = UploadPipelineImageSerializer
 
-    def setup(cls, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-        cls.pulsar = get_object_or_404(Pulsars, jname=cls.kwargs["psr"])
-
-    def get_context_data(cls, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context["parent_url_name"] = cls.parent_url_name
-
-        # Add ephemeris to the context
-        context["psr"] = cls.kwargs["psr"]
-        # try:
-        #    ephemeris = Ephemerides.objects.get(pulsar=cls.pulsar)
-        # except Ephemerides.DoesNotExist:
-        #    ephemeris = None
-        #    updated = None
-        # if ephemeris:
-        #    updated = ephemeris.updated_at
-        #    ephemeris = json.loads(ephemeris.ephemeris)
-        context["ephemeris"] = None  # ephemeris
-        context["updated"] = None  # updated
-
-        # Add a payload for kronos/meerwatch links
-        context["kronos"] = settings.KRONOS_PAYLOAD
-
-        return context
+    def list(self, request):
+        return Response("GET API")
 
 
-class PulsarDetailView(DetailView):
-    """
-    Display detail list of meertime observations for a single pulsar.
-    """
+    def create(self, request):
+        pipeline_run_id = request.data.get('pipeline_run_id')
+        image_upload    = request.FILES.get('image_upload')
+        image_type      = request.data.get('image_type')
+        resolution      = request.data.get('resolution')
+        cleaned         = request.data.get('cleaned')
 
-    template_name = "dataportal/show_single_psr.html"
-    get_proposal_filters = get_meertime_filters
+        # Get foreign key models
+        try:
+            pipeline_run  = PipelineRun.objects.get(id=pipeline_run_id)
+        except PipelineRun.DoesNotExist:
+            response = f'PipelineRun ID {pipeline_run_id} not found.'
+            return JsonResponse(
+                {
+                    'errors': response,
+                    'text':  response,
+                    'success': False,
+                },
+                status=400
+            )
+        pulsar_fold_result = PulsarFoldResult.objects.get(observation=pipeline_run.observation)
 
-    def get_queryset(cls):
-        return cls.pulsar.get_observations_for_pulsar(get_proposal_filters=cls.get_proposal_filters)
+        # Create Template object
+        pipeline_image, created = PipelineImage.objects.get_or_create(
+            pulsar_fold_result=pulsar_fold_result,
+            cleaned=cleaned,
+            image_type=image_type,
+            resolution=resolution,
+        )
+        pipeline_image.save()
+        # We use the save() method of the FileField to save the file.
+        # This ensures that the file object remains open until the file is properly saved to the disk.
+        pipeline_image.image.save(image_upload.name, image_upload, save=True)
+        if created:
+            response = f"POST API and you have uploaded a new image to PipelineImage id: {pipeline_image}"
+        else:
+            response = f"POST API and you have uploaded a image overriding PipelineImage id: {pipeline_image} (already exists)"
 
-    def get_context_data(cls, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Add a summary plot to the context
-        # plot_qs = context["obs_list"].values_list("utc__utc_ts", "snr_spip", "length")
-        # If no observations exist, the unpacking below will throw a value error
-        # try:
-        #    [UTCs, snrs, length] = list(zip(*plot_qs))
-        # except ValueError:
-        #    [UTCs, snrs, length] = [
-        #        (),
-        #        (),
-        #        (),
-        #    ]
-
-        # bokeh_js, bokeh_div = pulsar_summary_plot(UTCs, snrs, length)
-        context["bokeh_js"] = ""  # bokeh_js
-        context["bokeh_div"] = ""  # bokeh_div
-
-        # get total size
-        qs = context["obs_list"]
-        context["total_size_estimate"] = 0  # qs.aggregate(total_size_estimate=Sum("estimated_size"))
-
-        # get other aggregates
-        annotations = {}
-        # context["totals"] = qs.annotate(**annotations).aggregate(
-        #    tint=Sum("length"),
-        #    nobs=Count("id"),
-        #    project_count=Count("proposal", distinct=True),
-        #    timespan=ExpressionWrapper(Max("utc__utc_ts") - Min("utc__utc_ts"), output_field=DurationField()),
-        # )
-
-        context["title"] = context["psr"]
-
-        return context
-
-
-# class SearchDetailView(DetailView):
-#    """
-#    Display detail list of search mode observations for a single pulsar
-#    """
-#
-#    template_name = "dataportal/show_single_psr_search.html"
-#    page_title_prefix = ""
-#    get_proposal_filters = get_meertime_filters
-#
-#    def get_queryset(cls):
-#        return cls.pulsar.searchmode_detail_data(get_proposal_filters=cls.get_proposal_filters)
-#
-#    def get_context_data(cls, **kwargs):
-#        context = super().get_context_data(**kwargs)
-#        # page title
-#        context["title"] = f'{cls.page_title_prefix} {context["psr"]} searchmode'
-#        return context
-
-
-class ObservationDetailView(generic.TemplateView):
-    """
-    Display details of a single observation
-    """
-
-    template_name = "dataportal/observation.html"
-
-    def setup(cls, request, *args, **kwargs):
-        super().setup(request, *args, **kwargs)
-
-        cls.beam = cls.kwargs["beam"]
-        cls.pulsar = get_object_or_404(Pulsars, jname=cls.kwargs["psr"])
-
-        cls.utc_str = cls.kwargs["utc"]
-        utc_ts = datetime.strptime(f"{cls.utc_str} +0000", "%Y-%m-%d-%H:%M:%S %z")
-
-        cls.obs_detail = Foldings.get_observation_details(cls.pulsar, utc_ts, cls.beam)
-
-        cls.profile = cls.obs_detail.processing.pipelineimages_set.filter(image_type="flux")
-        cls.phase_vs_freq = cls.obs_detail.processing.pipelineimages_set.filter(image_type="freq")
-        cls.phase_vs_time = cls.obs_detail.processing.pipelineimages_set.filter(image_type="time")
-        cls.bandpass = cls.obs_detail.processing.pipelineimages_set.filter(image_type="band")
-        cls.snrt = cls.obs_detail.processing.pipelineimages_set.filter(image_type="snrt")
-
-    def get_context_data(cls, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["obs"] = cls.obs_detail
-        # Add a payload for kronos/meerwatch links
-        context["kronos"] = settings.KRONOS_PAYLOAD
-        context["title"] = f"{cls.pulsar}/{cls.utc_str}/{cls.beam}"
-        context["pulsar"] = cls.pulsar
-
-        context["profile"] = cls.profile
-        context["phase_vs_time"] = cls.phase_vs_time
-        context["phase_vs_frequency"] = cls.phase_vs_freq
-        context["bandpass"] = cls.bandpass
-        context["snr_vs_time"] = cls.snrt
-
-        return context
+        return JsonResponse(
+            {
+                'text': response,
+                'success': True,
+                'created': created,
+                'errors': None,
+                'id' : pipeline_image.id,
+            },
+            status=201,
+        )

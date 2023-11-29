@@ -9,15 +9,10 @@ const ImageGrid = ({ images, project }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
 
   const rawImages = images.edges.filter(
-    ({ node }) =>
-      node.process.toLowerCase() === "raw" && node.resolution === "hi"
+    ({ node }) => console.log(node) || !node.cleaned
   );
 
-  const processedImages = images.edges.filter(
-    ({ node }) =>
-      node.process.toLowerCase() !== "raw" &&
-      node.process.toLowerCase() === project.toLowerCase()
-  );
+  const processedImages = images.edges.filter(({ node }) => node.cleaned);
 
   const urls = [
     ...rawImages.map(({ node }) => node.url),
@@ -65,9 +60,9 @@ const ImageGrid = ({ images, project }) => {
       ) : (
         rawImages.map(({ node }) => (
           <PlotImage
-            key={node.url}
+            key={node.image}
             imageData={node}
-            handleClick={() => openLightBox(node.url)}
+            handleClick={() => openLightBox(node.image)}
           />
         ))
       )}

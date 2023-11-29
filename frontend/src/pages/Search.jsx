@@ -11,7 +11,7 @@ const query = graphql`
 const Search = () => {
   const data = useLazyLoadQuery(query, {});
   return (
-    <MainLayout title="Search mode Observations">
+    <MainLayout title="Search Mode Observations">
       <SearchTable data={data} />
     </MainLayout>
   );

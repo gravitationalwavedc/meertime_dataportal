@@ -1,72 +1,114 @@
+import { useState, Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
+import { Col, Container, Row, Modal } from "react-bootstrap";
+import { useScreenSize } from "../context/screenSize-context";
+import Einstein from "../assets/images/einstein-coloured.png";
+import GraphPattern from "../assets/images/graph-pattern.png";
+import Footer from "../components/Footer";
+import TopNav from "../components/TopNav";
 import FoldDetailTable from "../components/FoldDetailTable";
-import MainLayout from "../components/MainLayout";
+import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
 
-const query = graphql`
-  query FoldDetailQuery($jname: String!, $mainProject: String) {
-    foldPulsar(jname: $jname, mainProject: $mainProject) {
-      files {
-        edges {
-          node {
-            project
-            fileType
-            size
-            downloadLink
-          }
-        }
-      }
-    }
-    foldObservationDetails(jname: $jname, mainProject: $mainProject) {
-      totalObservations
-      totalObservationHours
-      totalProjects
-      totalEstimatedDiskSpace
-      totalTimespanDays
-      maxPlotLength
-      minPlotLength
-      description
-      ephemerisLink
-      toasLink
-      edges {
-        node {
-          id
-          utc
-          project
-          ephemeris
-          ephemerisIsUpdatedAt
-          length
-          beam
-          bw
-          nchan
-          band
-          nbin
-          nant
-          nantEff
-          dmFold
-          dmMeerpipe
-          rmMeerpipe
-          snBackend
-          snMeerpipe
-          flux
-          restricted
-          embargoEndDate
-        }
-      }
-    }
+const FoldDetailQuery = graphql`
+  query FoldDetailQuery(
+    $pulsar: String!
+    $mainProject: String
+    $dmCorrected: Boolean
+    $minimumNsubs: Boolean
+    $obsNchan: Int # Ensure this variable is defined
+  ) {
+    ...FoldDetailTableFragment
+      @arguments(
+        pulsar: $pulsar
+        mainProject: $mainProject
+        dmCorrected: $dmCorrected
+        minimumNsubs: $minimumNsubs
+        obsNchan: $obsNchan
+      )
+  }
+`;
+
+const FoldDetailFileDownloadQuery = graphql`
+  query FoldDetailFileDownloadQuery($pulsar: String!) {
+    ...FoldDetailFileDownloadFragment @arguments(jname: $pulsar)
   }
 `;
 
 const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
-  const data = useLazyLoadQuery(query, {
-    jname: jname,
+  console.log("pulsar:", jname);
+  console.log("mainProject:", mainProject);
+  const { screenSize } = useScreenSize();
+  const [downloadModalVisible, setDownloadModalVisible] = useState(false);
+  const tableData = useLazyLoadQuery(FoldDetailQuery, {
+    pulsar: jname,
     mainProject: mainProject,
+    dmCorrected: false,
+    minimumNsubs: true,
+    obsNchan: 1,
+  });
+  const fileDownloadData = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
+    pulsar: jname,
   });
 
   return (
-    <MainLayout title={jname}>
-      <FoldDetailTable data={data} jname={jname} mainProject={mainProject} />
-    </MainLayout>
+    <>
+      <TopNav />
+      <img src={GraphPattern} className="graph-pattern-top" alt="" />
+      <Container>
+        <Row>
+          <Col>
+            {screenSize === "xs" ? (
+              <>
+                <h4 className="text-primary-600">{jname}</h4>
+              </>
+            ) : (
+              <>
+                <h2 className="text-primary-600">{jname}</h2>
+              </>
+            )}
+          </Col>
+          <img src={Einstein} alt="" className="d-none d-md-block" />
+        </Row>
+        <Suspense
+          fallback={
+            <div>
+              <h3>Loading...</h3>
+            </div>
+          }
+        >
+          <FoldDetailTable
+            query={FoldDetailQuery}
+            tableData={tableData}
+            jname={jname}
+            mainProject={mainProject}
+            setShow={setDownloadModalVisible}
+          />
+        </Suspense>
+        <Suspense
+          fallback={
+            <Modal
+              show={downloadModalVisible}
+              onHide={() => setDownloadModalVisible(false)}
+              size="xl"
+            >
+              <Modal.Body>
+                <h4 className="text-primary">Loading</h4>
+              </Modal.Body>
+            </Modal>
+          }
+        >
+          {localStorage.isStaff === "true" && (
+            <FoldDetailFileDownload
+              visible={downloadModalVisible}
+              data={fileDownloadData}
+              setShow={setDownloadModalVisible}
+            />
+          )}
+        </Suspense>
+      </Container>
+      <Footer />
+    </>
   );
 };
 

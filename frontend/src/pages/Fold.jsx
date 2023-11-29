@@ -5,7 +5,7 @@ import MainLayout from "../components/MainLayout";
 
 const query = graphql`
   query FoldQuery {
-    ...FoldTable_data
+    ...FoldTableFragment
   }
 `;
 

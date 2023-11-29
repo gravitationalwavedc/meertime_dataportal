@@ -6,9 +6,9 @@ services:
     container_name: meertime-mysql
 #    environment:
 #      - MYSQL_ROOT_PASSWORD
-#      - MYSQL_DATABASE
-#      - MYSQL_USER
-#      - MYSQL_PASSWORD
+#      - POSTGRES_DATABASE
+#      - POSTGRES_USER
+#      - POSTGRES_PASSWORD
     env_file:
       - backend/.env
     volumes:
@@ -22,9 +22,9 @@ services:
     depends_on:
       - mysql
 #    environment:
-#      - MYSQL_DATABASE
-#      - MYSQL_USER
-#      - MYSQL_PASSWORD
+#      - POSTGRES_DATABASE
+#      - POSTGRES_USER
+#      - POSTGRES_PASSWORD
 #      - DB_HOST=mysql
 #      - MYSQL_PORT
 #      - DJANGO_SECRET_KEY

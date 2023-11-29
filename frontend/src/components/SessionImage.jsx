@@ -8,16 +8,16 @@ const SessionImage = ({
   imageIndex,
   openLightBox,
 }) => {
-  if (imageHi) {
+  if (imageHi && imageHi.url) {
     const thumbnail = `${import.meta.env.VITE_DJANGO_MEDIA_URL}${
-      imageLo ? imageLo : imageHi
+      imageLo && imageLo.url ? imageLo.url : imageHi.url
     }`;
     return (
       <Image
         rounded
         onClick={() => openLightBox(images, imageIndex)}
         fluid
-        src={thumbnail}
+        src={images[imageIndex]}
       />
     );
   }

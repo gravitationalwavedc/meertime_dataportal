@@ -1,0 +1,40 @@
+{
+  "data": {
+    "observationSummary": {
+      "edges": [
+        {
+          "node": {
+            "observations": 1,
+            "pulsars": 1,
+            "observationHours": 0
+          }
+        }
+      ]
+    },
+    "pulsarFoldSummary": {
+      "edges": [
+        {
+          "node": {
+            "pulsar": {
+              "name": "J0125-2327"
+            },
+            "latestObservation": "2020-07-10T05:07:28+00:00",
+            "latestObservationBeam": 2,
+            "firstObservation": "2019-04-23T06:11:30+00:00",
+            "allProjects": "PTA",
+            "mostCommonProject": "PTA",
+            "timespan": 444,
+            "numberOfObservations": 3,
+            "lastSn": 100.0,
+            "highestSn": 100.0,
+            "lowestSn": 100.0,
+            "lastIntegrationMinutes": 17.05475670588235,
+            "maxSnPipe": 106.60035817780525,
+            "avgSnPipe": 71.48481915250221,
+            "totalIntegrationHours": 0.6464681673202614
+          }
+        }
+      ]
+    }
+  }
+}

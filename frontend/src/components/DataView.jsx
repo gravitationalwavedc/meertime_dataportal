@@ -20,12 +20,12 @@ const DataView = ({
   mainProjectSelect,
   project,
   setProject,
+  timingProjects,
   setMainProject,
   band,
   setBand,
   options,
   plot,
-  maxPlotLength,
   keyField,
   card,
   query,
@@ -38,6 +38,7 @@ const DataView = ({
   return (
     <React.Fragment>
       <SummaryDataRow dataPoints={summaryData} />
+
       <ToolkitProvider
         bootstrap4
         keyField={keyField}
@@ -59,7 +60,8 @@ const DataView = ({
               {plot && (
                 <Row className="d-none d-sm-block">
                   <PlotContainer
-                    maxPlotLength={maxPlotLength}
+                    data={rows}
+                    timingProjects={timingProjects}
                     {...props.baseProps}
                   />
                 </Row>

@@ -1,0 +1,201 @@
+{
+  "data": {
+    "observationSummary": {
+      "edges": [
+        {
+          "node": {
+            "observations": 3,
+            "observationHours": 0,
+            "projects": 1,
+            "pulsars": 1,
+            "estimatedDiskSpaceGb": 1.0766774425551469,
+            "timespanDays": 444,
+            "maxDuration": 1039.9999999999998,
+            "minDuration": 263.99999999999994
+          }
+        }
+      ]
+    },
+    "pulsarFoldResult": {
+      "description": "PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
+      "toasLink": null,
+      "allProjects": [],
+      "edges": [
+        {
+          "node": {
+            "observation": {
+              "utcStart": "2019-04-23T06:11:30+00:00",
+              "dayOfYear": 113.25798611111111,
+              "binaryOrbitalPhase": 0.1107189377501644,
+              "duration": 263.99999999999994,
+              "beam": 1,
+              "bandwidth": 775.75,
+              "nchan": 928,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 56,
+              "nantEff": 56,
+              "restricted": false,
+              "embargoEndDate": "2020-10-22T06:11:30+00:00",
+              "project": {
+                "short": "PTA"
+              },
+              "ephemeris": {
+                "dm": 9.59243
+              },
+              "calibration": {
+                "idInt": 26
+              },
+              "toas": {
+                "edges": [
+                  {
+                    "node": {
+                      "freqMhz": 6.0,
+                      "length": 9,
+                      "project": {
+                        "short": "PTA"
+                      },
+                      "residual": {
+                        "mjd": "1.000000000000",
+                        "dayOfYear": 1.0,
+                        "binaryOrbitalPhase": null,
+                        "residualSec": 2.0,
+                        "residualSecErr": 3.0,
+                        "residualPhase": 4.0,
+                        "residualPhaseErr": 5.0
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "dmErr": 1.0,
+              "rm": 10.0,
+              "rmErr": 1.0,
+              "sn": 100.0,
+              "flux": 25.0
+            }
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "utcStart": "2019-05-14T10:14:18+00:00",
+              "dayOfYear": 134.42659722222223,
+              "binaryOrbitalPhase": 0.020231221242274857,
+              "duration": 1039.9999999999998,
+              "beam": 1,
+              "bandwidth": 775.75,
+              "nchan": 928,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 54,
+              "nantEff": 54,
+              "restricted": false,
+              "embargoEndDate": "2020-11-12T10:14:18+00:00",
+              "project": {
+                "short": "PTA"
+              },
+              "ephemeris": {
+                "dm": 9.592429
+              },
+              "calibration": {
+                "idInt": 27
+              },
+              "toas": {
+                "edges": [
+                  {
+                    "node": {
+                      "freqMhz": 6.0,
+                      "length": 9,
+                      "project": {
+                        "short": "PTA"
+                      },
+                      "residual": {
+                        "mjd": "1.000000000000",
+                        "dayOfYear": 1.0,
+                        "binaryOrbitalPhase": null,
+                        "residualSec": 2.0,
+                        "residualSecErr": 3.0,
+                        "residualPhase": 4.0,
+                        "residualPhaseErr": 5.0
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "dmErr": 1.0,
+              "rm": 10.0,
+              "rmErr": 1.0,
+              "sn": 100.0,
+              "flux": 25.0
+            }
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "utcStart": "2020-07-10T05:07:28+00:00",
+              "dayOfYear": 192.21351851851853,
+              "binaryOrbitalPhase": 0.11769268443202004,
+              "duration": 1023.2854023529411,
+              "beam": 2,
+              "bandwidth": 544.0,
+              "nchan": 1024,
+              "band": "UHF",
+              "foldNbin": 1024,
+              "nant": 28,
+              "nantEff": 28,
+              "restricted": false,
+              "embargoEndDate": "2022-01-09T05:07:28+00:00",
+              "project": {
+                "short": "PTA"
+              },
+              "ephemeris": {
+                "dm": 9.592429
+              },
+              "calibration": {
+                "idInt": 28
+              },
+              "toas": {
+                "edges": [
+                  {
+                    "node": {
+                      "freqMhz": 6.0,
+                      "length": 9,
+                      "project": {
+                        "short": "PTA"
+                      },
+                      "residual": {
+                        "mjd": "1.000000000000",
+                        "dayOfYear": 1.0,
+                        "binaryOrbitalPhase": null,
+                        "residualSec": 2.0,
+                        "residualSecErr": 3.0,
+                        "residualPhase": 4.0,
+                        "residualPhaseErr": 5.0
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "dmErr": 1.0,
+              "rm": 10.0,
+              "rmErr": 1.0,
+              "sn": 100.0,
+              "flux": 25.0
+            }
+          }
+        }
+      ]
+    }
+  }
+}

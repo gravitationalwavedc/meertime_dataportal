@@ -1,0 +1,49 @@
+{
+  "data": {
+    "observationSummary": {
+      "edges": [
+        {
+          "node": {
+            "observations": 67,
+            "pulsars": 5,
+            "observationHours": 7
+          }
+        }
+      ]
+    },
+    "pulsarSearchSummary": {
+      "edges": [
+        {
+          "node": {
+            "pulsar": {
+              "name": "J1709-3626"
+            },
+            "latestObservation": "2023-10-10T15:09:15+00:00",
+            "firstObservation": "2020-03-15T22:58:52+00:00",
+            "allProjects": "TPA",
+            "mostCommonProject": "TPA",
+            "timespan": 1304,
+            "numberOfObservations": 32,
+            "lastIntegrationMinutes": 2.27105,
+            "totalIntegrationHours": 1.6462197222222223
+          }
+        },
+        {
+          "node": {
+            "pulsar": {
+              "name": "J1614+0737"
+            },
+            "latestObservation": "2023-08-01T18:21:59+00:00",
+            "firstObservation": "2020-01-11T03:16:05+00:00",
+            "allProjects": "TPA",
+            "mostCommonProject": "TPA",
+            "timespan": 1299,
+            "numberOfObservations": 31,
+            "lastIntegrationMinutes": 2.0044833333333334,
+            "totalIntegrationHours": 1.8249666666666682
+          }
+        }
+      ]
+    }
+  }
+}

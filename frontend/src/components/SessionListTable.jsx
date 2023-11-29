@@ -7,20 +7,18 @@ import { formatUTC } from "../helpers";
 
 const sessionListTableQuery = graphql`
   fragment SessionListTable_data on Query {
-    sessionList {
+    calibration {
       edges {
         node {
+          id
+          idInt
           start
           end
-          numberOfObservations
-          numberOfPulsars
-          listOfPulsars
-          frequency
-          projects
-          totalIntegration
-          nDishMin
-          nDishMax
-          zapFraction
+          allProjects
+          nObservations
+          nAntMin
+          nAntMax
+          totalIntegrationTimeSeconds
         }
       }
     }
@@ -30,15 +28,16 @@ const sessionListTableQuery = graphql`
 const SessionListTable = ({ data }) => {
   const fragmentData = useFragment(sessionListTableQuery, data);
 
-  const allRows = fragmentData.sessionList.edges.reduce((result, edge) => {
+  const allRows = fragmentData.calibration.edges.reduce((result, edge) => {
     const row = { ...edge.node };
+    console.log(row);
     row.start = formatUTC(row.start);
     row.end = formatUTC(row.end);
     row.key = `${row.start}-${row.end}`;
     row.action = (
       <ButtonGroup vertical>
         <Link
-          to={`/session/${row.start}/${row.end}/`}
+          to={`/session/${row.idInt}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}
@@ -62,45 +61,45 @@ const SessionListTable = ({ data }) => {
     },
     { dataField: "start", text: "Start" },
     { dataField: "end", text: "End" },
-    { dataField: "projects", text: "Projects" },
+    { dataField: "allProjects", text: "Projects" },
     {
-      dataField: "numberOfObservations",
+      dataField: "nObservations",
       text: "Observations",
       align: "right",
       headerAlign: "right",
     },
+    // {
+    //   dataField: "frequency",
+    //   text: "Frequency",
+    //   align: "right",
+    //   headerAlign: "right",
+    // },
     {
-      dataField: "frequency",
-      text: "Frequency",
-      align: "right",
-      headerAlign: "right",
-    },
-    {
-      dataField: "totalIntegration",
+      dataField: "totalIntegrationTimeSeconds",
       text: "Total Int",
-      formatter: (cell) => `${cell} [s]`,
+      formatter: (cell) => `${parseFloat(cell).toFixed(1)} [s]`,
       align: "right",
       headerAlign: "right",
     },
     {
-      dataField: "nDishMin",
-      text: "NDISH (min)",
+      dataField: "nAntMin",
+      text: "N_ANT (min)",
       align: "right",
       headerAlign: "right",
     },
     {
-      dataField: "nDishMax",
-      text: "NDISH (max)",
+      dataField: "nAntMax",
+      text: "N_ANT (max)",
       align: "right",
       headerAlign: "right",
     },
-    {
-      dataField: "zapFraction",
-      text: "Zap fraction (%)",
-      align: "right",
-      headerAlign: "right",
-    },
-    { dataField: "listOfPulsars", hidden: true },
+    // {
+    //   dataField: "zapFraction",
+    //   text: "Zap fraction (%)",
+    //   align: "right",
+    //   headerAlign: "right",
+    // },
+    // { dataField: "listOfPulsars", hidden: true },
     {
       dataField: "action",
       text: "",
@@ -118,7 +117,7 @@ const SessionListTable = ({ data }) => {
       return;
     }
     const newRows = allRows.filter((row) =>
-      row.projects.toLowerCase().includes(project.toLowerCase())
+      row.allProjects.toLowerCase().includes(project.toLowerCase())
     );
     setRows(newRows);
   };

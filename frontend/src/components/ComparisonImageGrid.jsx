@@ -10,20 +10,16 @@ const ComparisonImageGrid = ({
   project,
 }) => {
   const comparisonImageTypes = [
-    { rawType: "flux", processedType: "flux" },
-    { rawType: "freq", processedType: "freq" },
-    { rawType: "time", processedType: "time" },
-    { rawType: "band", processedType: "bandpass" },
-    { rawType: "snrt", processedType: "snr-cumul" },
+    "profile",
+    "profile_pol",
+    "phase_time",
+    "phase_freq",
+    "bandpass",
+    "snr_cumul",
+    "snr_single",
   ];
 
-  const extraImageOrder = [
-    "calib-dynspec",
-    "profile-pol",
-    "snr-single",
-    "toa-single",
-    "zap-dynspec",
-  ];
+  const extraImageOrder = ["toa_single", "toa_dm_corrected"];
 
   return (
     <>
@@ -35,12 +31,14 @@ const ComparisonImageGrid = ({
           <h5>Cleaned by {formatProjectName(project)}</h5>
         </Col>
       </Row>
-      {comparisonImageTypes.map(({ rawType, processedType }) => (
+      {comparisonImageTypes.map((imageType) => (
         <ImageComparisonRow
-          key={`${rawType}_${processedType}`}
-          rawImage={rawImages.find(({ node }) => node.plotType === rawType)}
+          key={`${imageType}`}
+          rawImage={rawImages.find(
+            ({ node }) => node.imageType.toLowerCase() === imageType
+          )}
           processedImage={processedImages.find(
-            ({ node }) => node.genericPlotType === processedType
+            ({ node }) => node.imageType.toLowerCase() === imageType
           )}
           openLightBox={openLightBox}
         />
@@ -56,14 +54,14 @@ const ComparisonImageGrid = ({
             <Col>
               {extraImageOrder.map((imageType) => {
                 const edge = processedImages.find(
-                  ({ node }) => node.plotType === imageType
+                  ({ node }) => node.imageType.toLowerCase() === imageType
                 );
                 if (edge === undefined) return null;
                 return (
                   <PlotImage
                     key={imageType}
                     imageData={edge.node}
-                    handleClick={() => openLightBox(edge.node.url)}
+                    handleClick={() => openLightBox(edge.node.image)}
                   />
                 );
               })}

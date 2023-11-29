@@ -1,7 +1,7 @@
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { columnsSizeFilter, formatUTC } from "../helpers";
-import { graphql, useRefetchableFragment } from "react-relay";
+import { graphql, useFragment } from "react-relay";
 
 import DataView from "./DataView";
 import LightBox from "react-image-lightbox";
@@ -10,38 +10,70 @@ import SessionImage from "./SessionImage";
 import moment from "moment";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
+import image404 from "../assets/images/image404.png";
 
 const sessionTableQuery = graphql`
   fragment SessionTable_data on Query
-  @refetchable(queryName: "SessionTableQuery")
-  @argumentDefinitions(
-    start: { type: "String" }
-    end: { type: "String" }
-    utc: { type: "String" }
-    project: { type: "String", defaultValue: "All" }
-  ) {
-    sessionDisplay(start: $start, end: $end, utc: $utc) {
-      start
-      end
-      numberOfObservations
-      numberOfPulsars
-      sessionPulsars(project: $project) {
-        edges {
-          node {
-            jname
-            pulsarType
-            project
-            utc
-            beam
-            integrations
-            frequency
-            backendSN
-            fluxHi
-            phaseVsTimeHi
-            phaseVsFrequencyHi
-            fluxLo
-            phaseVsTimeLo
-            phaseVsFrequencyLo
+  @argumentDefinitions(id: { type: "Int" }) {
+    observationSummary(
+      pulsar_Name: "All"
+      obsType: "All"
+      calibrationInt: $id
+      mainProject: "All"
+      project_Short: "All"
+      band: "All"
+    ) {
+      edges {
+        node {
+          observations
+          projects
+          pulsars
+        }
+      }
+    }
+    calibration(id: $id) {
+      edges {
+        node {
+          id
+          idInt
+          start
+          end
+          observations {
+            edges {
+              node {
+                id
+                pulsar {
+                  name
+                }
+                utcStart
+                beam
+                obsType
+                duration
+                frequency
+                project {
+                  short
+                }
+                pulsarFoldResults {
+                  edges {
+                    node {
+                      images {
+                        edges {
+                          node {
+                            url
+                            imageType
+                            cleaned
+                          }
+                        }
+                      }
+                      pipelineRun {
+                        sn
+                        percentRfiZapped
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -49,11 +81,8 @@ const sessionTableQuery = graphql`
   }
 `;
 
-const SessionTable = ({ data, utc }) => {
-  const [fragmentData, refetch] = useRefetchableFragment(
-    sessionTableQuery,
-    data
-  );
+const SessionTable = ({ data, id }) => {
+  const sessionData = useFragment(sessionTableQuery, data);
   const { screenSize } = useScreenSize();
   const [project, setProject] = useState("All");
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -62,24 +91,13 @@ const SessionTable = ({ data, utc }) => {
     imagesIndex: 0,
   });
 
-  useEffect(() => {
-    if (utc !== undefined) {
-      refetch({ start: null, end: null, utc: utc, project: project });
-    } else {
-      refetch({
-        start: fragmentData.sessionDisplay.start,
-        end: fragmentData.sessionDisplay.end,
-        utc: null,
-        project: project,
-      });
-    }
-  }, [project, utc, refetch, fragmentData.sessionDisplay]);
-
+  // Grab the single item from the edges array
+  const calibration_node = sessionData.calibration.edges[0]?.node;
   const startDate = moment
-    .parseZone(fragmentData.sessionDisplay.start, moment.ISO_8601)
+    .parseZone(calibration_node.start, moment.ISO_8601)
     .format("h:mma DD/MM/YYYY");
   const endDate = moment
-    .parseZone(fragmentData.sessionDisplay.end, moment.ISO_8601)
+    .parseZone(calibration_node.end, moment.ISO_8601)
     .format("h:mma DD/MM/YYYY");
 
   const openLightBox = (images, imageIndex) => {
@@ -87,22 +105,46 @@ const SessionTable = ({ data, utc }) => {
     setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
 
-  const rows = fragmentData.sessionDisplay.sessionPulsars.edges.reduce(
-    (result, edge) => {
-      const row = { ...edge.node };
-      row.utc = formatUTC(row.utc);
-      row.projectKey = project;
+  const rows = calibration_node.observations.edges.reduce((result, edge) => {
+    const row = { ...edge.node };
+    row.utc = formatUTC(row.utcStart);
+    row.projectKey = project;
 
+    console.log("row.pulsarFoldResults", row.pulsarFoldResults);
+    if (row.pulsarFoldResults.edges.length === 0) {
+      row.sn = null;
+      row.flux = null;
+      row.phaseVsTime = null;
+      row.phaseVsFrequency = null;
+    } else {
+      const pulsarFoldResult = row.pulsarFoldResults.edges[0]?.node;
+      row.sn = pulsarFoldResult.pipelineRun.sn;
+
+      // Grab the three images
+      console.log("pulsarFoldResult.images", pulsarFoldResult.images);
+      const flux = pulsarFoldResult.images.edges.filter(
+        (edge) => edge.node.imageType === "PROFILE" && edge.node.cleaned
+      )[0]?.node;
+      const phaseVsTime = pulsarFoldResult.images.edges.filter(
+        (edge) => edge.node.imageType === "PHASE_TIME" && edge.node.cleaned
+      )[0]?.node;
+      const phaseVsFrequency = pulsarFoldResult.images.edges.filter(
+        (edge) => edge.node.imageType === "PHASE_FREQ" && edge.node.cleaned
+      )[0]?.node;
       const images = [
-        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.fluxHi}`,
-        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.phaseVsTimeHi}`,
-        `${import.meta.env.VITE_DJANGO_MEDIA_URL}${row.phaseVsFrequencyHi}`,
+        flux ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}` : image404,
+        phaseVsTime
+          ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`
+          : image404,
+        phaseVsFrequency
+          ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}`
+          : image404,
       ];
 
       row.flux = (
         <SessionImage
-          imageHi={row.fluxHi}
-          imageLo={row.fluxLo}
+          imageHi={flux}
+          imageLo={flux}
           images={images}
           imageIndex={0}
           openLightBox={openLightBox}
@@ -110,8 +152,8 @@ const SessionTable = ({ data, utc }) => {
       );
       row.phaseVsTime = (
         <SessionImage
-          imageHi={row.phaseVsTimeHi}
-          imageLo={row.phaseVsTimeLo}
+          imageHi={phaseVsTime}
+          imageLo={phaseVsTime}
           images={images}
           imageIndex={1}
           openLightBox={openLightBox}
@@ -119,62 +161,71 @@ const SessionTable = ({ data, utc }) => {
       );
       row.phaseVsFrequency = (
         <SessionImage
-          imageHi={row.phaseVsFrequencyHi}
-          imageLo={row.phaseVsFrequencyLo}
+          imageHi={phaseVsFrequency}
+          imageLo={phaseVsFrequency}
           images={images}
           imageIndex={2}
           openLightBox={openLightBox}
         />
       );
-      row.action = (
-        <ButtonGroup vertical>
+    }
+
+    row.action = (
+      <ButtonGroup vertical>
+        <Link
+          to={`/${row.obsType}/meertime/${row.pulsar.name}/`}
+          size="sm"
+          variant="outline-secondary"
+          as={Button}
+        >
+          View all
+        </Link>
+        {row.pulsarFoldResults.edges.length != 0 && (
           <Link
-            to={`/${row.pulsarType}/meertime/${row.jname}/`}
+            to={`/${row.pulsar.name}/${row.utc}/${row.beam}/`}
             size="sm"
             variant="outline-secondary"
             as={Button}
           >
-            View all
+            View this
           </Link>
-          <Link
-            to={`/${row.jname}/${row.utc}/${row.beam}/`}
-            size="sm"
-            variant="outline-secondary"
-            as={Button}
-          >
-            View last
-          </Link>
-        </ButtonGroup>
-      );
-      return [...result, { ...row }];
-    },
-    []
-  );
+        )}
+      </ButtonGroup>
+    );
+    return [...result, { ...row }];
+  }, []);
 
   const columns = [
-    { dataField: "jname", text: "JName", sort: true },
+    { dataField: "pulsar.name", text: "JName", sort: true },
     {
-      dataField: "project",
+      dataField: "project.short",
       text: "Project",
       sort: true,
       screenSizes: ["md", "lg", "xl", "xxl"],
     },
-    { dataField: "utc", text: "UTC", sort: true, screenSizes: ["xl", "xxl"] },
     {
-      dataField: "backendSN",
-      text: "Backend S/N",
-      align: "right",
-      headerAlign: "right",
+      dataField: "utcStart",
+      text: "UTC",
       sort: true,
+      formatter: (cell) => formatUTC(cell),
       screenSizes: ["xl", "xxl"],
     },
     {
-      dataField: "integrations",
-      text: "Integration",
+      dataField: "sn",
+      text: "S/N",
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => `${cell} [s]`,
+      formatter: (cell) => (cell ? cell.toFixed(1) : NaN),
+      screenSizes: ["xl", "xxl"],
+    },
+    {
+      dataField: "duration",
+      text: "Duration",
+      align: "right",
+      headerAlign: "right",
+      sort: true,
+      formatter: (cell) => (cell ? `${cell.toFixed(1)} [s]` : NaN),
       screenSizes: ["xl", "xxl"],
     },
     {
@@ -183,7 +234,7 @@ const SessionTable = ({ data, utc }) => {
       align: "right",
       headerAlign: "right",
       sort: true,
-      formatter: (cell) => `${cell} Mhz`,
+      formatter: (cell) => (cell ? `${cell.toFixed(1)} [Mhz]` : NaN),
       screenSizes: ["xxl"],
     },
     {
@@ -220,18 +271,18 @@ const SessionTable = ({ data, utc }) => {
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
-  const projectData = fragmentData.sessionDisplay.sessionPulsars.edges.reduce(
+  const seenProjects = new Set();
+  const projectData = calibration_node.observations.edges.reduce(
     (result, edge) => {
-      if (
-        result.filter((project) => project.title === edge.node.project)
-          .length === 0
-      ) {
+      if (!seenProjects.has(edge.node.project.short)) {
+        seenProjects.add(edge.node.project.short);
         return [
           ...result,
           {
-            title: edge.node.project,
-            value: fragmentData.sessionDisplay.sessionPulsars.edges.filter(
-              (newEdge) => newEdge.node.project === edge.node.project
+            title: edge.node.project.short,
+            value: calibration_node.observations.edges.filter(
+              (newEdge) =>
+                newEdge.node.project.short === edge.node.project.short
             ).length,
           },
         ];
@@ -245,9 +296,12 @@ const SessionTable = ({ data, utc }) => {
   const summaryData = [
     {
       title: "Observations",
-      value: fragmentData.sessionDisplay.numberOfObservations,
+      value: sessionData.observationSummary.edges[0]?.node.observations,
     },
-    { title: "Pulsars", value: fragmentData.sessionDisplay.numberOfPulsars },
+    {
+      title: "Pulsars",
+      value: sessionData.observationSummary.edges[0]?.node.pulsars,
+    },
     ...projectData,
   ];
 

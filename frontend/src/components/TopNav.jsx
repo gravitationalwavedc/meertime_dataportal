@@ -33,6 +33,9 @@ const TopNav = () => {
             </Link>
           </Nav>
           <Nav>
+            <Link to="/token_generate/" exact as={Nav.Link}>
+              Generate Token
+            </Link>
             <Link to="/password_change/" exact as={Nav.Link}>
               Change Password
             </Link>
