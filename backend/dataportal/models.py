@@ -929,7 +929,7 @@ class Toa(models.Model):
                     bw           =toa_dict["bw"],
                     tobs         =toa_dict["tobs"],
                     tmplt        =toa_dict["tmplt"],
-                    gof          =toa_dict["gof"],
+                    gof          =toa_dict.get("gof", None),
                     nbin         =toa_dict["nbin"],
                     nch          =toa_dict["nch"],
                     chan         =toa_dict["chan"],

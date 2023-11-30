@@ -2,7 +2,8 @@ import os
 import json
 import copy
 import pytest
-from dataportal.tests.testing_utils import setup_query_test, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
+from dataportal.tests.testing_utils import setup_query_test, upload_toa_files, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
+from utils.tests.test_toa import TOA_FILES
 
 
 
@@ -558,3 +559,11 @@ def test_session_list_query():
         expected = json.load(file)["data"]
     assert not response.errors
     assert response.data == expected
+
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_toa_uploads():
+    client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
+    for toa_file in TOA_FILES:
+        upload_toa_files(pipeline_run, "PTA", template, toa_file)
