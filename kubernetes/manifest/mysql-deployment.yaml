@@ -17,7 +17,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-persistent-storage-staging
+  name: mysql-pv-claim-staging
   labels:
     app: mysql
     tier: database
@@ -106,4 +106,4 @@ spec:
       volumes:
         - name: mysql-persistent-storage-staging
           persistentVolumeClaim:
-            claimName: mysql-persistent-storage-staging
+            claimName: mysql-pv-claim-staging
