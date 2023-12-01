@@ -72,7 +72,7 @@ spec:
             - containerPort: 3306
               name: mysql
           volumeMounts:
-            - name: mysql-persistent-storage-dev
+            - name: mysql-persistent-storage-staging
               mountPath: /var/lib/mysql
           livenessProbe:
             exec:
@@ -104,6 +104,6 @@ spec:
             periodSeconds: 2
             timeoutSeconds: 1
       volumes:
-        - name: mysql-persistent-storage-dev
+        - name: mysql-persistent-storage-staging
           persistentVolumeClaim:
             claimName: mysql-persistent-storage-staging

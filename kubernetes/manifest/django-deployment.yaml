@@ -111,7 +111,7 @@ spec:
                   name: db-conf
                   key: host
           volumeMounts:
-            - name: meertime-img-storage-dev
+            - name: meertime-img-storage-staging
               mountPath: /media
           envFrom: # defines DJANGO_SECRET_KEY, SENTRY_DSN, SLACK_WEBHOOK, and KRONOS_PAYLOAD
             - secretRef:
@@ -127,6 +127,6 @@ spec:
         - name: mysql-control-script
           configMap:
             name: mysql-control-map
-        - name: meertime-img-storage-dev
+        - name: meertime-img-storage-staging
           persistentVolumeClaim:
             claimName: meertime-img-storage-staging

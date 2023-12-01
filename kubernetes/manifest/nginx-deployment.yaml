@@ -66,10 +66,10 @@ spec:
             - mountPath: /static
               name: static-volume-django
             - mountPath: /media
-              name: meertime-img-storage-dev
+              name: meertime-img-storage-staging
       volumes:
         - name: static-volume-django
           emptyDir: {}
-        - name: meertime-img-storage-dev
+        - name: meertime-img-storage-staging
           persistentVolumeClaim:
             claimName: meertime-img-storage-staging
