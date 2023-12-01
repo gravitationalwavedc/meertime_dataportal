@@ -17,7 +17,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pv-claim-dev
+  name: mysql-persistent-storage-staging
   labels:
     app: mysql
     tier: database
@@ -51,15 +51,20 @@ spec:
         tier: database
     spec:
       containers:
-        - image: mysql:8.0.21
+        - image: postgres:14.9
           resources: {}
           name: mysql
           env:
-            - name: MYSQL_ROOT_PASSWORD
+            - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: db-root-credentials
-                  key: password
+                  key: username
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: db-root-credentials
+                  key: database
           envFrom:
             - secretRef:
                 name: db-config
@@ -72,11 +77,14 @@ spec:
           livenessProbe:
             exec:
               command:
-                - bash
-                - "-c"
-                - |
-                  set -ex
-                  mysqladmin -p$MYSQL_ROOT_PASSWORD ping &> /dev/null
+                - psql
+                - -w
+                - -U
+                - $POSTGRES_USER
+                - -d
+                - $POSTGRES_DATABASE
+                - -c
+                - "SELECT 1"
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -84,11 +92,14 @@ spec:
             exec:
               # Check we can execute queries over TCP (skip-networking is off).
               command:
-                - bash
-                - "-c"
-                - |
-                  set -ex
-                  mysql -h 127.0.0.1 -p$MYSQL_ROOT_PASSWORD -e "SELECT 1" &> /dev/null
+                - psql
+                - -w
+                - -U
+                - $POSTGRES_USER
+                - -d
+                - $POSTGRES_DATABASE
+                - -c
+                - "SELECT 1"
             initialDelaySeconds: 5
             periodSeconds: 2
             timeoutSeconds: 1
