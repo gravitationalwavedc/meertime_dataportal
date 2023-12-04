@@ -12,6 +12,7 @@ data:
     set -o errexit
     set -o nounset
 
+    apt update -y
     apt install -y curl
 
     CONTROL_DIR=/tmp
