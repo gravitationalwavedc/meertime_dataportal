@@ -13,7 +13,7 @@ data:
     set -o nounset
 
     apt update -y
-    apt install -y curl
+    apt install -y curl wget
 
     CONTROL_DIR=/tmp
     STATE_FILE=${CONTROL_DIR}/mysql-state.cfg
