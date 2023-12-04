@@ -46,7 +46,7 @@ data:
       echo "Listing download"
       ls -l ${CONTROL_DIR}/${DESIRED_STATE}
       md5sum_check=$(md5sum ${CONTROL_DIR}/${DESIRED_STATE} | awk '{print $1}')
-      if [[ "${md5sum_check}" == "${CHECKSUM}" ]]; then
+      if [ "${md5sum_check}" = "${CHECKSUM}" ]; then
         echo "Checksum matches, proceeding"
         gunzip  < ${CONTROL_DIR}/${DESIRED_STATE} | pg_restore -d $POSTGRES_DATABASE -U $POSTGRES_USER -w
         echo ${DESIRED_STATE} > ${STATE_FILE}
