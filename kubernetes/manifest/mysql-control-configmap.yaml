@@ -12,6 +12,8 @@ data:
     set -o errexit
     set -o nounset
 
+    apt install curl
+
     CONTROL_DIR=/tmp
     STATE_FILE=${CONTROL_DIR}/mysql-state.cfg
     DESIRED_STATE=meertime_staging_db_init_2023-12-1.sql.gz
