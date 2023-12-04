@@ -12,7 +12,7 @@ data:
     set -o errexit
     set -o nounset
 
-    CONTROL_DIR=/mnt/mysql/
+    CONTROL_DIR=/tmp
     STATE_FILE=${CONTROL_DIR}/mysql-state.cfg
     DESIRED_STATE=meertime_staging_db_init_2023-12-1.sql.gz
     DESIRED_STATE_UNPACKED=$(echo $DESIRED_STATE | sed 's/.gz//g')
@@ -49,7 +49,7 @@ data:
       if [[ "${md5sum_check}" = "${CHECKSUM}" ]]
       then
         echo "Checksum matches, proceeding"
-        gunzip  < ${CONTROL_DIR}/${DESIRED_STATE} | pg_restore -d $POSTGRES_DATABASE -U $POSTGRES_USER -W $POSTGRES_PASSWORD
+        gunzip  < ${CONTROL_DIR}/${DESIRED_STATE} | pg_restore -d $POSTGRES_DATABASE -U $POSTGRES_USER -w
         echo ${DESIRED_STATE} > ${STATE_FILE}
       else
         echo "Checksum of desired state file does not match expectation, aborting"

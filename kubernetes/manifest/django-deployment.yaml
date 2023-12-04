@@ -65,7 +65,7 @@ spec:
         - name: regcred
       serviceAccountName: meertime
       initContainers:
-        - image: nexus.gwdc.org.au/docker/mysqldump:0.2
+        - image: postgres:14.9
           name: mysql-control
           env:
             - name: DB_HOST
@@ -79,8 +79,6 @@ spec:
             - secretRef:
                 name: db-config
           volumeMounts:
-            - name: mysql-persistent-storage
-              mountPath: /mnt/mysql
             - name: mysql-control-script
               mountPath: /mnt/mysql-control
           command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]

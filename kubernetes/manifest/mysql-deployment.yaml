@@ -54,55 +54,44 @@ spec:
         - image: postgres:14.9
           resources: {}
           name: mysql
-          env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: db-root-credentials
-                  key: username
-            - name: POSTGRES_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: db-root-credentials
-                  key: database
           envFrom:
             - secretRef:
                 name: db-config
           ports:
-            - containerPort: 3306
+            - containerPort: 5432
               name: mysql
           volumeMounts:
             - name: mysql-persistent-storage-staging
-              mountPath: /var/lib/mysql
-          livenessProbe:
-            exec:
-              command:
-                - psql
-                - -w
-                - -U
-                - $POSTGRES_USER
-                - -d
-                - $POSTGRES_DATABASE
-                - -c
-                - "SELECT 1"
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-          readinessProbe:
-            exec:
-              # Check we can execute queries over TCP (skip-networking is off).
-              command:
-                - psql
-                - -w
-                - -U
-                - $POSTGRES_USER
-                - -d
-                - $POSTGRES_DATABASE
-                - -c
-                - "SELECT 1"
-            initialDelaySeconds: 5
-            periodSeconds: 2
-            timeoutSeconds: 1
+              mountPath: /var/lib/postgresql/data
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - psql
+          #       - -w
+          #       - -U
+          #       - $POSTGRES_USER
+          #       - -d
+          #       - $POSTGRES_DATABASE
+          #       - -c
+          #       - "SELECT 1"
+          #   initialDelaySeconds: 30
+          #   periodSeconds: 10
+          #   timeoutSeconds: 5
+          # readinessProbe:
+          #   exec:
+          #     # Check we can execute queries over TCP (skip-networking is off).
+          #     command:
+          #       - psql
+          #       - -w
+          #       - -U
+          #       - $POSTGRES_USER
+          #       - -d
+          #       - $POSTGRES_DATABASE
+          #       - -c
+          #       - "SELECT 1"
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 2
+          #   timeoutSeconds: 1
       volumes:
         - name: mysql-persistent-storage-staging
           persistentVolumeClaim:

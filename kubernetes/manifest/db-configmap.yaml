@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: db-conf
 data:
-  host: mysql
+  host: postgres
   name: meertime
