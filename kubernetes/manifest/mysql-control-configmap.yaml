@@ -19,7 +19,7 @@ data:
     STATE_FILE=${CONTROL_DIR}/mysql-state.cfg
     DESIRED_STATE=meertime_staging_db_init_2023-12-1.sql.gz
     DESIRED_STATE_UNPACKED=$(echo $DESIRED_STATE | sed 's/.gz//g')
-    CHECKSUM=8a257add86ed6ef92d39754d3b281412
+    CHECKSUM=d0c0e541d5de2e86a4dbae32f49ad749
 
     trap "rm -f ${CONTROL_DIR}/${DESIRED_STATE} ${CONTROL_DIR}/${DESIRED_STATE_UNPACKED}" EXIT
 
