@@ -12,7 +12,7 @@ data:
     set -o errexit
     set -o nounset
 
-    apt install curl
+    apt install -y curl
 
     CONTROL_DIR=/tmp
     STATE_FILE=${CONTROL_DIR}/mysql-state.cfg
