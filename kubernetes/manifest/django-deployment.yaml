@@ -81,7 +81,7 @@ spec:
           volumeMounts:
             - name: db-ingest-script
               mountPath: /mnt/db-ingest/
-          command: ["/bin/sh", "/mnt/db-ingest/control-mysql.sh"]
+          command: ["/bin/sh", "/mnt/db-ingest/ingest-postgres.sh"]
         - name: migrate
           image: nexus.gwdc.org.au/meertime/django:3.0.0
           imagePullPolicy: Always
