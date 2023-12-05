@@ -79,9 +79,9 @@ spec:
             - secretRef:
                 name: db-config
           volumeMounts:
-            - name: mysql-control-script
-              mountPath: /mnt/mysql-control
-          command: ["/bin/sh", "/mnt/mysql-control/control-mysql.sh"]
+            - name: db-ingest-script
+              mountPath: /mnt/db-ingest/
+          command: ["/bin/sh", "/mnt/db-ingest/control-mysql.sh"]
         - name: migrate
           image: nexus.gwdc.org.au/meertime/django:3.0.0
           imagePullPolicy: Always

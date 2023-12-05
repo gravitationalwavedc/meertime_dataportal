@@ -2,11 +2,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mysql-control-map
+  name: db-ingest-script
   labels:
     app.kubernetes.io/name: mysql-control
 data:
-  control-mysql.sh: |-
+  ingest-postgres.sh: |-
     #!/bin/sh
 
     set -o errexit
@@ -23,31 +23,18 @@ data:
 
     trap "rm -f ${CONTROL_DIR}/${DESIRED_STATE} ${CONTROL_DIR}/${DESIRED_STATE_UNPACKED}" EXIT
 
-    PERFORM_INIT=1
+    # Check if the database is empty
+    is_empty=$(psql -h postgres -U $POSTGRES_USER -d $POSTGRES_DATABASE -wtAc "SELECT COUNT(*) FROM pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';")
 
-    echo "testing if state file exist"
-    if [ -e ${STATE_FILE} ]; then
-      echo "State file exists"
-      echo "Verifying contents"
-      contents=$(cat ${STATE_FILE})
-      echo "Contents of the file are :$contents"
-      if [ "${contents}"x != ${DESIRED_STATE}x ] || [ "FORCE_RELOAD_DEV"x = "$FORCE_RELOAD"x ]; then
-        PERFORM_INIT=0
-      else
-        echo "mysql is in desired state"
-      fi
-    else
-      PERFORM_INIT=0
-    fi
+    if [ "$is_empty" -eq "0" ]; then
+      echo "Database is empty. Restoring from backup..."
 
-    if [ "${PERFORM_INIT}" -eq "0" ]; then
-      cd ${CONTROL_DIR}
-      /bin/sh /vault/secrets/retrieve-control.sh ${DESIRED_STATE}
       echo "Listing download"
       ls -l ${CONTROL_DIR}/${DESIRED_STATE}
       md5sum_check=$(md5sum ${CONTROL_DIR}/${DESIRED_STATE} | awk '{print $1}')
       if [ "${md5sum_check}" = "${CHECKSUM}" ]; then
         echo "Checksum matches, proceeding"
+        # Run pg_restore
         gunzip  < ${CONTROL_DIR}/${DESIRED_STATE} | pg_restore -d $POSTGRES_DATABASE -U $POSTGRES_USER -w -h postgres
         echo ${DESIRED_STATE} > ${STATE_FILE}
       else
@@ -56,6 +43,8 @@ data:
         ls ${CONTROL_DIR}/${DESIRED_STATE}
         exit 1
       fi
+    else
+      echo "Database is not empty. No restore needed."
     fi
 
     exit 0
