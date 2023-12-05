@@ -4,7 +4,7 @@ kind: ConfigMap
 metadata:
   name: db-ingest-script
   labels:
-    app.kubernetes.io/name: mysql-control
+    app.kubernetes.io/name: db-ingest
 data:
   ingest-postgres.sh: |-
     #!/bin/sh
