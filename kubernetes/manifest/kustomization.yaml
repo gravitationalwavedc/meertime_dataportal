@@ -8,7 +8,7 @@ resources:
   - mysql-control-configmap.yaml
   - mysql-staging-pv.yaml
   - mysql-deployment.yaml
-  - meertime-img-staging-pv.yaml
+  - meertime-storage-img-pv-staging.yaml
   - django-deployment.yaml
   - nginx-deployment.yaml
   - meertime-ingress.yaml
