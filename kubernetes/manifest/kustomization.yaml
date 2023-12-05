@@ -5,7 +5,7 @@ resources:
   - meertime-role-binding.yaml
   - meertime-secrets-integrator.yaml
   - db-configmap.yaml
-  - mysql-control-configmap.yaml
+  - db-ingest-script.yaml
   - mysql-staging-pv.yaml
   - mysql-deployment.yaml
   - meertime-storage-img-pv-staging.yaml
