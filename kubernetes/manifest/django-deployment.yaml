@@ -122,9 +122,9 @@ spec:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
             claimName: mysql-pv-claim-staging
-        - name: mysql-control-script
+        - name: db-ingest-script
           configMap:
-            name: mysql-control-map
+            name: db-ingest-script
         - name: meertime-img-storage-staging
           persistentVolumeClaim:
             claimName: meertime-storage-img-pvc-staging
