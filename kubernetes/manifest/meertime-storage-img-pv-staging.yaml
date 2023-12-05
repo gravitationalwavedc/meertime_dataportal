@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: meertime-img-storage-staging
+  name: meertime-storage-img-pv-staging
   labels:
     app: dataportal
     tier: django

@@ -72,4 +72,4 @@ spec:
           emptyDir: {}
         - name: meertime-img-storage-staging
           persistentVolumeClaim:
-            claimName: meertime-img-pv-claim-staging
+            claimName: meertime-storage-img-pvc-staging

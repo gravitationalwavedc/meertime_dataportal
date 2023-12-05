@@ -15,7 +15,7 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: meertime-img-pv-claim-staging
+  name: meertime-storage-img-pvc-staging
   labels:
     app: dataportal
     tier: django
@@ -127,4 +127,4 @@ spec:
             name: mysql-control-map
         - name: meertime-img-storage-staging
           persistentVolumeClaim:
-            claimName: meertime-img-pv-claim-staging
+            claimName: meertime-storage-img-pvc-staging
