@@ -74,9 +74,9 @@ spec:
               command:
                 - psql
                 - -w
-                - -h $DB_HOST
-                - -U $POSTGRES_USER
-                - -d $POSTGRES_DATABASE
+                - -h $(DB_HOST)
+                - -U $(POSTGRES_USER)
+                - -d $(POSTGRES_DATABASE)
                 - -c  "SELECT 1"
             initialDelaySeconds: 30
             periodSeconds: 10
@@ -87,9 +87,9 @@ spec:
               command:
                 - psql
                 - -w
-                - -h $DB_HOST
-                - -U $POSTGRES_USER
-                - -d $POSTGRES_DATABASE
+                - -h $(DB_HOST)
+                - -U $(POSTGRES_USER)
+                - -d $(POSTGRES_DATABASE)
                 - -c  "SELECT 1"
             initialDelaySeconds: 5
             periodSeconds: 2
