@@ -54,12 +54,6 @@ spec:
         - image: postgres:14.9
           resources: {}
           name: postgres
-          env:
-            - name: DB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  name: db-configmap
-                  key: host
           envFrom:
             - secretRef:
                 name: db-config
@@ -76,7 +70,7 @@ spec:
                 - "-c"
                 - |
                   set -ex
-                  psql -w -h $DB_HOST -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
+                  psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -88,7 +82,7 @@ spec:
                 - "-c"
                 - |
                   set -ex
-                  psql -w -h $DB_HOST -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
+                  psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
             initialDelaySeconds: 5
             periodSeconds: 2
             timeoutSeconds: 1
