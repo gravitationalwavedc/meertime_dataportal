@@ -71,7 +71,7 @@ spec:
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: db-conf
+                  name: db-configmap
                   key: host
           envFrom:
             - secretRef:
@@ -89,7 +89,7 @@ spec:
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: db-conf
+                  name: db-configmap
                   key: host
           envFrom:
             - secretRef:
@@ -106,7 +106,7 @@ spec:
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: db-conf
+                  name: db-configmap
                   key: host
           volumeMounts:
             - name: meertime-img-storage-staging

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: db-conf
+  name: db-configmap
 data:
-  host: postgres
+  host: database.meertime-staging.svc.cluster.local
   name: meertime
