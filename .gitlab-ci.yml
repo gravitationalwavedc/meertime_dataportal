@@ -136,7 +136,7 @@ react-formatting:
 
 docker-build:
   image: docker:20.10.16
-  stage: build
+  before_script: []
   services:
     - docker:20.10.16-dind
   script:
