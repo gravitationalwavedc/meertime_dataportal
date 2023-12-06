@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-bkp-pv-claim-staging
+  name: db-storage-bkp-pvc-staging
   labels:
     app: mysql-bkp
     tier: database
