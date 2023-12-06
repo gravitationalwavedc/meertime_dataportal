@@ -121,7 +121,7 @@ spec:
       volumes:
         - name: mysql-persistent-storage
           persistentVolumeClaim:
-            claimName: mysql-pv-claim-staging
+            claimName: db-storage-data-pvc-staging
         - name: db-ingest-script
           configMap:
             name: db-ingest-script
