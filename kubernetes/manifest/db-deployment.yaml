@@ -60,9 +60,16 @@ spec:
                 configMapKeyRef:
                   name: db-configmap
                   key: host
-          envFrom:
-            - secretRef:
-                name: db-config
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: db-config
+                  key: POSTGRES_USER
+            - name: POSTGRES_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: db-config
+                  key: POSTGRES_DATABASE
           ports:
             - containerPort: 5432
               name: postgres
@@ -79,7 +86,7 @@ spec:
                 - -U
                 - $(POSTGRES_USER)
                 - -d
-                - $(POSTGRES_DB)
+                - $(POSTGRES_DATABASE)
                 - -c
                 - "SELECT 1"
             initialDelaySeconds: 30
@@ -96,7 +103,7 @@ spec:
                 - -U
                 - $(POSTGRES_USER)
                 - -d
-                - $(POSTGRES_DB)
+                - $(POSTGRES_DATABASE)
                 - -c
                 - "SELECT 1"
             initialDelaySeconds: 5
