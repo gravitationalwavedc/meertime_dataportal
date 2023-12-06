@@ -7,6 +7,7 @@ variables:
   DB_HOST: "postgres"
   POSTGRES_PORT: "3306"
   DEBIAN_FRONTEND: "noninteractive"
+  DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
 image:
   name: ubuntu:20.04
@@ -132,3 +133,15 @@ react-formatting:
     - pnpm install
     - pnpm exec prettier --check .
     - pnpm exec eslint src
+
+docker-build:
+  image: docker:20.10.16
+  stage: build
+  services:
+    - docker:20.10.16-dind
+  script:
+    - docker login $DOCKER_REGISTRY
+    - docker build . -t $DOCKER_REGISTRY/meertime/react:$CI_COMMIT_BRANCH-$CI_COMMIT_REF_SLUG -f docker/meertime_react.Dockerfile
+    - docker push $DOCKER_REGISTRY/meertime/react:$CI_COMMIT_BRANCH-$CI_COMMIT_REF_SLUG
+    - docker build . -t $DOCKER_REGISTRY/meertime/django:$CI_COMMIT_BRANCH-$CI_COMMIT_REF_SLUG -f docker/meertime_django.Dockerfile
+    - docker push $DOCKER_REGISTRY/meertime/django:$CI_COMMIT_BRANCH-$CI_COMMIT_REF_SLUG
