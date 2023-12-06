@@ -42,6 +42,8 @@ RUN apt-get update && apt-get upgrade -y \
 
 WORKDIR /code
 
+RUN adduser web
+
 COPY --chown=web:web ./backend/pyproject.toml ./backend/poetry.lock /code/
 
 # support development_mode in docker
