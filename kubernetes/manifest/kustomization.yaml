@@ -12,8 +12,8 @@ resources:
   - django-deployment.yaml
   - nginx-deployment.yaml
   - meertime-ingress.yaml
-  - mysql-bkp-staging-pv.yaml
-  - mysql-bkp-pvc.yaml
+  - db-storage-bkp-pv-staging.yaml
+  - db-storage-bkp-pvc-staging.yaml
   - mysql-bkp-configmap.yaml
   - mysql-bkp-cronjob.yaml
   - react-deployment.yaml

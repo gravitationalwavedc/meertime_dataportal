@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: mysql-bkp-storage-staging
+  name: db-storage-bkp-pv-staging
   labels:
-    app: mysql-bkp
+    app: db-bkp
     tier: database
 spec:
   capacity:
