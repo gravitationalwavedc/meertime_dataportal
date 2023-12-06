@@ -6,7 +6,7 @@ resources:
   - meertime-secrets-integrator.yaml
   - db-configmap.yaml
   - db-ingest-script.yaml
-  - mysql-staging-pv.yaml
+  - db-storage-data-pv-staging.yaml
   - mysql-deployment.yaml
   - meertime-storage-img-pv-staging.yaml
   - django-deployment.yaml

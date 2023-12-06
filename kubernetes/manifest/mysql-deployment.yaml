@@ -61,7 +61,7 @@ spec:
             - containerPort: 5432
               name: mysql
           volumeMounts:
-            - name: mysql-persistent-storage-staging
+            - name: db-storage-data-pv-staging
               mountPath: /var/lib/postgresql/data
           # livenessProbe:
           #   exec:
@@ -93,6 +93,6 @@ spec:
           #   periodSeconds: 2
           #   timeoutSeconds: 1
       volumes:
-        - name: mysql-persistent-storage-staging
+        - name: db-storage-data-pv-staging
           persistentVolumeClaim:
-            claimName: mysql-pv-claim-staging
+            claimName: db-storage-data-pvc-staging
