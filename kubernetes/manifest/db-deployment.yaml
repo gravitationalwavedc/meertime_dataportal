@@ -60,16 +60,9 @@ spec:
                 configMapKeyRef:
                   name: db-configmap
                   key: host
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  name: db-config
-                  key: POSTGRES_USER
-            - name: POSTGRES_DATABASE
-              valueFrom:
-                secretKeyRef:
-                  name: db-config
-                  key: POSTGRES_DATABASE
+          envFrom:
+            - secretRef:
+                name: db-config
           ports:
             - containerPort: 5432
               name: postgres
