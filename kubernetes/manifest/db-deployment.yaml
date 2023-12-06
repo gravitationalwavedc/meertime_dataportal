@@ -72,16 +72,11 @@ spec:
           livenessProbe:
             exec:
               command:
-                - psql
-                - -w
-                - -h
-                - $(DB_HOST)
-                - -U
-                - $(POSTGRES_USER)
-                - -d
-                - $(POSTGRES_DATABASE)
-                - -c
-                - "SELECT 1"
+                - bash
+                - "-c"
+                - |
+                  set -ex
+                  psql -w -h $DB_HOST -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -89,16 +84,11 @@ spec:
             exec:
               # Check we can execute queries over TCP (skip-networking is off).
               command:
-                - psql
-                - -w
-                - -h
-                - $(DB_HOST)
-                - -U
-                - $(POSTGRES_USER)
-                - -d
-                - $(POSTGRES_DATABASE)
-                - -c
-                - "SELECT 1"
+                - bash
+                - "-c"
+                - |
+                  set -ex
+                  psql -w -h $DB_HOST -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
             initialDelaySeconds: 5
             periodSeconds: 2
             timeoutSeconds: 1
