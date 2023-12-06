@@ -24,7 +24,7 @@ data:
     trap "rm -f ${CONTROL_DIR}/${DESIRED_STATE} ${CONTROL_DIR}/${DESIRED_STATE_UNPACKED}" EXIT
 
     # Check if the database is empty
-    is_empty=$(psql -h postgres.meertime-staging.svc.cluster.local -U $POSTGRES_USER -d $POSTGRES_DATABASE -wtAc "SELECT COUNT(*) FROM pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';")
+    is_empty=$(psql -h mysql.meertime-staging.svc.cluster.local -U $POSTGRES_USER -d $POSTGRES_DATABASE -wtAc "SELECT COUNT(*) FROM pg_tables WHERE schemaname != 'pg_catalog' AND schemaname != 'information_schema';")
 
     if [ "$is_empty" -eq "0" ]; then
       echo "Database is empty. Restoring from backup..."
@@ -35,7 +35,7 @@ data:
       if [ "${md5sum_check}" = "${CHECKSUM}" ]; then
         echo "Checksum matches, proceeding"
         # Run pg_restore
-        gunzip  < ${CONTROL_DIR}/${DESIRED_STATE} | pg_restore -d $POSTGRES_DATABASE -U $POSTGRES_USER -w -h postgres.meertime-staging.svc.cluster.local
+        gunzip  < ${CONTROL_DIR}/${DESIRED_STATE} | pg_restore -d $POSTGRES_DATABASE -U $POSTGRES_USER -w -h mysql.meertime-staging.svc.cluster.local
         echo ${DESIRED_STATE} > ${STATE_FILE}
       else
         echo "Checksum of desired state file does not match expectation, aborting"
