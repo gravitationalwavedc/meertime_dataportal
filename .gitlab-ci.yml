@@ -140,7 +140,7 @@ docker-build:
   services:
     - docker:20.10.16-dind
   script:
-    - docker login $DOCKER_REGISTRY -u $NEXUS_USER -p '$NEXUS_PASSWORD'
+    - echo $NEXUS_PASSWORD | docker login $DOCKER_REGISTRY -u $NEXUS_USER --password-stdin
     - docker build . -t $DOCKER_REGISTRY/meertime/react:$CI_COMMIT_BRANCH-$CI_COMMIT_REF_SLUG -f docker/meertime_react.Dockerfile
     - docker push $DOCKER_REGISTRY/meertime/react:$CI_COMMIT_BRANCH-$CI_COMMIT_REF_SLUG
     - docker build . -t $DOCKER_REGISTRY/meertime/django:$CI_COMMIT_BRANCH-$CI_COMMIT_REF_SLUG -f docker/meertime_django.Dockerfile
