@@ -119,7 +119,7 @@ spec:
           command:
             ["gunicorn", "--bind=0.0.0.0:8000", "meertime.wsgi:application"]
       volumes:
-        - name: mysql-persistent-storage
+        - name: db-storage-data
           persistentVolumeClaim:
             claimName: db-storage-data-pvc-staging
         - name: db-ingest-script

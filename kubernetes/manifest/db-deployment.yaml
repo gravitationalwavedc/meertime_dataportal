@@ -1,16 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: database
   labels:
-    app: mysql
+    app: db
     tier: database
 spec:
   ports:
     - port: 3306
       targetPort: 3306
   selector:
-    app: mysql
+    app: db
     tier: database
   clusterIP: None
 ---
@@ -19,7 +19,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: db-storage-data-pvc-staging
   labels:
-    app: mysql
+    app: db
     tier: database
 spec:
   accessModes:
@@ -32,34 +32,34 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: database
   labels:
-    app: mysql
+    app: db
     tier: database
 spec:
   revisionHistoryLimit: 5
   selector:
     matchLabels:
-      app: mysql
+      app: db
       tier: database
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: mysql
+        app: db
         tier: database
     spec:
       containers:
         - image: postgres:14.9
           resources: {}
-          name: mysql
+          name: postgres
           envFrom:
             - secretRef:
                 name: db-config
           ports:
             - containerPort: 5432
-              name: mysql
+              name: postgres
           volumeMounts:
             - name: db-storage-data-pv-staging
               mountPath: /var/lib/postgresql/data

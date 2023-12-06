@@ -7,7 +7,7 @@ resources:
   - db-configmap.yaml
   - db-ingest-script.yaml
   - db-storage-data-pv-staging.yaml
-  - mysql-deployment.yaml
+  - db-deployment.yaml
   - meertime-storage-img-pv-staging.yaml
   - django-deployment.yaml
   - nginx-deployment.yaml
