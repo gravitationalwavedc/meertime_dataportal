@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-bkp-script
+  labels:
+    app.kubernetes.io/name: db-bkp-script
+data:
+  backup.sh: |-
+    #!/bin/sh
+    #
+    # postgres backup script
+    #
+
+    apt update -y
+    apt install -y curl wget
+
+    BACKUP_DIR="/backup"
+    TIMESTAMP="$(date +%Y%m%d%H%M%S)"
+    echo "test postgres connection"
+    if [ -z "$(psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -c 'SELECT 1')" ]; then
+      echo "postgres connection failed! exiting..."
+      exit 1
+    fi
+    echo "started" > ${BACKUP_DIR}/${TIMESTAMP}.state
+
+
+    echo "delete old backups"
+    find ${BACKUP_DIR} -maxdepth 2 -mtime +3 -regex "^${BACKUP_DIR}/.*[0-9]*_.*\.sql.tar.gz$" -type f -exec rm {} \;
+
+    echo "Backing up db ${POSTGRES_DATABASE}"
+
+    pg_dump -Fc --file=${TIMESTAMP}_${POSTGRES_DATABASE}.sql -U $POSTGRES_USER -d $POSTGRES_DATABASE -h $DB_HOST -O
+    rc=$?
+
+    if [ "$rc" != "0" ]; then
+      echo "backup failed"
+      exit 1
+    fi
+
+    echo "Archiving sqldumps"
+    tar -cvf ${BACKUP_DIR}/${TIMESTAMP}.sql.tar.gz ${TIMESTAMP}*
+
+    echo "complete" > ${BACKUP_DIR}/${TIMESTAMP}.state
+    echo "Disk usage in ${BACKUP_DIR}"
+    du -h -d 2 ${BACKUP_DIR}
+    echo "Backup successful! :-)"

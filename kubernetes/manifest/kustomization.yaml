@@ -14,6 +14,6 @@ resources:
   - meertime-ingress.yaml
   - db-storage-bkp-pv-staging.yaml
   - db-storage-bkp-pvc-staging.yaml
-  - mysql-bkp-configmap.yaml
-  - mysql-bkp-cronjob.yaml
+  - db-bkp-script.yaml
+  - db-bkp-cronjob.yaml
   - react-deployment.yaml

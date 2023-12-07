@@ -12,5 +12,5 @@ spec:
   accessModes:
     - ReadWriteOnce
   nfs:
-    path: /mnt/sharedfolder/meertime-staging/db
+    path: /mnt/sharedfolder/meertime-staging/bkp
     server: nfs1.private.loc

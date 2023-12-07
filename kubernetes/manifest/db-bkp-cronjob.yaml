@@ -3,9 +3,9 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   labels:
-    app.kubernetes.io/name: mysql-bkp-cronjob
+    app.kubernetes.io/name: db-bkp-cronjob
     app.kubernetes.io/instance: meertime
-  name: mysql-bkp-cronjob
+  name: db-bkp-cronjob
 spec:
   schedule: 20 1 * * *
   concurrencyPolicy: Forbid
@@ -13,9 +13,9 @@ spec:
   jobTemplate:
     metadata:
       labels:
-        app: mysql-bkp
+        app: db-bkp
         tier: database
-        cronjob-name: mysql-bkp-job
+        cronjob-name: db-bkp-job
     spec:
       backoffLimit: 1
       template:
@@ -25,25 +25,25 @@ spec:
                 - /bin/sh
                 - /scripts/backup.sh
               env:
-                - name: MYSQL_ROOT_PASSWORD
+                - name: DB_HOST
                   valueFrom:
-                    secretKeyRef:
-                      name: db-root-credentials
-                      key: password
+                    configMapKeyRef:
+                      name: db-configmap
+                      key: host
               envFrom:
-                - configMapRef:
-                    name: mysql-bkp-configmap
+                - secretRef:
+                    name: db-control
                 - secretRef:
                     name: db-config
-              image: "nexus.gwdc.org.au/docker/mysqldump:0.2"
+              image: postgres:14.9
               imagePullPolicy: IfNotPresent
-              name: mysql-backup
+              name: postgres-backup-script
               resources: {}
               volumeMounts:
                 - mountPath: /backup
                   name: backups
                 - mountPath: /scripts
-                  name: mysql-backup-script
+                  name: db-bkp-script
           imagePullSecrets:
             - name: regcred
           restartPolicy: Never
@@ -52,6 +52,6 @@ spec:
               persistentVolumeClaim:
                 claimName: db-storage-bkp-pvc-staging
             - configMap:
-                name: mysql-bkp-script-configmap
-              name: mysql-backup-script
+                name: db-bkp-script
+              name: db-bkp-script
   successfulJobsHistoryLimit: 7
