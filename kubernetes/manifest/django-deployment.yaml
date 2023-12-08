@@ -83,7 +83,7 @@ spec:
               mountPath: /mnt/db-ingest/
           command: ["/bin/sh", "/mnt/db-ingest/ingest-postgres.sh"]
         - name: migrate
-          image: nexus.gwdc.org.au/meertime/django:3.0.2-2157a273
+          image: nexus.gwdc.org.au/meertime/django:3.0.2-3a232f6b
           imagePullPolicy: Always
           env:
             - name: DB_HOST
@@ -99,7 +99,7 @@ spec:
           command: ["python", "manage.py", "migrate"]
       containers:
         - name: django
-          image: nexus.gwdc.org.au/meertime/django:3.0.2-2157a273
+          image: nexus.gwdc.org.au/meertime/django:3.0.2-3a232f6b
           resources: {}
           imagePullPolicy: Always
           env:

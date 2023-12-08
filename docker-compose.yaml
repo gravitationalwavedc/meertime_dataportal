@@ -11,7 +11,7 @@ services:
       # to create the db from a dump inside a docker container
       - ~/dumps/meertime_backup.sql:/docker-entrypoint-initdb.d/data.sql
   django:
-    image: nexus.gwdc.org.au/meertime/django:3.0.2-2157a273
+    image: nexus.gwdc.org.au/meertime/django:3.0.2-3a232f6b
     container_name: meertime_django
     depends_on:
       - postgres
