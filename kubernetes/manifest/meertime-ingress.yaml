@@ -12,10 +12,11 @@ spec:
     - host: dev.pulsars.org.au
       http:
         paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: nginx
-                port:
-                  number: 80
+        - path: /
+          backend:
+            serviceName: react-service
+            servicePort: 3000
+        - path: /api
+          backend:
+            serviceName: django-service
+            servicePort: 8000
