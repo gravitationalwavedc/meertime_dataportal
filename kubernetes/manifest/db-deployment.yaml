@@ -12,7 +12,7 @@ spec:
   selector:
     app: db
     tier: database
-  clusterIP: None
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
