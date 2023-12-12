@@ -7,8 +7,8 @@ metadata:
     tier: database
 spec:
   ports:
-    - port: 3306
-      targetPort: 3306
+    - port: 5432
+      targetPort: 5432
   selector:
     app: db
     tier: database
