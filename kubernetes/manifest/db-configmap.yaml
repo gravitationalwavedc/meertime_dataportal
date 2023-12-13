@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: db-configmap
 data:
-  host: database.meertime-staging.svc.cluster.local
+  host: database-service.meertime-staging.svc.cluster.local
   name: meertime
