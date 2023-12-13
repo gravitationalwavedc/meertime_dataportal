@@ -153,9 +153,9 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
             formatDDMonYYYY(edge.node.observation.embargoEndDate)
           : "",
         utc: formatUTC(edge.node.observation.utcStart),
-        plotLink: `/${mainProject}/${jname}/${formatUTC(edge.node.observation.utcStart)}/${
-          edge.node.observation.beam
-        }/`,
+        plotLink: `/${mainProject}/${jname}/${formatUTC(
+          edge.node.observation.utcStart
+        )}/${edge.node.observation.beam}/`,
         action: edge.node.observation.restricted ? (
           <Button size="sm" variant="outline-dark">
             <span className="small">

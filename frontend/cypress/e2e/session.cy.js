@@ -47,7 +47,10 @@ describe("The Session Page", () => {
   it("check view this button", () => {
     cy.wait("@SessionQuery");
     cy.contains("View this").click();
-    cy.location("pathname").should("equal", "/meertime/J0125-2327/2019-04-23-06:11:30/1/");
+    cy.location("pathname").should(
+      "equal",
+      "/meertime/J0125-2327/2019-04-23-06:11:30/1/"
+    );
 
     cy.wait("@SingleObservationQuery");
     cy.contains("Loading...").should("not.exist");
