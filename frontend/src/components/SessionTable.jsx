@@ -182,7 +182,7 @@ const SessionTable = ({ data, id }) => {
         </Link>
         {row.pulsarFoldResults.edges.length != 0 && (
           <Link
-            to={`/${row.pulsar.name}/${row.utc}/${row.beam}/`}
+            to={`/meertime/${row.pulsar.name}/${row.utc}/${row.beam}/`}
             size="sm"
             variant="outline-secondary"
             as={Button}

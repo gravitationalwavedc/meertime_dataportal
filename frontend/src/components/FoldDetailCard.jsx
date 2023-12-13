@@ -47,7 +47,7 @@ const FoldDetailCard = ({ row }) => (
     {!row.embargo ? (
       <Card.Footer>
         <Link
-          to={`/${row.jname}/${row.utc}/${row.beam}/`}
+          to={`/${row.mainProject}/${row.jname}/${row.utc}/${row.beam}/`}
           className="mr-2"
           size="sm"
           variant="link"

@@ -146,13 +146,14 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
         ...edge.node,
         key: `${edge.node.observation.utcStart}:${edge.node.observation.beam}`,
         jname: jname,
+        mainProject: mainProject,
         band: edge.node.observation.band,
         embargo: edge.node.observation.restricted
           ? "Embargoed until " +
             formatDDMonYYYY(edge.node.observation.embargoEndDate)
           : "",
         utc: formatUTC(edge.node.observation.utcStart),
-        plotLink: `/${jname}/${formatUTC(edge.node.observation.utcStart)}/${
+        plotLink: `/${mainProject}/${jname}/${formatUTC(edge.node.observation.utcStart)}/${
           edge.node.observation.beam
         }/`,
         action: edge.node.observation.restricted ? (
