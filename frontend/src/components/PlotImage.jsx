@@ -14,7 +14,7 @@ const PlotImage = ({ imageData, handleClick }) => {
       fluid
       className="mb-3"
       alt={`Plot ${imageData.imageType} ${cleaned_str}`}
-      src={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${imageData.url}`}
+      src={imageData.url}
       onError={({ currentTarget }) => {
         currentTarget.onError = null;
         currentTarget.src = image404;
