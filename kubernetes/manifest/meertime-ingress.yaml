@@ -13,10 +13,9 @@ spec:
       http:
         paths:
         - path: /
+          pathType: Prefix
           backend:
-            serviceName: react-service
-            servicePort: 3000
-        - path: /api
-          backend:
-            serviceName: django-service
-            servicePort: 8000
+            service:
+              name: nginx-service
+              port:
+                number: 80
