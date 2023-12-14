@@ -40,7 +40,7 @@ spec:
       serviceAccountName: meertime
       containers:
         - name: ng-react
-          image: nexus.gwdc.org.au/meertime/react:3.0.2-bf5fb17
+          image: nexus.gwdc.org.au/meertime/react:3.0.2-bf5fb177
           imagePullPolicy: Always
           resources: {}
           livenessProbe:
