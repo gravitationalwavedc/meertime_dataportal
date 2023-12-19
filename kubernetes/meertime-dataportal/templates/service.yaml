@@ -5,7 +5,7 @@ kind: Service
 metadata:
   name: {{ $value.name }}
   labels:
-    {{- include "meertime-dataportal.labels" . | nindent 4 }}
+    {{ $value.label }}
 spec:
   type: ClusterIP
   ports:

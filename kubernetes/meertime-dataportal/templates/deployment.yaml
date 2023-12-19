@@ -1,72 +1,95 @@
+{{- range $key, $value := .Values.deployments }}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "meertime-dataportal.fullname" . }}
+  name: {{ $value.name }}
   labels:
-    {{- include "meertime-dataportal.labels" . | nindent 4 }}
+    {{ $value.label }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
+  {{- if not $.Values.autoscaling.enabled }}
+  replicas: {{ $.Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "meertime-dataportal.selectorLabels" . | nindent 6 }}
+      {{ $value.label }}
+  strategy:
+    type: Recreate
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- with $.Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "meertime-dataportal.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        {{ $value.label }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "meertime-dataportal.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- range $initContainerKey, $initContainerValue := $value.initContainers }}
+        - name: {{ $initContainerValue.name }}
+          image: {{ $initContainerValue.image }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          env:
+            {{- range $envKey, $envValue := $initContainerValue.env }}
+            - name: {{ $envValue.name }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ $envValue.valueFrom.configMapKeyRef.name }}
+                  key: {{ $envValue.valueFrom.configMapKeyRef.key }}
+            {{- end }}
+          volumeMounts:
+            {{- range $volumeKey, $volumeValue := $initContainerValue.volumeMounts }}
+              - name: {{ $volumeValue.name }}
+                mountPath: {{ $volumeValue.mountPath }}
+            {{- end }}
+          command: {{ $initContainerValue.command }}
+        {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: {{ $value.container.name }}
+          image: {{ $value.container.image }}
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
+            - name: {{ $value.container.name }}
+              containerPort: {{ $value.port }}
               protocol: TCP
           livenessProbe:
+            {{- if $value.livereadinessProbe.httpGet }}
             httpGet:
               path: /
-              port: http
+              port: {{ $value.port }}
+            {{- end }}
+            {{- if not $value.livereadinessProbe.httpGet }}
+            exec:
+              command:
+                {{ $value.livereadinessProbe.exec.command }}
+            {{- end }}
           readinessProbe:
+            {{- if $value.livereadinessProbe.httpGet }}
             httpGet:
               path: /
-              port: http
+              port: {{ $value.port }}
+            {{- end }}
+            {{- if not $value.livereadinessProbe.httpGet }}
+            exec:
+              command:
+                {{ $value.livereadinessProbe.exec.command }}
+            {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
+            {{- toYaml $.Values.resources | nindent 12 }}
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            {{- range $volumeKey, $volumeValue := $value.volumeMounts }}
+              - name: {{ $volumeValue.name }}
+                mountPath: {{ $volumeValue.mountPath }}
+            {{- end }}
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- range $volumeKey, $volumeValue := $value.volumes }}
+          - name: {{ $volumeValue.name }}
+            {{- if $volumeValue.persistentVolumeClaim }}
+            persistentVolumeClaim:
+              {{ $volumeValue.persistentVolumeClaim.claimName }}
+            {{- else }}
+            emptyDir: {}
+            {{- end }}
+        {{- end }}
+---
+{{- end }}

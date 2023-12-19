@@ -1,4 +1,8 @@
 
+configMaps:
+  - name: db-configmap
+    host: database-service.meertime-staging.svc.cluster.local
+
 nfsStorage:
   - name: db-storage-data
     path: /mnt/sharedfolder/meertime-staging/db
@@ -6,3 +10,19 @@ nfsStorage:
     path: /mnt/sharedfolder/meertime-staging/bkp
   - name: meertime-storage-img
     path: /mnt/sharedfolder/meertime-staging/img
+
+ingress:
+  enabled: true
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: dev.pulsars.org.au
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local

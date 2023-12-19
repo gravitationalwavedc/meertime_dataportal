@@ -1,0 +1,77 @@
+{{- range $key, $value := .Values.cronJobs }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $value.name }}
+  labels:
+    app.kubernetes.io/name: {{ $value.name }}
+    app.kubernetes.io/instance: meertime
+spec:
+  schedule: "{{ $value.schedule }}"
+  concurrencyPolicy: {{ $value.concurrencyPolicy }}
+  failedJobsHistoryLimit: {{ $value.failedJobsHistoryLimit }}
+  successfulJobsHistoryLimit: {{ $value.successfulJobsHistoryLimit }}
+  jobTemplate:
+    metadata:
+      labels:
+        name: {{ $value.name }}
+        cronjob-name: {{ $value.name }}
+    spec:
+      backoffLimit: 1
+      template:
+        spec:
+          serviceAccountName: {{ $value.serviceAccountName }}
+          containers:
+            - command: {{ $value.command }}
+              name: {{ $value.containersName }}
+              image: {{ $value.image }}
+              imagePullPolicy: {{ $.Values.image.pullPolicy }}
+              resources: {}
+              {{- if $value.env  }}
+              env:
+                {{- range $envKey, $envValue := $value.env }}
+                - name: {{ $envValue.name }}
+                  valueFrom:
+                    configMapKeyRef:
+                      name: {{ $envValue.valueFrom.configMapKeyRef.name }}
+                      key: {{ $envValue.valueFrom.configMapKeyRef.key }}
+                {{- end }}
+              {{- end }}
+              {{- if $value.envFrom  }}
+              envFrom:
+                {{- range $envFromKey, $envFromValue := $value.envFrom }}
+                - secretRef:
+                    name: {{ $envFromValue.name }}
+                {{- end }}
+              {{- end }}
+              {{- if $value.volumeMounts  }}
+              volumeMounts:
+                {{- range $volumeKey, $volumeValue := $value.volumeMounts }}
+                  - name: {{ $volumeValue.name }}
+                    mountPath: {{ $volumeValue.mountPath }}
+                {{- end }}
+              {{- end }}
+          imagePullSecrets:
+            - name: {{ $value.imagePullSecrets.name }}
+          restartPolicy: Never
+          volumes:
+            {{- range $volumeKey, $volumeValue := $value.volumes }}
+              - name: {{ $volumeValue.name }}
+                {{- if $volumeValue.persistentVolumeClaim }}
+                persistentVolumeClaim:
+                  claimName: {{ $volumeValue.persistentVolumeClaim.claimName }}
+                {{- end }}
+                {{- if $volumeValue.configMap }}
+                configMap:
+                  name: {{ $volumeValue.configMap.name }}
+                {{- end }}
+            {{- end }}
+        metadata:
+          {{- with $value.annotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+
+---
+{{- end }}
