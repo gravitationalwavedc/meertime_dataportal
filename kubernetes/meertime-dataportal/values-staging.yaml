@@ -1,0 +1,8 @@
+
+nfsStorage:
+  - name: db-storage-data
+    path: /mnt/sharedfolder/meertime-staging/db
+  - name: db-storage-bkp
+    path: /mnt/sharedfolder/meertime-staging/bkp
+  - name: meertime-storage-img
+    path: /mnt/sharedfolder/meertime-staging/img
