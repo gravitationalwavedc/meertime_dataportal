@@ -4,15 +4,16 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ $value.name }}
+  namespace: {{ $.Release.Namespace }}
   labels:
-    {{ $value.label }}
+    name: {{ $value.label }}
 spec:
   {{- if not $.Values.autoscaling.enabled }}
   replicas: {{ $.Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{ $value.label }}
+      name: {{ $value.label }}
   strategy:
     type: Recreate
   template:
@@ -22,8 +23,15 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{ $value.label }}
+        name: {{ $value.label }}
     spec:
+      {{- if $value.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ $value.imagePullSecrets }}
+      {{- end }}
+      {{- if $value.serviceAccountName }}
+      serviceAccountName: {{ $value.serviceAccountName }}
+      {{- end }}
       initContainers:
         {{- range $initContainerKey, $initContainerValue := $value.initContainers }}
         - name: {{ $initContainerValue.name }}
@@ -33,26 +41,67 @@ spec:
             {{- range $envKey, $envValue := $initContainerValue.env }}
             - name: {{ $envValue.name }}
               valueFrom:
+                {{- if $envValue.valueFrom.secretKeyRef }}
+                secretKeyRef:
+                  name: {{ $envValue.valueFrom.secretKeyRef.name }}
+                  key: {{ $envValue.valueFrom.secretKeyRef.key }}
+                {{- end }}
+                {{- if $envValue.valueFrom.configMapKeyRef }}
                 configMapKeyRef:
                   name: {{ $envValue.valueFrom.configMapKeyRef.name }}
                   key: {{ $envValue.valueFrom.configMapKeyRef.key }}
+                {{- end }}
+            {{- end }}
+          envFrom:
+            {{- range $envKey, $envValue := $initContainerValue.envFrom }}
+            - secretRef:
+                name: {{ $envValue.name }}
             {{- end }}
           volumeMounts:
             {{- range $volumeKey, $volumeValue := $initContainerValue.volumeMounts }}
               - name: {{ $volumeValue.name }}
                 mountPath: {{ $volumeValue.mountPath }}
             {{- end }}
-          command: {{ $initContainerValue.command }}
+          command:
+            {{- range $commandKey, $commandValue := $initContainerValue.command }}
+              - {{ $commandValue }}
+            {{- end }}
         {{- end }}
       containers:
         - name: {{ $value.container.name }}
           image: {{ $value.container.image }}
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          {{- if $value.container.env }}
+          env:
+            {{- range $envKey, $envValue := $value.container.env }}
+            - name: {{ $envValue.name }}
+              valueFrom:
+                {{- if $envValue.valueFrom.secretKeyRef }}
+                secretKeyRef:
+                  name: {{ $envValue.valueFrom.secretKeyRef.name }}
+                  key: {{ $envValue.valueFrom.secretKeyRef.key }}
+                {{- end }}
+                {{- if $envValue.valueFrom.configMapKeyRef }}
+                configMapKeyRef:
+                  name: {{ $envValue.valueFrom.configMapKeyRef.name }}
+                  key: {{ $envValue.valueFrom.configMapKeyRef.key }}
+                {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if $value.container.envFrom }}
+          envFrom:
+            {{- range $envKey, $envValue := $value.container.envFrom }}
+            - secretRef:
+                name: {{ $envValue.name }}
+            {{- end }}
+          {{- end }}
           ports:
             - name: {{ $value.container.name }}
               containerPort: {{ $value.port }}
               protocol: TCP
           livenessProbe:
+            initialDelaySeconds: {{ $value.livereadinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $value.livereadinessProbe.periodSeconds }}
             {{- if $value.livereadinessProbe.httpGet }}
             httpGet:
               path: /
@@ -60,10 +109,11 @@ spec:
             {{- end }}
             {{- if not $value.livereadinessProbe.httpGet }}
             exec:
-              command:
-                {{ $value.livereadinessProbe.exec.command }}
+              {{- toYaml $value.livereadinessProbe.exec | nindent 14 }}
             {{- end }}
           readinessProbe:
+            initialDelaySeconds: {{ $value.livereadinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $value.livereadinessProbe.periodSeconds }}
             {{- if $value.livereadinessProbe.httpGet }}
             httpGet:
               path: /
@@ -71,8 +121,7 @@ spec:
             {{- end }}
             {{- if not $value.livereadinessProbe.httpGet }}
             exec:
-              command:
-                {{ $value.livereadinessProbe.exec.command }}
+              {{- toYaml $value.livereadinessProbe.exec | nindent 14 }}
             {{- end }}
           resources:
             {{- toYaml $.Values.resources | nindent 12 }}
@@ -81,12 +130,21 @@ spec:
               - name: {{ $volumeValue.name }}
                 mountPath: {{ $volumeValue.mountPath }}
             {{- end }}
+          {{- if $value.container.command }}
+          command:
+            {{- range $commandKey, $commandValue := $value.container.command }}
+              - {{ $commandValue }}
+            {{- end }}
+          {{- end }}
       volumes:
         {{- range $volumeKey, $volumeValue := $value.volumes }}
           - name: {{ $volumeValue.name }}
             {{- if $volumeValue.persistentVolumeClaim }}
             persistentVolumeClaim:
-              {{ $volumeValue.persistentVolumeClaim.claimName }}
+              claimName: {{ $volumeValue.persistentVolumeClaim.claimName }}
+            {{- else if $volumeValue.configMap }}
+            configMap:
+              name: {{ $volumeValue.configMap.name }}
             {{- else }}
             emptyDir: {}
             {{- end }}

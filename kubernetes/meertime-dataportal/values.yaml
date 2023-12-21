@@ -48,20 +48,29 @@ securityContext: {}
 
 service:
   port: 80
+  type: ClusterIP
 
 services:
   - name: django-service
+    portName: django
     port: 8000
-    selector: database
+    selector: django
     label: django
   - name: nginx-service
+    portName: nginx
     port: 80
     selector: nginx
     label: nginx
   - name: react-service
+    portName: react
     port: 3000
     selector: react
     label: react
+  - name: database-service
+    portName: postgres
+    port: 5432
+    selector: database
+    label: database
 
 deployments:
   - name: database
@@ -69,29 +78,62 @@ deployments:
     container:
       name: postgres
       image: postgres:14.9
+      envFrom:
+        - name: db-config
     port: 5432
     volumeMounts:
       - name: db-storage-data
         mountPath: /var/lib/postgresql/data
     livereadinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 30
       httpGet: false
       exec:
-        command: ["bash", "-c", "set -ex", "psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -c 'SELECT 1'" ]
+        command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
+    volumes:
+      - name: db-storage-data
+        persistentVolumeClaim:
+          claimName: db-storage-data
 
   - name: react
     label: react
+    imagePullSecrets: regcred
+    serviceAccountName: meertime
     container:
       name: react
       image: nexus.gwdc.org.au/meertime/react:3.0.2-bf5fb177
     port: 3000
     livereadinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 30
       httpGet: true
 
   - name: django
     label: django
+    imagePullSecrets: regcred
+    serviceAccountName: meertime
     container:
       name: django
       image: nexus.gwdc.org.au/meertime/django:3.0.2-3a232f6b
+      env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-configmap
+              key: host
+      envFrom:
+        - name: django-multi
+        - name: db-config
+      volumeMounts:
+        - name: meertime-img-storage-staging
+          mountPath: /media
+      command:
+        ["gunicorn", "--bind=0.0.0.0:8000", "meertime.wsgi:application"]
     port: 8000
     initContainers:
       - name: postgres-ingest-script
@@ -102,11 +144,14 @@ deployments:
               configMapKeyRef:
                 name: db-configmap
                 key: host
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-config
+                key: POSTGRES_PASSWORD
         envFrom:
-          - secretRef:
-              name: db-control
-          - secretRef:
-              name: db-config
+          - name: db-control
+          - name: db-config
         volumeMounts:
           - name: db-ingest-script
             mountPath: /mnt/db-ingest/
@@ -120,12 +165,12 @@ deployments:
                 name: db-configmap
                 key: host
         envFrom:
-          - secretRef:
-              name: django-multi
-          - secretRef:
-              name: db-config
+          - name: django-multi
+          - name: db-config
         command: ["python", "manage.py", "migrate"]
     livereadinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 30
       httpGet: true
     volumeMounts:
       - name: meertime-img-storage
@@ -133,21 +178,25 @@ deployments:
     volumes:
       - name: db-storage-data
         persistentVolumeClaim:
-          claimName: db-storage-data-pvc-staging
+          claimName: db-storage-data
       - name: db-ingest-script
         configMap:
           name: db-ingest-script
-      - name: meertime-img-storage-staging
+      - name: meertime-img-storage
         persistentVolumeClaim:
-          claimName: meertime-storage-img-pvc-staging
+          claimName: meertime-storage-img
 
   - name: nginx
     label: nginx
+    imagePullSecrets: regcred
+    serviceAccountName: meertime
     container:
       name: ng-meertime
       image: nexus.gwdc.org.au/meertime/nginx:1.5.1
     port: 80
     livereadinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 30
       httpGet: true
     initContainers:
       - name: collectstatic
@@ -160,10 +209,8 @@ deployments:
                 name: db-configmap
                 key: host
         envFrom:
-          - secretRef:
-              name: django-multi
-          - secretRef:
-              name: db-config
+          - name: django-multi
+          - name: db-config
         volumeMounts:
           - name: static-volume-django
             mountPath: /static
@@ -171,12 +218,12 @@ deployments:
       - mountPath: /static
         name: static-volume-django
       - mountPath: /media
-        name: meertime-img-storage-staging
+        name: meertime-img-storage
     volumes:
       - name: static-volume-django
-      - name: meertime-img-storage-staging
+      - name: meertime-img-storage
         persistentVolumeClaim:
-          claimName: meertime-storage-img-pvc-staging
+          claimName: meertime-storage-img
 
 
 cronJobs:
@@ -194,6 +241,11 @@ cronJobs:
           configMapKeyRef:
             name: db-configmap
             key: host
+      - name: PGPASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: db-config
+            key: POSTGRES_PASSWORD
     envFrom:
       - name: db-control
       - name: db-config
@@ -207,7 +259,7 @@ cronJobs:
     volumes:
       - name: backups
         persistentVolumeClaim:
-          claimName: db-storage-bkp-pvc
+          claimName: db-storage-bkp
       - name: db-bkp-script
         configMap:
           name: db-bkp-script
@@ -217,8 +269,8 @@ cronJobs:
     failedJobsHistoryLimit: 5
     successfulJobsHistoryLimit: 1
     command: ["kubectl", "apply", "-f", "/vault/secrets/"]
-    image: postgres:14.9
-    containersName: postgres-backup-script
+    image: "bitnami/kubectl:1.17.4"
+    containersName: meertime-vault-kube-integrator
     serviceAccountName: meertime
     imagePullSecrets:
       name: regcred
@@ -352,7 +404,7 @@ configMapScripts:
       BACKUP_DIR="/backup"
       TIMESTAMP="$(date +%Y%m%d%H%M%S)"
       echo "test postgres connection"
-      if [ -z "$(psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -c 'SELECT 1')" ]; then
+      if [ -z "$(psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -h $DB_HOST -c 'SELECT 1')" ]; then
         echo "postgres connection failed! exiting..."
         exit 1
       fi

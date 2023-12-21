@@ -4,6 +4,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ $value.name }}
+  namespace: {{ $.Release.Namespace }}
 data:
   host: {{ $value.host }}
 ---

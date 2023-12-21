@@ -4,6 +4,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ $value.name }}
+  namespace: {{ $.Release.Namespace }}
   labels:
     app.kubernetes.io/name: {{ $value.label }}
 data:

@@ -16,6 +16,7 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
+  namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "meertime-dataportal.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
@@ -49,7 +50,7 @@ spec:
             backend:
               {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ $fullName }}
+                name: "{{ $.Values.ingress.service }}"
                 port:
                   number: {{ $svcPort }}
               {{- else }}
