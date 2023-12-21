@@ -47,9 +47,12 @@ class CreatePipelineRun(graphene.Mutation):
     @permission_required("dataportal.add_pipeline_run")
     def mutate(cls, self, info, input=None):
         # Get foreign key models
-        observation = Observation.objects.get(id=input["observationId"])
-        ephemeris   = Ephemeris.objects.get(id=input["ephemerisId"])
-        template    = Template.objects.get(id=input["templateId"])
+        observation  = Observation.objects.get(id=input["observationId"])
+        ephemeris    = Ephemeris.objects.get(id=input["ephemerisId"])
+        if input["templateId"] == -1:
+            template = None
+        else:
+            template = Template.objects.get(id=input["templateId"])
 
         # Create what is likely the initial pipeline run setup
         pipeline_run = PipelineRun.objects.create(
