@@ -11,7 +11,7 @@ describe("The Session Page", () => {
         "FoldDetailFileDownloadQuery",
         "foldDetailFileDownloadQuery.json"
       );
-      aliasQuery(req, "SingleObservationQuery", "foldObservationDetails.json");
+      aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
     });
     cy.visit("/session/2419/");
     cy.location("pathname").should("equal", "/login");

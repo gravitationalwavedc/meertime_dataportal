@@ -293,6 +293,11 @@ def test_single_observation_query():
                             foldTsubint
                             nant
                         }
+                        pipelineRun {
+                            dm
+                            rm
+                            sn
+                        }
                         images {
                             edges {
                                 node {
@@ -312,9 +317,9 @@ def test_single_observation_query():
 
     # with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "singleObservationQueryNoImages.json"), 'w') as json_file:
-    #     response_copy = copy.copy(response.data)
-    #     test_out = copy.copy({"data": response_copy})
+    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "singleObservationQuery.json"), 'w') as json_file:
+    #     response_copy = copy.deepcopy(response.data)
+    #     test_out = copy.deepcopy({"data": response_copy})
     #     test_out["data"]["fileSingleList"] = {
     #         "edges": [
     #             {
@@ -325,10 +330,154 @@ def test_single_observation_query():
     #             }
     #         ]
     #     }
+    #     test_out["data"]["pulsarFoldResult"]["edges"][0]["node"]["images"]["edges"] = [
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_profile_ftp.png",
+    #                 "cleaned": False,
+    #                 "imageType": "PROFILE",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_profile_ftp.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_profile_ftp.png",
+    #                 "cleaned": True,
+    #                 "imageType": "PROFILE",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_profile_ftp.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_profile_fts.png",
+    #                 "cleaned": False,
+    #                 "imageType": "PROFILE_POL",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_profile_fts.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_profile_fts.png",
+    #                 "cleaned": True,
+    #                 "imageType": "PROFILE_POL",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_profile_fts.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_phase_time.png",
+    #                 "cleaned": False,
+    #                 "imageType": "PHASE_TIME",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_phase_time.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_phase_time.png",
+    #                 "cleaned": True,
+    #                 "imageType": "PHASE_TIME",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_phase_time.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_phase_freq.png",
+    #                 "cleaned": False,
+    #                 "imageType": "PHASE_FREQ",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_phase_freq.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_phase_freq.png",
+    #                 "cleaned": True,
+    #                 "imageType": "PHASE_FREQ",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_phase_freq.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_bandpass.png",
+    #                 "cleaned": False,
+    #                 "imageType": "BANDPASS",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_bandpass.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_bandpass.png",
+    #                 "cleaned": True,
+    #                 "imageType": "BANDPASS",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_bandpass.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_SNR_cumulative.png",
+    #                 "cleaned": False,
+    #                 "imageType": "SNR_CUMUL",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_SNR_cumulative.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_SNR_cumulative.png",
+    #                 "cleaned": True,
+    #                 "imageType": "SNR_CUMUL",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_SNR_cumulative.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_SNR_single.png",
+    #                 "cleaned": False,
+    #                 "imageType": "SNR_SINGLE",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_SNR_single.png"
+    #             }
+    #         },
+    #         {
+    #             "node": {
+    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_SNR_single.png",
+    #                 "cleaned": True,
+    #                 "imageType": "SNR_SINGLE",
+    #                 "resolution": "HIGH",
+    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_SNR_single.png"
+    #             }
+    #         }
+    #     ]
     #     json.dump(test_out, json_file, indent=2)
+    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "singleObservationQueryNoImages.json"), 'w') as json_file:
+    #     response_no_image = copy.deepcopy(response.data)
+    #     test_no_image = copy.deepcopy({"data": response_no_image})
+    #     test_no_image["data"]["fileSingleList"] = {
+    #         "edges": [
+    #             {
+    #                 "node": {
+    #                     "path": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/J0125-2327.FTS.ar",
+    #                     "fileSize": "1GB"
+    #                 }
+    #             }
+    #         ]
+    #     }
+    #     json.dump(test_no_image, json_file, indent=2)
     with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), 'r') as file:
         expected = json.load(file)["data"]
     assert not response.errors
+    print(response.data["pulsarFoldResult"]["edges"][0]["node"]["images"]["edges"])
+    print(expected["pulsarFoldResult"]["edges"][0]["node"]["images"]["edges"])
     assert response.data == expected
 
 @pytest.mark.django_db

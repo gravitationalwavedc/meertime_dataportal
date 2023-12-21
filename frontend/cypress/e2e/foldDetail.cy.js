@@ -10,7 +10,7 @@ describe("The Fold Detail Page", () => {
         "FoldDetailFileDownloadQuery",
         "foldDetailFileDownloadQuery.json"
       );
-      aliasQuery(req, "SingleObservationQuery", "foldObservationDetails.json");
+      aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
     });
     cy.visit("fold/meertime/J0125-2327/");
@@ -53,16 +53,17 @@ describe("The Fold Detail Page", () => {
 
   it("check view button", () => {
     cy.wait("@FoldDetailQuery");
-    cy.get("table").contains("View").click();
+    cy.contains('table tr', '2020-07-10-05:07:28').as('targetRow')
+    cy.get('@targetRow').contains("View").click();
     cy.location("pathname").should(
       "equal",
-      "/meertime/J0125-2327/2019-04-23-06:11:30/1/"
+      "/meertime/J0125-2327/2020-07-10-05:07:28/2/"
     );
 
     cy.wait("@SingleObservationQuery");
 
     cy.contains("Loading...").should("not.exist");
-    cy.contains("2023-04-29-06:47:34").should("be.visible");
+    cy.contains("2020-07-10-05:07:28").should("be.visible");
   });
 
   it("check view session button", () => {

@@ -30,6 +30,11 @@
               "foldTsubint": 8,
               "nant": 28
             },
+            "pipelineRun": {
+              "dm": 20.0,
+              "rm": 10.0,
+              "sn": 100.0
+            },
             "images": {
               "edges": []
             }

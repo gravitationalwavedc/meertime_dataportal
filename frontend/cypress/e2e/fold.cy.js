@@ -12,7 +12,7 @@ describe("The Fold Page", () => {
         "FoldDetailFileDownloadQuery",
         "foldDetailFileDownloadQuery.json"
       );
-      aliasQuery(req, "SingleObservationQuery", "foldObservationDetails.json");
+      aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
     });
     cy.visit("/");
     cy.location("pathname").should("equal", "/login");

@@ -6,28 +6,34 @@
           "node": {
             "observation": {
               "calibration": {
-                "id": "Q2FsaWJyYXRpb25Ob2RlOjE3MDY=",
-                "idInt": 1706
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjM1",
+                "idInt": 35
               },
               "beam": 2,
-              "utcStart": "2023-04-29T06:47:34+00:00",
+              "utcStart": "2020-07-10T05:07:28+00:00",
               "obsType": "FOLD",
               "project": {
-                "id": "UHJvamVjdE5vZGU6Mw==",
+                "id": "UHJvamVjdE5vZGU6MTc=",
                 "short": "PTA",
+                "code": "SCI-20180516-MB-05",
                 "mainProject": {
                   "name": "MeerTIME"
                 }
               },
-              "frequency": 1283.58203125,
-              "bandwidth": 856,
+              "frequency": 815.734375,
+              "bandwidth": 544.0,
               "raj": "01:25:01.0595040",
               "decj": "-23:27:08.184197",
-              "duration": 255.49873525233642,
+              "duration": 1023.2854023529411,
               "foldNbin": 1024,
               "foldNchan": 1024,
               "foldTsubint": 8,
-              "nant": 62
+              "nant": 28
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "rm": 10.0,
+              "sn": 100.0
             },
             "images": {
               "edges": [
