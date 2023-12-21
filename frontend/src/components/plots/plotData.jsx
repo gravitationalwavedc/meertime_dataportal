@@ -108,7 +108,10 @@ export const toolTipFormatter = (value, name, props) => {
     return [`${value.toFixed(2)} [s]`, "Integration time"];
   }
   if (name === "DM") {
-    return [`${value.toFixed(4)} +/- ${props.payload.error.toFixed(4)} [pc cm^-3] `, name];
+    return [
+      `${value.toFixed(4)} +/- ${props.payload.error.toFixed(4)} [pc cm^-3] `,
+      name,
+    ];
   }
   if (name === "RM") {
     return [`${value.toFixed(4)} [rad m^-2]`, name];
