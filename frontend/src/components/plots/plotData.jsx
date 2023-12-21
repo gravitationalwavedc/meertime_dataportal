@@ -2,7 +2,7 @@ import { calculateMedian, mjdToUnixTimestamp } from "../../helpers";
 import moment from "moment";
 
 export const formatYAxisTick = (value) => {
-  return value.toFixed(2);
+  return value.toFixed(4);
 };
 
 export const getXaxisFormatter = (xAxis) => {
@@ -97,15 +97,18 @@ export const getZRange = (yAxis) => {
   }
 };
 
-export const toolTipFormatter = (value, name) => {
+export const toolTipFormatter = (value, name, props) => {
   if (name === "UTC") {
     return [moment(value).format("YYYY-MM-DD-hh:mm:ss"), name];
+  }
+  if (name === "Day of the year") {
+    return [`${value.toFixed(2)}`, name];
   }
   if (name === "Size") {
     return [`${value.toFixed(2)} [s]`, "Integration time"];
   }
   if (name === "DM") {
-    return [`${value.toFixed(4)} [pc cm^-3]`, name];
+    return [`${value.toFixed(4)} +/- ${props.payload.error.toFixed(4)} [pc cm^-3] `, name];
   }
   if (name === "RM") {
     return [`${value.toFixed(4)} [rad m^-2]`, name];
