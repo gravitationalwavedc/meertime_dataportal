@@ -19,7 +19,7 @@ const ComparisonImageGrid = ({
     "snr_single",
   ];
 
-  const extraImageOrder = ["toa_single", "toa_dm_corrected"];
+  const extraImageOrder = [];
 
   return (
     <>
