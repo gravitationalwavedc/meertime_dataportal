@@ -44,6 +44,11 @@ const SingleObservationTableFragment = graphql`
             foldTsubint
             nant
           }
+          pipelineRun {
+            dm
+            rm
+            sn
+          }
           images {
             edges {
               node {
@@ -95,6 +100,9 @@ const SingleObservationTable = ({ data, jname }) => {
     Nbin: relayObservationModel.observation.foldNbin,
     Nchan: relayObservationModel.observation.foldNchan,
     "Subint Time (s)": relayObservationModel.observation.foldTsubint,
+    "SNR": relayObservationModel.pipelineRun.sn !== null ? relayObservationModel.pipelineRun.sn.toFixed(1) : null,
+    "DM (pc cm^-3)": relayObservationModel.pipelineRun.dm !== null ? relayObservationModel.pipelineRun.dm.toFixed(4) : null,
+    "RM (rad m^-2)": relayObservationModel.pipelineRun.rm !== null ? relayObservationModel.pipelineRun.rm.toFixed(4) : null,
   };
 
   const isMolonglo = relayObservationModel.observation.project.mainProject.name
