@@ -161,8 +161,6 @@ helm-package:
   image:
     name: alpine/helm:3.5.3
     entrypoint: [""]
-  tags:
-    - minikube
   variables:
     CHART: kubernetes/meertime-dataportal
   before_script:
