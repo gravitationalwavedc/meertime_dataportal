@@ -53,8 +53,8 @@ describe("The Fold Detail Page", () => {
 
   it("check view button", () => {
     cy.wait("@FoldDetailQuery");
-    cy.contains('table tr', '2020-07-10-05:07:28').as('targetRow')
-    cy.get('@targetRow').contains("View").click();
+    cy.contains("table tr", "2020-07-10-05:07:28").as("targetRow");
+    cy.get("@targetRow").contains("View").click();
     cy.location("pathname").should(
       "equal",
       "/meertime/J0125-2327/2020-07-10-05:07:28/2/"
