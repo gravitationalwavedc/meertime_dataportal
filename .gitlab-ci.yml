@@ -142,7 +142,7 @@ react-formatting:
     - pnpm exec eslint src
 
 docker-build:
-  stage: build
+  # stage: build
   image: docker:20.10.16
   before_script: []
   services:
@@ -174,11 +174,11 @@ helm-package:
       --password ${CI_REGISTRY_PASSWORD}
       ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/stable
   script:
+    - app_release=$(cat .release)
+    - chart_release=$(cat ${CHART}/values.yaml | grep baseChartVersion | awk '{print $2}')
+    - app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
+    - chart_version=${chart_release}-${CI_COMMIT_SHORT_SHA}
     - |
-      app_release=$(cat .release)
-      chart_release=$(cat ${CHART}/values.yaml | grep baseChartVersion | awk '{print $2}')
-      app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
-      chart_version=${chart_release}-${CI_COMMIT_SHORT_SHA}
       sed -i "/^version:/s/.*/version: \"${chart_version}\"/" ${CHART}/Chart.yaml
       sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
       helm package ${CHART}
@@ -187,5 +187,3 @@ helm-package:
     refs:
       - main
       - staging
-    changes:
-      - kubernetes/meertime-dataportal/**/*
