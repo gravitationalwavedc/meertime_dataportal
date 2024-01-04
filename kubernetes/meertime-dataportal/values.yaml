@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Version of chart that will be updated to include git sha in Charts.yaml
+baseChartVersion: 1.0.13
+
 replicaCount: 1
 
 autoscaling:
