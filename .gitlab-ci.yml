@@ -9,10 +9,10 @@ variables:
   DEBIAN_FRONTEND: "noninteractive"
   DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
-# stages:
-#   - test
-#   - build
-#   - package-publish
+stages:
+  - test
+  - build
+  - package-publish
 
 image:
   name: ubuntu:20.04
@@ -142,7 +142,7 @@ react-formatting:
     - pnpm exec eslint src
 
 docker-build:
-  # stage: build
+  stage: build
   image: docker:20.10.16
   before_script: []
   services:
@@ -157,7 +157,7 @@ docker-build:
     - docker push $DOCKER_REGISTRY/meertime/django:$TAG
 
 helm-package:
-  # stage: package-publish
+  stage: package-publish
   image:
     name: alpine/helm:3.5.3
     entrypoint: [""]
