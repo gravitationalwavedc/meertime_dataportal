@@ -46,6 +46,11 @@ describe("The Fold Detail Page", () => {
   it("should disable the view ephemeris button if the data is missing", () => {
     cy.intercept("http://localhost:8000/graphql/", (req) => {
       aliasQuery(req, "FoldDetailQuery", "foldDetailQueryNoEphem.json");
+      aliasQuery(
+        req,
+        "FoldDetailFileDownloadQuery",
+        "foldDetailFileDownloadQuery.json"
+      );
     });
     cy.wait("@FoldDetailQuery");
     cy.contains("Folding ephemeris unavailable").should("be.visible");
