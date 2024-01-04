@@ -9,10 +9,10 @@ variables:
   DEBIAN_FRONTEND: "noninteractive"
   DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
-stages:
-  - test
-  - build
-  - package-publish
+# stages:
+#   - test
+#   - build
+#   - package-publish
 
 image:
   name: ubuntu:20.04
