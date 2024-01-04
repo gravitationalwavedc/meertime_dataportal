@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 # Version of chart that will be updated to include git sha in Charts.yaml
-baseChartVersion: 1.0.13
+baseChartVersion: 1.0.14
 
 replicaCount: 1
 
