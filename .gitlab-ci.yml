@@ -172,14 +172,16 @@ helm-package:
       --password ${CI_REGISTRY_PASSWORD}
       ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/stable
   script:
-    - app_release=$(cat .release)
-    - chart_release=$(cat ${CHART}/values.yaml | grep baseChartVersion | awk '{print $2}')
-    - app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
-    - chart_version=${chart_release}-${CI_COMMIT_SHORT_SHA}
     - |
+      app_release=$(cat .release)
+      chart_release=$(cat ${CHART}/values.yaml | grep baseChartVersion | awk '{print $2}')
+      app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
+      chart_version=${chart_release}-${CI_COMMIT_SHORT_SHA}
+      eco "Making chart version ${chart_version} for app version ${app_version}"
       sed -i "/^version:/s/.*/version: \"${chart_version}\"/" ${CHART}/Chart.yaml
       sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
       helm package ${CHART}
+      echo curl -v -u '$NEXUS_USER:$NEXUS_PASSWORD' https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
       curl -v -u '$NEXUS_USER:$NEXUS_PASSWORD' https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
   only:
     refs:
