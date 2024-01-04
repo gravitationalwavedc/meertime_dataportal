@@ -95,7 +95,8 @@ deployments:
     label: database
     container:
       name: postgres
-      image: postgres:14.9
+      image: postgres
+      imageTag: 14.9
       envFrom:
         - name: db-config
     port: 5432
@@ -124,7 +125,7 @@ deployments:
     serviceAccountName: meertime
     container:
       name: react
-      image: nexus.gwdc.org.au/meertime/react:3.0.2-bf5fb177
+      image: nexus.gwdc.org.au/meertime/react
     port: 3000
     livereadinessProbe:
       initialDelaySeconds: 30
@@ -137,7 +138,7 @@ deployments:
     serviceAccountName: meertime
     container:
       name: django
-      image: nexus.gwdc.org.au/meertime/django:3.0.2-3a232f6b
+      image: nexus.gwdc.org.au/meertime/django
       env:
         - name: DB_HOST
           valueFrom:
@@ -155,7 +156,8 @@ deployments:
     port: 8000
     initContainers:
       - name: postgres-ingest-script
-        image: postgres:14.9
+        image: postgres
+        imageTag: 14.9
         env:
           - name: DB_HOST
             valueFrom:
@@ -175,7 +177,7 @@ deployments:
             mountPath: /mnt/db-ingest/
         command: ["/bin/sh", "/mnt/db-ingest/ingest-postgres.sh"]
       - name: migrate
-        image: nexus.gwdc.org.au/meertime/django:3.0.2-3a232f6b
+        image: nexus.gwdc.org.au/meertime/django
         env:
           - name: DB_HOST
             valueFrom:
@@ -210,7 +212,8 @@ deployments:
     serviceAccountName: meertime
     container:
       name: ng-meertime
-      image: nexus.gwdc.org.au/meertime/nginx:1.5.1
+      image: nexus.gwdc.org.au/meertime/nginx
+      imageTag: 1.5.1
     port: 80
     livereadinessProbe:
       initialDelaySeconds: 30
@@ -218,7 +221,7 @@ deployments:
       httpGet: true
     initContainers:
       - name: collectstatic
-        image: nexus.gwdc.org.au/meertime/django:3.0.2-3a232f6b
+        image: nexus.gwdc.org.au/meertime/django
         command: ["python", "manage.py", "collectstatic", "--noinput"]
         env:
           - name: DB_HOST

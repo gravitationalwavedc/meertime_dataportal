@@ -35,7 +35,7 @@ spec:
       initContainers:
         {{- range $initContainerKey, $initContainerValue := $value.initContainers }}
         - name: {{ $initContainerValue.name }}
-          image: {{ $initContainerValue.image }}
+          image: "{{ $initContainerValue.image }}:{{ $initContainerValue.imageTag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           env:
             {{- range $envKey, $envValue := $initContainerValue.env }}
@@ -69,7 +69,7 @@ spec:
         {{- end }}
       containers:
         - name: {{ $value.container.name }}
-          image: {{ $value.container.image }}
+          image: "{{ $value.container.image }}:{{ $value.container.imageTag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ $.Values.image.pullPolicy }}
           {{- if $value.container.env }}
           env:

@@ -9,6 +9,11 @@ variables:
   DEBIAN_FRONTEND: "noninteractive"
   DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
+stages:
+  - test
+  - build
+  - package-publish
+
 image:
   name: ubuntu:20.04
   entrypoint: ["/usr/bin/env"]
@@ -83,6 +88,7 @@ react-test:
       junit: frontend/reports/junit.xml
 
 code-quality:
+  stage: test
   image: docker:stable
   variables:
     DOCKER_DRIVER: overlay2
@@ -103,6 +109,7 @@ code-quality:
 
 
 flake8:
+  stage: test
   script:
     - cd backend/
     - pip3 install flake8-gl-codeclimate
@@ -135,6 +142,7 @@ react-formatting:
     - pnpm exec eslint src
 
 docker-build:
+  stage: build
   image: docker:20.10.16
   before_script: []
   services:
@@ -147,3 +155,36 @@ docker-build:
     - docker push $DOCKER_REGISTRY/meertime/react:$TAG
     - docker build . -t $DOCKER_REGISTRY/meertime/django:$TAG -f docker/meertime_django.Dockerfile
     - docker push $DOCKER_REGISTRY/meertime/django:$TAG
+
+helm-package:
+  stage: package-publish
+  image:
+    name: alpine/helm:3.5.3
+    entrypoint: [""]
+  tags:
+    - minikube
+  variables:
+    CHART: kubernetes/meertime-dataportal
+  before_script:
+    - apk add git
+    - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
+    - >
+      helm repo add ${CHART}
+      --username ${CI_REGISTRY_USER}
+      --password ${CI_REGISTRY_PASSWORD}
+      ${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/helm/stable
+  script:
+    - app_release=$(cat .release)
+    - chart_release=$(cat ${CHART}/values.yaml | grep baseChartVersion | awk '{print $2}')
+    - app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
+    - chart_version=${chart_release}-${CI_COMMIT_SHORT_SHA}
+    - sed -i "/^version:/s/.*/version: \"${chart_version}\"/" ${CHART}/Chart.yaml
+    - sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
+    - helm package ${CHART}
+    - curl -v -u '$NEXUS_USER:$NEXUS_PASSWORD' https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
+  only:
+    refs:
+      - main
+      - staging
+    changes:
+      - kubernetes/meertime-dataportal/**/*
