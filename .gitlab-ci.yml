@@ -178,8 +178,8 @@ helm-package:
       sed -i "/^version:/s/.*/version: \"${chart_version}\"/" ${CHART}/Chart.yaml
       sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
     - helm package ${CHART}
-    - echo curl -v -u '$NEXUS_USER:$NEXUS_PASSWORD' https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
-    - curl -v -u '$NEXUS_USER:$NEXUS_PASSWORD' https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
+    - echo curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
+    - curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
   only:
     refs:
       - main
