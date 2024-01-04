@@ -3,7 +3,11 @@ import { Environment, Network, RecordSource, Store } from "relay-runtime";
 const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_API;
 
 const fetchFn = async (request, variables) => {
-  const token = localStorage.getItem("jwt");
+  let token = localStorage.getItem("jwt");
+
+  if (token === null) {
+    token = "";
+  }
 
   const resp = await fetch(HTTP_ENDPOINT, {
     method: "POST",

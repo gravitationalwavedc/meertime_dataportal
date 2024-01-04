@@ -36,3 +36,5 @@ if GMAIL_SMTP == "True":
     DEFAULT_FROM_EMAIL = env("GMAIL_ACCOUNT")
     EMAIL_HOST_USER = env("GMAIL_ACCOUNT")
     EMAIL_HOST_PASSWORD = env("GMAIL_ACCOUNT_PASSWORD")
+else:
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
