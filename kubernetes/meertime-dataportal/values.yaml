@@ -32,7 +32,22 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: "meertime"
 
-podAnnotations: {}
+podAnnotations:
+  serviceAccountName: meertime
+  vault.hashicorp.com/role: "meertime"
+  vault.hashicorp.com/agent-inject: "true"
+  vault.hashicorp.com/agent-init-first: "true"
+  vault.hashicorp.com/agent-pre-populate-only: "true"
+  vault.hashicorp.com/agent-inject-secret-retrieve-control.sh: "kv/meertime/nexus/service"
+  vault.hashicorp.com/agent-inject-template-retrieve-control.sh: |
+    {{- with secret "kv/meertime/nexus/service" -}}
+    #!/bin/sh
+
+    set -o nounset
+    apt update -y; apt install -y wget;
+    wget --no-check-certificate --http-user='{{ .Data.NEXUS_USER }}' --http-password='{{ .Data.NEXUS_PASS }}' https://{{ .Data.NEXUS_URL }}/{{ .Data.NEXUS_CONTROL_DIR }}/$1 -P /tmp
+    {{- end }}
+
 podLabels: {}
 
 podSecurityContext: {}
@@ -130,7 +145,7 @@ deployments:
         - name: django-multi
         - name: db-config
       volumeMounts:
-        - name: meertime-img-storage-staging
+        - name: meertime-img-storage
           mountPath: /media
       command:
         ["gunicorn", "--bind=0.0.0.0:8000", "meertime.wsgi:application"]
@@ -350,17 +365,14 @@ configMapScripts:
     script: |
       #!/bin/sh
 
-      set -o errexit
-      set -o nounset
-
       apt update -y
       apt install -y curl wget
 
       CONTROL_DIR=/tmp
       STATE_FILE=${CONTROL_DIR}/mysql-state.cfg
-      DESIRED_STATE=meertime_staging_db_init_2023-12-1.sql.gz
+      DESIRED_STATE=meertime_staging_db_init_2023-12-22.sql.gz
       DESIRED_STATE_UNPACKED=$(echo $DESIRED_STATE | sed 's/.gz//g')
-      CHECKSUM=d0c0e541d5de2e86a4dbae32f49ad749
+      CHECKSUM=de53b851f9e07f48887f88094b8e83a4
 
       trap "rm -f ${CONTROL_DIR}/${DESIRED_STATE} ${CONTROL_DIR}/${DESIRED_STATE_UNPACKED}" EXIT
 
@@ -369,6 +381,7 @@ configMapScripts:
 
       if [ "$is_empty" -eq "0" ]; then
         echo "Database is empty. Restoring from backup..."
+        /bin/sh /vault/secrets/retrieve-control.sh ${DESIRED_STATE}
 
         echo "Listing download"
         ls -l ${CONTROL_DIR}/${DESIRED_STATE}
