@@ -169,17 +169,21 @@ helm-package:
     - >
       helm repo add nexus https://nexus.gwdc.org.au/repository/helm
   script:
-    - app_release=$(cat .release)
-    - chart_release=$(cat ${CHART}/values.yaml | grep baseChartVersion | awk '{print $2}')
-    - app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
-    - chart_version=${chart_release}-${CI_COMMIT_SHORT_SHA}
-    - echo "Making chart version ${chart_version} for app version ${app_version}"
+    - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
+    - export NEW_VERSION=$(echo $CHART_VERSION | awk -F. '{print $1"."$2"."$3+1}')
     - |
-      sed -i "/^version:/s/.*/version: \"${chart_version}\"/" ${CHART}/Chart.yaml
-      sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
+      sed -i "/^version:/s/.*/version: \"${NEW_VERSION}\"/" ${CHART}/Chart.yaml
+    - git config --global user.email "gitlab-ci@example.com"
+    - git config --global user.name "GitLab CI"
+    - git add ${CHART}/Chart.yaml
+    - git commit -m "Increment Helm chart version to $NEW_VERSION [skip ci]"
+    - export APP_RELEASE=$(cat .release)
+    - export APP_VERSION=${APP_RELEASE}-${CI_COMMIT_SHORT_SHA}
+    - echo "Making chart version ${NEW_VERSION} for app version ${APP_VERSION}"
+    - |
+      sed -i "/^appVersion:/s/.*/appVersion: \"${APP_VERSION}\"/" ${CHART}/Chart.yaml
     - helm package ${CHART}
-    - echo curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
-    - curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${chart_version}.tgz --upload-file meertime-dataportal-${chart_version}.tgz
+    - curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${NEW_VERSION}.tgz --upload-file meertime-dataportal-${NEW_VERSION}.tgz
   only:
     refs:
       - main
