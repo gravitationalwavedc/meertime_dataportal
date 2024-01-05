@@ -163,6 +163,9 @@ helm-package:
     entrypoint: [""]
   variables:
     CHART: kubernetes/meertime-dataportal
+    GIT_SUBMODULE_STRATEGY: none
+    GIT_STRATEGY: none
+    GITLAB_PRIVATE_TOKEN: $CI_GIT_TOKEN
   before_script:
     - apk add git curl python3 py3-pip
     - pip install --upgrade python-gitlab
