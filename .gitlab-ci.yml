@@ -164,7 +164,7 @@ helm-package:
   variables:
     CHART: kubernetes/meertime-dataportal
   before_script:
-    - apk add git curl
+    - apk add git curl python3 py3-pip
     - pip install --upgrade python-gitlab
     - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
     - >
