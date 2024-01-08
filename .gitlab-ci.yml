@@ -157,7 +157,7 @@ docker-build:
     - docker push $DOCKER_REGISTRY/meertime/django:$TAG
 
 helm-package:
-  stage: test
+  stage: package-publish
   image:
     name: alpine/helm:3.5.3
     entrypoint: [""]
@@ -173,9 +173,7 @@ helm-package:
     - helm repo add nexus https://nexus.gwdc.org.au/repository/helm
     - helm repo update
   script:
-    - pwd
-    - ls -la
-    - ls -la ${CHART}
+    - tree
     - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
     - export NEW_VERSION=$(echo $CHART_VERSION | awk -F. '{print $1"."$2"."$3+1}')
     - export NEW_BRANCH_NAME="${CI_PIPELINE_SOURCE}/update-to-${NEW_VERSION}"
