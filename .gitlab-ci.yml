@@ -168,7 +168,7 @@ helm-package:
     - apk add git curl
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git config --global user.name "${GITLAB_USER_NAME}"
-    - git remote add gitlab_origin https://oauth2:${GIT_PUSH_TOKEN}@gitlab.com/path-to-project.git
+    - git remote add gitlab_origin https://oauth2:${GIT_PUSH_TOKEN}@gitlab.com/CAS-eResearch/GWDC/code/meertime_dataportal.git
     - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
     - helm repo add nexus https://nexus.gwdc.org.au/repository/helm
     - helm repo update
