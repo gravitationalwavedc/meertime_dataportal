@@ -166,8 +166,9 @@ helm-package:
     GITLAB_PRIVATE_TOKEN: $CI_GIT_TOKEN
   before_script:
     - apk add git curl
-    - git config --global user.email "gitlab-ci@example.com"
-    - git config --global user.name "GitLab CI"
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git remote add gitlab_origin https://oauth2:${GIT_PUSH_TOKEN}@gitlab.com/path-to-project.git
     - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
     - helm repo add nexus https://nexus.gwdc.org.au/repository/helm
     - helm repo update
@@ -179,7 +180,7 @@ helm-package:
       sed -i "/^version:/s/.*/version: \"${NEW_VERSION}\"/" ${CHART}/Chart.yaml
     - git checkout -b ${NEW_BRANCH_NAME}
     - git add ${CHART}/Chart.yaml
-    - git commit -m "Increment Helm chart version to $NEW_VERSION [skip ci]"
+    - git commit -m "Increment Helm chart version to $NEW_VERSION"
     - export APP_RELEASE=$(cat .release)
     - export APP_VERSION=${APP_RELEASE}-${CI_COMMIT_SHORT_SHA}
     - echo "Making chart version ${NEW_VERSION} for app version ${APP_VERSION}"
@@ -187,7 +188,7 @@ helm-package:
       sed -i "/^appVersion:/s/.*/appVersion: \"${APP_VERSION}\"/" ${CHART}/Chart.yaml
     - helm package ${CHART}
     - curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${NEW_VERSION}.tgz --upload-file meertime-dataportal-${NEW_VERSION}.tgz
-    - git push -o ci.skip "https://${GITLAB_USER_NAME}:${GIT_PUSH_TOKEN}@${CI_REPOSITORY_URL#*@}" HEAD:${CI_COMMIT_BRANCH}
+    - git push -o ci.skip gitlab_origin HEAD:${CI_COMMIT_BRANCH}
   only:
     refs:
       - main
