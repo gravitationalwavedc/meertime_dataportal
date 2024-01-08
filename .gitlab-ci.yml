@@ -168,7 +168,7 @@ helm-package:
     - apk add git curl
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git config --global user.name "${GITLAB_USER_NAME}"
-    - git remote add gitlab_origin https://oauth2:${GIT_PUSH_TOKEN}@gitlab.com/CAS-eResearch/GWDC/code/meertime_dataportal.git
+    - git remote set-url --push origin "https://GIT_PUSH_TOKEN:${GIT_PUSH_TOKEN}@gitlab.com/CAS-eResearch/GWDC/code/meertime_dataportal.git"
     - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
     - helm repo add nexus https://nexus.gwdc.org.au/repository/helm
     - helm repo update
@@ -188,7 +188,7 @@ helm-package:
       sed -i "/^appVersion:/s/.*/appVersion: \"${APP_VERSION}\"/" ${CHART}/Chart.yaml
     - helm package ${CHART}
     - curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${NEW_VERSION}.tgz --upload-file meertime-dataportal-${NEW_VERSION}.tgz
-    - git push -o ci.skip gitlab_origin HEAD:${CI_COMMIT_BRANCH}
+    - git push -o ci.skip origin HEAD:${CI_COMMIT_BRANCH}
   only:
     refs:
       - main
