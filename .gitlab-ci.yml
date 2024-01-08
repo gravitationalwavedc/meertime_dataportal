@@ -174,7 +174,8 @@ helm-package:
     - helm repo update
   script:
     - pwd
-    - ls
+    - ls -la
+    - ls -la ${CHART}
     - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
     - export NEW_VERSION=$(echo $CHART_VERSION | awk -F. '{print $1"."$2"."$3+1}')
     - export NEW_BRANCH_NAME="${CI_PIPELINE_SOURCE}/update-to-${NEW_VERSION}"
