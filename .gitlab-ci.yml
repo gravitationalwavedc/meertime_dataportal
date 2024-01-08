@@ -165,21 +165,18 @@ helm-package:
     CHART: kubernetes/meertime-dataportal
     GITLAB_PRIVATE_TOKEN: $CI_GIT_TOKEN
   before_script:
-    - apk add git curl python3 py3-pip tree
-    - tree
-    - pip install --upgrade python-gitlab
+    - apk add git curl
+    - git config --global user.email "gitlab-ci@example.com"
+    - git config --global user.name "GitLab CI"
     - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
     - helm repo add nexus https://nexus.gwdc.org.au/repository/helm
     - helm repo update
   script:
-    - tree
     - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
     - export NEW_VERSION=$(echo $CHART_VERSION | awk -F. '{print $1"."$2"."$3+1}')
     - export NEW_BRANCH_NAME="${CI_PIPELINE_SOURCE}/update-to-${NEW_VERSION}"
     - |
       sed -i "/^version:/s/.*/version: \"${NEW_VERSION}\"/" ${CHART}/Chart.yaml
-    - git config --global user.email "gitlab-ci@example.com"
-    - git config --global user.name "GitLab CI"
     - git checkout -b ${NEW_BRANCH_NAME}
     - git add ${CHART}/Chart.yaml
     - git commit -m "Increment Helm chart version to $NEW_VERSION [skip ci]"
@@ -190,10 +187,7 @@ helm-package:
       sed -i "/^appVersion:/s/.*/appVersion: \"${APP_VERSION}\"/" ${CHART}/Chart.yaml
     - helm package ${CHART}
     - curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${NEW_VERSION}.tgz --upload-file meertime-dataportal-${NEW_VERSION}.tgz
-    - CREATE_MR=$(gitlab project-merge-request create --remove-source-branch true --project-id ${CI_PROJECT_ID} --source-branch "${NEW_BRANCH_NAME}" --target-branch "${CI_COMMIT_BRANCH}" --title "Update kernel to ${NEW_VERSION}.")
-    - IID=${CREATE_MR#* }
-    - gitlab project-merge-request merge --project-id ${CI_PROJECT_ID} --iid ${IID}
-    - echo "Merge request ${IID} was created. Merging it on successful build."
+    - git push -o ci.skip "https://${GITLAB_USER_NAME}:${GIT_PUSH_TOKEN}@${CI_REPOSITORY_URL#*@}" HEAD:${CI_COMMIT_BRANCH}
   only:
     refs:
       - main
