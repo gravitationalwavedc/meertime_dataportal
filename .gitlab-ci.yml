@@ -177,10 +177,12 @@ helm-package:
     - helm repo add ${REMOTE_REPO} ${NEXUS_HELM_URL}
     - helm repo update
   script:
+    - app_release=$(cat .release)
+    - app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
+    - |
+      sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
     - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
-    - chmod +x ./scripts/helm-chart-push
-    - ls -l ./scripts/helm-chart-push
-    - echo "./scripts/helm-chart-push ${CHART} ${REMOTE_REPO} ${CHART_NAME} $CHART_VERSION "'"$NEXUS_USER:$NEXUS_PASSWORD"'" $NEXUS_HELM_URL"
+    - chmod +x ./scripts/helm-chart-push\
     - bash -c "./scripts/helm-chart-push ${CHART} ${REMOTE_REPO} ${CHART_NAME} $CHART_VERSION "'"$NEXUS_USER:$NEXUS_PASSWORD"'" $NEXUS_HELM_URL"
   only:
     refs:
