@@ -141,7 +141,20 @@ react-formatting:
     - pnpm exec prettier --check .
     - pnpm exec eslint src
 
-docker-build:
+docker-build-django:
+  stage: build
+  image: docker:20.10.16
+  before_script: []
+  services:
+    - docker:20.10.16-dind
+  script:
+    - echo $NEXUS_PASSWORD | docker login $DOCKER_REGISTRY -u $NEXUS_USER --password-stdin
+    - RELEASE=$(cat .release)
+    - TAG="$RELEASE-$CI_COMMIT_SHORT_SHA"
+    - docker build . -t $DOCKER_REGISTRY/meertime/django:$TAG -f docker/meertime_django.Dockerfile
+    - docker push $DOCKER_REGISTRY/meertime/django:$TAG
+
+docker-build-react:
   stage: build
   image: docker:20.10.16
   before_script: []
@@ -153,8 +166,6 @@ docker-build:
     - TAG="$RELEASE-$CI_COMMIT_SHORT_SHA"
     - docker build . -t $DOCKER_REGISTRY/meertime/react:$TAG -f docker/meertime_react.Dockerfile
     - docker push $DOCKER_REGISTRY/meertime/react:$TAG
-    - docker build . -t $DOCKER_REGISTRY/meertime/django:$TAG -f docker/meertime_django.Dockerfile
-    - docker push $DOCKER_REGISTRY/meertime/django:$TAG
 
 helm-package:
   stage: package-publish
