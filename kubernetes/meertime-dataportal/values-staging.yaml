@@ -27,3 +27,119 @@ ingress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
+
+  deployments:
+  - name: database
+    label: database
+    container:
+      name: postgres
+      image: postgres
+      imageTag: 14.9
+      envFrom:
+        - name: db-config
+    port: 5432
+    volumeMounts:
+      - name: db-storage-data
+        mountPath: /var/lib/postgresql/data
+    livereadinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      httpGet: false
+      exec:
+        command:
+          - bash
+          - "-c"
+          - |
+            set -ex
+            psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
+    volumes:
+      - name: db-storage-data
+        persistentVolumeClaim:
+          claimName: db-storage-data
+
+  - name: react
+    label: react
+    imagePullSecrets: regcred
+    serviceAccountName: meertime
+    container:
+      name: react
+      image: nexus.gwdc.org.au/meertime/react
+    port: 3000
+    livereadinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      httpGet: true
+
+  - name: django
+    label: django
+    imagePullSecrets: regcred
+    serviceAccountName: meertime
+    container:
+      name: django
+      image: nexus.gwdc.org.au/meertime/django
+      env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: db-configmap
+              key: host
+      envFrom:
+        - name: django-multi
+        - name: db-config
+      volumeMounts:
+        - name: meertime-img-storage
+          mountPath: /media
+      command:
+        ["gunicorn", "--bind=0.0.0.0:8000", "meertime.wsgi:application","--timeout=600"]
+    port: 8000
+    initContainers:
+      - name: postgres-ingest-script
+        image: postgres
+        imageTag: 14.9
+        env:
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: db-configmap
+                key: host
+          - name: PGPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-config
+                key: POSTGRES_PASSWORD
+        envFrom:
+          - name: db-control
+          - name: db-config
+        volumeMounts:
+          - name: db-ingest-script
+            mountPath: /mnt/db-ingest/
+        command: ["/bin/sh", "/mnt/db-ingest/ingest-postgres.sh"]
+      - name: migrate
+        image: nexus.gwdc.org.au/meertime/django
+        env:
+          - name: DB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: db-configmap
+                key: host
+        envFrom:
+          - name: django-multi
+          - name: db-config
+        command: ["python", "manage.py", "migrate"]
+    livereadinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 30
+      httpGet: true
+    volumeMounts:
+      - name: meertime-img-storage
+        mountPath: /media
+    volumes:
+      - name: db-storage-data
+        persistentVolumeClaim:
+          claimName: db-storage-data
+      - name: db-ingest-script
+        configMap:
+          name: db-ingest-script
+      - name: meertime-img-storage
+        persistentVolumeClaim:
+          claimName: meertime-storage-img
