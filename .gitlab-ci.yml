@@ -169,7 +169,7 @@ helm-package:
     CHART_NAME: meertime-dataportal
     NEXUS_HELM_URL: https://nexus.gwdc.org.au/repository/helm
   before_script:
-    - apk add git curl
+    - apk add git curl tree
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git remote set-url --push origin "https://GIT_PUSH_TOKEN:${GIT_PUSH_TOKEN}@gitlab.com/CAS-eResearch/GWDC/code/meertime_dataportal.git"
@@ -177,8 +177,9 @@ helm-package:
     - helm repo add ${REMOTE_REPO} ${NEXUS_HELM_URL}
     - helm repo update
   script:
+    - tree
     - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
-    - ./scripts/helm-chart-push ${CHART} ${REMOTE_REPO} ${CHART_NAME} $CHART_VERSION $NEXUS_USER:$NEXUS_PASSWORD $NEXUS_HELM_URL    
+    - ./scripts/helm-chart-push ${CHART} ${REMOTE_REPO} ${CHART_NAME} $CHART_VERSION $NEXUS_USER:$NEXUS_PASSWORD $NEXUS_HELM_URL
   only:
     refs:
       - main
