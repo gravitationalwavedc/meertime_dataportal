@@ -157,7 +157,7 @@ docker-build:
     - docker push $DOCKER_REGISTRY/meertime/django:$TAG
 
 helm-package:
-  stage: test
+  stage: package-publish
   image:
     name: alpine/helm:3.5.3
     entrypoint: [""]
