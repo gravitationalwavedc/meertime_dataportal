@@ -182,7 +182,7 @@ helm-package:
     - |
       sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
     - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
-    - chmod +x ./scripts/helm-chart-push\
+    - chmod +x ./scripts/helm-chart-push
     - bash -c "./scripts/helm-chart-push ${CHART} ${REMOTE_REPO} ${CHART_NAME} $CHART_VERSION "'"$NEXUS_USER:$NEXUS_PASSWORD"'" $NEXUS_HELM_URL"
   only:
     refs:
