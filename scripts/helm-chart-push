@@ -7,7 +7,7 @@ NEXUS_CREDENTIALS="$5"
 NEXUS_HELM_URL="$6"
 
 # Extract major, minor, and patch versions from the local Chart.yaml
-LOCAL_VERSION=$(yq eval '.version' "$CHART_PATH/Chart.yaml")
+LOCAL_VERSION=$(awk '/^version:/ {print $2}' "$CHART_PATH/Chart.yaml" | awk '{ gsub(/"/, ""); print }')
 IFS='.' read -r LOCAL_MAJOR LOCAL_MINOR LOCAL_PATCH <<< "$LOCAL_VERSION"
 
 # Fetch the latest version from the remote repository
