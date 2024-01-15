@@ -10,8 +10,8 @@ services:
       - ~/docker_postgres:/var/lib/postgresql/data
       # to create the db from a dump inside a docker container
       - ~/dumps/meertime_backup.sql:/docker-entrypoint-initdb.d/data.sql
-  django:
-    image: nexus.gwdc.org.au/meertime/django:3.0.2-3a232f6b
+  django-service:
+    image: nexus.gwdc.org.au/meertime/django:3.0.2-7a87b77b
     container_name: meertime_django
     depends_on:
       - postgres
@@ -24,20 +24,20 @@ services:
     command: >
       bash -c "python manage.py collectstatic --noinput
       && gunicorn --bind=0.0.0.0:8000 meertime.wsgi:application"
-  react:
-    image: nexus.gwdc.org.au/meertime/react:3.0.0
+  react-service:
+    image: nexus.gwdc.org.au/meertime/react:3.0.2-7a87b77b
     container_name: meertime_react
     ports:
       - "3000:3000"
   nginx:
-    image: nexus.gwdc.org.au/meertime/nginx:1.3
+    image: nexus.gwdc.org.au/meertime/nginx:1.5.2
     ports:
-      - "8000:80"
       - "80:80"
     container_name: meertime_nginx
     depends_on:
-      - django
+      - django-service
     volumes:
+      - ./src/static:/static
       - ./nginx:/etc/nginx/conf.d
 volumes:
   mysql-persistent-storage:
