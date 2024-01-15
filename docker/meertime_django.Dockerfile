@@ -47,7 +47,7 @@ RUN adduser web
 COPY --chown=web:web ./backend/pyproject.toml ./backend/poetry.lock /code/
 
 # support development_mode in docker
-RUN if [ "${DEVELOPMENT_MODE}" = "True" ]; then poetry install --no-interation --no-ansi; else poetry install --no-dev --no-interaction --no-ansi; fi;
+RUN if [ "${DEVELOPMENT_MODE}" = "True" ]; then poetry install --with dev --no-interaction --no-ansi; else poetry install --no-interaction --no-ansi; fi;
 
 COPY ./backend /code/
 
