@@ -149,7 +149,7 @@ deployments:
         - name: meertime-img-storage
           mountPath: /media
       command:
-        ["gunicorn", "--bind=0.0.0.0:8000", "meertime.wsgi:application"]
+        ["gunicorn", "--bind=0.0.0.0:8000", "--timeout=120", "--workers=4", "meertime.wsgi:application"]
     port: 8000
     initContainers:
       - name: postgres-ingest-script

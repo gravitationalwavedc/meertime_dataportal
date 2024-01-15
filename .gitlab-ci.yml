@@ -141,7 +141,20 @@ react-formatting:
     - pnpm exec prettier --check .
     - pnpm exec eslint src
 
-docker-build:
+docker-build-django:
+  stage: build
+  image: docker:20.10.16
+  before_script: []
+  services:
+    - docker:20.10.16-dind
+  script:
+    - echo $NEXUS_PASSWORD | docker login $DOCKER_REGISTRY -u $NEXUS_USER --password-stdin
+    - RELEASE=$(cat .release)
+    - TAG="$RELEASE-$CI_COMMIT_SHORT_SHA"
+    - docker build . -t $DOCKER_REGISTRY/meertime/django:$TAG -f docker/meertime_django.Dockerfile
+    - docker push $DOCKER_REGISTRY/meertime/django:$TAG
+
+docker-build-react:
   stage: build
   image: docker:20.10.16
   before_script: []
@@ -153,42 +166,35 @@ docker-build:
     - TAG="$RELEASE-$CI_COMMIT_SHORT_SHA"
     - docker build . -t $DOCKER_REGISTRY/meertime/react:$TAG -f docker/meertime_react.Dockerfile
     - docker push $DOCKER_REGISTRY/meertime/react:$TAG
-    - docker build . -t $DOCKER_REGISTRY/meertime/django:$TAG -f docker/meertime_django.Dockerfile
-    - docker push $DOCKER_REGISTRY/meertime/django:$TAG
 
 helm-package:
-  stage: test
+  stage: package-publish
   image:
     name: alpine/helm:3.5.3
     entrypoint: [""]
   variables:
     CHART: kubernetes/meertime-dataportal
     GITLAB_PRIVATE_TOKEN: $CI_GIT_TOKEN
+    CHART_PATH: kubernetes/meertime-dataportal
+    REMOTE_REPO: nexus
+    CHART_NAME: meertime-dataportal
+    NEXUS_HELM_URL: https://nexus.gwdc.org.au/repository/helm
   before_script:
-    - apk add git curl
+    - apk add git curl bash yq
     - git config --global user.email "${GITLAB_USER_EMAIL}"
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git remote set-url --push origin "https://GIT_PUSH_TOKEN:${GIT_PUSH_TOKEN}@gitlab.com/CAS-eResearch/GWDC/code/meertime_dataportal.git"
     - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
-    - helm repo add nexus https://nexus.gwdc.org.au/repository/helm
+    - helm repo add ${REMOTE_REPO} ${NEXUS_HELM_URL}
     - helm repo update
   script:
+    - app_release=$(cat .release)
+    - app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
+    - |
+      sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
     - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
-    - export NEW_VERSION=$(echo $CHART_VERSION | awk -F. '{print $1"."$2"."$3+1}')
-    - export NEW_BRANCH_NAME="${CI_PIPELINE_SOURCE}/update-to-${NEW_VERSION}"
-    - |
-      sed -i "/^version:/s/.*/version: \"${NEW_VERSION}\"/" ${CHART}/Chart.yaml
-    - git checkout -b ${NEW_BRANCH_NAME}
-    - git add ${CHART}/Chart.yaml
-    - git commit -m "Increment Helm chart version to $NEW_VERSION"
-    - export APP_RELEASE=$(cat .release)
-    - export APP_VERSION=${APP_RELEASE}-${CI_COMMIT_SHORT_SHA}
-    - echo "Making chart version ${NEW_VERSION} for app version ${APP_VERSION}"
-    - |
-      sed -i "/^appVersion:/s/.*/appVersion: \"${APP_VERSION}\"/" ${CHART}/Chart.yaml
-    - helm package ${CHART}
-    - curl -v -u $NEXUS_USER:$NEXUS_PASSWORD https://nexus.gwdc.org.au/repository/helm/meertime-dataportal-${NEW_VERSION}.tgz --upload-file meertime-dataportal-${NEW_VERSION}.tgz
-    - git push -o ci.skip origin HEAD:${CI_COMMIT_BRANCH}
+    - chmod +x ./scripts/helm-chart-push
+    - bash -c "./scripts/helm-chart-push ${CHART} ${REMOTE_REPO} ${CHART_NAME} $CHART_VERSION "'"$NEXUS_USER:$NEXUS_PASSWORD"'" $NEXUS_HELM_URL"
   only:
     refs:
       - main
