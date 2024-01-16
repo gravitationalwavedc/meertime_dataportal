@@ -14,7 +14,7 @@ describe("The Fold Detail Page", () => {
       aliasQuery(
         req,
         "SingleObservationFileDownloadQuery",
-        "SingleObservationFileDownloadQuery.json"
+        "singleObservationFileDownloadQuery.json"
       );
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
     });

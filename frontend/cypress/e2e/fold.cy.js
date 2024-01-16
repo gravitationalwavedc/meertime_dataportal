@@ -16,7 +16,7 @@ describe("The Fold Page", () => {
       aliasQuery(
         req,
         "SingleObservationFileDownloadQuery",
-        "SingleObservationFileDownloadQuery.json"
+        "singleObservationFileDownloadQuery.json"
       );
     });
     cy.visit("/");

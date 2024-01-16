@@ -15,7 +15,7 @@ describe("The Session Page", () => {
       aliasQuery(
         req,
         "SingleObservationFileDownloadQuery",
-        "SingleObservationFileDownloadQuery.json"
+        "singleObservationFileDownloadQuery.json"
       );
     });
     cy.visit("/session/2419/");

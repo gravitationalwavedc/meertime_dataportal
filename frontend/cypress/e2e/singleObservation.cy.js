@@ -9,7 +9,7 @@ describe("Single Observation Page", () => {
       aliasQuery(
         req,
         "SingleObservationFileDownloadQuery",
-        "SingleObservationFileDownloadQuery.json"
+        "singleObservationFileDownloadQuery.json"
       );
     });
 
