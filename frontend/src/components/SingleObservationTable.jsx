@@ -66,8 +66,10 @@ const SingleObservationTableFragment = graphql`
 `;
 
 const SingleObservationTable = ({ observationData, jname, setShow }) => {
-
-  const relayData = useFragment(SingleObservationTableFragment, observationData);
+  const relayData = useFragment(
+    SingleObservationTableFragment,
+    observationData
+  );
   const { pulsarFoldResult } = relayData;
   const relayObservationModel = pulsarFoldResult.edges[0].node;
 

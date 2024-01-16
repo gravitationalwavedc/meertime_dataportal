@@ -17,8 +17,12 @@ const SingleObservationQuery = graphql`
   }
 `;
 
-const SingleObservationFileDownloadQuery  = graphql`
-  query SingleObservationFileDownloadQuery($pulsar: String!, $utc: String!, $beam: Int!) {
+const SingleObservationFileDownloadQuery = graphql`
+  query SingleObservationFileDownloadQuery(
+    $pulsar: String!
+    $utc: String!
+    $beam: Int!
+  ) {
     ...SingleObservationFileDownloadFragment
       @arguments(jname: $pulsar, utc: $utc, beam: $beam)
   }
@@ -37,11 +41,14 @@ const SingleObservation = ({
     utc: utc,
     beam: beam,
   });
-  const fileDownloadData = useLazyLoadQuery(SingleObservationFileDownloadQuery, {
-    pulsar: jname,
-    utc: utc,
-    beam: beam,
-  });
+  const fileDownloadData = useLazyLoadQuery(
+    SingleObservationFileDownloadQuery,
+    {
+      pulsar: jname,
+      utc: utc,
+      beam: beam,
+    }
+  );
 
   const title = (
     <Link size="sm" to={`/fold/${mainProject}/${jname}/`}>

@@ -11,6 +11,11 @@ describe("The Fold Detail Page", () => {
         "foldDetailFileDownloadQuery.json"
       );
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
+      aliasQuery(
+        req,
+        "SingleObservationFileDownloadQuery",
+        "SingleObservationFileDownloadQuery.json"
+      );
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
     });
     cy.visit("fold/meertime/J0125-2327/");

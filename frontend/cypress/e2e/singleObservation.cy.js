@@ -6,6 +6,11 @@ describe("Single Observation Page", () => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasMutation(req, "RefreshTokenMutation", "refreshTokenMutation.json");
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
+      aliasQuery(
+        req,
+        "SingleObservationFileDownloadQuery",
+        "SingleObservationFileDownloadQuery.json"
+      );
     });
 
     cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
