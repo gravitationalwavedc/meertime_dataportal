@@ -132,13 +132,9 @@ const SessionTable = ({ data, id }) => {
         (edge) => edge.node.imageType === "PHASE_FREQ" && edge.node.cleaned
       )[0]?.node;
       const images = [
-        flux ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${flux.url}` : image404,
-        phaseVsTime
-          ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsTime.url}`
-          : image404,
-        phaseVsFrequency
-          ? `${import.meta.env.VITE_DJANGO_MEDIA_URL}${phaseVsFrequency.url}`
-          : image404,
+        flux ? `${flux.url}` : image404,
+        phaseVsTime ? `${phaseVsTime.url}` : image404,
+        phaseVsFrequency ? `${phaseVsFrequency.url}` : image404,
       ];
 
       row.flux = (
