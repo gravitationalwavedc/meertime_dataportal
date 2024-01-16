@@ -6,7 +6,6 @@ import { formatUTC, kronosLink, sessionLink } from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
 import MolongloImageGrid from "./MolongloImageGrid";
-import SingleObservationFileDownload from "./SingleObservationFileDownload";
 
 const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
@@ -66,10 +65,9 @@ const SingleObservationTableFragment = graphql`
   }
 `;
 
-const SingleObservationTable = ({ data, jname }) => {
-  const [downloadModalVisible, setDownloadModalVisible] = useState(false);
+const SingleObservationTable = ({ observationData, jname, setShow }) => {
 
-  const relayData = useFragment(SingleObservationTableFragment, data);
+  const relayData = useFragment(SingleObservationTableFragment, observationData);
   const { pulsarFoldResult } = relayData;
   const relayObservationModel = pulsarFoldResult.edges[0].node;
 
@@ -155,20 +153,13 @@ const SingleObservationTable = ({ data, jname }) => {
               size="sm"
               className="mr-2 mb-2"
               variant="outline-secondary"
-              onClick={() => setDownloadModalVisible(true)}
+              onClick={() => setShow(true)}
             >
               Download Data Files
             </Button>
           )}
         </Col>
       </Row>
-      {localStorage.isStaff === "true" && (
-        <SingleObservationFileDownload
-          visible={downloadModalVisible}
-          data={data}
-          setShow={setDownloadModalVisible}
-        />
-      )}
       {projectChoices.length >= 1 ? (
         <Row className="mt-2">
           <Col sm={4} md={4}>
