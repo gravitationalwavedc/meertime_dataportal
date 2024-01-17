@@ -53,7 +53,9 @@ def request_file_list(path, recursive):
             f"{settings.GWCLOUD_JOB_CONTROLLER_API_URL}/file/",
             data=json.dumps(data),
             headers={"Authorization": jwt_enc},
+            timeout=30, # seconds
         )
+        result.raise_for_status()
 
         # Check that the request was successful
         if result.status_code != 200:
@@ -69,5 +71,9 @@ def request_file_list(path, recursive):
         result = json.loads(result.content)
 
         return True, result["files"]
+    except requests.Timeout:
+        return False, "The request timed out"
+    except requests.RequestException as e:
+        return False, f"An error occurred: {e}"
     except Exception:
         return False, "Error getting job file list"
