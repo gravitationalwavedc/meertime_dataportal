@@ -346,6 +346,9 @@ const SessionTable = ({ data, id }) => {
                 (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length,
             })
           }
+          onImageLoad={() => {
+            window.dispatchEvent(new Event("resize"));
+          }}
         />
       )}
     </div>

@@ -8,10 +8,7 @@ import ToaImages from "./ToaImages";
 const ImageGrid = ({ images, project }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
 
-  const rawImages = images.edges.filter(
-    ({ node }) => console.log(node) || !node.cleaned
-  );
-
+  const rawImages = images.edges.filter(({ node }) => !node.cleaned);
   const processedImages = images.edges.filter(({ node }) => node.cleaned);
 
   const urls = [
@@ -62,16 +59,13 @@ const ImageGrid = ({ images, project }) => {
           <PlotImage
             key={node.image}
             imageData={node}
-            handleClick={() => openLightBox(node.image)}
+            handleClick={() => openLightBox(node.url)}
           />
         ))
       )}
       {isLightBoxOpen && (
         <LightBox
-          // mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
-          mainSrc={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${
-            lightBoxImages.images[lightBoxImages.imagesIndex]
-          }`}
+          mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
           nextSrc={
             lightBoxImages.images[
               (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length
@@ -101,6 +95,9 @@ const ImageGrid = ({ images, project }) => {
                 (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length,
             })
           }
+          onImageLoad={() => {
+            window.dispatchEvent(new Event("resize"));
+          }}
         />
       )}
     </>

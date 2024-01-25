@@ -61,7 +61,7 @@ const ComparisonImageGrid = ({
                   <PlotImage
                     key={imageType}
                     imageData={edge.node}
-                    handleClick={() => openLightBox(edge.node.image)}
+                    handleClick={() => openLightBox(edge.node.url)}
                   />
                 );
               })}

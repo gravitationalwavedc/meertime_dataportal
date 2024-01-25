@@ -48,10 +48,7 @@ const MolongloImageGrid = ({ images, project }) => {
       ))}
       {isLightBoxOpen && (
         <LightBox
-          // mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
-          mainSrc={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${
-            lightBoxImages.images[lightBoxImages.imagesIndex]
-          }`}
+          mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
           nextSrc={
             lightBoxImages.images[
               (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length
@@ -81,6 +78,9 @@ const MolongloImageGrid = ({ images, project }) => {
                 (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length,
             })
           }
+          onImageLoad={() => {
+            window.dispatchEvent(new Event("resize"));
+          }}
         />
       )}
     </>

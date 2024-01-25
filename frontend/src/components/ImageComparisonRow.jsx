@@ -11,13 +11,13 @@ const ImageComparisonRow = ({
     <Col {...sizes}>
       <PlotImage
         imageData={rawImage ? rawImage.node : null}
-        handleClick={() => openLightBox(rawImage.node.image)}
+        handleClick={() => openLightBox(rawImage.node.url)}
       />
     </Col>
     <Col {...sizes}>
       <PlotImage
         imageData={processedImage ? processedImage.node : null}
-        handleClick={() => openLightBox(processedImage.node.image)}
+        handleClick={() => openLightBox(processedImage.node.url)}
       />
     </Col>
   </Row>
