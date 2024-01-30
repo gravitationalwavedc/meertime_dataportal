@@ -51,7 +51,7 @@ describe("The Fold Page", () => {
     cy.wait("@FoldTableRefetchQuery");
     cy.url().should(
       "eq",
-      "http://localhost:5173/?search=&mainProject=meertime&project=All&band=LBAND"
+      "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&project=All&band=LBAND"
     );
     cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });
@@ -65,7 +65,7 @@ describe("The Fold Page", () => {
     cy.wait("@FoldTableRefetchQuery");
     cy.url().should(
       "eq",
-      "http://localhost:5173/?search=&mainProject=trapum&project=All&band=All"
+      "http://localhost:5173/?search=&mainProject=trapum&mostCommonProject=All&project=All&band=All"
     );
     cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });
@@ -79,7 +79,21 @@ describe("The Fold Page", () => {
     cy.wait("@FoldTableRefetchQuery");
     cy.url().should(
       "eq",
-      "http://localhost:5173/?search=&mainProject=meertime&project=TPA&band=All"
+      "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&project=TPA&band=All"
+    );
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
+  });
+
+  it("changes most common project when selected", () => {
+    cy.wait("@FoldQuery");
+    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+
+    cy.get("#mostCommonProjectSelect").select("TPA", { force: true });
+
+    cy.wait("@FoldTableRefetchQuery");
+    cy.url().should(
+      "eq",
+      "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=TPA&project=All&band=All"
     );
     cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });
