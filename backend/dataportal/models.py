@@ -539,7 +539,14 @@ class PulsarFoldSummary(models.Model):
                 A MainProject model instance.
         """
         # Get all the fold observations for that pulsar
-        observations = Observation.objects.select_related("pulsar", "project").filter(pulsar=pulsar, obs_type="fold").order_by("utc_start")
+        observations = Observation.objects.select_related(
+            "pulsar",
+            "project"
+        ).filter(
+            pulsar=pulsar,
+            project__main_project=main_project,
+            obs_type="fold"
+        ).order_by("utc_start")
 
         # Process observation summary
         first_observation  = observations.first()
