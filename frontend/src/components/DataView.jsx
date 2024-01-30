@@ -17,13 +17,14 @@ const DataView = ({
   columns,
   rows,
   mainProject,
-  mainProjectSelect,
+  setMainProject,
+  mostCommonProject,
+  setMostCommonProject,
   project,
   setProject,
-  timingProjects,
-  setMainProject,
   band,
   setBand,
+  timingProjects,
   options,
   plot,
   keyField,
@@ -71,13 +72,14 @@ const DataView = ({
                   <ListControls
                     query={query}
                     searchProps={props.searchProps}
+                    mainProject={mainProject}
+                    handleMainProjectFilter={setMainProject}
+                    mostCommonProject={mostCommonProject}
+                    handleMostCommonProjectFilter={setMostCommonProject}
+                    project={project}
+                    handleProjectFilter={setProject}
                     band={band}
                     handleBandFilter={setBand}
-                    handleMainProjectFilter={setMainProject}
-                    handleProjectFilter={setProject}
-                    mainProject={mainProject}
-                    mainProjectSelect={mainProjectSelect}
-                    project={project}
                     columnToggleProps={props.columnToggleProps}
                     setIsTableView={setIsTableView}
                     isTableView={isTableView}

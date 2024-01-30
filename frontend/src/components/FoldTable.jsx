@@ -12,6 +12,7 @@ const FoldTableFragment = graphql`
   @argumentDefinitions(
     pulsar: { type: "String", defaultValue: "All" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
+    mostCommonProject: { type: "String", defaultValue: "All" }
     project: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
   ) {
@@ -33,6 +34,7 @@ const FoldTableFragment = graphql`
     }
     pulsarFoldSummary(
       mainProject: $mainProject
+      mostCommonProject: $mostCommonProject
       project: $project
       band: $band
     ) {
@@ -76,42 +78,66 @@ const FoldTable = ({
   const [mainProject, setMainProject] = useState(
     query.mainProject || "meertime"
   );
+  const [mostCommonProject, setMostCommonProject] = useState(
+    query.mostCommonProject || "All"
+  );
   const [project, setProject] = useState(query.project || "All");
   const [band, setBand] = useState(query.band || "All");
 
   const handleRefetch = ({
     newMainProject = mainProject,
     newProject = project,
+    newMostCommonProject = mostCommonProject,
     newBand = band,
   } = {}) => {
     const url = new URL(window.location);
     url.searchParams.set("mainProject", newMainProject);
+    url.searchParams.set("mostCommonProject", newMostCommonProject);
     url.searchParams.set("project", newProject);
     url.searchParams.set("band", newBand);
     window.history.pushState({}, "", url);
     refetch({
       mainProject: newMainProject,
+      mostCommonProject: newMostCommonProject,
       project: newProject,
       band: newBand,
     });
   };
 
   const handleMainProjectChange = (newMainProject) => {
+    const newMostCommonProject = "All";
     const newProject = "All";
     const newBand = "All";
     setMainProject(newMainProject);
+    setMostCommonProject(newMostCommonProject);
     setProject(newProject);
     setBand(newBand);
     handleRefetch({
       newMainProject: newMainProject,
+      newMostCommonProject: newMostCommonProject,
       newProject: newProject,
       newBand: newBand,
     });
   };
 
-  const handleProjectChange = (newProject) => {
+  const handleMostCommonProjectChange = (newMostCommonProject) => {
+    const newProject = "All";
+    setMostCommonProject(newMostCommonProject);
     setProject(newProject);
-    handleRefetch({ newProject: newProject });
+    handleRefetch({
+      newMostCommonProject: newMostCommonProject,
+      newProject: newProject,
+    });
+  };
+
+  const handleProjectChange = (newProject) => {
+    const newMostCommonProject = "All";
+    setMostCommonProject(newMostCommonProject);
+    setProject(newProject);
+    handleRefetch({
+      newMostCommonProject: newMostCommonProject,
+      newProject: newProject,
+    });
   };
 
   const handleBandChange = (newBand) => {
@@ -264,10 +290,12 @@ const FoldTable = ({
       summaryData={summaryData}
       columns={columnsSizeFiltered}
       rows={rows}
-      setProject={handleProjectChange}
-      project={project}
       mainProject={mainProject}
       setMainProject={handleMainProjectChange}
+      mostCommonProject={mostCommonProject}
+      setMostCommonProject={handleMostCommonProjectChange}
+      project={project}
+      setProject={handleProjectChange}
       band={band}
       setBand={handleBandChange}
       query={query}

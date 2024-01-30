@@ -11,13 +11,14 @@ import SearchRow from "./SearchRow";
 const ListControls = ({
   query,
   searchText,
+  mainProject,
+  handleMainProjectFilter,
+  mostCommonProject,
+  handleMostCommonProjectFilter,
+  project,
   handleProjectFilter,
   band,
   handleBandFilter,
-  handleMainProjectFilter,
-  mainProject,
-  mainProjectSelect,
-  project,
   searchProps,
   isTableView,
   setIsTableView,
@@ -31,7 +32,7 @@ const ListControls = ({
   return (
     <>
       <Form.Row>
-        {mainProjectSelect && (
+        {handleMainProjectFilter && (
           <Col md={3} xl={2}>
             <Form.Group controlId="mainProjectSelect">
               <Form.Label>Main Project</Form.Label>
@@ -45,6 +46,24 @@ const ListControls = ({
                 }
               >
                 {projectOptions}
+              </Form.Control>
+            </Form.Group>
+          </Col>
+        )}
+        {handleMostCommonProjectFilter && (
+          <Col md={3} xl={2}>
+            <Form.Group controlId="mostCommonProjectSelect">
+              <Form.Label>Most Common Project</Form.Label>
+              <Form.Control
+                custom
+                role="most-common-project-select"
+                as="select"
+                value={mostCommonProject}
+                onChange={(event) =>
+                  handleMostCommonProjectFilter(event.target.value)
+                }
+              >
+                {subprojectOptions}
               </Form.Control>
             </Form.Group>
           </Col>
