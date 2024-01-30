@@ -1,7 +1,21 @@
-from django.core.files.storage import FileSystemStorage
-from django.conf import settings
 import os
 import re
+import hashlib
+from datetime import datetime
+
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+
+
+def create_file_hash(opened_file):
+    sha256_hash = hashlib.sha256()
+    # Open the file in binary mode
+    file_content = opened_file.read()
+    # Update the hash object with the file content
+    sha256_hash.update(file_content)
+    # Get the hexadecimal representation of the hash
+    return sha256_hash.hexdigest()
+
 
 
 def get_upload_location(instance, filename):
@@ -14,11 +28,33 @@ def get_upload_location(instance, filename):
     returns:
     string:
     """
-    telescope = instance.processing.observation.telescope.name
-    psr = instance.processing.observation.target.name
-    beam = instance.processing.observation.instrument_config.beam
-    utc = instance.processing.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
-    return f"{telescope}/{psr}/{utc}/{beam}/{filename}"
+    telescope = instance.pulsar_fold_result.observation.telescope.name
+    project = instance.pulsar_fold_result.observation.project.code
+    psr = instance.pulsar_fold_result.observation.pulsar.name
+    beam = instance.pulsar_fold_result.observation.beam
+    utc = instance.pulsar_fold_result.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+    return f"{telescope}/{project}/{psr}/{utc}/{beam}/{filename}"
+
+
+def get_template_upload_location(instance, filename):
+    """
+    This method provides a filename to store an uploaded image.
+    Inputs:
+    instance: instance of a Template class
+    filename: string
+
+    returns:
+    string:
+    """
+    pulsar = instance.pulsar.name
+    project_code = instance.project.code
+    band = instance.band
+    if instance.created_at is None:
+        created_at = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    else:
+        created_at = instance.created_at.strftime("%Y-%m-%d-%H:%M:%S")
+    file_basename = os.path.basename(filename)
+    return f"{project_code}/{pulsar}/{band}/{created_at}_{file_basename}"
 
 
 def get_pipeline_upload_location(instance, filename):
@@ -31,12 +67,12 @@ def get_pipeline_upload_location(instance, filename):
     returns:
     string:
     """
-    telescope = instance.processing.observation.telescope.name
-    pipeline = instance.processing.pipeline.name
-    psr = instance.processing.observation.target.name
-    beam = instance.processing.observation.instrument_config.beam
-    utc = instance.processing.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
-    return f"{telescope}/{pipeline}/{psr}/{utc}/{beam}/{filename}"
+    telescope = instance.pipeline_run.observation.telescope.name
+    project = instance.pipeline_run.observation.project.code
+    psr = instance.pipeline_run.observation.pulsar.name
+    beam = instance.pipeline_run.observation.beam
+    utc = instance.pipeline_run.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+    return f"{telescope}/{project}/{psr}/{utc}/{beam}/{filename}"
 
 
 def get_valid_filename(s):

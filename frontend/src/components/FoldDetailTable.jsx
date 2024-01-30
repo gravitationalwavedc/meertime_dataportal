@@ -1,5 +1,8 @@
 import { Button, ButtonGroup, Col, Row } from "react-bootstrap";
 import { useState } from "react";
+import { graphql, useFragment } from "react-relay";
+import ReactMarkdown from "react-markdown";
+import { Link } from "found";
 import {
   columnsSizeFilter,
   createLink,
@@ -7,50 +10,168 @@ import {
   formatUTC,
   meerWatchLink,
 } from "../helpers";
+import { useScreenSize } from "../context/screenSize-context";
 import { meertime, molonglo } from "../telescopes";
 import DataView from "./DataView";
 import Ephemeris from "./Ephemeris";
-import FileDownloadModal from "./FileDownloadModal";
 import FoldDetailCard from "./FoldDetailCard";
-import ReactMarkdown from "react-markdown";
-import { Link } from "found";
-import { useScreenSize } from "../context/screenSize-context";
+
+const FoldDetailTableFragment = graphql`
+  fragment FoldDetailTableFragment on Query
+  @argumentDefinitions(
+    pulsar: { type: "String", defaultValue: "All" }
+    mainProject: { type: "String", defaultValue: "MeerTIME" }
+    dmCorrected: { type: "Boolean", defaultValue: false }
+    minimumNsubs: { type: "Boolean", defaultValue: true }
+    obsNchan: { type: "Int", defaultValue: 1 }
+  ) {
+    observationSummary(
+      pulsar_Name: $pulsar
+      obsType: "fold"
+      calibration_Id: "All"
+      mainProject: $mainProject
+      project_Short: "All"
+      band: "All"
+    ) {
+      edges {
+        node {
+          observations
+          observationHours
+          projects
+          pulsars
+          estimatedDiskSpaceGb
+          timespanDays
+          maxDuration
+          minDuration
+        }
+      }
+    }
+    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
+      residualEphemeris {
+        ephemerisData
+        createdAt
+      }
+      description
+      toasLink
+      allProjects
+      edges {
+        node {
+          observation {
+            utcStart
+            dayOfYear
+            binaryOrbitalPhase
+            duration
+            beam
+            bandwidth
+            nchan
+            band
+            foldNbin
+            nant
+            nantEff
+            restricted
+            embargoEndDate
+            project {
+              short
+            }
+            ephemeris {
+              dm
+            }
+            calibration {
+              idInt
+            }
+            toas(
+              dmCorrected: $dmCorrected
+              minimumNsubs: $minimumNsubs
+              obsNchan: $obsNchan
+            ) {
+              edges {
+                node {
+                  freqMhz
+                  length
+                  project {
+                    short
+                  }
+                  residual {
+                    mjd
+                    dayOfYear
+                    binaryOrbitalPhase
+                    residualSec
+                    residualSecErr
+                    residualPhase
+                    residualPhaseErr
+                  }
+                }
+              }
+            }
+          }
+          pipelineRun {
+            dm
+            dmErr
+            rm
+            rmErr
+            sn
+            flux
+          }
+        }
+      }
+    }
+  }
+`;
 
 /* eslint-disable complexity */
-const FoldDetailTable = ({
-  data: { foldObservationDetails, foldPulsar },
-  jname,
-  mainProject,
-}) => {
+const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
+  const dmCorrected = false;
+  const minimumNsubs = true;
+  const obsNchan = 1;
+  console.log(
+    "Input arguments:",
+    jname,
+    mainProject,
+    dmCorrected,
+    minimumNsubs,
+    obsNchan
+  );
+  console.log("tableData:", tableData);
+  const relayData = useFragment(FoldDetailTableFragment, tableData);
+  console.log("data:", relayData);
+  console.log("observationData:", relayData.observationSummary);
+  console.log("pulsarFoldResult:", relayData.pulsarFoldResult);
+  const summaryNode = relayData.observationSummary?.edges[0]?.node;
+  const pulsarFoldResult = relayData.pulsarFoldResult;
   const { screenSize } = useScreenSize();
-  const allRows = foldObservationDetails.edges.reduce(
+  const allRows = pulsarFoldResult.edges.reduce(
     (result, edge) => [
       ...result,
       {
         ...edge.node,
-        key: `${edge.node.utc}:${edge.node.beam}`,
+        key: `${edge.node.observation.utcStart}:${edge.node.observation.beam}`,
         jname: jname,
-        embargo: edge.node.restricted
-          ? "Embargoed until " + formatDDMonYYYY(edge.node.embargoEndDate)
+        mainProject: mainProject,
+        band: edge.node.observation.band,
+        embargo: edge.node.observation.restricted
+          ? "Embargoed until " +
+            formatDDMonYYYY(edge.node.observation.embargoEndDate)
           : "",
-        utc: formatUTC(edge.node.utc),
-        plotLink: `/${jname}/${formatUTC(edge.node.utc)}/${edge.node.beam}/`,
-        action: edge.node.restricted ? (
+        utc: formatUTC(edge.node.observation.utcStart),
+        plotLink: `/${mainProject}/${jname}/${formatUTC(
+          edge.node.observation.utcStart
+        )}/${edge.node.observation.beam}/`,
+        action: edge.node.observation.restricted ? (
           <Button size="sm" variant="outline-dark">
             <span className="small">
               Embargoed
               <br />
               until
               <br />
-              {formatDDMonYYYY(edge.node.embargoEndDate)}
+              {formatDDMonYYYY(edge.node.observation.embargoEndDate)}
             </span>
           </Button>
         ) : (
           <ButtonGroup vertical>
             <Link
-              to={`/${mainProject}/${jname}/${formatUTC(edge.node.utc)}/${
-                edge.node.beam
-              }/`}
+              to={`/${mainProject}/${jname}/${formatUTC(
+                edge.node.observation.utcStart
+              )}/${edge.node.observation.beam}/`}
               size="sm"
               variant="outline-secondary"
               as={Button}
@@ -58,7 +179,7 @@ const FoldDetailTable = ({
               View
             </Link>
             <Link
-              to={`/session/${formatUTC(edge.node.utc)}/`}
+              to={`/session/${edge.node.observation.calibration.idInt}/`}
               size="sm"
               variant="outline-secondary"
               as={Button}
@@ -74,20 +195,18 @@ const FoldDetailTable = ({
 
   const [rows, setRows] = useState(allRows);
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
-  const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
-  const { ephemeris, ephemerisUpdated } =
-    foldObservationDetails.edges[foldObservationDetails.edges.length - 1].node;
+  const ephemeris = pulsarFoldResult.residualEphemeris
+    ? pulsarFoldResult.residualEphemeris.ephemerisData
+    : null;
+  const ephemerisUpdated = pulsarFoldResult.residualEphemeris
+    ? pulsarFoldResult.residualEphemeris.createdAt
+    : null;
 
   const columns =
     mainProject === "MONSPSR" ? molonglo.columns : meertime.columns;
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
-
-  // totalEstimatedDiskSpace is a human readable formatted byte string in the form of "900.2\u00a0MB".
-  // We split on this character so we can use the number and the units separately.
-  const [size, sizeFormat] =
-    foldObservationDetails.totalEstimatedDiskSpace.split("\u00a0");
 
   const handleBandFilter = (band) => {
     if (band.toLowerCase() === "all") {
@@ -114,21 +233,26 @@ const FoldDetailTable = ({
   };
 
   const summaryData = [
-    { title: "Observations", value: foldObservationDetails.totalObservations },
-    { title: "Projects", value: foldObservationDetails.totalProjects },
+    { title: "Observations", value: summaryNode.observations },
+    { title: "Projects", value: summaryNode.projects },
     {
       title: "Timespan [days]",
-      value: foldObservationDetails.totalTimespanDays,
+      value: summaryNode.timespanDays,
     },
-    { title: "Hours", value: foldObservationDetails.totalObservationHours },
-    { title: `Size [${sizeFormat}]`, value: size },
+    { title: "Hours", value: summaryNode.observationHours },
+    summaryNode.estimatedDiskSpaceGb
+      ? {
+          title: `Size [GB]`,
+          value: summaryNode.estimatedDiskSpaceGb.toFixed(1),
+        }
+      : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
   ];
 
   return (
     <div className="fold-detail-table">
       <Row className="mb-3">
         <Col md={5}>
-          <ReactMarkdown>{foldObservationDetails.description}</ReactMarkdown>
+          <ReactMarkdown>{pulsarFoldResult.description}</ReactMarkdown>
         </Col>
       </Row>
       <Row>
@@ -156,38 +280,36 @@ const FoldDetailTable = ({
             </Button>
           )}
           {localStorage.isStaff === "true" &&
-            foldObservationDetails.ephemerisLink && (
+            pulsarFoldResult.ephemerisLink && (
               <Button
                 size="sm"
                 className="mr-2 mb-2"
                 variant="outline-secondary"
-                onClick={() => createLink(foldObservationDetails.ephemerisLink)}
+                onClick={() => createLink(pulsarFoldResult.ephemerisLink)}
               >
                 Download ephemeris
               </Button>
             )}
-          {localStorage.isStaff === "true" &&
-            foldObservationDetails.toasLink && (
-              <Button
-                size="sm"
-                className="mr-2 mb-2"
-                variant="outline-secondary"
-                onClick={() => createLink(foldObservationDetails.toasLink)}
-              >
-                Download TOAs
-              </Button>
-            )}
-          {localStorage.isStaff === "true" &&
-            foldPulsar.files.edges.length > 0 && (
-              <Button
-                size="sm"
-                className="mr-2 mb-2"
-                variant="outline-secondary"
-                onClick={() => setDownloadModalVisible(true)}
-              >
-                Download data files
-              </Button>
-            )}
+          {localStorage.isStaff === "true" && pulsarFoldResult.toasLink && (
+            <Button
+              size="sm"
+              className="mr-2 mb-2"
+              variant="outline-secondary"
+              onClick={() => createLink(pulsarFoldResult.toasLink)}
+            >
+              Download TOAs
+            </Button>
+          )}
+          {localStorage.isStaff === "true" && (
+            <Button
+              size="sm"
+              className="mr-2 mb-2"
+              variant="outline-secondary"
+              onClick={() => setShow(true)}
+            >
+              Download data files
+            </Button>
+          )}
         </Col>
       </Row>
       {ephemeris && (
@@ -198,22 +320,14 @@ const FoldDetailTable = ({
           setShow={setEphemerisVisible}
         />
       )}
-      {localStorage.isStaff === "true" && foldPulsar.files && (
-        <FileDownloadModal
-          visible={downloadModalVisible}
-          files={foldPulsar.files}
-          setShow={setDownloadModalVisible}
-        />
-      )}
       <DataView
         summaryData={summaryData}
         columns={columnsSizeFiltered}
         rows={rows}
         setProject={handleProjectFilter}
+        timingProjects={pulsarFoldResult.allProjects}
         setBand={handleBandFilter}
         plot
-        maxPlotLength={foldObservationDetails.maxPlotLength}
-        minPlotLength={foldObservationDetails.minPlotLength}
         mainProject={mainProject}
         keyField="key"
         card={FoldDetailCard}

@@ -2,14 +2,7 @@ import { Modal, Table } from "react-bootstrap";
 import { formatUTC } from "../helpers";
 
 const Ephemeris = ({ ephemeris, updated, show, setShow }) => {
-  const ephemerisJSON = JSON.parse(ephemeris);
-
-  const EphemerisValue = ({ data }) => (
-    <td className="ephemris-item">
-      <span>{data["val"]}</span>
-      <span>{data["err"]}</span>
-    </td>
-  );
+  const ephemerisJSON = JSON.parse(JSON.parse(ephemeris));
 
   return (
     <Modal
@@ -27,12 +20,28 @@ const Ephemeris = ({ ephemeris, updated, show, setShow }) => {
       <Modal.Body>
         <Table>
           <tbody>
-            {Object.keys(ephemerisJSON).map((key) => (
-              <tr key={key}>
-                <th>{key}</th>
-                <EphemerisValue data={ephemerisJSON[key]} />
-              </tr>
-            ))}
+            {Object.keys(ephemerisJSON).map((key, index) =>
+              key === "TIMEOFFSETS"
+                ? ephemerisJSON[key].map((item, index) => (
+                    <tr key={index}>
+                      <th>{key}</th>
+                      <td className="ephemris-item">{item["type"]} </td>
+                      <td className="ephemris-item">{item["mjd"]} </td>
+                      <td className="ephemris-item">{item["display"]}</td>
+                      <td className="ephemris-item">{item["offset"]} </td>
+                      <td className="ephemris-item">{item["fit"]} </td>
+                    </tr>
+                  ))
+                : !key.includes("_ERR") && (
+                    <tr key={key}>
+                      <th>{key}</th>
+                      <td className="ephemris-item">{ephemerisJSON[key]} </td>
+                      <td className="ephemris-item">
+                        {ephemerisJSON[key + "_ERR"]}
+                      </td>
+                    </tr>
+                  )
+            )}
           </tbody>
         </Table>
       </Modal.Body>

@@ -1,70 +1,119 @@
-import hashlib
+import math
 import json
+import pytz
+import hashlib
+from datetime import datetime, timedelta
 
+import numpy as np
+from astropy.time import Time
+
+from graphql import GraphQLError
 from django.core.exceptions import ValidationError
-from django.db import models
-from django.db.models import F, OuterRef, Subquery, Max, Min, ExpressionWrapper, Count, Sum, JSONField
+from django.db import models, IntegrityError
 from django.db.models.constraints import UniqueConstraint
-from django.utils.translation import ugettext_lazy as _
-from django_mysql.models import Model
-from .logic import get_meertime_filters, get_band
-from datetime import timedelta
-from .storage import OverwriteStorage, get_upload_location, get_pipeline_upload_location
+from django.db.models import Model, F, Sum
+
+from .storage import OverwriteStorage, get_upload_location, get_template_upload_location, create_file_hash
+from user_manage.models import User
+from utils.observing_bands import get_band
+from utils.binary_phase import get_binary_phase, is_binary
+from utils.constants import UserRole
+from utils.toa import toa_line_to_dict, toa_dict_to_line
+from utils.ephemeris import parse_ephemeris_file
 
 
-class Basebandings(models.Model):
-    # Note, this is intended as a 1-to-1 extension of the Processings table, sort of a "subclass" of the Processings
-    processing = models.OneToOneField("Processings", models.DO_NOTHING)
+DATA_QUALITY_CHOICES = [
+    ("unassessed", "unassessed"),
+    ("good", "good"),
+    ("bad", "bad"),
+]
+
+BAND_CHOICES = [
+    ("UHF", "UHF"),
+    ("LBAND", "LBAND"),
+    ("SBAND_0", "SBAND_0"),
+    ("SBAND_1", "SBAND_1"),
+    ("SBAND_2", "SBAND_2"),
+    ("SBAND_3", "SBAND_3"),
+    ("SBAND_4", "SBAND_4"),
+    ("OTHER", "OTHER"),
+]
+
+OBS_TYPE_CHOICES = [
+    ("cal", "cal"),
+    ("fold", "fold"),
+    ("search", "search"),
+]
 
 
-class Calibrations(models.Model):
-    CALIBRATION_TYPES = [
-        ("pre", "pre"),
-        ("post", "post"),
-        ("none", "none"),
-    ]
-    calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
-    location = models.CharField(max_length=255, blank=True, null=True)
+class Pulsar(models.Model):
+    """
+    Pulsar is used as a target for the observations so this can also be globular clusters
+    """
+    name = models.CharField(max_length=32, unique=True)
+    comment = models.TextField(null=True, help_text="Auto generated description based on information from the ANTF catalogue")
 
-    def save(cls, *args, **kwargs):
-        # Enforce choices are respected
-        cls.full_clean()
-        return super(Calibrations, cls).save(*args, **kwargs)
+    def __str__(self):
+        return f"{self.name}"
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
 
 
-class Collections(models.Model):
+class Telescope(models.Model):
+    name = models.CharField(max_length=64, unique=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class MainProject(Model):
+    """
+    E.g. Meertime and trapam
+    """
+    telescope = models.ForeignKey(Telescope, models.CASCADE)
     name = models.CharField(max_length=64)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
+class Project(models.Model):
+    """
+    E.g. thousand pulsar array, RelBin
+    """
+    main_project = models.ForeignKey(MainProject, models.CASCADE, null=True)
+    code = models.CharField(max_length=255, unique=True)
+    short = models.CharField(max_length=20, default="???")
+    embargo_period = models.DurationField(default=timedelta(days=548)) # default 18 months default embargo
     description = models.CharField(max_length=255, blank=True, null=True)
 
+    def __str__(self):
+        return f"{self.code}_{self.short}"
 
-class Ephemerides(models.Model):
-    limits = {
-        "p0": {"max": 10, "deci": 8},
-    }
-    pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
-    created_at = models.DateTimeField()
-    created_by = models.CharField(max_length=64)
-    # TODO ephemeris is a bit of a problem. We'd like to have pulsar + ephemeris as a unique constraint.
-    # But: if ephemeris is a JSONField then we can't use it as a constraint without specifying which keys are to be
-    # used for the constraint (and I don't think we can support that via django). And if it's a Text or Char Field
-    # then we need to specify max length and potentially run into issues with long ephemerides. Max is 3072 bytes
-    # but we're defaulting to UTF-8 so that's 3 bytes per character and thus we could only use a 1024 character long
-    # ephemeris which is not that long at all. For now, leaving as textfield and out of index as I don't know how to
-    # work around this problem. To try and ensure this doens't cause issues, we use ephemeris in get_or_create
-    # lookup but according to the docs, this does not guarantee there won't be duplicates without a unique
-    # constraint here.
-    ephemeris = JSONField(null=True)
+    @classmethod
+    def get_query(cls, **kwargs):
+        if "code" in kwargs:
+            if kwargs["code"] == "All":
+                kwargs.pop("code")
+            else:
+                kwargs["code"] = kwargs.pop("code")
+        return cls.objects.filter(**kwargs)
+
+
+class Ephemeris(models.Model):
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    ephemeris_data = models.JSONField(null=True)
     ephemeris_hash = models.CharField(max_length=32, editable=False, null=True)
-    p0 = models.DecimalField(max_digits=limits["p0"]["max"], decimal_places=limits["p0"]["deci"])
+    p0 = models.FloatField()
     dm = models.FloatField()
-    rm = models.FloatField()
+    valid_from = models.DateTimeField(default=datetime.fromtimestamp(0))
+    valid_to   = models.DateTimeField(default=datetime.fromtimestamp(4294967295))
     comment = models.TextField(null=True)
-    valid_from = models.DateTimeField()
-    # we should be making sure valid_to is later than valid_from
-    valid_to = models.DateTimeField()
-
-    class Meta:
-        unique_together = [["pulsar", "ephemeris_hash", "dm", "rm"]]
 
     def clean(self, *args, **kwargs):
         # checking valid_to is later than valid_from
@@ -72,319 +121,898 @@ class Ephemerides(models.Model):
             raise ValidationError(_("valid_to must be later than valid_from"))
 
     def save(self, *args, **kwargs):
-        Ephemerides.clean(self)
+        Ephemeris.clean(self)
         self.ephemeris_hash = hashlib.md5(
-            json.dumps(self.ephemeris, sort_keys=True, indent=2).encode("utf-8")
+            json.dumps(self.ephemeris_data, sort_keys=True, indent=2).encode("utf-8")
         ).hexdigest()
-        super(Ephemerides, self).save(*args, **kwargs)
-
-
-class Filterbankings(models.Model):
-    processing = models.ForeignKey("Processings", models.DO_NOTHING)
-    nbit = models.IntegerField()
-    npol = models.IntegerField()
-    nchan = models.IntegerField()
-    tsamp = models.FloatField()
-    dm = models.FloatField()
-
-
-class Foldings(models.Model):
-    # Note, this is intended as a 1-to-1 extension of the Processings table, sort of a "subclass" of the Processings
-    processing = models.ForeignKey("Processings", models.DO_NOTHING)
-    folding_ephemeris = models.ForeignKey("Ephemerides", models.DO_NOTHING)
-    nbin = models.IntegerField()
-    npol = models.IntegerField()
-    nchan = models.IntegerField()
-    dm = models.FloatField(blank=True, null=True)
-    tsubint = models.FloatField()
-
-    class Meta:
-        constraints = [UniqueConstraint(fields=["processing"], name="unique folding")]
-
-    @property
-    def band(cls):
-        freq = cls.processing.observation.instrument_config.frequency
-        return get_band(float(freq))
-
-    @classmethod
-    def get_observation_details(cls, pulsar, utc, beam):
-        annotations = {
-            "jname": F("folding_ephemeris__pulsar__jname"),
-            "utc": F("processing__observation__utc_start"),
-            "beam": F("processing__observation__instrument_config__beam"),
-            "proposal": F("processing__observation__project__code"),
-            "frequency": F("processing__observation__instrument_config__frequency"),
-            "bw": F("processing__observation__instrument_config__bandwidth"),
-            "ra": F("processing__observation__target__raj"),
-            "dec": F("processing__observation__target__decj"),
-            "duration": F("processing__observation__duration"),
-            "results": F("processing__results"),
-            "nant": F("processing__observation__nant"),
-            "nant_eff": F("processing__observation__nant_eff"),
-            "config": F("processing__observation__config"),
-        }
-
-        return (
-            cls.objects.select_related(
-                "processing__observation__instrument_config",
-                "folding_ephemeris__pulsar",
-                "processing__observation__project",
-                "processing__observation__target",
-            )
-            .filter(
-                folding_ephemeris__pulsar=pulsar,
-                processing__observation__utc_start=utc,
-                processing__observation__instrument_config__beam=beam,
-            )
-            .annotate(**annotations)
-            .first()
-        )
-
-
-class Instrumentconfigs(models.Model):
-    limits = {"bandwidth": {"max": 12, "deci": 6}, "frequency": {"max": 15, "deci": 9}}
-    name = models.CharField(max_length=255)
-    bandwidth = models.DecimalField(max_digits=limits["bandwidth"]["max"], decimal_places=limits["bandwidth"]["deci"])
-    frequency = models.DecimalField(max_digits=limits["frequency"]["max"], decimal_places=limits["frequency"]["deci"])
-    nchan = models.IntegerField()
-    npol = models.IntegerField()
-    beam = models.CharField(max_length=16)
-
-
-class Launches(models.Model):
-    pipeline = models.ForeignKey("Pipelines", models.DO_NOTHING)
-    parent_pipeline = models.ForeignKey(
-        "Pipelines", models.DO_NOTHING, blank=True, null=True, related_name="parent_pipeline"
-    )
-    pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
-
-
-class Observations(models.Model):
-    target = models.ForeignKey("Targets", models.DO_NOTHING)
-    calibration = models.ForeignKey("Calibrations", models.DO_NOTHING, null=True)
-    telescope = models.ForeignKey("Telescopes", models.DO_NOTHING)
-    instrument_config = models.ForeignKey("Instrumentconfigs", models.DO_NOTHING)
-    project = models.ForeignKey("Projects", models.DO_NOTHING)
-    config = JSONField(blank=True, null=True)
-    utc_start = models.DateTimeField()
-    duration = models.FloatField(null=True)
-    nant = models.IntegerField(blank=True, null=True)
-    nant_eff = models.IntegerField(blank=True, null=True)
-    suspect = models.BooleanField(default=False)
-    comment = models.TextField(null=True)
-
-
-class Projects(models.Model):
-    program = models.ForeignKey("Programs", models.DO_NOTHING, null=True)
-    default_embargo = timedelta(days=548)  # 18 months default embargo
-
-    code = models.CharField(max_length=255, unique=True)
-    short = models.CharField(max_length=20, default="???")
-    embargo_period = models.DurationField(default=default_embargo)
-    description = models.CharField(max_length=255, blank=True, null=True)
-
-
-class Pipelineimages(models.Model):
-    processing = models.ForeignKey("Processings", models.DO_NOTHING)
-    rank = models.IntegerField()
-    image_type = models.CharField(max_length=64, blank=True, null=True)
-    image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+        super(Ephemeris, self).save(*args, **kwargs)
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=["processing", "image_type"], name="unique image type for a processing")
+            UniqueConstraint(
+                fields=[
+                    "project",
+                    "ephemeris_hash",
+                ],
+                name="Unique ephemeris for each project"
+            )
         ]
 
 
-class Pipelinefiles(models.Model):
-    processing = models.ForeignKey("Processings", models.DO_NOTHING)
-    file = models.FileField(null=True, upload_to=get_pipeline_upload_location, storage=OverwriteStorage())
-    file_type = models.CharField(max_length=32, blank=True, null=True)
+class Template(models.Model):
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
+    template_file = models.FileField(upload_to=get_template_upload_location, storage=OverwriteStorage(), null=True)
+    template_hash = models.CharField(max_length=64, null=True)
 
-
-class Pipelines(models.Model):
-    name = models.CharField(max_length=64)
-    description = models.CharField(max_length=255, blank=True, null=True)
-    revision = models.CharField(max_length=16)
-    created_at = models.DateTimeField()
-    created_by = models.CharField(max_length=64)
-    configuration = JSONField(blank=True, null=True)
-
-    class Meta:
-        constraints = [UniqueConstraint(fields=["name", "revision"], name="unique pipeline")]
-
-
-class Processingcollections(models.Model):
-    processing = models.ForeignKey("Processings", models.DO_NOTHING)
-    collection = models.ForeignKey(Collections, models.DO_NOTHING)
-
-
-class Processings(Model):
-    observation = models.ForeignKey(Observations, models.DO_NOTHING)
-    pipeline = models.ForeignKey(Pipelines, models.DO_NOTHING)
-    parent = models.ForeignKey("self", models.DO_NOTHING, blank=True, null=True)
-    embargo_end = models.DateTimeField()
-    location = models.CharField(max_length=255)
-    job_state = models.CharField(max_length=255, blank=True, null=True)
-    job_output = JSONField(blank=True, null=True)
-    # TODO we would like to use results as part of the unique constraint but same problem as in the
-    # ephemeris class (see the comment there)
-    results = JSONField(blank=True, null=True)
+    band = models.CharField(max_length=7, choices=BAND_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=["observation", "pipeline", "location", "parent"], name="unique processing")
+            UniqueConstraint(
+                fields=[
+                    "pulsar",
+                    "project",
+                    "band",
+                    "template_hash",
+                ],
+                name="Unique template for each pulsar, project and band."
+            )
         ]
 
 
-class Programs(Model):
-    telescope = models.ForeignKey("Telescopes", models.DO_NOTHING)
-    name = models.CharField(max_length=64)
+class Calibration(models.Model):
+    # TODO use DELAYCAL_ID to note which calibrator was used.
+    CALIBRATION_TYPES = [
+        ("pre", "pre"),
+        ("post", "post"),
+        ("none", "none"),
+    ]
+    schedule_block_id = models.CharField(max_length=16, blank=True, null=True)
+    calibration_type = models.CharField(max_length=4, choices=CALIBRATION_TYPES)
+    location = models.CharField(max_length=255, blank=True, null=True)
 
+    # The following will be populated by the observations
+    start = models.DateTimeField(null=True)
+    end   = models.DateTimeField(null=True)
+    all_projects = models.CharField(max_length=255, blank=True, null=True)
+    n_observations = models.IntegerField(null=True)
+    n_ant_min = models.IntegerField(null=True)
+    n_ant_max = models.IntegerField(null=True)
+    total_integration_time_seconds = models.FloatField(null=True)
 
-class Pulsaraliases(models.Model):
-    pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
-    alias = models.CharField(max_length=64)
+    @classmethod
+    def update_observation_session(cls, calibration):
+        """
+        Every time a Observation is saved, we want to update the Calibration
+        model so it accurately summaries all observations for that Calibration (session).
 
+        Parameters:
+            calibration: Calibration django model
+                A Calibration model instance.
+        """
+        # Grab observations for the calibrator
+        observations = Observation.objects.filter(calibration=calibration)
 
-class Pulsartargets(models.Model):
-    target = models.ForeignKey("Targets", models.DO_NOTHING)
-    pulsar = models.ForeignKey("Pulsars", models.DO_NOTHING)
-
-
-class Pulsars(models.Model):
-    jname = models.CharField(max_length=64, unique=True)
-    state = models.CharField(max_length=255, blank=True, null=True)
-    comment = models.TextField(null=True)
-
-    # These look like the Searchmode
-    def get_observations_for_pulsar(cls, get_proposal_filters=get_meertime_filters):
-        folding_filter = get_proposal_filters(prefix="processing__observation")
-
-        annotations = {
-            "utc": F("processing__observation__utc_start"),
-            "bw": F("processing__observation__instrument_config__bandwidth"),
-            "length": F("processing__observation__duration"),
-            "proposal": F("processing__observation__project__short"),
-            "beam": F("processing__observation__instrument_config__beam"),
-            "nant": F("processing__observation__nant"),
-            "nant_eff": F("processing__observation__nant_eff"),
-            "results": F("processing__results"),
-        }
-
-        folds = (
-            Foldings.objects.select_related("processing__observation__instrument_config")
-            .filter(folding_ephemeris__pulsar=cls, **folding_filter)
-            .annotate(**annotations)
+        start = observations.order_by('utc_start').first().utc_start
+        end = observations.order_by('utc_start').last().utc_start
+        all_projects = ", ".join(
+            {observation.project.short for observation in observations.all()}
         )
-        return folds.order_by("-utc")
-        # Get various related model objects required using the saved folding instance as a base.
-        # latest_folding_observation = (
-        #     Foldings.objects.filter(folding_ephemeris__pulsar=pulsar)
-        #     .order_by("-processing__observation__utc_start")
-        #     .last()
-        # )
+        n_observations = observations.count()
+        n_ant_min = observations.order_by('nant').first().nant
+        n_ant_max = observations.order_by('nant').last().nant
+        total_integration_time_seconds = sum(observations.all().values_list('duration', flat=True))
 
-    # These look like the Fold Mode
-    @classmethod
-    def get_latest_observations(cls, get_proposal_filters=get_meertime_filters):
-        folding_filter = get_proposal_filters(prefix="processing__observation")
+        # Update the calibration values
+        calibration.start = start
+        calibration.end = end
+        calibration.all_projects = all_projects
+        calibration.n_observations = n_observations
+        calibration.n_ant_min = n_ant_min
+        calibration.n_ant_max = n_ant_max
+        calibration.total_integration_time_seconds = total_integration_time_seconds
+        calibration.save()
 
-        latest_observation = Foldings.objects.filter(
-            folding_ephemeris__pulsar=OuterRef("id"), **folding_filter
-        ).order_by("-processing__observation__utc_start")
-
-        annotations = {
-            "last": Max("pulsartargets__target__observations__utc_start"),
-            "first": Min("pulsartargets__target__observations__utc_start"),
-            "timespan": ExpressionWrapper(
-                Max("pulsartargets__target__observations__utc_start")
-                - Min("pulsartargets__target__observations__utc_start")
-                + 1,
-                output_field=models.DurationField(),
-            ),
-            "nobs": Count("pulsartargets__target__observations"),
-            "length": Subquery(latest_observation.values("processing__observation__duration")[:1]) / 60.0,
-            "total_tint_h": Sum("pulsartargets__target__observations__duration") / 60.0 / 60.0,
-            "proposal_short": Subquery(latest_observation.values("processing__observation__project__short")[:1]),
-            "snr": Subquery(latest_observation.values("processing__results__snr")[:1]),
-            "beam": Subquery(latest_observation.values("processing__observation__instrument_config__beam")[:1]),
-        }
-
-        pulsar_proposal_filter = get_proposal_filters(prefix="pulsartargets__target__observations")
-        # since ingest is now done in stages, it can happen that an observation won't have the beam set properly so we
-        # need to filter empty beams not to trip up the obs_detail url lookup
-        # this can happen if an observation is created, is the latest observation, but no corresponding
-        # processing/folding was created yet
-        return (
-            cls.objects.values("jname", "id")
-            .filter(**pulsar_proposal_filter)
-            .annotate(**annotations)
-            .order_by("-last")
-            .exclude(beam__isnull=True)
-        )
+        return calibration
 
 
-class Rfis(models.Model):
-    # Note, this is intended as a 1-to-1 extension of the Processings table, sort of a "subclass" of the Processings
-    processing = models.ForeignKey(Processings, models.DO_NOTHING)
-    folding = models.ForeignKey(Foldings, models.DO_NOTHING)
-    percent_zapped = models.FloatField()
-
-
-class Sessions(models.Model):
-    telescope = models.ForeignKey("Telescopes", models.DO_NOTHING)
-    start = models.DateTimeField()
-    end = models.DateTimeField()
-
-    @classmethod
-    def get_last_session(cls):
-        return cls.objects.order_by("end").last()
-
-    @classmethod
-    def get_session(cls, utc):
-        try:
-            return cls.objects.get(start__lte=utc, end__gte=utc)
-        except Sessions.DoesNotExist:
-            return None
-
-
-class Targets(models.Model):
-    name = models.CharField(max_length=64)
-    raj = models.CharField(max_length=16)
-    decj = models.CharField(max_length=16)
+    def __str__(self):
+        return f"{self.id}_{self.schedule_block_id}"
 
     class Meta:
-        constraints = [UniqueConstraint(fields=["name", "raj", "decj"], name="unique target")]
+        ordering = ["-start"]
 
 
-class Telescopes(models.Model):
-    name = models.CharField(max_length=64, unique=True)
+class Observation(models.Model):
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    telescope = models.ForeignKey(Telescope, models.CASCADE)
+    project = models.ForeignKey(Project, models.CASCADE)
+    calibration = models.ForeignKey(Calibration, models.SET_NULL, null=True, related_name="observations")
 
+    embargo_end_date = models.DateTimeField(null=True)
 
-class Templates(models.Model):
-    pulsar = models.ForeignKey(Pulsars, models.DO_NOTHING)
+    # Frequency fields
+    band = models.CharField(max_length=7, choices=BAND_CHOICES)
     frequency = models.FloatField()
     bandwidth = models.FloatField()
-    created_at = models.DateTimeField()
+    nchan = models.IntegerField()
+
+    # Antenna
+    beam = models.IntegerField()
+    nant = models.IntegerField(blank=True, null=True)
+    nant_eff = models.IntegerField(blank=True, null=True)
+    npol = models.IntegerField()
+    obs_type = models.CharField(max_length=6, choices=OBS_TYPE_CHOICES)
+    utc_start = models.DateTimeField()
+    day_of_year = models.FloatField(null=True)
+    binary_orbital_phase = models.FloatField(null=True)
+    raj  = models.CharField(max_length=32)
+    decj = models.CharField(max_length=32)
+    duration = models.FloatField(null=True)
+    nbit = models.IntegerField()
+    tsamp = models.FloatField()
+
+    # Backend folding values
+    ephemeris = models.ForeignKey(Ephemeris, models.SET_NULL, to_field="id", blank=True, null=True)
+    fold_nbin = models.IntegerField(blank=True, null=True)
+    fold_nchan = models.IntegerField(blank=True, null=True)
+    fold_tsubint = models.IntegerField(blank=True, null=True)
+
+    # Backend search values
+    filterbank_nbit = models.IntegerField(blank=True, null=True)
+    filterbank_npol = models.IntegerField(blank=True, null=True)
+    filterbank_nchan = models.IntegerField(blank=True, null=True)
+    filterbank_tsamp = models.FloatField(blank=True, null=True)
+    filterbank_dm = models.FloatField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        Observation.clean(self)
+        self.band = get_band(self.frequency, self.bandwidth)
+        self.day_of_year = self.utc_start.timetuple().tm_yday \
+            + self.utc_start.hour / 24.0 \
+            + self.utc_start.minute / (24.0 * 60.0) \
+            + self.utc_start.second / (24.0 * 60.0 * 60.0)
+        if self.ephemeris is not None:
+            ephemeris_dict = json.loads(self.ephemeris.ephemeris_data)
+            if is_binary(ephemeris_dict):
+                centre_obs_mjd = self.utc_start + timedelta(seconds=self.duration/2)
+                self.binary_orbital_phase = get_binary_phase(np.array([Time(centre_obs_mjd).mjd]), ephemeris_dict)
+        self.embargo_end_date = self.utc_start + self.project.embargo_period
+        super(Observation, self).save(*args, **kwargs)
+
+    def is_restricted(self, user):
+        # If the user role isn't restricted they can access everything
+        if user.role.upper() in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]:
+            return False
+
+        # If there's no embargo then it's not restricted
+        return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
+
+    def __str__(self):
+        return f"{self.utc_start} {self.beam}"
+
+
+class ObservationSummary(Model):
+    # Foreign Keys that can be none when they're summarising all instead of an individual model
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE, null=True)
+    main_project = models.ForeignKey(MainProject, models.CASCADE, null=True)
+    project = models.ForeignKey(Project, models.CASCADE, null=True)
+    calibration = models.ForeignKey(Calibration, models.CASCADE, null=True, related_name="observation_summaries")
+    obs_type = models.CharField(max_length=6, choices=OBS_TYPE_CHOICES, null=True)
+    band = models.CharField(max_length=7, choices=BAND_CHOICES, null=True)
+
+    # Summary values
+    observations = models.IntegerField(blank=True, null=True)
+    pulsars = models.IntegerField(blank=True, null=True)
+    projects = models.IntegerField(blank=True, null=True)
+    estimated_disk_space_gb = models.FloatField(blank=True, null=True)
+    observation_hours = models.IntegerField(blank=True, null=True)
+    timespan_days = models.IntegerField(blank=True, null=True)
+    min_duration = models.FloatField(blank=True, null=True)
+    max_duration = models.FloatField(blank=True, null=True)
+
+    @classmethod
+    def update_or_create(cls, obs_type, pulsar, main_project, project, calibration, band):
+        """
+        Every time a Observation is saved, we want to update the ObservationSummary
+        model so it accurately summaries all observations for the input filters.
+
+        Parameters:
+            obs_type: str
+                A Pulsar model instance.
+            main_project: MainProject django model
+                A MainProject model instance.
+        """
+        # Create a kwargs for the filter that doesn't use the foreign keys that are none
+        kwargs = {}
+        if obs_type is not None:
+            kwargs["obs_type"] = obs_type
+        if pulsar is not None:
+            kwargs["pulsar"] = pulsar
+        if main_project is not None:
+            kwargs["project__main_project"] = main_project
+        if project is not None:
+            kwargs["project"] = project
+        if calibration is not None:
+            kwargs["calibration"] = calibration
+        if band is not None:
+            kwargs["band"] = band
+        all_observations = Observation.objects.filter(**kwargs)
+        if len(all_observations) == 0:
+            # No observations for this combo so do not create a summary
+            return None, False
+
+        min_utc = all_observations.order_by("utc_start").first().utc_start
+        max_utc = all_observations.order_by("utc_start").last().utc_start
+
+        observations = len(all_observations)
+        pulsars = len(all_observations.values_list('pulsar__name', flat=True).distinct())
+        projects = len(all_observations.values_list('project', flat=True).distinct())
+        observation_hours = all_observations.aggregate(total=Sum('duration'))['total'] / 3600
+        min_duration = all_observations.order_by("duration").first().duration
+        max_duration = all_observations.order_by("duration").last().duration
+
+        duration = max_utc - min_utc
+        # Add 1 day to the end result because the timespan should show the rounded up number of days
+        timespan_days = duration.days + 1
+
+        if obs_type == "fold":
+            try:
+                total_bytes = all_observations.aggregate(total_bytes=Sum(
+                    F('duration') / F('fold_tsubint') * F('fold_nbin') * F('fold_nchan') * F('npol') * 2
+                ))['total_bytes']
+            except ZeroDivisionError:
+                total_bytes = 0
+        else:
+            total_bytes = 0
+        estimated_disk_space_gb = total_bytes/ (1024 ** 3)
+
+        # Update oc create the model
+        new_observation_summary, created = ObservationSummary.objects.update_or_create(
+            pulsar=pulsar,
+            main_project=main_project,
+            project=project,
+            calibration=calibration,
+            obs_type=obs_type,
+            band=band,
+            defaults={
+                "observations": observations,
+                "pulsars": pulsars,
+                "projects": projects,
+                "estimated_disk_space_gb": estimated_disk_space_gb,
+                "observation_hours": observation_hours,
+                "timespan_days": timespan_days,
+                "min_duration": min_duration,
+                "max_duration": max_duration,
+            },
+        )
+        if not created:
+            # If updating a model need to save the new values as defaults will not be used
+            new_observation_summary.observations
+            new_observation_summary.pulsars
+            new_observation_summary.projects
+            new_observation_summary.estimated_disk_space_gb
+            new_observation_summary.observation_hours
+            new_observation_summary.timespan_days
+            new_observation_summary.min_duration
+            new_observation_summary.max_duration
+            new_observation_summary.save()
+        return new_observation_summary, created
+
+
+class PipelineRun(Model):
+    """
+    Details about the software and pipeline run to process data
+    """
+    observation = models.ForeignKey(Observation, models.CASCADE, related_name="pipeline_runs")
+    ephemeris = models.ForeignKey(Ephemeris, models.SET_NULL, null=True)
+    template = models.ForeignKey(Template, models.SET_NULL, null=True)
+
+    pipeline_name = models.CharField(max_length=64)
+    pipeline_description = models.CharField(max_length=255, blank=True, null=True)
+    pipeline_version = models.CharField(max_length=16)
+    created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.CharField(max_length=64)
+    JOB_STATE_CHOICES = [
+        ("Pending",   "Pending"),
+        ("Running",   "Running"),
+        ("Completed", "Completed"),
+        ("Failed",    "Failed"),
+        ("Cancelled", "Cancelled"),
+    ]
+    job_state = models.CharField(max_length=9, choices=JOB_STATE_CHOICES, default="Pending")
     location = models.CharField(max_length=255)
-    method = models.CharField(max_length=255, blank=True, null=True)
-    type = models.CharField(max_length=255, blank=True, null=True)
-    comment = models.TextField(null=True)
+    configuration = models.JSONField(blank=True, null=True)
+
+    toas_download_link = models.URLField(null=True)
+
+    # DM results
+    dm       = models.FloatField(null=True)
+    dm_err   = models.FloatField(null=True)
+    dm_epoch = models.FloatField(null=True)
+    dm_chi2r = models.FloatField(null=True)
+    dm_tres  = models.FloatField(null=True)
+
+    # Other results
+    sn = models.FloatField(null=True)
+    flux = models.FloatField(null=True)
+    rm = models.FloatField(null=True)
+    rm_err = models.FloatField(null=True)
+    percent_rfi_zapped = models.FloatField(null=True)
 
 
-class Toas(models.Model):
-    QUALITY_CHOICES = [("nominal", "nominal"), ("bad", "bad")]
+class PulsarFoldResult(models.Model):
+    observation = models.ForeignKey(Observation, on_delete=models.CASCADE, related_name="pulsar_fold_results")
+    pipeline_run = models.ForeignKey(PipelineRun, on_delete=models.CASCADE)
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
 
-    processing = models.ForeignKey(Processings, models.DO_NOTHING)
-    input_folding = models.ForeignKey(Foldings, models.DO_NOTHING)
-    timing_ephemeris = models.ForeignKey(Ephemerides, models.DO_NOTHING, null=True)
-    template = models.ForeignKey(Templates, models.DO_NOTHING)
-    flags = JSONField()
-    frequency = models.FloatField()
-    mjd = models.CharField(max_length=32, blank=True, null=True)
-    site = models.CharField(max_length=1, blank=True, null=True)
-    uncertainty = models.FloatField(blank=True, null=True)
-    quality = models.CharField(max_length=7, blank=True, null=True, choices=QUALITY_CHOICES)
-    comment = models.TextField(null=True)
+
+
+class PulsarFoldSummary(models.Model):
+    """
+    Summary of all the fold observations of a pulsar
+    """
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    main_project = models.ForeignKey(MainProject, models.CASCADE)
+
+    # Obs summary
+    first_observation = models.DateTimeField()
+    latest_observation = models.DateTimeField()
+    latest_observation_beam = models.IntegerField()
+    timespan = models.IntegerField()
+    number_of_observations = models.IntegerField()
+    total_integration_hours = models.FloatField()
+    last_integration_minutes = models.FloatField(null=True)
+    all_bands = models.CharField(max_length=500)
+
+    # Results summary
+    last_sn = models.FloatField()
+    highest_sn = models.FloatField()
+    lowest_sn = models.FloatField()
+    avg_sn_pipe = models.FloatField(null=True)
+    max_sn_pipe = models.FloatField(null=True)
+
+    # Project summary
+    most_common_project = models.CharField(max_length=64) # Tis could be a foreign key
+    all_projects = models.CharField(max_length=500)
+
+    class Meta:
+        unique_together = [["main_project", "pulsar"]]
+        ordering = ["-latest_observation"]
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        if "band" in kwargs:
+            if kwargs["band"] == "All":
+                kwargs.pop("band")
+            else:
+                kwargs["all_bands__icontains"] = kwargs.pop("band")
+
+        if "most_common_project" in kwargs:
+            if kwargs["most_common_project"] == "All":
+                kwargs.pop("most_common_project")
+            else:
+                kwargs["most_common_project__icontains"] = kwargs.pop("most_common_project")
+
+        if "project" in kwargs:
+            if kwargs["project"] == "All":
+                kwargs.pop("project")
+            else:
+                kwargs["all_projects__icontains"] = kwargs.pop("project")
+
+        if "main_project" in kwargs and kwargs["main_project"] == "All":
+            kwargs.pop("main_project")
+        elif "main_project" in kwargs:
+            kwargs["main_project__name__icontains"] = kwargs.pop("main_project")
+
+        return cls.objects.select_related("pulsar").filter(**kwargs)
+
+    @classmethod
+    def get_most_common_project(cls, observations):
+        project_counts = {}
+        for observation in observations:
+            # If you like it, then you should have put a key on it.
+            project_short = observation.project.short
+            if project_short in project_counts:
+                # I'm a survivor, I'm not a quitter, I'm gonna increment until I'm a winner.
+                project_counts[project_short] += 1
+            else:
+                project_counts[project_short] = 1
+
+        # To the left, to the left
+        # Find the key with the highest count, to the left
+        return max(project_counts, key=project_counts.get)
+
+    @classmethod
+    def update_or_create(cls, pulsar, main_project):
+        """
+        Every time a PipelineRun is saved, we want to update the PulsarFoldSummary
+        model so it accurately summaries all fold observations for that pulsar.
+
+        Parameters:
+            pulsar: Pulsar django model
+                A Pulsar model instance.
+            main_project: MainProject django model
+                A MainProject model instance.
+        """
+        # Get all the fold observations for that pulsar
+        observations = Observation.objects.select_related(
+            "pulsar",
+            "project"
+        ).filter(
+            pulsar=pulsar,
+            project__main_project=main_project,
+            obs_type="fold"
+        ).order_by("utc_start")
+
+        # Process observation summary
+        first_observation  = observations.first()
+        latest_observation = observations.last()
+        timespan = (latest_observation.utc_start - first_observation.utc_start).days + 1
+        number_of_observations = observations.count()
+        total_integration_hours = observations.aggregate(total=Sum('duration'))['total'] / 3600
+        last_integration_minutes = latest_observation.duration / 60
+        all_bands = ", ".join(list(set(observations.values_list('band', flat=True))))
+
+        # Process results summary
+        results = PulsarFoldResult.objects.select_related("pulsar", "pipeline_run", "observation").filter(pulsar=pulsar).order_by("observation__utc_start")
+        last_sn = results.last().pipeline_run.sn
+        sn_list = [result.pipeline_run.sn or 0 for result in results]
+        highest_sn = max(sn_list)
+        lowest_sn  = min(sn_list)
+        # Since SNR is proportional to the sqrt of the observation length
+        # we can normalise the SNR to an equivalent 5 minute observation
+        sn_5min_list = []
+        for result in results:
+            if result.pipeline_run.sn is not None:
+                sn_5min_list.append(result.pipeline_run.sn / math.sqrt(result.observation.duration) * math.sqrt(300) )
+        if len(sn_5min_list) > 0:
+            avg_sn_pipe = sum(sn_5min_list) / len(sn_5min_list)
+            max_sn_pipe = max(sn_5min_list)
+        else:
+            avg_sn_pipe = 0
+            max_sn_pipe = 0
+
+        # Process project summary
+        all_projects = ", ".join(list(set(observations.values_list('project__short', flat=True))))
+        most_common_project = cls.get_most_common_project(observations)
+
+        new_pulsar_fold_summary, created = PulsarFoldSummary.objects.update_or_create(
+            pulsar=pulsar,
+            main_project=main_project,
+            defaults={
+                "first_observation": first_observation.utc_start,
+                "latest_observation": latest_observation.utc_start,
+                "latest_observation_beam": latest_observation.beam,
+                "timespan": timespan,
+                "number_of_observations": number_of_observations,
+                "total_integration_hours": total_integration_hours,
+                "last_integration_minutes": last_integration_minutes,
+                "all_bands": all_bands,
+                "last_sn": last_sn or 0,
+                "highest_sn": highest_sn or 0,
+                "lowest_sn": lowest_sn or 0,
+                "avg_sn_pipe": avg_sn_pipe,
+                "max_sn_pipe": max_sn_pipe,
+                "all_projects": all_projects,
+                "most_common_project": most_common_project,
+            },
+        )
+        if not created:
+            # If updating a model need to save the new values as defaults will not be used
+            new_pulsar_fold_summary.first_observation
+            new_pulsar_fold_summary.latest_observation
+            new_pulsar_fold_summary.latest_observation_beam
+            new_pulsar_fold_summary.timespan
+            new_pulsar_fold_summary.number_of_observations
+            new_pulsar_fold_summary.total_integration_hours
+            new_pulsar_fold_summary.last_integration_minutes
+            new_pulsar_fold_summary.all_bands
+            new_pulsar_fold_summary.all_projects
+            new_pulsar_fold_summary.most_common_project
+            new_pulsar_fold_summary.save()
+        return new_pulsar_fold_summary, created
+
+
+class PulsarSearchSummary(models.Model):
+    """
+    Summary of all the search observations of a pulsar
+    """
+    pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+    main_project = models.ForeignKey(MainProject, models.CASCADE)
+
+    # Obs summary
+    first_observation = models.DateTimeField()
+    latest_observation = models.DateTimeField()
+    timespan = models.IntegerField()
+    number_of_observations = models.IntegerField()
+    total_integration_hours = models.FloatField()
+    last_integration_minutes = models.FloatField(null=True)
+    all_bands = models.CharField(max_length=500)
+
+    # Project summary
+    most_common_project = models.CharField(max_length=64) # Tis could be a foreign key
+    all_projects = models.CharField(max_length=500)
+
+    class Meta:
+        unique_together = [["main_project", "pulsar"]]
+        ordering = ["-latest_observation"]
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        if "band" in kwargs:
+            if kwargs["band"] == "All":
+                kwargs.pop("band")
+            else:
+                kwargs["all_bands__icontains"] = kwargs.pop("band")
+
+        if "most_common_project" in kwargs:
+            if kwargs["most_common_project"] == "All":
+                kwargs.pop("most_common_project")
+            else:
+                kwargs["most_common_project__icontains"] = kwargs.pop("most_common_project")
+
+        if "project" in kwargs:
+            if kwargs["project"] == "All":
+                kwargs.pop("project")
+            else:
+                kwargs["all_projects__icontains"] = kwargs.pop("project")
+
+        if "main_project" in kwargs and kwargs["main_project"] == "All":
+            kwargs.pop("main_project")
+        elif "main_project" in kwargs:
+            kwargs["main_project__name__icontains"] = kwargs.pop("main_project")
+
+        return cls.objects.filter(**kwargs)
+
+    @classmethod
+    def get_most_common_project(cls, observations):
+        project_counts = {}
+        for observation in observations:
+            # If you like it, then you should have put a key on it.
+            project_short = observation.project.short
+            if project_short in project_counts:
+                # I'm a survivor, I'm not a quitter, I'm gonna increment until I'm a winner.
+                project_counts[project_short] += 1
+            else:
+                project_counts[project_short] = 1
+
+        # To the left, to the left
+        # Find the key with the highest count, to the left
+        return max(project_counts, key=project_counts.get)
+
+    @classmethod
+    def update_or_create(cls, pulsar, main_project):
+        """
+        Every time a PipelineRun is saved, we want to update the PulsarFoldSummary
+        model so it accurately summaries all fold observations for that pulsar.
+
+        Parameters:
+            pulsar: Pulsar django model
+                A Pulsar model instance.
+            main_project: MainProject django model
+                A MainProject model instance.
+        """
+        # Get all the fold observations for that pulsar
+        observations = Observation.objects.filter(pulsar=pulsar, obs_type="search").order_by("utc_start")
+
+        # Process observation summary
+        first_observation  = observations.first()
+        latest_observation = observations.last()
+        timespan = (latest_observation.utc_start - first_observation.utc_start).days + 1
+        number_of_observations = observations.count()
+        total_integration_hours = observations.aggregate(total=Sum('duration'))['total'] / 3600
+        last_integration_minutes = latest_observation.duration / 60
+        all_bands = ", ".join(
+            {observation.band for observation in observations}
+        )
+
+        # Process project summary
+        all_projects = ", ".join(
+            {observation.project.short for observation in observations}
+        )
+        most_common_project = cls.get_most_common_project(observations)
+
+        new_pulsar_search_summary, created = PulsarSearchSummary.objects.update_or_create(
+            pulsar=pulsar,
+            main_project=main_project,
+            defaults={
+                "first_observation": first_observation.utc_start,
+                "latest_observation": latest_observation.utc_start,
+                "timespan": timespan,
+                "number_of_observations": number_of_observations,
+                "total_integration_hours": total_integration_hours,
+                "last_integration_minutes": last_integration_minutes,
+                "all_bands": all_bands,
+                "all_projects": all_projects,
+                "most_common_project": most_common_project,
+            },
+        )
+        if not created:
+            # If updating a model need to save the new values as defaults will not be used
+            new_pulsar_search_summary.first_observation
+            new_pulsar_search_summary.latest_observation
+            new_pulsar_search_summary.timespan
+            new_pulsar_search_summary.number_of_observations
+            new_pulsar_search_summary.total_integration_hours
+            new_pulsar_search_summary.last_integration_minutes
+            new_pulsar_search_summary.all_bands
+            new_pulsar_search_summary.all_projects
+            new_pulsar_search_summary.most_common_project
+            new_pulsar_search_summary.save()
+        return new_pulsar_search_summary, created
+
+
+class PipelineImage(models.Model):
+    pulsar_fold_result = models.ForeignKey(PulsarFoldResult, models.CASCADE, related_name="images",)
+    image = models.ImageField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    url = models.URLField(null=True)
+    cleaned = models.BooleanField(default=True)
+    IMAGE_TYPE_CHOICES = [
+        ("toa-dm-corrected",  "toa-dm-corrected"),
+        ("toa-single",  "toa-single"),
+        ("profile",     "profile"),
+        ("profile-pol", "profile-pol"),
+        ("phase-time",  "phase-time"),
+        ("phase-freq",  "phase-freq"),
+        ("bandpass",    "bandpass"),
+        ("snr-cumul",   "snr-cumul"),
+        ("snr-single",  "snr-single"),
+    ]
+    image_type = models.CharField(max_length=16, choices=IMAGE_TYPE_CHOICES)
+    RESOLUTION_CHOICES = [
+        ("high", "high"),
+        ("low",  "low"),
+    ]
+    resolution = models.CharField(max_length=4, choices=RESOLUTION_CHOICES)
+
+    class Meta:
+        constraints = [
+            # TODO this may no longer be necessary with pipeline run
+            UniqueConstraint(
+                fields=[
+                    "pulsar_fold_result",
+                    "image_type",
+                    "cleaned",
+                    "resolution",
+                ],
+                name="Unique image type for a PulsarFoldResult"
+            )
+        ]
+
+    def save(self, *args, **kwargs):
+        PipelineImage.clean(self)
+        if self.image:
+            self.url = self.image.url
+        super(PipelineImage, self).save(*args, **kwargs)
+
+class PipelineFile(models.Model):
+    pulsar_fold_result = models.ForeignKey(PulsarFoldResult, models.CASCADE, related_name="files",)
+    file = models.FileField(null=True, upload_to=get_upload_location, storage=OverwriteStorage())
+    FILE_TYPE_CHOICES = [
+        ("FTS",  "FTS"),
+    ]
+    file_type = models.CharField(max_length=16, choices=FILE_TYPE_CHOICES)
+
+    class Meta:
+        constraints = [
+            # TODO this may no longer be necessary with pipeline run
+            UniqueConstraint(
+                fields=[
+                    "pulsar_fold_result",
+                    "file_type",
+                ],
+                name="Unique file type for a PulsarFoldResult"
+            )
+        ]
+
+
+class Residual(models.Model):
+    # X axis types
+    mjd = models.DecimalField(decimal_places=12, max_digits=18)
+    day_of_year = models.FloatField()
+    binary_orbital_phase = models.FloatField(null=True)#TODO add this to the pipeline
+
+    # Y axis types
+    residual_sec     = models.FloatField()
+    residual_sec_err = models.FloatField()
+    residual_phase     = models.FloatField() # pulse period phase
+    residual_phase_err = models.FloatField(null=True) #TODO add this to the pipeline
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
+
+class Toa(models.Model):
+    # foreign keys
+    pipeline_run = models.ForeignKey(PipelineRun, models.CASCADE, related_name="toas")
+    observation  = models.ForeignKey(Observation, models.CASCADE, related_name="toas")
+    project      = models.ForeignKey(Project, models.CASCADE)
+    ephemeris    = models.ForeignKey(Ephemeris, models.CASCADE)
+    template     = models.ForeignKey(Template, models.CASCADE)
+    # Residual will be set after this model which is why it can be null
+    residual     = models.ForeignKey(Residual, models.SET_NULL, null=True)
+
+    # toa results
+    archive   = models.CharField(max_length=128)
+    freq_MHz  = models.FloatField()
+    mjd       = models.DecimalField(decimal_places=12, max_digits=18)
+    mjd_err   = models.FloatField()
+    telescope = models.CharField(max_length=32)
+
+    # The flags from the toa file
+    fe     = models.CharField(max_length=32, null=True)
+    be     = models.CharField(max_length=32, null=True)
+    f      = models.CharField(max_length=32, null=True)
+    bw     = models.IntegerField(null=True)
+    tobs   = models.IntegerField(null=True)
+    tmplt  = models.CharField(max_length=64, null=True)
+    gof    = models.FloatField(null=True)
+    nbin   = models.IntegerField(null=True)
+    nch    = models.IntegerField(null=True)
+    chan   = models.IntegerField(null=True)
+    rcvr   = models.CharField(max_length=32, null=True)
+    snr    = models.FloatField(null=True)
+    length = models.IntegerField(null=True)
+    subint = models.IntegerField(null=True)
+
+    # Flags for the type of TOA (used for filtering downloads)
+    dm_corrected  = models.BooleanField(default=False)
+    minimum_nsubs = models.BooleanField(default=False)
+    maximum_nsubs = models.BooleanField(default=False)
+    obs_nchan     = models.IntegerField(null=True)
+
+    @classmethod
+    def get_query(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
+
+    @classmethod
+    def bulk_create(
+            cls,
+            pipeline_run_id,
+            project_short,
+            template_id,
+            ephemeris_text,
+            toa_lines,
+            dm_corrected,
+            minimum_nsubs,
+            maximum_nsubs
+        ):
+        pipeline_run = PipelineRun.objects.get(id=pipeline_run_id)
+        observation  = pipeline_run.observation
+        project      = Project.objects.get(short=project_short)
+        template     = Template.objects.get(id=template_id)
+
+        ephemeris_dict = parse_ephemeris_file(ephemeris_text)
+        try:
+            ephemeris, _ = Ephemeris.objects.get_or_create(
+                pulsar=observation.pulsar,
+                project=project,
+                # TODO add created_by
+                ephemeris_data=json.dumps(ephemeris_dict),
+                p0=ephemeris_dict["P0"],
+                dm=ephemeris_dict["DM"],
+                valid_from=ephemeris_dict["START"],
+                valid_to=ephemeris_dict["FINISH"],
+            )
+        except IntegrityError:
+            # Handle the IntegrityError gracefully by grabbing the already created ephem
+            ephemeris = Ephemeris.objects.get(
+                pulsar=observation.pulsar,
+                project=project,
+                ephemeris_data=json.dumps(ephemeris_dict),
+            )
+
+        # created_toas = []
+        toas_to_create = []
+        for toa_line in toa_lines[1:]:
+            toa_line = toa_line.rstrip("\n")
+            # Loop over toa lines and turn into a dict
+            toa_dict = toa_line_to_dict(toa_line)
+            # Revert it back to a line and check it matches before uploading
+            output_toa_line = toa_dict_to_line(toa_dict)
+            if toa_line != output_toa_line:
+                raise GraphQLError(f"Assertion failed. toa_line and output_toa_line do not match.\n{toa_line}\n{output_toa_line}")
+            # Upload the toa
+            # toa = Toa.objects.create(
+            toas_to_create.append(
+                Toa(
+                    pipeline_run =pipeline_run,
+                    observation  =observation,
+                    project      =project,
+                    ephemeris    =ephemeris,
+                    template     =template,
+                    archive      =toa_dict["archive"],
+                    freq_MHz     =toa_dict["freq_MHz"],
+                    mjd          =toa_dict["mjd"],
+                    mjd_err      =toa_dict["mjd_err"],
+                    telescope    =toa_dict["telescope"],
+                    fe           =toa_dict["fe"],
+                    be           =toa_dict["be"],
+                    f            =toa_dict["f"],
+                    bw           =toa_dict["bw"],
+                    tobs         =toa_dict["tobs"],
+                    tmplt        =toa_dict["tmplt"],
+                    gof          =toa_dict.get("gof", None),
+                    nbin         =toa_dict["nbin"],
+                    nch          =toa_dict["nch"],
+                    chan         =toa_dict["chan"],
+                    rcvr         =toa_dict["rcvr"],
+                    snr          =toa_dict["snr"],
+                    length       =toa_dict["length"],
+                    subint       =toa_dict["subint"],
+                    dm_corrected =dm_corrected,
+                    minimum_nsubs=minimum_nsubs,
+                    maximum_nsubs=maximum_nsubs,
+                    obs_nchan = int(observation.nchan) // int(toa_dict["nch"])
+                )
+            )
+        created_toas = Toa.objects.bulk_create(
+            toas_to_create,
+            update_conflicts=True,
+            unique_fields=[
+                "observation",
+                "project",
+                "dm_corrected",
+                # Frequency
+                "obs_nchan", # Number of channels
+                "chan", # Chan ID
+                # Time
+                "minimum_nsubs",
+                "maximum_nsubs",
+                "subint", # Time ID
+            ],
+            update_fields=[
+                "pipeline_run",
+                "observation",
+                "project",
+                "ephemeris",
+                "template",
+                "archive",
+                "freq_MHz",
+                "mjd",
+                "mjd_err",
+                "telescope",
+                "fe",
+                "be",
+                "f",
+                "bw",
+                "tobs",
+                "tmplt",
+                "gof",
+                "nbin",
+                "nch",
+                "chan",
+                "rcvr",
+                "snr",
+                "length",
+                "subint",
+                "dm_corrected",
+                "minimum_nsubs",
+                "maximum_nsubs",
+                "obs_nchan",
+            ],
+        )
+        return created_toas
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=[
+                    "observation",
+                    "project",
+                    "dm_corrected",
+                    # Frequency
+                    "obs_nchan", # Number of channels
+                    "chan", # Chan ID
+                    # Time
+                    "minimum_nsubs",
+                    "maximum_nsubs",
+                    "subint", # Time ID
+                ],
+                name="Unique ToA for observations, project and type of ToA (decimations)."
+            )
+        ]

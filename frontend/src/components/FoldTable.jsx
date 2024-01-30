@@ -1,41 +1,58 @@
 import { Button, ButtonGroup } from "react-bootstrap";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { columnsSizeFilter, formatUTC } from "../helpers";
 import { graphql, useRefetchableFragment } from "react-relay";
 import DataView from "./DataView";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
 
-const foldTableQuery = graphql`
-  fragment FoldTable_data on Query
+const FoldTableFragment = graphql`
+  fragment FoldTableFragment on Query
   @refetchable(queryName: "FoldTableRefetchQuery")
   @argumentDefinitions(
-    mainProject: { type: "String", defaultValue: "MEERTIME" }
+    pulsar: { type: "String", defaultValue: "All" }
+    mainProject: { type: "String", defaultValue: "MeerTIME" }
+    mostCommonProject: { type: "String", defaultValue: "All" }
     project: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
   ) {
-    foldObservations(
+    observationSummary(
+      pulsar_Name: $pulsar
+      obsType: "fold"
+      calibration_Id: "All"
       mainProject: $mainProject
+      project_Short: $project
+      band: $band
+    ) {
+      edges {
+        node {
+          observations
+          pulsars
+          observationHours
+        }
+      }
+    }
+    pulsarFoldSummary(
+      mainProject: $mainProject
+      mostCommonProject: $mostCommonProject
       project: $project
       band: $band
     ) {
-      totalObservations
-      totalPulsars
-      totalObservationTime
-      totalProjectTime
       edges {
         node {
-          jname
-          beam
+          pulsar {
+            name
+          }
           latestObservation
+          latestObservationBeam
           firstObservation
           allProjects
-          project
+          mostCommonProject
           timespan
           numberOfObservations
-          lastSnRaw
-          highestSnRaw
-          lowestSnRaw
+          lastSn
+          highestSn
+          lowestSn
           lastIntegrationMinutes
           maxSnPipe
           avgSnPipe
@@ -52,10 +69,17 @@ const FoldTable = ({
     location: { query },
   },
 }) => {
-  const [relayData, refetch] = useRefetchableFragment(foldTableQuery, data);
+  console.log("data:", data);
+  const [relayData, refetch] = useRefetchableFragment(FoldTableFragment, data);
+  console.log("observationData:", relayData.observationSummary);
+  console.log("relayData:", relayData.pulsarFoldSummary);
+
   const { screenSize } = useScreenSize();
   const [mainProject, setMainProject] = useState(
     query.mainProject || "meertime"
+  );
+  const [mostCommonProject, setMostCommonProject] = useState(
+    query.mostCommonProject || "All"
   );
   const [project, setProject] = useState(query.project || "All");
   const [band, setBand] = useState(query.band || "All");
@@ -63,36 +87,57 @@ const FoldTable = ({
   const handleRefetch = ({
     newMainProject = mainProject,
     newProject = project,
+    newMostCommonProject = mostCommonProject,
     newBand = band,
   } = {}) => {
     const url = new URL(window.location);
     url.searchParams.set("mainProject", newMainProject);
+    url.searchParams.set("mostCommonProject", newMostCommonProject);
     url.searchParams.set("project", newProject);
     url.searchParams.set("band", newBand);
     window.history.pushState({}, "", url);
     refetch({
       mainProject: newMainProject,
+      mostCommonProject: newMostCommonProject,
       project: newProject,
       band: newBand,
     });
   };
 
   const handleMainProjectChange = (newMainProject) => {
+    const newMostCommonProject = "All";
     const newProject = "All";
     const newBand = "All";
     setMainProject(newMainProject);
+    setMostCommonProject(newMostCommonProject);
     setProject(newProject);
     setBand(newBand);
     handleRefetch({
       newMainProject: newMainProject,
+      newMostCommonProject: newMostCommonProject,
       newProject: newProject,
       newBand: newBand,
     });
   };
 
-  const handleProjectChange = (newProject) => {
+  const handleMostCommonProjectChange = (newMostCommonProject) => {
+    const newProject = "All";
+    setMostCommonProject(newMostCommonProject);
     setProject(newProject);
-    handleRefetch({ newProject: newProject });
+    handleRefetch({
+      newMostCommonProject: newMostCommonProject,
+      newProject: newProject,
+    });
+  };
+
+  const handleProjectChange = (newProject) => {
+    const newMostCommonProject = "All";
+    setMostCommonProject(newMostCommonProject);
+    setProject(newProject);
+    handleRefetch({
+      newMostCommonProject: newMostCommonProject,
+      newProject: newProject,
+    });
   };
 
   const handleBandChange = (newBand) => {
@@ -100,15 +145,16 @@ const FoldTable = ({
     handleRefetch({ newBand: newBand });
   };
 
-  const rows = relayData.foldObservations.edges.reduce((result, edge) => {
+  const rows = relayData.pulsarFoldSummary.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     row.projectKey = mainProject;
     row.latestObservation = formatUTC(row.latestObservation);
     row.firstObservation = formatUTC(row.firstObservation);
+    row.jname = row.pulsar.name;
     row.action = (
       <ButtonGroup vertical>
         <Link
-          to={`/fold/${mainProject}/${row.jname}/`}
+          to={`/fold/${mainProject}/${row.pulsar.name}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}
@@ -116,7 +162,7 @@ const FoldTable = ({
           View all
         </Link>
         <Link
-          to={`/${row.jname}/${row.latestObservation}/${row.beam}/`}
+          to={`/${mainProject}/${row.jname}/${row.latestObservation}/${row.latestObservationBeam}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}
@@ -138,8 +184,8 @@ const FoldTable = ({
     },
     { dataField: "jname", text: "JName", sort: true },
     {
-      dataField: "project",
-      text: "Project",
+      dataField: "mostCommonProject",
+      text: "Most Common Project",
       sort: true,
       screenSizes: ["xl", "xxl"],
     },
@@ -180,31 +226,34 @@ const FoldTable = ({
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
-      formatter: (cell) => `${cell} [h]`,
+      formatter: (cell) => `${parseFloat(cell).toFixed(1)} [h]`,
     },
     {
-      dataField: "lastSnRaw",
-      text: "Last S/N raw",
+      dataField: "lastSn",
+      text: "Last S/N",
       align: "right",
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
+      formatter: (cell) => parseFloat(cell).toFixed(1),
     },
     {
-      dataField: "highestSnRaw",
-      text: "High S/N raw",
+      dataField: "highestSn",
+      text: "High S/N",
       align: "right",
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
+      formatter: (cell) => parseFloat(cell).toFixed(1),
     },
     {
-      dataField: "lowestSnRaw",
-      text: "Low S/N raw",
+      dataField: "lowestSn",
+      text: "Low S/N",
       align: "right",
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
+      formatter: (cell) => parseFloat(cell).toFixed(1),
     },
     {
       dataField: "lastIntegrationMinutes",
@@ -213,7 +262,7 @@ const FoldTable = ({
       headerAlign: "right",
       sort: true,
       screenSizes: ["lg", "xl", "xxl"],
-      formatter: (cell) => `${cell} [m]`,
+      formatter: (cell) => `${parseFloat(cell * 60).toFixed(2)} [s]`,
     },
     {
       dataField: "action",
@@ -227,34 +276,26 @@ const FoldTable = ({
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
+  console.log(relayData.observationSummary);
+  const summaryNode = relayData.observationSummary.edges[0]?.node;
+  console.log(summaryNode);
   const summaryData = [
-    {
-      title: "Observations",
-      value: relayData.foldObservations.totalObservations,
-    },
-    { title: "Unique Pulsars", value: relayData.foldObservations.totalPulsars },
-    {
-      title: "Pulsar Hours",
-      value: relayData.foldObservations.totalObservationTime,
-    },
+    { title: "Observations", value: summaryNode.observations },
+    { title: "Unique Pulsars", value: summaryNode.pulsars },
+    { title: "Observation Hours", value: summaryNode.observationHours },
   ];
-
-  if (project !== "All") {
-    summaryData.push({
-      title: "Project Hours",
-      value: relayData.foldObservations.totalProjectTime,
-    });
-  }
 
   return (
     <DataView
       summaryData={summaryData}
       columns={columnsSizeFiltered}
       rows={rows}
-      setProject={handleProjectChange}
-      project={project}
       mainProject={mainProject}
       setMainProject={handleMainProjectChange}
+      mostCommonProject={mostCommonProject}
+      setMostCommonProject={handleMostCommonProjectChange}
+      project={project}
+      setProject={handleProjectChange}
       band={band}
       setBand={handleBandChange}
       query={query}

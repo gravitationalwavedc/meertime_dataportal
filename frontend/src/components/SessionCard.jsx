@@ -28,7 +28,7 @@ const SessionCard = ({ row }) => (
     </Card.Body>
     <Card.Footer>
       <Link
-        to={`/fold/${row.projectKey}/${row.jname}/`}
+        to={`/fold/meertime/${row.projectKey}/${row.jname}/`}
         className="mr-2"
         size="sm"
         variant="link"
@@ -37,7 +37,7 @@ const SessionCard = ({ row }) => (
         View all observations
       </Link>
       <Link
-        to={`/${row.jname}/${row.utc}/${row.beam}/`}
+        to={`/meertime/${row.jname}/${row.utc}/${row.beam}/`}
         className="mr-2"
         size="sm"
         variant="link"

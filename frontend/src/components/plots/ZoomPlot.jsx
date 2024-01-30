@@ -1,99 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
+  CartesianGrid,
+  ErrorBar,
+  Label,
+  Legend,
   ReferenceArea,
   ResponsiveContainer,
   Scatter,
   ScatterChart,
+  Tooltip,
+  XAxis,
+  YAxis,
+  ZAxis,
 } from "recharts";
-import { Button } from "react-bootstrap";
-import { useRouter } from "found";
+import {
+  filterBandData,
+  formatYAxisTick,
+  getXaxisFormatter,
+  getXaxisLabel,
+  getYaxisDomain,
+  getYaxisLabel,
+  getYaxisTicks,
+  getZRange,
+  toolTipFormatter,
+} from "./plotData";
+import _default from "react-bootstrap/esm/CardColumns";
 
-const DEFAULT_ZOOM = { x1: null, y1: null, x2: null, y2: null };
-
-const ZoomPlot = ({ dataOne, dataTwo, children }) => {
-  const [filteredDataOne, setFilteredDataOne] = useState(dataOne);
-  const [filteredDataTwo, setFilteredDataTwo] = useState(dataTwo);
-  const [zoomArea, setZoomArea] = useState(DEFAULT_ZOOM);
-  const [isZooming, setIsZooming] = useState(false);
-  const [isDrag, setIsDrag] = useState(false);
-
-  const { router } = useRouter();
-
-  useEffect(() => {
-    setFilteredDataOne(dataOne);
-    setFilteredDataTwo(dataTwo);
-  }, [dataOne, dataTwo]);
-
-  const handleSymbolClick = (symbolData) => {
-    if (!isDrag) {
-      router.push(symbolData.link);
-    }
-  };
-
-  const handleZoomOut = () => {
-    setFilteredDataOne(dataOne);
-    setFilteredDataTwo(dataTwo);
-    setZoomArea(DEFAULT_ZOOM);
-  };
-
-  const handleMouseDown = (e) => {
-    setIsZooming(true);
-    const { xValue, yValue } = e || {};
-    setZoomArea({ x1: xValue, y1: yValue, x2: xValue, y2: yValue });
-  };
-
-  const handleMouseMove = (e) => {
-    if (isZooming) {
-      setIsDrag(true);
-      setZoomArea((prev) => ({
-        ...prev,
-        x2: e ? e.xValue : null,
-        y2: e ? e.yValue : null,
-      }));
-    }
-  };
-
-  const handleMouseUp = () => {
-    if (isDrag && isZooming) {
-      setIsZooming(false);
-      setIsDrag(false);
-      let { x1, y1, x2, y2 } = zoomArea;
-
-      // ensure x1 <= x2 and y1 <= y2
-      if (x1 > x2) [x1, x2] = [x2, x1];
-      if (y1 > y2) [y1, y2] = [y2, y1];
-
-      const DataOneInRange = filteredDataOne.filter(
-        (dataPoint) =>
-          dataPoint.time >= x1 &&
-          dataPoint.time <= x2 &&
-          dataPoint.value >= y1 &&
-          dataPoint.value <= y2
-      );
-      const DataTwoInRange = filteredDataTwo.filter(
-        (dataPoint) =>
-          dataPoint.time >= x1 &&
-          dataPoint.time <= x2 &&
-          dataPoint.value >= y1 &&
-          dataPoint.value <= y2
-      );
-
-      setFilteredDataOne(DataOneInRange);
-      setFilteredDataTwo(DataTwoInRange);
-      setZoomArea(DEFAULT_ZOOM);
-    }
-  };
-
+const ZoomPlot = ({
+  data,
+  xAxis,
+  activePlot,
+  zoomArea,
+  axisMin,
+  axisMax,
+  handleMouseDown,
+  handleMouseMove,
+  handleMouseUp,
+  handleMouseLeave,
+  handleScatterMouseLeave,
+  handleScatterMouseEnter,
+}) => {
+  const { plotData, minValue, maxValue, medianValue, ticks } = filterBandData(
+    data,
+    zoomArea
+  );
   return (
     <>
-      <Button
-        variant="outline-secondary"
-        size="sm"
-        className="zoom-btn"
-        onClick={handleZoomOut}
-      >
-        Zoom out
-      </Button>
       <ResponsiveContainer>
         <ScatterChart
           margin={{
@@ -105,27 +57,105 @@ const ZoomPlot = ({ dataOne, dataTwo, children }) => {
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseLeave}
         >
-          {children}
-          <Scatter
-            name="L-Band"
-            data={filteredDataOne}
-            fill="#8884d8"
-            shape="circle"
-            onMouseUp={handleSymbolClick}
-          />
-          <Scatter
-            name="UHF"
-            data={filteredDataTwo}
-            fill="#e07761"
-            shape="square"
-            onMouseUp={handleSymbolClick}
-          />
+          <CartesianGrid />
+          {plotData.map((dataBand, index) => (
+            <Scatter
+              name={dataBand.name}
+              data={dataBand.data}
+              fill={dataBand.colour}
+              shape={dataBand.shape}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleScatterMouseLeave}
+              onMouseEnter={handleScatterMouseEnter}
+            >
+              <ErrorBar
+                dataKey="error"
+                width={5}
+                strokeWidth={2}
+                stroke={dataBand.colour}
+                direction="y"
+              />
+            </Scatter>
+          ))}
           <ReferenceArea
-            x1={zoomArea.x1 ? zoomArea.x1 : null}
-            x2={zoomArea.x2 ? zoomArea.x2 : null}
-            y1={zoomArea.y1 ? zoomArea.y1 : null}
-            y2={zoomArea.y2 ? zoomArea.y2 : null}
+            x1={axisMin.xMin ? axisMin.xMin : null}
+            x2={axisMax.xMax ? axisMax.xMax : null}
+            y1={axisMin.yMin ? axisMin.yMin : null}
+            y2={axisMax.yMax ? axisMax.yMax : null}
+          />
+          <Legend
+            align="right"
+            verticalAlign="top"
+            payload={[
+              { id: "1", type: "square", value: "UHF", color: "#0d0887" },
+              { id: "2", type: "circle", value: "L-Band", color: "#6001a6" },
+              {
+                id: "3",
+                type: "triangle",
+                value: "S-Band_0",
+                color: "#cd4a76",
+              },
+              {
+                id: "4",
+                type: "triangle",
+                value: "S-Band_1",
+                color: "#df6263",
+              },
+              {
+                id: "5",
+                type: "triangle",
+                value: "S-Band_2",
+                color: "#ee7b51",
+              },
+              {
+                id: "6",
+                type: "triangle",
+                value: "S-Band_3",
+                color: "#f9973f",
+              },
+              {
+                id: "7",
+                type: "triangle",
+                value: "S-Band_4",
+                color: "#fdb52e",
+              },
+            ]}
+          />
+          <XAxis
+            type="number"
+            dataKey={xAxis}
+            name={getXaxisLabel(xAxis)}
+            domain={["auto", "auto"]}
+            ticks={xAxis === "utc" ? ticks : undefined}
+            tickFormatter={getXaxisFormatter(xAxis)}
+          >
+            <Label value={getXaxisLabel(xAxis)} position="bottom" />
+          </XAxis>
+          <Tooltip
+            cursor={{ strokeDasharray: "3 3" }}
+            formatter={toolTipFormatter}
+          />
+          <YAxis
+            type="number"
+            dataKey="value"
+            name={activePlot}
+            domain={getYaxisDomain(activePlot, minValue, maxValue)}
+            ticks={getYaxisTicks(activePlot, minValue, maxValue, medianValue)}
+            tickFormatter={formatYAxisTick}
+          >
+            <Label
+              value={getYaxisLabel(activePlot)}
+              position="left"
+              angle="-90"
+            />
+          </YAxis>
+          <ZAxis
+            type="number"
+            dataKey="size"
+            name="Size"
+            range={getZRange(activePlot)}
           />
         </ScatterChart>
       </ResponsiveContainer>

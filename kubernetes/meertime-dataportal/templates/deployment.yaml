@@ -1,0 +1,153 @@
+{{- range $key, $value := .Values.deployments }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $value.name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    name: {{ $value.label }}
+spec:
+  {{- if not $.Values.autoscaling.enabled }}
+  replicas: {{ $.Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      name: {{ $value.label }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      {{- with $.Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        name: {{ $value.label }}
+    spec:
+      {{- if $value.imagePullSecrets }}
+      imagePullSecrets:
+        - name: {{ $value.imagePullSecrets }}
+      {{- end }}
+      {{- if $value.serviceAccountName }}
+      serviceAccountName: {{ $value.serviceAccountName }}
+      {{- end }}
+      initContainers:
+        {{- range $initContainerKey, $initContainerValue := $value.initContainers }}
+        - name: {{ $initContainerValue.name }}
+          image: "{{ $initContainerValue.image }}:{{ $initContainerValue.imageTag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          env:
+            {{- range $envKey, $envValue := $initContainerValue.env }}
+            - name: {{ $envValue.name }}
+              valueFrom:
+                {{- if $envValue.valueFrom.secretKeyRef }}
+                secretKeyRef:
+                  name: {{ $envValue.valueFrom.secretKeyRef.name }}
+                  key: {{ $envValue.valueFrom.secretKeyRef.key }}
+                {{- end }}
+                {{- if $envValue.valueFrom.configMapKeyRef }}
+                configMapKeyRef:
+                  name: {{ $envValue.valueFrom.configMapKeyRef.name }}
+                  key: {{ $envValue.valueFrom.configMapKeyRef.key }}
+                {{- end }}
+            {{- end }}
+          envFrom:
+            {{- range $envKey, $envValue := $initContainerValue.envFrom }}
+            - secretRef:
+                name: {{ $envValue.name }}
+            {{- end }}
+          volumeMounts:
+            {{- range $volumeKey, $volumeValue := $initContainerValue.volumeMounts }}
+              - name: {{ $volumeValue.name }}
+                mountPath: {{ $volumeValue.mountPath }}
+            {{- end }}
+          command:
+            {{- range $commandKey, $commandValue := $initContainerValue.command }}
+              - {{ $commandValue }}
+            {{- end }}
+        {{- end }}
+      containers:
+        - name: {{ $value.container.name }}
+          image: "{{ $value.container.image }}:{{ $value.container.imageTag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ $.Values.image.pullPolicy }}
+          {{- if $value.container.env }}
+          env:
+            {{- range $envKey, $envValue := $value.container.env }}
+            - name: {{ $envValue.name }}
+              valueFrom:
+                {{- if $envValue.valueFrom.secretKeyRef }}
+                secretKeyRef:
+                  name: {{ $envValue.valueFrom.secretKeyRef.name }}
+                  key: {{ $envValue.valueFrom.secretKeyRef.key }}
+                {{- end }}
+                {{- if $envValue.valueFrom.configMapKeyRef }}
+                configMapKeyRef:
+                  name: {{ $envValue.valueFrom.configMapKeyRef.name }}
+                  key: {{ $envValue.valueFrom.configMapKeyRef.key }}
+                {{- end }}
+            {{- end }}
+          {{- end }}
+          {{- if $value.container.envFrom }}
+          envFrom:
+            {{- range $envKey, $envValue := $value.container.envFrom }}
+            - secretRef:
+                name: {{ $envValue.name }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: {{ $value.container.name }}
+              containerPort: {{ $value.port }}
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: {{ $value.livereadinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $value.livereadinessProbe.periodSeconds }}
+            {{- if $value.livereadinessProbe.httpGet }}
+            httpGet:
+              path: /
+              port: {{ $value.port }}
+            {{- end }}
+            {{- if not $value.livereadinessProbe.httpGet }}
+            exec:
+              {{- toYaml $value.livereadinessProbe.exec | nindent 14 }}
+            {{- end }}
+          readinessProbe:
+            initialDelaySeconds: {{ $value.livereadinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $value.livereadinessProbe.periodSeconds }}
+            {{- if $value.livereadinessProbe.httpGet }}
+            httpGet:
+              path: /
+              port: {{ $value.port }}
+            {{- end }}
+            {{- if not $value.livereadinessProbe.httpGet }}
+            exec:
+              {{- toYaml $value.livereadinessProbe.exec | nindent 14 }}
+            {{- end }}
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+          volumeMounts:
+            {{- range $volumeKey, $volumeValue := $value.volumeMounts }}
+              - name: {{ $volumeValue.name }}
+                mountPath: {{ $volumeValue.mountPath }}
+            {{- end }}
+          {{- if $value.container.command }}
+          command:
+            {{- range $commandKey, $commandValue := $value.container.command }}
+              - {{ $commandValue }}
+            {{- end }}
+          {{- end }}
+      volumes:
+        {{- range $volumeKey, $volumeValue := $value.volumes }}
+          - name: {{ $volumeValue.name }}
+            {{- if $volumeValue.persistentVolumeClaim }}
+            persistentVolumeClaim:
+              claimName: {{ $volumeValue.persistentVolumeClaim.claimName }}
+            {{- else if $volumeValue.configMap }}
+            configMap:
+              name: {{ $volumeValue.configMap.name }}
+            {{- else }}
+            emptyDir: {}
+            {{- end }}
+        {{- end }}
+---
+{{- end }}

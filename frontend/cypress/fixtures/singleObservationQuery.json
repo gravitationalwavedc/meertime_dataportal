@@ -1,0 +1,173 @@
+{
+  "data": {
+    "pulsarFoldResult": {
+      "edges": [
+        {
+          "node": {
+            "observation": {
+              "calibration": {
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjM1",
+                "idInt": 35
+              },
+              "beam": 2,
+              "utcStart": "2020-07-10T05:07:28+00:00",
+              "obsType": "FOLD",
+              "project": {
+                "id": "UHJvamVjdE5vZGU6MTc=",
+                "short": "PTA",
+                "code": "SCI-20180516-MB-05",
+                "mainProject": {
+                  "name": "MeerTIME"
+                }
+              },
+              "frequency": 815.734375,
+              "bandwidth": 544.0,
+              "raj": "01:25:01.0595040",
+              "decj": "-23:27:08.184197",
+              "duration": 1023.2854023529411,
+              "foldNbin": 1024,
+              "foldNchan": 1024,
+              "foldTsubint": 8,
+              "nant": 28
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "rm": 10.0,
+              "sn": 100.0
+            },
+            "images": {
+              "edges": [
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_profile_ftp.png",
+                    "cleaned": false,
+                    "imageType": "PROFILE",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_profile_ftp.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_profile_ftp.png",
+                    "cleaned": true,
+                    "imageType": "PROFILE",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_profile_ftp.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_profile_fts.png",
+                    "cleaned": false,
+                    "imageType": "PROFILE_POL",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_profile_fts.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_profile_fts.png",
+                    "cleaned": true,
+                    "imageType": "PROFILE_POL",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_profile_fts.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_phase_time.png",
+                    "cleaned": false,
+                    "imageType": "PHASE_TIME",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_phase_time.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_phase_time.png",
+                    "cleaned": true,
+                    "imageType": "PHASE_TIME",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_phase_time.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_phase_freq.png",
+                    "cleaned": false,
+                    "imageType": "PHASE_FREQ",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_phase_freq.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_phase_freq.png",
+                    "cleaned": true,
+                    "imageType": "PHASE_FREQ",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_phase_freq.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_bandpass.png",
+                    "cleaned": false,
+                    "imageType": "BANDPASS",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_bandpass.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_bandpass.png",
+                    "cleaned": true,
+                    "imageType": "BANDPASS",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_bandpass.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_SNR_cumulative.png",
+                    "cleaned": false,
+                    "imageType": "SNR_CUMUL",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_SNR_cumulative.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_SNR_cumulative.png",
+                    "cleaned": true,
+                    "imageType": "SNR_CUMUL",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_SNR_cumulative.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_SNR_single.png",
+                    "cleaned": false,
+                    "imageType": "SNR_SINGLE",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_SNR_single.png"
+                  }
+                },
+                {
+                  "node": {
+                    "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_SNR_single.png",
+                    "cleaned": true,
+                    "imageType": "SNR_SINGLE",
+                    "resolution": "HIGH",
+                    "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_SNR_single.png"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

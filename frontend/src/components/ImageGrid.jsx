@@ -8,16 +8,8 @@ import ToaImages from "./ToaImages";
 const ImageGrid = ({ images, project }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
 
-  const rawImages = images.edges.filter(
-    ({ node }) =>
-      node.process.toLowerCase() === "raw" && node.resolution === "hi"
-  );
-
-  const processedImages = images.edges.filter(
-    ({ node }) =>
-      node.process.toLowerCase() !== "raw" &&
-      node.process.toLowerCase() === project.toLowerCase()
-  );
+  const rawImages = images.edges.filter(({ node }) => !node.cleaned);
+  const processedImages = images.edges.filter(({ node }) => node.cleaned);
 
   const urls = [
     ...rawImages.map(({ node }) => node.url),
@@ -65,7 +57,7 @@ const ImageGrid = ({ images, project }) => {
       ) : (
         rawImages.map(({ node }) => (
           <PlotImage
-            key={node.url}
+            key={node.image}
             imageData={node}
             handleClick={() => openLightBox(node.url)}
           />
@@ -73,10 +65,7 @@ const ImageGrid = ({ images, project }) => {
       )}
       {isLightBoxOpen && (
         <LightBox
-          // mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
-          mainSrc={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${
-            lightBoxImages.images[lightBoxImages.imagesIndex]
-          }`}
+          mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}
           nextSrc={
             lightBoxImages.images[
               (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length
@@ -106,6 +95,9 @@ const ImageGrid = ({ images, project }) => {
                 (lightBoxImages.imagesIndex + 1) % lightBoxImages.images.length,
             })
           }
+          onImageLoad={() => {
+            window.dispatchEvent(new Event("resize"));
+          }}
         />
       )}
     </>

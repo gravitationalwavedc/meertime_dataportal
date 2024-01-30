@@ -7,6 +7,7 @@ import FoldDetail from "../pages/FoldDetail";
 import Login from "../pages/Login";
 import PasswordChange from "../pages/PasswordChange";
 import PasswordReset from "../pages/PasswordReset";
+import GenerateToken from "../pages/GenerateToken";
 import PasswordResetRequest from "../pages/PasswordResetRequest";
 import ReactGA from "react-ga";
 import { RedirectException } from "found";
@@ -14,7 +15,7 @@ import Register from "../pages/Register";
 import RegisterVerify from "../pages/RegisterVerify";
 import { Resolver } from "found-relay";
 import Search from "../pages/Search";
-import SearchmodeDetail from "../pages/SearchmodeDetail";
+import SearchDetail from "../pages/SearchDetail";
 import Session from "../pages/Session";
 import SessionList from "../pages/SessionList";
 import SingleObservation from "../pages/SingleObservation";
@@ -89,8 +90,18 @@ const routeConfig = () =>
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
+        path="/token_generate/"
+        Component={GenerateToken}
+        render={({ Component, props }) => renderPrivateRoute(Component, props)}
+      />
+      <Route
         path="/search/"
         Component={Search}
+        render={({ Component, props }) => renderPrivateRoute(Component, props)}
+      />
+      <Route
+        path="/search/:mainProject/:jname/"
+        Component={SearchDetail}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
@@ -99,23 +110,13 @@ const routeConfig = () =>
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
-        path="/session/:utc/"
-        Component={Session}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
-        path="/session/:start/:end/"
+        path="/session/:id/"
         Component={Session}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
         path="/sessions/"
         Component={SessionList}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
-        path="/search/:project/:jname/"
-        Component={SearchmodeDetail}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route

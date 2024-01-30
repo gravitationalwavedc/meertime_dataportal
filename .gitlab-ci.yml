@@ -1,33 +1,40 @@
-services:
-  - mysql:8.0
-
 variables:
   POETRY_HOME: "/opt/poetry"
-  MYSQL_ROOT_PASSWORD: "mysqlrootpassword"
-  MYSQL_DATABASE: "meertime"
-  MYSQL_USER: "buffy"
-  MYSQL_PASSWORD: "islayvampires"
-  DB_HOST: "mysql"
-  MYSQL_PORT: "3306"
+  POSTGRES_ROOT_PASSWORD: "postgresrootpassword"
+  POSTGRES_DATABASE: "meertime"
+  POSTGRES_USER: "buffy"
+  POSTGRES_PASSWORD: "islayvampires"
+  DB_HOST: "postgres"
+  POSTGRES_PORT: "3306"
+  DEBIAN_FRONTEND: "noninteractive"
+  DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
-default:
-  image:
-    name: ubuntu:20.04
-    entrypoint: ["/usr/bin/env"]
+stages:
+  - test
+  - build
+  - package-publish
 
-  before_script:
-    - apt -y update
-    - apt -y install apt-utils
-    - apt -y install net-tools python3.8 python3-pip git curl wget python3.8-venv mysql-client libmysqlclient-dev
-    - apt -y upgrade
-    - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-    - echo $POETRY_HOME
-    - python3 -m venv $POETRY_HOME
-    - $POETRY_HOME/bin/pip install poetry
-    - $POETRY_HOME/bin/poetry --version
-    - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
-    - cp backend/.env.template backend/.env
-    - echo "GRANT ALL PRIVILEGES ON *.* TO '${MYSQL_USER}'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql
+image:
+  name: ubuntu:20.04
+  entrypoint: ["/usr/bin/env"]
+
+services:
+- postgres:12.2-alpine
+
+before_script:
+  - apt -y update
+  - apt -y install apt-utils
+  - apt -y install net-tools git curl wget python3.9 python3-pip python3.8-venv python3.9-dev postgresql postgresql-client libpq-dev
+  - apt -y upgrade
+  - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+  - echo $POETRY_HOME
+  - python3 -m venv $POETRY_HOME
+  - $POETRY_HOME/bin/pip install poetry
+  - $POETRY_HOME/bin/poetry --version
+  - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
+  - cp backend/.env.template backend/.env
+  - export PGPASSWORD=$POSTGRES_PASSWORD
+
 
 cache:
   - key:
@@ -81,6 +88,7 @@ react-test:
       junit: frontend/reports/junit.xml
 
 code-quality:
+  stage: test
   image: docker:stable
   variables:
     DOCKER_DRIVER: overlay2
@@ -101,6 +109,7 @@ code-quality:
 
 
 flake8:
+  stage: test
   script:
     - cd backend/
     - pip3 install flake8-gl-codeclimate
@@ -131,3 +140,62 @@ react-formatting:
     - pnpm install
     - pnpm exec prettier --check .
     - pnpm exec eslint src
+
+docker-build-django:
+  stage: build
+  image: docker:20.10.16
+  before_script: []
+  services:
+    - docker:20.10.16-dind
+  script:
+    - echo $NEXUS_PASSWORD | docker login $DOCKER_REGISTRY -u $NEXUS_USER --password-stdin
+    - RELEASE=$(cat .release)
+    - TAG="$RELEASE-$CI_COMMIT_SHORT_SHA"
+    - docker build . -t $DOCKER_REGISTRY/meertime/django:$TAG -f docker/meertime_django.Dockerfile
+    - docker push $DOCKER_REGISTRY/meertime/django:$TAG
+
+docker-build-react:
+  stage: build
+  image: docker:20.10.16
+  before_script: []
+  services:
+    - docker:20.10.16-dind
+  script:
+    - echo $NEXUS_PASSWORD | docker login $DOCKER_REGISTRY -u $NEXUS_USER --password-stdin
+    - RELEASE=$(cat .release)
+    - TAG="$RELEASE-$CI_COMMIT_SHORT_SHA"
+    - docker build . -t $DOCKER_REGISTRY/meertime/react:$TAG -f docker/meertime_react.Dockerfile
+    - docker push $DOCKER_REGISTRY/meertime/react:$TAG
+
+helm-package:
+  stage: package-publish
+  image:
+    name: alpine/helm:3.5.3
+    entrypoint: [""]
+  variables:
+    CHART: kubernetes/meertime-dataportal
+    GITLAB_PRIVATE_TOKEN: $CI_GIT_TOKEN
+    CHART_PATH: kubernetes/meertime-dataportal
+    REMOTE_REPO: nexus
+    CHART_NAME: meertime-dataportal
+    NEXUS_HELM_URL: https://nexus.gwdc.org.au/repository/helm
+  before_script:
+    - apk add git curl bash yq
+    - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git config --global user.name "${GITLAB_USER_NAME}"
+    - git remote set-url --push origin "https://GIT_PUSH_TOKEN:${GIT_PUSH_TOKEN}@gitlab.com/CAS-eResearch/GWDC/code/meertime_dataportal.git"
+    - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
+    - helm repo add ${REMOTE_REPO} ${NEXUS_HELM_URL}
+    - helm repo update
+  script:
+    - app_release=$(cat .release)
+    - app_version=${app_release}-${CI_COMMIT_SHORT_SHA}
+    - |
+      sed -i "/^appVersion:/s/.*/appVersion: \"${app_version}\"/" ${CHART}/Chart.yaml
+    - export CHART_VERSION=$(helm show chart ${CHART} | awk '/^version:/ {print $2}')
+    - chmod +x ./scripts/helm-chart-push
+    - bash -c "./scripts/helm-chart-push ${CHART} ${REMOTE_REPO} ${CHART_NAME} $CHART_VERSION "'"$NEXUS_USER:$NEXUS_PASSWORD"'" $NEXUS_HELM_URL"
+  only:
+    refs:
+      - main
+      - staging

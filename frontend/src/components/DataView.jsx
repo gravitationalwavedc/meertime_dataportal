@@ -17,15 +17,16 @@ const DataView = ({
   columns,
   rows,
   mainProject,
-  mainProjectSelect,
+  setMainProject,
+  mostCommonProject,
+  setMostCommonProject,
   project,
   setProject,
-  setMainProject,
   band,
   setBand,
+  timingProjects,
   options,
   plot,
-  maxPlotLength,
   keyField,
   card,
   query,
@@ -38,6 +39,7 @@ const DataView = ({
   return (
     <React.Fragment>
       <SummaryDataRow dataPoints={summaryData} />
+
       <ToolkitProvider
         bootstrap4
         keyField={keyField}
@@ -59,7 +61,8 @@ const DataView = ({
               {plot && (
                 <Row className="d-none d-sm-block">
                   <PlotContainer
-                    maxPlotLength={maxPlotLength}
+                    data={rows}
+                    timingProjects={timingProjects}
                     {...props.baseProps}
                   />
                 </Row>
@@ -69,13 +72,14 @@ const DataView = ({
                   <ListControls
                     query={query}
                     searchProps={props.searchProps}
+                    mainProject={mainProject}
+                    handleMainProjectFilter={setMainProject}
+                    mostCommonProject={mostCommonProject}
+                    handleMostCommonProjectFilter={setMostCommonProject}
+                    project={project}
+                    handleProjectFilter={setProject}
                     band={band}
                     handleBandFilter={setBand}
-                    handleMainProjectFilter={setMainProject}
-                    handleProjectFilter={setProject}
-                    mainProject={mainProject}
-                    mainProjectSelect={mainProjectSelect}
-                    project={project}
                     columnToggleProps={props.columnToggleProps}
                     setIsTableView={setIsTableView}
                     isTableView={isTableView}

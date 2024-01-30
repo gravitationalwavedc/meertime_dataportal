@@ -6,13 +6,15 @@ import { useEffect, useState } from "react";
 const PlotImage = ({ imageData, handleClick }) => {
   if (!imageData) return null;
 
+  const cleaned_str = imageData.cleaned ? "cleaned" : "raw";
+
   return (
     <Image
       rounded
       fluid
       className="mb-3"
-      alt={`Plot ${imageData.plotType} using ${imageData.process} data.`}
-      src={`${import.meta.env.VITE_DJANGO_MEDIA_URL}${imageData.url}`}
+      alt={`Plot ${imageData.imageType} ${cleaned_str}`}
+      src={imageData.url}
       onError={({ currentTarget }) => {
         currentTarget.onError = null;
         currentTarget.src = image404;

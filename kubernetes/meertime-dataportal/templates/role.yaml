@@ -1,0 +1,15 @@
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  labels:
+    {{- include "meertime-dataportal.labels" . | nindent 4 }}
+  name: {{ .Values.serviceAccount.name }}
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: ["*"]
+    #
+    # at the HTTP level, the name of the resource for accessing Secret
+    # objects is "secrets"
+    resources: ["secrets"]
+    verbs: ["*"]

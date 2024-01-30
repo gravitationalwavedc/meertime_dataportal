@@ -1,0 +1,99 @@
+{
+  "data": {
+    "calibration": {
+      "edges": [
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjU3",
+            "idInt": 57,
+            "start": "2023-08-01T18:21:59+00:00",
+            "end": "2023-08-01T18:21:59+00:00",
+            "allProjects": "TPA",
+            "nObservations": 1,
+            "nAntMin": 31,
+            "nAntMax": 31,
+            "totalIntegrationTimeSeconds": 120.26899999999999
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjU5",
+            "idInt": 59,
+            "start": "2023-06-27T11:37:31+00:00",
+            "end": "2023-06-27T11:37:31+00:00",
+            "allProjects": "GC",
+            "nObservations": 1,
+            "nAntMin": 58,
+            "nAntMax": 58,
+            "totalIntegrationTimeSeconds": 14399.068999999645
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjYw",
+            "idInt": 60,
+            "start": "2023-04-17T15:08:35+00:00",
+            "end": "2023-04-17T15:08:35+00:00",
+            "allProjects": "PTA",
+            "nObservations": 1,
+            "nAntMin": 60,
+            "nAntMax": 60,
+            "totalIntegrationTimeSeconds": 255.4990582429906
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjYz",
+            "idInt": 63,
+            "start": "2020-07-10T05:07:28+00:00",
+            "end": "2020-07-10T05:07:28+00:00",
+            "allProjects": "PTA",
+            "nObservations": 1,
+            "nAntMin": 28,
+            "nAntMax": 28,
+            "totalIntegrationTimeSeconds": 1023.2854023529411
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjU4",
+            "idInt": 58,
+            "start": "2020-03-15T22:58:52+00:00",
+            "end": "2020-03-15T22:58:52+00:00",
+            "allProjects": "TPA",
+            "nObservations": 1,
+            "nAntMin": 57,
+            "nAntMax": 57,
+            "totalIntegrationTimeSeconds": 466.3350000000006
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjYy",
+            "idInt": 62,
+            "start": "2019-05-14T10:14:18+00:00",
+            "end": "2019-05-14T10:14:18+00:00",
+            "allProjects": "PTA",
+            "nObservations": 1,
+            "nAntMin": 54,
+            "nAntMax": 54,
+            "totalIntegrationTimeSeconds": 1039.9999999999998
+          }
+        },
+        {
+          "node": {
+            "id": "Q2FsaWJyYXRpb25Ob2RlOjYx",
+            "idInt": 61,
+            "start": "2019-04-23T06:11:30+00:00",
+            "end": "2019-04-23T06:11:30+00:00",
+            "allProjects": "PTA",
+            "nObservations": 1,
+            "nAntMin": 56,
+            "nAntMax": 56,
+            "totalIntegrationTimeSeconds": 263.99999999999994
+          }
+        }
+      ]
+    }
+  }
+}

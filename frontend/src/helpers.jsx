@@ -1,6 +1,18 @@
 import _ from "lodash";
 import moment from "moment";
 
+export const calculateMedian = (arr) => {
+  if (arr[0]?.value) {
+    const sorted = arr.slice().sort((a, b) => a.value - b.value);
+    const middle = Math.floor(sorted.length / 2);
+
+    return sorted.length % 2 === 0
+      ? (sorted[middle - 1].value + sorted[middle].value) / 2
+      : sorted[middle].value;
+  }
+  return null;
+};
+
 /* eslint-disable complexity */
 export const createLink = async (url) => {
   const link = document.createElement("a");
@@ -44,6 +56,10 @@ export const formatDDMonYYYY = (utc) =>
 export const formatUTC = (utc) =>
   moment.parseZone(utc, moment.ISO_8601).format("YYYY-MM-DD-HH:mm:ss");
 
+export const mjdToUnixTimestamp = (mjdValue) =>
+  // Calculate the Unix timestamp (in milliseconds) from MJD
+  (mjdValue - 40587) * 86400 * 1000;
+
 export const kronosLink = (beam, jname, utc) =>
   `http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam=${beam}&utc_start=${utc}&jname=${jname}&data=${localStorage.meerWatchKey}`;
 
@@ -52,6 +68,8 @@ export const meerWatchLink = (jname) =>
   `http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname=${jname}&data=${localStorage.meerWatchKey}`;
 
 export const nullCellFormatter = (cell) => cell || "-";
+
+export const sessionLink = (calid) => `/session/${calid}/`;
 
 export const columnsSizeFilter = (columns, screenSize) => {
   columns
@@ -95,39 +113,16 @@ export const formatProjectName = (projectName) => {
   return projectName;
 };
 
-export const formatSingleObservationData = (data) => {
-  const excludeTitles = ["jname", "beam", "utc"];
-
-  const displayTitles = {
-    proposal: "Proposal",
-    project: "Project",
-    length: "Length [s]",
-    nbin: "Nbin",
-    nchan: "Nchan",
-    frequency: "Frequency (MHz)",
-    bw: "Bandwidth (MHz)",
-    ra: "RA",
-    dec: "DEC",
-    tsubint: "Subint Time [s]",
-    nant: "Number of Antennas",
-  };
-
-  return Object.keys(data)
-    .filter((key) => !excludeTitles.includes(key) && key !== "images")
-    .reduce(
-      (result, key) => ({ ...result, [displayTitles[key]]: data[key] }),
-      {}
-    );
-};
-
 export default {
+  calculateMedian,
   columnsSizeFilter,
   handleSearch,
   formatUTC,
   kronosLink,
   meerWatchLink,
+  sessionLink,
   nullCellFormatter,
   scaleValue,
   formatProjectName,
-  formatSingleObservationData,
+  mjdToUnixTimestamp,
 };

@@ -1,6 +1,6 @@
 # This Dockerfile builds the MeerTime Django application for deployment on Kubernetes.
 
-FROM python:3.8-slim-buster
+FROM python:3.10-slim-buster
 
 ARG DEVELOPMENT_MODE
 
@@ -31,22 +31,23 @@ RUN apt-get update && apt-get upgrade -y \
     gettext \
     git \
     wget \
-    libmariadb-dev \
+    libpq-dev \
+    python3-dev \
   # Installing `poetry` package manager:
-  # https://github.com/python-poetry/poetry
-#  && curl -sSL 'https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py' | python \
   && curl -sSL https://install.python-poetry.org | python3 \
   && poetry --version \
   # Cleaning cache:
   && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
   && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /code 
+WORKDIR /code
+
+RUN adduser web
 
 COPY --chown=web:web ./backend/pyproject.toml ./backend/poetry.lock /code/
 
 # support development_mode in docker
-RUN if [ "${DEVELOPMENT_MODE}" = "True" ]; then poetry install --no-interation --no-ansi; else poetry install --no-dev --no-interaction --no-ansi; fi;
+RUN if [ "${DEVELOPMENT_MODE}" = "True" ]; then poetry install --with dev --no-interaction --no-ansi; else poetry install --no-interaction --no-ansi; fi;
 
 COPY ./backend /code/
 

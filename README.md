@@ -23,18 +23,33 @@ This application provides a ReactJS frontend for access to the MeerTime project 
 ## Setup
 ### To run on your local machine
 
-1. Clone the repository.
+1. Clone the repository and move into `backend` directory.
+
 2. Install python packages using [python poetry](https://python-poetry.org/):
 Run `poetry install --no-dev` for minimum install. This only installs required production packages.
 Run `poetry install` to also install development packages such as testing tools.
 
-3. `cd src`
-4. Start the development server.
-  Run `poetry run python manage.py runserver` and open the [development server](http://localhost:8000/meertime).
+3. Prepare the environment by copying the `.env.template` to `.env` and make changes to it such as generating your own django secret key.
 
-(Optional):
+4. Install `postgresql` with `sudo apt install postgresql postgresql-contrib libpq-dev`
 
-5. Insert some data into the DB by running `poetry run python ingest/ingest.py`
+5. Create the `postgresql` database using the following commands (changing the `$` values with what you set in your `.env`):
+
+```
+sudo -u postgres psql
+
+CREATE DATABASE $POSTGRES_DATABASE;
+CREATE USER $POSTGRES_USER WITH ENCRYPTED PASSWORD '$POSTGRES_PASSWORD';
+
+ALTER ROLE $POSTGRES_USER SET client_encoding TO 'utf8';
+ALTER ROLE $POSTGRES_USER SET default_transaction_isolation TO 'read committed';
+ALTER ROLE $POSTGRES_USER SET timezone TO 'UTC';
+```
+
+6. Migrate all the changes to the database so it is in the correct format `poetry run python manage.py migrate`
+
+7. Start the development server.
+  Run `poetry run python manage.py runserver` and open the [development server](http://localhost:8000).
 
 ### To run the application using docker-compose
 
@@ -78,10 +93,10 @@ The React frontend is currently only available locally while in development.
 - NVM ([installation guide](https://github.com/nvm-sh/nvm#installing-and-updating))
 
 #### Setup React project
-1. Open the django project at `meertime-data-portal`
+1. Move into the `backend` directory
 2. Generate the relay schema by running `poetry run python manage.py graphql_schema`
-3. Start the django development server and make sure it's running on http://localhost:8000
-4. Open the frontend directory at `meertime-data-portal/frontend`
+3. Start the django development server (`poetry run python manage.py runserver`) and make sure it's running on http://localhost:8000
+4. Open the frontend directory at `frontend`
 5. Run `nvm use`
 6. Install required packages with `npm install`
 7. Generate the relay schema with `npm run relay`
@@ -129,4 +144,3 @@ Requirements are managed using [python poetry](https://python-poetry.org/).
 2. `git clone https://github.com/pinterest/arcanist-linters.git pinterest-linters`
 3. Go to your repo `cd repo_dir`
 4. `ln -s arcanist_top_dir/pinterest-linters .pinterest-linters`
-

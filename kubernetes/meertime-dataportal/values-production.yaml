@@ -1,0 +1,29 @@
+
+configMaps:
+  - name: db-configmap
+    host: database-service.meertime-production.svc.cluster.local
+
+nfsStorage:
+  - name: db-storage-data
+    path: /mnt/sharedfolder/meertime/production/db
+  - name: db-storage-bkp
+    path: /mnt/sharedfolder/meertime/production/bkp
+  - name: meertime-storage-img
+    path: /mnt/sharedfolder/meertime/production/img
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: pulsars.org.au
+      paths:
+        - path: /
+          pathType: Prefix
+  service: "nginx-service"
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
