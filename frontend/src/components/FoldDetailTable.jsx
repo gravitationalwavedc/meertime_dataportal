@@ -57,6 +57,7 @@ const FoldDetailTableFragment = graphql`
       edges {
         node {
           observation {
+            id
             utcStart
             dayOfYear
             binaryOrbitalPhase
@@ -92,6 +93,7 @@ const FoldDetailTableFragment = graphql`
                     short
                   }
                   residual {
+                    id
                     mjd
                     dayOfYear
                     binaryOrbitalPhase

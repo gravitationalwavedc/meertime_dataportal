@@ -7,13 +7,33 @@ export const formatYAxisTick = (value) => {
 
 export const getXaxisFormatter = (xAxis) => {
   if (xAxis === "utc") {
-    return (unixTime) => moment(unixTime).format("YYYY");
+    return {
+      title: {
+        text: getXaxisLabel(xAxis),
+      },
+      type: 'date',
+      tickformat: '%Y'
+    };
   } else if (xAxis === "day") {
-    return formatYAxisTick;
+    return {
+      title: {
+        text: getXaxisLabel(xAxis),
+      },
+    };
   } else if (xAxis === "phase") {
-    return formatYAxisTick;
+    return {
+      title: {
+        text: getXaxisLabel(xAxis),
+      },
+    };
   } else {
-    return (unixTime) => moment(unixTime).format("YYYY");
+    return {
+      title: {
+        text: getXaxisLabel(xAxis),
+      },
+      type: 'date',
+      tickformat: '%Y'
+    };
   }
 };
 
@@ -186,7 +206,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband0Data,
     name: "SBAND_0",
     colour: "#cd4a76",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const sband1Data = data.filter((row) => row.band === "SBAND_1");
@@ -194,7 +214,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband1Data,
     name: "SBAND_1",
     colour: "#df6263",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const sband2Data = data.filter((row) => row.band === "SBAND_2");
@@ -202,7 +222,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband2Data,
     name: "SBAND_2",
     colour: "#ee7b51",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const sband3Data = data.filter((row) => row.band === "SBAND_3");
@@ -210,7 +230,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband3Data,
     name: "SBAND_3",
     colour: "#f9973f",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const sband4Data = data.filter((row) => row.band === "SBAND_4");
@@ -218,7 +238,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband4Data,
     name: "SBAND_4",
     colour: "#fdb52e",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const minValue = Math.min(...data.map((row) => row.value - (row.error || 0)));
@@ -240,6 +260,7 @@ export const filterBandData = (data, zoomArea) => {
 export const snrPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
+    id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -254,6 +275,7 @@ export const snrPlotData = (data) => {
 
 export const fluxPlotData = (data) => {
   const allData = data.map((row) => ({
+    id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -269,6 +291,7 @@ export const fluxPlotData = (data) => {
 export const dmPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
+    id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -285,6 +308,7 @@ export const dmPlotData = (data) => {
 export const rmPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
+    id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -307,6 +331,7 @@ export const residualPlotData = (data, timingProject) => {
         if (edge.node.residual) {
           if (edge.node.project.short === timingProject) {
             result.push({
+              id: edge.node.residual.id,
               mjd: edge.node.residual.mjd,
               dayOfYear: edge.node.residual.dayOfYear,
               binaryOrbitalPhase: edge.node.residual.binaryOrbitalPhase,
@@ -332,6 +357,7 @@ export const residualPlotData = (data, timingProject) => {
   const toas = [].concat(...run_toas);
 
   const allData = toas.map((row) => ({
+    id: row.id,
     utc: moment(mjdToUnixTimestamp(row.mjd)).valueOf(),
     day: row.dayOfYear,
     phase: row.binaryOrbitalPhase,

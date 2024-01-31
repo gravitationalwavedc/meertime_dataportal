@@ -1,18 +1,6 @@
 import React from "react";
-import {
-  CartesianGrid,
-  ErrorBar,
-  Label,
-  Legend,
-  ReferenceArea,
-  ResponsiveContainer,
-  Scatter,
-  ScatterChart,
-  Tooltip,
-  XAxis,
-  YAxis,
-  ZAxis,
-} from "recharts";
+import Plot from 'react-plotly.js';
+import { useRouter } from "found";
 import {
   filterBandData,
   formatYAxisTick,
@@ -33,132 +21,113 @@ const ZoomPlot = ({
   zoomArea,
   axisMin,
   axisMax,
-  handleMouseDown,
-  handleMouseMove,
-  handleMouseUp,
-  handleMouseLeave,
-  handleScatterMouseLeave,
-  handleScatterMouseEnter,
 }) => {
+  const { router } = useRouter();
+  const handlePlotClick = (event) => {
+    // Assuming you have a link associated with each data point
+    const eventID = event.points[0].data.id[0];
+    const dataPoint = linkIds.find((point) => point.id === eventID);
+    if (dataPoint) {
+      router.push(dataPoint.link);
+    }
+  };
+
   const { plotData, minValue, maxValue, medianValue, ticks } = filterBandData(
     data,
     zoomArea
   );
+
+  const linkIdBands = plotData.reduce((data, dataBand) => {
+    // Run for each pipelineRun
+    console.log("dataBand", dataBand);
+    const pointLinkId = dataBand.data.reduce((result, point) => {
+      console.log("point", point);
+      result.push({
+        id: point.id,
+        link: point.link,
+      });
+      return result;
+      },
+      []
+    );
+    data.push(pointLinkId);
+    return data;
+  }, []);
+  const linkIds = [].concat(...linkIdBands);
+
+  const plotlyData = plotData.reduce((data, dataBand) => {
+    console.log(Math.max(dataBand.data.map((point) => point.size)));
+    const sizes = dataBand.data.map((point) => point.size);
+
+    // Set size scale from max size
+    let sizeScale;
+    if (sizes.length > 0) {
+      const max = Math.max(...sizes);
+      console.log('Maximum size:', max);
+      sizeScale = max / 30;
+    } else {
+      console.log('The sizes array is empty.');
+      sizeScale = 1;
+    }
+    // Set x data
+    let xData;
+    if ( xAxis === "utc" ) {
+      xData = dataBand.data.map((point) => point.utc);
+    } else if ( xAxis === "day" ) {
+      xData = dataBand.data.map((point) => point.day);
+    } else if ( xAxis === "phase" ) {
+      xData = dataBand.data.map((point) => point.phase);
+    } else {
+      xData = dataBand.data.utc;
+    }
+    const row = {
+      id: dataBand.data.map((point) => point.id),
+      x: xData,
+      error_y: {
+        array: dataBand.data.map((point) => point.error),
+      },
+      y: xData = dataBand.data.map((point) => point.value),
+      customdata: dataBand.data.map((point) => point.size),
+      type: "scatter",
+      mode: "markers",
+      name: dataBand.name,
+      hovertemplate: `${getXaxisLabel(xAxis)}: %{x}<br>${getYaxisLabel(activePlot)}: %{y}<br>Integration Time (s): %{customdata}<extra></extra>`,
+      marker: {
+        color: dataBand.colour,
+        symbol: dataBand.shape,
+        size: dataBand.data.map((point) => point.size),
+        sizeref: sizeScale,
+        sizemin: 5,
+      },
+    };
+    return [...data, { ...row }];
+  }, []);
+  console.log(plotlyData);
+
   return (
     <>
-      <ResponsiveContainer>
-        <ScatterChart
-          margin={{
-            top: 20,
-            right: 40,
-            bottom: 20,
-            left: 20,
-          }}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-        >
-          <CartesianGrid />
-          {plotData.map((dataBand, index) => (
-            <Scatter
-              name={dataBand.name}
-              data={dataBand.data}
-              fill={dataBand.colour}
-              shape={dataBand.shape}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleScatterMouseLeave}
-              onMouseEnter={handleScatterMouseEnter}
-            >
-              <ErrorBar
-                dataKey="error"
-                width={5}
-                strokeWidth={2}
-                stroke={dataBand.colour}
-                direction="y"
-              />
-            </Scatter>
-          ))}
-          <ReferenceArea
-            x1={axisMin.xMin ? axisMin.xMin : null}
-            x2={axisMax.xMax ? axisMax.xMax : null}
-            y1={axisMin.yMin ? axisMin.yMin : null}
-            y2={axisMax.yMax ? axisMax.yMax : null}
-          />
-          <Legend
-            align="right"
-            verticalAlign="top"
-            payload={[
-              { id: "1", type: "square", value: "UHF", color: "#0d0887" },
-              { id: "2", type: "circle", value: "L-Band", color: "#6001a6" },
-              {
-                id: "3",
-                type: "triangle",
-                value: "S-Band_0",
-                color: "#cd4a76",
-              },
-              {
-                id: "4",
-                type: "triangle",
-                value: "S-Band_1",
-                color: "#df6263",
-              },
-              {
-                id: "5",
-                type: "triangle",
-                value: "S-Band_2",
-                color: "#ee7b51",
-              },
-              {
-                id: "6",
-                type: "triangle",
-                value: "S-Band_3",
-                color: "#f9973f",
-              },
-              {
-                id: "7",
-                type: "triangle",
-                value: "S-Band_4",
-                color: "#fdb52e",
-              },
-            ]}
-          />
-          <XAxis
-            type="number"
-            dataKey={xAxis}
-            name={getXaxisLabel(xAxis)}
-            domain={["auto", "auto"]}
-            ticks={xAxis === "utc" ? ticks : undefined}
-            tickFormatter={getXaxisFormatter(xAxis)}
-          >
-            <Label value={getXaxisLabel(xAxis)} position="bottom" />
-          </XAxis>
-          <Tooltip
-            cursor={{ strokeDasharray: "3 3" }}
-            formatter={toolTipFormatter}
-          />
-          <YAxis
-            type="number"
-            dataKey="value"
-            name={activePlot}
-            domain={getYaxisDomain(activePlot, minValue, maxValue)}
-            ticks={getYaxisTicks(activePlot, minValue, maxValue, medianValue)}
-            tickFormatter={formatYAxisTick}
-          >
-            <Label
-              value={getYaxisLabel(activePlot)}
-              position="left"
-              angle="-90"
-            />
-          </YAxis>
-          <ZAxis
-            type="number"
-            dataKey="size"
-            name="Size"
-            range={getZRange(activePlot)}
-          />
-        </ScatterChart>
-      </ResponsiveContainer>
+      <Plot
+        data={plotlyData}
+        layout={{
+          width: 1625,
+          height: 480,
+          margin: {
+            t: 40,
+            r: 40,
+            b: 60,
+            l: 60,
+          },
+          paper_bgcolor: 'rgba(1, 1, 1, 0)',
+          plot_bgcolor: 'rgba(1, 1, 1, 0)',
+          xaxis: getXaxisFormatter(xAxis),
+          yaxis: {
+            title: {
+              text: getYaxisLabel(activePlot),
+            },
+          },
+        }}
+        onClick={handlePlotClick}
+      />
     </>
   );
 };
