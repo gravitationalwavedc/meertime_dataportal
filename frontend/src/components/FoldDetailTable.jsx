@@ -21,9 +21,6 @@ const FoldDetailTableFragment = graphql`
   @argumentDefinitions(
     pulsar: { type: "String", defaultValue: "All" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
-    dmCorrected: { type: "Boolean", defaultValue: false }
-    minimumNsubs: { type: "Boolean", defaultValue: true }
-    obsNchan: { type: "Int", defaultValue: 1 }
   ) {
     observationSummary(
       pulsar_Name: $pulsar
@@ -54,6 +51,7 @@ const FoldDetailTableFragment = graphql`
       description
       toasLink
       allProjects
+      allNchans
       edges {
         node {
           observation {
@@ -80,13 +78,13 @@ const FoldDetailTableFragment = graphql`
             calibration {
               idInt
             }
-            toas(
-              dmCorrected: $dmCorrected
-              minimumNsubs: $minimumNsubs
-              obsNchan: $obsNchan
-            ) {
+            toas {
               edges {
                 node {
+                  obsNchan
+                  minimumNsubs
+                  maximumNsubs
+                  dmCorrected
                   freqMhz
                   length
                   project {
@@ -250,6 +248,8 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
       : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
   ];
 
+  console.log("pulsarFoldResult.allNchans", pulsarFoldResult.allNchans);
+
   return (
     <div className="fold-detail-table">
       <Row className="mb-3">
@@ -328,6 +328,7 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
         rows={rows}
         setProject={handleProjectFilter}
         timingProjects={pulsarFoldResult.allProjects}
+        allNchans={pulsarFoldResult.allNchans}
         setBand={handleBandFilter}
         plot
         mainProject={mainProject}

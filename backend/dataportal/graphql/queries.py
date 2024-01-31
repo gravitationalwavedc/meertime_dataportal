@@ -373,10 +373,20 @@ class PulsarFoldResultConnection(relay.Connection):
     residual_ephemeris = graphene.Field(EphemerisNode)
     toas_link = graphene.String()
     all_projects = graphene.List(graphene.String)
+    all_nchans = graphene.List(graphene.Int)
 
     def resolve_all_projects(self, instance):
         if "pulsar" in instance.variable_values.keys():
             return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('project__short', flat=True).distinct())
+        else:
+            return []
+
+    def resolve_all_nchans(self, instance):
+        print("all nchans")
+        if "pulsar" in instance.variable_values.keys():
+            print(instance.variable_values['pulsar'])
+            print(len(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar'])))
+            return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('obs_nchan', flat=True).distinct())
         else:
             return []
 

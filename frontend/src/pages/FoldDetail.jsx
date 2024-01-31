@@ -13,17 +13,11 @@ const FoldDetailQuery = graphql`
   query FoldDetailQuery(
     $pulsar: String!
     $mainProject: String
-    $dmCorrected: Boolean
-    $minimumNsubs: Boolean
-    $obsNchan: Int # Ensure this variable is defined
   ) {
     ...FoldDetailTableFragment
       @arguments(
         pulsar: $pulsar
         mainProject: $mainProject
-        dmCorrected: $dmCorrected
-        minimumNsubs: $minimumNsubs
-        obsNchan: $obsNchan
       )
   }
 `;

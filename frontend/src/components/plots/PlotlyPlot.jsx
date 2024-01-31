@@ -32,7 +32,6 @@ const PlotlyPlot = ({
   // Make a list of observation IDs and plot links
   const linkIdBands = plotData.reduce((data, dataBand) => {
     const pointLinkId = dataBand.data.reduce((result, point) => {
-      console.log("point", point);
       result.push({
         id: point.id,
         link: point.link,
@@ -48,17 +47,14 @@ const PlotlyPlot = ({
 
   // Convert data into Plotly format based on x and y axis
   const plotlyData = plotData.reduce((data, dataBand) => {
-    console.log(Math.max(dataBand.data.map((point) => point.size)));
     const sizes = dataBand.data.map((point) => point.size);
 
     // Set size scale from max size
     let sizeScale;
     if (sizes.length > 0) {
       const max = Math.max(...sizes);
-      console.log('Maximum size:', max);
       sizeScale = max / 30;
     } else {
-      console.log('The sizes array is empty.');
       sizeScale = 1;
     }
     // Set x data
@@ -94,7 +90,6 @@ const PlotlyPlot = ({
     };
     return [...data, { ...row }];
   }, []);
-  console.log(plotlyData);
 
   return (
     <>

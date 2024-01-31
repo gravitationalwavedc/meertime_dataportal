@@ -4,10 +4,12 @@ import Form from "react-bootstrap/Form";
 import PlotlyPlot from "./PlotlyPlot";
 import { getActivePlotData } from "./plotData";
 
-const PlotContainer = ({ data, timingProjects }) => {
+const PlotContainer = ({ data, timingProjects, allNchans }) => {
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Residual");
   const [timingProject, setTimingProject] = useState(timingProjects[0]);
+  const [nchan, setNchan] = useState(1);
+  const [maxNsub, setMaxNsub] = useState(false);
 
   const handleSetActivePlot = (activePlot) => {
     setActivePlot(activePlot);
@@ -17,7 +19,11 @@ const PlotContainer = ({ data, timingProjects }) => {
     setTimingProject(timingProject);
   };
 
-  const activePlotData = getActivePlotData(data, activePlot, timingProject);
+  const handleSetNchanProject = (nchan) => {
+    setNchan(parseInt(nchan, 10));
+  };
+
+  const activePlotData = getActivePlotData(data, activePlot, timingProject, nchan, maxNsub);
 
   return (
     <Col md={10} className="pulsar-plot-display">
@@ -63,6 +69,35 @@ const PlotContainer = ({ data, timingProjects }) => {
               {timingProjects.map((timingProject, index) => (
                 <option value={timingProject}>{timingProject}</option>
               ))}
+            </Form.Control>
+          </Form.Group>
+        )}
+        {activePlot === "Residual" && (
+          <Form.Group controlId="plotNchanController" className="col-md-2">
+            <Form.Label>Nchan</Form.Label>
+            <Form.Control
+              custom
+              as="select"
+              value={nchan}
+              onChange={(event) => handleSetNchanProject(event.target.value)}
+            >
+              {allNchans.map((allNchan, index) => (
+                <option value={allNchan}>{allNchan}</option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+        )}
+        {activePlot === "Residual" && (
+          <Form.Group controlId="plotMaxNsubController" className="col-md-2">
+            <Form.Label>Max Nsub</Form.Label>
+            <Form.Control
+              custom
+              as="select"
+              value={maxNsub}
+              onChange={(event) => setMaxNsub(event.target.value)}
+            >
+              <option value="true">True</option>
+              <option value="false">False</option>
             </Form.Control>
           </Form.Group>
         )}

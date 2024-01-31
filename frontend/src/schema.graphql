@@ -808,6 +808,7 @@ type PulsarFoldResultConnection {
   residualEphemeris: EphemerisNode
   toasLink: String
   allProjects: [String]
+  allNchans: [Int]
 }
 
 type PulsarFoldResultEdge {

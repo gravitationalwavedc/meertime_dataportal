@@ -25,6 +25,7 @@ const DataView = ({
   band,
   setBand,
   timingProjects,
+  allNchans,
   options,
   plot,
   keyField,
@@ -63,6 +64,7 @@ const DataView = ({
                   <PlotContainer
                     data={rows}
                     timingProjects={timingProjects}
+                    allNchans={allNchans}
                     {...props.baseProps}
                   />
                 </Row>

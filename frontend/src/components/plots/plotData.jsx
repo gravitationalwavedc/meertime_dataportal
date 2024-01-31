@@ -99,23 +99,19 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
   }
 };
 
-export const getActivePlotData = (data, activePlot, timingProject) => {
-  console.log("getActivePlotData", data);
-  const plotFunctions = {
-    "S/N": snrPlotData,
-    "Flux Density": fluxPlotData,
-    DM: dmPlotData,
-    RM: rmPlotData,
-    Residual: residualPlotData,
-  };
-  const plotFunction = plotFunctions[activePlot];
-  if (plotFunction) {
-    const activePlotData = plotFunction(data, timingProject);
-    return activePlotData;
+export const getActivePlotData = (data, activePlot, timingProject, nchan, maxNsub) => {
+  if ( activePlot == "Residual" ){
+    return residualPlotData(data, timingProject, nchan, maxNsub);
+  } else if ( activePlot == "S/N" ){
+    return snrPlotData(data);
+  } else if ( activePlot == "Flux Density" ){
+    return fluxPlotData(data);
+  } else if ( activePlot == "DM" ){
+    return dmPlotData(data);
+  } else if ( activePlot == "RM" ){
+    return rmPlotData(data);
   } else {
-    // Handle the case when activePlot is not recognized
     console.error(`Unknown activePlot: ${activePlot}`);
-    // You might want to return default values or throw an error, depending on your use case
     return [];
   }
 };
@@ -261,14 +257,14 @@ export const rmPlotData = (data) => {
   return allData;
 };
 
-export const residualPlotData = (data, timingProject) => {
+export const residualPlotData = (data, timingProject, nchan, maxNsub) => {
   const run_toas = data.reduce((result_returned, run_result) => {
     // Run for each pipelineRun
     const run_results = run_result.observation.toas.edges.reduce(
       (result, edge) => {
         // Grab all of the info needed from the toa
         if (edge.node.residual) {
-          if (edge.node.project.short === timingProject) {
+          if (edge.node.project.short === timingProject && edge.node.obsNchan === nchan && ( edge.node.minimumNsubs != maxNsub || edge.node.maximumNsubs === maxNsub ) ) {
             result.push({
               id: edge.node.residual.id,
               mjd: edge.node.residual.mjd,
