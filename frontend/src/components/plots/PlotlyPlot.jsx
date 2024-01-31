@@ -3,26 +3,21 @@ import Plot from 'react-plotly.js';
 import { useRouter } from "found";
 import {
   filterBandData,
-  formatYAxisTick,
   getXaxisFormatter,
   getXaxisLabel,
   getYaxisDomain,
   getYaxisLabel,
   getYaxisTicks,
-  getZRange,
-  toolTipFormatter,
 } from "./plotData";
 import _default from "react-bootstrap/esm/CardColumns";
 
-const ZoomPlot = ({
+const PlotlyPlot = ({
   data,
   xAxis,
   activePlot,
-  zoomArea,
-  axisMin,
-  axisMax,
 }) => {
   const { router } = useRouter();
+
   const handlePlotClick = (event) => {
     // Assuming you have a link associated with each data point
     const eventID = event.points[0].data.id[0];
@@ -32,14 +27,10 @@ const ZoomPlot = ({
     }
   };
 
-  const { plotData, minValue, maxValue, medianValue, ticks } = filterBandData(
-    data,
-    zoomArea
-  );
+  const { plotData, minValue, maxValue, medianValue, ticks } = filterBandData(data);
 
+  // Make a list of observation IDs and plot links
   const linkIdBands = plotData.reduce((data, dataBand) => {
-    // Run for each pipelineRun
-    console.log("dataBand", dataBand);
     const pointLinkId = dataBand.data.reduce((result, point) => {
       console.log("point", point);
       result.push({
@@ -55,6 +46,7 @@ const ZoomPlot = ({
   }, []);
   const linkIds = [].concat(...linkIdBands);
 
+  // Convert data into Plotly format based on x and y axis
   const plotlyData = plotData.reduce((data, dataBand) => {
     console.log(Math.max(dataBand.data.map((point) => point.size)));
     const sizes = dataBand.data.map((point) => point.size);
@@ -91,7 +83,7 @@ const ZoomPlot = ({
       type: "scatter",
       mode: "markers",
       name: dataBand.name,
-      hovertemplate: `${getXaxisLabel(xAxis)}: %{x}<br>${getYaxisLabel(activePlot)}: %{y}<br>Integration Time (s): %{customdata}<extra></extra>`,
+      hovertemplate: `${getXaxisLabel(xAxis)}: %{x${xAxis === "utc" ? '|%Y-%m-%d %H:%M:%S.%f' : ''}}<br>${getYaxisLabel(activePlot)}: %{y}<br>Integration Time (s): %{customdata}<extra></extra>`,
       marker: {
         color: dataBand.colour,
         symbol: dataBand.shape,
@@ -132,4 +124,4 @@ const ZoomPlot = ({
   );
 };
 
-export default ZoomPlot;
+export default PlotlyPlot;

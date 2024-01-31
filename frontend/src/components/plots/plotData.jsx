@@ -1,10 +1,6 @@
 import { calculateMedian, mjdToUnixTimestamp } from "../../helpers";
 import moment from "moment";
 
-export const formatYAxisTick = (value) => {
-  return value.toFixed(4);
-};
-
 export const getXaxisFormatter = (xAxis) => {
   if (xAxis === "utc") {
     return {
@@ -103,51 +99,6 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
   }
 };
 
-export const getZRange = (yAxis) => {
-  if (yAxis === "S/N") {
-    return [40, 400];
-  } else if (yAxis === "Flux Density") {
-    return [40, 400];
-  } else if (yAxis === "DM") {
-    return [40, 400];
-  } else if (yAxis === "RM") {
-    return [40, 400];
-  } else if (yAxis === "Residual") {
-    return [20, 300];
-  }
-};
-
-export const toolTipFormatter = (value, name, props) => {
-  if (name === "UTC") {
-    return [moment(value).format("YYYY-MM-DD-hh:mm:ss"), name];
-  }
-  if (name === "Day of the year") {
-    return [`${value.toFixed(2)}`, name];
-  }
-  if (name === "Size") {
-    return [`${value.toFixed(2)} [s]`, "Integration time"];
-  }
-  if (name === "DM") {
-    return [
-      `${value.toFixed(4)} +/- ${props.payload.error.toFixed(4)} [pc cm^-3] `,
-      name,
-    ];
-  }
-  if (name === "RM") {
-    return [`${value.toFixed(4)} [rad m^-2]`, name];
-  }
-  if (name === "Residual") {
-    return [`${value.toFixed(4)} [μs]`, name];
-  }
-  if (name === "S/N") {
-    return [`${value.toFixed(2)}`, name];
-  }
-  if (name === "Flux Density") {
-    return [`${value.toFixed(2)} [mJy]`, name];
-  }
-  return [value, name];
-};
-
 export const getActivePlotData = (data, activePlot, timingProject) => {
   console.log("getActivePlotData", data);
   const plotFunctions = {
@@ -169,21 +120,9 @@ export const getActivePlotData = (data, activePlot, timingProject) => {
   }
 };
 
-export const filterBandData = (data, zoomArea) => {
+export const filterBandData = ( data ) => {
   data = data.filter((row) => row.value !== null);
 
-  const { xMin, xMax, yMin, yMax } = zoomArea;
-  if (xMin != null && xMax != null && yMin != null && yMax != null) {
-    data = data.filter(
-      (dataPoint) =>
-        dataPoint.value >= yMin &&
-        dataPoint.value <= yMax &&
-        ((dataPoint.time >= xMin && dataPoint.time <= xMax) ||
-          (dataPoint.utc >= xMin && dataPoint.utc <= xMax) ||
-          (dataPoint.date >= xMin && dataPoint.date <= xMax) ||
-          (dataPoint.phase >= xMin && dataPoint.phase <= xMax))
-    );
-  }
   // Process the table data in a way that react-vis understands.
   const UHFData = data.filter((row) => row.band === "UHF");
   const UHF = {
