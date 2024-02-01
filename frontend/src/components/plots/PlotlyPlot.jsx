@@ -73,6 +73,7 @@ const PlotlyPlot = ({
       x: xData,
       error_y: {
         array: dataBand.data.map((point) => point.error),
+        width: 6,
       },
       y: xData = dataBand.data.map((point) => point.value),
       customdata: dataBand.data.map((point) => point.size),
@@ -85,7 +86,7 @@ const PlotlyPlot = ({
         symbol: dataBand.shape,
         size: dataBand.data.map((point) => point.size),
         sizeref: sizeScale,
-        sizemin: 5,
+        sizemin: 3,
       },
     };
     return [...data, { ...row }];
