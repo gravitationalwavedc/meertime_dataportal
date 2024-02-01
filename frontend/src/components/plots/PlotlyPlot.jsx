@@ -96,8 +96,7 @@ const PlotlyPlot = ({
       <Plot
         data={plotlyData}
         layout={{
-          width: 1625,
-          height: 480,
+          autosize: true,
           margin: {
             t: 40,
             r: 40,
@@ -113,6 +112,8 @@ const PlotlyPlot = ({
             },
           },
         }}
+        useResizeHandler={true}
+        style={{width: "100%", height: "100%"}}
         onClick={handlePlotClick}
       />
     </>
