@@ -8,7 +8,8 @@ export const getXaxisFormatter = (xAxis) => {
         text: getXaxisLabel(xAxis),
       },
       type: 'date',
-      tickformat: '%Y'
+      tickformat: '%Y',
+      dtick: "M12"
     };
   } else if (xAxis === "day") {
     return {
