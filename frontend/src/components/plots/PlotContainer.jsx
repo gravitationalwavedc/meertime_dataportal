@@ -23,6 +23,10 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
     setNchan(parseInt(nchan, 10));
   };
 
+  const handleSetMaxNsubProject = (maxNsub) => {
+    setMaxNsub(maxNsub === "true" ? true : false);
+  };
+
   const activePlotData = getActivePlotData(data, activePlot, timingProject, nchan, maxNsub);
 
   return (
@@ -94,7 +98,7 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
               custom
               as="select"
               value={maxNsub}
-              onChange={(event) => setMaxNsub(event.target.value)}
+              onChange={(event) => handleSetMaxNsubProject(event.target.value)}
             >
               <option value="true">True</option>
               <option value="false">False</option>
