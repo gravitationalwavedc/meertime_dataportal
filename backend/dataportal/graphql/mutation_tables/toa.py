@@ -18,6 +18,8 @@ class ToaInput(graphene.InputObjectType):
     dmCorrected  = graphene.Boolean(required=True)
     minimumNsubs = graphene.Boolean(required=True)
     maximumNsubs = graphene.Boolean(required=True)
+    obsNpol      = graphene.Int(required=True)
+    obsNchan     = graphene.Int(required=True)
 
 
 class CreateToaOutput(graphene.ObjectType):
@@ -43,6 +45,8 @@ class CreateToa(graphene.Mutation):
             dm_corrected=input["dmCorrected"],
             minimum_nsubs=input["minimumNsubs"],
             maximum_nsubs=input["maximumNsubs"],
+            npol=input["obsNpol"],
+            nchan=input["obsNchan"],
         )
         return CreateToaOutput(toa=created_toas)
 

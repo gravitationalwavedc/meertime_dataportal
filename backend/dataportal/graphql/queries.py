@@ -382,10 +382,7 @@ class PulsarFoldResultConnection(relay.Connection):
             return []
 
     def resolve_all_nchans(self, instance):
-        print("all nchans")
         if "pulsar" in instance.variable_values.keys():
-            print(instance.variable_values['pulsar'])
-            print(len(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar'])))
             return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('obs_nchan', flat=True).distinct())
         else:
             return []
@@ -960,6 +957,7 @@ class Query(graphene.ObjectType):
         minimumNsubs=graphene.Boolean(),
         maximumNsubs=graphene.Boolean(),
         obsNchan=graphene.Int(),
+        obsNpol=graphene.Int(),
     )
     @login_required
     def resolve_toa(self, info, **kwargs):
@@ -998,6 +996,10 @@ class Query(graphene.ObjectType):
         if obs_nchan:
             queryset = queryset.filter(obs_nchan=obs_nchan)
 
+        obs_npol = kwargs.get('obsNpol')
+        if obs_npol:
+            queryset = queryset.filter(obs_npol=obs_npol)
+
         return queryset.order_by('mjd')
 
 
@@ -1008,6 +1010,7 @@ class Query(graphene.ObjectType):
         minimumNsubs=graphene.Boolean(),
         maximumNsubs=graphene.Boolean(),
         obsNchan=graphene.Int(),
+        obsNpol=graphene.Int(),
     )
     @login_required
     def resolve_residual(self, info, **kwargs):
@@ -1032,5 +1035,9 @@ class Query(graphene.ObjectType):
         obs_nchan = kwargs.get('obsNchan')
         if obs_nchan:
             queryset = queryset.filter(toa__obs_nchan=obs_nchan)
+
+        obs_npol = kwargs.get('obsNpol')
+        if obs_npol:
+            queryset = queryset.filter(toa__obs_npol=obs_npol)
 
         return queryset

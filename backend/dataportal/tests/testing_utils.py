@@ -226,6 +226,7 @@ def upload_toa_files(pipeline_run, project_short, template, toa_path):
             dm_corrected=False,
             minimum_nsubs=True,
             maximum_nsubs=False,
+            npol=4,
         )
 
 def setup_timing_obs():

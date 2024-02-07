@@ -42,7 +42,7 @@ class CreateResidual(graphene.Mutation):
         for residual_line in residual_lines:
             # Loop over residual lines and and split them to get the important values
             id, mjd, residual, residual_err, residual_phase = residual_line.split(",")
-            toa = Toa.objects.get(id=int(id))
+            toa = Toa.objects.select_related("ephemeris").get(id=int(id))
             ephemeris_dict = json.loads(toa.ephemeris.ephemeris_data)
 
             # Get the day of the year as a float

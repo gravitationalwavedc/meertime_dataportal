@@ -82,6 +82,7 @@ const FoldDetailTableFragment = graphql`
               edges {
                 node {
                   obsNchan
+                  obsNpol
                   minimumNsubs
                   maximumNsubs
                   dmCorrected

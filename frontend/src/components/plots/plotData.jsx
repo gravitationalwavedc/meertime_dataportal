@@ -100,9 +100,9 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
   }
 };
 
-export const getActivePlotData = (data, activePlot, timingProject, nchan, maxNsub) => {
+export const getActivePlotData = (data, activePlot, timingProject, nchan, maxNsub, npol) => {
   if ( activePlot == "Residual" ){
-    return residualPlotData(data, timingProject, nchan, maxNsub);
+    return residualPlotData(data, timingProject, nchan, maxNsub, npol);
   } else if ( activePlot == "S/N" ){
     return snrPlotData(data);
   } else if ( activePlot == "Flux Density" ){
@@ -258,14 +258,14 @@ export const rmPlotData = (data) => {
   return allData;
 };
 
-export const residualPlotData = (data, timingProject, nchan, maxNsub) => {
+export const residualPlotData = (data, timingProject, nchan, maxNsub, npol) => {
   const run_toas = data.reduce((result_returned, run_result) => {
     // Run for each pipelineRun
     const run_results = run_result.observation.toas.edges.reduce(
       (result, edge) => {
         // Grab all of the info needed from the toa
         if (edge.node.residual) {
-          if (edge.node.project.short === timingProject && edge.node.obsNchan === nchan && ( edge.node.minimumNsubs != maxNsub || edge.node.maximumNsubs === maxNsub ) ) {
+          if (edge.node.project.short === timingProject && edge.node.obsNchan === nchan && ( edge.node.minimumNsubs != maxNsub || edge.node.maximumNsubs === maxNsub ) && edge.node.obsNpol === npol ) {
             result.push({
               id: edge.node.residual.id,
               mjd: edge.node.residual.mjd,

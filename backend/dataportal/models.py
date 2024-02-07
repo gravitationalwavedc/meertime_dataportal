@@ -864,6 +864,7 @@ class Toa(models.Model):
     minimum_nsubs = models.BooleanField(default=False)
     maximum_nsubs = models.BooleanField(default=False)
     obs_nchan     = models.IntegerField(null=True)
+    obs_npol      = models.IntegerField(default=4)
 
     @classmethod
     def get_query(cls, **kwargs):
@@ -879,7 +880,9 @@ class Toa(models.Model):
             toa_lines,
             dm_corrected,
             minimum_nsubs,
-            maximum_nsubs
+            maximum_nsubs,
+            npol,
+            nchan,
         ):
         pipeline_run = PipelineRun.objects.get(id=pipeline_run_id)
         observation  = pipeline_run.observation
@@ -947,7 +950,8 @@ class Toa(models.Model):
                     dm_corrected =dm_corrected,
                     minimum_nsubs=minimum_nsubs,
                     maximum_nsubs=maximum_nsubs,
-                    obs_nchan = int(observation.nchan) // int(toa_dict["nch"])
+                    obs_nchan    =nchan,
+                    obs_npol     =npol,
                 )
             )
         created_toas = Toa.objects.bulk_create(
@@ -957,6 +961,7 @@ class Toa(models.Model):
                 "observation",
                 "project",
                 "dm_corrected",
+                "obs_npol",
                 # Frequency
                 "obs_nchan", # Number of channels
                 "chan", # Chan ID
@@ -994,6 +999,7 @@ class Toa(models.Model):
                 "minimum_nsubs",
                 "maximum_nsubs",
                 "obs_nchan",
+                "obs_npol",
             ],
         )
         return created_toas
@@ -1005,6 +1011,7 @@ class Toa(models.Model):
                     "observation",
                     "project",
                     "dm_corrected",
+                    "obs_npol",
                     # Frequency
                     "obs_nchan", # Number of channels
                     "chan", # Chan ID

@@ -10,6 +10,7 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
   const [timingProject, setTimingProject] = useState(timingProjects[0]);
   const [nchan, setNchan] = useState(1);
   const [maxNsub, setMaxNsub] = useState(false);
+  const [npol, setNpol] = useState(4);
 
   const handleSetActivePlot = (activePlot) => {
     setActivePlot(activePlot);
@@ -19,15 +20,19 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
     setTimingProject(timingProject);
   };
 
-  const handleSetNchanProject = (nchan) => {
+  const handleSetNchan = (nchan) => {
     setNchan(parseInt(nchan, 10));
   };
 
-  const handleSetMaxNsubProject = (maxNsub) => {
+  const handleSetMaxNsub = (maxNsub) => {
     setMaxNsub(maxNsub === "true" ? true : false);
   };
 
-  const activePlotData = getActivePlotData(data, activePlot, timingProject, nchan, maxNsub);
+  const handleSetNpol = (npol) => {
+    setNpol(parseInt(npol, 10));
+  };
+
+  const activePlotData = getActivePlotData(data, activePlot, timingProject, nchan, maxNsub, npol);
 
   return (
     <Col md={10} className="pulsar-plot-display">
@@ -83,7 +88,7 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
               custom
               as="select"
               value={nchan}
-              onChange={(event) => handleSetNchanProject(event.target.value)}
+              onChange={(event) => handleSetNchan(event.target.value)}
             >
               {allNchans.map((allNchan, index) => (
                 <option value={allNchan}>{allNchan}</option>
@@ -98,10 +103,24 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
               custom
               as="select"
               value={maxNsub}
-              onChange={(event) => handleSetMaxNsubProject(event.target.value)}
+              onChange={(event) => handleSetMaxNsub(event.target.value)}
             >
               <option value="true">True</option>
               <option value="false">False</option>
+            </Form.Control>
+          </Form.Group>
+        )}
+        {activePlot === "Residual" && (
+          <Form.Group controlId="plotNpolController" className="col-md-2">
+            <Form.Label>Npol</Form.Label>
+            <Form.Control
+              custom
+              as="select"
+              value={npol}
+              onChange={(event) => handleSetNpol(event.target.value)}
+            >
+              <option value="4">4</option>
+              <option value="1">1</option>
             </Form.Control>
           </Form.Group>
         )}
