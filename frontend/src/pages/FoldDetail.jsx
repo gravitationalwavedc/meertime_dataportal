@@ -12,22 +12,22 @@ import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
 const FoldDetailQuery = graphql`
   query FoldDetailQuery(
     $pulsar: String!
-    $mainProject: String,
-    $dmCorrected: Boolean,
-    $minimumNsubs: Boolean,
-    $maximumNsubs: Boolean,
-    $obsNchan: Int,
-    $obsNpol: Int,
+    $mainProject: String
+    $dmCorrected: Boolean
+    $minimumNsubs: Boolean
+    $maximumNsubs: Boolean
+    $obsNchan: Int
+    $obsNpol: Int
   ) {
     ...FoldDetailTableFragment
       @arguments(
         pulsar: $pulsar
         mainProject: $mainProject
-        dmCorrected: $dmCorrected,
-        minimumNsubs: $minimumNsubs,
-        maximumNsubs: $maximumNsubs,
-        obsNchan: $obsNchan,
-        obsNpol: $obsNpol,
+        dmCorrected: $dmCorrected
+        minimumNsubs: $minimumNsubs
+        maximumNsubs: $maximumNsubs
+        obsNchan: $obsNchan
+        obsNpol: $obsNpol
       )
   }
 `;

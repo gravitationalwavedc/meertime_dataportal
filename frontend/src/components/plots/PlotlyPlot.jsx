@@ -1,5 +1,5 @@
 import React from "react";
-import Plot from 'react-plotly.js';
+import Plot from "react-plotly.js";
 import { useRouter } from "found";
 import {
   filterBandData,
@@ -11,11 +11,7 @@ import {
 } from "./plotData";
 import _default from "react-bootstrap/esm/CardColumns";
 
-const PlotlyPlot = ({
-  data,
-  xAxis,
-  activePlot,
-}) => {
+const PlotlyPlot = ({ data, xAxis, activePlot }) => {
   const { router } = useRouter();
 
   const handlePlotClick = (event) => {
@@ -27,7 +23,8 @@ const PlotlyPlot = ({
     }
   };
 
-  const { plotData, minValue, maxValue, medianValue, ticks } = filterBandData(data);
+  const { plotData, minValue, maxValue, medianValue, ticks } =
+    filterBandData(data);
 
   // Make a list of observation IDs and plot links
   const linkIdBands = plotData.reduce((data, dataBand) => {
@@ -37,9 +34,7 @@ const PlotlyPlot = ({
         link: point.link,
       });
       return result;
-      },
-      []
-    );
+    }, []);
     data.push(pointLinkId);
     return data;
   }, []);
@@ -59,11 +54,11 @@ const PlotlyPlot = ({
     }
     // Set x data
     let xData;
-    if ( xAxis === "utc" ) {
+    if (xAxis === "utc") {
       xData = dataBand.data.map((point) => point.utc);
-    } else if ( xAxis === "day" ) {
+    } else if (xAxis === "day") {
       xData = dataBand.data.map((point) => point.day);
-    } else if ( xAxis === "phase" ) {
+    } else if (xAxis === "phase") {
       xData = dataBand.data.map((point) => point.phase);
     } else {
       xData = dataBand.data.utc;
@@ -75,12 +70,16 @@ const PlotlyPlot = ({
         array: dataBand.data.map((point) => point.error),
         width: 6,
       },
-      y: xData = dataBand.data.map((point) => point.value),
+      y: (xData = dataBand.data.map((point) => point.value)),
       customdata: dataBand.data.map((point) => point.size),
       type: "scatter",
       mode: "markers",
       name: dataBand.name,
-      hovertemplate: `${getXaxisLabel(xAxis)}: %{x${xAxis === "utc" ? '|%Y-%m-%d %H:%M:%S.%f' : ''}}<br>${getYaxisLabel(activePlot)}: %{y}<br>Integration Time (s): %{customdata}<extra></extra>`,
+      hovertemplate: `${getXaxisLabel(xAxis)}: %{x${
+        xAxis === "utc" ? "|%Y-%m-%d %H:%M:%S.%f" : ""
+      }}<br>${getYaxisLabel(
+        activePlot
+      )}: %{y}<br>Integration Time (s): %{customdata}<extra></extra>`,
       marker: {
         color: dataBand.colour,
         symbol: dataBand.shape,
@@ -104,8 +103,8 @@ const PlotlyPlot = ({
             b: 60,
             l: 60,
           },
-          paper_bgcolor: 'rgba(1, 1, 1, 0)',
-          plot_bgcolor: 'rgba(1, 1, 1, 0)',
+          paper_bgcolor: "rgba(1, 1, 1, 0)",
+          plot_bgcolor: "rgba(1, 1, 1, 0)",
           xaxis: getXaxisFormatter(xAxis),
           yaxis: {
             title: {
@@ -114,7 +113,7 @@ const PlotlyPlot = ({
           },
         }}
         useResizeHandler={true}
-        style={{width: "100%", height: "100%"}}
+        style={{ width: "100%", height: "100%" }}
         onClick={handlePlotClick}
       />
     </>

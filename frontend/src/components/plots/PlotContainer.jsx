@@ -121,7 +121,8 @@ const PlotContainer = ({
         )}
       </Form.Row>
       <Form.Text className="text-muted">
-        Drag a box to zoom, hover your mouse the top right and click Autoscale to zoom out, click on a point to view observation.
+        Drag a box to zoom, hover your mouse the top right and click Autoscale
+        to zoom out, click on a point to view observation.
       </Form.Text>
       <div className="pulsar-plot-wrapper">
         <PlotlyPlot

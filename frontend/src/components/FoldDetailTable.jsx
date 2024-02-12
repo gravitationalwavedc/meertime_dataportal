@@ -84,13 +84,13 @@ const FoldDetailTableFragment = graphql`
             calibration {
               idInt
             }
-            toas (
-              dmCorrected: $dmCorrected,
-              minimumNsubs: $minimumNsubs,
-              maximumNsubs: $maximumNsubs,
-              obsNchan: $obsNchan,
-              obsNpol: $obsNpol,
-            ){
+            toas(
+              dmCorrected: $dmCorrected
+              minimumNsubs: $minimumNsubs
+              maximumNsubs: $maximumNsubs
+              obsNchan: $obsNchan
+              obsNpol: $obsNpol
+            ) {
               edges {
                 node {
                   obsNchan
@@ -139,9 +139,8 @@ const FoldDetailTable = ({
   match: {
     location: { query },
   },
-  setShow
+  setShow,
 }) => {
-
   console.log(
     "Input arguments:",
     jname,
@@ -152,7 +151,10 @@ const FoldDetailTable = ({
     query.obsNchan,
     query.obsNpol
   );
-  const [relayData, refetch] = useRefetchableFragment(FoldDetailTableFragment, tableData);
+  const [relayData, refetch] = useRefetchableFragment(
+    FoldDetailTableFragment,
+    tableData
+  );
   console.log("data:", relayData);
   console.log("observationData:", relayData.observationSummary);
   console.log("pulsarFoldResult:", relayData.pulsarFoldResult);
@@ -160,7 +162,7 @@ const FoldDetailTable = ({
   const pulsarFoldResult = relayData.pulsarFoldResult;
 
   const { screenSize } = useScreenSize();
-  const [dmCorrected, setDmCorrected ] = useState(query.dmCorrected || false );
+  const [dmCorrected, setDmCorrected] = useState(query.dmCorrected || false);
   const [minimumNsubs, setMinimumNsubs] = useState(query.minimumNsubs || true);
   const [maximumNsubs, setMaximumNsubs] = useState(query.maximumNsubs || true);
   const [obsNchan, setObsNchan] = useState(query.obsNchan || 1);
@@ -180,7 +182,14 @@ const FoldDetailTable = ({
     url.searchParams.set("obsNchan", newObsNchan);
     url.searchParams.set("obsNpol", newObsNpol);
     window.history.pushState({}, "", url);
-    console.log("Refetching with:", newDmCorrected, newMinimumNsubs, newMaximumNsubs, newObsNchan, newObsNpol);
+    console.log(
+      "Refetching with:",
+      newDmCorrected,
+      newMinimumNsubs,
+      newMaximumNsubs,
+      newObsNchan,
+      newObsNpol
+    );
     refetch({
       dmCorrected: newDmCorrected,
       minimumNsubs: newMinimumNsubs,

@@ -7,9 +7,9 @@ export const getXaxisFormatter = (xAxis) => {
       title: {
         text: getXaxisLabel(xAxis),
       },
-      type: 'date',
-      tickformat: '%Y',
-      dtick: "M12"
+      type: "date",
+      tickformat: "%Y",
+      dtick: "M12",
     };
   } else if (xAxis === "day") {
     return {
@@ -28,8 +28,8 @@ export const getXaxisFormatter = (xAxis) => {
       title: {
         text: getXaxisLabel(xAxis),
       },
-      type: 'date',
-      tickformat: '%Y'
+      type: "date",
+      tickformat: "%Y",
     };
   }
 };
@@ -101,15 +101,15 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
 };
 
 export const getActivePlotData = (data, activePlot, timingProject) => {
-  if ( activePlot == "Residual" ){
+  if (activePlot == "Residual") {
     return residualPlotData(data, timingProject);
-  } else if ( activePlot == "S/N" ){
+  } else if (activePlot == "S/N") {
     return snrPlotData(data);
-  } else if ( activePlot == "Flux Density" ){
+  } else if (activePlot == "Flux Density") {
     return fluxPlotData(data);
-  } else if ( activePlot == "DM" ){
+  } else if (activePlot == "DM") {
     return dmPlotData(data);
-  } else if ( activePlot == "RM" ){
+  } else if (activePlot == "RM") {
     return rmPlotData(data);
   } else {
     console.error(`Unknown activePlot: ${activePlot}`);
@@ -117,7 +117,7 @@ export const getActivePlotData = (data, activePlot, timingProject) => {
   }
 };
 
-export const filterBandData = ( data ) => {
+export const filterBandData = (data) => {
   data = data.filter((row) => row.value !== null);
 
   // Process the table data in a way that react-vis understands.
