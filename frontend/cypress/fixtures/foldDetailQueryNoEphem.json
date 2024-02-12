@@ -20,6 +20,7 @@
       "description": "PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
       "toasLink": null,
       "allProjects": [],
+      "allNchans": [],
       "edges": [
         {
           "node": {
@@ -50,6 +51,11 @@
                 "edges": [
                   {
                     "node": {
+                      "obsNchan": 1,
+                      "obsNpol": 4,
+                      "minimumNsubs": true,
+                      "maximumNsubs": false,
+                      "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
                       "project": {
@@ -108,6 +114,11 @@
                 "edges": [
                   {
                     "node": {
+                      "obsNchan": 1,
+                      "obsNpol": 4,
+                      "minimumNsubs": true,
+                      "maximumNsubs": false,
+                      "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
                       "project": {
@@ -166,6 +177,11 @@
                 "edges": [
                   {
                     "node": {
+                      "obsNchan": 1,
+                      "obsNpol": 4,
+                      "minimumNsubs": true,
+                      "maximumNsubs": false,
+                      "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
                       "project": {

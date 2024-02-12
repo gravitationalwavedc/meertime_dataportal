@@ -176,6 +176,7 @@ def test_fold_detail_query():
                 description
                 toasLink
                 allProjects
+                allNchans
                 edges {
                     node {
                         observation {
@@ -208,6 +209,11 @@ def test_fold_detail_query():
                             ) {
                             edges {
                                 node {
+                                    obsNchan
+                                    obsNpol
+                                    minimumNsubs
+                                    maximumNsubs
+                                    dmCorrected
                                     freqMhz
                                     length
                                     project {

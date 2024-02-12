@@ -19,11 +19,12 @@
     "pulsarFoldResult": {
       "residualEphemeris": {
         "ephemerisData": "\"{\\\"PSRJ\\\": \\\"J0125-2327\\\", \\\"RAJ\\\": \\\"01:25:01.05950406\\\", \\\"DECJ\\\": \\\"-23:27:08.1841977\\\", \\\"DM\\\": 9.59243, \\\"PEPOCH\\\": 57089.119311, \\\"F0\\\": 272.08108871500735, \\\"F1\\\": -1.361e-15, \\\"PMRA\\\": 40.3478, \\\"PMDEC\\\": 5.6682, \\\"DMEPOCH\\\": 58595.551, \\\"BINARY\\\": \\\"ELL1\\\", \\\"PB\\\": 7.27719962431521, \\\"A1\\\": 4.729804686, \\\"TASC\\\": 57089.07346805, \\\"EPS1\\\": -1.05e-08, \\\"EPS2\\\": 2.657e-07, \\\"CLK\\\": \\\"UNCORR\\\", \\\"EPHEM\\\": \\\"DE405\\\", \\\"TZRMJD\\\": 57089.810474242644, \\\"TZRFRQ\\\": 368.58, \\\"TZRSITE\\\": 1.0, \\\"PX\\\": 7.2143, \\\"EPHVER\\\": 2.0, \\\"UNITS\\\": \\\"TDB\\\", \\\"F0_ERR\\\": null, \\\"P0\\\": 0.0036753748844612086, \\\"P0_ERR\\\": null, \\\"START\\\": \\\"1970-01-01T00:00:00\\\", \\\"FINISH\\\": \\\"2106-02-07T06:28:15\\\"}\"",
-        "createdAt": "2023-11-27T02:00:42.801947+00:00"
+        "createdAt": "2024-02-12T06:03:58.503569+00:00"
       },
       "description": "PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
       "toasLink": null,
       "allProjects": [],
+      "allNchans": [],
       "edges": [
         {
           "node": {
@@ -54,6 +55,11 @@
                 "edges": [
                   {
                     "node": {
+                      "obsNchan": 1,
+                      "obsNpol": 4,
+                      "minimumNsubs": true,
+                      "maximumNsubs": false,
+                      "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
                       "project": {
@@ -112,6 +118,11 @@
                 "edges": [
                   {
                     "node": {
+                      "obsNchan": 1,
+                      "obsNpol": 4,
+                      "minimumNsubs": true,
+                      "maximumNsubs": false,
+                      "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
                       "project": {
@@ -170,6 +181,11 @@
                 "edges": [
                   {
                     "node": {
+                      "obsNchan": 1,
+                      "obsNpol": 4,
+                      "minimumNsubs": true,
+                      "maximumNsubs": false,
+                      "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
                       "project": {
