@@ -14,24 +14,25 @@ from dataportal.models import (
 def test_toa_ingest():
     client, user = setup_timing_obs()
     client.authenticate(user)
-    response = client.execute("""
-        query {
-            pulsarFoldResult(pulsar: "J0437-4715", mainProject: "MeerTIME") {
-                edges {
-                    node {
-                        observation {
+    query = """
+        query {{
+            pulsarFoldResult(pulsar: "J0437-4715", mainProject: "MeerTIME") {{
+                edges {{
+                    node {{
+                        observation {{
                             toas(
                                 dmCorrected: false
                                 minimumNsubs: true
-                            ) {
-                            edges {
-                                node {
+                                obsNchan: {nchan}
+                            ) {{
+                            edges {{
+                                node {{
                                     freqMhz
                                     length
-                                    project {
+                                    project {{
                                         short
-                                    }
-                                    residual {
+                                    }}
+                                    residual {{
                                         mjd
                                         dayOfYear
                                         binaryOrbitalPhase
@@ -39,16 +40,21 @@ def test_toa_ingest():
                                         residualSecErr
                                         residualPhase
                                         residualPhaseErr
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    """)
+                                    }}
+                                }}
+                            }}
+                        }}
+                    }}
+                }}
+            }}
+        }}
+    }}
+    """
 
+    response = client.execute(query.format(nchan=1))
     for pulsarFoldResult in response.data["pulsarFoldResult"]["edges"]:
-        assert len(pulsarFoldResult["node"]["observation"]["toas"]["edges"]) == 34
+        assert len(pulsarFoldResult["node"]["observation"]["toas"]["edges"]) == 2 # One from each observation
+
+    response = client.execute(query.format(nchan=16))
+    for pulsarFoldResult in response.data["pulsarFoldResult"]["edges"]:
+        assert len(pulsarFoldResult["node"]["observation"]["toas"]["edges"]) == 32 # 16 from each observation

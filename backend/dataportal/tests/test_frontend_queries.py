@@ -695,5 +695,5 @@ def test_session_list_query():
 @pytest.mark.enable_signals
 def test_toa_uploads():
     client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
-    for toa_file in TOA_FILES:
-        upload_toa_files(pipeline_run, "PTA", template, toa_file)
+    for toa_file, nchan in TOA_FILES:
+        upload_toa_files(pipeline_run, "PTA", nchan, template, toa_file)
