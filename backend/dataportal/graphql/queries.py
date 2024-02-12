@@ -394,10 +394,12 @@ class PulsarFoldResultConnection(relay.Connection):
         )
 
     def resolve_residual_ephemeris(self, instance):
-        for pulsar_fold_result in self.iterable:
-            for toa in Toa.objects.filter(pipeline_run=pulsar_fold_result.pipeline_run):
-                return toa.ephemeris
-        return None
+        pulsar_fold_result = self.iterable.first()
+        toas = Toa.objects.select_related("pipeline_run").filter(pipeline_run=pulsar_fold_result.pipeline_run)
+        if len(toas) > 0:
+            return toas.first().ephemeris
+        else:
+            return None
 
     def resolve_description(self, instance):
         return self.iterable.first().pulsar.comment
@@ -962,34 +964,38 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_toa(self, info, **kwargs):
         queryset = Toa.objects.select_related(
-            "observation__pulsar",
-            "pipeline_run",
-            "project",
             "residual",
         ).all()
 
         pipelineRunId = kwargs.get('pipelineRunId')
         if pipelineRunId:
-            queryset = queryset.filter(pipeline_run__id=pipelineRunId)
+            queryset = queryset.select_related("pipeline_run").filter(pipeline_run__id=pipelineRunId)
 
         pulsar_name = kwargs.get('pulsar')
         if pulsar_name:
-            queryset = queryset.filter(observation__pulsar__name=pulsar_name)
+            queryset = queryset.select_related("observation__pulsar").filter(observation__pulsar__name=pulsar_name)
 
         project_short = kwargs.get('projectShort')
         if project_short:
-            queryset = queryset.filter(project__short=project_short)
+            queryset = queryset.select_related("project").filter(project__short=project_short)
 
         dm_corrected = kwargs.get('dmCorrected')
         if dm_corrected is not None:
             queryset = queryset.filter(dm_corrected=bool(dm_corrected))
 
         minimum_nsubs = kwargs.get('minimumNsubs')
-        if minimum_nsubs is not None:
-            queryset = queryset.filter(minimum_nsubs=bool(minimum_nsubs))
-
         maximum_nsubs = kwargs.get('maximumNsubs')
-        if maximum_nsubs is not None:
+        # It often doesn't make sense to use both of these filters so sometimes ignore one
+        if minimum_nsubs is not None and maximum_nsubs is not None:
+            if bool(minimum_nsubs) and not bool(maximum_nsubs):
+                queryset = queryset.filter(minimum_nsubs=True)
+            elif not bool(minimum_nsubs) and bool(maximum_nsubs):
+                queryset = queryset.filter(maximum_nsubs=True)
+            else:
+                queryset = queryset.filter(minimum_nsubs=True, maximum_nsubs=True)
+        elif minimum_nsubs is not None:
+            queryset = queryset.filter(minimum_nsubs=bool(minimum_nsubs))
+        elif maximum_nsubs is not None:
             queryset = queryset.filter(maximum_nsubs=bool(maximum_nsubs))
 
         obs_nchan = kwargs.get('obsNchan')
