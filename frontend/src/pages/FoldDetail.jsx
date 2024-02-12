@@ -12,12 +12,22 @@ import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
 const FoldDetailQuery = graphql`
   query FoldDetailQuery(
     $pulsar: String!
-    $mainProject: String
+    $mainProject: String,
+    $dmCorrected: Boolean,
+    $minimumNsubs: Boolean,
+    $maximumNsubs: Boolean,
+    $obsNchan: Int,
+    $obsNpol: Int,
   ) {
     ...FoldDetailTableFragment
       @arguments(
         pulsar: $pulsar
         mainProject: $mainProject
+        dmCorrected: $dmCorrected,
+        minimumNsubs: $minimumNsubs,
+        maximumNsubs: $maximumNsubs,
+        obsNchan: $obsNchan,
+        obsNpol: $obsNpol,
       )
   }
 `;
@@ -32,6 +42,7 @@ const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
   console.log("pulsar:", jname);
   console.log("mainProject:", mainProject);
+  console.log("match:", match);
   const { screenSize } = useScreenSize();
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
@@ -39,7 +50,9 @@ const FoldDetail = ({ match }) => {
     mainProject: mainProject,
     dmCorrected: false,
     minimumNsubs: true,
+    maximumNsubs: true,
     obsNchan: 1,
+    obsNpol: 4,
   });
   const fileDownloadData = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
     pulsar: jname,
@@ -76,6 +89,7 @@ const FoldDetail = ({ match }) => {
             tableData={tableData}
             jname={jname}
             mainProject={mainProject}
+            match={match}
             setShow={setDownloadModalVisible}
           />
         </Suspense>

@@ -26,6 +26,12 @@ const DataView = ({
   setBand,
   timingProjects,
   allNchans,
+  maximumNsubs,
+  handleSetMaxNsub,
+  obsNchan,
+  handleSetNchan,
+  obsNpol,
+  handleSetNpol,
   options,
   plot,
   keyField,
@@ -65,6 +71,12 @@ const DataView = ({
                     data={rows}
                     timingProjects={timingProjects}
                     allNchans={allNchans}
+                    maximumNsubs={maximumNsubs}
+                    handleSetMaxNsub={handleSetMaxNsub}
+                    obsNchan={obsNchan}
+                    handleSetNchan={handleSetNchan}
+                    obsNpol={obsNpol}
+                    handleSetNpol={handleSetNpol}
                     {...props.baseProps}
                   />
                 </Row>

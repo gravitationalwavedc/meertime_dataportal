@@ -4,13 +4,20 @@ import Form from "react-bootstrap/Form";
 import PlotlyPlot from "./PlotlyPlot";
 import { getActivePlotData } from "./plotData";
 
-const PlotContainer = ({ data, timingProjects, allNchans }) => {
+const PlotContainer = ({
+  data,
+  timingProjects,
+  allNchans,
+  maximumNsubs,
+  handleSetMaxNsub,
+  obsNchan,
+  handleSetNchan,
+  obsNpol,
+  handleSetNpol,
+}) => {
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Residual");
   const [timingProject, setTimingProject] = useState(timingProjects[0]);
-  const [nchan, setNchan] = useState(1);
-  const [maxNsub, setMaxNsub] = useState(false);
-  const [npol, setNpol] = useState(4);
 
   const handleSetActivePlot = (activePlot) => {
     setActivePlot(activePlot);
@@ -20,19 +27,7 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
     setTimingProject(timingProject);
   };
 
-  const handleSetNchan = (nchan) => {
-    setNchan(parseInt(nchan, 10));
-  };
-
-  const handleSetMaxNsub = (maxNsub) => {
-    setMaxNsub(maxNsub === "true" ? true : false);
-  };
-
-  const handleSetNpol = (npol) => {
-    setNpol(parseInt(npol, 10));
-  };
-
-  const activePlotData = getActivePlotData(data, activePlot, timingProject, nchan, maxNsub, npol);
+  const activePlotData = getActivePlotData(data, activePlot, timingProject);
 
   return (
     <Col md={10} className="pulsar-plot-display">
@@ -87,7 +82,7 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
             <Form.Control
               custom
               as="select"
-              value={nchan}
+              value={obsNchan}
               onChange={(event) => handleSetNchan(event.target.value)}
             >
               {allNchans.map((allNchan, index) => (
@@ -102,7 +97,7 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
             <Form.Control
               custom
               as="select"
-              value={maxNsub}
+              value={maximumNsubs}
               onChange={(event) => handleSetMaxNsub(event.target.value)}
             >
               <option value="true">True</option>
@@ -116,7 +111,7 @@ const PlotContainer = ({ data, timingProjects, allNchans }) => {
             <Form.Control
               custom
               as="select"
-              value={npol}
+              value={obsNpol}
               onChange={(event) => handleSetNpol(event.target.value)}
             >
               <option value="4">4</option>
