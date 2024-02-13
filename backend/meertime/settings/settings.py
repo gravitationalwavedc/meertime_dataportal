@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     "graphene_django",
     "django_jenkins",
     "jobcontroller",
-    'rest_framework',
+    "rest_framework",
     "user_manage",
     "dataportal",
 ]
@@ -87,13 +87,5 @@ MEDIA_ROOT = "/media/"
 MEDIA_URL = "/media/"
 
 SITE_URL = "https://pulsars.org.au/"  # with a trailing slash
-
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-
-DEFAULT_FROM_EMAIL = env("MEERTIME_EMAIL")
-
-EMAIL_HOST = "mail.swin.edu.au"
-
-EMAIL_PORT = 25
 
 SECRET_CAPTCHA_KEY = env("SECRET_CAPTCHA_KEY")

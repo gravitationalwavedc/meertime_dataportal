@@ -46,8 +46,6 @@ class CreateRegistration(graphene.Mutation):
             },
         )
 
-        print(r.json())
-
         if not r.json()["success"]:
             return CreateRegistration(ok=False, registration=None, errors=["Captcha validation failed."])
 

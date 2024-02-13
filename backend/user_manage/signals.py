@@ -20,11 +20,9 @@ logger = logging.getLogger(__name__)
 @receiver(post_save, sender=Registration, dispatch_uid="send_out_email")
 def send_out_email(sender, instance, **kwargs):
     if instance.status is not Registration.VERIFIED:
-
         # send verification email
         send_verification_email(
-            first_name=instance.first_name,
-            last_name=instance.last_name,
+            name=instance.get_full_name(),
             to=instance.email,
             verification_code=instance.verification_code,
         )
@@ -35,37 +33,30 @@ def handle_registration_save(sender, instance, **kwargs):
     if not instance.pk:
         # hashing the password
         instance.password = make_password(instance.password)
+        instance.save()
 
         logger.info(
-            "signals.py: handle_registration_save fn={} ln={} email={} status={} vcode={} user={} time={}".format(
-                instance.first_name,
-                instance.last_name,
-                instance.email,
-                instance.status,
-                instance.verification_code,
-                instance.user,
-                datetime.datetime,
-            )
+            f"signals.py: handle_registration_save fn={instance.first_name} ln={instance.last_name} email={instance.email} status={instance.status} vcode={instance.verification_code} user={instance.user} time={instance.datetime}"  # noqa E501
         )
 
-    else:
-        if instance.status == Registration.VERIFIED and instance.user is None:
-            # if verified, and no user is associated with then, create a new user, with
-            # the username as the email
-            # a password that is hash of the hashed password
-            new_user = User.objects.create_user(
-                username=instance.email,
-                email=instance.email,
-                password=instance.password,
-                first_name=instance.first_name,
-                last_name=instance.last_name,
-            )
+    elif instance.status == Registration.VERIFIED and instance.user is None:
+        # if verified, and no user is associated with then, create a new user, with
+        # the username as the email
+        # a password that is hash of the hashed password
+        new_user = User.objects.create_user(
+            username=instance.email,
+            email=instance.email,
+            password=instance.password,
+            first_name=instance.first_name,
+            last_name=instance.last_name,
+        )
 
-            # forcefully update the password of the user to make sure the hash is correct
-            new_user.password = instance.password
-            new_user.save()
+        # forcefully update the password of the user to make sure the hash is correct
+        new_user.password = instance.password
+        new_user.save()
 
-            instance.user = new_user
+        instance.user = new_user
+        instance.save()
 
 
 @receiver(pre_save, sender=PasswordResetRequest, dispatch_uid="handle_request_password_reset_save")
@@ -79,8 +70,7 @@ def handle_password_reset_request_save(sender, instance, raw, **kwargs):
 
         # send verification email
         send_password_reset_email(
-            first_name=user.first_name,
-            last_name=user.last_name,
+            name=user.get_full_name(),
             to=user.email,
             verification_code=instance.verification_code,
         )

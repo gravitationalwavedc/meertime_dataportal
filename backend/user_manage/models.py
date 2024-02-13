@@ -91,6 +91,9 @@ class Registration(models.Model):
     last_updated = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, null=True, blank=True, default=None, on_delete=models.CASCADE)
 
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
     def clean(self):
         if not self.pk:
             if User.objects.filter(username=self.email).exists():
