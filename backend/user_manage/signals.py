@@ -33,10 +33,9 @@ def handle_registration_save(sender, instance, **kwargs):
     if not instance.pk:
         # hashing the password
         instance.password = make_password(instance.password)
-        instance.save()
 
         logger.info(
-            f"signals.py: handle_registration_save fn={instance.first_name} ln={instance.last_name} email={instance.email} status={instance.status} vcode={instance.verification_code} user={instance.user} time={instance.datetime}"  # noqa E501
+            f"signals.py: handle_registration_save fn={instance.first_name} ln={instance.last_name} email={instance.email} status={instance.status} vcode={instance.verification_code} user={instance.user} time={datetime.datetime}"  # noqa E501
         )
 
     elif instance.status == Registration.VERIFIED and instance.user is None:
@@ -56,7 +55,6 @@ def handle_registration_save(sender, instance, **kwargs):
         new_user.save()
 
         instance.user = new_user
-        instance.save()
 
 
 @receiver(pre_save, sender=PasswordResetRequest, dispatch_uid="handle_request_password_reset_save")
