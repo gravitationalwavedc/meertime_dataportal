@@ -35,7 +35,14 @@ def handle_registration_save(sender, instance, **kwargs):
         instance.password = make_password(instance.password)
 
         logger.info(
-            f"signals.py: handle_registration_save fn={instance.first_name} ln={instance.last_name} email={instance.email} status={instance.status} vcode={instance.verification_code} user={instance.user} time={datetime.datetime}"  # noqa E501
+            f"""signals.py: handle_registration_save
+                fn={instance.first_name}
+                ln={instance.last_name}
+                email={instance.email}
+                status={instance.status}
+                vcode={instance.verification_code}
+                user={instance.user}
+                time={datetime.datetime}"""
         )
 
     elif instance.status == Registration.VERIFIED and instance.user is None:

@@ -62,9 +62,8 @@ class ProvisionalUser(models.Model):
         if self.pk:
             # check this before activating the user
             old_instance = ProvisionalUser.objects.get(id=self.pk)
-            if not old_instance.activated and self.activated:
-                if timezone.now() > self.activation_expiry:
-                    raise ValidationError({"activation_code": ["Activation code expired."]})
+            if not old_instance.activated and self.activated and timezone.now() > self.activation_expiry:
+                raise ValidationError({"activation_code": ["Activation code expired."]})
 
     def save(self, *args, **kwargs):
         self.full_clean()
