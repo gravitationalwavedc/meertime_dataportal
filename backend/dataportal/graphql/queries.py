@@ -606,6 +606,21 @@ class ToaConnection(relay.Connection):
     class Meta:
         node = ToaNode
 
+    all_projects = graphene.List(graphene.String)
+    all_nchans = graphene.List(graphene.Int)
+
+    def resolve_all_projects(self, instance):
+        if "pulsar" in instance.variable_values.keys():
+            return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('project__short', flat=True).distinct())
+        else:
+            return []
+
+    def resolve_all_nchans(self, instance):
+        if "pulsar" in instance.variable_values.keys():
+            return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('obs_nchan', flat=True).distinct())
+        else:
+            return []
+
 
 class ResidualNode(DjangoObjectType):
     class Meta:
@@ -884,12 +899,13 @@ class Query(graphene.ObjectType):
         if pulsar_name:
             queryset = queryset.filter(
                 pulsar__name=pulsar_name
-            ).prefetch_related(
-                Prefetch(
-                    "observation__toas",
-                    queryset=Toa.objects.select_related("project", "residual", "observation__pulsar").filter(observation__pulsar__name=pulsar_name)
-                ),
             )
+            # .prefetch_related(
+            #     Prefetch(
+            #         "observation__toas",
+            #         queryset=Toa.objects.select_related("project", "residual", "observation__pulsar").filter(observation__pulsar__name=pulsar_name)
+            #     ),
+            # )
 
         main_project_name = kwargs.get('mainProject')
         if main_project_name:
@@ -954,6 +970,7 @@ class Query(graphene.ObjectType):
         ToaConnection,
         pipelineRunId=graphene.Int(),
         pulsar=graphene.String(),
+        mainProject=graphene.String(),
         projectShort=graphene.String(),
         dmCorrected=graphene.Boolean(),
         minimumNsubs=graphene.Boolean(),
@@ -964,7 +981,11 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_toa(self, info, **kwargs):
         queryset = Toa.objects.select_related(
+            "pipeline_run",
+            "ephemeris",
+            "template",
             "residual",
+            "project",
         ).all()
 
         pipelineRunId = kwargs.get('pipelineRunId')
@@ -974,6 +995,10 @@ class Query(graphene.ObjectType):
         pulsar_name = kwargs.get('pulsar')
         if pulsar_name:
             queryset = queryset.select_related("observation__pulsar").filter(observation__pulsar__name=pulsar_name)
+
+        main_project_name = kwargs.get('mainProject')
+        if main_project_name:
+            queryset = queryset.select_related("observation__project__main_project").filter(observation__project__main_project__name__iexact=main_project_name)
 
         project_short = kwargs.get('projectShort')
         if project_short:

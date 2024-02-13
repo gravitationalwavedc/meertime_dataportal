@@ -13,17 +13,28 @@ const FoldDetailQuery = graphql`
   query FoldDetailQuery(
     $pulsar: String!
     $mainProject: String
-    $dmCorrected: Boolean
-    $minimumNsubs: Boolean
-    $maximumNsubs: Boolean
-    $obsNchan: Int
-    $obsNpol: Int
   ) {
     ...FoldDetailTableFragment
       @arguments(
         pulsar: $pulsar
         mainProject: $mainProject
-        dmCorrected: $dmCorrected
+      )
+  }
+`;
+
+const PlotContainerQuery = graphql`
+  query FoldDetailPlotContainerQuery(
+    $pulsar: String!
+    $mainProject: String
+    $minimumNsubs: Boolean
+    $maximumNsubs: Boolean
+    $obsNchan: Int
+    $obsNpol: Int
+  ) {
+    ...PlotContainerFragment
+      @arguments(
+        pulsar: $pulsar
+        mainProject: $mainProject
         minimumNsubs: $minimumNsubs
         maximumNsubs: $maximumNsubs
         obsNchan: $obsNchan
@@ -48,16 +59,18 @@ const FoldDetail = ({ match }) => {
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
     mainProject: mainProject,
-    dmCorrected: false,
+  });
+  const toaData = useLazyLoadQuery(PlotContainerQuery, {
+    pulsar: jname,
+    mainProject: mainProject,
     minimumNsubs: true,
-    maximumNsubs: true,
+    maximumNsubs: false,
     obsNchan: 1,
     obsNpol: 4,
   });
   const fileDownloadData = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
     pulsar: jname,
   });
-
   return (
     <>
       <TopNav />
@@ -87,6 +100,7 @@ const FoldDetail = ({ match }) => {
           <FoldDetailTable
             query={FoldDetailQuery}
             tableData={tableData}
+            toaData={toaData}
             jname={jname}
             mainProject={mainProject}
             match={match}

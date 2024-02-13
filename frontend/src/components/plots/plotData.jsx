@@ -100,17 +100,17 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
   }
 };
 
-export const getActivePlotData = (data, activePlot, timingProject) => {
+export const getActivePlotData = (tableData, toaDataResult, activePlot, timingProject) => {
   if (activePlot == "Residual") {
-    return residualPlotData(data, timingProject);
+    return residualPlotData(toaDataResult, timingProject);
   } else if (activePlot == "S/N") {
-    return snrPlotData(data);
+    return snrPlotData(tableData);
   } else if (activePlot == "Flux Density") {
-    return fluxPlotData(data);
+    return fluxPlotData(tableData);
   } else if (activePlot == "DM") {
-    return dmPlotData(data);
+    return dmPlotData(tableData);
   } else if (activePlot == "RM") {
-    return rmPlotData(data);
+    return rmPlotData(tableData);
   } else {
     console.error(`Unknown activePlot: ${activePlot}`);
     return [];
@@ -259,49 +259,16 @@ export const rmPlotData = (data) => {
 };
 
 export const residualPlotData = (data, timingProject) => {
-  const run_toas = data.reduce((result_returned, run_result) => {
-    // Run for each pipelineRun
-    const run_results = run_result.observation.toas.edges.reduce(
-      (result, edge) => {
-        // Grab all of the info needed from the toa
-        if (edge.node.residual) {
-          if (edge.node.project.short === timingProject) {
-            result.push({
-              id: edge.node.residual.id,
-              mjd: edge.node.residual.mjd,
-              dayOfYear: edge.node.residual.dayOfYear,
-              binaryOrbitalPhase: edge.node.residual.binaryOrbitalPhase,
-              residualSec: edge.node.residual.residualSec,
-              residualSecErr: edge.node.residual.residualSecErr,
-              duration: edge.node.length,
-              plotLink: run_result.plotLink,
-              band: run_result.observation.band,
-            });
-          }
-          return result;
-        } else {
-          // No residuals for this run so return nothing
-          return [];
-        }
-      },
-      []
-    );
-    result_returned.push(run_results);
-    return result_returned;
-  }, []);
-  // Combine the array of arrays
-  const toas = [].concat(...run_toas);
-
-  const allData = toas.map((row) => ({
-    id: row.id,
-    utc: moment(mjdToUnixTimestamp(row.mjd)).valueOf(),
-    day: row.dayOfYear,
-    phase: row.binaryOrbitalPhase,
-    value: row.residualSec * 1e6,
-    error: row.residualSecErr * 1e9,
-    size: row.duration,
-    link: row.plotLink,
-    band: row.band,
+  const allData = data.toa.edges.filter(edge => edge.node.residual !== null).filter(edge => edge.node.projectShort === timingProject).map((edge) => ({
+    id: edge.node.residual.id,
+    utc: moment(mjdToUnixTimestamp(edge.node.residual.mjd)).valueOf(),
+    day: edge.node.residual.dayOfYear,
+    phase: edge.node.residual.binaryOrbitalPhase,
+    value: edge.node.residual.residualSec,
+    error: edge.node.residual.residualSecErr,
+    size: edge.node.observation.duration,
+    link: edge.node.plotLink,
+    band: edge.node.observation.band,
   }));
 
   return allData;
