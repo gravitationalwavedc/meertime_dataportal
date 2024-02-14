@@ -5,12 +5,12 @@ from meertime.settings import env
 
 DATABASES = {
     "default": {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": env("POSTGRES_DATABASE"),
         "USER": env("POSTGRES_USER"),
         "PASSWORD": env("POSTGRES_PASSWORD"),
+        "PORT": env("POSTGRES_PORT", default=5432),
         "HOST": env("DB_HOST"),
-        "PORT": env("MYSQL_PORT", default=""),
     }
 }
 
