@@ -314,6 +314,7 @@ const FoldDetailTable = ({
         setBand={handleBandFilter}
         urlQuery={query}
         plot
+        jname={jname}
         mainProject={mainProject}
         keyField="key"
         card={FoldDetailCard}

@@ -2,11 +2,7 @@ import os
 import json
 import copy
 import pytest
-from dataportal.tests.testing_utils import setup_query_test, setup_timing_obs, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
-from dataportal.models import (
-    Toa,
-    Residual,
-)
+from dataportal.tests.testing_utils import setup_timing_obs, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
 
 
 @pytest.mark.django_db
@@ -32,15 +28,13 @@ def test_toa_ingest():
                                     project {{
                                         short
                                     }}
-                                    residual {{
-                                        mjd
-                                        dayOfYear
-                                        binaryOrbitalPhase
-                                        residualSec
-                                        residualSecErr
-                                        residualPhase
-                                        residualPhaseErr
-                                    }}
+                                    mjd
+                                    dayOfYear
+                                    binaryOrbitalPhase
+                                    residualSec
+                                    residualSecErr
+                                    residualPhase
+                                    residualPhaseErr
                                 }}
                             }}
                         }}

@@ -27,7 +27,6 @@ from dataportal.models import (
     PipelineImage,
     PipelineFile,
     Toa,
-    Residual,
 )
 from utils import constants
 
@@ -622,34 +621,6 @@ class ToaConnection(relay.Connection):
             return []
 
 
-class ResidualNode(DjangoObjectType):
-    class Meta:
-        model = Residual
-        fields = "__all__"
-        filter_fields = {
-            "pulsar": ["exact"],
-            "toa__dm_corrected": ["exact"],
-            "toa__minimum_nsubs": ["exact"],
-            "toa__maximum_nsubs": ["exact"],
-            "toa__obs_nchan": ["exact"],
-        }
-        interfaces = (relay.Node,)
-
-    # ForeignKey fields
-    pipeline_run = graphene.Field(PipelineRunNode)
-    ephemeris = graphene.Field(EphemerisNode)
-    template = graphene.Field(TemplateNode)
-
-    @classmethod
-    @login_required
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-class ResidualConnection(relay.Connection):
-    class Meta:
-        node = ResidualNode
-
-
 class Query(graphene.ObjectType):
     pulsar = relay.ConnectionField(
         PulsarConnection,
@@ -900,12 +871,6 @@ class Query(graphene.ObjectType):
             queryset = queryset.filter(
                 pulsar__name=pulsar_name
             )
-            # .prefetch_related(
-            #     Prefetch(
-            #         "observation__toas",
-            #         queryset=Toa.objects.select_related("project", "residual", "observation__pulsar").filter(observation__pulsar__name=pulsar_name)
-            #     ),
-            # )
 
         main_project_name = kwargs.get('mainProject')
         if main_project_name:
@@ -984,7 +949,6 @@ class Query(graphene.ObjectType):
             "pipeline_run",
             "ephemeris",
             "template",
-            "residual",
             "project",
         ).all()
 
@@ -1032,43 +996,3 @@ class Query(graphene.ObjectType):
             queryset = queryset.filter(obs_npol=obs_npol)
 
         return queryset.order_by('mjd')
-
-
-    residual = relay.ConnectionField(
-        ResidualConnection,
-        pulsar=graphene.String(),
-        dmCorrected=graphene.Boolean(),
-        minimumNsubs=graphene.Boolean(),
-        maximumNsubs=graphene.Boolean(),
-        obsNchan=graphene.Int(),
-        obsNpol=graphene.Int(),
-    )
-    @login_required
-    def resolve_residual(self, info, **kwargs):
-        queryset = Residual.objects.all()
-
-        pulsar_name = kwargs.get('pulsar')
-        if pulsar_name:
-            queryset = queryset.filter(pulsar__name=pulsar_name)
-
-        dm_corrected = kwargs.get('dmCorrected')
-        if dm_corrected is not None:
-            queryset = queryset.filter(toa__dm_corrected=bool(dm_corrected))
-
-        minimum_nsubs = kwargs.get('minimumNsubs')
-        if minimum_nsubs is not None:
-            queryset = queryset.filter(toa__minimum_nsubs=bool(minimum_nsubs))
-
-        maximum_nsubs = kwargs.get('maximumNsubs')
-        if maximum_nsubs is not None:
-            queryset = queryset.filter(toa__maximum_nsubs=bool(maximum_nsubs))
-
-        obs_nchan = kwargs.get('obsNchan')
-        if obs_nchan:
-            queryset = queryset.filter(toa__obs_nchan=obs_nchan)
-
-        obs_npol = kwargs.get('obsNpol')
-        if obs_npol:
-            queryset = queryset.filter(toa__obs_npol=obs_npol)
-
-        return queryset

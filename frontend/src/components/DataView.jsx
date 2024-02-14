@@ -17,6 +17,7 @@ const DataView = ({
   columns,
   rows,
   toaData,
+  jname,
   mainProject,
   setMainProject,
   mostCommonProject,
@@ -65,6 +66,8 @@ const DataView = ({
                     tableData={rows}
                     toaData={toaData}
                     urlQuery={urlQuery}
+                    jname={jname}
+                    mainProject={mainProject}
                     {...props.baseProps}
                   />
                 </Row>

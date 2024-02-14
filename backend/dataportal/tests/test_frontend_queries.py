@@ -216,18 +216,16 @@ def test_fold_detail_query():
                                     dmCorrected
                                     freqMhz
                                     length
+                                    mjd
                                     project {
                                         short
                                     }
-                                    residual {
-                                        mjd
-                                        dayOfYear
-                                        binaryOrbitalPhase
-                                        residualSec
-                                        residualSecErr
-                                        residualPhase
-                                        residualPhaseErr
-                                    }
+                                    dayOfYear
+                                    binaryOrbitalPhase
+                                    residualSec
+                                    residualSecErr
+                                    residualPhase
+                                    residualPhaseErr
                                 }
                             }
                         }

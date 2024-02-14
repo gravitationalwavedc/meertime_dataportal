@@ -58,18 +58,16 @@
                       "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
+                      "mjd": "7.000000000000",
                       "project": {
                         "short": "PTA"
                       },
-                      "residual": {
-                        "mjd": "1.000000000000",
-                        "dayOfYear": 1.0,
-                        "binaryOrbitalPhase": null,
-                        "residualSec": 2.0,
-                        "residualSecErr": 3.0,
-                        "residualPhase": 4.0,
-                        "residualPhaseErr": 5.0
-                      }
+                      "dayOfYear": 1.0,
+                      "binaryOrbitalPhase": null,
+                      "residualSec": 2.0,
+                      "residualSecErr": 3.0,
+                      "residualPhase": 4.0,
+                      "residualPhaseErr": 5.0
                     }
                   }
                 ]
@@ -121,18 +119,16 @@
                       "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
+                      "mjd": "7.000000000000",
                       "project": {
                         "short": "PTA"
                       },
-                      "residual": {
-                        "mjd": "1.000000000000",
-                        "dayOfYear": 1.0,
-                        "binaryOrbitalPhase": null,
-                        "residualSec": 2.0,
-                        "residualSecErr": 3.0,
-                        "residualPhase": 4.0,
-                        "residualPhaseErr": 5.0
-                      }
+                      "dayOfYear": 1.0,
+                      "binaryOrbitalPhase": null,
+                      "residualSec": 2.0,
+                      "residualSecErr": 3.0,
+                      "residualPhase": 4.0,
+                      "residualPhaseErr": 5.0
                     }
                   }
                 ]
@@ -184,18 +180,16 @@
                       "dmCorrected": false,
                       "freqMhz": 6.0,
                       "length": 9,
+                      "mjd": "7.000000000000",
                       "project": {
                         "short": "PTA"
                       },
-                      "residual": {
-                        "mjd": "1.000000000000",
-                        "dayOfYear": 1.0,
-                        "binaryOrbitalPhase": null,
-                        "residualSec": 2.0,
-                        "residualSecErr": 3.0,
-                        "residualPhase": 4.0,
-                        "residualPhaseErr": 5.0
-                      }
+                      "dayOfYear": 1.0,
+                      "binaryOrbitalPhase": null,
+                      "residualSec": 2.0,
+                      "residualSecErr": 3.0,
+                      "residualPhase": 4.0,
+                      "residualPhaseErr": 5.0
                     }
                   }
                 ]

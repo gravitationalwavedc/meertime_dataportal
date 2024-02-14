@@ -6,8 +6,8 @@ from decimal import Decimal, getcontext
 import graphene
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import Pulsar, Ephemeris, Project, Residual, Toa
-from dataportal.graphql.queries import ResidualNode
+from dataportal.models import Pulsar, Ephemeris, Project, Toa
+from dataportal.graphql.queries import ToaNode
 from utils.binary_phase import get_binary_phase, is_binary
 
 
@@ -17,14 +17,14 @@ class ResidualInput(graphene.InputObjectType):
 
 
 class CreateResidualOutput(graphene.ObjectType):
-    residual = graphene.List(ResidualNode)
+    toa = graphene.List(ToaNode)
 
 
 class CreateResidual(graphene.Mutation):
     class Arguments:
         input = ResidualInput(required=True)
 
-    residual = graphene.List(ResidualNode)
+    # residual = graphene.List(ResidualNode)
     Output = CreateResidualOutput
 
     @classmethod
@@ -58,34 +58,33 @@ class CreateResidual(graphene.Mutation):
             else:
                 binary_orbital_phase = None
 
-            # Upload the residual
-            residual_to_create.append(
-                Residual(
-                    # X axis types
-                    mjd                 =Decimal(mjd),
-                    day_of_year         =day_of_year,
-                    binary_orbital_phase=binary_orbital_phase,
-                    # Y axis types
-                    residual_sec        =float(residual),
-                    residual_sec_err    =float(residual_err)/1e9, # Convert from ns to s
-                    residual_phase      =float(residual_phase),
-                    # Convert from ns to s the divide vy period to convert to phase
-                    residual_phase_err  =float(residual_err)/1e9 / ephemeris_dict["P0"],
-                )
-            )
+            # Update the toa with the residual
+            # X axis types
+            toa.day_of_year          = day_of_year
+            toa.binary_orbital_phase = binary_orbital_phase
+            # Y axis types
+            toa.residual_sec         = float(residual)
+            toa.residual_sec_err     = float(residual_err)/1e9 # Convert from ns to s
+            toa.residual_phase       = float(residual_phase)
+            # Convert from ns to s the divide vy period to convert to phase
+            toa.residual_phase_err   = float(residual_err)/1e9 / ephemeris_dict["P0"]
 
-            # Get toa which we will update the residual foreign key of
             toas_to_update.append(toa)
 
-        # Launch bulk creation of residuals
-        created_residuals = Residual.objects.bulk_create(residual_to_create)
+        # Launch bulk creation of residuals (update of toas)
+        n_toas_updated = Toa.objects.bulk_update(
+            toas_to_update,
+            [
+                "day_of_year",
+                "binary_orbital_phase",
+                "residual_sec",
+                "residual_sec_err",
+                "residual_phase",
+                "residual_phase_err",
+            ]
+        )
 
-        # Prep bulk updates of Toas so they have updated foreign key to residual
-        for list_n in range(len(created_residuals)):
-            toas_to_update[list_n].residual = created_residuals[list_n]
-        n_toas_updated = Toa.objects.bulk_update(toas_to_update, ["residual"])
-
-        return CreateResidualOutput(residual=created_residuals)
+        return CreateResidualOutput(toa=toas_to_update)
 
 
 class UpdateResidual(graphene.Mutation):
@@ -93,7 +92,7 @@ class UpdateResidual(graphene.Mutation):
         id = graphene.Int(required=True)
         input = ResidualInput(required=True)
 
-    residual = graphene.Field(ResidualNode)
+    toa = graphene.Field(ToaNode)
 
     @classmethod
     @permission_required("dataportal.add_residual")

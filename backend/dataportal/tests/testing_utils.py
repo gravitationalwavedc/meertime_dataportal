@@ -19,7 +19,6 @@ from dataportal.models import (
     Observation,
     PipelineRun,
     Toa,
-    Residual,
 )
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
@@ -167,14 +166,6 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
             percent_rfi_zapped=10,
         )
         if make_toas:
-            residual = Residual.objects.create(
-                mjd=1,
-                day_of_year=1,
-                residual_sec=2,
-                residual_sec_err=3,
-                residual_phase=4,
-                residual_phase_err=5,
-            )
 
             toa = Toa.objects.create(
                 pipeline_run=pipeline_run,
@@ -182,7 +173,6 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
                 project=project,
                 ephemeris=ephemeris,
                 template=template,
-                residual=residual,
                 freq_MHz=6,
                 mjd=7,
                 mjd_err=8,
@@ -190,6 +180,11 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
                 dm_corrected=False,
                 minimum_nsubs=True,
                 obs_nchan=1,
+                day_of_year=1,
+                residual_sec=2,
+                residual_sec_err=3,
+                residual_phase=4,
+                residual_phase_err=5,
             )
     else:
         pipeline_run = None

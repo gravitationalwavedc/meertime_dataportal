@@ -1,4 +1,4 @@
-import { calculateMedian, mjdToUnixTimestamp } from "../../helpers";
+import { calculateMedian, mjdToUnixTimestamp, formatUTC } from "../../helpers";
 import moment from "moment";
 
 export const getXaxisFormatter = (xAxis) => {
@@ -100,9 +100,16 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
   }
 };
 
-export const getActivePlotData = (tableData, toaDataResult, activePlot, timingProject) => {
+export const getActivePlotData = (
+  tableData,
+  toaDataResult,
+  activePlot,
+  timingProject,
+  jname,
+  mainProject
+) => {
   if (activePlot == "Residual") {
-    return residualPlotData(toaDataResult, timingProject);
+    return residualPlotData(toaDataResult, timingProject, jname, mainProject);
   } else if (activePlot == "S/N") {
     return snrPlotData(tableData);
   } else if (activePlot == "Flux Density") {
@@ -258,18 +265,23 @@ export const rmPlotData = (data) => {
   return allData;
 };
 
-export const residualPlotData = (data, timingProject) => {
-  const allData = data.toa.edges.filter(edge => edge.node.residual !== null).filter(edge => edge.node.projectShort === timingProject).map((edge) => ({
-    id: edge.node.residual.id,
-    utc: moment(mjdToUnixTimestamp(edge.node.residual.mjd)).valueOf(),
-    day: edge.node.residual.dayOfYear,
-    phase: edge.node.residual.binaryOrbitalPhase,
-    value: edge.node.residual.residualSec,
-    error: edge.node.residual.residualSecErr,
-    size: edge.node.observation.duration,
-    link: edge.node.plotLink,
-    band: edge.node.observation.band,
-  }));
+export const residualPlotData = (data, timingProject, jname, mainProject) => {
+  const allData = data.toa.edges
+    .filter((edge) => edge.node.residualSec !== null)
+    .filter((edge) => edge.node.project.short === timingProject)
+    .map((edge) => ({
+      id: edge.node.id,
+      utc: moment(mjdToUnixTimestamp(edge.node.mjd)).valueOf(),
+      day: edge.node.dayOfYear,
+      phase: edge.node.binaryOrbitalPhase,
+      value: edge.node.residualSec,
+      error: edge.node.residualSecErr,
+      size: edge.node.observation.duration,
+      link: `/${mainProject}/${jname}/${formatUTC(
+        edge.node.observation.utcStart
+      )}/${edge.node.observation.beam}/`,
+      band: edge.node.observation.band,
+    }));
 
   return allData;
 };

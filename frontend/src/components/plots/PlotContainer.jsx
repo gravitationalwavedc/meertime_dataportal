@@ -41,16 +41,14 @@ const PlotContainerFragment = graphql`
           minimumNsubs
           maximumNsubs
           dmCorrected
-          residual {
-            id
-            mjd
-            dayOfYear
-            binaryOrbitalPhase
-            residualSec
-            residualSecErr
-            residualPhase
-            residualPhaseErr
-          }
+          id
+          mjd
+          dayOfYear
+          binaryOrbitalPhase
+          residualSec
+          residualSecErr
+          residualPhase
+          residualPhaseErr
         }
       }
     }
@@ -61,6 +59,8 @@ const PlotContainer = ({
   tableData,
   toaData,
   urlQuery,
+  jname,
+  mainProject,
 }) => {
   const [toaDataResult, refetch] = useRefetchableFragment(
     PlotContainerFragment,
@@ -106,7 +106,7 @@ const PlotContainer = ({
   };
 
   const handleSetMaxNsub = (newMaxNsub) => {
-    setMaximumNsubs(newMaxNsub);
+    setMaxNsub(newMaxNsub);
     handleRefetch({
       newMaxNsub: newMaxNsub,
     });
@@ -134,7 +134,14 @@ const PlotContainer = ({
     setTimingProject(timingProject);
   };
 
-  const activePlotData = getActivePlotData(tableData, toaDataResult, activePlot, timingProject);
+  const activePlotData = getActivePlotData(
+    tableData,
+    toaDataResult,
+    activePlot,
+    timingProject,
+    jname,
+    mainProject
+  );
 
   return (
     <Suspense
@@ -242,7 +249,8 @@ const PlotContainer = ({
           <PlotlyPlot
             data={activePlotData}
             xAxis={xAxis}
-            activePlot={activePlot} />
+            activePlot={activePlot}
+          />
         </div>
       </Col>
     </Suspense>

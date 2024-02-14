@@ -10,15 +10,9 @@ import FoldDetailTable from "../components/FoldDetailTable";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
 
 const FoldDetailQuery = graphql`
-  query FoldDetailQuery(
-    $pulsar: String!
-    $mainProject: String
-  ) {
+  query FoldDetailQuery($pulsar: String!, $mainProject: String) {
     ...FoldDetailTableFragment
-      @arguments(
-        pulsar: $pulsar
-        mainProject: $mainProject
-      )
+      @arguments(pulsar: $pulsar, mainProject: $mainProject)
   }
 `;
 
