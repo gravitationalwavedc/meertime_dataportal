@@ -19,6 +19,14 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Registration, dispatch_uid="send_out_email")
 def send_out_email(sender, instance, **kwargs):
+    """
+    After a Registration object is saved an email is sent to the user to verify their account
+    using a verification code.
+
+    :param sender: Registration model class.
+    :param instance: Instance of a registration model that called save.
+    :param kwargs: Extra keyword arguments.
+    """
     if instance.status is not Registration.VERIFIED:
         # send verification email
         send_verification_email(
@@ -30,10 +38,17 @@ def send_out_email(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=Registration, dispatch_uid="handle_registration_save")
 def handle_registration_save(sender, instance, **kwargs):
-    if not instance.pk:
-        # hashing the password
-        instance.password = make_password(instance.password)
+    """
+    Before a Registration object is saved, we hash the password and create a new user if the
+    registration is verified and no user is associated with it.
+    Email is used as the username and we create a hashed password if needed.
 
+    :param sender: Registration model class.
+    :param instance: Instance of a registration model that called save.
+    :param kwargs: Extra keyword arguments.
+    """
+    if not instance.pk:
+        instance.password = make_password(instance.password)
         logger.info(
             f"""signals.py: handle_registration_save
                 fn={instance.first_name}
@@ -44,11 +59,7 @@ def handle_registration_save(sender, instance, **kwargs):
                 user={instance.user}
                 time={datetime.datetime}"""
         )
-
     elif instance.status == Registration.VERIFIED and instance.user is None:
-        # if verified, and no user is associated with then, create a new user, with
-        # the username as the email
-        # a password that is hash of the hashed password
         new_user = User.objects.create_user(
             username=instance.email,
             email=instance.email,
@@ -66,6 +77,15 @@ def handle_registration_save(sender, instance, **kwargs):
 
 @receiver(pre_save, sender=PasswordResetRequest, dispatch_uid="handle_request_password_reset_save")
 def handle_password_reset_request_save(sender, instance, raw, **kwargs):
+    """
+    Before a PasswordResetRequest object is saved, we send an email to the user to reset their
+    password using a verification code.
+
+    :param sender: PasswordResetRequest model class.
+    :param instance: Instance of a password reset request model that called save.
+    :param raw: True if the model is saved exactly as presented.
+    :param kwargs: Extra keyword arguments.
+    """
     if not instance.pk and not raw:
         # get the user whose password will be changed
         user = User.objects.filter(Q(username=instance.email) | Q(email=instance.email)).first()
@@ -83,6 +103,15 @@ def handle_password_reset_request_save(sender, instance, raw, **kwargs):
 
 @receiver(pre_save, sender=ProvisionalUser, dispatch_uid="handle_provisional_user_save")
 def handle_provisional_user_save(sender, instance, **kwargs):
+    """
+    Before a ProvisionalUser object is saved, we create a new user if there is no instance pk
+    (This usually means it hasn't been saved before). Then we check if an email has been sent, if not
+    we send an activation email and update the model so it's not sent again.
+
+    :param sender: ProvisionalUser model class.
+    :param instance: Instance of a provisional user model that called save.
+    :param kwargs: Extra keyword arguments.
+    """
     if not instance.pk:
         # create a new user and refer it
         new_user = User.objects.create_user(
@@ -97,7 +126,6 @@ def handle_provisional_user_save(sender, instance, **kwargs):
     # this can be used to resend emails
     if not instance.email_sent:
         now = timezone.now()
-        # update expiry
         instance.activation_expiry = now + datetime.timedelta(days=30)
 
         try:
