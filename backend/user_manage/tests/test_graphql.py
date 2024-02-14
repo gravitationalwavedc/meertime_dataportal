@@ -1,17 +1,17 @@
 import datetime
 import json
-import responses
-
 from unittest.mock import patch
 
 import pytest
+import responses
+from django.contrib.auth import authenticate, get_user_model
 from django.core import mail
 from django.utils import timezone
 from graphene_django.utils.testing import GraphQLTestCase
 
-from django.contrib.auth import get_user_model, authenticate
 from utils.constants import UserRole
-from ..models import Registration, PasswordResetRequest, ProvisionalUser
+
+from ..models import PasswordResetRequest, ProvisionalUser, Registration
 
 User = get_user_model()
 
@@ -128,11 +128,9 @@ class RegistrationTestCase(GraphQLTestCase):
                 "captcha": "mysecretecaptcha",
             },
         )
-
         self.assertResponseNoErrors(response)
 
         content = json.loads(response.content)
-
         self.assertFalse(content["data"]["createRegistration"]["ok"])
         self.assertIsNone(content["data"]["createRegistration"]["registration"])
         self.assertIsNotNone(content["data"]["createRegistration"]["errors"])

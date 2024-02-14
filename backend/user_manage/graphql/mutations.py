@@ -1,29 +1,16 @@
 import datetime
+from uuid import UUID
 
 import django.contrib.auth
 import graphene
 import requests
-
-from django.utils import timezone
 from django.conf import settings
-
-from uuid import UUID
 from django.db.models import Q
+from django.utils import timezone
 
-from ..models import (
-    Registration,
-    PasswordResetRequest,
-    ProvisionalUser,
-)
-from .types import (
-    RegistrationInput,
-    RegistrationType,
-    PasswordResetRequestType,
-    UserType,
-    ProvisionalUserType,
-)
-
+from ..models import PasswordResetRequest, ProvisionalUser, Registration
 from . import admin_api
+from .types import PasswordResetRequestType, ProvisionalUserType, RegistrationInput, RegistrationType, UserType
 
 UserModel = django.contrib.auth.get_user_model()
 
@@ -52,7 +39,7 @@ class CreateRegistration(graphene.Mutation):
             registration = Registration.objects.create(**input)
             return CreateRegistration(ok=True, registration=registration, errors=None)
         except Exception as e:
-            return CreateRegistration(ok=False, registration=None, errors=e)
+            return CreateRegistration(ok=False, registration=None, errors=e.messages)
 
 
 class VerifyRegistration(graphene.Mutation):
@@ -80,7 +67,7 @@ class VerifyRegistration(graphene.Mutation):
         except Registration.DoesNotExist:
             return VerifyRegistration(ok=False, registration=None, errors=["Verification code does not exist."])
         except Exception as e:
-            return VerifyRegistration(ok=False, registration=None, errors=e)
+            return VerifyRegistration(ok=False, registration=None, errors=e.messages)
 
 
 class AccountActivation(graphene.Mutation):
@@ -122,7 +109,7 @@ class AccountActivation(graphene.Mutation):
                 ok=False, provisional_user=None, errors=["Activation code for this email does not exist."]
             )
         except Exception as e:
-            return AccountActivation(ok=False, provisional_user=None, errors=e)
+            return AccountActivation(ok=False, provisional_user=None, errors=e.messages)
 
 
 class CreatePasswordResetRequest(graphene.Mutation):
@@ -139,7 +126,7 @@ class CreatePasswordResetRequest(graphene.Mutation):
             password_reset_request = PasswordResetRequest.objects.create(email=email)
             return CreatePasswordResetRequest(ok=True, password_reset_request=password_reset_request, errors=None)
         except Exception as e:
-            return CreatePasswordResetRequest(ok=False, password_reset_request=None, errors=e)
+            return CreatePasswordResetRequest(ok=False, password_reset_request=None, errors=e.messages)
 
 
 class PasswordReset(graphene.Mutation):
@@ -195,7 +182,7 @@ class PasswordReset(graphene.Mutation):
         except PasswordResetRequest.DoesNotExist:
             return PasswordReset(ok=False, password_reset_request=None, errors=["Verification code does not exist."])
         except Exception as e:
-            return PasswordReset(ok=False, registration=None, errors=e)
+            return PasswordReset(ok=False, registration=None, errors=e.messages)
 
 
 class PasswordChange(graphene.Mutation):
@@ -226,7 +213,7 @@ class PasswordChange(graphene.Mutation):
         except UserModel.DoesNotExist:
             return PasswordChange(ok=False, user=None, errors=["User does not exist."])
         except Exception as e:
-            return PasswordChange(ok=False, user=None, errors=e)
+            return PasswordChange(ok=False, user=None, errors=e.messages)
 
 
 class Mutation(admin_api.Mutation, graphene.ObjectType):
