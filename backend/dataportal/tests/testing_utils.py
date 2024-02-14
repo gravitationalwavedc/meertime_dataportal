@@ -227,7 +227,7 @@ def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
 
 def setup_timing_obs():
     client = JSONWebTokenClient()
-    user = get_user_model().objects.create(username="buffy")
+    user = get_user_model().objects.create(username="buffy", is_staff=True, is_superuser=True)
     telescope, project, ephemeris, template = create_basic_data()
 
     obs, cal, pr = create_observation_pipeline_run_toa(

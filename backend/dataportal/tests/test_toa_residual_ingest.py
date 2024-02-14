@@ -1,7 +1,5 @@
-import os
-import json
-import copy
 import pytest
+from base64 import b64decode
 from dataportal.tests.testing_utils import setup_timing_obs, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
 
 
@@ -23,6 +21,7 @@ def test_toa_ingest():
                             ) {{
                             edges {{
                                 node {{
+                                    id
                                     freqMhz
                                     length
                                     project {{
@@ -52,3 +51,38 @@ def test_toa_ingest():
     response = client.execute(query.format(nchan=16))
     for pulsarFoldResult in response.data["pulsarFoldResult"]["edges"]:
         assert len(pulsarFoldResult["node"]["observation"]["toas"]["edges"]) == 32 # 16 from each observation
+
+    # Make some dummy residual lines
+    residual_lines = []
+    residual_dict = {}
+    for toa_n, toa in enumerate(response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["toas"]["edges"]):
+        decoded_id = b64decode(toa['node']['id']).decode("ascii").split(":")[1]
+        residual_lines.append(
+            f"{decoded_id},{toa['node']['mjd']},{toa_n},0.1,0.5"
+        )
+        residual_dict[toa['node']['id']] = toa_n
+
+    # Upload them
+    mutation = """
+        mutation (
+            $residualLines: [String]!
+            ) {
+                createResidual (
+                    input: {
+                        residualLines: $residualLines
+                    }
+                ) {
+                    toa {
+                        id
+                        residualSec
+                    }
+                }
+            }
+    """
+    variables = { "residualLines": residual_lines }
+    response = client.execute(mutation, variables)
+
+    # Check the residuals are uploaded to the right toa
+    for toa in response.data["createResidual"]["toa"]:
+        assert toa['id'] in residual_dict
+        assert toa['residualSec'] == residual_dict[toa['id']]

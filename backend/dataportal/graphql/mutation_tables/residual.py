@@ -36,13 +36,28 @@ class CreateResidual(graphene.Mutation):
         getcontext().prec = 12
         base_date = datetime(1858, 11, 17)  # Base date for MJD
 
-        residual_to_create = []
         toas_to_update = []
-        residual_lines = input["residualLines"]
-        for residual_line in residual_lines:
+        residual_info = {}
+        for residual_line in input["residualLines"]:
             # Loop over residual lines and and split them to get the important values
             id, mjd, residual, residual_err, residual_phase = residual_line.split(",")
-            toa = Toa.objects.select_related("ephemeris").get(id=int(id))
+            # Put thin info into a dict to be used later
+            residual_info[int(id)] = {
+                "mjd":            mjd,
+                "residual":       residual,
+                "residual_err":   residual_err,
+                "residual_phase": residual_phase,
+            }
+
+        # Use a filter instead of thousands of individual gets for speed
+        toas_to_update = Toa.objects.select_related("ephemeris").filter(id__in=residual_info.keys())
+        for toa in toas_to_update:
+            # Unpack
+            mjd = residual_info[toa.id]["mjd"]
+            residual = residual_info[toa.id]["residual"]
+            residual_err = residual_info[toa.id]["residual_err"]
+            residual_phase = residual_info[toa.id]["residual_phase"]
+
             ephemeris_dict = json.loads(toa.ephemeris.ephemeris_data)
 
             # Get the day of the year as a float
@@ -66,10 +81,9 @@ class CreateResidual(graphene.Mutation):
             toa.residual_sec         = float(residual)
             toa.residual_sec_err     = float(residual_err)/1e9 # Convert from ns to s
             toa.residual_phase       = float(residual_phase)
-            # Convert from ns to s the divide vy period to convert to phase
+            # Convert from ns to s the divide by period to convert to phase
             toa.residual_phase_err   = float(residual_err)/1e9 / ephemeris_dict["P0"]
 
-            toas_to_update.append(toa)
 
         # Launch bulk creation of residuals (update of toas)
         n_toas_updated = Toa.objects.bulk_update(
