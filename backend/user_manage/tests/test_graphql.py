@@ -144,7 +144,7 @@ class RegistrationTestCase(GraphQLTestCase):
 
 @pytest.mark.django_db
 @pytest.mark.enable_signals
-class VerifyRegistrationTestCase(GraphQLTestCase):
+class VerifyRegistrationMutationTestCase(GraphQLTestCase):
     def setUp(self) -> None:
         self.user_details = dict(
             {
