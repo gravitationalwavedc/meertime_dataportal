@@ -11,6 +11,7 @@ const PlotContainerFragment = graphql`
   @argumentDefinitions(
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
+    projectShort: { type: "String", defaultValue: "All" }
     minimumNsubs: { type: "Boolean", defaultValue: true }
     maximumNsubs: { type: "Boolean", defaultValue: false }
     obsNchan: { type: "Int", defaultValue: 1 }
@@ -19,6 +20,7 @@ const PlotContainerFragment = graphql`
     toa(
       pulsar: $pulsar
       mainProject: $mainProject
+      projectShort: $projectShort
       minimumNsubs: $minimumNsubs
       maximumNsubs: $maximumNsubs
       obsNchan: $obsNchan
@@ -73,23 +75,25 @@ const PlotContainer = ({
 
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Residual");
-  const [timingProject, setTimingProject] = useState(timingProjects[0]);
+  const [timingProject, setTimingProject] = useState(urlQuery.timingProject || timingProjects[0]);
   const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
   const [maxNsub, setMaxNsub] = useState(urlQuery.maxNsub || false);
   const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 4);
 
   const handleRefetch = ({
+    newTimingProject = timingProject,
     newObsNchan = obsNchan,
     newMaxNsub = maxNsub,
     newObsNpol = obsNpol,
   } = {}) => {
     const url = new URL(window.location);
+    url.searchParams.set("timingProject", newTimingProject);
     url.searchParams.set("obsNchan", newObsNchan);
     url.searchParams.set("maxNsub", newMaxNsub);
     url.searchParams.set("obsNpol", newObsNpol);
     window.history.pushState({}, "", url);
-    const newMinimumNsubs = newMaxNsub === "true" ? true : false;
-    const newMaximumNsubs = newMaxNsub === "false" ? true : false;
+    const newMinimumNsubs = newMaxNsub === "false" ? true : false;
+    const newMaximumNsubs = newMaxNsub === "true" ? true : false;
     console.log(
       "Refetching with:",
       newObsNchan,
@@ -98,10 +102,22 @@ const PlotContainer = ({
       newObsNpol
     );
     refetch({
+      projectShort: newTimingProject,
       obsNchan: newObsNchan,
       minimumNsubs: newMinimumNsubs,
       maximumNsubs: newMaximumNsubs,
       obsNpol: newObsNpol,
+    });
+  };
+
+  const handleSetActivePlot = (activePlot) => {
+    setActivePlot(activePlot);
+  };
+
+  const handleSetTimingProject = (newTimingProject) => {
+    setTimingProject(newTimingProject);
+    handleRefetch({
+      newTimingProject: newTimingProject,
     });
   };
 
@@ -126,14 +142,7 @@ const PlotContainer = ({
     });
   };
 
-  const handleSetActivePlot = (activePlot) => {
-    setActivePlot(activePlot);
-  };
-
-  const handleSetTimingProject = (timingProject) => {
-    setTimingProject(timingProject);
-  };
-
+  console.log("timingProject", timingProject);
   const activePlotData = getActivePlotData(
     tableData,
     toaDataResult,
@@ -142,6 +151,7 @@ const PlotContainer = ({
     jname,
     mainProject
   );
+  console.log("activePlotData", activePlotData);
 
   return (
     <Suspense

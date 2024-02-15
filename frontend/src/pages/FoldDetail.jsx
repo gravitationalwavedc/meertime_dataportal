@@ -20,6 +20,7 @@ const PlotContainerQuery = graphql`
   query FoldDetailPlotContainerQuery(
     $pulsar: String!
     $mainProject: String
+    $projectShort: String
     $minimumNsubs: Boolean
     $maximumNsubs: Boolean
     $obsNchan: Int
@@ -29,6 +30,7 @@ const PlotContainerQuery = graphql`
       @arguments(
         pulsar: $pulsar
         mainProject: $mainProject
+        projectShort: $projectShort
         minimumNsubs: $minimumNsubs
         maximumNsubs: $maximumNsubs
         obsNchan: $obsNchan
@@ -57,6 +59,7 @@ const FoldDetail = ({ match }) => {
   const toaData = useLazyLoadQuery(PlotContainerQuery, {
     pulsar: jname,
     mainProject: mainProject,
+    projectShort: match.location.query.timingProject || "All",
     minimumNsubs: true,
     maximumNsubs: false,
     obsNchan: 1,
