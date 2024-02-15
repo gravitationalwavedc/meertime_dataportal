@@ -6,6 +6,8 @@ from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
 
+FROM_EMAIL = settings.DEFAULT_FROM_EMAIL
+
 
 def send_verification_email(name, to, verification_code):
     """
@@ -23,7 +25,7 @@ def send_verification_email(name, to, verification_code):
 
     logger.info(f"utility.py : send_verification_email subject={subject} to={to}")
 
-    send_mail(subject, text_message, settings.EMAIL_FROM, recipient_list=[to], html_message=html_message)
+    send_mail(subject, text_message, FROM_EMAIL, recipient_list=[to], html_message=html_message)
 
 
 def send_password_reset_email(name, to, verification_code):
@@ -39,7 +41,7 @@ def send_password_reset_email(name, to, verification_code):
     text_message = render_to_string("user_manage/password_reset.txt", email_context)
     html_message = render_to_string("user_manage/password_reset.html", email_context)
 
-    send_mail(subject, text_message, settings.EMAIL_FROM, recipient_list=[to], html_message=html_message)
+    send_mail(subject, text_message, FROM_EMAIL, recipient_list=[to], html_message=html_message)
 
 
 def send_activation_email(to, activation_code):
@@ -58,4 +60,4 @@ def send_activation_email(to, activation_code):
     text_message = render_to_string("user_manage/activation_email.txt", email_context)
     html_message = render_to_string("user_manage/activation_email.html", email_context)
 
-    send_mail(subject, text_message, settings.EMAIL_FROM, recipient_list=[to], html_message=html_message)
+    send_mail(subject, text_message, FROM_EMAIL, recipient_list=[to], html_message=html_message)
