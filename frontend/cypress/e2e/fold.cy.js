@@ -12,6 +12,7 @@ describe("The Fold Page", () => {
         "FoldDetailFileDownloadQuery",
         "foldDetailFileDownloadQuery.json"
       );
+      aliasQuery(req, "PlotContainerQuery", "plotContainerQuery.json");
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
       aliasQuery(
         req,

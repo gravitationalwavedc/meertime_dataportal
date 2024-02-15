@@ -168,66 +168,40 @@ def test_fold_detail_query():
                     }
                 }
             }
-            pulsarFoldResult(pulsar: "J0125-2327", mainProject: "MeerTIME") {
-                residualEphemeris {
-                    ephemerisData
-                    createdAt
-                }
-                description
-                toasLink
-                allProjects
-                allNchans
-                edges {
-                    node {
-                        observation {
-                            utcStart
-                            dayOfYear
-                            binaryOrbitalPhase
-                            duration
-                            beam
-                            bandwidth
-                            nchan
-                            band
-                            foldNbin
-                            nant
-                            nantEff
-                            restricted
-                            embargoEndDate
-                            project {
-                                short
-                            }
-                            ephemeris {
-                                dm
-                            }
-                            calibration {
-                                idInt
-                            }
-                            toas(
-                                dmCorrected: false
-                                minimumNsubs: true
-                                obsNchan: 1
-                            ) {
-                            edges {
-                                node {
-                                    obsNchan
-                                    obsNpol
-                                    minimumNsubs
-                                    maximumNsubs
-                                    dmCorrected
-                                    freqMhz
-                                    length
-                                    mjd
-                                    project {
-                                        short
-                                    }
-                                    dayOfYear
-                                    binaryOrbitalPhase
-                                    residualSec
-                                    residualSecErr
-                                    residualPhase
-                                    residualPhaseErr
-                                }
-                            }
+            pulsarFoldResult(
+                pulsar: "J0125-2327",
+                mainProject: "MeerTIME"
+            ) {
+            residualEphemeris {
+                ephemerisData
+                createdAt
+            }
+            description
+            edges {
+                node {
+                    observation {
+                        id
+                        utcStart
+                        dayOfYear
+                        binaryOrbitalPhase
+                        duration
+                        beam
+                        bandwidth
+                        nchan
+                        band
+                        foldNbin
+                        nant
+                        nantEff
+                        restricted
+                        embargoEndDate
+                        project {
+                            short
+                        }
+                        ephemeris {
+                            dm
+                        }
+                        calibration {
+                            idInt
                         }
                     }
                     pipelineRun {
@@ -256,6 +230,61 @@ def test_fold_detail_query():
         expected = json.load(file)["data"]
     del response.data["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
     del expected["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
+    assert response.data == expected
+
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_plot_container_query():
+    client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
+    client.authenticate(user)
+    response = client.execute("""
+        query {
+            toa(
+                pulsar: "J0125-2327"
+                mainProject: "MeerTIME"
+                projectShort: "PTA"
+                minimumNsubs: true
+                maximumNsubs: false
+                obsNchan: 1
+                obsNpol: 1
+            ) {
+            allProjects
+            allNchans
+            edges {
+                node {
+                    observation {
+                        duration
+                        utcStart
+                        beam
+                        band
+                    }
+                    project {
+                        short
+                    }
+                    obsNchan
+                    minimumNsubs
+                    maximumNsubs
+                    dmCorrected
+                    id
+                    mjd
+                    dayOfYear
+                    binaryOrbitalPhase
+                    residualSec
+                    residualSecErr
+                    residualPhase
+                    residualPhaseErr
+                }
+            }
+        }
+    }
+    """)
+
+    assert not response.errors
+    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "plotContainerQuery.json"), 'w') as json_file:
+    #     json.dump({"data": response.data}, json_file, indent=2)
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "plotContainerQuery.json"), 'r') as file:
+        expected = json.load(file)["data"]
     assert response.data == expected
 
 
