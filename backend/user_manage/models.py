@@ -62,9 +62,8 @@ class ProvisionalUser(models.Model):
         if self.pk:
             # check this before activating the user
             old_instance = ProvisionalUser.objects.get(id=self.pk)
-            if not old_instance.activated and self.activated:
-                if timezone.now() > self.activation_expiry:
-                    raise ValidationError({"activation_code": ["Activation code expired."]})
+            if not old_instance.activated and self.activated and timezone.now() > self.activation_expiry:
+                raise ValidationError({"activation_code": ["Activation code expired."]})
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -90,6 +89,9 @@ class Registration(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     last_updated = models.DateTimeField(auto_now=True)
     user = models.ForeignKey(User, null=True, blank=True, default=None, on_delete=models.CASCADE)
+
+    def get_full_name(self):
+        return f"{self.first_name} {self.last_name}"
 
     def clean(self):
         if not self.pk:

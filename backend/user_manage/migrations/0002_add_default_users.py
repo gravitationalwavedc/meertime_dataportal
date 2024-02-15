@@ -1,19 +1,18 @@
 from django.db import migrations
 from django.contrib.auth.hashers import make_password
+from meertime.settings import env
 
 from utils.constants import UserRole
 
-import os
+SHARED_MEERTIME_USER_ID = env("SHARED_MEERTIME_USER_ID", default="shared_id")
+SHARED_MEERTIME_USER_PASS = env("SHARED_MEERTIME_USER_PASS", default="shared_pass")
+SHARED_MEERTIME_USER_EMAIL = env("SHARED_MEERTIME_USER_EMAIL", default="shared_email")
+SHARED_MEERTIME_USER_ACCESS = env("SHARED_MEERTIME_USER_ACCESS", default="shared_user")
 
-SHARED_MEERTIME_USER_ID = os.environ.get("SHARED_MEERTIME_USER_ID")
-SHARED_MEERTIME_USER_PASS = os.environ.get("SHARED_MEERTIME_USER_PASS")
-SHARED_MEERTIME_USER_EMAIL = os.environ.get("SHARED_MEERTIME_USER_EMAIL")
-SHARED_MEERTIME_USER_ACCESS = os.environ.get("SHARED_MEERTIME_USER_ACCESS")
-
-SERVICE_MEERTIME_USER_ID = os.environ.get("SERVICE_MEERTIME_USER_ID")
-SERVICE_MEERTIME_USER_PASS = os.environ.get("SERVICE_MEERTIME_USER_PASS")
-SERVICE_MEERTIME_USER_EMAIL = os.environ.get("SERVICE_MEERTIME_USER_EMAIL")
-SERVICE_MEERTIME_USER_ACCESS = os.environ.get("SERVICE_MEERTIME_USER_ACCESS")
+SERVICE_MEERTIME_USER_ID = env("SERVICE_MEERTIME_USER_ID", default="service_id")
+SERVICE_MEERTIME_USER_PASS = env("SERVICE_MEERTIME_USER_PASS", default="service_pass")
+SERVICE_MEERTIME_USER_EMAIL = env("SERVICE_MEERTIME_USER_EMAIL", default="service_email")
+SERVICE_MEERTIME_USER_ACCESS = env("SERVICE_MEERTIME_USER_ACCESS", default="service_user")
 
 
 def add_default_users(apps, schema_editor):

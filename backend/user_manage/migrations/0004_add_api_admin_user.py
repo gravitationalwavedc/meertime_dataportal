@@ -1,13 +1,12 @@
-from django.db import migrations
 from django.contrib.auth.hashers import make_password
+from django.db import migrations
 
+from meertime.settings import env
 from utils.constants import UserRole
 
-import os
-
-API_ADMIN_USER_ID = os.environ.get("API_ADMIN_USER_ID")
-API_ADMIN_USER_PASS = os.environ.get("API_ADMIN_USER_PASS")
-API_ADMIN_USER_EMAIL = os.environ.get("API_ADMIN_USER_EMAIL")
+API_ADMIN_USER_ID = env("API_ADMIN_USER_ID", default="user_api_admin")
+API_ADMIN_USER_PASS = env("API_ADMIN_USER_PASS", default="password_api_admin")
+API_ADMIN_USER_EMAIL = env("API_ADMIN_USER_EMAIL", default="example@superuser.com")
 
 
 def add_default_users(apps, schema_editor):

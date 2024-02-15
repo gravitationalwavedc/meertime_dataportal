@@ -1,0 +1,4 @@
+Dear {{name}}, You have requested an account with MeerTime using this email
+address. Please click on the following link to verify your email address: {{ verification_link }}
+If you believe this email is sent to you by mistake please contact us at
+hpc-support@swin.edu.au . Kind Regards, MeerTime Support Team
