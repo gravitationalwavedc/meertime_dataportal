@@ -1,6 +1,7 @@
 variables:
   POETRY_HOME: "/opt/poetry"
   DEVELOPMENT_MODE: "True"
+  DJANGO_SECRET_KEY: "averysecretkey"
   POSTGRES_ROOT_PASSWORD: "postgresrootpassword"
   POSTGRES_DATABASE: "meertime"
   POSTGRES_USER: "buffy"
