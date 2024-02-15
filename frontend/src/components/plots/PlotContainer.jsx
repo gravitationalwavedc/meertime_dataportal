@@ -75,7 +75,9 @@ const PlotContainer = ({
 
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Residual");
-  const [timingProject, setTimingProject] = useState(urlQuery.timingProject || timingProjects[0]);
+  const [timingProject, setTimingProject] = useState(
+    urlQuery.timingProject || timingProjects[0]
+  );
   const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
   const [maxNsub, setMaxNsub] = useState(urlQuery.maxNsub || false);
   const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 4);
