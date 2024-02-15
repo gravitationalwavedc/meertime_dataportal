@@ -1,11 +1,12 @@
 variables:
   POETRY_HOME: "/opt/poetry"
+  DEVELOPMENT_MODE: "True"
   POSTGRES_ROOT_PASSWORD: "postgresrootpassword"
   POSTGRES_DATABASE: "meertime"
   POSTGRES_USER: "buffy"
   POSTGRES_PASSWORD: "islayvampires"
   DB_HOST: "postgres"
-  POSTGRES_PORT: "3306"
+  POSTGRES_PORT: "5432"
   DEBIAN_FRONTEND: "noninteractive"
   DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
@@ -19,7 +20,7 @@ image:
   entrypoint: ["/usr/bin/env"]
 
 services:
-- postgres:12.2-alpine
+  - postgres:12.2-alpine
 
 before_script:
   - apt -y update
@@ -32,9 +33,7 @@ before_script:
   - $POETRY_HOME/bin/pip install poetry
   - $POETRY_HOME/bin/poetry --version
   - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
-  - cp backend/.env.template backend/.env
   - export PGPASSWORD=$POSTGRES_PASSWORD
-
 
 cache:
   - key:
@@ -56,7 +55,6 @@ django-tests:
         coverage_format: cobertura
         path: backend/coverage.xml
       junit: backend/reports/junit.xml
-
 
 react-test:
   stage: test
@@ -99,14 +97,13 @@ code-quality:
   before_script: []
   script:
     - docker run
-        --env SOURCE_CODE="$PWD"
-        --volume "$PWD":/code
-        --volume /var/run/docker.sock:/var/run/docker.sock
-        "registry.gitlab.com/gitlab-org/ci-cd/codequality:$SP_VERSION" /code
+      --env SOURCE_CODE="$PWD"
+      --volume "$PWD":/code
+      --volume /var/run/docker.sock:/var/run/docker.sock
+      "registry.gitlab.com/gitlab-org/ci-cd/codequality:$SP_VERSION" /code
   artifacts:
     reports:
       codequality: gl-code-quality-report.json
-
 
 flake8:
   stage: test
@@ -117,7 +114,6 @@ flake8:
   artifacts:
     reports:
       codequality: backend/gl-code-quality-report.json
-
 
 black:
   stage: test
