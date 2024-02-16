@@ -68,7 +68,6 @@ const PlotContainer = ({
     PlotContainerFragment,
     toaData
   );
-  console.log("toaDataResult", toaDataResult);
 
   const timingProjects = toaDataResult.toa.allProjects;
   const allNchans = toaDataResult.toa.allNchans;
@@ -94,15 +93,8 @@ const PlotContainer = ({
     url.searchParams.set("maxNsub", newMaxNsub);
     url.searchParams.set("obsNpol", newObsNpol);
     window.history.pushState({}, "", url);
-    const newMinimumNsubs = (newMaxNsub === "false");
+    const newMinimumNsubs = newMaxNsub === "false";
     const newMaximumNsubs = !newMinimumNsubs;
-    console.log(
-      "Refetching with:",
-      newObsNchan,
-      newMinimumNsubs,
-      newMaximumNsubs,
-      newObsNpol
-    );
     refetch({
       projectShort: newTimingProject,
       obsNchan: newObsNchan,
@@ -144,7 +136,6 @@ const PlotContainer = ({
     });
   };
 
-  console.log("timingProject", timingProject);
   const activePlotData = getActivePlotData(
     tableData,
     toaDataResult,
@@ -153,7 +144,6 @@ const PlotContainer = ({
     jname,
     mainProject
   );
-  console.log("activePlotData", activePlotData);
 
   return (
     <Suspense

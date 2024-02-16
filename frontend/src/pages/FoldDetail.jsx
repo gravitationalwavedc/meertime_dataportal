@@ -47,9 +47,6 @@ const FoldDetailFileDownloadQuery = graphql`
 
 const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
-  console.log("pulsar:", jname);
-  console.log("mainProject:", mainProject);
-  console.log("match:", match);
   const { screenSize } = useScreenSize();
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const tableData = useLazyLoadQuery(FoldDetailQuery, {

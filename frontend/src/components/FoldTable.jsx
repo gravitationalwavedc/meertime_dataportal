@@ -69,10 +69,7 @@ const FoldTable = ({
     location: { query },
   },
 }) => {
-  console.log("data:", data);
   const [relayData, refetch] = useRefetchableFragment(FoldTableFragment, data);
-  console.log("observationData:", relayData.observationSummary);
-  console.log("relayData:", relayData.pulsarFoldSummary);
 
   const { screenSize } = useScreenSize();
   const [mainProject, setMainProject] = useState(
@@ -276,9 +273,7 @@ const FoldTable = ({
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
-  console.log(relayData.observationSummary);
   const summaryNode = relayData.observationSummary.edges[0]?.node;
-  console.log(summaryNode);
   const summaryData = [
     { title: "Observations", value: summaryNode.observations },
     { title: "Unique Pulsars", value: summaryNode.pulsars },

@@ -102,23 +102,10 @@ const FoldDetailTable = ({
   },
   setShow,
 }) => {
-  console.log(
-    "Input arguments:",
-    jname,
-    mainProject,
-    query.dmCorrected,
-    query.minimumNsubs,
-    query.maximumNsubs,
-    query.obsNchan,
-    query.obsNpol
-  );
   const [relayData, refetch] = useRefetchableFragment(
     FoldDetailTableFragment,
     tableData
   );
-  console.log("data:", relayData);
-  console.log("observationData:", relayData.observationSummary);
-  console.log("pulsarFoldResult:", relayData.pulsarFoldResult);
   const summaryNode = relayData.observationSummary?.edges[0]?.node;
   const pulsarFoldResult = relayData.pulsarFoldResult;
 

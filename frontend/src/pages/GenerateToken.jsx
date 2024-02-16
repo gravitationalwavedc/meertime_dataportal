@@ -30,7 +30,6 @@ const GenerateToken = () => {
       mutation,
       variables,
       onCompleted: ({ tokenAuth }) => {
-        console.log(tokenAuth);
         if (tokenAuth.errors) {
           setFormErrors(tokenAuth.errors);
         } else if (tokenAuth.token) {

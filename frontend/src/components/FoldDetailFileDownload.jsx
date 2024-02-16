@@ -17,7 +17,6 @@ const FoldDetailFileDownloadQuery = graphql`
 
 const FoldDetailFileDownload = ({ visible, data, setShow }) => {
   const fragmentData = useFragment(FoldDetailFileDownloadQuery, data);
-  console.log("FoldDetailFileDownload fragmentData", fragmentData);
 
   return (
     <FileDownloadModal
