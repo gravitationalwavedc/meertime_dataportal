@@ -94,8 +94,8 @@ const PlotContainer = ({
     url.searchParams.set("maxNsub", newMaxNsub);
     url.searchParams.set("obsNpol", newObsNpol);
     window.history.pushState({}, "", url);
-    const newMinimumNsubs = newMaxNsub === "false" ? true : false;
-    const newMaximumNsubs = newMaxNsub === "true" ? true : false;
+    const newMinimumNsubs = (newMaxNsub === "false");
+    const newMaximumNsubs = !newMinimumNsubs;
     console.log(
       "Refetching with:",
       newObsNchan,

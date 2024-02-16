@@ -24,7 +24,6 @@ class CreateResidual(graphene.Mutation):
     class Arguments:
         input = ResidualInput(required=True)
 
-    # residual = graphene.List(ResidualNode)
     Output = CreateResidualOutput
 
     @classmethod
@@ -64,8 +63,10 @@ class CreateResidual(graphene.Mutation):
             date = base_date + timedelta(days=float(mjd))
             day_of_year = date.timetuple().tm_yday \
                 + date.hour / 24.0 \
-                + date.minute / (24.0 * 60.0) \
-                + date.second / (24.0 * 60.0 * 60.0)
+                + date.minute / (1440.0) \
+                + date.second / (86400.0)
+                # 24.0 * 60.0 = 1440.0
+                # 24.0 * 60.0 * 60.0 = 86400.0
 
             if is_binary(ephemeris_dict):
                 # If the pulsar is a binary then we need to calculate the phase
@@ -75,14 +76,14 @@ class CreateResidual(graphene.Mutation):
 
             # Update the toa with the residual
             # X axis types
-            toa.day_of_year          = day_of_year
+            toa.day_of_year = day_of_year
             toa.binary_orbital_phase = binary_orbital_phase
             # Y axis types
-            toa.residual_sec         = float(residual)
-            toa.residual_sec_err     = float(residual_err)/1e9 # Convert from ns to s
-            toa.residual_phase       = float(residual_phase)
+            toa.residual_sec = float(residual)
+            toa.residual_sec_err = float(residual_err)/1e9 # Convert from ns to s
+            toa.residual_phase = float(residual_phase)
             # Convert from ns to s the divide by period to convert to phase
-            toa.residual_phase_err   = float(residual_err)/1e9 / ephemeris_dict["P0"]
+            toa.residual_phase_err = float(residual_err)/1e9 / ephemeris_dict["P0"]
 
 
         # Launch bulk creation of residuals (update of toas)
@@ -101,40 +102,5 @@ class CreateResidual(graphene.Mutation):
         return CreateResidualOutput(toa=toas_to_update)
 
 
-class UpdateResidual(graphene.Mutation):
-    class Arguments:
-        id = graphene.Int(required=True)
-        input = ResidualInput(required=True)
-
-    toa = graphene.Field(ToaNode)
-
-    @classmethod
-    @permission_required("dataportal.add_residual")
-    def mutate(cls, self, info, id, input):
-        try:
-            residual = Residual.objects.get(pk=id)
-            for key, val in input.__dict__.items():
-                setattr(residual, key, val)
-            residual.save()
-            return UpdateResidual(residual=residual)
-        except:
-            return UpdateResidual(residual=None)
-
-
-class DeleteResidual(graphene.Mutation):
-    class Arguments:
-        id = graphene.Int(required=True)
-
-    ok = graphene.Boolean()
-
-    @classmethod
-    @permission_required("dataportal.add_residual")
-    def mutate(cls, self, info, id):
-        Residual.objects.get(pk=id).delete()
-        return cls(ok=True)
-
-
 class Mutation(graphene.ObjectType):
     create_residual = CreateResidual.Field()
-    update_residual = UpdateResidual.Field()
-    delete_residual = DeleteResidual.Field()

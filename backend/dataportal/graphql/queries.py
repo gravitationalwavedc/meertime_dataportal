@@ -40,7 +40,6 @@ class Queries:
 class PulsarNode(DjangoObjectType):
     class Meta:
         model = Pulsar
-        fields = "__all__"
         filter_fields = {
             "name": ["exact"],
             "comment": ["exact"],
@@ -60,7 +59,6 @@ class PulsarConnection(relay.Connection):
 class TelescopeNode(DjangoObjectType):
     class Meta:
         model = Telescope
-        fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -77,7 +75,6 @@ class TelescopeConnection(relay.Connection):
 class MainProjectNode(DjangoObjectType):
     class Meta:
         model = MainProject
-        fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -97,7 +94,6 @@ class MainProjectConnection(relay.Connection):
 class ProjectNode(DjangoObjectType):
     class Meta:
         model = Project
-        fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -122,7 +118,6 @@ class ProjectConnection(relay.Connection):
 class EphemerisNode(DjangoObjectType):
     class Meta:
         model = Ephemeris
-        fields = "__all__"
         filter_fields = {
             "p0": NUMERIC_FILTERS,
             "dm": NUMERIC_FILTERS,
@@ -152,7 +147,6 @@ class EphemerisConnection(relay.Connection):
 class TemplateNode(DjangoObjectType):
     class Meta:
         model = Template
-        fields = "__all__"
         filter_fields = {
             "band": ["exact"],
             "created_at": DATETIME_FILTERS,
@@ -176,7 +170,6 @@ class TemplateConnection(relay.Connection):
 class CalibrationNode(DjangoObjectType):
     class Meta:
         model = Calibration
-        fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -198,7 +191,6 @@ class CalibrationConnection(relay.Connection):
 class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
-        fields = "__all__"
         filter_fields = {
             "utc_start": DATETIME_FILTERS,
             "duration": NUMERIC_FILTERS,
@@ -276,7 +268,6 @@ class ObservationConnection(relay.Connection):
 class ObservationSummaryNode(DjangoObjectType):
     class Meta:
         model = ObservationSummary
-        fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -299,7 +290,6 @@ class ObservationSummaryConnection(relay.Connection):
 class PipelineRunNode(DjangoObjectType):
     class Meta:
         model = PipelineRun
-        fields = "__all__"
         filter_fields = {
             "id": ["exact"],
             "observation__id": ["exact"],
@@ -342,7 +332,6 @@ class PipelineRunConnection(relay.Connection):
 class PulsarFoldResultNode(DjangoObjectType):
     class Meta:
         model = PulsarFoldResult
-        fields = "__all__"
         filter_fields =  "__all__"
         interfaces = (relay.Node,)
 
@@ -449,7 +438,6 @@ class PulsarFoldResultConnection(relay.Connection):
 class PulsarFoldSummaryNode(DjangoObjectType):
     class Meta:
         model = PulsarFoldSummary
-        fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -498,7 +486,6 @@ class PulsarFoldSummaryConnection(relay.Connection):
 class PulsarSearchSummaryNode(DjangoObjectType):
     class Meta:
         model = PulsarSearchSummary
-        fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -547,8 +534,6 @@ class PulsarSearchSummaryConnection(relay.Connection):
 class PipelineImageNode(DjangoObjectType):
     class Meta:
         model = PipelineImage
-        fields = "__all__"
-        # filter_fields = "__all__"
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -567,8 +552,6 @@ class PipelineImageConnection(relay.Connection):
 class PipelineFileNode(DjangoObjectType):
     class Meta:
         model = PipelineFile
-        fields = "__all__"
-        # filter_fields = "__all__"
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -587,7 +570,6 @@ class PipelineFileConnection(relay.Connection):
 class ToaNode(DjangoObjectType):
     class Meta:
         model = Toa
-        fields = "__all__"
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -966,7 +948,8 @@ class Query(graphene.ObjectType):
 
         project_short = kwargs.get('projectShort')
         if project_short:
-            queryset = queryset.select_related("project").filter(project__short=project_short)
+            if project_short != "All":
+                queryset = queryset.select_related("project").filter(project__short=project_short)
 
         dm_corrected = kwargs.get('dmCorrected')
         if dm_corrected is not None:
