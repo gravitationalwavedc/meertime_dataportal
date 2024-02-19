@@ -185,56 +185,64 @@ const PlotContainer = ({
           </Form.Group>
           {activePlot === "Residual" && (
             <>
-            <Form.Group controlId="plotProjectController" className="col-md-2">
-              <Form.Label>Timing Project</Form.Label>
-              <Form.Control
-                custom
-                as="select"
-                value={timingProject}
-                onChange={(event) => handleSetTimingProject(event.target.value)}
+              <Form.Group
+                controlId="plotProjectController"
+                className="col-md-2"
               >
-                {timingProjects.map((timingProject, index) => (
-                  <option value={timingProject}>{timingProject}</option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-            <Form.Group controlId="plotNchanController" className="col-md-2">
-              <Form.Label>Nchan</Form.Label>
-              <Form.Control
-                custom
-                as="select"
-                value={obsNchan}
-                onChange={(event) => handleSetNchan(event.target.value)}
+                <Form.Label>Timing Project</Form.Label>
+                <Form.Control
+                  custom
+                  as="select"
+                  value={timingProject}
+                  onChange={(event) =>
+                    handleSetTimingProject(event.target.value)
+                  }
+                >
+                  {timingProjects.map((timingProject, index) => (
+                    <option value={timingProject}>{timingProject}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group controlId="plotNchanController" className="col-md-2">
+                <Form.Label>Nchan</Form.Label>
+                <Form.Control
+                  custom
+                  as="select"
+                  value={obsNchan}
+                  onChange={(event) => handleSetNchan(event.target.value)}
+                >
+                  {allNchans.map((allNchan, index) => (
+                    <option value={allNchan}>{allNchan}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group
+                controlId="plotMaxNsubController"
+                className="col-md-2"
               >
-                {allNchans.map((allNchan, index) => (
-                  <option value={allNchan}>{allNchan}</option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-            <Form.Group controlId="plotMaxNsubController" className="col-md-2">
-              <Form.Label>Max Nsub</Form.Label>
-              <Form.Control
-                custom
-                as="select"
-                value={maxNsub}
-                onChange={(event) => handleSetMaxNsub(event.target.value)}
-              >
-                <option value="true">True</option>
-                <option value="false">False</option>
-              </Form.Control>
-            </Form.Group>
-            <Form.Group controlId="plotNpolController" className="col-md-2">
-              <Form.Label>Npol</Form.Label>
-              <Form.Control
-                custom
-                as="select"
-                value={obsNpol}
-                onChange={(event) => handleSetNpol(event.target.value)}
-              >
-                <option value="4">4</option>
-                <option value="1">1</option>
-              </Form.Control>
-            </Form.Group>
+                <Form.Label>Max Nsub</Form.Label>
+                <Form.Control
+                  custom
+                  as="select"
+                  value={maxNsub}
+                  onChange={(event) => handleSetMaxNsub(event.target.value)}
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </Form.Control>
+              </Form.Group>
+              <Form.Group controlId="plotNpolController" className="col-md-2">
+                <Form.Label>Npol</Form.Label>
+                <Form.Control
+                  custom
+                  as="select"
+                  value={obsNpol}
+                  onChange={(event) => handleSetNpol(event.target.value)}
+                >
+                  <option value="4">4</option>
+                  <option value="1">1</option>
+                </Form.Control>
+              </Form.Group>
             </>
           )}
         </Form.Row>
