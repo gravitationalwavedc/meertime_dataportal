@@ -40,6 +40,10 @@ class Queries:
 class PulsarNode(DjangoObjectType):
     class Meta:
         model = Pulsar
+        fields = [
+            "name",
+            "comment",
+        ]
         filter_fields = {
             "name": ["exact"],
             "comment": ["exact"],
@@ -59,6 +63,9 @@ class PulsarConnection(relay.Connection):
 class TelescopeNode(DjangoObjectType):
     class Meta:
         model = Telescope
+        fields = [
+            "name",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -75,6 +82,10 @@ class TelescopeConnection(relay.Connection):
 class MainProjectNode(DjangoObjectType):
     class Meta:
         model = MainProject
+        fields = [
+            "telescope",
+            "name",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -94,6 +105,13 @@ class MainProjectConnection(relay.Connection):
 class ProjectNode(DjangoObjectType):
     class Meta:
         model = Project
+        fields = [
+            "main_project",
+            "code",
+            "short",
+            "embargo_period",
+            "description",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -118,6 +136,19 @@ class ProjectConnection(relay.Connection):
 class EphemerisNode(DjangoObjectType):
     class Meta:
         model = Ephemeris
+        fields = [
+            "pulsar",
+            "project",
+            "created_at",
+            "created_by",
+            "ephemeris_data",
+            "ephemeris_hash",
+            "p0",
+            "dm",
+            "valid_from",
+            "valid_to",
+            "comment",
+        ]
         filter_fields = {
             "p0": NUMERIC_FILTERS,
             "dm": NUMERIC_FILTERS,
@@ -147,6 +178,15 @@ class EphemerisConnection(relay.Connection):
 class TemplateNode(DjangoObjectType):
     class Meta:
         model = Template
+        fields = [
+            "pulsar",
+            "project",
+            "template_file",
+            "template_hash",
+            "band",
+            "created_at",
+            "created_by",
+        ]
         filter_fields = {
             "band": ["exact"],
             "created_at": DATETIME_FILTERS,
@@ -170,6 +210,19 @@ class TemplateConnection(relay.Connection):
 class CalibrationNode(DjangoObjectType):
     class Meta:
         model = Calibration
+        fields = [
+            "schedule_block_id",
+            "calibration_type",
+            "location",
+            "start",
+            "end",
+            "all_projects",
+            "n_observations",
+            "n_ant_min",
+            "n_ant_max",
+            "total_integration_time_seconds",
+            "observations",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -191,6 +244,41 @@ class CalibrationConnection(relay.Connection):
 class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
+        fields = [
+            "pulsar",
+            "telescope",
+            "project",
+            "calibration",
+            "embargo_end_date",
+            "band",
+            "frequency",
+            "bandwidth",
+            "nchan",
+            "beam",
+            "nant",
+            "nant_eff",
+            "npol",
+            "obs_type",
+            "utc_start",
+            "day_of_year",
+            "binary_orbital_phase",
+            "raj",
+            "decj",
+            "duration",
+            "nbit",
+            "tsamp",
+            "ephemeris",
+            "fold_nbin",
+            "fold_nchan",
+            "fold_tsubint",
+            "filterbank_nbit",
+            "filterbank_npol",
+            "filterbank_nchan",
+            "filterbank_tsamp",
+            "filterbank_dm",
+            "pulsar_fold_results",
+            "toas",
+        ]
         filter_fields = {
             "utc_start": DATETIME_FILTERS,
             "duration": NUMERIC_FILTERS,
@@ -268,6 +356,22 @@ class ObservationConnection(relay.Connection):
 class ObservationSummaryNode(DjangoObjectType):
     class Meta:
         model = ObservationSummary
+        fields = [
+            "pulsar",
+            "main_project",
+            "project",
+            "calibration",
+            "obs_type",
+            "band",
+            "observations",
+            "pulsars",
+            "projects",
+            "estimated_disk_space_gb",
+            "observation_hours",
+            "timespan_days",
+            "min_duration",
+            "max_duration",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -290,6 +394,30 @@ class ObservationSummaryConnection(relay.Connection):
 class PipelineRunNode(DjangoObjectType):
     class Meta:
         model = PipelineRun
+        fields = [
+            "observation",
+            "ephemeris",
+            "template",
+            "pipeline_name",
+            "pipeline_description",
+            "pipeline_version",
+            "created_at",
+            "created_by",
+            "job_state",
+            "location",
+            "configuration",
+            "toas_download_link",
+            "dm",
+            "dm_err",
+            "dm_epoch",
+            "dm_chi2r",
+            "dm_tres",
+            "sn",
+            "flux",
+            "rm",
+            "rm_err",
+            "percent_rfi_zapped",
+        ]
         filter_fields = {
             "id": ["exact"],
             "observation__id": ["exact"],
@@ -332,6 +460,12 @@ class PipelineRunConnection(relay.Connection):
 class PulsarFoldResultNode(DjangoObjectType):
     class Meta:
         model = PulsarFoldResult
+        fields = [
+            "observation",
+            "pipeline_run",
+            "pulsar",
+            "images",
+        ]
         filter_fields =  "__all__"
         interfaces = (relay.Node,)
 
@@ -438,6 +572,25 @@ class PulsarFoldResultConnection(relay.Connection):
 class PulsarFoldSummaryNode(DjangoObjectType):
     class Meta:
         model = PulsarFoldSummary
+        fields = [
+            "pulsar",
+            "main_project",
+            "first_observation",
+            "latest_observation",
+            "latest_observation_beam",
+            "timespan",
+            "number_of_observations",
+            "total_integration_hours",
+            "last_integration_minutes",
+            "all_bands",
+            "last_sn",
+            "highest_sn",
+            "lowest_sn",
+            "avg_sn_pipe",
+            "max_sn_pipe",
+            "most_common_project",
+            "all_projects",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -486,6 +639,19 @@ class PulsarFoldSummaryConnection(relay.Connection):
 class PulsarSearchSummaryNode(DjangoObjectType):
     class Meta:
         model = PulsarSearchSummary
+        fields = [
+            "pulsar",
+            "main_project",
+            "first_observation",
+            "latest_observation",
+            "timespan",
+            "number_of_observations",
+            "total_integration_hours",
+            "last_integration_minutes",
+            "all_bands",
+            "most_common_project",
+            "all_projects",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -534,6 +700,14 @@ class PulsarSearchSummaryConnection(relay.Connection):
 class PipelineImageNode(DjangoObjectType):
     class Meta:
         model = PipelineImage
+        fields = [
+            "pulsar_fold_result",
+            "image",
+            "url",
+            "cleaned",
+            "image_type",
+            "resolution",
+        ]
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -552,6 +726,11 @@ class PipelineImageConnection(relay.Connection):
 class PipelineFileNode(DjangoObjectType):
     class Meta:
         model = PipelineFile
+        fields = [
+            "pulsar_fold_result",
+            "file",
+            "file_type",
+        ]
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -570,6 +749,43 @@ class PipelineFileConnection(relay.Connection):
 class ToaNode(DjangoObjectType):
     class Meta:
         model = Toa
+        fields = [
+            "pipeline_run",
+            "observation",
+            "project",
+            "ephemeris",
+            "template",
+            "archive",
+            "freq_MHz",
+            "mjd",
+            "mjd_err",
+            "telescope",
+            "fe",
+            "be",
+            "f",
+            "bw",
+            "tobs",
+            "tmplt",
+            "gof",
+            "nbin",
+            "nch",
+            "chan",
+            "rcvr",
+            "snr",
+            "length",
+            "subint",
+            "dm_corrected",
+            "minimum_nsubs",
+            "maximum_nsubs",
+            "obs_nchan",
+            "obs_npol",
+            "day_of_year",
+            "binary_orbital_phase",
+            "residual_sec",
+            "residual_sec_err",
+            "residual_phase",
+            "residual_phase_err",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
