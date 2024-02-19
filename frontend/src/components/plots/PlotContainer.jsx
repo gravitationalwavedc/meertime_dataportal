@@ -183,8 +183,8 @@ const PlotContainer = ({
               <option value="phase">Binary Phase</option>
             </Form.Control>
           </Form.Group>
-
           {activePlot === "Residual" && (
+            <>
             <Form.Group controlId="plotProjectController" className="col-md-2">
               <Form.Label>Timing Project</Form.Label>
               <Form.Control
@@ -198,8 +198,6 @@ const PlotContainer = ({
                 ))}
               </Form.Control>
             </Form.Group>
-          )}
-          {activePlot === "Residual" && (
             <Form.Group controlId="plotNchanController" className="col-md-2">
               <Form.Label>Nchan</Form.Label>
               <Form.Control
@@ -213,8 +211,6 @@ const PlotContainer = ({
                 ))}
               </Form.Control>
             </Form.Group>
-          )}
-          {activePlot === "Residual" && (
             <Form.Group controlId="plotMaxNsubController" className="col-md-2">
               <Form.Label>Max Nsub</Form.Label>
               <Form.Control
@@ -227,8 +223,6 @@ const PlotContainer = ({
                 <option value="false">False</option>
               </Form.Control>
             </Form.Group>
-          )}
-          {activePlot === "Residual" && (
             <Form.Group controlId="plotNpolController" className="col-md-2">
               <Form.Label>Npol</Form.Label>
               <Form.Control
@@ -241,6 +235,7 @@ const PlotContainer = ({
                 <option value="1">1</option>
               </Form.Control>
             </Form.Group>
+            </>
           )}
         </Form.Row>
         <Form.Text className="text-muted">
