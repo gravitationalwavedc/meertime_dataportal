@@ -1171,20 +1171,18 @@ class Query(graphene.ObjectType):
         if dm_corrected is not None:
             queryset = queryset.filter(dm_corrected=bool(dm_corrected))
 
+        # Only filter on True because minimum_nsubs and maximum_nsubs are
+        # not mutually exclusive. When the filters are minimum_nsubs=True and
+        # maximum_nsubs=False, we want to return all observations that have
+        # minimum_nsubs=True regardless of the maximum_nsubs value.
         minimum_nsubs = kwargs.get('minimumNsubs')
-        maximum_nsubs = kwargs.get('maximumNsubs')
-        # It often doesn't make sense to use both of these filters so sometimes ignore one
-        if minimum_nsubs is not None and maximum_nsubs is not None:
-            if bool(minimum_nsubs) and not bool(maximum_nsubs):
+        if minimum_nsubs is not None:
+            if bool(minimum_nsubs):
                 queryset = queryset.filter(minimum_nsubs=True)
-            elif not bool(minimum_nsubs) and bool(maximum_nsubs):
+        maximum_nsubs = kwargs.get('maximumNsubs')
+        if maximum_nsubs is not None:
+            if bool(maximum_nsubs):
                 queryset = queryset.filter(maximum_nsubs=True)
-            else:
-                queryset = queryset.filter(minimum_nsubs=True, maximum_nsubs=True)
-        elif minimum_nsubs is not None:
-            queryset = queryset.filter(minimum_nsubs=bool(minimum_nsubs))
-        elif maximum_nsubs is not None:
-            queryset = queryset.filter(maximum_nsubs=bool(maximum_nsubs))
 
         obs_nchan = kwargs.get('obsNchan')
         if obs_nchan:
