@@ -16,6 +16,8 @@ const DataView = ({
   summaryData,
   columns,
   rows,
+  toaData,
+  jname,
   mainProject,
   setMainProject,
   mostCommonProject,
@@ -24,14 +26,7 @@ const DataView = ({
   setProject,
   band,
   setBand,
-  timingProjects,
-  allNchans,
-  maximumNsubs,
-  handleSetMaxNsub,
-  obsNchan,
-  handleSetNchan,
-  obsNpol,
-  handleSetNpol,
+  urlQuery,
   options,
   plot,
   keyField,
@@ -68,15 +63,11 @@ const DataView = ({
               {plot && (
                 <Row className="d-none d-sm-block">
                   <PlotContainer
-                    data={rows}
-                    timingProjects={timingProjects}
-                    allNchans={allNchans}
-                    maximumNsubs={maximumNsubs}
-                    handleSetMaxNsub={handleSetMaxNsub}
-                    obsNchan={obsNchan}
-                    handleSetNchan={handleSetNchan}
-                    obsNpol={obsNpol}
-                    handleSetNpol={handleSetNpol}
+                    tableData={rows}
+                    toaData={toaData}
+                    urlQuery={urlQuery}
+                    jname={jname}
+                    mainProject={mainProject}
                     {...props.baseProps}
                   />
                 </Row>

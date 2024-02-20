@@ -118,8 +118,6 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
     .toLowerCase()
     .includes("monspsr");
 
-  console.log(relayObservationModel);
-  console.log(relayObservationModel.observation.calibration.idInt);
   return (
     <div className="single-observation">
       <h5 className="single-observation-subheading">{displayDate}</h5>

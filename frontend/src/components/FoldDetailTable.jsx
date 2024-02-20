@@ -22,11 +22,6 @@ const FoldDetailTableFragment = graphql`
   @argumentDefinitions(
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
-    dmCorrected: { type: "Boolean", defaultValue: false }
-    minimumNsubs: { type: "Boolean", defaultValue: true }
-    maximumNsubs: { type: "Boolean", defaultValue: true }
-    obsNchan: { type: "Int", defaultValue: 1 }
-    obsNpol: { type: "Int", defaultValue: 4 }
   ) {
     observationSummary(
       pulsar_Name: $pulsar
@@ -55,9 +50,6 @@ const FoldDetailTableFragment = graphql`
         createdAt
       }
       description
-      toasLink
-      allProjects
-      allNchans
       edges {
         node {
           observation {
@@ -84,38 +76,6 @@ const FoldDetailTableFragment = graphql`
             calibration {
               idInt
             }
-            toas(
-              dmCorrected: $dmCorrected
-              minimumNsubs: $minimumNsubs
-              maximumNsubs: $maximumNsubs
-              obsNchan: $obsNchan
-              obsNpol: $obsNpol
-            ) {
-              edges {
-                node {
-                  obsNchan
-                  obsNpol
-                  minimumNsubs
-                  maximumNsubs
-                  dmCorrected
-                  freqMhz
-                  length
-                  project {
-                    short
-                  }
-                  residual {
-                    id
-                    mjd
-                    dayOfYear
-                    binaryOrbitalPhase
-                    residualSec
-                    residualSecErr
-                    residualPhase
-                    residualPhaseErr
-                  }
-                }
-              }
-            }
           }
           pipelineRun {
             dm
@@ -134,6 +94,7 @@ const FoldDetailTableFragment = graphql`
 /* eslint-disable complexity */
 const FoldDetailTable = ({
   tableData,
+  toaData,
   jname,
   mainProject,
   match: {
@@ -141,84 +102,14 @@ const FoldDetailTable = ({
   },
   setShow,
 }) => {
-  console.log(
-    "Input arguments:",
-    jname,
-    mainProject,
-    query.dmCorrected,
-    query.minimumNsubs,
-    query.maximumNsubs,
-    query.obsNchan,
-    query.obsNpol
-  );
   const [relayData, refetch] = useRefetchableFragment(
     FoldDetailTableFragment,
     tableData
   );
-  console.log("data:", relayData);
-  console.log("observationData:", relayData.observationSummary);
-  console.log("pulsarFoldResult:", relayData.pulsarFoldResult);
   const summaryNode = relayData.observationSummary?.edges[0]?.node;
   const pulsarFoldResult = relayData.pulsarFoldResult;
 
   const { screenSize } = useScreenSize();
-  const [dmCorrected, setDmCorrected] = useState(query.dmCorrected || false);
-  const [minimumNsubs, setMinimumNsubs] = useState(query.minimumNsubs || true);
-  const [maximumNsubs, setMaximumNsubs] = useState(query.maximumNsubs || true);
-  const [obsNchan, setObsNchan] = useState(query.obsNchan || 1);
-  const [obsNpol, setObsNpol] = useState(query.obsNpol || 4);
-
-  const handleRefetch = ({
-    newDmCorrected = dmCorrected,
-    newMinimumNsubs = minimumNsubs,
-    newMaximumNsubs = maximumNsubs,
-    newObsNchan = obsNchan,
-    newObsNpol = obsNpol,
-  } = {}) => {
-    const url = new URL(window.location);
-    url.searchParams.set("dmCorrected", newDmCorrected);
-    url.searchParams.set("minimumNsubs", newMinimumNsubs);
-    url.searchParams.set("maximumNsubs", newMaximumNsubs);
-    url.searchParams.set("obsNchan", newObsNchan);
-    url.searchParams.set("obsNpol", newObsNpol);
-    window.history.pushState({}, "", url);
-    console.log(
-      "Refetching with:",
-      newDmCorrected,
-      newMinimumNsubs,
-      newMaximumNsubs,
-      newObsNchan,
-      newObsNpol
-    );
-    refetch({
-      dmCorrected: newDmCorrected,
-      minimumNsubs: newMinimumNsubs,
-      maximumNsubs: newMaximumNsubs,
-      obsNchan: newObsNchan,
-      obsNpol: newObsNpol,
-    });
-  };
-
-  const handleSetMaxNsub = (newMaximumNsubs) => {
-    setMaximumNsubs(newMaximumNsubs === "true" ? true : false);
-    handleRefetch({
-      newMaximumNsubs: newMaximumNsubs,
-    });
-  };
-
-  const handleSetNchan = (newObsNchan) => {
-    setObsNchan(parseInt(newObsNchan, 10));
-    handleRefetch({
-      newObsNchan: newObsNchan,
-    });
-  };
-
-  const handleSetNpol = (newObsNpol) => {
-    setObsNpol(parseInt(newObsNpol, 10));
-    handleRefetch({
-      newObsNpol: newObsNpol,
-    });
-  };
 
   const allRows = pulsarFoldResult.edges.reduce(
     (result, edge) => [
@@ -329,8 +220,6 @@ const FoldDetailTable = ({
       : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
   ];
 
-  console.log("pulsarFoldResult.allNchans", pulsarFoldResult.allNchans);
-
   return (
     <div className="fold-detail-table">
       <Row className="mb-3">
@@ -407,17 +296,12 @@ const FoldDetailTable = ({
         summaryData={summaryData}
         columns={columnsSizeFiltered}
         rows={rows}
+        toaData={toaData}
         setProject={handleProjectFilter}
-        timingProjects={pulsarFoldResult.allProjects}
-        allNchans={pulsarFoldResult.allNchans}
         setBand={handleBandFilter}
-        maximumNsubs={maximumNsubs}
-        handleSetMaxNsub={handleSetMaxNsub}
-        obsNchan={obsNchan}
-        handleSetNchan={handleSetNchan}
-        obsNpol={obsNpol}
-        handleSetNpol={handleSetNpol}
+        urlQuery={query}
         plot
+        jname={jname}
         mainProject={mainProject}
         keyField="key"
         card={FoldDetailCard}

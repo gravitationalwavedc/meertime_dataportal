@@ -15,7 +15,6 @@ from .models import (
     PulsarSearchSummary,
     PipelineImage,
     Toa,
-    Residual,
 )
 
 @admin.register(Pulsar)
@@ -35,5 +34,4 @@ admin.site.register(PulsarFoldSummary)
 admin.site.register(PulsarSearchSummary)
 admin.site.register(PipelineImage)
 admin.site.register(Toa)
-admin.site.register(Residual)
 

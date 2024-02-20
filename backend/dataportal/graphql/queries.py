@@ -27,7 +27,6 @@ from dataportal.models import (
     PipelineImage,
     PipelineFile,
     Toa,
-    Residual,
 )
 from utils import constants
 
@@ -41,7 +40,10 @@ class Queries:
 class PulsarNode(DjangoObjectType):
     class Meta:
         model = Pulsar
-        fields = "__all__"
+        fields = [
+            "name",
+            "comment",
+        ]
         filter_fields = {
             "name": ["exact"],
             "comment": ["exact"],
@@ -61,7 +63,9 @@ class PulsarConnection(relay.Connection):
 class TelescopeNode(DjangoObjectType):
     class Meta:
         model = Telescope
-        fields = "__all__"
+        fields = [
+            "name",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -78,7 +82,10 @@ class TelescopeConnection(relay.Connection):
 class MainProjectNode(DjangoObjectType):
     class Meta:
         model = MainProject
-        fields = "__all__"
+        fields = [
+            "telescope",
+            "name",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -98,7 +105,13 @@ class MainProjectConnection(relay.Connection):
 class ProjectNode(DjangoObjectType):
     class Meta:
         model = Project
-        fields = "__all__"
+        fields = [
+            "main_project",
+            "code",
+            "short",
+            "embargo_period",
+            "description",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -123,7 +136,19 @@ class ProjectConnection(relay.Connection):
 class EphemerisNode(DjangoObjectType):
     class Meta:
         model = Ephemeris
-        fields = "__all__"
+        fields = [
+            "pulsar",
+            "project",
+            "created_at",
+            "created_by",
+            "ephemeris_data",
+            "ephemeris_hash",
+            "p0",
+            "dm",
+            "valid_from",
+            "valid_to",
+            "comment",
+        ]
         filter_fields = {
             "p0": NUMERIC_FILTERS,
             "dm": NUMERIC_FILTERS,
@@ -153,7 +178,15 @@ class EphemerisConnection(relay.Connection):
 class TemplateNode(DjangoObjectType):
     class Meta:
         model = Template
-        fields = "__all__"
+        fields = [
+            "pulsar",
+            "project",
+            "template_file",
+            "template_hash",
+            "band",
+            "created_at",
+            "created_by",
+        ]
         filter_fields = {
             "band": ["exact"],
             "created_at": DATETIME_FILTERS,
@@ -177,7 +210,19 @@ class TemplateConnection(relay.Connection):
 class CalibrationNode(DjangoObjectType):
     class Meta:
         model = Calibration
-        fields = "__all__"
+        fields = [
+            "schedule_block_id",
+            "calibration_type",
+            "location",
+            "start",
+            "end",
+            "all_projects",
+            "n_observations",
+            "n_ant_min",
+            "n_ant_max",
+            "total_integration_time_seconds",
+            "observations",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -199,7 +244,41 @@ class CalibrationConnection(relay.Connection):
 class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
-        fields = "__all__"
+        fields = [
+            "pulsar",
+            "telescope",
+            "project",
+            "calibration",
+            "embargo_end_date",
+            "band",
+            "frequency",
+            "bandwidth",
+            "nchan",
+            "beam",
+            "nant",
+            "nant_eff",
+            "npol",
+            "obs_type",
+            "utc_start",
+            "day_of_year",
+            "binary_orbital_phase",
+            "raj",
+            "decj",
+            "duration",
+            "nbit",
+            "tsamp",
+            "ephemeris",
+            "fold_nbin",
+            "fold_nchan",
+            "fold_tsubint",
+            "filterbank_nbit",
+            "filterbank_npol",
+            "filterbank_nchan",
+            "filterbank_tsamp",
+            "filterbank_dm",
+            "pulsar_fold_results",
+            "toas",
+        ]
         filter_fields = {
             "utc_start": DATETIME_FILTERS,
             "duration": NUMERIC_FILTERS,
@@ -277,7 +356,22 @@ class ObservationConnection(relay.Connection):
 class ObservationSummaryNode(DjangoObjectType):
     class Meta:
         model = ObservationSummary
-        fields = "__all__"
+        fields = [
+            "pulsar",
+            "main_project",
+            "project",
+            "calibration",
+            "obs_type",
+            "band",
+            "observations",
+            "pulsars",
+            "projects",
+            "estimated_disk_space_gb",
+            "observation_hours",
+            "timespan_days",
+            "min_duration",
+            "max_duration",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -300,7 +394,30 @@ class ObservationSummaryConnection(relay.Connection):
 class PipelineRunNode(DjangoObjectType):
     class Meta:
         model = PipelineRun
-        fields = "__all__"
+        fields = [
+            "observation",
+            "ephemeris",
+            "template",
+            "pipeline_name",
+            "pipeline_description",
+            "pipeline_version",
+            "created_at",
+            "created_by",
+            "job_state",
+            "location",
+            "configuration",
+            "toas_download_link",
+            "dm",
+            "dm_err",
+            "dm_epoch",
+            "dm_chi2r",
+            "dm_tres",
+            "sn",
+            "flux",
+            "rm",
+            "rm_err",
+            "percent_rfi_zapped",
+        ]
         filter_fields = {
             "id": ["exact"],
             "observation__id": ["exact"],
@@ -343,7 +460,12 @@ class PipelineRunConnection(relay.Connection):
 class PulsarFoldResultNode(DjangoObjectType):
     class Meta:
         model = PulsarFoldResult
-        fields = "__all__"
+        fields = [
+            "observation",
+            "pipeline_run",
+            "pulsar",
+            "images",
+        ]
         filter_fields =  "__all__"
         interfaces = (relay.Node,)
 
@@ -450,7 +572,25 @@ class PulsarFoldResultConnection(relay.Connection):
 class PulsarFoldSummaryNode(DjangoObjectType):
     class Meta:
         model = PulsarFoldSummary
-        fields = "__all__"
+        fields = [
+            "pulsar",
+            "main_project",
+            "first_observation",
+            "latest_observation",
+            "latest_observation_beam",
+            "timespan",
+            "number_of_observations",
+            "total_integration_hours",
+            "last_integration_minutes",
+            "all_bands",
+            "last_sn",
+            "highest_sn",
+            "lowest_sn",
+            "avg_sn_pipe",
+            "max_sn_pipe",
+            "most_common_project",
+            "all_projects",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -499,7 +639,19 @@ class PulsarFoldSummaryConnection(relay.Connection):
 class PulsarSearchSummaryNode(DjangoObjectType):
     class Meta:
         model = PulsarSearchSummary
-        fields = "__all__"
+        fields = [
+            "pulsar",
+            "main_project",
+            "first_observation",
+            "latest_observation",
+            "timespan",
+            "number_of_observations",
+            "total_integration_hours",
+            "last_integration_minutes",
+            "all_bands",
+            "most_common_project",
+            "all_projects",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -548,8 +700,14 @@ class PulsarSearchSummaryConnection(relay.Connection):
 class PipelineImageNode(DjangoObjectType):
     class Meta:
         model = PipelineImage
-        fields = "__all__"
-        # filter_fields = "__all__"
+        fields = [
+            "pulsar_fold_result",
+            "image",
+            "url",
+            "cleaned",
+            "image_type",
+            "resolution",
+        ]
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -568,8 +726,11 @@ class PipelineImageConnection(relay.Connection):
 class PipelineFileNode(DjangoObjectType):
     class Meta:
         model = PipelineFile
-        fields = "__all__"
-        # filter_fields = "__all__"
+        fields = [
+            "pulsar_fold_result",
+            "file",
+            "file_type",
+        ]
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -588,7 +749,43 @@ class PipelineFileConnection(relay.Connection):
 class ToaNode(DjangoObjectType):
     class Meta:
         model = Toa
-        fields = "__all__"
+        fields = [
+            "pipeline_run",
+            "observation",
+            "project",
+            "ephemeris",
+            "template",
+            "archive",
+            "freq_MHz",
+            "mjd",
+            "mjd_err",
+            "telescope",
+            "fe",
+            "be",
+            "f",
+            "bw",
+            "tobs",
+            "tmplt",
+            "gof",
+            "nbin",
+            "nch",
+            "chan",
+            "rcvr",
+            "snr",
+            "length",
+            "subint",
+            "dm_corrected",
+            "minimum_nsubs",
+            "maximum_nsubs",
+            "obs_nchan",
+            "obs_npol",
+            "day_of_year",
+            "binary_orbital_phase",
+            "residual_sec",
+            "residual_sec_err",
+            "residual_phase",
+            "residual_phase_err",
+        ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
 
@@ -606,33 +803,20 @@ class ToaConnection(relay.Connection):
     class Meta:
         node = ToaNode
 
+    all_projects = graphene.List(graphene.String)
+    all_nchans = graphene.List(graphene.Int)
 
-class ResidualNode(DjangoObjectType):
-    class Meta:
-        model = Residual
-        fields = "__all__"
-        filter_fields = {
-            "pulsar": ["exact"],
-            "toa__dm_corrected": ["exact"],
-            "toa__minimum_nsubs": ["exact"],
-            "toa__maximum_nsubs": ["exact"],
-            "toa__obs_nchan": ["exact"],
-        }
-        interfaces = (relay.Node,)
+    def resolve_all_projects(self, instance):
+        if "pulsar" in instance.variable_values.keys():
+            return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('project__short', flat=True).distinct())
+        else:
+            return []
 
-    # ForeignKey fields
-    pipeline_run = graphene.Field(PipelineRunNode)
-    ephemeris = graphene.Field(EphemerisNode)
-    template = graphene.Field(TemplateNode)
-
-    @classmethod
-    @login_required
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-class ResidualConnection(relay.Connection):
-    class Meta:
-        node = ResidualNode
+    def resolve_all_nchans(self, instance):
+        if "pulsar" in instance.variable_values.keys():
+            return list(Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar']).values_list('obs_nchan', flat=True).distinct())
+        else:
+            return []
 
 
 class Query(graphene.ObjectType):
@@ -884,11 +1068,6 @@ class Query(graphene.ObjectType):
         if pulsar_name:
             queryset = queryset.filter(
                 pulsar__name=pulsar_name
-            ).prefetch_related(
-                Prefetch(
-                    "observation__toas",
-                    queryset=Toa.objects.select_related("project", "residual", "observation__pulsar").filter(observation__pulsar__name=pulsar_name)
-                ),
             )
 
         main_project_name = kwargs.get('mainProject')
@@ -954,6 +1133,7 @@ class Query(graphene.ObjectType):
         ToaConnection,
         pipelineRunId=graphene.Int(),
         pulsar=graphene.String(),
+        mainProject=graphene.String(),
         projectShort=graphene.String(),
         dmCorrected=graphene.Boolean(),
         minimumNsubs=graphene.Boolean(),
@@ -964,7 +1144,10 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_toa(self, info, **kwargs):
         queryset = Toa.objects.select_related(
-            "residual",
+            "pipeline_run",
+            "ephemeris",
+            "template",
+            "project",
         ).all()
 
         pipelineRunId = kwargs.get('pipelineRunId')
@@ -975,28 +1158,31 @@ class Query(graphene.ObjectType):
         if pulsar_name:
             queryset = queryset.select_related("observation__pulsar").filter(observation__pulsar__name=pulsar_name)
 
+        main_project_name = kwargs.get('mainProject')
+        if main_project_name:
+            queryset = queryset.select_related("observation__project__main_project").filter(observation__project__main_project__name__iexact=main_project_name)
+
         project_short = kwargs.get('projectShort')
         if project_short:
-            queryset = queryset.select_related("project").filter(project__short=project_short)
+            if project_short != "All":
+                queryset = queryset.select_related("project").filter(project__short=project_short)
 
         dm_corrected = kwargs.get('dmCorrected')
         if dm_corrected is not None:
             queryset = queryset.filter(dm_corrected=bool(dm_corrected))
 
+        # Only filter on True because minimum_nsubs and maximum_nsubs are
+        # not mutually exclusive. When the filters are minimum_nsubs=True and
+        # maximum_nsubs=False, we want to return all observations that have
+        # minimum_nsubs=True regardless of the maximum_nsubs value.
         minimum_nsubs = kwargs.get('minimumNsubs')
-        maximum_nsubs = kwargs.get('maximumNsubs')
-        # It often doesn't make sense to use both of these filters so sometimes ignore one
-        if minimum_nsubs is not None and maximum_nsubs is not None:
-            if bool(minimum_nsubs) and not bool(maximum_nsubs):
+        if minimum_nsubs is not None:
+            if bool(minimum_nsubs):
                 queryset = queryset.filter(minimum_nsubs=True)
-            elif not bool(minimum_nsubs) and bool(maximum_nsubs):
+        maximum_nsubs = kwargs.get('maximumNsubs')
+        if maximum_nsubs is not None:
+            if bool(maximum_nsubs):
                 queryset = queryset.filter(maximum_nsubs=True)
-            else:
-                queryset = queryset.filter(minimum_nsubs=True, maximum_nsubs=True)
-        elif minimum_nsubs is not None:
-            queryset = queryset.filter(minimum_nsubs=bool(minimum_nsubs))
-        elif maximum_nsubs is not None:
-            queryset = queryset.filter(maximum_nsubs=bool(maximum_nsubs))
 
         obs_nchan = kwargs.get('obsNchan')
         if obs_nchan:
@@ -1007,43 +1193,3 @@ class Query(graphene.ObjectType):
             queryset = queryset.filter(obs_npol=obs_npol)
 
         return queryset.order_by('mjd')
-
-
-    residual = relay.ConnectionField(
-        ResidualConnection,
-        pulsar=graphene.String(),
-        dmCorrected=graphene.Boolean(),
-        minimumNsubs=graphene.Boolean(),
-        maximumNsubs=graphene.Boolean(),
-        obsNchan=graphene.Int(),
-        obsNpol=graphene.Int(),
-    )
-    @login_required
-    def resolve_residual(self, info, **kwargs):
-        queryset = Residual.objects.all()
-
-        pulsar_name = kwargs.get('pulsar')
-        if pulsar_name:
-            queryset = queryset.filter(pulsar__name=pulsar_name)
-
-        dm_corrected = kwargs.get('dmCorrected')
-        if dm_corrected is not None:
-            queryset = queryset.filter(toa__dm_corrected=bool(dm_corrected))
-
-        minimum_nsubs = kwargs.get('minimumNsubs')
-        if minimum_nsubs is not None:
-            queryset = queryset.filter(toa__minimum_nsubs=bool(minimum_nsubs))
-
-        maximum_nsubs = kwargs.get('maximumNsubs')
-        if maximum_nsubs is not None:
-            queryset = queryset.filter(toa__maximum_nsubs=bool(maximum_nsubs))
-
-        obs_nchan = kwargs.get('obsNchan')
-        if obs_nchan:
-            queryset = queryset.filter(toa__obs_nchan=obs_nchan)
-
-        obs_npol = kwargs.get('obsNpol')
-        if obs_npol:
-            queryset = queryset.filter(toa__obs_npol=obs_npol)
-
-        return queryset

@@ -110,7 +110,6 @@ const SessionTable = ({ data, id }) => {
     row.utc = formatUTC(row.utcStart);
     row.projectKey = project;
 
-    console.log("row.pulsarFoldResults", row.pulsarFoldResults);
     if (row.pulsarFoldResults.edges.length === 0) {
       row.sn = null;
       row.flux = null;
@@ -121,7 +120,6 @@ const SessionTable = ({ data, id }) => {
       row.sn = pulsarFoldResult.pipelineRun.sn;
 
       // Grab the three images
-      console.log("pulsarFoldResult.images", pulsarFoldResult.images);
       const flux = pulsarFoldResult.images.edges.filter(
         (edge) => edge.node.imageType === "PROFILE" && edge.node.cleaned
       )[0]?.node;

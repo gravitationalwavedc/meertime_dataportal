@@ -10,20 +10,27 @@ import FoldDetailTable from "../components/FoldDetailTable";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
 
 const FoldDetailQuery = graphql`
-  query FoldDetailQuery(
+  query FoldDetailQuery($pulsar: String!, $mainProject: String) {
+    ...FoldDetailTableFragment
+      @arguments(pulsar: $pulsar, mainProject: $mainProject)
+  }
+`;
+
+const PlotContainerQuery = graphql`
+  query FoldDetailPlotContainerQuery(
     $pulsar: String!
     $mainProject: String
-    $dmCorrected: Boolean
+    $projectShort: String
     $minimumNsubs: Boolean
     $maximumNsubs: Boolean
     $obsNchan: Int
     $obsNpol: Int
   ) {
-    ...FoldDetailTableFragment
+    ...PlotContainerFragment
       @arguments(
         pulsar: $pulsar
         mainProject: $mainProject
-        dmCorrected: $dmCorrected
+        projectShort: $projectShort
         minimumNsubs: $minimumNsubs
         maximumNsubs: $maximumNsubs
         obsNchan: $obsNchan
@@ -40,24 +47,24 @@ const FoldDetailFileDownloadQuery = graphql`
 
 const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
-  console.log("pulsar:", jname);
-  console.log("mainProject:", mainProject);
-  console.log("match:", match);
   const { screenSize } = useScreenSize();
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
     mainProject: mainProject,
-    dmCorrected: false,
+  });
+  const toaData = useLazyLoadQuery(PlotContainerQuery, {
+    pulsar: jname,
+    mainProject: mainProject,
+    projectShort: match.location.query.timingProject || "All",
     minimumNsubs: true,
-    maximumNsubs: true,
+    maximumNsubs: false,
     obsNchan: 1,
     obsNpol: 4,
   });
   const fileDownloadData = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
     pulsar: jname,
   });
-
   return (
     <>
       <TopNav />
@@ -87,6 +94,7 @@ const FoldDetail = ({ match }) => {
           <FoldDetailTable
             query={FoldDetailQuery}
             tableData={tableData}
+            toaData={toaData}
             jname={jname}
             mainProject={mainProject}
             match={match}

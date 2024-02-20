@@ -71,8 +71,6 @@ const SearchTable = ({ data }) => {
     refetch({ mainProject: mainProject, project: project, band: band });
   }, [band, mainProject, project, refetch]);
 
-  console.log("observationSummary", fragmentData.observationSummary);
-  console.log("pulsarSearchSummary", fragmentData.pulsarSearchSummary);
   const rows = fragmentData.pulsarSearchSummary.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     row.projectKey = mainProject;

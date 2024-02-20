@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "meertime-data-portal"
-version = "3.0.0"
+version = "3.0.4"
 description = ""
 authors = ["GWDC"]
 license = "MIT"

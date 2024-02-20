@@ -10,6 +10,7 @@ describe("The Fold Detail Page", () => {
         "FoldDetailFileDownloadQuery",
         "foldDetailFileDownloadQuery.json"
       );
+      aliasQuery(req, "PlotContainerQuery", "plotContainerQuery.json");
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
       aliasQuery(
         req,
@@ -56,6 +57,7 @@ describe("The Fold Detail Page", () => {
         "FoldDetailFileDownloadQuery",
         "foldDetailFileDownloadQuery.json"
       );
+      aliasQuery(req, "PlotContainerQuery", "plotContainerQuery.json");
     });
     cy.wait("@FoldDetailQuery");
     cy.contains("Folding ephemeris unavailable").should("be.visible");
