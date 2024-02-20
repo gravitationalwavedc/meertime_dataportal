@@ -21,7 +21,6 @@ const SingleObservationFileDownloadQuery = graphql`
 
 const SingleObservationFileDownload = ({ visible, data, setShow }) => {
   const fragmentData = useFragment(SingleObservationFileDownloadQuery, data);
-  console.log("SingleObservationFileDownloadfragmentData", fragmentData);
 
   return (
     <FileDownloadModal

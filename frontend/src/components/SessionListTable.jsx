@@ -30,7 +30,6 @@ const SessionListTable = ({ data }) => {
 
   const allRows = fragmentData.calibration.edges.reduce((result, edge) => {
     const row = { ...edge.node };
-    console.log(row);
     row.start = formatUTC(row.start);
     row.end = formatUTC(row.end);
     row.key = `${row.start}-${row.end}`;

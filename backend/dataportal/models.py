@@ -809,53 +809,34 @@ class PipelineFile(models.Model):
             )
         ]
 
-
-class Residual(models.Model):
-    # X axis types
-    mjd = models.DecimalField(decimal_places=12, max_digits=18)
-    day_of_year = models.FloatField()
-    binary_orbital_phase = models.FloatField(null=True)#TODO add this to the pipeline
-
-    # Y axis types
-    residual_sec     = models.FloatField()
-    residual_sec_err = models.FloatField()
-    residual_phase     = models.FloatField() # pulse period phase
-    residual_phase_err = models.FloatField(null=True) #TODO add this to the pipeline
-
-    @classmethod
-    def get_query(cls, **kwargs):
-        return cls.objects.filter(**kwargs)
-
 class Toa(models.Model):
     # foreign keys
     pipeline_run = models.ForeignKey(PipelineRun, models.CASCADE, related_name="toas")
-    observation  = models.ForeignKey(Observation, models.CASCADE, related_name="toas")
-    project      = models.ForeignKey(Project, models.CASCADE)
-    ephemeris    = models.ForeignKey(Ephemeris, models.CASCADE)
-    template     = models.ForeignKey(Template, models.CASCADE)
-    # Residual will be set after this model which is why it can be null
-    residual     = models.ForeignKey(Residual, models.SET_NULL, null=True)
+    observation = models.ForeignKey(Observation, models.CASCADE, related_name="toas")
+    project = models.ForeignKey(Project, models.CASCADE)
+    ephemeris = models.ForeignKey(Ephemeris, models.CASCADE)
+    template = models.ForeignKey(Template, models.CASCADE)
 
     # toa results
-    archive   = models.CharField(max_length=128)
-    freq_MHz  = models.FloatField()
-    mjd       = models.DecimalField(decimal_places=12, max_digits=18)
-    mjd_err   = models.FloatField()
+    archive = models.CharField(max_length=128)
+    freq_MHz = models.FloatField()
+    mjd = models.DecimalField(decimal_places=12, max_digits=18)
+    mjd_err = models.FloatField()
     telescope = models.CharField(max_length=32)
 
     # The flags from the toa file
-    fe     = models.CharField(max_length=32, null=True)
-    be     = models.CharField(max_length=32, null=True)
-    f      = models.CharField(max_length=32, null=True)
-    bw     = models.IntegerField(null=True)
-    tobs   = models.IntegerField(null=True)
-    tmplt  = models.CharField(max_length=64, null=True)
-    gof    = models.FloatField(null=True)
-    nbin   = models.IntegerField(null=True)
-    nch    = models.IntegerField(null=True)
-    chan   = models.IntegerField(null=True)
-    rcvr   = models.CharField(max_length=32, null=True)
-    snr    = models.FloatField(null=True)
+    fe = models.CharField(max_length=32, null=True)
+    be = models.CharField(max_length=32, null=True)
+    f = models.CharField(max_length=32, null=True)
+    bw = models.IntegerField(null=True)
+    tobs = models.IntegerField(null=True)
+    tmplt = models.CharField(max_length=64, null=True)
+    gof = models.FloatField(null=True)
+    nbin = models.IntegerField(null=True)
+    nch = models.IntegerField(null=True)
+    chan = models.IntegerField(null=True)
+    rcvr = models.CharField(max_length=32, null=True)
+    snr = models.FloatField(null=True)
     length = models.IntegerField(null=True)
     subint = models.IntegerField(null=True)
 
@@ -863,7 +844,20 @@ class Toa(models.Model):
     dm_corrected  = models.BooleanField(default=False)
     minimum_nsubs = models.BooleanField(default=False)
     maximum_nsubs = models.BooleanField(default=False)
-    obs_nchan     = models.IntegerField(null=True)
+    obs_nchan = models.IntegerField(null=True)
+    obs_npol = models.IntegerField(default=4)
+
+    # Residual fields
+    # X axis types
+    # mjd should be same as toa
+    day_of_year = models.FloatField(null=True)
+    binary_orbital_phase = models.FloatField(null=True)
+
+    # Y axis types
+    residual_sec = models.FloatField(null=True)
+    residual_sec_err = models.FloatField(null=True)
+    residual_phase = models.FloatField(null=True) # pulse period phase
+    residual_phase_err = models.FloatField(null=True)
 
     @classmethod
     def get_query(cls, **kwargs):
@@ -879,7 +873,9 @@ class Toa(models.Model):
             toa_lines,
             dm_corrected,
             minimum_nsubs,
-            maximum_nsubs
+            maximum_nsubs,
+            npol,
+            nchan,
         ):
         pipeline_run = PipelineRun.objects.get(id=pipeline_run_id)
         observation  = pipeline_run.observation
@@ -947,7 +943,8 @@ class Toa(models.Model):
                     dm_corrected =dm_corrected,
                     minimum_nsubs=minimum_nsubs,
                     maximum_nsubs=maximum_nsubs,
-                    obs_nchan = int(observation.nchan) // int(toa_dict["nch"])
+                    obs_nchan    =nchan,
+                    obs_npol     =npol,
                 )
             )
         created_toas = Toa.objects.bulk_create(
@@ -957,6 +954,7 @@ class Toa(models.Model):
                 "observation",
                 "project",
                 "dm_corrected",
+                "obs_npol",
                 # Frequency
                 "obs_nchan", # Number of channels
                 "chan", # Chan ID
@@ -994,6 +992,7 @@ class Toa(models.Model):
                 "minimum_nsubs",
                 "maximum_nsubs",
                 "obs_nchan",
+                "obs_npol",
             ],
         )
         return created_toas
@@ -1005,6 +1004,7 @@ class Toa(models.Model):
                     "observation",
                     "project",
                     "dm_corrected",
+                    "obs_npol",
                     # Frequency
                     "obs_nchan", # Number of channels
                     "chan", # Chan ID

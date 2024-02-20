@@ -19,7 +19,6 @@ from dataportal.models import (
     Observation,
     PipelineRun,
     Toa,
-    Residual,
 )
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
@@ -167,14 +166,6 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
             percent_rfi_zapped=10,
         )
         if make_toas:
-            residual = Residual.objects.create(
-                mjd=1,
-                day_of_year=1,
-                residual_sec=2,
-                residual_sec_err=3,
-                residual_phase=4,
-                residual_phase_err=5,
-            )
 
             toa = Toa.objects.create(
                 pipeline_run=pipeline_run,
@@ -182,7 +173,6 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
                 project=project,
                 ephemeris=ephemeris,
                 template=template,
-                residual=residual,
                 freq_MHz=6,
                 mjd=7,
                 mjd_err=8,
@@ -190,6 +180,11 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
                 dm_corrected=False,
                 minimum_nsubs=True,
                 obs_nchan=1,
+                day_of_year=1,
+                residual_sec=2,
+                residual_sec_err=3,
+                residual_phase=4,
+                residual_phase_err=5,
             )
     else:
         pipeline_run = None
@@ -214,7 +209,7 @@ def create_pulsar_with_observations():
     return telescope, project, ephemeris, template, pr, obs, cal
 
 
-def upload_toa_files(pipeline_run, project_short, template, toa_path):
+def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
     with open(toa_path, 'r') as toa_file:
         toa_lines = toa_file.readlines()
         created_toas = Toa.bulk_create(
@@ -226,11 +221,13 @@ def upload_toa_files(pipeline_run, project_short, template, toa_path):
             dm_corrected=False,
             minimum_nsubs=True,
             maximum_nsubs=False,
+            npol=1,
+            nchan=nchan,
         )
 
 def setup_timing_obs():
     client = JSONWebTokenClient()
-    user = get_user_model().objects.create(username="buffy")
+    user = get_user_model().objects.create(username="buffy", is_staff=True, is_superuser=True)
     telescope, project, ephemeris, template = create_basic_data()
 
     obs, cal, pr = create_observation_pipeline_run_toa(
@@ -240,12 +237,12 @@ def setup_timing_obs():
         make_toas=False,
     )
     # All files
-    upload_toa_files(pr, "PTA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"))
-    upload_toa_files(pr, "PTA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
-    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"))
-    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(pr, "PTA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "PTA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
     # Add last one twice to test duplicate detection
-    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
 
     obs, cal, pr = create_observation_pipeline_run_toa(
         os.path.join(TEST_DATA_DIR, "timing_files/2023-10-30-02:18:35_1_J0437-4715.json"),
@@ -253,11 +250,11 @@ def setup_timing_obs():
         template,
         make_toas=False,
     )
-    upload_toa_files(pr, "PTA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
-    upload_toa_files(pr, "PTA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"))
-    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
-    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(pr, "PTA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "PTA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"))
     # Add last one twice to test duplicate detection
-    upload_toa_files(pr, "TPA", template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(pr, "TPA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
 
     return client, user

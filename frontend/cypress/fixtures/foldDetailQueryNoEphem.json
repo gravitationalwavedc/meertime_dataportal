@@ -18,12 +18,11 @@
     },
     "pulsarFoldResult": {
       "description": "PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
-      "toasLink": null,
-      "allProjects": [],
       "edges": [
         {
           "node": {
             "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjI2",
               "utcStart": "2019-04-23T06:11:30+00:00",
               "dayOfYear": 113.25798611111111,
               "binaryOrbitalPhase": 0.1107189377501644,
@@ -45,28 +44,6 @@
               },
               "calibration": {
                 "idInt": 26
-              },
-              "toas": {
-                "edges": [
-                  {
-                    "node": {
-                      "freqMhz": 6.0,
-                      "length": 9,
-                      "project": {
-                        "short": "PTA"
-                      },
-                      "residual": {
-                        "mjd": "1.000000000000",
-                        "dayOfYear": 1.0,
-                        "binaryOrbitalPhase": null,
-                        "residualSec": 2.0,
-                        "residualSecErr": 3.0,
-                        "residualPhase": 4.0,
-                        "residualPhaseErr": 5.0
-                      }
-                    }
-                  }
-                ]
               }
             },
             "pipelineRun": {
@@ -82,6 +59,7 @@
         {
           "node": {
             "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjI3",
               "utcStart": "2019-05-14T10:14:18+00:00",
               "dayOfYear": 134.42659722222223,
               "binaryOrbitalPhase": 0.020231221242274857,
@@ -103,28 +81,6 @@
               },
               "calibration": {
                 "idInt": 27
-              },
-              "toas": {
-                "edges": [
-                  {
-                    "node": {
-                      "freqMhz": 6.0,
-                      "length": 9,
-                      "project": {
-                        "short": "PTA"
-                      },
-                      "residual": {
-                        "mjd": "1.000000000000",
-                        "dayOfYear": 1.0,
-                        "binaryOrbitalPhase": null,
-                        "residualSec": 2.0,
-                        "residualSecErr": 3.0,
-                        "residualPhase": 4.0,
-                        "residualPhaseErr": 5.0
-                      }
-                    }
-                  }
-                ]
               }
             },
             "pipelineRun": {
@@ -140,6 +96,7 @@
         {
           "node": {
             "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjI4",
               "utcStart": "2020-07-10T05:07:28+00:00",
               "dayOfYear": 192.21351851851853,
               "binaryOrbitalPhase": 0.11769268443202004,
@@ -161,28 +118,6 @@
               },
               "calibration": {
                 "idInt": 28
-              },
-              "toas": {
-                "edges": [
-                  {
-                    "node": {
-                      "freqMhz": 6.0,
-                      "length": 9,
-                      "project": {
-                        "short": "PTA"
-                      },
-                      "residual": {
-                        "mjd": "1.000000000000",
-                        "dayOfYear": 1.0,
-                        "binaryOrbitalPhase": null,
-                        "residualSec": 2.0,
-                        "residualSecErr": 3.0,
-                        "residualPhase": 4.0,
-                        "residualPhaseErr": 5.0
-                      }
-                    }
-                  }
-                ]
               }
             },
             "pipelineRun": {

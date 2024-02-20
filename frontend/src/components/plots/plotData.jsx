@@ -1,19 +1,36 @@
-import { calculateMedian, mjdToUnixTimestamp } from "../../helpers";
+import { calculateMedian, mjdToUnixTimestamp, formatUTC } from "../../helpers";
 import moment from "moment";
-
-export const formatYAxisTick = (value) => {
-  return value.toFixed(4);
-};
 
 export const getXaxisFormatter = (xAxis) => {
   if (xAxis === "utc") {
-    return (unixTime) => moment(unixTime).format("YYYY");
+    return {
+      title: {
+        text: getXaxisLabel(xAxis),
+      },
+      type: "date",
+      tickformat: "%Y",
+      dtick: "M12",
+    };
   } else if (xAxis === "day") {
-    return formatYAxisTick;
+    return {
+      title: {
+        text: getXaxisLabel(xAxis),
+      },
+    };
   } else if (xAxis === "phase") {
-    return formatYAxisTick;
+    return {
+      title: {
+        text: getXaxisLabel(xAxis),
+      },
+    };
   } else {
-    return (unixTime) => moment(unixTime).format("YYYY");
+    return {
+      title: {
+        text: getXaxisLabel(xAxis),
+      },
+      type: "date",
+      tickformat: "%Y",
+    };
   }
 };
 
@@ -83,87 +100,33 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
   }
 };
 
-export const getZRange = (yAxis) => {
-  if (yAxis === "S/N") {
-    return [40, 400];
-  } else if (yAxis === "Flux Density") {
-    return [40, 400];
-  } else if (yAxis === "DM") {
-    return [40, 400];
-  } else if (yAxis === "RM") {
-    return [40, 400];
-  } else if (yAxis === "Residual") {
-    return [20, 300];
-  }
-};
-
-export const toolTipFormatter = (value, name, props) => {
-  if (name === "UTC") {
-    return [moment(value).format("YYYY-MM-DD-hh:mm:ss"), name];
-  }
-  if (name === "Day of the year") {
-    return [`${value.toFixed(2)}`, name];
-  }
-  if (name === "Size") {
-    return [`${value.toFixed(2)} [s]`, "Integration time"];
-  }
-  if (name === "DM") {
-    return [
-      `${value.toFixed(4)} +/- ${props.payload.error.toFixed(4)} [pc cm^-3] `,
-      name,
-    ];
-  }
-  if (name === "RM") {
-    return [`${value.toFixed(4)} [rad m^-2]`, name];
-  }
-  if (name === "Residual") {
-    return [`${value.toFixed(4)} [μs]`, name];
-  }
-  if (name === "S/N") {
-    return [`${value.toFixed(2)}`, name];
-  }
-  if (name === "Flux Density") {
-    return [`${value.toFixed(2)} [mJy]`, name];
-  }
-  return [value, name];
-};
-
-export const getActivePlotData = (data, activePlot, timingProject) => {
-  console.log("getActivePlotData", data);
-  const plotFunctions = {
-    "S/N": snrPlotData,
-    "Flux Density": fluxPlotData,
-    DM: dmPlotData,
-    RM: rmPlotData,
-    Residual: residualPlotData,
-  };
-  const plotFunction = plotFunctions[activePlot];
-  if (plotFunction) {
-    const activePlotData = plotFunction(data, timingProject);
-    return activePlotData;
+export const getActivePlotData = (
+  tableData,
+  toaDataResult,
+  activePlot,
+  timingProject,
+  jname,
+  mainProject
+) => {
+  if (activePlot == "Residual") {
+    return residualPlotData(toaDataResult, timingProject, jname, mainProject);
+  } else if (activePlot == "S/N") {
+    return snrPlotData(tableData);
+  } else if (activePlot == "Flux Density") {
+    return fluxPlotData(tableData);
+  } else if (activePlot == "DM") {
+    return dmPlotData(tableData);
+  } else if (activePlot == "RM") {
+    return rmPlotData(tableData);
   } else {
-    // Handle the case when activePlot is not recognized
     console.error(`Unknown activePlot: ${activePlot}`);
-    // You might want to return default values or throw an error, depending on your use case
     return [];
   }
 };
 
-export const filterBandData = (data, zoomArea) => {
+export const filterBandData = (data) => {
   data = data.filter((row) => row.value !== null);
 
-  const { xMin, xMax, yMin, yMax } = zoomArea;
-  if (xMin != null && xMax != null && yMin != null && yMax != null) {
-    data = data.filter(
-      (dataPoint) =>
-        dataPoint.value >= yMin &&
-        dataPoint.value <= yMax &&
-        ((dataPoint.time >= xMin && dataPoint.time <= xMax) ||
-          (dataPoint.utc >= xMin && dataPoint.utc <= xMax) ||
-          (dataPoint.date >= xMin && dataPoint.date <= xMax) ||
-          (dataPoint.phase >= xMin && dataPoint.phase <= xMax))
-    );
-  }
   // Process the table data in a way that react-vis understands.
   const UHFData = data.filter((row) => row.band === "UHF");
   const UHF = {
@@ -186,7 +149,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband0Data,
     name: "SBAND_0",
     colour: "#cd4a76",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const sband1Data = data.filter((row) => row.band === "SBAND_1");
@@ -194,7 +157,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband1Data,
     name: "SBAND_1",
     colour: "#df6263",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const sband2Data = data.filter((row) => row.band === "SBAND_2");
@@ -202,7 +165,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband2Data,
     name: "SBAND_2",
     colour: "#ee7b51",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const sband3Data = data.filter((row) => row.band === "SBAND_3");
@@ -210,7 +173,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband3Data,
     name: "SBAND_3",
     colour: "#f9973f",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const sband4Data = data.filter((row) => row.band === "SBAND_4");
@@ -218,7 +181,7 @@ export const filterBandData = (data, zoomArea) => {
     data: sband4Data,
     name: "SBAND_4",
     colour: "#fdb52e",
-    shape: "triangle",
+    shape: "triangle-up",
   };
 
   const minValue = Math.min(...data.map((row) => row.value - (row.error || 0)));
@@ -240,6 +203,7 @@ export const filterBandData = (data, zoomArea) => {
 export const snrPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
+    id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -254,6 +218,7 @@ export const snrPlotData = (data) => {
 
 export const fluxPlotData = (data) => {
   const allData = data.map((row) => ({
+    id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -269,6 +234,7 @@ export const fluxPlotData = (data) => {
 export const dmPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
+    id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -285,6 +251,7 @@ export const dmPlotData = (data) => {
 export const rmPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
   const allData = data.map((row) => ({
+    id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
     phase: row.observation.binaryOrbitalPhase,
@@ -298,49 +265,23 @@ export const rmPlotData = (data) => {
   return allData;
 };
 
-export const residualPlotData = (data, timingProject) => {
-  const run_toas = data.reduce((result_returned, run_result) => {
-    // Run for each pipelineRun
-    const run_results = run_result.observation.toas.edges.reduce(
-      (result, edge) => {
-        // Grab all of the info needed from the toa
-        if (edge.node.residual) {
-          if (edge.node.project.short === timingProject) {
-            result.push({
-              mjd: edge.node.residual.mjd,
-              dayOfYear: edge.node.residual.dayOfYear,
-              binaryOrbitalPhase: edge.node.residual.binaryOrbitalPhase,
-              residualSec: edge.node.residual.residualSec,
-              residualSecErr: edge.node.residual.residualSecErr,
-              duration: edge.node.length,
-              plotLink: run_result.plotLink,
-              band: run_result.observation.band,
-            });
-          }
-          return result;
-        } else {
-          // No residuals for this run so return nothing
-          return [];
-        }
-      },
-      []
-    );
-    result_returned.push(run_results);
-    return result_returned;
-  }, []);
-  // Combine the array of arrays
-  const toas = [].concat(...run_toas);
-
-  const allData = toas.map((row) => ({
-    utc: moment(mjdToUnixTimestamp(row.mjd)).valueOf(),
-    day: row.dayOfYear,
-    phase: row.binaryOrbitalPhase,
-    value: row.residualSec * 1e6,
-    error: row.residualSecErr * 1e9,
-    size: row.duration,
-    link: row.plotLink,
-    band: row.band,
-  }));
+export const residualPlotData = (data, timingProject, jname, mainProject) => {
+  const allData = data.toa.edges
+    .filter((edge) => edge.node.residualSec !== null)
+    .filter((edge) => edge.node.project.short === timingProject)
+    .map((edge) => ({
+      id: edge.node.id,
+      utc: moment(mjdToUnixTimestamp(edge.node.mjd)).valueOf(),
+      day: edge.node.dayOfYear,
+      phase: edge.node.binaryOrbitalPhase,
+      value: edge.node.residualSec,
+      error: edge.node.residualSecErr,
+      size: edge.node.observation.duration,
+      link: `/${mainProject}/${jname}/${formatUTC(
+        edge.node.observation.utcStart
+      )}/${edge.node.observation.beam}/`,
+      band: edge.node.observation.band,
+    }));
 
   return allData;
 };
