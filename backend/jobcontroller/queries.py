@@ -7,6 +7,7 @@ from graphql_jwt.decorators import login_required
 
 from dataportal.models import PulsarFoldResult
 
+
 class JobControllerFile(graphene.ObjectType):
     class Meta:
         interfaces = (relay.Node,)
@@ -53,8 +54,8 @@ class Query(graphene.ObjectType):
                 returned_files = []
                 for file in files:
                     if file["path"].endswith(".ar"):
-                            returned_files.append(
-                                JobControllerFile(
+                        returned_files.append(
+                            JobControllerFile(
                                 id=file["path"].split("/")[-1],
                                 file_size=file["fileSize"],
                                 is_dir=file["isDir"],
@@ -64,7 +65,6 @@ class Query(graphene.ObjectType):
                 return returned_files
 
         return []
-
 
     file_pulsar_list = relay.ConnectionField(
         FileConnection,
@@ -83,8 +83,8 @@ class Query(graphene.ObjectType):
             returned_files = []
             for file in files:
                 if file["path"].endswith(".ar"):
-                        returned_files.append(
-                            JobControllerFile(
+                    returned_files.append(
+                        JobControllerFile(
                             id=file["path"].split("/")[-1],
                             file_size=file["fileSize"],
                             is_dir=file["isDir"],

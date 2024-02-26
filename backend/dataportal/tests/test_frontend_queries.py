@@ -6,7 +6,6 @@ from dataportal.tests.testing_utils import setup_query_test, upload_toa_files, T
 from utils.tests.test_toa import TOA_FILES
 
 
-
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_pulsar_fold_summary_query_no_token():
@@ -27,6 +26,7 @@ def test_pulsar_fold_summary_query_no_token():
     expected_error_message = "You do not have permission to perform this action"
     assert not response.data["pulsarFoldSummary"]
     assert response.errors[0].message == expected_error_message
+
 
 @pytest.mark.django_db
 @pytest.mark.enable_signals
@@ -63,7 +63,7 @@ def test_pulsar_fold_summary_query_with_token():
 
     # with open(os.path.join(TEST_DATA_DIR, "pulsarFoldSummary.json"), 'w') as json_file:
     #     json.dump(response.data, json_file, indent=2)
-    with open(os.path.join(TEST_DATA_DIR, "pulsarFoldSummary.json"), 'r') as file:
+    with open(os.path.join(TEST_DATA_DIR, "pulsarFoldSummary.json"), "r") as file:
         expected = json.load(file)
 
     assert not response.errors
@@ -126,7 +126,7 @@ def test_fold_query():
     response = client.execute(query.format(band="All"))
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQuery.json"), 'r') as file:
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQuery.json"), "r") as file:
         expected = json.load(file)
     assert not response.errors
     assert response.data == expected["data"]
@@ -134,7 +134,7 @@ def test_fold_query():
     response = client.execute(query.format(band="UHF"))
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQueryFewer.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQueryFewer.json"), 'r') as file:
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQueryFewer.json"), "r") as file:
         expected = json.load(file)
     assert not response.errors
     assert response.data == expected["data"]
@@ -145,7 +145,8 @@ def test_fold_query():
 def test_fold_detail_query():
     client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
     client.authenticate(user)
-    response = client.execute("""
+    response = client.execute(
+        """
         query {
             observationSummary(
                 pulsar_Name: "J0125-2327"
@@ -216,7 +217,8 @@ def test_fold_detail_query():
             }
         }
     }
-    """)
+    """
+    )
 
     assert not response.errors
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQuery.json"), 'w') as json_file:
@@ -226,7 +228,7 @@ def test_fold_detail_query():
     #     test_out = copy.copy({"data": response_copy})
     #     del test_out["data"]["pulsarFoldResult"]["residualEphemeris"]
     #     json.dump(test_out, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQuery.json"), 'r') as file:
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     del response.data["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
     del expected["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
@@ -238,7 +240,8 @@ def test_fold_detail_query():
 def test_plot_container_query():
     client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
     client.authenticate(user)
-    response = client.execute("""
+    response = client.execute(
+        """
         query {
             toa(
                 pulsar: "J0125-2327"
@@ -278,16 +281,15 @@ def test_plot_container_query():
             }
         }
     }
-    """)
+    """
+    )
 
     assert not response.errors
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "plotContainerQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "plotContainerQuery.json"), 'r') as file:
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "plotContainerQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert response.data == expected
-
-
 
 
 @pytest.mark.django_db
@@ -295,7 +297,8 @@ def test_plot_container_query():
 def test_single_observation_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
-    response = client.execute("""
+    response = client.execute(
+        """
         query {
             pulsarFoldResult(pulsar: "J0125-2327", utcStart: "2020-07-10-05:07:28" beam: 2) {
                 edges {
@@ -346,7 +349,8 @@ def test_single_observation_query():
                 }
             }
         }
-    """)
+    """
+    )
 
     # with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
@@ -486,19 +490,21 @@ def test_single_observation_query():
     #     response_no_image = copy.deepcopy(response.data)
     #     test_no_image = copy.deepcopy({"data": response_no_image})
     #     json.dump(test_no_image, json_file, indent=2)
-    with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), 'r') as file:
+    with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
     print(response.data["pulsarFoldResult"]["edges"][0]["node"]["images"]["edges"])
     print(expected["pulsarFoldResult"]["edges"][0]["node"]["images"]["edges"])
     assert response.data == expected
 
+
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_search_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
-    response = client.execute("""
+    response = client.execute(
+        """
         query {
             observationSummary(
             pulsar_Name: "All"
@@ -538,11 +544,12 @@ def test_search_query():
             }
         }
     }
-    """)
+    """
+    )
 
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchQuery.json"), 'r') as file:
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
     assert response.data == expected
@@ -553,7 +560,8 @@ def test_search_query():
 def test_search_details_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
-    response = client.execute("""
+    response = client.execute(
+        """
         query {
             observationSummary(
                 pulsar_Name: "OmegaCen1"
@@ -599,10 +607,11 @@ def test_search_details_query():
                 }
             }
         }
-    """)
+    """
+    )
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchDetailQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchDetailQuery.json"), 'r') as file:
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchDetailQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
     assert response.data == expected
@@ -613,7 +622,8 @@ def test_search_details_query():
 def test_session_query():
     client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
     client.authenticate(user)
-    response = client.execute("""
+    response = client.execute(
+        """
         query {{
             observationSummary (
                 pulsar_Name: "All",
@@ -679,10 +689,13 @@ def test_session_query():
                 }}
             }}
         }}
-    """.format(cal=cal.id))
+    """.format(
+            cal=cal.id
+        )
+    )
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionQuery.json"), 'r') as file:
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
     assert len(response.data["calibration"]["edges"]) > 0
@@ -696,7 +709,8 @@ def test_session_list_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
 
-    response = client.execute("""
+    response = client.execute(
+        """
         query {
             calibration {
                 edges {
@@ -714,11 +728,12 @@ def test_session_list_query():
                 }
             }
         }
-    """)
+    """
+    )
 
     # with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionListQuery.json"), 'w') as json_file:
     #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionListQuery.json"), 'r') as file:
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionListQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
     assert response.data == expected

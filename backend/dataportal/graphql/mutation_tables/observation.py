@@ -64,9 +64,9 @@ class CreateObservation(graphene.Mutation):
     @permission_required("dataportal.add_observations")
     def mutate(cls, self, info, input=None):
         # Get foreign key models
-        pulsar      = Pulsar.objects.get(name=input["pulsarName"])
-        telescope   = Telescope.objects.get(name=input["telescopeName"])
-        project     = Project.objects.get(code=input["projectCode"])
+        pulsar = Pulsar.objects.get(name=input["pulsarName"])
+        telescope = Telescope.objects.get(name=input["telescopeName"])
+        project = Project.objects.get(code=input["projectCode"])
         calibration = Calibration.objects.get(id=input["calibrationId"])
 
         # Fold mode specific values
@@ -90,28 +90,28 @@ class CreateObservation(graphene.Mutation):
                     project=project,
                     ephemeris_data=json.dumps(ephemeris_dict),
                 )
-            fold_nbin     = input["foldNbin"]
-            fold_nchan    = input["foldNchan"]
-            fold_tsubint  = input["foldTsubint"]
+            fold_nbin = input["foldNbin"]
+            fold_nchan = input["foldNchan"]
+            fold_tsubint = input["foldTsubint"]
         else:
             ephemeris = None
-            fold_nbin  = None
+            fold_nbin = None
             fold_nchan = None
-            fold_tsubint  = None
+            fold_tsubint = None
 
         # Backend search values
         if input["obsType"] == "search":
-            filterbank_nbit  = input["filterbankNbit"]
-            filterbank_npol  = input["filterbankNpol"]
+            filterbank_nbit = input["filterbankNbit"]
+            filterbank_npol = input["filterbankNpol"]
             filterbank_nchan = input["filterbankNchan"]
             filterbank_tsamp = input["filterbankTsamp"]
-            filterbank_dm    = input["filterbankDm"]
+            filterbank_dm = input["filterbankDm"]
         else:
-            filterbank_nbit  = None
-            filterbank_npol  = None
+            filterbank_nbit = None
+            filterbank_npol = None
             filterbank_nchan = None
             filterbank_tsamp = None
-            filterbank_dm    = None
+            filterbank_dm = None
 
         # Use get_or_create to create the observations with the required fields and everything else put as defaults
         observation, created = Observation.objects.get_or_create(
@@ -143,7 +143,7 @@ class CreateObservation(graphene.Mutation):
                 "filterbank_nchan": filterbank_nchan,
                 "filterbank_tsamp": filterbank_tsamp,
                 "filterbank_dm": filterbank_dm,
-            }
+            },
         )
         if not created:
             # If the observation already exists, update the values

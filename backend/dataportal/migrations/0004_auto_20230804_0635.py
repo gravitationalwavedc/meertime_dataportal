@@ -6,43 +6,43 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0003_auto_20230804_0544'),
+        ("dataportal", "0003_auto_20230804_0544"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='calibration',
-            name='all_projects',
+            model_name="calibration",
+            name="all_projects",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AddField(
-            model_name='calibration',
-            name='end',
+            model_name="calibration",
+            name="end",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='calibration',
-            name='n_ant_max',
+            model_name="calibration",
+            name="n_ant_max",
             field=models.IntegerField(null=True),
         ),
         migrations.AddField(
-            model_name='calibration',
-            name='n_ant_min',
+            model_name="calibration",
+            name="n_ant_min",
             field=models.IntegerField(null=True),
         ),
         migrations.AddField(
-            model_name='calibration',
-            name='n_observations',
+            model_name="calibration",
+            name="n_observations",
             field=models.IntegerField(null=True),
         ),
         migrations.AddField(
-            model_name='calibration',
-            name='start',
+            model_name="calibration",
+            name="start",
             field=models.DateTimeField(null=True),
         ),
         migrations.AddField(
-            model_name='calibration',
-            name='total_integration_time_seconds',
+            model_name="calibration",
+            name="total_integration_time_seconds",
             field=models.FloatField(null=True),
         ),
     ]

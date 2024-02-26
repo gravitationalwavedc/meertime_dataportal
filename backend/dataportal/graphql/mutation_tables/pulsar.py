@@ -9,6 +9,7 @@ class PulsarsInput(graphene.InputObjectType):
     name = graphene.String(required=True)
     comment = graphene.String()
 
+
 class CreatePulsar(graphene.Mutation):
     class Arguments:
         input = PulsarsInput()
@@ -22,7 +23,8 @@ class CreatePulsar(graphene.Mutation):
             name=input.name,
             defaults={
                 "comment": input.comment,
-            })
+            },
+        )
         return CreatePulsar(pulsar=pulsar)
 
 

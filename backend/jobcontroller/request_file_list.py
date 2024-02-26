@@ -53,7 +53,7 @@ def request_file_list(path, recursive):
             f"{settings.GWCLOUD_JOB_CONTROLLER_API_URL}/file/",
             data=json.dumps(data),
             headers={"Authorization": jwt_enc},
-            timeout=30, # seconds
+            timeout=30,  # seconds
         )
         result.raise_for_status()
 

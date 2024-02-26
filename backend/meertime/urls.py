@@ -6,6 +6,7 @@ from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.conf.urls.static import static
+
 # from utils.utility import secure_serve
 
 from .schema import schema

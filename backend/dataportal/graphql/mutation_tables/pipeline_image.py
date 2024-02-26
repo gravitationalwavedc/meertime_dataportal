@@ -16,10 +16,9 @@ def convert_json_field_to_string(field, registry=None):
 
 
 class PipelineImageInput(graphene.InputObjectType):
-    pulsar_name   = graphene.String(required=True)
-    project_code  = graphene.String(required=True)
-    band          = graphene.String(required=True)
-
+    pulsar_name = graphene.String(required=True)
+    project_code = graphene.String(required=True)
+    band = graphene.String(required=True)
 
 
 class DeletePipelineImage(graphene.Mutation):

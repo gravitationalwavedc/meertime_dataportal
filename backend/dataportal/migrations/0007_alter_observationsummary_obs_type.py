@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0006_observationsummary'),
+        ("dataportal", "0006_observationsummary"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='observationsummary',
-            name='obs_type',
-            field=models.CharField(choices=[('cal', 'cal'), ('fold', 'fold'), ('search', 'search')], max_length=6, null=True),
+            model_name="observationsummary",
+            name="obs_type",
+            field=models.CharField(
+                choices=[("cal", "cal"), ("fold", "fold"), ("search", "search")], max_length=6, null=True
+            ),
         ),
     ]

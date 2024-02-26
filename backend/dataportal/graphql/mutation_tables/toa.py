@@ -8,18 +8,18 @@ from dataportal.graphql.queries import ToaNode
 class ToaInput(graphene.InputObjectType):
     # foreign keys
     pipelineRunId = graphene.Int(required=True)
-    projectShort  = graphene.String(required=True)
+    projectShort = graphene.String(required=True)
 
     ephemerisText = graphene.String(required=True)
-    templateId    = graphene.Int(required=True)
+    templateId = graphene.Int(required=True)
 
     toaLines = graphene.List(graphene.String, required=True)
 
-    dmCorrected  = graphene.Boolean(required=True)
+    dmCorrected = graphene.Boolean(required=True)
     minimumNsubs = graphene.Boolean(required=True)
     maximumNsubs = graphene.Boolean(required=True)
-    obsNpol      = graphene.Int(required=True)
-    obsNchan     = graphene.Int(required=True)
+    obsNpol = graphene.Int(required=True)
+    obsNchan = graphene.Int(required=True)
 
 
 class CreateToaOutput(graphene.ObjectType):
@@ -30,7 +30,7 @@ class CreateToa(graphene.Mutation):
     class Arguments:
         input = ToaInput(required=True)
 
-    toa    = graphene.List(ToaNode)
+    toa = graphene.List(ToaNode)
     Output = CreateToaOutput
 
     @classmethod

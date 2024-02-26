@@ -17,7 +17,6 @@ def create_file_hash(opened_file):
     return sha256_hash.hexdigest()
 
 
-
 def get_upload_location(instance, filename):
     """
     This method provides a filename to store an uploaded image.

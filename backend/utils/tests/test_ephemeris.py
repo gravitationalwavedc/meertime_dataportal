@@ -13,7 +13,7 @@ def test_period_calculation():
     ]
     for f0, f0_err, p0_exp, p0_err_exp in tests:
         p0, p0_err = convert_frequency_to_period(f0, f0_err)
-    assert str(p0)     == p0_exp
+    assert str(p0) == p0_exp
     assert str(p0_err) == p0_err_exp
 
 
@@ -29,6 +29,7 @@ def test_ephemeris_parse():
     for test_ephem in tests:
         ephemeris_dict = parse_ephemeris_file(test_ephem)
         # TODO actually test something
+
 
 def test_convert_to_float_if_possible():
     tests = [

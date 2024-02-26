@@ -21,6 +21,7 @@ class ProjectInput(graphene.InputObjectType):
     embargo_period = graphene.Int()
     description = graphene.String()
 
+
 class CreateProject(graphene.Mutation):
     class Arguments:
         input = ProjectInput(required=True)
@@ -54,7 +55,7 @@ class UpdateProject(graphene.Mutation):
         try:
             main_project = MainProject.objects.get(name=input["main_project_name"])
             project = Project.objects.get(pk=id)
-            main_project=main_project,
+            main_project = (main_project,)
             project.code = input.code
             project.short = input.short
             project.embargo_period = timedelta(days=input.embargo_period)

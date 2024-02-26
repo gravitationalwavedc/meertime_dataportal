@@ -1,5 +1,6 @@
 from utils.observing_bands import get_band
 
+
 def test_get_band():
     tests = [
         # freq, bw, expected_band

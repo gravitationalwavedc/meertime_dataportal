@@ -33,4 +33,3 @@ def test_get_template_upload_location():
     )
 
     assert get_template_upload_location(pipelinefile, "J0023+0923.par") == expected
-
