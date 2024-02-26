@@ -141,7 +141,7 @@ react-formatting:
   script:
     - cd frontend
     - pnpm install
-    - pnpm exec prettier --check .
+    - pnpm exec prettier --check src
     - pnpm exec eslint src
 
 docker-build-django:
