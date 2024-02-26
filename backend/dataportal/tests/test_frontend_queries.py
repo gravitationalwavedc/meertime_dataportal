@@ -729,4 +729,8 @@ def test_session_list_query():
 def test_toa_uploads():
     client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
     for toa_file, nchan in TOA_FILES:
-        upload_toa_files(pipeline_run, "PTA", nchan, template, toa_file)
+        if "molonglo" in toa_file:
+            project = "MONSPSR_TIMING"
+        else:
+            project = "PTA"
+        upload_toa_files(pipeline_run, project, nchan, template, toa_file)
