@@ -830,7 +830,7 @@ class Toa(models.Model):
     f = models.CharField(max_length=32, null=True)
     bw = models.IntegerField(null=True)
     tobs = models.IntegerField(null=True)
-    tmplt = models.CharField(max_length=64, null=True)
+    tmplt = models.CharField(max_length=128, null=True)
     gof = models.FloatField(null=True)
     nbin = models.IntegerField(null=True)
     nch = models.IntegerField(null=True)
@@ -904,7 +904,9 @@ class Toa(models.Model):
 
         # created_toas = []
         toas_to_create = []
-        for toa_line in toa_lines[1:]:
+        for toa_line in toa_lines:
+            if "FORMAT" in toa_line:
+                continue
             toa_line = toa_line.rstrip("\n")
             # Loop over toa lines and turn into a dict
             toa_dict = toa_line_to_dict(toa_line)
@@ -912,8 +914,21 @@ class Toa(models.Model):
             output_toa_line = toa_dict_to_line(toa_dict)
             if toa_line != output_toa_line:
                 raise GraphQLError(f"Assertion failed. toa_line and output_toa_line do not match.\n{toa_line}\n{output_toa_line}")
+            # Info only for Meerkat Toas
+            if project_short == "MONSPSR_TIMING":
+                nch = None
+                chan = None
+                rcvr = None
+                length = None
+                subint = None
+            else:
+                nch = toa_dict["nch"]
+                chan = toa_dict["chan"]
+                rcvr = toa_dict["rcvr"]
+                length = toa_dict["length"]
+                subint = toa_dict["subint"]
+
             # Upload the toa
-            # toa = Toa.objects.create(
             toas_to_create.append(
                 Toa(
                     pipeline_run =pipeline_run,
@@ -934,12 +949,12 @@ class Toa(models.Model):
                     tmplt        =toa_dict["tmplt"],
                     gof          =toa_dict.get("gof", None),
                     nbin         =toa_dict["nbin"],
-                    nch          =toa_dict["nch"],
-                    chan         =toa_dict["chan"],
-                    rcvr         =toa_dict["rcvr"],
                     snr          =toa_dict["snr"],
-                    length       =toa_dict["length"],
-                    subint       =toa_dict["subint"],
+                    nch          =nch,
+                    chan         =chan,
+                    rcvr         =rcvr,
+                    length       =length,
+                    subint       =subint,
                     dm_corrected =dm_corrected,
                     minimum_nsubs=minimum_nsubs,
                     maximum_nsubs=maximum_nsubs,
