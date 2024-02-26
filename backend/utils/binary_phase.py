@@ -9,14 +9,16 @@ __email__ = "andrewcameron@swin.edu.au"
 __status__ = "Development"
 """
 
+import math
+from decimal import Decimal, InvalidOperation
+
 # Imports
 import numpy as np
-from decimal import Decimal, InvalidOperation
 from scipy.optimize import fsolve
-import math
 
 # Constants
 DAYPERYEAR = 365.25
+
 
 # reads a par file into a dictionary object
 # this functionality is already performed to an extent by PSRDB / util.ephemeris, but
@@ -138,7 +140,6 @@ def get_omega(ephemeris_dict, U):
     # get reference omega
     if "TASC" in ephemeris_dict.keys():
         if "EPS1" in ephemeris_dict.keys() and "EPS2" in ephemeris_dict.keys():
-
             OM = get_ELL1_arctan(ephemeris_dict["EPS1"], ephemeris_dict["EPS2"])
             # ensure OM within range 0..2pi
             OM = np.fmod(OM + 2 * np.pi, 2 * np.pi)
@@ -171,12 +172,10 @@ def get_OMB(ephemeris_dict):
     """
 
     if "PB" in ephemeris_dict.keys():
-        OMB = 2 * np.pi / ephemeris_dict["PB"]
+        return 2 * np.pi / ephemeris_dict["PB"]
 
     elif "FB0" in ephemeris_dict.keys():
-        OMB = 2 * np.pi * ephemeris_dict["FB0"] * 86400
-
-    return OMB
+        return 2 * np.pi * ephemeris_dict["FB0"] * 86400
 
 
 def get_ecc(ephemeris_dict):
@@ -221,13 +220,11 @@ def get_mean_anomaly(mjds, ephemeris_dict):
     """
     Calculates mean anomalies for an array of barycentric MJDs and a parameter dictionary
     """
-
     # handle conversion of T0/TASC
     T0 = get_T0(ephemeris_dict)
 
     # determine which type of orbital period encoding we're dealing with
     if "PB" in ephemeris_dict.keys():
-
         PB = ephemeris_dict["PB"]
 
         # normal approach
@@ -242,9 +239,9 @@ def get_mean_anomaly(mjds, ephemeris_dict):
 
         OMB = get_OMB(ephemeris_dict)
         M = OMB * ((mjds - T0) - 0.5 * (PBDOT / PB) * (mjds - T0) ** 2)
+        return M.squeeze()
 
     elif "FB0" in ephemeris_dict.keys():
-
         M = np.zeros(len(mjds))
         i = 0
 
@@ -254,9 +251,7 @@ def get_mean_anomaly(mjds, ephemeris_dict):
             i += 1
 
         M = M * 2 * np.pi * 86400
-
-    M = M.squeeze()
-    return M
+        return M.squeeze()
 
 
 def get_eccentric_anomaly(mjds, ephemeris_dict):

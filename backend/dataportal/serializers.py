@@ -1,10 +1,7 @@
-from rest_framework.serializers import Serializer, FileField, CharField, BooleanField, IntegerField
+from rest_framework.serializers import BooleanField, CharField, FileField, IntegerField, Serializer
 
-from .models import Template
 
 # Serializers define the API representation.
-
-
 class UploadTemplateSerializer(Serializer):
     template_upload = FileField()
     pulsar_name = CharField(max_length=32)

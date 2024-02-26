@@ -3,12 +3,11 @@ from time import sleep
 from django.db import IntegrityError
 from tqdm import tqdm
 
-from utils.constants import UserRole
 from user_manage.models import ProvisionalUser
+from utils.constants import UserRole
 
 
 def notify_provisional_users(filename=None, role=None):
-
     # Setting the role of the user(s)
     if role.casefold() == UserRole.ADMIN.value.casefold():
         role = UserRole.ADMIN.value
@@ -49,9 +48,9 @@ def notify_provisional_users(filename=None, role=None):
         else:
             print(f"Provisional user has been created for {email.strip()}")
             if provisional_user.email_sent:
-                print(f"Activation email has been sent.")
+                print("Activation email has been sent.")
                 # wait for 1 second after a successful entry to allow sometime for the GPO to send out emails
                 print("Waiting for 1 second to allow sometime for the GPO to send out emails...")
                 sleep(1)
             else:
-                print(f"Activation email was not sent :( .")
+                print("Activation email was not sent :( .")

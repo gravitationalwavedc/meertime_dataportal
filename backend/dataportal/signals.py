@@ -1,15 +1,14 @@
-from datetime import datetime
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+
 from dataportal.models import (
-    PulsarFoldSummary,
-    PulsarSearchSummary,
-    PulsarFoldResult,
-    PipelineRun,
     Calibration,
     Observation,
     ObservationSummary,
+    PipelineRun,
+    PulsarFoldResult,
+    PulsarFoldSummary,
+    PulsarSearchSummary,
 )
 
 

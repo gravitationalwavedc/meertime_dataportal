@@ -1,19 +1,12 @@
 import json
 
 import graphene
-from graphql_jwt.decorators import permission_required
 from django.db import IntegrityError
+from graphql_jwt.decorators import permission_required
 
-from utils.ephemeris import parse_ephemeris_file
-from dataportal.models import (
-    Observation,
-    Pulsar,
-    Telescope,
-    Project,
-    Calibration,
-    Ephemeris,
-)
 from dataportal.graphql.queries import ObservationNode
+from dataportal.models import Calibration, Ephemeris, Observation, Project, Pulsar, Telescope
+from utils.ephemeris import parse_ephemeris_file
 
 
 class ObservationInput(graphene.InputObjectType):
@@ -189,7 +182,7 @@ class UpdateObservation(graphene.Mutation):
                 setattr(observation, key, val)
             observation.save()
             return UpdateObservation(observation=observation)
-        except:
+        except Exception:
             return UpdateObservation(observation=None)
 
 

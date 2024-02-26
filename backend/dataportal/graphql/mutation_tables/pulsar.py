@@ -1,8 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import Pulsar
 from dataportal.graphql.queries import PulsarNode
+from dataportal.models import Pulsar
 
 
 class PulsarsInput(graphene.InputObjectType):
@@ -44,7 +44,7 @@ class UpdatePulsar(graphene.Mutation):
                 setattr(pulsar, key, value)
             pulsar.save()
             return UpdatePulsar(pulsar=pulsar)
-        except:
+        except Exception:
             return UpdatePulsar(pulsar=None)
 
 

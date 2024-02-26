@@ -1,8 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import Toa
 from dataportal.graphql.queries import ToaNode
+from dataportal.models import Toa
 
 
 class ToaInput(graphene.InputObjectType):
@@ -67,7 +67,7 @@ class UpdateToa(graphene.Mutation):
                 setattr(toa, key, val)
             toa.save()
             return UpdateToa(toa=toa)
-        except:
+        except Exception:
             return UpdateToa(toa=None)
 
 

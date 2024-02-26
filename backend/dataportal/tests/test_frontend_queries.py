@@ -1,8 +1,9 @@
-import os
 import json
-import copy
+import os
+
 import pytest
-from dataportal.tests.testing_utils import setup_query_test, upload_toa_files, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
+
+from dataportal.tests.testing_utils import CYPRESS_FIXTURE_DIR, TEST_DATA_DIR, setup_query_test, upload_toa_files
 from utils.tests.test_toa import TOA_FILES
 
 
@@ -143,7 +144,7 @@ def test_fold_query():
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_fold_detail_query():
-    client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
+    client, user, _, _, _, _, _, _, _ = setup_query_test()
     client.authenticate(user)
     response = client.execute(
         """
@@ -238,7 +239,7 @@ def test_fold_detail_query():
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_plot_container_query():
-    client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
+    client, user, _, _, _, _, _, _, _ = setup_query_test()
     client.authenticate(user)
     response = client.execute(
         """
@@ -352,144 +353,6 @@ def test_single_observation_query():
     """
     )
 
-    # with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "singleObservationQuery.json"), 'w') as json_file:
-    #     response_copy = copy.deepcopy(response.data)
-    #     test_out = copy.deepcopy({"data": response_copy})
-    #     test_out["data"]["pulsarFoldResult"]["edges"][0]["node"]["images"]["edges"] = [
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_profile_ftp.png",
-    #                 "cleaned": False,
-    #                 "imageType": "PROFILE",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_profile_ftp.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_profile_ftp.png",
-    #                 "cleaned": True,
-    #                 "imageType": "PROFILE",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_profile_ftp.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_profile_fts.png",
-    #                 "cleaned": False,
-    #                 "imageType": "PROFILE_POL",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_profile_fts.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_profile_fts.png",
-    #                 "cleaned": True,
-    #                 "imageType": "PROFILE_POL",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_profile_fts.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_phase_time.png",
-    #                 "cleaned": False,
-    #                 "imageType": "PHASE_TIME",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_phase_time.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_phase_time.png",
-    #                 "cleaned": True,
-    #                 "imageType": "PHASE_TIME",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_phase_time.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_phase_freq.png",
-    #                 "cleaned": False,
-    #                 "imageType": "PHASE_FREQ",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_phase_freq.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_phase_freq.png",
-    #                 "cleaned": True,
-    #                 "imageType": "PHASE_FREQ",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_phase_freq.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_bandpass.png",
-    #                 "cleaned": False,
-    #                 "imageType": "BANDPASS",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_bandpass.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_bandpass.png",
-    #                 "cleaned": True,
-    #                 "imageType": "BANDPASS",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_bandpass.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_SNR_cumulative.png",
-    #                 "cleaned": False,
-    #                 "imageType": "SNR_CUMUL",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_SNR_cumulative.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_SNR_cumulative.png",
-    #                 "cleaned": True,
-    #                 "imageType": "SNR_CUMUL",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_SNR_cumulative.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/raw_SNR_single.png",
-    #                 "cleaned": False,
-    #                 "imageType": "SNR_SINGLE",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/raw_SNR_single.png"
-    #             }
-    #         },
-    #         {
-    #             "node": {
-    #                 "image": "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06:47:34/2/cleaned_SNR_single.png",
-    #                 "cleaned": True,
-    #                 "imageType": "SNR_SINGLE",
-    #                 "resolution": "HIGH",
-    #                 "url": "/media/MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-04-29-06%3A47%3A34/2/cleaned_SNR_single.png"
-    #             }
-    #         }
-    #     ]
-    #     json.dump(test_out, json_file, indent=2)
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "singleObservationQueryNoImages.json"), 'w') as json_file:
-    #     response_no_image = copy.deepcopy(response.data)
-    #     test_no_image = copy.deepcopy({"data": response_no_image})
-    #     json.dump(test_no_image, json_file, indent=2)
     with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
@@ -620,7 +483,7 @@ def test_search_details_query():
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_session_query():
-    client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
+    client, user, _, _, _, _, _, _, cal = setup_query_test()
     client.authenticate(user)
     response = client.execute(
         """
@@ -742,6 +605,6 @@ def test_session_list_query():
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_toa_uploads():
-    client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal = setup_query_test()
+    _, _, _, _, _, template, pipeline_run, _, _ = setup_query_test()
     for toa_file, nchan in TOA_FILES:
         upload_toa_files(pipeline_run, "PTA", nchan, template, toa_file)

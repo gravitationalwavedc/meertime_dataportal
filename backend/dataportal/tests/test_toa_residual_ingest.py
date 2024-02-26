@@ -1,6 +1,8 @@
-import pytest
 from base64 import b64decode
-from dataportal.tests.testing_utils import setup_timing_obs, TEST_DATA_DIR, CYPRESS_FIXTURE_DIR
+
+import pytest
+
+from dataportal.tests.testing_utils import setup_timing_obs
 
 
 @pytest.mark.django_db

@@ -1,23 +1,13 @@
 from django.conf import settings
-from sentry_sdk import last_event_id
-from django.shortcuts import render
 from django.http import JsonResponse
-from django.core.files.base import ContentFile
-
-from rest_framework import status
-from rest_framework.viewsets import ViewSet
+from django.shortcuts import render
 from rest_framework.response import Response
+from rest_framework.viewsets import ViewSet
+from sentry_sdk import last_event_id
 
-from .serializers import UploadTemplateSerializer, UploadPipelineImageSerializer
+from .models import PipelineImage, PipelineRun, Project, Pulsar, PulsarFoldResult, Template
+from .serializers import UploadPipelineImageSerializer, UploadTemplateSerializer
 from .storage import create_file_hash
-from .models import (
-    Template,
-    Pulsar,
-    Project,
-    PipelineImage,
-    PipelineRun,
-    PulsarFoldResult,
-)
 
 
 def handler500(request):
@@ -30,8 +20,8 @@ def handler500(request):
                 "sentry_dsn": settings.SENTRY_DSN,
             },
         )
-    else:
-        return render(request, "500.html", {})
+
+    return render(request, "500.html", {})
 
 
 class UploadTemplate(ViewSet):
@@ -56,9 +46,9 @@ class UploadTemplate(ViewSet):
                 project = Project.objects.get(short=project_short)
             else:
                 # Should have a project code or short so I can't create an ephemeris
-                return JsonResponse({"errors": f"Must include either a project_code or a project_short"}, status=400)
+                return JsonResponse({"errors": "Must include either a project_code or a project_short"}, status=400)
         except Project.DoesNotExist:
-            return JsonResponse({"errors": f"Project code {project_code} not found."}, status=400)
+            return JsonResponse({"errors": "Project code {project_code} not found."}, status=400)
 
         # Create Template object
         with template_upload.open("rb") as file:
@@ -137,7 +127,7 @@ class UploadPipelineImage(ViewSet):
         if created:
             response = f"POST API and you have uploaded a new image to PipelineImage id: {pipeline_image}"
         else:
-            response = f"POST API and you have uploaded a image overriding PipelineImage id: {pipeline_image} (already exists)"
+            response = f"POST API and you have uploaded a image overriding PipelineImage id: {pipeline_image} (already exists)"  # noqa E501
 
         return JsonResponse(
             {

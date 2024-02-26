@@ -1,13 +1,13 @@
 import json
-import numpy as np
 from datetime import datetime, timedelta
-from decimal import Decimal, getcontext
+from decimal import getcontext
 
 import graphene
+import numpy as np
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import Pulsar, Ephemeris, Project, Toa
 from dataportal.graphql.queries import ToaNode
+from dataportal.models import Toa
 from utils.binary_phase import get_binary_phase, is_binary
 
 
@@ -28,7 +28,6 @@ class CreateResidual(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_residual")
     def mutate(cls, self, info, input):
-
         # MJDs are stored as Decimals as standard floats don't have enough precision
         getcontext().prec = 12
         base_date = datetime(1858, 11, 17)  # Base date for MJD
@@ -83,7 +82,7 @@ class CreateResidual(graphene.Mutation):
             toa.residual_phase_err = float(residual_err) / 1e9 / ephemeris_dict["P0"]
 
         # Launch bulk creation of residuals (update of toas)
-        n_toas_updated = Toa.objects.bulk_update(
+        Toa.objects.bulk_update(
             toas_to_update,
             [
                 "day_of_year",

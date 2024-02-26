@@ -1,9 +1,9 @@
-import os
-import jwt
 import base64
+import os
 
-from django.http import HttpResponse
+import jwt
 from django.conf import settings
+from django.http import HttpResponse
 
 
 def secure_serve(request, document_root=None, show_indexes=False, *args, **kwargs):
@@ -13,8 +13,6 @@ def secure_serve(request, document_root=None, show_indexes=False, *args, **kwarg
     """
     try:
         token = request.META["HTTP_AUTHORIZATION"].split(" ")[-1]
-        # expired token for test
-        # token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNzYWxlaGVlbkBzd2luLmVkdS5hdSIsImV4cCI6MTY4NjE5MTg4Niwib3JpZ0lhdCI6MTY4NjE5MTU4Nn0.dRxwWuQ2PAH3fGQhkCKjjtl-3_9c63zkcuCmuZd5oig'
         jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
 
         file_path = request.path.replace("/media/", "")

@@ -1,7 +1,6 @@
-from meertime.settings.settings import MIDDLEWARE, INSTALLED_APPS, BASE_DIR
-
-from meertime.settings import env
 import os
+
+from meertime.settings.settings import BASE_DIR, INSTALLED_APPS, MIDDLEWARE
 
 # Development Settings
 

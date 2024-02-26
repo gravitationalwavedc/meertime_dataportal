@@ -1,31 +1,30 @@
 import math
-import pytz
 from datetime import datetime
 
-from django.db.models import Subquery, Prefetch
-from django.template.defaultfilters import filesizeformat
-
 import graphene
+import pytz
+from django.db.models import Subquery
+from django.template.defaultfilters import filesizeformat
 from graphene import relay
 from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
 
 from dataportal.models import (
-    Pulsar,
-    Telescope,
-    MainProject,
-    Project,
-    Ephemeris,
-    Template,
     Calibration,
+    Ephemeris,
+    MainProject,
     Observation,
     ObservationSummary,
+    PipelineFile,
+    PipelineImage,
     PipelineRun,
+    Project,
+    Pulsar,
     PulsarFoldResult,
     PulsarFoldSummary,
     PulsarSearchSummary,
-    PipelineImage,
-    PipelineFile,
+    Telescope,
+    Template,
     Toa,
 )
 from utils import constants
@@ -974,7 +973,8 @@ class Query(graphene.ObjectType):
 
         unprocessed = kwargs.get("unprocessed")
         if unprocessed:
-            # Find all observations that have not been processed by finding observations that don't have PulsarFoldResults
+            # Find all observations that have not been processed by finding observations
+            # that don't have PulsarFoldResults
             observations_with_fold_results = PulsarFoldResult.objects.values("observation")
             queryset = queryset.exclude(id__in=Subquery(observations_with_fold_results))
 

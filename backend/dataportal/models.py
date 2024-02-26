@@ -1,26 +1,26 @@
-import math
-import json
-import pytz
 import hashlib
+import json
+import math
 from datetime import datetime, timedelta
 
 import numpy as np
+import pytz
 from astropy.time import Time
-
-from graphql import GraphQLError
 from django.core.exceptions import ValidationError
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
+from django.db.models import F, Model, Sum
 from django.db.models.constraints import UniqueConstraint
-from django.db.models import Model, F, Sum
+from django.utils.translation import gettext_lazy as _
+from graphql import GraphQLError
 
-from .storage import OverwriteStorage, get_upload_location, get_template_upload_location, create_file_hash
 from user_manage.models import User
-from utils.observing_bands import get_band
 from utils.binary_phase import get_binary_phase, is_binary
 from utils.constants import UserRole
-from utils.toa import toa_line_to_dict, toa_dict_to_line
 from utils.ephemeris import parse_ephemeris_file
+from utils.observing_bands import get_band
+from utils.toa import toa_dict_to_line, toa_line_to_dict
 
+from .storage import OverwriteStorage, get_template_upload_location, get_upload_location
 
 DATA_QUALITY_CHOICES = [
     ("unassessed", "unassessed"),

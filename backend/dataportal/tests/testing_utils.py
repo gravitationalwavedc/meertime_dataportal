@@ -1,25 +1,25 @@
-import os
 import json
+import os
 from datetime import datetime
 
-from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from graphql_jwt.testcases import JSONWebTokenClient
 
-from utils.ephemeris import parse_ephemeris_file
-from dataportal.storage import create_file_hash
 from dataportal.models import (
-    Pulsar,
-    Telescope,
-    MainProject,
-    Project,
-    Ephemeris,
-    Template,
     Calibration,
+    Ephemeris,
+    MainProject,
     Observation,
     PipelineRun,
+    Project,
+    Pulsar,
+    Telescope,
+    Template,
     Toa,
 )
+from dataportal.storage import create_file_hash
+from utils.ephemeris import parse_ephemeris_file
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 CYPRESS_FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "../../../frontend/cypress/fixtures")
@@ -37,7 +37,7 @@ def create_basic_data():
 
     pulsar = Pulsar.objects.create(
         name="J0125-2327",
-        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
+        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",  # noqa
     )
 
     main_project = MainProject.objects.create(name="MeerTIME", telescope=telescope)
@@ -90,7 +90,7 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
 
     pulsar, _ = Pulsar.objects.get_or_create(
         name=meertime_data["pulsarName"],
-        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
+        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",  # noqa
     )
 
     project = Project.objects.get(code=meertime_data["projectCode"])
@@ -163,8 +163,7 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
             percent_rfi_zapped=10,
         )
         if make_toas:
-
-            toa = Toa.objects.create(
+            Toa.objects.create(
                 pipeline_run=pipeline_run,
                 observation=observation,
                 project=project,
@@ -223,7 +222,7 @@ def create_pulsar_with_observations():
 def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
     with open(toa_path, "r") as toa_file:
         toa_lines = toa_file.readlines()
-        created_toas = Toa.bulk_create(
+        Toa.bulk_create(
             pipeline_run_id=pipeline_run.id,
             project_short=project_short,
             template_id=template.id,
@@ -240,9 +239,9 @@ def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
 def setup_timing_obs():
     client = JSONWebTokenClient()
     user = get_user_model().objects.create(username="buffy", is_staff=True, is_superuser=True)
-    telescope, project, ephemeris, template = create_basic_data()
+    telescope, _, _, template = create_basic_data()
 
-    obs, cal, pr = create_observation_pipeline_run_toa(
+    _, _, pr = create_observation_pipeline_run_toa(
         os.path.join(TEST_DATA_DIR, "timing_files/2023-10-22-04:41:07_1_J0437-4715.json"),
         telescope,
         template,
@@ -286,7 +285,7 @@ def setup_timing_obs():
         os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"),
     )
 
-    obs, cal, pr = create_observation_pipeline_run_toa(
+    _, _, pr = create_observation_pipeline_run_toa(
         os.path.join(TEST_DATA_DIR, "timing_files/2023-10-30-02:18:35_1_J0437-4715.json"),
         telescope,
         template,

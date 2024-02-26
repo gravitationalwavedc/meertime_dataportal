@@ -5,4 +5,4 @@ class DataportalConfig(AppConfig):
     name = "dataportal"
 
     def ready(self):
-        import dataportal.signals
+        import dataportal.signals  # noqa

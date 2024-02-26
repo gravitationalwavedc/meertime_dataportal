@@ -1,13 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import (
-    PipelineRun,
-    Observation,
-    Ephemeris,
-    Template,
-)
 from dataportal.graphql.queries import PipelineRunNode
+from dataportal.models import Ephemeris, Observation, PipelineRun, Template
 
 
 class PipelineRunInput(graphene.InputObjectType):
@@ -105,7 +100,7 @@ class UpdatePipelineRun(graphene.Mutation):
             pipeline_run.percent_rfi_zapped = input.percentRfiZapped
             pipeline_run.save()
             return UpdatePipelineRun(pipeline_run=pipeline_run)
-        except:
+        except Exception:
             return UpdatePipelineRun(pipeline_run=None)
 
 

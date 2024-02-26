@@ -1,12 +1,12 @@
 from datetime import timedelta
 
 import graphene
+from django.db.models.fields import DurationField
 from graphene_django.converter import convert_django_field
 from graphql_jwt.decorators import permission_required
-from django.db.models.fields import DurationField
 
-from dataportal.models import Project, MainProject
 from dataportal.graphql.queries import ProjectNode
+from dataportal.models import MainProject, Project
 
 
 @convert_django_field.register(DurationField)
@@ -62,7 +62,7 @@ class UpdateProject(graphene.Mutation):
             project.description = input.description
             project.save()
             return UpdateProject(project=project)
-        except:
+        except Exception:
             return UpdateProject(project=None)
 
 
