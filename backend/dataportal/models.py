@@ -752,15 +752,15 @@ class PipelineImage(models.Model):
     url = models.URLField(null=True)
     cleaned = models.BooleanField(default=True)
     IMAGE_TYPE_CHOICES = [
-        ("toa-dm-corrected",  "toa-dm-corrected"),
-        ("toa-single",  "toa-single"),
-        ("profile",     "profile"),
+        ("toa-single", "toa-single"),
+        ("profile", "profile"),
         ("profile-pol", "profile-pol"),
-        ("phase-time",  "phase-time"),
-        ("phase-freq",  "phase-freq"),
-        ("bandpass",    "bandpass"),
-        ("snr-cumul",   "snr-cumul"),
-        ("snr-single",  "snr-single"),
+        ("phase-time", "phase-time"),
+        ("phase-freq", "phase-freq"),
+        ("bandpass", "bandpass"),
+        ("dynamic-spectrum", "dynamic-spectrum"),
+        ("snr-cumul", "snr-cumul"),
+        ("snr-single", "snr-single"),
     ]
     image_type = models.CharField(max_length=16, choices=IMAGE_TYPE_CHOICES)
     RESOLUTION_CHOICES = [

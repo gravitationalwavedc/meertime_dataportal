@@ -1,11 +1,8 @@
-import { Button, Col, Form, Row } from "react-bootstrap";
-import { useState } from "react";
+import { Button, Col, Row } from "react-bootstrap";
 import { graphql, useFragment } from "react-relay";
-import { formatProjectName } from "../helpers";
 import { formatUTC, kronosLink, sessionLink } from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
-import MolongloImageGrid from "./MolongloImageGrid";
 
 const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
@@ -104,10 +101,6 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
         : null,
   };
 
-  const isMolonglo = relayObservationModel.observation.project.mainProject.name
-    .toLowerCase()
-    .includes("monspsr");
-
   return (
     <div className="single-observation">
       <h5 className="single-observation-subheading">{displayDate}</h5>
@@ -152,15 +145,7 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
       </Row>
       <Row>
         <Col>
-          {isMolonglo ? (
-            <MolongloImageGrid
-              images={relayObservationModel.images}
-            />
-          ) : (
-            <ImageGrid
-              images={relayObservationModel.images}
-            />
-          )}
+          <ImageGrid images={relayObservationModel.images} />
         </Col>
         <Col lg={4}>
           {Object.keys(dataItems).map((key) => (

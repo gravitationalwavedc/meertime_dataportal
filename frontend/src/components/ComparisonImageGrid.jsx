@@ -3,22 +3,19 @@ import ImageComparisonRow from "./ImageComparisonRow";
 import PlotImage from "./PlotImage";
 import { formatProjectName } from "../helpers";
 
-const ComparisonImageGrid = ({
-  rawImages,
-  processedImages,
-  openLightBox,
-}) => {
+const ComparisonImageGrid = ({ rawImages, processedImages, openLightBox }) => {
   const comparisonImageTypes = [
     "profile",
     "profile_pol",
     "phase_time",
     "phase_freq",
     "bandpass",
+    "dynamic_spectrum",
     "snr_cumul",
     "snr_single",
   ];
 
-  const extraImageOrder = [];
+  const extraImageOrder = ["toa_single"];
 
   return (
     <>

@@ -3,7 +3,6 @@ import ComparisonImageGrid from "./ComparisonImageGrid";
 import LightBox from "react-image-lightbox";
 import PlotImage from "./PlotImage";
 import ToaImages from "./ToaImages";
-// import { getImageData } from "../pages/RefreshToken.jsx";
 
 const ImageGrid = ({ images }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -17,7 +16,6 @@ const ImageGrid = ({ images }) => {
   ];
 
   const [lightBoxImages, setLightBoxImages] = useState({
-    // images: [],
     images: urls,
     imagesIndex: 0,
   });
