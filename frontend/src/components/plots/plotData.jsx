@@ -193,6 +193,14 @@ export const filterBandData = (data) => {
     shape: "circle",
   };
 
+  const UHFNSData = data.filter((row) => row.band === "UHF_NS");
+  const UHFNS = {
+    data: UHFNSData,
+    name: "UHF_NS",
+    colour: "#0d0887",
+    shape: "square",
+  };
+
   const minValue = Math.min(...data.map((row) => row.value - (row.error || 0)));
 
   const maxValue = Math.max(...data.map((row) => row.value + (row.error || 0)));
@@ -204,7 +212,7 @@ export const filterBandData = (data) => {
   );
   const ticks = unsortedTicks.sort((a, b) => a - b);
 
-  const plotData = [lBand, UHF, sband0, sband1, sband2, sband3, sband4, other];
+  const plotData = [lBand, UHF, sband0, sband1, sband2, sband3, sband4, other, UHFNS];
 
   return { plotData, minValue, maxValue, medianValue, ticks };
 };

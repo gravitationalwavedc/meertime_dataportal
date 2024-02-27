@@ -37,6 +37,7 @@ BAND_CHOICES = [
     ("SBAND_3", "SBAND_3"),
     ("SBAND_4", "SBAND_4"),
     ("OTHER", "OTHER"),
+    ("UHF_NS", "UHF_NS"), # For Molonglo NS arm
 ]
 
 OBS_TYPE_CHOICES = [
@@ -270,7 +271,11 @@ class Observation(models.Model):
 
     def save(self, *args, **kwargs):
         Observation.clean(self)
-        self.band = get_band(self.frequency, self.bandwidth)
+        if self.project.main_project.name == "MONSPSR":
+            # All observations with Molonglo are currently UHF band with the NS arm
+            self.band = "UHF_NS"
+        else:
+            self.band = get_band(self.frequency, self.bandwidth)
         self.day_of_year = self.utc_start.timetuple().tm_yday \
             + self.utc_start.hour / 24.0 \
             + self.utc_start.minute / (24.0 * 60.0) \

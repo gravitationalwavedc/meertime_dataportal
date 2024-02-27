@@ -11,8 +11,8 @@ const getProject = (projectValue) =>
 const molonglo = {
   value: "MONSPSR",
   title: "Molonglo",
-  subprojects: ["All", "Mo-NS", "Mo-EW"],
-  bandOptions: ["All", "UHF-NS", "UHF-EW"],
+  subprojects: ["All", "MONSPSR_TIMING"],
+  bandOptions: ["All", "UHF_NS"],
   plotTypes: ["Timing Residuals","Flux Density","S/N"],
   columns: [
     {
