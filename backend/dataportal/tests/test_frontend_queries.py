@@ -7,23 +7,38 @@ from dataportal.tests.testing_utils import CYPRESS_FIXTURE_DIR, TEST_DATA_DIR, s
 from utils.tests.test_toa import TOA_FILES
 
 
+FOLD_SUMMARY_QUERY = """
+    query {
+        pulsarFoldSummary {
+            totalObservations
+            totalPulsars
+            totalObservationTime
+            totalProjectTime
+            edges {
+                node {
+                    pulsar {name}
+                    latestObservation
+                    firstObservation
+                    mostCommonProject
+                    timespan
+                    numberOfObservations
+                    totalIntegrationHours
+                    avgSnPipe
+                    highestSn
+                    lastSn
+                    lastIntegrationMinutes
+                }
+            }
+        }
+    }
+"""
+
+
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_pulsar_fold_summary_query_no_token():
     client = setup_query_test()[0]
-    response = client.execute(
-        """
-        query {
-            pulsarFoldSummary {
-                edges {
-                    node {
-                        id
-                    }
-                }
-            }
-        }
-    """
-    )
+    response = client.execute(FOLD_SUMMARY_QUERY)
     expected_error_message = "You do not have permission to perform this action"
     assert not response.data["pulsarFoldSummary"]
     assert response.errors[0].message == expected_error_message
@@ -34,36 +49,8 @@ def test_pulsar_fold_summary_query_no_token():
 def test_pulsar_fold_summary_query_with_token():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
-    response = client.execute(
-        """
-        query {
-            pulsarFoldSummary {
-                totalObservations
-                totalPulsars
-                totalObservationTime
-                totalProjectTime
-                edges {
-                    node {
-                        pulsar {name}
-                        latestObservation
-                        firstObservation
-                        mostCommonProject
-                        timespan
-                        numberOfObservations
-                        totalIntegrationHours
-                        avgSnPipe
-                        highestSn
-                        lastSn
-                        lastIntegrationMinutes
-                    }
-                }
-            }
-        }
-    """
-    )
+    response = client.execute(FOLD_SUMMARY_QUERY)
 
-    # with open(os.path.join(TEST_DATA_DIR, "pulsarFoldSummary.json"), 'w') as json_file:
-    #     json.dump(response.data, json_file, indent=2)
     with open(os.path.join(TEST_DATA_DIR, "pulsarFoldSummary.json"), "r") as file:
         expected = json.load(file)
 
@@ -71,74 +58,146 @@ def test_pulsar_fold_summary_query_with_token():
     assert response.data == expected
 
 
+FOLD_QUERY = """
+query {{
+    observationSummary(
+        pulsar_Name: "J0125-2327"
+        obsType: "fold"
+        calibration_Id: "All"
+        mainProject: "MeerTIME"
+        project_Short: "All"
+        band: "{band}"
+    ) {{
+        edges {{
+            node {{
+                observations
+                pulsars
+                observationHours
+            }}
+        }}
+    }}
+    pulsarFoldSummary(
+        mainProject: "MeerTIME"
+        project: "All"
+        band: "{band}"
+    ) {{
+        edges {{
+            node {{
+                pulsar {{
+                    name
+                }}
+                latestObservation
+                latestObservationBeam
+                firstObservation
+                allProjects
+                mostCommonProject
+                timespan
+                numberOfObservations
+                lastSn
+                highestSn
+                lowestSn
+                lastIntegrationMinutes
+                maxSnPipe
+                avgSnPipe
+                totalIntegrationHours
+            }}
+        }}
+    }}
+}}
+"""
+
+
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_fold_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
-    query = """
-    query {{
+
+    response = client.execute(FOLD_QUERY.format(band="All"))
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQuery.json"), "r") as file:
+        expected = json.load(file)
+    assert not response.errors
+    assert response.data == expected["data"]
+
+    response = client.execute(FOLD_QUERY.format(band="UHF"))
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQueryFewer.json"), "r") as file:
+        expected = json.load(file)
+    assert not response.errors
+    assert response.data == expected["data"]
+
+
+FOLD_DETAIL_QUERY = """
+    query {
         observationSummary(
             pulsar_Name: "J0125-2327"
             obsType: "fold"
             calibration_Id: "All"
             mainProject: "MeerTIME"
             project_Short: "All"
-            band: "{band}"
-        ) {{
-            edges {{
-                node {{
-                    observations
-                    pulsars
-                    observationHours
-                }}
-            }}
-        }}
-        pulsarFoldSummary(
+            band: "All"
+        ) {
+        edges {
+            node {
+                observations
+                observationHours
+                projects
+                pulsars
+                estimatedDiskSpaceGb
+                timespanDays
+                maxDuration
+                minDuration
+                }
+            }
+        }
+        pulsarFoldResult(
+            pulsar: "J0125-2327",
             mainProject: "MeerTIME"
-            project: "All"
-            band: "{band}"
-        ) {{
-            edges {{
-                node {{
-                    pulsar {{
-                        name
-                    }}
-                    latestObservation
-                    latestObservationBeam
-                    firstObservation
-                    allProjects
-                    mostCommonProject
-                    timespan
-                    numberOfObservations
-                    lastSn
-                    highestSn
-                    lowestSn
-                    lastIntegrationMinutes
-                    maxSnPipe
-                    avgSnPipe
-                    totalIntegrationHours
-                }}
-            }}
-        }}
-    }}
-    """
-
-    response = client.execute(query.format(band="All"))
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQuery.json"), "r") as file:
-        expected = json.load(file)
-    assert not response.errors
-    assert response.data == expected["data"]
-
-    response = client.execute(query.format(band="UHF"))
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQueryFewer.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldQueryFewer.json"), "r") as file:
-        expected = json.load(file)
-    assert not response.errors
-    assert response.data == expected["data"]
+        ) {
+        residualEphemeris {
+            ephemerisData
+            createdAt
+        }
+        description
+        edges {
+            node {
+                observation {
+                    id
+                    utcStart
+                    dayOfYear
+                    binaryOrbitalPhase
+                    duration
+                    beam
+                    bandwidth
+                    nchan
+                    band
+                    foldNbin
+                    nant
+                    nantEff
+                    restricted
+                    embargoEndDate
+                    project {
+                        short
+                    }
+                    ephemeris {
+                        dm
+                    }
+                    calibration {
+                        idInt
+                    }
+                }
+                pipelineRun {
+                    dm
+                    dmErr
+                    rm
+                    rmErr
+                    sn
+                    flux
+                }
+            }
+        }
+    }
+}
+"""
 
 
 @pytest.mark.django_db
@@ -146,89 +205,9 @@ def test_fold_query():
 def test_fold_detail_query():
     client, user, _, _, _, _, _, _, _ = setup_query_test()
     client.authenticate(user)
-    response = client.execute(
-        """
-        query {
-            observationSummary(
-                pulsar_Name: "J0125-2327"
-                obsType: "fold"
-                calibration_Id: "All"
-                mainProject: "MeerTIME"
-                project_Short: "All"
-                band: "All"
-            ) {
-            edges {
-                node {
-                    observations
-                    observationHours
-                    projects
-                    pulsars
-                    estimatedDiskSpaceGb
-                    timespanDays
-                    maxDuration
-                    minDuration
-                    }
-                }
-            }
-            pulsarFoldResult(
-                pulsar: "J0125-2327",
-                mainProject: "MeerTIME"
-            ) {
-            residualEphemeris {
-                ephemerisData
-                createdAt
-            }
-            description
-            edges {
-                node {
-                    observation {
-                        id
-                        utcStart
-                        dayOfYear
-                        binaryOrbitalPhase
-                        duration
-                        beam
-                        bandwidth
-                        nchan
-                        band
-                        foldNbin
-                        nant
-                        nantEff
-                        restricted
-                        embargoEndDate
-                        project {
-                            short
-                        }
-                        ephemeris {
-                            dm
-                        }
-                        calibration {
-                            idInt
-                        }
-                    }
-                    pipelineRun {
-                        dm
-                        dmErr
-                        rm
-                        rmErr
-                        sn
-                        flux
-                    }
-                }
-            }
-        }
-    }
-    """
-    )
+    response = client.execute(FOLD_DETAIL_QUERY)
 
     assert not response.errors
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQueryNoEphem.json"), 'w') as json_file:
-    #     response_copy = copy.deepcopy(response.data)
-    #     test_out = copy.copy({"data": response_copy})
-    #     del test_out["data"]["pulsarFoldResult"]["residualEphemeris"]
-    #     json.dump(test_out, json_file, indent=2)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "foldDetailQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     del response.data["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
@@ -236,61 +215,114 @@ def test_fold_detail_query():
     assert response.data == expected
 
 
+PLOT_CONTAINER_QUERY = """
+query {
+    toa(
+        pulsar: "J0125-2327"
+        mainProject: "MeerTIME"
+        projectShort: "PTA"
+        minimumNsubs: true
+        maximumNsubs: false
+        obsNchan: 1
+        obsNpol: 1
+    ) {
+    allProjects
+    allNchans
+    edges {
+        node {
+            observation {
+                duration
+                utcStart
+                beam
+                band
+            }
+            project {
+                short
+            }
+            obsNchan
+            minimumNsubs
+            maximumNsubs
+            dmCorrected
+            id
+            mjd
+            dayOfYear
+            binaryOrbitalPhase
+            residualSec
+            residualSecErr
+            residualPhase
+            residualPhaseErr
+            }
+        }
+    }
+}
+"""
+
+
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_plot_container_query():
     client, user, _, _, _, _, _, _, _ = setup_query_test()
     client.authenticate(user)
-    response = client.execute(
-        """
-        query {
-            toa(
-                pulsar: "J0125-2327"
-                mainProject: "MeerTIME"
-                projectShort: "PTA"
-                minimumNsubs: true
-                maximumNsubs: false
-                obsNchan: 1
-                obsNpol: 1
-            ) {
-            allProjects
-            allNchans
-            edges {
-                node {
-                    observation {
-                        duration
-                        utcStart
-                        beam
-                        band
+    response = client.execute(PLOT_CONTAINER_QUERY)
+
+    assert not response.errors
+    with open(os.path.join(CYPRESS_FIXTURE_DIR, "plotContainerQuery.json"), "r") as file:
+        expected = json.load(file)["data"]
+    assert response.data == expected
+
+
+SINGLE_OBSERVATION_QUERY = """
+query {
+    pulsarFoldResult(pulsar: "J0125-2327", utcStart: "2020-07-10-05:07:28" beam: 2) {
+        edges {
+            node {
+                observation {
+                    calibration {
+                        id
+                        idInt
                     }
+                    beam
+                    utcStart
+                    obsType
                     project {
+                        id
                         short
+                        code
+                        mainProject {
+                            name
+                        }
                     }
-                    obsNchan
-                    minimumNsubs
-                    maximumNsubs
-                    dmCorrected
-                    id
-                    mjd
-                    dayOfYear
-                    binaryOrbitalPhase
-                    residualSec
-                    residualSecErr
-                    residualPhase
-                    residualPhaseErr
+                    frequency
+                    bandwidth
+                    raj
+                    decj
+                    duration
+                    foldNbin
+                    foldNchan
+                    foldTsubint
+                    nant
+                }
+                pipelineRun {
+                    dm
+                    rm
+                    sn
+                }
+                images {
+                    edges {
+                        node {
+                            image
+                            cleaned
+                            imageType
+                            resolution
+                            url
+                        }
+                    }
                 }
             }
         }
     }
-    """
-    )
-
-    assert not response.errors
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "plotContainerQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
-    with open(os.path.join(CYPRESS_FIXTURE_DIR, "plotContainerQuery.json"), "r") as file:
-        expected = json.load(file)["data"]
-    assert response.data == expected
+}
+"""
 
 
 @pytest.mark.django_db
@@ -298,60 +330,7 @@ def test_plot_container_query():
 def test_single_observation_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
-    response = client.execute(
-        """
-        query {
-            pulsarFoldResult(pulsar: "J0125-2327", utcStart: "2020-07-10-05:07:28" beam: 2) {
-                edges {
-                    node {
-                        observation {
-                            calibration {
-                                id
-                                idInt
-                            }
-                            beam
-                            utcStart
-                            obsType
-                            project {
-                                id
-                                short
-                                code
-                                mainProject {
-                                    name
-                                }
-                            }
-                            frequency
-                            bandwidth
-                            raj
-                            decj
-                            duration
-                            foldNbin
-                            foldNchan
-                            foldTsubint
-                            nant
-                        }
-                        pipelineRun {
-                            dm
-                            rm
-                            sn
-                        }
-                        images {
-                            edges {
-                                node {
-                                    image
-                                    cleaned
-                                    imageType
-                                    resolution
-                                    url
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    """
-    )
+    response = client.execute(SINGLE_OBSERVATION_QUERY)
 
     with open(os.path.join(TEST_DATA_DIR, "singleObservationQuery.json"), "r") as file:
         expected = json.load(file)["data"]
@@ -361,61 +340,109 @@ def test_single_observation_query():
     assert response.data == expected
 
 
+SEARCH_QUERY = """
+query {
+    observationSummary(
+        pulsar_Name: "All"
+        obsType: "search"
+        calibration_Id: "All"
+        mainProject: "MeerTIME"
+        project_Short: "All"
+        band: "All"
+    ) {
+    edges {
+        node {
+            observations
+            pulsars
+            observationHours
+            }
+        }
+    }
+pulsarSearchSummary(
+    mainProject: "MeerTIME"
+    project: "All"
+    band: "All"
+) {
+    edges {
+        node {
+            pulsar {
+                name
+            }
+            latestObservation
+            firstObservation
+            allProjects
+            mostCommonProject
+            timespan
+            numberOfObservations
+            lastIntegrationMinutes
+            totalIntegrationHours
+            }
+        }
+    }
+}
+"""
+
+
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_search_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
-    response = client.execute(
-        """
-        query {
-            observationSummary(
-            pulsar_Name: "All"
-            obsType: "search"
-            calibration_Id: "All"
-            mainProject: "MeerTIME"
-            project_Short: "All"
-            band: "All"
-        ) {
-            edges {
-                node {
-                    observations
-                    pulsars
-                    observationHours
-                }
-            }
-        }
-        pulsarSearchSummary(
-            mainProject: "MeerTIME"
-            project: "All"
-            band: "All"
-        ) {
-            edges {
-                node {
-                    pulsar {
-                        name
-                    }
-                    latestObservation
-                    firstObservation
-                    allProjects
-                    mostCommonProject
-                    timespan
-                    numberOfObservations
-                    lastIntegrationMinutes
-                    totalIntegrationHours
-                }
-            }
-        }
-    }
-    """
-    )
+    response = client.execute(SEARCH_QUERY)
 
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
     assert response.data == expected
+
+
+SEARCH_DETAIL_QUERY = """
+query {
+    observationSummary(
+        pulsar_Name: "OmegaCen1"
+        obsType: "search"
+        calibration_Id: "All"
+        mainProject: "MeerTIME"
+        project_Short: "All"
+        band: "All"
+    ) {
+        edges {
+            node {
+                observations
+                projects
+                observationHours
+                timespanDays
+            }
+        }
+    }
+    observation(
+        pulsar_Name: ["OmegaCen1"]
+        mainProject: "MeerTIME"
+        obsType: "search"
+    ) {
+        edges {
+            node {
+                id
+                utcStart
+                project {
+                    short
+                }
+                raj
+                decj
+                beam
+                duration
+                frequency
+                nantEff
+                filterbankNbit
+                filterbankNpol
+                filterbankNchan
+                filterbankTsamp
+                filterbankDm
+            }
+        }
+    }
+}
+"""
 
 
 @pytest.mark.django_db
@@ -423,126 +450,68 @@ def test_search_query():
 def test_search_details_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
-    response = client.execute(
-        """
-        query {
-            observationSummary(
-                pulsar_Name: "OmegaCen1"
-                obsType: "search"
-                calibration_Id: "All"
-                mainProject: "MeerTIME"
-                project_Short: "All"
-                band: "All"
-            ) {
-                edges {
-                    node {
-                        observations
-                        projects
-                        observationHours
-                        timespanDays
-                    }
-                }
-            }
-            observation(
-                pulsar_Name: ["OmegaCen1"]
-                mainProject: "MeerTIME"
-                obsType: "search"
-            ) {
-                edges {
-                    node {
-                        id
-                        utcStart
-                        project {
-                            short
-                        }
-                        raj
-                        decj
-                        beam
-                        duration
-                        frequency
-                        nantEff
-                        filterbankNbit
-                        filterbankNpol
-                        filterbankNchan
-                        filterbankTsamp
-                        filterbankDm
-                    }
-                }
-            }
-        }
-    """
-    )
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchDetailQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
+    response = client.execute(SEARCH_DETAIL_QUERY)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "searchDetailQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
     assert response.data == expected
 
 
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_session_query():
-    client, user, _, _, _, _, _, _, cal = setup_query_test()
-    client.authenticate(user)
-    response = client.execute(
-        """
-        query {{
-            observationSummary (
-                pulsar_Name: "All",
-                obsType: "All",
-                calibrationInt: {cal},
-                mainProject: "All",
-                project_Short: "All",
-                band: "All",
-            ) {{
-                edges {{
-                    node {{
-                        observations
-                        projects
-                        pulsars
-                    }}
-                }}
+SESSION_QUERY = """
+query {{
+    observationSummary (
+        pulsar_Name: "All",
+        obsType: "All",
+        calibrationInt: {cal},
+        mainProject: "All",
+        project_Short: "All",
+        band: "All",
+    ) {{
+        edges {{
+            node {{
+                observations
+                projects
+                pulsars
             }}
-            calibration (id: {cal}) {{
-                edges {{
-                    node {{
-                        id
-                        idInt
-                        start
-                        end
-                        observations {{
-                            edges {{
-                                node {{
-                                    id
-                                    pulsar {{
-                                        name
-                                    }}
-                                    utcStart
-                                    beam
-                                    obsType
-                                    duration
-                                    frequency
-                                    project {{
-                                        short
-                                    }}
-                                    pulsarFoldResults {{
-                                        edges {{
-                                            node {{
-                                                images {{
-                                                    edges {{
-                                                        node {{
-                                                            url
-                                                            imageType
-                                                            cleaned
-                                                        }}
-                                                    }}
-                                                }}
-                                                pipelineRun {{
-                                                    sn
-                                                    percentRfiZapped
+        }}
+    }}
+    calibration (id: {cal}) {{
+        edges {{
+            node {{
+                id
+                idInt
+                start
+                end
+                observations {{
+                    edges {{
+                        node {{
+                            id
+                            pulsar {{
+                                name
+                            }}
+                            utcStart
+                            beam
+                            obsType
+                            duration
+                            frequency
+                            project {{
+                                short
+                            }}
+                            pulsarFoldResults {{
+                                edges {{
+                                    node {{
+                                        images {{
+                                            edges {{
+                                                node {{
+                                                    url
+                                                    imageType
+                                                    cleaned
                                                 }}
                                             }}
+                                        }}
+                                        pipelineRun {{
+                                            sn
+                                            percentRfiZapped
                                         }}
                                     }}
                                 }}
@@ -552,12 +521,17 @@ def test_session_query():
                 }}
             }}
         }}
-    """.format(
-            cal=cal.id
-        )
-    )
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
+    }}
+}}
+"""
+
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_session_query():
+    client, user, _, _, _, _, _, _, cal = setup_query_test()
+    client.authenticate(user)
+    response = client.execute(SESSION_QUERY.format(cal=cal.id))
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors
@@ -566,36 +540,35 @@ def test_session_query():
     assert response.data == expected
 
 
+SESSION_LIST_QUERY = """
+query {
+    calibration {
+        edges {
+            node {
+                id
+                idInt
+                start
+                end
+                allProjects
+                nObservations
+                nAntMin
+                nAntMax
+                totalIntegrationTimeSeconds
+            }
+        }
+    }
+}
+"""
+
+
 @pytest.mark.django_db
 @pytest.mark.enable_signals
 def test_session_list_query():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
 
-    response = client.execute(
-        """
-        query {
-            calibration {
-                edges {
-                    node {
-                        id
-                        idInt
-                        start
-                        end
-                        allProjects
-                        nObservations
-                        nAntMin
-                        nAntMax
-                        totalIntegrationTimeSeconds
-                    }
-                }
-            }
-        }
-    """
-    )
+    response = client.execute(SESSION_LIST_QUERY)
 
-    # with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionListQuery.json"), 'w') as json_file:
-    #     json.dump({"data": response.data}, json_file, indent=2)
     with open(os.path.join(CYPRESS_FIXTURE_DIR, "sessionListQuery.json"), "r") as file:
         expected = json.load(file)["data"]
     assert not response.errors

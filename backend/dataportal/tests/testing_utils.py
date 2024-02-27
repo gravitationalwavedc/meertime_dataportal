@@ -27,7 +27,7 @@ CYPRESS_FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "../../../frontend
 
 def setup_query_test():
     client = JSONWebTokenClient()
-    user = get_user_model().objects.create(username="buffy")
+    user = get_user_model().objects.create(username="buffy", email="slayer@sunnydail.com")
     telescope, project, ephemeris, template, pipeline_run, obs, cal = create_pulsar_with_observations()
     return client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal
 
