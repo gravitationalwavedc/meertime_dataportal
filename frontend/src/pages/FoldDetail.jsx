@@ -60,7 +60,7 @@ const FoldDetail = ({ match }) => {
     minimumNsubs: true,
     maximumNsubs: false,
     obsNchan: 1,
-    obsNpol: 4,
+    obsNpol: 1,
   });
   const fileDownloadData = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
     pulsar: jname,

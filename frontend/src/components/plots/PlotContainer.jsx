@@ -16,7 +16,7 @@ const PlotContainerFragment = graphql`
     minimumNsubs: { type: "Boolean", defaultValue: true }
     maximumNsubs: { type: "Boolean", defaultValue: false }
     obsNchan: { type: "Int", defaultValue: 1 }
-    obsNpol: { type: "Int", defaultValue: 4 }
+    obsNpol: { type: "Int", defaultValue: 1 }
   ) {
     toa(
       pulsar: $pulsar
@@ -79,7 +79,7 @@ const PlotContainer = ({
   );
   const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
   const [maxNsub, setMaxNsub] = useState(urlQuery.maxNsub || false);
-  const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 4);
+  const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
 
   const handleRefetch = ({
     newTimingProject = timingProject,
@@ -239,8 +239,10 @@ const PlotContainer = ({
                   value={obsNpol}
                   onChange={(event) => handleSetNpol(event.target.value)}
                 >
-                  <option value="4">4</option>
                   <option value="1">1</option>
+                  {mainProject !== "MONSPSR" && (
+                    <option value="4">4</option>
+                  )}
                 </Form.Control>
               </Form.Group>
             </>
