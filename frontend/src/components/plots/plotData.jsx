@@ -212,7 +212,17 @@ export const filterBandData = (data) => {
   );
   const ticks = unsortedTicks.sort((a, b) => a - b);
 
-  const plotData = [lBand, UHF, sband0, sband1, sband2, sband3, sband4, other, UHFNS];
+  const plotData = [
+    lBand,
+    UHF,
+    sband0,
+    sband1,
+    sband2,
+    sband3,
+    sband4,
+    other,
+    UHFNS,
+  ];
 
   return { plotData, minValue, maxValue, medianValue, ticks };
 };

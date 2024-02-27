@@ -145,7 +145,8 @@ const PlotContainer = ({
     mainProject
   );
 
-  const plotTypes = mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
+  const plotTypes =
+    mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
 
   return (
     <Suspense
@@ -240,9 +241,7 @@ const PlotContainer = ({
                   onChange={(event) => handleSetNpol(event.target.value)}
                 >
                   <option value="1">1</option>
-                  {mainProject !== "MONSPSR" && (
-                    <option value="4">4</option>
-                  )}
+                  {mainProject !== "MONSPSR" && <option value="4">4</option>}
                 </Form.Control>
               </Form.Group>
             </>

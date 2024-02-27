@@ -13,7 +13,7 @@ const molonglo = {
   title: "Molonglo",
   subprojects: ["All", "MONSPSR_TIMING"],
   bandOptions: ["All", "UHF_NS"],
-  plotTypes: ["Timing Residuals","Flux Density","S/N"],
+  plotTypes: ["Timing Residuals", "Flux Density", "S/N"],
   columns: [
     {
       dataField: "key",
@@ -92,7 +92,8 @@ const molonglo = {
       screenSizes: ["xxl"],
       align: "right",
       headerAlign: "right",
-      formatter: (cell) => cell !== null ? `${parseFloat(cell).toFixed(2)} [mJy]` : null,
+      formatter: (cell) =>
+        cell !== null ? `${parseFloat(cell).toFixed(2)} [mJy]` : null,
     },
     {
       dataField: "action",
@@ -147,7 +148,7 @@ const meertime = {
     "SBAND_4",
     "UNKNOWN",
   ],
-  plotTypes: ["Timing Residuals","Flux Density","S/N","DM","RM"],
+  plotTypes: ["Timing Residuals", "Flux Density", "S/N", "DM", "RM"],
   columns: [
     {
       dataField: "key",
