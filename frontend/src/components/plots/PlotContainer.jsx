@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import { graphql, useRefetchableFragment } from "react-relay";
 import PlotlyPlot from "./PlotlyPlot";
 import { getActivePlotData } from "./plotData";
+import { meertime, molonglo } from "../../telescopes";
 
 const PlotContainerFragment = graphql`
   fragment PlotContainerFragment on Query
@@ -68,12 +69,11 @@ const PlotContainer = ({
     PlotContainerFragment,
     toaData
   );
-
   const timingProjects = toaDataResult.toa.allProjects;
   const allNchans = toaDataResult.toa.allNchans;
 
   const [xAxis, setXAxis] = useState("utc");
-  const [activePlot, setActivePlot] = useState("Residual");
+  const [activePlot, setActivePlot] = useState("Timing Residuals");
   const [timingProject, setTimingProject] = useState(
     urlQuery.timingProject || timingProjects[0]
   );
@@ -145,6 +145,8 @@ const PlotContainer = ({
     mainProject
   );
 
+  const plotTypes = mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
+
   return (
     <Suspense
       fallback={
@@ -163,11 +165,9 @@ const PlotContainer = ({
               value={activePlot}
               onChange={(event) => handleSetActivePlot(event.target.value)}
             >
-              <option value="Residual">Timing Residuals</option>
-              <option value="Flux Density">Flux Density</option>
-              <option value="S/N">S/N</option>
-              <option value="DM">DM</option>
-              <option value="RM">RM</option>
+              {plotTypes.map((item, index) => (
+                <option value={item}>{item}</option>
+              ))}
             </Form.Control>
           </Form.Group>
           <Form.Group controlId="xAxisController" className="col-md-2">
@@ -183,7 +183,7 @@ const PlotContainer = ({
               <option value="phase">Binary Phase</option>
             </Form.Control>
           </Form.Group>
-          {activePlot === "Residual" && (
+          {activePlot === "Timing Residuals" && (
             <>
               <Form.Group
                 controlId="plotProjectController"

@@ -55,7 +55,7 @@ export const getYaxisLabel = (yAxis) => {
     return "Fit DM (pc cm^-3)";
   } else if (yAxis === "RM") {
     return "Fit RM (rad m^-2)";
-  } else if (yAxis === "Residual") {
+  } else if (yAxis === "Timing Residuals") {
     return "Residual (μs)";
   }
 };
@@ -71,7 +71,7 @@ export const getYaxisDomain = (yAxis, minValue, maxValue, medianValue) => {
       Math.abs(maxValue - medianValue)
     );
     return [medianValue - absDiff, medianValue + absDiff];
-  } else if (yAxis === "Residual") {
+  } else if (yAxis === "Timing Residuals") {
     const absMax = Math.max(Math.abs(minValue), Math.abs(maxValue));
     return [-absMax, absMax];
   }
@@ -94,7 +94,7 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
       medianValue + absDiff * 0.5,
       medianValue + absDiff,
     ];
-  } else if (yAxis === "Residual") {
+  } else if (yAxis === "Timing Residuals") {
     const absMax = Math.max(Math.abs(minValue), Math.abs(maxValue));
     return [-absMax, -absMax * 0.5, 0, absMax * 0.5, absMax];
   }
@@ -108,7 +108,7 @@ export const getActivePlotData = (
   jname,
   mainProject
 ) => {
-  if (activePlot == "Residual") {
+  if (activePlot == "Timing Residuals") {
     return residualPlotData(toaDataResult, timingProject, jname, mainProject);
   } else if (activePlot == "S/N") {
     return snrPlotData(tableData);
