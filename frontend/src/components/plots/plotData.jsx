@@ -184,6 +184,15 @@ export const filterBandData = (data) => {
     shape: "triangle-up",
   };
 
+  const otherData = data.filter((row) => row.band === "OTHER");
+  console.log("otherData", otherData);
+  const other = {
+    data: otherData,
+    name: "OTHER",
+    colour: "#808080",
+    shape: "circle",
+  };
+
   const minValue = Math.min(...data.map((row) => row.value - (row.error || 0)));
 
   const maxValue = Math.max(...data.map((row) => row.value + (row.error || 0)));
@@ -195,7 +204,7 @@ export const filterBandData = (data) => {
   );
   const ticks = unsortedTicks.sort((a, b) => a - b);
 
-  const plotData = [lBand, UHF, sband0, sband1, sband2, sband3, sband4];
+  const plotData = [lBand, UHF, sband0, sband1, sband2, sband3, sband4, other];
 
   return { plotData, minValue, maxValue, medianValue, ticks };
 };
