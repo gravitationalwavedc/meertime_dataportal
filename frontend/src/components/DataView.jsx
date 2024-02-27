@@ -102,7 +102,11 @@ const DataView = ({
                   wrapperClasses="bg-gray-100"
                 />
               ) : (
-                <JobCardsList {...props.baseProps} as={card} />
+                <JobCardsList
+                  {...props.baseProps}
+                  mainProject={mainProject}
+                  as={card}
+                />
               )}
             </React.Fragment>
           );

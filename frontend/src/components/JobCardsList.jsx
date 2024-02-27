@@ -2,7 +2,7 @@ import JobCard from "./JobCard";
 import React from "react";
 import { handleSearch } from "../helpers";
 
-const JobCardList = ({ data, columns, search, as }) => {
+const JobCardList = ({ data, columns, search, mainProject, as }) => {
   const results = search.searchText
     ? handleSearch(data, columns, search)
     : data;
@@ -13,7 +13,11 @@ const JobCardList = ({ data, columns, search, as }) => {
   return (
     <React.Fragment>
       {results.map((row) => (
-        <Component key={row.key ? row.key : row.jname} row={row} />
+        <Component
+          key={row.key ? row.key : row.jname}
+          row={row}
+          mainProject={mainProject}
+        />
       ))}
     </React.Fragment>
   );
