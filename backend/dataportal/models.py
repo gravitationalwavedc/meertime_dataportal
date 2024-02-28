@@ -492,30 +492,31 @@ class PulsarFoldSummary(models.Model):
 
     @classmethod
     def get_query(cls, **kwargs):
-        if "band" in kwargs:
-            if kwargs["band"] == "All":
-                kwargs.pop("band")
-            else:
-                kwargs["all_bands__icontains"] = kwargs.pop("band")
+        queryset = cls.objects.select_related(
+            "pulsar",
+        ).all()
 
-        if "most_common_project" in kwargs:
-            if kwargs["most_common_project"] == "All":
-                kwargs.pop("most_common_project")
-            else:
-                kwargs["most_common_project__icontains"] = kwargs.pop("most_common_project")
+        band = kwargs.get("band")
+        if band:
+            if band != "All":
+                queryset = queryset.filter(all_bands__icontains=band)
 
-        if "project" in kwargs:
-            if kwargs["project"] == "All":
-                kwargs.pop("project")
-            else:
-                kwargs["all_projects__icontains"] = kwargs.pop("project")
+        most_common_project = kwargs.get("most_common_project")
+        if most_common_project:
+            if most_common_project != "All":
+                queryset = queryset.filter(most_common_project__icontains=most_common_project)
 
-        if "main_project" in kwargs and kwargs["main_project"] == "All":
-            kwargs.pop("main_project")
-        elif "main_project" in kwargs:
-            kwargs["main_project__name__icontains"] = kwargs.pop("main_project")
+        project = kwargs.get("project")
+        if project:
+            if project != "All":
+                queryset = queryset.filter(all_projects__icontains=project)
 
-        return cls.objects.select_related("pulsar").filter(**kwargs)
+        main_project = kwargs.get("main_project")
+        if main_project:
+            if main_project != "All":
+                queryset = queryset.filter(main_project__name__icontains=main_project)
+
+        return queryset
 
     @classmethod
     def get_most_common_project(cls, observations):
@@ -652,30 +653,31 @@ class PulsarSearchSummary(models.Model):
 
     @classmethod
     def get_query(cls, **kwargs):
-        if "band" in kwargs:
-            if kwargs["band"] == "All":
-                kwargs.pop("band")
-            else:
-                kwargs["all_bands__icontains"] = kwargs.pop("band")
+        queryset = cls.objects.select_related(
+            "pulsar",
+        ).all()
 
-        if "most_common_project" in kwargs:
-            if kwargs["most_common_project"] == "All":
-                kwargs.pop("most_common_project")
-            else:
-                kwargs["most_common_project__icontains"] = kwargs.pop("most_common_project")
+        band = kwargs.get("band")
+        if band:
+            if band != "All":
+                queryset = queryset.filter(all_bands__icontains=band)
 
-        if "project" in kwargs:
-            if kwargs["project"] == "All":
-                kwargs.pop("project")
-            else:
-                kwargs["all_projects__icontains"] = kwargs.pop("project")
+        most_common_project = kwargs.get("most_common_project")
+        if most_common_project:
+            if most_common_project != "All":
+                queryset = queryset.filter(most_common_project__icontains=most_common_project)
 
-        if "main_project" in kwargs and kwargs["main_project"] == "All":
-            kwargs.pop("main_project")
-        elif "main_project" in kwargs:
-            kwargs["main_project__name__icontains"] = kwargs.pop("main_project")
+        project = kwargs.get("project")
+        if project:
+            if project != "All":
+                queryset = queryset.filter(all_projects__icontains=project)
 
-        return cls.objects.filter(**kwargs)
+        main_project = kwargs.get("main_project")
+        if main_project:
+            if main_project != "All":
+                queryset = queryset.filter(main_project__name__icontains=main_project)
+
+        return queryset
 
     @classmethod
     def get_most_common_project(cls, observations):
