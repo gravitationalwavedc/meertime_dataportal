@@ -2,7 +2,7 @@ import { Button, Card, Col, Row } from "react-bootstrap";
 import { Link } from "found";
 import { meerWatchLink } from "../helpers";
 
-const JobCard = ({ row }) => (
+const JobCard = ({ row, mainProject }) => (
   <Card className="mb-3 shadow-md job-card" data-testid="job-card">
     <Card.Body>
       <Card.Title>
@@ -48,7 +48,7 @@ const JobCard = ({ row }) => (
         View all observations
       </Link>
       <Link
-        to={`/${row.jname}/${row.latestObservation}/${row.beam}/`}
+        to={`/${mainProject}/${row.jname}/${row.latestObservation}/${row.latestObservationBeam}/`}
         className="mr-2"
         size="sm"
         variant="link"

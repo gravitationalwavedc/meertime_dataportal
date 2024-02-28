@@ -1,13 +1,10 @@
-import json
 import graphene
-from graphql_jwt.decorators import permission_required
 from django.contrib.postgres.fields import JSONField
 from graphene_django.converter import convert_django_field
+from graphql_jwt.decorators import permission_required
 
-from dataportal.models import (
-    PipelineImage,
-)
 from dataportal.graphql.queries import PipelineImageNode
+from dataportal.models import PipelineImage
 
 
 @convert_django_field.register(JSONField)
@@ -16,10 +13,9 @@ def convert_json_field_to_string(field, registry=None):
 
 
 class PipelineImageInput(graphene.InputObjectType):
-    pulsar_name   = graphene.String(required=True)
-    project_code  = graphene.String(required=True)
-    band          = graphene.String(required=True)
-
+    pulsar_name = graphene.String(required=True)
+    project_code = graphene.String(required=True)
+    band = graphene.String(required=True)
 
 
 class DeletePipelineImage(graphene.Mutation):

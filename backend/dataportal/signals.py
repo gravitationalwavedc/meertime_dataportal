@@ -1,9 +1,15 @@
-from datetime import datetime
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from dataportal.models import PulsarFoldSummary, PulsarSearchSummary, PulsarFoldResult, PipelineRun, Calibration, Observation, ObservationSummary
 
+from dataportal.models import (
+    Calibration,
+    Observation,
+    ObservationSummary,
+    PipelineRun,
+    PulsarFoldResult,
+    PulsarFoldSummary,
+    PulsarSearchSummary,
+)
 
 
 @receiver(post_save, sender=PipelineRun)
@@ -67,4 +73,3 @@ def handle_calibration_update(sender, instance, **kwargs):
     band = None
     for project in [instance.project, None]:
         ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration, band)
-

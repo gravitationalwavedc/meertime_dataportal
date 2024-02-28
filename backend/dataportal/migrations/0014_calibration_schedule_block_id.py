@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0013_pulsarfoldsummary_latest_observation_beam'),
+        ("dataportal", "0013_pulsarfoldsummary_latest_observation_beam"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='calibration',
-            name='schedule_block_id',
+            model_name="calibration",
+            name="schedule_block_id",
             field=models.CharField(blank=True, max_length=16, null=True),
         ),
     ]

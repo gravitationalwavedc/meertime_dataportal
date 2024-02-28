@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0012_auto_20230905_0418'),
+        ("dataportal", "0012_auto_20230905_0418"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='pulsarfoldsummary',
-            name='latest_observation_beam',
+            model_name="pulsarfoldsummary",
+            name="latest_observation_beam",
             field=models.IntegerField(default=1),
             preserve_default=False,
         ),

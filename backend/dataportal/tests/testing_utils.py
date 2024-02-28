@@ -1,34 +1,32 @@
-import os
 import json
+import os
 from datetime import datetime
 
-from django.core.files.base import ContentFile
 from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
 from graphql_jwt.testcases import JSONWebTokenClient
 
-from utils.ephemeris import parse_ephemeris_file
-from dataportal.storage import create_file_hash
 from dataportal.models import (
-    Pulsar,
-    Telescope,
-    MainProject,
-    Project,
-    Ephemeris,
-    Template,
     Calibration,
+    Ephemeris,
+    MainProject,
     Observation,
     PipelineRun,
+    Project,
+    Pulsar,
+    Telescope,
+    Template,
     Toa,
 )
+from dataportal.storage import create_file_hash
+from utils.ephemeris import parse_ephemeris_file
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
-CYPRESS_FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "../../../frontend/cypress/fixtures")
-
 
 
 def setup_query_test():
     client = JSONWebTokenClient()
-    user = get_user_model().objects.create(username="buffy")
+    user = get_user_model().objects.create(username="buffy", email="slayer@sunnydail.com")
     telescope, project, ephemeris, template, pipeline_run, obs, cal = create_pulsar_with_observations()
     return client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal
 
@@ -38,7 +36,7 @@ def create_basic_data():
 
     pulsar = Pulsar.objects.create(
         name="J0125-2327",
-        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
+        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",  # noqa
     )
 
     # Meerkat
@@ -65,8 +63,7 @@ def create_basic_data():
         valid_to=ephemeris_dict["FINISH"],
     )
 
-
-    with open(os.path.join(TEST_DATA_DIR, "J0125-2327.std"), 'rb') as template_file:
+    with open(os.path.join(TEST_DATA_DIR, "J0125-2327.std"), "rb") as template_file:
         file_content = template_file.read()
         template = Template.objects.create(
             pulsar=pulsar,
@@ -80,10 +77,9 @@ def create_basic_data():
     return telescope, project, ephemeris, template
 
 
-
 def create_observation_pipeline_run_toa(json_path, telescope, template, make_toas=True):
     # Load data from json
-    with open(json_path, 'r') as json_file:
+    with open(json_path, "r") as json_file:
         meertime_data = json.load(json_file)
 
     # Get or upload calibration
@@ -92,11 +88,10 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
         calibration_type=meertime_data["cal_type"],
         location=meertime_data["cal_location"],
     )
-    print(calibration.id)
 
     pulsar, _ = Pulsar.objects.get_or_create(
         name=meertime_data["pulsarName"],
-        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
+        comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",  # noqa
     )
 
     project = Project.objects.get(code=meertime_data["projectCode"])
@@ -151,26 +146,25 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
             observation=observation,
             ephemeris=ephemeris,
             template=template,
-            pipeline_name = "meerpipe",
-            pipeline_description = "MeerTime pipeline",
-            pipeline_version = "3.0.0",
-            created_by = "test",
-            job_state = "done",
-            location = "/test/location",
-            dm=20.,
-            dm_err=1.,
-            dm_epoch=1.,
-            dm_chi2r=1.,
-            dm_tres=1.,
+            pipeline_name="meerpipe",
+            pipeline_description="MeerTime pipeline",
+            pipeline_version="3.0.0",
+            created_by="test",
+            job_state="done",
+            location="/test/location",
+            dm=20.0,
+            dm_err=1.0,
+            dm_epoch=1.0,
+            dm_chi2r=1.0,
+            dm_tres=1.0,
             sn=100.0,
-            flux=25.,
-            rm=10.,
-            rm_err=1.,
+            flux=25.0,
+            rm=10.0,
+            rm_err=1.0,
             percent_rfi_zapped=10,
         )
         if make_toas:
-
-            toa = Toa.objects.create(
+            Toa.objects.create(
                 pipeline_run=pipeline_run,
                 observation=observation,
                 project=project,
@@ -199,23 +193,37 @@ def create_pulsar_with_observations():
     telescope, project, ephemeris, template = create_basic_data()
 
     # Search
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "J1614+0737_2023-08-01-18:21:59.json"), telescope, template)
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "J1709-3626_2020-03-15-22:58:52.json"), telescope, template)
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "OmegaCen1_2023-06-27-11:37:31.json"),  telescope, template)
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "J1614+0737_2023-08-01-18:21:59.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "J1709-3626_2020-03-15-22:58:52.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "OmegaCen1_2023-06-27-11:37:31.json"), telescope, template
+    )
 
     # Fold
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template)
-    obs, cal, pr = create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope, template)
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"), telescope, template)
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope, template)
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+    )
+    obs, cal, pr = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope, template
+    )
 
     return telescope, project, ephemeris, template, pr, obs, cal
 
 
 def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
-    with open(toa_path, 'r') as toa_file:
+    with open(toa_path, "r") as toa_file:
         toa_lines = toa_file.readlines()
-        created_toas = Toa.bulk_create(
+        Toa.bulk_create(
             pipeline_run_id=pipeline_run.id,
             project_short=project_short,
             template_id=template.id,
@@ -228,36 +236,97 @@ def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
             nchan=nchan,
         )
 
+
 def setup_timing_obs():
     client = JSONWebTokenClient()
     user = get_user_model().objects.create(username="buffy", is_staff=True, is_superuser=True)
-    telescope, project, ephemeris, template = create_basic_data()
+    telescope, _, _, template = create_basic_data()
 
-    obs, cal, pr = create_observation_pipeline_run_toa(
+    _, _, pr = create_observation_pipeline_run_toa(
         os.path.join(TEST_DATA_DIR, "timing_files/2023-10-22-04:41:07_1_J0437-4715.json"),
         telescope,
         template,
         make_toas=False,
     )
     # All files
-    upload_toa_files(pr, "PTA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"))
-    upload_toa_files(pr, "PTA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
-    upload_toa_files(pr, "TPA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"))
-    upload_toa_files(pr, "TPA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(
+        pr,
+        "PTA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+    )
+    upload_toa_files(
+        pr,
+        "PTA",
+        1,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"),
+    )
+    upload_toa_files(
+        pr,
+        "TPA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+    )
+    upload_toa_files(
+        pr,
+        "TPA",
+        1,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"),
+    )
     # Add last one twice to test duplicate detection
-    upload_toa_files(pr, "TPA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(
+        pr,
+        "TPA",
+        1,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"),
+    )
 
-    obs, cal, pr = create_observation_pipeline_run_toa(
+    _, _, pr = create_observation_pipeline_run_toa(
         os.path.join(TEST_DATA_DIR, "timing_files/2023-10-30-02:18:35_1_J0437-4715.json"),
         telescope,
         template,
         make_toas=False,
     )
-    upload_toa_files(pr, "PTA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
-    upload_toa_files(pr, "PTA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"))
-    upload_toa_files(pr, "TPA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
-    upload_toa_files(pr, "TPA", 1,  template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"))
+    upload_toa_files(
+        pr,
+        "PTA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"),
+    )
+    upload_toa_files(
+        pr,
+        "PTA",
+        1,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"),
+    )
+    upload_toa_files(
+        pr,
+        "TPA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"),
+    )
+    upload_toa_files(
+        pr,
+        "TPA",
+        1,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.1ch1p1t.ar.tim"),
+    )
     # Add last one twice to test duplicate detection
-    upload_toa_files(pr, "TPA", 16, template, os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"))
+    upload_toa_files(
+        pr,
+        "TPA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-30-02:18:35_zap.16ch1p1t.ar.tim"),
+    )
 
     return client, user

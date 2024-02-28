@@ -1,10 +1,9 @@
+import hashlib
 import os
 import re
-import hashlib
 from datetime import datetime
 
 from django.core.files.storage import FileSystemStorage
-from django.conf import settings
 
 
 def create_file_hash(opened_file):
@@ -15,7 +14,6 @@ def create_file_hash(opened_file):
     sha256_hash.update(file_content)
     # Get the hexadecimal representation of the hash
     return sha256_hash.hexdigest()
-
 
 
 def get_upload_location(instance, filename):
@@ -98,7 +96,6 @@ class OverwriteStorage(FileSystemStorage):
     """
 
     def get_available_name(self, name, max_length=None):
-
         if self.exists(name):
             os.remove(os.path.join(self.location, name))
         if max_length:

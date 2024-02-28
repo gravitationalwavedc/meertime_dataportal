@@ -2,7 +2,7 @@ import os
 
 from utils.toa import toa_line_to_dict, toa_dict_to_line
 
-TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'test_data')
+TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 
 TOA_FILES = [
     (os.path.join(TEST_DATA_DIR, "J1705-1903_2020-12-24-07:06:49_zap.4ch1p12t.ar.tim"), 4),
@@ -14,6 +14,7 @@ TOA_FILES = [
     (os.path.join(TEST_DATA_DIR, "J1757-1854_2020-03-08-06:50:57_zap.1ch1p1t.ar.tim"), 1),
     (os.path.join(TEST_DATA_DIR, "J0034-0721_2022-06-29-20:04:33_molonglo.tim"), 1),
 ]
+
 
 def test_toa_line_to_dict_to_line():
     """

@@ -7,138 +7,159 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0002_alter_observation_calibration'),
+        ("dataportal", "0002_alter_observation_calibration"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ephemeris',
-            name='project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.project'),
+            model_name="ephemeris",
+            name="project",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.project"),
         ),
         migrations.AlterField(
-            model_name='ephemeris',
-            name='pulsar',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.pulsar'),
+            model_name="ephemeris",
+            name="pulsar",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.pulsar"),
         ),
         migrations.AlterField(
-            model_name='mainproject',
-            name='telescope',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.telescope'),
+            model_name="mainproject",
+            name="telescope",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.telescope"),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='calibration',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='observations', to='dataportal.calibration'),
+            model_name="observation",
+            name="calibration",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="observations",
+                to="dataportal.calibration",
+            ),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='ephemeris',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='dataportal.ephemeris'),
+            model_name="observation",
+            name="ephemeris",
+            field=models.ForeignKey(
+                blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to="dataportal.ephemeris"
+            ),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.project'),
+            model_name="observation",
+            name="project",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.project"),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='pulsar',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.pulsar'),
+            model_name="observation",
+            name="pulsar",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.pulsar"),
         ),
         migrations.AlterField(
-            model_name='observation',
-            name='telescope',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.telescope'),
+            model_name="observation",
+            name="telescope",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.telescope"),
         ),
         migrations.AlterField(
-            model_name='pipelinefile',
-            name='pipeline_run',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.pipelinerun'),
+            model_name="pipelinefile",
+            name="pipeline_run",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.pipelinerun"),
         ),
         migrations.AlterField(
-            model_name='pipelineimage',
-            name='pulsar_fold_result',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='images', to='dataportal.pulsarfoldresult'),
+            model_name="pipelineimage",
+            name="pulsar_fold_result",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name="images", to="dataportal.pulsarfoldresult"
+            ),
         ),
         migrations.AlterField(
-            model_name='pipelinerun',
-            name='ephemeris',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='dataportal.ephemeris'),
+            model_name="pipelinerun",
+            name="ephemeris",
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.SET_NULL, to="dataportal.ephemeris"
+            ),
         ),
         migrations.AlterField(
-            model_name='pipelinerun',
-            name='observation',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pipeline_runs', to='dataportal.observation'),
+            model_name="pipelinerun",
+            name="observation",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name="pipeline_runs", to="dataportal.observation"
+            ),
         ),
         migrations.AlterField(
-            model_name='pipelinerun',
-            name='template',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='dataportal.template'),
+            model_name="pipelinerun",
+            name="template",
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to="dataportal.template"),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='main_project',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='dataportal.mainproject'),
+            model_name="project",
+            name="main_project",
+            field=models.ForeignKey(
+                null=True, on_delete=django.db.models.deletion.CASCADE, to="dataportal.mainproject"
+            ),
         ),
         migrations.AlterField(
-            model_name='pulsarfoldresult',
-            name='observation',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pulsar_fold_results', to='dataportal.observation'),
+            model_name="pulsarfoldresult",
+            name="observation",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="pulsar_fold_results",
+                to="dataportal.observation",
+            ),
         ),
         migrations.AlterField(
-            model_name='pulsarfoldresult',
-            name='pulsar',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.pulsar'),
+            model_name="pulsarfoldresult",
+            name="pulsar",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.pulsar"),
         ),
         migrations.AlterField(
-            model_name='pulsarfoldsummary',
-            name='main_project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.mainproject'),
+            model_name="pulsarfoldsummary",
+            name="main_project",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.mainproject"),
         ),
         migrations.AlterField(
-            model_name='pulsarfoldsummary',
-            name='pulsar',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.pulsar'),
+            model_name="pulsarfoldsummary",
+            name="pulsar",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.pulsar"),
         ),
         migrations.AlterField(
-            model_name='residual',
-            name='ephemeris',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.ephemeris'),
+            model_name="residual",
+            name="ephemeris",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.ephemeris"),
         ),
         migrations.AlterField(
-            model_name='residual',
-            name='project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.project'),
+            model_name="residual",
+            name="project",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.project"),
         ),
         migrations.AlterField(
-            model_name='residual',
-            name='pulsar',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.pulsar'),
+            model_name="residual",
+            name="pulsar",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.pulsar"),
         ),
         migrations.AlterField(
-            model_name='template',
-            name='project',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.project'),
+            model_name="template",
+            name="project",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.project"),
         ),
         migrations.AlterField(
-            model_name='template',
-            name='pulsar',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.pulsar'),
+            model_name="template",
+            name="pulsar",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.pulsar"),
         ),
         migrations.AlterField(
-            model_name='toa',
-            name='ephemeris',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.ephemeris'),
+            model_name="toa",
+            name="ephemeris",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.ephemeris"),
         ),
         migrations.AlterField(
-            model_name='toa',
-            name='pipeline_run',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='toas', to='dataportal.pipelinerun'),
+            model_name="toa",
+            name="pipeline_run",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, related_name="toas", to="dataportal.pipelinerun"
+            ),
         ),
         migrations.AlterField(
-            model_name='toa',
-            name='template',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.template'),
+            model_name="toa",
+            name="template",
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.template"),
         ),
     ]

@@ -1,15 +1,14 @@
 import json
-import numpy as np
 from datetime import datetime, timedelta
-from decimal import Decimal, getcontext
+from decimal import getcontext
 
 import graphene
+import numpy as np
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import Pulsar, Ephemeris, Project, Toa
 from dataportal.graphql.queries import ToaNode
+from dataportal.models import Toa
 from utils.binary_phase import get_binary_phase, is_binary
-
 
 
 class ResidualInput(graphene.InputObjectType):
@@ -29,8 +28,6 @@ class CreateResidual(graphene.Mutation):
     @classmethod
     @permission_required("dataportal.add_residual")
     def mutate(cls, self, info, input):
-
-
         # MJDs are stored as Decimals as standard floats don't have enough precision
         getcontext().prec = 12
         base_date = datetime(1858, 11, 17)  # Base date for MJD
@@ -42,9 +39,9 @@ class CreateResidual(graphene.Mutation):
             id, mjd, residual, residual_err, residual_phase = residual_line.split(",")
             # Put thin info into a dict to be used later
             residual_info[int(id)] = {
-                "mjd":            mjd,
-                "residual":       residual,
-                "residual_err":   residual_err,
+                "mjd": mjd,
+                "residual": residual,
+                "residual_err": residual_err,
                 "residual_phase": residual_phase,
             }
 
@@ -61,12 +58,11 @@ class CreateResidual(graphene.Mutation):
 
             # Get the day of the year as a float
             date = base_date + timedelta(days=float(mjd))
-            day_of_year = date.timetuple().tm_yday \
-                + date.hour / 24.0 \
-                + date.minute / (1440.0) \
-                + date.second / (86400.0)
-                # 24.0 * 60.0 = 1440.0
-                # 24.0 * 60.0 * 60.0 = 86400.0
+            day_of_year = (
+                date.timetuple().tm_yday + date.hour / 24.0 + date.minute / (1440.0) + date.second / (86400.0)
+            )
+            # 24.0 * 60.0 = 1440.0
+            # 24.0 * 60.0 * 60.0 = 86400.0
 
             if is_binary(ephemeris_dict):
                 # If the pulsar is a binary then we need to calculate the phase
@@ -80,14 +76,13 @@ class CreateResidual(graphene.Mutation):
             toa.binary_orbital_phase = binary_orbital_phase
             # Y axis types
             toa.residual_sec = float(residual)
-            toa.residual_sec_err = float(residual_err)/1e9 # Convert from ns to s
+            toa.residual_sec_err = float(residual_err) / 1e9  # Convert from ns to s
             toa.residual_phase = float(residual_phase)
             # Convert from ns to s the divide by period to convert to phase
-            toa.residual_phase_err = float(residual_err)/1e9 / ephemeris_dict["P0"]
-
+            toa.residual_phase_err = float(residual_err) / 1e9 / ephemeris_dict["P0"]
 
         # Launch bulk creation of residuals (update of toas)
-        n_toas_updated = Toa.objects.bulk_update(
+        Toa.objects.bulk_update(
             toas_to_update,
             [
                 "day_of_year",
@@ -96,7 +91,7 @@ class CreateResidual(graphene.Mutation):
                 "residual_sec_err",
                 "residual_phase",
                 "residual_phase_err",
-            ]
+            ],
         )
 
         return CreateResidualOutput(toa=toas_to_update)
