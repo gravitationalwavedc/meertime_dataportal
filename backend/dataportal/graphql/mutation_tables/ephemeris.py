@@ -21,11 +21,11 @@ def convert_json_field_to_string(field, registry=None):
 
 
 class EphemerisInput(graphene.InputObjectType):
-    pulsarName    = graphene.String(required=True)
+    pulsarName = graphene.String(required=True)
     ephemerisText = graphene.String(required=True)
-    projectCode   = graphene.String()
-    projectShort  = graphene.String()
-    comment       = graphene.String()
+    projectCode = graphene.String()
+    projectShort = graphene.String()
+    comment = graphene.String()
 
 
 class CreateEphemeris(graphene.Mutation):
@@ -38,7 +38,7 @@ class CreateEphemeris(graphene.Mutation):
     @permission_required("dataportal.add_ephemeris")
     def mutate(cls, self, info, input):
         # Get foreign key models
-        pulsar  = Pulsar.objects.get(name=input["pulsarName"])
+        pulsar = Pulsar.objects.get(name=input["pulsarName"])
         if input["projectCode"] is not None:
             project = Project.objects.get(code=input["projectCode"])
         elif input["projectShort"] is not None:

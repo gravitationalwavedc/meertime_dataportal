@@ -60,6 +60,7 @@ describe("The Fold Detail Page", () => {
       aliasQuery(req, "PlotContainerQuery", "plotContainerQuery.json");
     });
     cy.wait("@FoldDetailQuery");
+    cy.wait("@FoldDetailFileDownloadQuery");
     cy.contains("Folding ephemeris unavailable").should("be.visible");
   });
 

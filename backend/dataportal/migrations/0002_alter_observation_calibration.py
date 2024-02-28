@@ -7,13 +7,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0001_initial'),
+        ("dataportal", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='observation',
-            name='calibration',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='observations', to='dataportal.calibration'),
+            model_name="observation",
+            name="calibration",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="observations",
+                to="dataportal.calibration",
+            ),
         ),
     ]

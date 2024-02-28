@@ -6,22 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0009_delete_pipelinefile'),
+        ("dataportal", "0009_delete_pipelinefile"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='pipelinerun',
-            name='ephemeris_download_link',
+            model_name="pipelinerun",
+            name="ephemeris_download_link",
         ),
         migrations.AddField(
-            model_name='observation',
-            name='binary_orbital_phase',
+            model_name="observation",
+            name="binary_orbital_phase",
             field=models.FloatField(null=True),
         ),
         migrations.AddField(
-            model_name='observation',
-            name='day_of_year',
+            model_name="observation",
+            name="day_of_year",
             field=models.FloatField(null=True),
         ),
     ]

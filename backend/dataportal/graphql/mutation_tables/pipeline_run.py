@@ -1,19 +1,14 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import (
-    PipelineRun,
-    Observation,
-    Ephemeris,
-    Template,
-)
 from dataportal.graphql.queries import PipelineRunNode
+from dataportal.models import Ephemeris, Observation, PipelineRun, Template
 
 
 class PipelineRunInput(graphene.InputObjectType):
     observationId = graphene.Int()
-    ephemerisId   = graphene.Int()
-    templateId    = graphene.Int()
+    ephemerisId = graphene.Int()
+    templateId = graphene.Int()
 
     pipelineName = graphene.String()
     pipelineDescription = graphene.String()
@@ -23,17 +18,17 @@ class PipelineRunInput(graphene.InputObjectType):
     configuration = graphene.String()
 
     # DM results
-    dm       = graphene.Float()
-    dmErr   = graphene.Float()
+    dm = graphene.Float()
+    dmErr = graphene.Float()
     dmEpoch = graphene.Float()
     dmChi2r = graphene.Float()
-    dmTres  = graphene.Float()
+    dmTres = graphene.Float()
 
     # Other results
-    sn   = graphene.Float()
+    sn = graphene.Float()
     flux = graphene.Float()
-    rm   = graphene.Float()
-    rmErr= graphene.Float()
+    rm = graphene.Float()
+    rmErr = graphene.Float()
     percentRfiZapped = graphene.Float()
 
 
@@ -47,8 +42,8 @@ class CreatePipelineRun(graphene.Mutation):
     @permission_required("dataportal.add_pipeline_run")
     def mutate(cls, self, info, input=None):
         # Get foreign key models
-        observation  = Observation.objects.get(id=input["observationId"])
-        ephemeris    = Ephemeris.objects.get(id=input["ephemerisId"])
+        observation = Observation.objects.get(id=input["observationId"])
+        ephemeris = Ephemeris.objects.get(id=input["ephemerisId"])
         if input["templateId"] == -1:
             template = None
         else:
@@ -105,7 +100,7 @@ class UpdatePipelineRun(graphene.Mutation):
             pipeline_run.percent_rfi_zapped = input.percentRfiZapped
             pipeline_run.save()
             return UpdatePipelineRun(pipeline_run=pipeline_run)
-        except:
+        except Exception:
             return UpdatePipelineRun(pipeline_run=None)
 
 

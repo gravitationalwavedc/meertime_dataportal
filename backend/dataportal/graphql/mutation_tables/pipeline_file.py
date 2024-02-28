@@ -7,12 +7,10 @@ from dataportal.models import (
 from dataportal.graphql.queries import PipelineFileNode
 
 
-
 class PipelineFileInput(graphene.InputObjectType):
-    pulsar_name   = graphene.String(required=True)
-    project_code  = graphene.String(required=True)
-    band          = graphene.String(required=True)
-
+    pulsar_name = graphene.String(required=True)
+    project_code = graphene.String(required=True)
+    band = graphene.String(required=True)
 
 
 class DeletePipelineFile(graphene.Mutation):

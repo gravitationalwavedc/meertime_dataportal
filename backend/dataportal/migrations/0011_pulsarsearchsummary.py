@@ -7,29 +7,32 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0010_auto_20230829_0808'),
+        ("dataportal", "0010_auto_20230829_0808"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PulsarSearchSummary',
+            name="PulsarSearchSummary",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('first_observation', models.DateTimeField()),
-                ('latest_observation', models.DateTimeField()),
-                ('timespan', models.IntegerField()),
-                ('number_of_observations', models.IntegerField()),
-                ('total_integration_hours', models.FloatField()),
-                ('last_integration_minutes', models.FloatField(null=True)),
-                ('all_bands', models.CharField(max_length=500)),
-                ('most_common_project', models.CharField(max_length=64)),
-                ('all_projects', models.CharField(max_length=500)),
-                ('main_project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.mainproject')),
-                ('pulsar', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='dataportal.pulsar')),
+                ("id", models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("first_observation", models.DateTimeField()),
+                ("latest_observation", models.DateTimeField()),
+                ("timespan", models.IntegerField()),
+                ("number_of_observations", models.IntegerField()),
+                ("total_integration_hours", models.FloatField()),
+                ("last_integration_minutes", models.FloatField(null=True)),
+                ("all_bands", models.CharField(max_length=500)),
+                ("most_common_project", models.CharField(max_length=64)),
+                ("all_projects", models.CharField(max_length=500)),
+                (
+                    "main_project",
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.mainproject"),
+                ),
+                ("pulsar", models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="dataportal.pulsar")),
             ],
             options={
-                'ordering': ['-latest_observation'],
-                'unique_together': {('main_project', 'pulsar')},
+                "ordering": ["-latest_observation"],
+                "unique_together": {("main_project", "pulsar")},
             },
         ),
     ]

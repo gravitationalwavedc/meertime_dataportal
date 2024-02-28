@@ -1,8 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import Telescope
 from dataportal.graphql.queries import TelescopeNode
+from dataportal.models import Telescope
 
 
 class TelescopeInput(graphene.InputObjectType):
@@ -38,7 +38,7 @@ class UpdateTelescope(graphene.Mutation):
                 setattr(telescope, key, val)
             telescope.save()
             return UpdateTelescope(telescope=telescope)
-        except:
+        except Exception:
             return UpdateTelescope(telescope=None)
 
 
