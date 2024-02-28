@@ -22,7 +22,6 @@ from dataportal.storage import create_file_hash
 from utils.ephemeris import parse_ephemeris_file
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
-CYPRESS_FIXTURE_DIR = os.path.join(os.path.dirname(__file__), "../../../frontend/cypress/fixtures")
 
 
 def setup_query_test():
@@ -86,7 +85,6 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
         calibration_type=meertime_data["cal_type"],
         location=meertime_data["cal_location"],
     )
-    print(calibration.id)
 
     pulsar, _ = Pulsar.objects.get_or_create(
         name=meertime_data["pulsarName"],
