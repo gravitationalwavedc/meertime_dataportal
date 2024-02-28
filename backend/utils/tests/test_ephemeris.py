@@ -103,4 +103,3 @@ def test_ephemeris_parse():
         with open(os.path.join(TEST_DATA_DIR, expected_json), 'r') as f:
             expected_dict = json.load(f)
         assert ephemeris_dict == expected_dict
-
