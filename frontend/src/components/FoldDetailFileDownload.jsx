@@ -7,10 +7,7 @@ const FoldDetailFileDownloadQuery = graphql`
     mainProject: { type: "String!" }
     jname: { type: "String!" }
   ) {
-    filePulsarList(
-      mainProject: $mainProject
-      jname: $jname
-    ) {
+    filePulsarList(mainProject: $mainProject, jname: $jname) {
       edges {
         node {
           path

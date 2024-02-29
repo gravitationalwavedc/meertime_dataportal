@@ -40,14 +40,9 @@ const PlotContainerQuery = graphql`
 `;
 
 const FoldDetailFileDownloadQuery = graphql`
-  query FoldDetailFileDownloadQuery(
-    $mainProject: String!
-    $pulsar: String!
-  ) {
-    ...FoldDetailFileDownloadFragment @arguments(
-      mainProject: $mainProject
-      jname: $pulsar
-    )
+  query FoldDetailFileDownloadQuery($mainProject: String!, $pulsar: String!) {
+    ...FoldDetailFileDownloadFragment
+      @arguments(mainProject: $mainProject, jname: $pulsar)
   }
 `;
 

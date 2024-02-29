@@ -213,7 +213,9 @@ const PlotContainer = ({
                   onChange={(event) => handleSetNchan(event.target.value)}
                 >
                   {allNchans.map((nchan, index) => (
-                    <option value={nchan} disabled={nchan > 32}>{nchan}</option>
+                    <option value={nchan} disabled={nchan > 32}>
+                      {nchan}
+                    </option>
                   ))}
                 </Form.Control>
               </Form.Group>
