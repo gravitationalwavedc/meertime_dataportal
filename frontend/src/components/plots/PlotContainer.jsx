@@ -70,7 +70,7 @@ const PlotContainer = ({
     toaData
   );
   const timingProjects = toaDataResult.toa.allProjects;
-  const allNchans = toaDataResult.toa.allNchans;
+  const allNchans = toaDataResult.toa.allNchans.slice().sort((a, b) => a - b);
 
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Timing Residuals");
@@ -212,8 +212,8 @@ const PlotContainer = ({
                   value={obsNchan}
                   onChange={(event) => handleSetNchan(event.target.value)}
                 >
-                  {allNchans.map((allNchan, index) => (
-                    <option value={allNchan}>{allNchan}</option>
+                  {allNchans.map((nchan, index) => (
+                    <option value={nchan} disabled={nchan > 32}>{nchan}</option>
                   ))}
                 </Form.Control>
               </Form.Group>

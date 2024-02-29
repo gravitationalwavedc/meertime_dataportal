@@ -185,7 +185,6 @@ export const filterBandData = (data) => {
   };
 
   const otherData = data.filter((row) => row.band === "OTHER");
-  console.log("otherData", otherData);
   const other = {
     data: otherData,
     name: "OTHER",
