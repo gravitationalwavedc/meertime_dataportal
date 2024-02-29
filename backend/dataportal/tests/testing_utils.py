@@ -39,15 +39,18 @@ def create_basic_data():
         comment="PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",  # noqa
     )
 
+    # Meerkat
     main_project = MainProject.objects.create(name="MeerTIME", telescope=telescope)
-
     project = Project.objects.create(code="SCI-20180516-MB-05", short="PTA", main_project=main_project)
     project = Project.objects.create(code="SCI-20180516-MB-02", short="TPA", main_project=main_project)
     project = Project.objects.create(code="SCI-20180516-MB-04", short="GC", main_project=main_project)
-
     project = Project.objects.create(code="SCI_thinga_MB", short="RelBin", main_project=main_project)
 
-    with open(os.path.join(TEST_DATA_DIR, "J0125-2327.par"), "r") as par_file:
+    # Molonglo
+    main_project = MainProject.objects.create(name="MONSPSR", telescope=telescope)
+    project = Project.objects.create(code="MONSPSR_TIMING", short="MONSPSR_TIMING", main_project=main_project)
+
+    with open(os.path.join(TEST_DATA_DIR, "J0125-2327.par"), 'r') as par_file:
         par_text = par_file.read()
     ephemeris_dict = parse_ephemeris_file(par_text)
     ephemeris, _ = Ephemeris.objects.get_or_create(

@@ -6,7 +6,7 @@ import requests
 from django.conf import settings
 
 
-def get_fluxcal_archive_path(jname, utc=None, beam=None):
+def get_fluxcal_archive_path(main_project, jname, utc=None, beam=None):
     """
     Get the path to the cleaned fluxcal archives as it is on Ozstar.
     :param project: String of the project name
@@ -17,11 +17,18 @@ def get_fluxcal_archive_path(jname, utc=None, beam=None):
     :return: String of the path to the fluxcal archives
     """
     # Example path as expected on Ozstar
-    # /fred/oz005/timing_processed/PTA/J1017-7156/2020-10-05-01:52:19/4/1284/cleaned/
-    if utc is None and beam is None:
-        return f"/users/nswainst/meerpipe_testing_outputs/{jname}/"
+    if main_project == "MONSPSR":
+        # Molonglo data location in /fred/oz002
+        if utc is None:
+            return f"/ldunn/meertime_dataportal/data/post/{jname}/"
+        else:
+            return f"/ldunn/meertime_dataportal/data/post/{jname}/{utc}/"
     else:
-        return f"/users/nswainst/meerpipe_testing_outputs/{jname}/{utc}/{beam}/"
+        # Meertime data location
+        if utc is None and beam is None:
+            return f"/timing_processed/{jname}/"
+        else:
+            return f"/timing_processed/{jname}/{utc}/{beam}/"
 
 
 def request_file_list(path, recursive):

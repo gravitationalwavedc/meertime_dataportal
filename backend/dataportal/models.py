@@ -37,6 +37,7 @@ BAND_CHOICES = [
     ("SBAND_3", "SBAND_3"),
     ("SBAND_4", "SBAND_4"),
     ("OTHER", "OTHER"),
+    ("UHF_NS", "UHF_NS"),  # For Molonglo NS arm
 ]
 
 OBS_TYPE_CHOICES = [
@@ -272,7 +273,11 @@ class Observation(models.Model):
 
     def save(self, *args, **kwargs):
         Observation.clean(self)
-        self.band = get_band(self.frequency, self.bandwidth)
+        if self.project.main_project.name == "MONSPSR":
+            # All observations with Molonglo are currently UHF band with the NS arm
+            self.band = "UHF_NS"
+        else:
+            self.band = get_band(self.frequency, self.bandwidth)
         self.day_of_year = (
             self.utc_start.timetuple().tm_yday
             + self.utc_start.hour / 24.0
@@ -763,13 +768,13 @@ class PipelineImage(models.Model):
     url = models.URLField(null=True)
     cleaned = models.BooleanField(default=True)
     IMAGE_TYPE_CHOICES = [
-        ("toa-dm-corrected", "toa-dm-corrected"),
         ("toa-single", "toa-single"),
         ("profile", "profile"),
         ("profile-pol", "profile-pol"),
         ("phase-time", "phase-time"),
         ("phase-freq", "phase-freq"),
         ("bandpass", "bandpass"),
+        ("dynamic-spectrum", "dynamic-spectrum"),
         ("snr-cumul", "snr-cumul"),
         ("snr-single", "snr-single"),
     ]
@@ -847,7 +852,7 @@ class Toa(models.Model):
     f = models.CharField(max_length=32, null=True)
     bw = models.IntegerField(null=True)
     tobs = models.IntegerField(null=True)
-    tmplt = models.CharField(max_length=64, null=True)
+    tmplt = models.CharField(max_length=128, null=True)
     gof = models.FloatField(null=True)
     nbin = models.IntegerField(null=True)
     nch = models.IntegerField(null=True)
@@ -921,7 +926,9 @@ class Toa(models.Model):
 
         # created_toas = []
         toas_to_create = []
-        for toa_line in toa_lines[1:]:
+        for toa_line in toa_lines:
+            if "FORMAT" in toa_line:
+                continue
             toa_line = toa_line.rstrip("\n")
             # Loop over toa lines and turn into a dict
             toa_dict = toa_line_to_dict(toa_line)
@@ -931,8 +938,21 @@ class Toa(models.Model):
                 raise GraphQLError(
                     f"Assertion failed. toa_line and output_toa_line do not match.\n{toa_line}\n{output_toa_line}"
                 )
+            # Info only for Meerkat Toas
+            if project_short == "MONSPSR_TIMING":
+                nch = None
+                chan = None
+                rcvr = None
+                length = None
+                subint = None
+            else:
+                nch = toa_dict["nch"]
+                chan = toa_dict["chan"]
+                rcvr = toa_dict["rcvr"]
+                length = toa_dict["length"]
+                subint = toa_dict["subint"]
+
             # Upload the toa
-            # toa = Toa.objects.create(
             toas_to_create.append(
                 Toa(
                     pipeline_run=pipeline_run,
@@ -953,12 +973,12 @@ class Toa(models.Model):
                     tmplt=toa_dict["tmplt"],
                     gof=toa_dict.get("gof", None),
                     nbin=toa_dict["nbin"],
-                    nch=toa_dict["nch"],
-                    chan=toa_dict["chan"],
-                    rcvr=toa_dict["rcvr"],
                     snr=toa_dict["snr"],
-                    length=toa_dict["length"],
-                    subint=toa_dict["subint"],
+                    nch=nch,
+                    chan=chan,
+                    rcvr=rcvr,
+                    length=length,
+                    subint=subint,
                     dm_corrected=dm_corrected,
                     minimum_nsubs=minimum_nsubs,
                     maximum_nsubs=maximum_nsubs,

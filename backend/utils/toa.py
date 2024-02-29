@@ -60,7 +60,11 @@ def toa_dict_to_line(toa_dict):
     Returns:
         str: A line from a .toa file.
     """
-    toa_line = f"{toa_dict['archive']} {toa_dict['freq_MHz']:.6f} {toa_dict['mjd']} {toa_dict['mjd_err']:>7.3f}  {toa_dict['telescope']} "  # noqa: E501
+    toa_line = ""
+    telescope = toa_dict['telescope']
+    if telescope == "meerkat":
+        telescope = " meerkat "
+    toa_line += f"{toa_dict['archive']} {toa_dict['freq_MHz']:.6f} {toa_dict['mjd']} {toa_dict['mjd_err']:>7.3f} {telescope}"  # noqa: E501
     for key, value in toa_dict.items():
         if key not in ["archive", "freq_MHz", "mjd", "mjd_err", "telescope"]:
             if isinstance(value, float) and key == "gof":

@@ -461,7 +461,11 @@ def test_plot_container_query():
     client, user, _, _, _, template, pipeline_run, _, _ = setup_query_test()
     client.authenticate(user)
     for toa_file, nchan in TOA_FILES:
-        upload_toa_files(pipeline_run, "PTA", nchan, template, toa_file)
+        if "molonglo" in toa_file:
+            project = "MONSPSR_TIMING"
+        else:
+            project = "PTA"
+        upload_toa_files(pipeline_run, project, nchan, template, toa_file)
 
     response = client.execute(
         PLOT_CONTAINER_QUERY,
@@ -599,7 +603,7 @@ def test_single_observation_query():
                             "utcStart": "2020-07-10T05:07:28+00:00",
                             "obsType": "FOLD",
                             "project": {
-                                "id": "UHJvamVjdE5vZGU6MjE=",
+                                "id": "UHJvamVjdE5vZGU6MjY=",
                                 "short": "PTA",
                                 "code": "SCI-20180516-MB-05",
                                 "mainProject": {
@@ -1018,4 +1022,8 @@ def test_session_list_query():
 def test_toa_uploads():
     _, _, _, _, _, template, pipeline_run, _, _ = setup_query_test()
     for toa_file, nchan in TOA_FILES:
-        upload_toa_files(pipeline_run, "PTA", nchan, template, toa_file)
+        if "molonglo" in toa_file:
+            project = "MONSPSR_TIMING"
+        else:
+            project = "PTA"
+        upload_toa_files(pipeline_run, project, nchan, template, toa_file)

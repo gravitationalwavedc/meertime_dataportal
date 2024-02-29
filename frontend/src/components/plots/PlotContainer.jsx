@@ -4,6 +4,7 @@ import Form from "react-bootstrap/Form";
 import { graphql, useRefetchableFragment } from "react-relay";
 import PlotlyPlot from "./PlotlyPlot";
 import { getActivePlotData } from "./plotData";
+import { meertime, molonglo } from "../../telescopes";
 
 const PlotContainerFragment = graphql`
   fragment PlotContainerFragment on Query
@@ -15,7 +16,7 @@ const PlotContainerFragment = graphql`
     minimumNsubs: { type: "Boolean", defaultValue: true }
     maximumNsubs: { type: "Boolean", defaultValue: false }
     obsNchan: { type: "Int", defaultValue: 1 }
-    obsNpol: { type: "Int", defaultValue: 4 }
+    obsNpol: { type: "Int", defaultValue: 1 }
   ) {
     toa(
       pulsar: $pulsar
@@ -68,18 +69,17 @@ const PlotContainer = ({
     PlotContainerFragment,
     toaData
   );
-
   const timingProjects = toaDataResult.toa.allProjects;
-  const allNchans = toaDataResult.toa.allNchans;
+  const allNchans = toaDataResult.toa.allNchans.slice().sort((a, b) => a - b);
 
   const [xAxis, setXAxis] = useState("utc");
-  const [activePlot, setActivePlot] = useState("Residual");
+  const [activePlot, setActivePlot] = useState("Timing Residuals");
   const [timingProject, setTimingProject] = useState(
     urlQuery.timingProject || timingProjects[0]
   );
   const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
   const [maxNsub, setMaxNsub] = useState(urlQuery.maxNsub || false);
-  const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 4);
+  const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
 
   const handleRefetch = ({
     newTimingProject = timingProject,
@@ -145,6 +145,9 @@ const PlotContainer = ({
     mainProject
   );
 
+  const plotTypes =
+    mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
+
   return (
     <Suspense
       fallback={
@@ -163,11 +166,9 @@ const PlotContainer = ({
               value={activePlot}
               onChange={(event) => handleSetActivePlot(event.target.value)}
             >
-              <option value="Residual">Timing Residuals</option>
-              <option value="Flux Density">Flux Density</option>
-              <option value="S/N">S/N</option>
-              <option value="DM">DM</option>
-              <option value="RM">RM</option>
+              {plotTypes.map((item, index) => (
+                <option value={item}>{item}</option>
+              ))}
             </Form.Control>
           </Form.Group>
           <Form.Group controlId="xAxisController" className="col-md-2">
@@ -183,7 +184,7 @@ const PlotContainer = ({
               <option value="phase">Binary Phase</option>
             </Form.Control>
           </Form.Group>
-          {activePlot === "Residual" && (
+          {activePlot === "Timing Residuals" && (
             <>
               <Form.Group
                 controlId="plotProjectController"
@@ -211,8 +212,10 @@ const PlotContainer = ({
                   value={obsNchan}
                   onChange={(event) => handleSetNchan(event.target.value)}
                 >
-                  {allNchans.map((allNchan, index) => (
-                    <option value={allNchan}>{allNchan}</option>
+                  {allNchans.map((nchan, index) => (
+                    <option value={nchan} disabled={nchan > 32}>
+                      {nchan}
+                    </option>
                   ))}
                 </Form.Control>
               </Form.Group>
@@ -239,8 +242,8 @@ const PlotContainer = ({
                   value={obsNpol}
                   onChange={(event) => handleSetNpol(event.target.value)}
                 >
-                  <option value="4">4</option>
                   <option value="1">1</option>
+                  {mainProject !== "MONSPSR" && <option value="4">4</option>}
                 </Form.Control>
               </Form.Group>
             </>

@@ -55,7 +55,7 @@ export const getYaxisLabel = (yAxis) => {
     return "Fit DM (pc cm^-3)";
   } else if (yAxis === "RM") {
     return "Fit RM (rad m^-2)";
-  } else if (yAxis === "Residual") {
+  } else if (yAxis === "Timing Residuals") {
     return "Residual (μs)";
   }
 };
@@ -71,7 +71,7 @@ export const getYaxisDomain = (yAxis, minValue, maxValue, medianValue) => {
       Math.abs(maxValue - medianValue)
     );
     return [medianValue - absDiff, medianValue + absDiff];
-  } else if (yAxis === "Residual") {
+  } else if (yAxis === "Timing Residuals") {
     const absMax = Math.max(Math.abs(minValue), Math.abs(maxValue));
     return [-absMax, absMax];
   }
@@ -94,7 +94,7 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
       medianValue + absDiff * 0.5,
       medianValue + absDiff,
     ];
-  } else if (yAxis === "Residual") {
+  } else if (yAxis === "Timing Residuals") {
     const absMax = Math.max(Math.abs(minValue), Math.abs(maxValue));
     return [-absMax, -absMax * 0.5, 0, absMax * 0.5, absMax];
   }
@@ -108,7 +108,7 @@ export const getActivePlotData = (
   jname,
   mainProject
 ) => {
-  if (activePlot == "Residual") {
+  if (activePlot == "Timing Residuals") {
     return residualPlotData(toaDataResult, timingProject, jname, mainProject);
   } else if (activePlot == "S/N") {
     return snrPlotData(tableData);
@@ -184,6 +184,22 @@ export const filterBandData = (data) => {
     shape: "triangle-up",
   };
 
+  const otherData = data.filter((row) => row.band === "OTHER");
+  const other = {
+    data: otherData,
+    name: "OTHER",
+    colour: "#808080",
+    shape: "circle",
+  };
+
+  const UHFNSData = data.filter((row) => row.band === "UHF_NS");
+  const UHFNS = {
+    data: UHFNSData,
+    name: "UHF_NS",
+    colour: "#0d0887",
+    shape: "square",
+  };
+
   const minValue = Math.min(...data.map((row) => row.value - (row.error || 0)));
 
   const maxValue = Math.max(...data.map((row) => row.value + (row.error || 0)));
@@ -195,7 +211,17 @@ export const filterBandData = (data) => {
   );
   const ticks = unsortedTicks.sort((a, b) => a - b);
 
-  const plotData = [lBand, UHF, sband0, sband1, sband2, sband3, sband4];
+  const plotData = [
+    lBand,
+    UHF,
+    sband0,
+    sband1,
+    sband2,
+    sband3,
+    sband4,
+    other,
+    UHFNS,
+  ];
 
   return { plotData, minValue, maxValue, medianValue, ticks };
 };

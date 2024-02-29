@@ -3,23 +3,19 @@ import ImageComparisonRow from "./ImageComparisonRow";
 import PlotImage from "./PlotImage";
 import { formatProjectName } from "../helpers";
 
-const ComparisonImageGrid = ({
-  rawImages,
-  processedImages,
-  openLightBox,
-  project,
-}) => {
+const ComparisonImageGrid = ({ rawImages, processedImages, openLightBox }) => {
   const comparisonImageTypes = [
     "profile",
     "profile_pol",
     "phase_time",
     "phase_freq",
     "bandpass",
+    "dynamic_spectrum",
     "snr_cumul",
     "snr_single",
   ];
 
-  const extraImageOrder = [];
+  const extraImageOrder = ["toa_single"];
 
   return (
     <>
@@ -28,7 +24,7 @@ const ComparisonImageGrid = ({
           <h5>Raw</h5>
         </Col>
         <Col>
-          <h5>Cleaned by {formatProjectName(project)}</h5>
+          <h5>Cleaned</h5>
         </Col>
       </Row>
       {comparisonImageTypes.map((imageType) => (
@@ -47,7 +43,7 @@ const ComparisonImageGrid = ({
         <>
           <Row className="mt-5">
             <Col>
-              <h5>Cleaned by {formatProjectName(project)}</h5>
+              <h5>Cleaned</h5>
             </Col>
           </Row>
           <Row>

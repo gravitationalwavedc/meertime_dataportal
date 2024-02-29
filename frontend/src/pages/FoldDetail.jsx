@@ -40,8 +40,9 @@ const PlotContainerQuery = graphql`
 `;
 
 const FoldDetailFileDownloadQuery = graphql`
-  query FoldDetailFileDownloadQuery($pulsar: String!) {
-    ...FoldDetailFileDownloadFragment @arguments(jname: $pulsar)
+  query FoldDetailFileDownloadQuery($mainProject: String!, $pulsar: String!) {
+    ...FoldDetailFileDownloadFragment
+      @arguments(mainProject: $mainProject, jname: $pulsar)
   }
 `;
 
@@ -60,9 +61,10 @@ const FoldDetail = ({ match }) => {
     minimumNsubs: true,
     maximumNsubs: false,
     obsNchan: 1,
-    obsNpol: 4,
+    obsNpol: 1,
   });
   const fileDownloadData = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
+    mainProject: mainProject,
     pulsar: jname,
   });
   return (
