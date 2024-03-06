@@ -73,8 +73,6 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
     return [...data, { ...row }];
   }, []);
 
-  console.log(plotData, plotlyData);
-
   return (
     <>
       <Plot
