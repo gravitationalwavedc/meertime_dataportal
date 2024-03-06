@@ -124,8 +124,8 @@ export const getActivePlotData = (
   }
 };
 
-export const filterBandData = (data) => {
-  data = data.filter((row) => row.value !== null);
+export const filterBandData = (originalData) => {
+  const data = originalData.filter((row) => row.value !== null);
 
   // Process the table data in a way that react-vis understands.
   const UHFData = data.filter((row) => row.band === "UHF");
@@ -228,7 +228,7 @@ export const filterBandData = (data) => {
 
 export const snrPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
-  const allData = data.map((row) => ({
+  return data.map((row) => ({
     id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
@@ -238,12 +238,10 @@ export const snrPlotData = (data) => {
     link: row.plotLink,
     band: row.observation.band,
   }));
-
-  return allData;
 };
 
 export const fluxPlotData = (data) => {
-  const allData = data.map((row) => ({
+  return data.map((row) => ({
     id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
@@ -253,13 +251,11 @@ export const fluxPlotData = (data) => {
     link: row.plotLink,
     band: row.observation.band,
   }));
-
-  return allData;
 };
 
 export const dmPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
-  const allData = data.map((row) => ({
+  return data.map((row) => ({
     id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
@@ -270,13 +266,11 @@ export const dmPlotData = (data) => {
     link: row.plotLink,
     band: row.observation.band,
   }));
-
-  return allData;
 };
 
 export const rmPlotData = (data) => {
   // Process the table data in a way that react-vis understands.
-  const allData = data.map((row) => ({
+  return data.map((row) => ({
     id: row.observation.id,
     utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
     day: row.observation.dayOfYear,
@@ -287,12 +281,10 @@ export const rmPlotData = (data) => {
     link: row.plotLink,
     band: row.observation.band,
   }));
-
-  return allData;
 };
 
 export const residualPlotData = (data, timingProject, jname, mainProject) => {
-  const allData = data.toa.edges
+  return data.toa.edges
     .filter((edge) => edge.node.residualSec !== null)
     .filter((edge) => edge.node.project.short === timingProject)
     .map((edge) => ({
@@ -308,6 +300,4 @@ export const residualPlotData = (data, timingProject, jname, mainProject) => {
       )}/${edge.node.observation.beam}/`,
       band: edge.node.observation.band,
     }));
-
-  return allData;
 };

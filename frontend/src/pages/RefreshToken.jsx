@@ -47,9 +47,5 @@ export function getImageData(imageUrl) {
     })
     .then((response) => {
       return `data:image;base64,${response}`;
-    })
-    .catch((error) => {
-      // eslint-disable-next-line no-console
-      console.log(error);
     });
 }
