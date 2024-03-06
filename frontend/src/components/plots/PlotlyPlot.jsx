@@ -52,7 +52,6 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
         width: 6,
       },
       y: (xData = dataBand.data.map((point) => point.value)),
-      link: dataBand.data.map((point) => point.link),
       customdata: dataBand.data.map((point) => [point.size, point.link]),
       type: "scatter",
       mode: "markers",
