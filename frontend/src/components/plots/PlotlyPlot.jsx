@@ -1,44 +1,23 @@
-import React from "react";
 import Plot from "react-plotly.js";
 import { useRouter } from "found";
 import {
   filterBandData,
   getXaxisFormatter,
   getXaxisLabel,
-  getYaxisDomain,
   getYaxisLabel,
-  getYaxisTicks,
 } from "./plotData";
-import _default from "react-bootstrap/esm/CardColumns";
 
 const PlotlyPlot = ({ data, xAxis, activePlot }) => {
   const { router } = useRouter();
 
-  const handlePlotClick = (event) => {
-    // Assuming you have a link associated with each data point
-    const eventID = event.points[0].data.id[0];
-    const dataPoint = linkIds.find((point) => point.id === eventID);
-    if (dataPoint) {
-      router.push(dataPoint.link);
+  const handlePlotClick = (plotData) => {
+    const link = plotData.points[0].customdata[1];
+    if (link !== "" && link !== undefined) {
+      router.push(link);
     }
   };
 
-  const { plotData, minValue, maxValue, medianValue, ticks } =
-    filterBandData(data);
-
-  // Make a list of observation IDs and plot links
-  const linkIdBands = plotData.reduce((data, dataBand) => {
-    const pointLinkId = dataBand.data.reduce((result, point) => {
-      result.push({
-        id: point.id,
-        link: point.link,
-      });
-      return result;
-    }, []);
-    data.push(pointLinkId);
-    return data;
-  }, []);
-  const linkIds = [].concat(...linkIdBands);
+  const { plotData } = filterBandData(data);
 
   // Convert data into Plotly format based on x and y axis
   const plotlyData = plotData.reduce((data, dataBand) => {
@@ -54,6 +33,7 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
     }
     // Set x data
     let xData;
+
     if (xAxis === "utc") {
       xData = dataBand.data.map((point) => point.utc);
     } else if (xAxis === "day") {
@@ -63,6 +43,7 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
     } else {
       xData = dataBand.data.utc;
     }
+
     const row = {
       id: dataBand.data.map((point) => point.id),
       x: xData,
@@ -71,7 +52,8 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
         width: 6,
       },
       y: (xData = dataBand.data.map((point) => point.value)),
-      customdata: dataBand.data.map((point) => point.size),
+      link: dataBand.data.map((point) => point.link),
+      customdata: dataBand.data.map((point) => [point.size, point.link]),
       type: "scatter",
       mode: "markers",
       name: dataBand.name,
@@ -79,7 +61,7 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
         xAxis === "utc" ? "|%Y-%m-%d %H:%M:%S.%f" : ""
       }}<br>${getYaxisLabel(
         activePlot
-      )}: %{y}<br>Integration Time (s): %{customdata}<extra></extra>`,
+      )}: %{y}<br>Integration Time (s): %{customdata[0]}<extra></extra>`,
       marker: {
         color: dataBand.colour,
         symbol: dataBand.shape,
@@ -90,6 +72,8 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
     };
     return [...data, { ...row }];
   }, []);
+
+  console.log(plotData, plotlyData);
 
   return (
     <>
