@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0004_auto_20230804_0635'),
+        ("dataportal", "0004_auto_20230804_0635"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='calibration',
-            options={'ordering': ['-start']},
+            name="calibration",
+            options={"ordering": ["-start"]},
         ),
     ]

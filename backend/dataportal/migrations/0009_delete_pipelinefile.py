@@ -6,11 +6,11 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0008_auto_20230814_0214'),
+        ("dataportal", "0008_auto_20230814_0214"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='PipelineFile',
+            name="PipelineFile",
         ),
     ]

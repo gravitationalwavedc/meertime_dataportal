@@ -1,8 +1,8 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import Calibration
 from dataportal.graphql.queries import CalibrationNode
+from dataportal.models import Calibration
 
 
 class CalibrationInput(graphene.InputObjectType):
@@ -40,7 +40,7 @@ class UpdateCalibration(graphene.Mutation):
                 setattr(calibration, key, val)
             calibration.save()
             return UpdateCalibration(calibration=calibration)
-        except:
+        except Exception:
             return UpdateCalibration(calibration=None)
 
 

@@ -1,5 +1,3 @@
-
-
 def get_band(freq, bw):
     if (bw == 544.0) and (freq < 816) and (freq > 815):
         rcvr = "UHF"

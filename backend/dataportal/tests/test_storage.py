@@ -1,7 +1,8 @@
-import pytest
 from datetime import datetime
-from dataportal.storage import get_upload_location, get_template_upload_location
+
 from model_bakery import baker
+
+from dataportal.storage import get_template_upload_location, get_upload_location
 
 
 def test_get_upload_location():
@@ -21,7 +22,6 @@ def test_get_upload_location():
 
 
 def test_get_template_upload_location():
-
     expected = "SCI-20180516-MB-02/J0023+0923/LBAND/2020-08-24-03:14:33_J0023+0923.par"
 
     pipelinefile = baker.prepare(
@@ -33,4 +33,3 @@ def test_get_template_upload_location():
     )
 
     assert get_template_upload_location(pipelinefile, "J0023+0923.par") == expected
-

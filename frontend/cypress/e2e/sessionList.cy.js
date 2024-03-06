@@ -33,7 +33,7 @@ describe("The Session List Page", () => {
   it("check view all button", () => {
     cy.wait("@SessionListTableQuery");
     cy.contains("View all").click();
-    cy.location("pathname").should("equal", "/session/57/");
+    cy.location("pathname").should("equal", "/session/64/");
 
     cy.wait("@SessionQuery");
     cy.contains("JName").should("be.visible");

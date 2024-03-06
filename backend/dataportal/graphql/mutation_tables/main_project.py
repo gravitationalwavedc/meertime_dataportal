@@ -1,10 +1,10 @@
 import graphene
-from graphql_jwt.decorators import permission_required
 from django.db.models.fields import DurationField
 from graphene_django.converter import convert_django_field
+from graphql_jwt.decorators import permission_required
 
-from dataportal.models import MainProject, Telescope
 from dataportal.graphql.queries import MainProjectNode
+from dataportal.models import MainProject, Telescope
 
 
 @convert_django_field.register(DurationField)
@@ -51,7 +51,7 @@ class UpdateMainProject(graphene.Mutation):
             main_project.name = input.name
             main_project.save()
             return UpdateMainProject(mainproject=main_project)
-        except:
+        except Exception:
             return UpdateMainProject(mainproject=None)
 
 

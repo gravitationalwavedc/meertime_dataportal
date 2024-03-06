@@ -7,6 +7,7 @@ from graphql_jwt.decorators import login_required
 
 from dataportal.models import PulsarFoldResult
 
+
 class JobControllerFile(graphene.ObjectType):
     class Meta:
         interfaces = (relay.Node,)
@@ -24,6 +25,7 @@ class FileConnection(relay.Connection):
 class Query(graphene.ObjectType):
     file_single_list = relay.ConnectionField(
         FileConnection,
+        main_project=graphene.String(required=True),
         jname=graphene.String(required=True),
         utc=graphene.String(required=True),
         beam=graphene.Int(required=True),
@@ -42,6 +44,7 @@ class Query(graphene.ObjectType):
         # fold pulsar observation.
         if not pulsar_fold_result.observation.is_restricted(info.context.user):
             path = get_fluxcal_archive_path(
+                main_project=kwargs.get("mainProject"),
                 jname=kwargs.get("jname"),
                 utc=kwargs.get("utc"),
                 beam=kwargs.get("beam"),
@@ -53,8 +56,8 @@ class Query(graphene.ObjectType):
                 returned_files = []
                 for file in files:
                     if file["path"].endswith(".ar"):
-                            returned_files.append(
-                                JobControllerFile(
+                        returned_files.append(
+                            JobControllerFile(
                                 id=file["path"].split("/")[-1],
                                 file_size=file["fileSize"],
                                 is_dir=file["isDir"],
@@ -65,9 +68,9 @@ class Query(graphene.ObjectType):
 
         return []
 
-
     file_pulsar_list = relay.ConnectionField(
         FileConnection,
+        main_project=graphene.String(required=True),
         jname=graphene.String(required=True),
     )
 
@@ -75,6 +78,7 @@ class Query(graphene.ObjectType):
     def resolve_file_pulsar_list(self, info, **kwargs):
 
         path = get_fluxcal_archive_path(
+            main_project=kwargs.get("mainProject"),
             jname=kwargs.get("jname"),
         )
         has_files, files = request_file_list(path, True)
@@ -83,8 +87,8 @@ class Query(graphene.ObjectType):
             returned_files = []
             for file in files:
                 if file["path"].endswith(".ar"):
-                        returned_files.append(
-                            JobControllerFile(
+                    returned_files.append(
+                        JobControllerFile(
                             id=file["path"].split("/")[-1],
                             file_size=file["fileSize"],
                             is_dir=file["isDir"],

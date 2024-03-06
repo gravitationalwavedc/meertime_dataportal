@@ -16,7 +16,7 @@ def convert_to_int_or_float_if_possible(value):
 def format_float(value, threshold=1e3, decimal_places=2):
     if abs(value) >= threshold:
         e_format = "{:.{}e}".format(value, decimal_places)
-        return e_format.replace("0e", "e").replace("0e", "e").replace(".e", "e") # remove trailing zeros
+        return e_format.replace("0e", "e").replace("0e", "e").replace(".e", "e")  # remove trailing zeros
     else:
         return f"{value}"
 
@@ -61,10 +61,13 @@ def toa_dict_to_line(toa_dict):
         str: A line from a .toa file.
     """
     toa_line = ""
-    toa_line += f"{toa_dict['archive']} {toa_dict['freq_MHz']:.6f} {toa_dict['mjd']} {toa_dict['mjd_err']:>7.3f}  {toa_dict['telescope']} "
+    telescope = toa_dict['telescope']
+    if telescope == "meerkat":
+        telescope = " meerkat "
+    toa_line += f"{toa_dict['archive']} {toa_dict['freq_MHz']:.6f} {toa_dict['mjd']} {toa_dict['mjd_err']:>7.3f} {telescope}"  # noqa: E501
     for key, value in toa_dict.items():
         if key not in ["archive", "freq_MHz", "mjd", "mjd_err", "telescope"]:
-            if type(value) == float and key == "gof":
+            if isinstance(value, float) and key == "gof":
                 toa_line += f" -{key} {format_float(value, threshold=1e3, decimal_places=2)}"
             else:
                 toa_line += f" -{key} {value}"

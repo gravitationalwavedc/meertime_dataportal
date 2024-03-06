@@ -1,11 +1,8 @@
-import { Button, Col, Form, Row } from "react-bootstrap";
-import { useState } from "react";
+import { Button, Col, Row } from "react-bootstrap";
 import { graphql, useFragment } from "react-relay";
-import { formatProjectName } from "../helpers";
 import { formatUTC, kronosLink, sessionLink } from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
-import MolongloImageGrid from "./MolongloImageGrid";
 
 const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
@@ -73,16 +70,6 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
   const { pulsarFoldResult } = relayData;
   const relayObservationModel = pulsarFoldResult.edges[0].node;
 
-  // const projectChoices = Array.from(
-  //   relayObservationModel.images.edges.reduce(
-  //     (plotTypesSet, { node }) => plotTypesSet.add(node.project.short),
-  //     new Set()
-  //   )
-  // )
-  const projectChoices = ["pta"];
-
-  const [project, setProject] = useState(projectChoices[0]);
-
   const displayDate = formatUTC(relayObservationModel.observation.utcStart);
 
   const dataItems = {
@@ -114,12 +101,6 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
         : null,
   };
 
-  const isMolonglo = relayObservationModel.observation.project.mainProject.name
-    .toLowerCase()
-    .includes("monspsr");
-
-  console.log(relayObservationModel);
-  console.log(relayObservationModel.observation.calibration.idInt);
   return (
     <div className="single-observation">
       <h5 className="single-observation-subheading">{displayDate}</h5>
@@ -162,40 +143,9 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
           )}
         </Col>
       </Row>
-      {projectChoices.length >= 1 ? (
-        <Row className="mt-2">
-          <Col sm={4} md={4}>
-            <Form.Group controlId="mainProjectSelect">
-              <Form.Label>Cleaned Data Project</Form.Label>
-              <Form.Control
-                custom
-                as="select"
-                value={project}
-                onChange={(event) => setProject(event.target.value)}
-              >
-                {projectChoices.map((value) => (
-                  <option value={value} key={value}>
-                    {formatProjectName(value)}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-          </Col>
-        </Row>
-      ) : null}
       <Row>
         <Col>
-          {isMolonglo ? (
-            <MolongloImageGrid
-              images={relayObservationModel.images}
-              project={project}
-            />
-          ) : (
-            <ImageGrid
-              images={relayObservationModel.images}
-              project={project}
-            />
-          )}
+          <ImageGrid images={relayObservationModel.images} />
         </Col>
         <Col lg={4}>
           {Object.keys(dataItems).map((key) => (

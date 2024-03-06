@@ -3,10 +3,7 @@ This is a django-split-settings main file.
 For more information read this:
 https://github.com/sobolevn/django-split-settings
 """
-
-import os
 import environ
-
 from split_settings.tools import include, optional
 
 # Set the evnironment variable
@@ -17,7 +14,6 @@ ENV = env("ENV", default="")
 environ.Env.read_env(f".env{ENV}")
 
 DEVELOPMENT_MODE = env("DEVELOPMENT_MODE", default=False)
-DEBUGGER = env("DEBUGGER", default="django_debug_toolbar")
 ENABLE_SENTRY_DSN = env("SENTRY_DSN", default=False)
 
 base_settings = [
@@ -29,13 +25,14 @@ base_settings = [
     "kronos_payload.py",
     "slack.py",
     "job_controller.py",
+    "email.py",
     # Optionally override some settings:
     optional("local.py"),
 ]
 
 if DEVELOPMENT_MODE:
     base_settings.append("development.py")
-    base_settings.append(f"{DEBUGGER}.py")
+    base_settings.append("django_debug_toolbar.py")
 
 if ENABLE_SENTRY_DSN:
     base_settings.append("sentry_sdk.py")

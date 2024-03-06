@@ -1,16 +1,10 @@
 import graphene
-from django.db import IntegrityError
 from django.contrib.auth import get_user_model
-
+from django.db import IntegrityError
 from graphql_jwt.decorators import user_passes_test
 
-from user_manage.models import (
-    ProvisionalUser,
-    Registration,
-)
-
+from user_manage.models import ProvisionalUser
 from utils.constants import UserRole
-
 
 User = get_user_model()
 
@@ -37,7 +31,6 @@ class ActivateUser(graphene.Mutation):
     @classmethod
     @user_passes_test(lambda user: user.role == UserRole.ADMIN.value)
     def mutate(cls, self, info, username):
-
         try:
             user = User.objects.get(username=username)
             user.is_active = True
@@ -66,7 +59,6 @@ class DeactivateUser(graphene.Mutation):
     @classmethod
     @user_passes_test(lambda user: user.role == UserRole.ADMIN.value)
     def mutate(cls, self, info, username):
-
         try:
             user = User.objects.get(username=username)
             user.is_active = False
@@ -95,7 +87,6 @@ class DeleteUser(graphene.Mutation):
     @classmethod
     @user_passes_test(lambda user: user.role == UserRole.ADMIN.value)
     def mutate(cls, self, info, username):
-
         try:
             User.objects.filter(username=username).delete()
         except Exception as ex:

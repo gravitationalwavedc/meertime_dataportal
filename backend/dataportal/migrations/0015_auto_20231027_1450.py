@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0014_calibration_schedule_block_id'),
+        ("dataportal", "0014_calibration_schedule_block_id"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='calibration',
-            name='delay_cal_id',
+            model_name="calibration",
+            name="delay_cal_id",
         ),
         migrations.RemoveField(
-            model_name='calibration',
-            name='phase_up_id',
+            model_name="calibration",
+            name="phase_up_id",
         ),
     ]

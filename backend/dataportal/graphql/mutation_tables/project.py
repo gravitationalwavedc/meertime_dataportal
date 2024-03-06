@@ -1,12 +1,12 @@
 from datetime import timedelta
 
 import graphene
+from django.db.models.fields import DurationField
 from graphene_django.converter import convert_django_field
 from graphql_jwt.decorators import permission_required
-from django.db.models.fields import DurationField
 
-from dataportal.models import Project, MainProject
 from dataportal.graphql.queries import ProjectNode
+from dataportal.models import MainProject, Project
 
 
 @convert_django_field.register(DurationField)
@@ -20,6 +20,7 @@ class ProjectInput(graphene.InputObjectType):
     short = graphene.String()
     embargo_period = graphene.Int()
     description = graphene.String()
+
 
 class CreateProject(graphene.Mutation):
     class Arguments:
@@ -54,14 +55,14 @@ class UpdateProject(graphene.Mutation):
         try:
             main_project = MainProject.objects.get(name=input["main_project_name"])
             project = Project.objects.get(pk=id)
-            main_project=main_project,
+            project.main_project = main_project
             project.code = input.code
             project.short = input.short
             project.embargo_period = timedelta(days=input.embargo_period)
             project.description = input.description
             project.save()
             return UpdateProject(project=project)
-        except:
+        except Exception:
             return UpdateProject(project=None)
 
 

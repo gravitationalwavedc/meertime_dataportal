@@ -3,9 +3,8 @@ import ComparisonImageGrid from "./ComparisonImageGrid";
 import LightBox from "react-image-lightbox";
 import PlotImage from "./PlotImage";
 import ToaImages from "./ToaImages";
-// import { getImageData } from "../pages/RefreshToken.jsx";
 
-const ImageGrid = ({ images, project }) => {
+const ImageGrid = ({ images }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
 
   const rawImages = images.edges.filter(({ node }) => !node.cleaned);
@@ -17,7 +16,6 @@ const ImageGrid = ({ images, project }) => {
   ];
 
   const [lightBoxImages, setLightBoxImages] = useState({
-    // images: [],
     images: urls,
     imagesIndex: 0,
   });
@@ -52,7 +50,6 @@ const ImageGrid = ({ images, project }) => {
           rawImages={rawImages}
           processedImages={processedImages}
           openLightBox={openLightBox}
-          project={project}
         />
       ) : (
         rawImages.map(({ node }) => (

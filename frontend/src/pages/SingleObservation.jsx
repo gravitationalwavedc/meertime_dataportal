@@ -19,12 +19,18 @@ const SingleObservationQuery = graphql`
 
 const SingleObservationFileDownloadQuery = graphql`
   query SingleObservationFileDownloadQuery(
+    $mainProject: String!
     $pulsar: String!
     $utc: String!
     $beam: Int!
   ) {
     ...SingleObservationFileDownloadFragment
-      @arguments(jname: $pulsar, utc: $utc, beam: $beam)
+      @arguments(
+        mainProject: $mainProject
+        jname: $pulsar
+        utc: $utc
+        beam: $beam
+      )
   }
 `;
 
@@ -44,6 +50,7 @@ const SingleObservation = ({
   const fileDownloadData = useLazyLoadQuery(
     SingleObservationFileDownloadQuery,
     {
+      mainProject: mainProject,
       pulsar: jname,
       utc: utc,
       beam: beam,

@@ -1,171 +1,267 @@
-import React, { useState } from "react";
-import { Col, Button } from "react-bootstrap";
+import { useState, Suspense } from "react";
+import { Col } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
-import { useRouter } from "found";
-import ZoomPlot from "./ZoomPlot";
+import { graphql, useRefetchableFragment } from "react-relay";
+import PlotlyPlot from "./PlotlyPlot";
 import { getActivePlotData } from "./plotData";
+import { meertime, molonglo } from "../../telescopes";
 
-const DEFAULT_ZOOM = { xMin: null, xMax: null, yMin: null, yMax: null };
+const PlotContainerFragment = graphql`
+  fragment PlotContainerFragment on Query
+  @refetchable(queryName: "PlotContainerRefetchQuery")
+  @argumentDefinitions(
+    pulsar: { type: "String" }
+    mainProject: { type: "String", defaultValue: "MeerTIME" }
+    projectShort: { type: "String", defaultValue: "All" }
+    minimumNsubs: { type: "Boolean", defaultValue: true }
+    maximumNsubs: { type: "Boolean", defaultValue: false }
+    obsNchan: { type: "Int", defaultValue: 1 }
+    obsNpol: { type: "Int", defaultValue: 1 }
+  ) {
+    toa(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      projectShort: $projectShort
+      minimumNsubs: $minimumNsubs
+      maximumNsubs: $maximumNsubs
+      obsNchan: $obsNchan
+      obsNpol: $obsNpol
+    ) {
+      allProjects
+      allNchans
+      edges {
+        node {
+          observation {
+            duration
+            utcStart
+            beam
+            band
+          }
+          project {
+            short
+          }
+          obsNchan
+          minimumNsubs
+          maximumNsubs
+          dmCorrected
+          id
+          mjd
+          dayOfYear
+          binaryOrbitalPhase
+          residualSec
+          residualSecErr
+          residualPhase
+          residualPhaseErr
+        }
+      }
+    }
+  }
+`;
 
-const PlotContainer = ({ data, timingProjects }) => {
-  const [activePlot, setActivePlot] = useState("Residual");
+const PlotContainer = ({
+  tableData,
+  toaData,
+  urlQuery,
+  jname,
+  mainProject,
+}) => {
+  const [toaDataResult, refetch] = useRefetchableFragment(
+    PlotContainerFragment,
+    toaData
+  );
+  const timingProjects = toaDataResult.toa.allProjects;
+  const allNchans = toaDataResult.toa.allNchans.slice().sort((a, b) => a - b);
+
   const [xAxis, setXAxis] = useState("utc");
-  const [timingProject, setTimingProject] = useState(timingProjects[0]);
-  const [zoomArea, setZoomArea] = useState(DEFAULT_ZOOM);
-  const [isZooming, setIsZooming] = useState(false);
-  const [isDrag, setIsDrag] = useState(false);
-  const [axisMin, setAxisMin] = useState({ xMin: null, yMin: null });
-  const [axisMax, setAxisMax] = useState({ xMax: null, yMax: null });
-  const [overScatter, setOverScatter] = useState(false);
+  const [activePlot, setActivePlot] = useState("Timing Residuals");
+  const [timingProject, setTimingProject] = useState(
+    urlQuery.timingProject || timingProjects[0]
+  );
+  const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
+  const [maxNsub, setMaxNsub] = useState(urlQuery.maxNsub || false);
+  const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
 
-  const { router } = useRouter();
+  const handleRefetch = ({
+    newTimingProject = timingProject,
+    newObsNchan = obsNchan,
+    newMaxNsub = maxNsub,
+    newObsNpol = obsNpol,
+  } = {}) => {
+    const url = new URL(window.location);
+    url.searchParams.set("timingProject", newTimingProject);
+    url.searchParams.set("obsNchan", newObsNchan);
+    url.searchParams.set("maxNsub", newMaxNsub);
+    url.searchParams.set("obsNpol", newObsNpol);
+    window.history.pushState({}, "", url);
+    const newMinimumNsubs = newMaxNsub === "false";
+    const newMaximumNsubs = !newMinimumNsubs;
+    refetch({
+      projectShort: newTimingProject,
+      obsNchan: newObsNchan,
+      minimumNsubs: newMinimumNsubs,
+      maximumNsubs: newMaximumNsubs,
+      obsNpol: newObsNpol,
+    });
+  };
 
   const handleSetActivePlot = (activePlot) => {
     setActivePlot(activePlot);
-    setZoomArea(DEFAULT_ZOOM);
   };
 
-  const handleSetTimingProject = (timingProject) => {
-    setTimingProject(timingProject);
-    setZoomArea(DEFAULT_ZOOM);
+  const handleSetTimingProject = (newTimingProject) => {
+    setTimingProject(newTimingProject);
+    handleRefetch({
+      newTimingProject: newTimingProject,
+    });
   };
 
-  const handleZoomOut = () => {
-    setIsDrag(false);
-    setIsZooming(false);
-    setAxisMin({ xMin: null, yMin: null });
-    setAxisMax({ xMax: null, yMax: null });
-    setZoomArea(DEFAULT_ZOOM);
+  const handleSetMaxNsub = (newMaxNsub) => {
+    setMaxNsub(newMaxNsub);
+    handleRefetch({
+      newMaxNsub: newMaxNsub,
+    });
   };
 
-  const handleMouseLeave = () => {
-    console.log("handleMouseLeave");
-    setAxisMax({ xMax: axisMin.xMin, yMax: axisMin.yMin });
+  const handleSetNchan = (newObsNchan) => {
+    setObsNchan(parseInt(newObsNchan, 10));
+    handleRefetch({
+      newObsNchan: newObsNchan,
+    });
   };
 
-  const handleMouseDown = (e) => {
-    if (!overScatter) {
-      setIsZooming(true);
-      const { xValue, yValue } = e || {};
-      setAxisMin({ xMin: xValue, yMin: yValue });
-    }
+  const handleSetNpol = (newObsNpol) => {
+    setObsNpol(parseInt(newObsNpol, 10));
+    handleRefetch({
+      newObsNpol: newObsNpol,
+    });
   };
 
-  const handleMouseMove = (e) => {
-    if (isZooming) {
-      const { xValue, yValue } = e || {};
-      setIsDrag(true);
-      setAxisMax({ xMax: xValue, yMax: yValue });
-    }
-  };
+  const activePlotData = getActivePlotData(
+    tableData,
+    toaDataResult,
+    activePlot,
+    timingProject,
+    jname,
+    mainProject
+  );
 
-  const handleMouseUp = (symbolData) => {
-    if (isDrag && isZooming) {
-      setIsZooming(false);
-      setIsDrag(false);
-      let { xMin, yMin } = axisMin;
-      let { xMax, yMax } = axisMax;
-
-      // ensure xMin <= xMax and yMin <= yMax
-      if (xMin > xMax) [xMin, xMax] = [xMax, xMin];
-      if (yMin > yMax) [yMin, yMax] = [yMax, yMin];
-
-      const newZoomArea = { xMin, xMax, yMin, yMax };
-
-      setZoomArea(newZoomArea);
-    } else if (overScatter) {
-      router.push(symbolData.link);
-    }
-  };
-
-  const handleScatterMouseEnter = () => {
-    setOverScatter(true);
-  };
-
-  const handleScatterMouseLeave = () => {
-    setOverScatter(false);
-  };
-
-  const activePlotData = getActivePlotData(data, activePlot, timingProject);
+  const plotTypes =
+    mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
 
   return (
-    <Col md={10} className="pulsar-plot-display">
-      <Form.Row>
-        <Form.Group controlId="plotController" className="col-md-2">
-          <Form.Label>Plot Type</Form.Label>
-          <Form.Control
-            custom
-            as="select"
-            value={activePlot}
-            onChange={(event) => handleSetActivePlot(event.target.value)}
-          >
-            <option value="Residual">Timing Residuals</option>
-            <option value="Flux Density">Flux Density</option>
-            <option value="S/N">S/N</option>
-            <option value="DM">DM</option>
-            <option value="RM">RM</option>
-          </Form.Control>
-        </Form.Group>
-        <Form.Group controlId="xAxisController" className="col-md-2">
-          <Form.Label>X Axis</Form.Label>
-          <Form.Control
-            custom
-            as="select"
-            value={xAxis}
-            onChange={(event) => setXAxis(event.target.value)}
-          >
-            <option value="utc">UTC date</option>
-            <option value="day">Day of the year</option>
-            <option value="phase">Binary Phase</option>
-          </Form.Control>
-        </Form.Group>
-
-        {activePlot === "Residual" && (
-          <Form.Group controlId="plotProjectController" className="col-md-2">
-            <Form.Label>Timing Project</Form.Label>
+    <Suspense
+      fallback={
+        <div>
+          <h3>Loading Plot...</h3>
+        </div>
+      }
+    >
+      <Col md={10} className="pulsar-plot-display">
+        <Form.Row>
+          <Form.Group controlId="plotController" className="col-md-2">
+            <Form.Label>Plot Type</Form.Label>
             <Form.Control
               custom
               as="select"
-              value={timingProject}
-              onChange={(event) => handleSetTimingProject(event.target.value)}
+              value={activePlot}
+              onChange={(event) => handleSetActivePlot(event.target.value)}
             >
-              {timingProjects.map((timingProject, index) => (
-                <option value={timingProject}>{timingProject}</option>
+              {plotTypes.map((item, index) => (
+                <option value={item}>{item}</option>
               ))}
             </Form.Control>
           </Form.Group>
-        )}
-        <Form.Group controlId="zoomOut" className="col-md-2">
-          <Button
-            variant="outline-secondary"
-            size="sm"
-            className="mb-2"
-            onClick={handleZoomOut}
-          >
-            Zoom out
-          </Button>
-        </Form.Group>
-      </Form.Row>
-      <Form.Text className="text-muted">
-        Drag to zoom, click empty area to reset, double click to view utc.
-      </Form.Text>
-      <div className="pulsar-plot-wrapper">
-        <ZoomPlot
-          data={activePlotData}
-          xAxis={xAxis}
-          activePlot={activePlot}
-          zoomArea={zoomArea}
-          axisMin={axisMin}
-          axisMax={axisMax}
-          handleMouseDown={handleMouseDown}
-          handleMouseMove={handleMouseMove}
-          handleMouseUp={handleMouseUp}
-          handleMouseLeave={handleMouseLeave}
-          handleScatterMouseLeave={handleScatterMouseLeave}
-          handleScatterMouseEnter={handleScatterMouseEnter}
-        />
-      </div>
-    </Col>
+          <Form.Group controlId="xAxisController" className="col-md-2">
+            <Form.Label>X Axis</Form.Label>
+            <Form.Control
+              custom
+              as="select"
+              value={xAxis}
+              onChange={(event) => setXAxis(event.target.value)}
+            >
+              <option value="utc">UTC date</option>
+              <option value="day">Day of the year</option>
+              <option value="phase">Binary Phase</option>
+            </Form.Control>
+          </Form.Group>
+          {activePlot === "Timing Residuals" && (
+            <>
+              <Form.Group
+                controlId="plotProjectController"
+                className="col-md-2"
+              >
+                <Form.Label>Timing Project</Form.Label>
+                <Form.Control
+                  custom
+                  as="select"
+                  value={timingProject}
+                  onChange={(event) =>
+                    handleSetTimingProject(event.target.value)
+                  }
+                >
+                  {timingProjects.map((timingProject, index) => (
+                    <option value={timingProject}>{timingProject}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group controlId="plotNchanController" className="col-md-2">
+                <Form.Label>Nchan</Form.Label>
+                <Form.Control
+                  custom
+                  as="select"
+                  value={obsNchan}
+                  onChange={(event) => handleSetNchan(event.target.value)}
+                >
+                  {allNchans.map((nchan, index) => (
+                    <option value={nchan} disabled={nchan > 32}>
+                      {nchan}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              <Form.Group
+                controlId="plotMaxNsubController"
+                className="col-md-2"
+              >
+                <Form.Label>Max Nsub</Form.Label>
+                <Form.Control
+                  custom
+                  as="select"
+                  value={maxNsub}
+                  onChange={(event) => handleSetMaxNsub(event.target.value)}
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </Form.Control>
+              </Form.Group>
+              <Form.Group controlId="plotNpolController" className="col-md-2">
+                <Form.Label>Npol</Form.Label>
+                <Form.Control
+                  custom
+                  as="select"
+                  value={obsNpol}
+                  onChange={(event) => handleSetNpol(event.target.value)}
+                >
+                  <option value="1">1</option>
+                  {mainProject !== "MONSPSR" && <option value="4">4</option>}
+                </Form.Control>
+              </Form.Group>
+            </>
+          )}
+        </Form.Row>
+        <Form.Text className="text-muted">
+          Drag a box to zoom, hover your mouse the top right and click Autoscale
+          to zoom out, click on a point to view observation.
+        </Form.Text>
+        <div className="pulsar-plot-wrapper">
+          <PlotlyPlot
+            data={activePlotData}
+            xAxis={xAxis}
+            activePlot={activePlot}
+          />
+        </div>
+      </Col>
+    </Suspense>
   );
 };
 

@@ -1,23 +1,25 @@
 import graphene
 from graphql_jwt.decorators import permission_required
 
-from dataportal.models import Toa
 from dataportal.graphql.queries import ToaNode
+from dataportal.models import Toa
 
 
 class ToaInput(graphene.InputObjectType):
     # foreign keys
     pipelineRunId = graphene.Int(required=True)
-    projectShort  = graphene.String(required=True)
+    projectShort = graphene.String(required=True)
 
     ephemerisText = graphene.String(required=True)
-    templateId    = graphene.Int(required=True)
+    templateId = graphene.Int(required=True)
 
     toaLines = graphene.List(graphene.String, required=True)
 
-    dmCorrected  = graphene.Boolean(required=True)
+    dmCorrected = graphene.Boolean(required=True)
     minimumNsubs = graphene.Boolean(required=True)
     maximumNsubs = graphene.Boolean(required=True)
+    obsNpol = graphene.Int(required=True)
+    obsNchan = graphene.Int(required=True)
 
 
 class CreateToaOutput(graphene.ObjectType):
@@ -28,7 +30,7 @@ class CreateToa(graphene.Mutation):
     class Arguments:
         input = ToaInput(required=True)
 
-    toa    = graphene.List(ToaNode)
+    toa = graphene.List(ToaNode)
     Output = CreateToaOutput
 
     @classmethod
@@ -43,6 +45,8 @@ class CreateToa(graphene.Mutation):
             dm_corrected=input["dmCorrected"],
             minimum_nsubs=input["minimumNsubs"],
             maximum_nsubs=input["maximumNsubs"],
+            npol=input["obsNpol"],
+            nchan=input["obsNchan"],
         )
         return CreateToaOutput(toa=created_toas)
 
@@ -63,7 +67,7 @@ class UpdateToa(graphene.Mutation):
                 setattr(toa, key, val)
             toa.save()
             return UpdateToa(toa=toa)
-        except:
+        except Exception:
             return UpdateToa(toa=None)
 
 

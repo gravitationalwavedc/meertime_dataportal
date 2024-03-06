@@ -15,12 +15,14 @@ from .models import (
     PulsarSearchSummary,
     PipelineImage,
     Toa,
-    Residual,
 )
+
 
 @admin.register(Pulsar)
 class PulsarAdmin(admin.ModelAdmin):
-    search_fields = ['name']
+    search_fields = ["name"]
+
+
 admin.site.register(Telescope)
 admin.site.register(MainProject)
 admin.site.register(Project)
@@ -35,5 +37,3 @@ admin.site.register(PulsarFoldSummary)
 admin.site.register(PulsarSearchSummary)
 admin.site.register(PipelineImage)
 admin.site.register(Toa)
-admin.site.register(Residual)
-

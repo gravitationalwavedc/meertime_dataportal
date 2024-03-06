@@ -77,7 +77,6 @@ const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
   const sortedFiles = files.sort((a, b) =>
     b.fileName.localeCompare(a.fileName)
   );
-  console.log("files:", sortedFiles);
   return (
     <Modal show={visible} onHide={() => setShow(false)} size="xl">
       <Modal.Body>

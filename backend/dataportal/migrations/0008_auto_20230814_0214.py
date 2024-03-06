@@ -7,22 +7,22 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dataportal', '0007_alter_observationsummary_obs_type'),
+        ("dataportal", "0007_alter_observationsummary_obs_type"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='residual',
-            name='toa',
+            model_name="residual",
+            name="toa",
         ),
         migrations.AddField(
-            model_name='toa',
-            name='residual',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='dataportal.residual'),
+            model_name="toa",
+            name="residual",
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to="dataportal.residual"),
         ),
         migrations.AlterField(
-            model_name='template',
-            name='template_hash',
+            model_name="template",
+            name="template_hash",
             field=models.CharField(max_length=64, null=True),
         ),
     ]

@@ -16,6 +16,8 @@ const DataView = ({
   summaryData,
   columns,
   rows,
+  toaData,
+  jname,
   mainProject,
   setMainProject,
   mostCommonProject,
@@ -24,7 +26,7 @@ const DataView = ({
   setProject,
   band,
   setBand,
-  timingProjects,
+  urlQuery,
   options,
   plot,
   keyField,
@@ -61,8 +63,11 @@ const DataView = ({
               {plot && (
                 <Row className="d-none d-sm-block">
                   <PlotContainer
-                    data={rows}
-                    timingProjects={timingProjects}
+                    tableData={rows}
+                    toaData={toaData}
+                    urlQuery={urlQuery}
+                    jname={jname}
+                    mainProject={mainProject}
                     {...props.baseProps}
                   />
                 </Row>
@@ -97,7 +102,11 @@ const DataView = ({
                   wrapperClasses="bg-gray-100"
                 />
               ) : (
-                <JobCardsList {...props.baseProps} as={card} />
+                <JobCardsList
+                  {...props.baseProps}
+                  mainProject={mainProject}
+                  as={card}
+                />
               )}
             </React.Fragment>
           );

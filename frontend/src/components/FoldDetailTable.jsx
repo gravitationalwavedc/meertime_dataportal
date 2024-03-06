@@ -1,6 +1,6 @@
 import { Button, ButtonGroup, Col, Row } from "react-bootstrap";
 import { useState } from "react";
-import { graphql, useFragment } from "react-relay";
+import { graphql, useRefetchableFragment } from "react-relay";
 import ReactMarkdown from "react-markdown";
 import { Link } from "found";
 import {
@@ -18,12 +18,10 @@ import FoldDetailCard from "./FoldDetailCard";
 
 const FoldDetailTableFragment = graphql`
   fragment FoldDetailTableFragment on Query
+  @refetchable(queryName: "FoldDetailTableRefetchQuery")
   @argumentDefinitions(
-    pulsar: { type: "String", defaultValue: "All" }
+    pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
-    dmCorrected: { type: "Boolean", defaultValue: false }
-    minimumNsubs: { type: "Boolean", defaultValue: true }
-    obsNchan: { type: "Int", defaultValue: 1 }
   ) {
     observationSummary(
       pulsar_Name: $pulsar
@@ -52,11 +50,10 @@ const FoldDetailTableFragment = graphql`
         createdAt
       }
       description
-      toasLink
-      allProjects
       edges {
         node {
           observation {
+            id
             utcStart
             dayOfYear
             binaryOrbitalPhase
@@ -79,30 +76,6 @@ const FoldDetailTableFragment = graphql`
             calibration {
               idInt
             }
-            toas(
-              dmCorrected: $dmCorrected
-              minimumNsubs: $minimumNsubs
-              obsNchan: $obsNchan
-            ) {
-              edges {
-                node {
-                  freqMhz
-                  length
-                  project {
-                    short
-                  }
-                  residual {
-                    mjd
-                    dayOfYear
-                    binaryOrbitalPhase
-                    residualSec
-                    residualSecErr
-                    residualPhase
-                    residualPhaseErr
-                  }
-                }
-              }
-            }
           }
           pipelineRun {
             dm
@@ -119,26 +92,25 @@ const FoldDetailTableFragment = graphql`
 `;
 
 /* eslint-disable complexity */
-const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
-  const dmCorrected = false;
-  const minimumNsubs = true;
-  const obsNchan = 1;
-  console.log(
-    "Input arguments:",
-    jname,
-    mainProject,
-    dmCorrected,
-    minimumNsubs,
-    obsNchan
+const FoldDetailTable = ({
+  tableData,
+  toaData,
+  jname,
+  mainProject,
+  match: {
+    location: { query },
+  },
+  setShow,
+}) => {
+  const [relayData, refetch] = useRefetchableFragment(
+    FoldDetailTableFragment,
+    tableData
   );
-  console.log("tableData:", tableData);
-  const relayData = useFragment(FoldDetailTableFragment, tableData);
-  console.log("data:", relayData);
-  console.log("observationData:", relayData.observationSummary);
-  console.log("pulsarFoldResult:", relayData.pulsarFoldResult);
   const summaryNode = relayData.observationSummary?.edges[0]?.node;
   const pulsarFoldResult = relayData.pulsarFoldResult;
+
   const { screenSize } = useScreenSize();
+
   const allRows = pulsarFoldResult.edges.reduce(
     (result, edge) => [
       ...result,
@@ -324,10 +296,12 @@ const FoldDetailTable = ({ tableData, jname, mainProject, setShow }) => {
         summaryData={summaryData}
         columns={columnsSizeFiltered}
         rows={rows}
+        toaData={toaData}
         setProject={handleProjectFilter}
-        timingProjects={pulsarFoldResult.allProjects}
         setBand={handleBandFilter}
+        urlQuery={query}
         plot
+        jname={jname}
         mainProject={mainProject}
         keyField="key"
         card={FoldDetailCard}

@@ -4,11 +4,17 @@ import FileDownloadModal from "./FileDownloadModal";
 const SingleObservationFileDownloadQuery = graphql`
   fragment SingleObservationFileDownloadFragment on Query
   @argumentDefinitions(
+    mainProject: { type: "String!" }
     jname: { type: "String!" }
     utc: { type: "String!" }
     beam: { type: "Int!" }
   ) {
-    fileSingleList(jname: $jname, utc: $utc, beam: $beam) {
+    fileSingleList(
+      mainProject: $mainProject
+      jname: $jname
+      utc: $utc
+      beam: $beam
+    ) {
       edges {
         node {
           path
@@ -21,7 +27,6 @@ const SingleObservationFileDownloadQuery = graphql`
 
 const SingleObservationFileDownload = ({ visible, data, setShow }) => {
   const fragmentData = useFragment(SingleObservationFileDownloadQuery, data);
-  console.log("SingleObservationFileDownloadfragmentData", fragmentData);
 
   return (
     <FileDownloadModal
