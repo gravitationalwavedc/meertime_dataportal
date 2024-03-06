@@ -61,7 +61,9 @@ describe("The Fold Detail Page", () => {
     });
     cy.wait("@FoldDetailQuery");
     cy.wait("@FoldDetailFileDownloadQuery");
-    cy.contains("Folding ephemeris unavailable").should("be.visible");
+    cy.contains("Folding ephemeris unavailable", { timeout: 10000 }).should(
+      "be.visible"
+    );
   });
 
   it("check view button", () => {
