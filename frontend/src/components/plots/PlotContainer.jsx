@@ -166,8 +166,10 @@ const PlotContainer = ({
               value={activePlot}
               onChange={(event) => handleSetActivePlot(event.target.value)}
             >
-              {plotTypes.map((item, index) => (
-                <option value={item}>{item}</option>
+              {plotTypes.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
               ))}
             </Form.Control>
           </Form.Group>
@@ -199,8 +201,10 @@ const PlotContainer = ({
                     handleSetTimingProject(event.target.value)
                   }
                 >
-                  {timingProjects.map((timingProject, index) => (
-                    <option value={timingProject}>{timingProject}</option>
+                  {timingProjects.map((timingProject) => (
+                    <option key={timingProject} value={timingProject}>
+                      {timingProject}
+                    </option>
                   ))}
                 </Form.Control>
               </Form.Group>
@@ -212,8 +216,8 @@ const PlotContainer = ({
                   value={obsNchan}
                   onChange={(event) => handleSetNchan(event.target.value)}
                 >
-                  {allNchans.map((nchan, index) => (
-                    <option value={nchan} disabled={nchan > 32}>
+                  {allNchans.map((nchan) => (
+                    <option key={nchan} value={nchan} disabled={nchan > 32}>
                       {nchan}
                     </option>
                   ))}
