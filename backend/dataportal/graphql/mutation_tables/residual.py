@@ -76,10 +76,10 @@ class CreateResidual(graphene.Mutation):
             toa.binary_orbital_phase = binary_orbital_phase
             # Y axis types
             toa.residual_sec = float(residual)
-            toa.residual_sec_err = float(residual_err) / 1e9  # Convert from ns to s
+            toa.residual_sec_err = float(residual_err) / 1e6  # Convert from ns to s
             toa.residual_phase = float(residual_phase)
             # Convert from ns to s the divide by period to convert to phase
-            toa.residual_phase_err = float(residual_err) / 1e9 / ephemeris_dict["P0"]
+            toa.residual_phase_err = float(residual_err) / 1e6 / ephemeris_dict["P0"]
 
         # Launch bulk creation of residuals (update of toas)
         Toa.objects.bulk_update(

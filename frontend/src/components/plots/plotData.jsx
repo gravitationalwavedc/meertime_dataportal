@@ -56,7 +56,7 @@ export const getYaxisLabel = (yAxis) => {
   } else if (yAxis === "RM") {
     return "Fit RM (rad m^-2)";
   } else if (yAxis === "Timing Residuals") {
-    return "Residual (μs)";
+    return "Residual (s)";
   }
 };
 
