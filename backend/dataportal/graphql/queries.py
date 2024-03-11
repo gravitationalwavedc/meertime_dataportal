@@ -492,6 +492,15 @@ class PulsarFoldResultNode(DjangoObjectType):
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
+    def resolve_images(self, info):
+        """
+        Check if user is allowed to access the images.
+        """
+        if self.observation.is_restricted(info.context.user):
+            return []
+
+        return self.images.all()
+
 
 class PulsarFoldResultConnection(relay.Connection):
     class Meta:
@@ -817,21 +826,21 @@ class ToaConnection(relay.Connection):
 
     def resolve_all_projects(self, instance):
         if "pulsar" in instance.variable_values.keys():
-            toa_project_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar'])
+            toa_project_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
             if "mainProject" in instance.variable_values.keys():
                 toa_project_query = toa_project_query.filter(
-                    project__main_project__name__icontains=instance.variable_values['mainProject']
+                    project__main_project__name__icontains=instance.variable_values["mainProject"]
                 )
-            return list(toa_project_query.values_list('project__short', flat=True).distinct())
+            return list(toa_project_query.values_list("project__short", flat=True).distinct())
         else:
             return []
 
     def resolve_all_nchans(self, instance):
         if "pulsar" in instance.variable_values.keys():
-            toa_nchan_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values['pulsar'])
+            toa_nchan_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
             if "mainProject" in instance.variable_values.keys():
                 toa_nchan_query = toa_nchan_query.filter(
-                    project__main_project__name__icontains=instance.variable_values['mainProject']
+                    project__main_project__name__icontains=instance.variable_values["mainProject"]
                 )
             return list(toa_nchan_query.values_list("obs_nchan", flat=True).distinct())
         else:
