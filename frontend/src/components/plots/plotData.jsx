@@ -119,7 +119,6 @@ export const getActivePlotData = (
   } else if (activePlot == "RM") {
     return rmPlotData(tableData);
   } else {
-    console.error(`Unknown activePlot: ${activePlot}`);
     return [];
   }
 };

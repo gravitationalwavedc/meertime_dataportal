@@ -14,7 +14,7 @@ const JobCardList = ({ data, columns, search, mainProject, as }) => {
     <React.Fragment>
       {results.map((row) => (
         <Component
-          key={row.key ? row.key : row.jname}
+          key={row.key || row.jname}
           row={row}
           mainProject={mainProject}
         />
