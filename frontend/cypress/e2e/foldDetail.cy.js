@@ -100,7 +100,7 @@ describe("The Fold Detail Page", () => {
     cy.contains("2019-04-23-06:11:30").should("be.visible");
     // 4 objects are used to display the data so we're checking 1 value from each.
     cy.contains("264.00 [s]").should("be.visible");
-    cy.contains("SN").should("be.visible");
+    cy.contains("S/N").should("be.visible");
     cy.contains("100.0").should("be.visible");
     cy.contains("9.59").should("be.visible");
   });
