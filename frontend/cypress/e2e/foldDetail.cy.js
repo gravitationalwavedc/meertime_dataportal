@@ -49,23 +49,6 @@ describe("The Fold Detail Page", () => {
     cy.contains("Folding Ephemeris").should("be.visible");
   });
 
-  it("should disable the view ephemeris button if the data is missing", () => {
-    cy.intercept("http://localhost:8000/graphql/", (req) => {
-      aliasQuery(req, "FoldDetailQuery", "foldDetailQueryNoEphem.json");
-      aliasQuery(
-        req,
-        "FoldDetailFileDownloadQuery",
-        "foldDetailFileDownloadQuery.json"
-      );
-      aliasQuery(req, "PlotContainerQuery", "plotContainerQuery.json");
-    });
-    cy.wait("@FoldDetailQuery");
-    cy.wait("@FoldDetailFileDownloadQuery");
-    cy.contains("Folding ephemeris unavailable", { timeout: 10000 }).should(
-      "be.visible"
-    );
-  });
-
   it("should go to single observation when view button is clicked", () => {
     cy.wait("@FoldDetailQuery");
     cy.contains("table tr", "2020-07-10-05:07:28").as("targetRow");

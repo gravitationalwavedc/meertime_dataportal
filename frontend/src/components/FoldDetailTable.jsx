@@ -171,6 +171,7 @@ const FoldDetailTable = ({
   const ephemeris = pulsarFoldResult.residualEphemeris
     ? pulsarFoldResult.residualEphemeris.ephemerisData
     : null;
+
   const ephemerisUpdated = pulsarFoldResult.residualEphemeris
     ? pulsarFoldResult.residualEphemeris.createdAt
     : null;
@@ -236,9 +237,9 @@ const FoldDetailTable = ({
             disabled={!ephemeris}
             onClick={() => setEphemerisVisible(true)}
           >
-            {ephemeris
-              ? "View folding ephemeris"
-              : "Folding ephemeris unavailable"}
+            {ephemeris === null
+              ? "Folding ephemeris unavailable"
+              : "View folding ephemeris"}
           </Button>
           {mainProject !== "MONSPSR" && (
             <Button

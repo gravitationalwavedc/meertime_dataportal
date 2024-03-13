@@ -10,8 +10,6 @@ const JobCardList = ({ data, columns, search, mainProject, as }) => {
   // Must be uppercase to use in JSX.
   const Component = as;
 
-  console.log(results);
-
   return (
     <React.Fragment>
       {results.map((row) => (
