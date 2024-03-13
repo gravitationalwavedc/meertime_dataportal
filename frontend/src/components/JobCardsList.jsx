@@ -10,11 +10,13 @@ const JobCardList = ({ data, columns, search, mainProject, as }) => {
   // Must be uppercase to use in JSX.
   const Component = as;
 
+  console.log(results);
+
   return (
     <React.Fragment>
       {results.map((row) => (
         <Component
-          key={row.key ? row.key : row.jname}
+          key={row.key || row.jname}
           row={row}
           mainProject={mainProject}
         />

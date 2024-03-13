@@ -66,7 +66,7 @@ describe("The Fold Detail Page", () => {
     );
   });
 
-  it("check view button", () => {
+  it("should go to single observation when view button is clicked", () => {
     cy.wait("@FoldDetailQuery");
     cy.contains("table tr", "2020-07-10-05:07:28").as("targetRow");
     cy.get("@targetRow").contains("View").click();
@@ -81,7 +81,7 @@ describe("The Fold Detail Page", () => {
     cy.contains("2020-07-10-05:07:28").should("be.visible");
   });
 
-  it("check view session button", () => {
+  it("should go to sessions table when view session button is clicked", () => {
     cy.wait("@FoldDetailQuery");
     cy.contains("View session").click();
     cy.location("pathname").should("equal", "/session/26/");
@@ -89,5 +89,19 @@ describe("The Fold Detail Page", () => {
     cy.wait("@SessionQuery");
     cy.contains("Loading...").should("not.exist");
     cy.contains("JName").should("be.visible");
+  });
+
+  it("should display in list mode", () => {
+    cy.wait("@FoldDetailQuery");
+    cy.contains("List view").click();
+
+    cy.contains("Loading...").should("not.exist");
+    cy.contains("PSR J0125-2327 is a millisecond pulsar").should("be.visible");
+    cy.contains("2019-04-23-06:11:30").should("be.visible");
+    // 4 objects are used to display the data so we're checking 1 value from each.
+    cy.contains("264.00 [s]").should("be.visible");
+    cy.contains("SN").should("be.visible");
+    cy.contains("100.0").should("be.visible");
+    cy.contains("9.59").should("be.visible");
   });
 });

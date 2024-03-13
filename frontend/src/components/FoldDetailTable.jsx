@@ -102,12 +102,12 @@ const FoldDetailTable = ({
   },
   setShow,
 }) => {
-  const [relayData, refetch] = useRefetchableFragment(
+  const [relayData] = useRefetchableFragment(
     FoldDetailTableFragment,
     tableData
   );
   const summaryNode = relayData.observationSummary?.edges[0]?.node;
-  const pulsarFoldResult = relayData.pulsarFoldResult;
+  const { pulsarFoldResult } = relayData;
 
   const { screenSize } = useScreenSize();
 
