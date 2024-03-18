@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
+    "@tanstack/react-table": "^8.13.2",
     "bootstrap": "^4.6.2",
     "events": "3.3.0",
     "farce": "^0.4.5",

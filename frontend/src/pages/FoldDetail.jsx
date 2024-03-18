@@ -8,10 +8,13 @@ import Footer from "../components/Footer";
 import TopNav from "../components/TopNav";
 import FoldDetailTable from "../components/FoldDetailTable";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
+import TanTableTest from "../components/fold-detail-table/TanTableTest";
 
 const FoldDetailQuery = graphql`
   query FoldDetailQuery($pulsar: String!, $mainProject: String) {
     ...FoldDetailTableFragment
+      @arguments(pulsar: $pulsar, mainProject: $mainProject)
+    ...TanTableTestFragment
       @arguments(pulsar: $pulsar, mainProject: $mainProject)
   }
 `;
@@ -69,63 +72,64 @@ const FoldDetail = ({ match }) => {
   });
   return (
     <>
-      <TopNav />
-      <img src={GraphPattern} className="graph-pattern-top" alt="" />
-      <Container>
-        <Row>
-          <Col>
-            {screenSize === "xs" ? (
-              <>
-                <h4 className="text-primary-600">{jname}</h4>
-              </>
-            ) : (
-              <>
-                <h2 className="text-primary-600">{jname}</h2>
-              </>
-            )}
-          </Col>
-          <img src={Einstein} alt="" className="d-none d-md-block" />
-        </Row>
-        <Suspense
-          fallback={
-            <div>
-              <h3>Loading...</h3>
-            </div>
-          }
-        >
-          <FoldDetailTable
-            query={FoldDetailQuery}
-            tableData={tableData}
-            toaData={toaData}
-            jname={jname}
-            mainProject={mainProject}
-            match={match}
-            setShow={setDownloadModalVisible}
-          />
-        </Suspense>
-        <Suspense
-          fallback={
-            <Modal
-              show={downloadModalVisible}
-              onHide={() => setDownloadModalVisible(false)}
-              size="xl"
-            >
-              <Modal.Body>
-                <h4 className="text-primary">Loading</h4>
-              </Modal.Body>
-            </Modal>
-          }
-        >
-          {localStorage.isStaff === "true" && (
-            <FoldDetailFileDownload
-              visible={downloadModalVisible}
-              data={fileDownloadData}
-              setShow={setDownloadModalVisible}
-            />
-          )}
-        </Suspense>
-      </Container>
-      <Footer />
+      {/* <TopNav /> */}
+      {/* <img src={GraphPattern} className="graph-pattern-top" alt="" /> */}
+      {/* <Container> */}
+      {/*   <Row> */}
+      {/*     <Col> */}
+      {/*       {screenSize === "xs" ? ( */}
+      {/*         <> */}
+      {/*           <h4 className="text-primary-600">{jname}</h4> */}
+      {/*         </> */}
+      {/*       ) : ( */}
+      {/*         <> */}
+      {/*           <h2 className="text-primary-600">{jname}</h2> */}
+      {/*         </> */}
+      {/*       )} */}
+      {/*     </Col> */}
+      {/*     <img src={Einstein} alt="" className="d-none d-md-block" /> */}
+      {/*   </Row> */}
+      <Suspense
+        fallback={
+          <div>
+            <h3>Loading...</h3>
+          </div>
+        }
+      >
+        <TanTableTest tableData={tableData} />
+        {/*     <FoldDetailTable */}
+        {/*       query={FoldDetailQuery} */}
+        {/*       tableData={tableData} */}
+        {/*       toaData={toaData} */}
+        {/*       jname={jname} */}
+        {/*       mainProject={mainProject} */}
+        {/*       match={match} */}
+        {/*       setShow={setDownloadModalVisible} */}
+        {/*     /> */}
+        {/*   </Suspense> */}
+        {/*   <Suspense */}
+        {/*     fallback={ */}
+        {/*       <Modal */}
+        {/*         show={downloadModalVisible} */}
+        {/*         onHide={() => setDownloadModalVisible(false)} */}
+        {/*         size="xl" */}
+        {/*       > */}
+        {/*         <Modal.Body> */}
+        {/*           <h4 className="text-primary">Loading</h4> */}
+        {/*         </Modal.Body> */}
+        {/*       </Modal> */}
+        {/*     } */}
+        {/*   > */}
+        {/*     {localStorage.isStaff === "true" && ( */}
+        {/*       <FoldDetailFileDownload */}
+        {/*         visible={downloadModalVisible} */}
+        {/*         data={fileDownloadData} */}
+        {/*         setShow={setDownloadModalVisible} */}
+        {/*       /> */}
+        {/*     )} */}
+      </Suspense>
+      {/* </Container> */}
+      {/* <Footer /> */}
     </>
   );
 };
