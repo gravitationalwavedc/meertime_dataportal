@@ -12,7 +12,7 @@ class JobControllerFile(graphene.ObjectType):
     class Meta:
         interfaces = (relay.Node,)
 
-    file_size = graphene.Int()
+    file_size = graphene.String()  # Use string to avoid > 32bit int error.
     is_dir = graphene.Boolean()
     path = graphene.String()
 
