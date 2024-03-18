@@ -199,8 +199,11 @@ const FoldDetailTable = ({
       return;
     }
 
+    console.log(allRows, project);
+
     const newRows = allRows.filter(
-      (row) => row.project.toLowerCase() === project.toLowerCase()
+      (row) =>
+        row.observation.project.short.toLowerCase() === project.toLowerCase()
     );
     setRows(newRows);
   };
