@@ -59,7 +59,7 @@ class Query(graphene.ObjectType):
                         returned_files.append(
                             JobControllerFile(
                                 id=file["path"].split("/")[-1],
-                                file_size=file["fileSize"],  # convert to mb to avoid > 32bit int error.
+                                file_size=file["fileSize"],
                                 is_dir=file["isDir"],
                                 path=file["path"],
                             )
