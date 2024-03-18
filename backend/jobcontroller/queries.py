@@ -12,7 +12,7 @@ class JobControllerFile(graphene.ObjectType):
     class Meta:
         interfaces = (relay.Node,)
 
-    file_size = graphene.Int()
+    file_size = graphene.String()  # Use string to avoid > 32bit int error.
     is_dir = graphene.Boolean()
     path = graphene.String()
 
@@ -59,7 +59,7 @@ class Query(graphene.ObjectType):
                         returned_files.append(
                             JobControllerFile(
                                 id=file["path"].split("/")[-1],
-                                file_size=file["fileSize"],
+                                file_size=file["fileSize"],  # convert to mb to avoid > 32bit int error.
                                 is_dir=file["isDir"],
                                 path=file["path"],
                             )
