@@ -96,7 +96,11 @@ const FoldDetail = ({ match }) => {
           </div>
         }
       >
-        <TanTableTest tableData={tableData} />
+        <TanTableTest
+          tableData={tableData}
+          mainProject={mainProject}
+          jname={jname}
+        />
         {/*     <FoldDetailTable */}
         {/*       query={FoldDetailQuery} */}
         {/*       tableData={tableData} */}

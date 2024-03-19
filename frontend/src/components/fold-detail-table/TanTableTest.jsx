@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { graphql, useFragment } from "react-relay";
 import { getColumns, processData } from "./processData";
+import DebouncedInput from "../form-inputs/DebouncedInput";
 
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -82,20 +84,30 @@ const TanTableTestFragment = graphql`
   }
 `;
 
-const TanTableTest = ({ tableData }) => {
+const TanTableTest = ({ tableData, mainProject, jname }) => {
   const fragmentData = useFragment(TanTableTestFragment, tableData);
-  const [data, setData] = useState(processData(fragmentData));
+  const [data] = useState(processData(fragmentData, mainProject, jname));
+  const [sorting, setSorting] = useState([{ id: "Timestamp", desc: "asc" }]);
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const columns = getColumns();
 
   const table = useReactTable({
     data,
     columns,
+    state: {
+      sorting,
+      globalFilter,
+    },
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
   });
 
   return (
     <div className="p-2">
+      <DebouncedInput />
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

@@ -1,5 +1,6 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { formatUTC } from "../../helpers";
+import TableButtons from "./TableButtons";
 
 export function getColumns() {
   const columnHelper = createColumnHelper();
@@ -32,6 +33,10 @@ export function getColumns() {
     columnHelper.accessor("sn", {
       header: "S/N",
     }),
+    columnHelper.display({
+      id: "actions",
+      cell: (props) => <TableButtons row={props.row} />,
+    }),
   ];
 }
 
@@ -39,7 +44,7 @@ function formatNumber(value, decimals) {
   return value ? value.toFixed(decimals) : "null";
 }
 
-export function processData(fragmentData) {
+export function processData(fragmentData, mainProject, jname) {
   return fragmentData.pulsarFoldResult.edges.map(({ node }) => ({
     Timestamp: node.observation.utcStart,
     Project: node.observation.project.short,
@@ -54,5 +59,11 @@ export function processData(fragmentData) {
     dmFit: formatNumber(node.pipelineRun.dm, 1),
     rm: formatNumber(node.pipelineRun.rm, 1),
     sn: formatNumber(node.pipelineRun.sn, 1),
+    viewLink: `/${mainProject}/${jname}/${formatUTC(
+      node.observation.utcStart
+    )}/${node.observation.beam}/`,
+    sessionLink: `/session/${node.observation.calibration.idInt}/`,
+    embargoEndDate: node.observation.embargoEndDate,
+    restricted: node.observation.restricted,
   }));
 }

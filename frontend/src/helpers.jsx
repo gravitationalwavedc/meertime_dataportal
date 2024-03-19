@@ -112,17 +112,3 @@ export const formatProjectName = (projectName) => {
 
   return projectName;
 };
-
-export default {
-  calculateMedian,
-  columnsSizeFilter,
-  handleSearch,
-  formatUTC,
-  kronosLink,
-  meerWatchLink,
-  sessionLink,
-  nullCellFormatter,
-  scaleValue,
-  formatProjectName,
-  mjdToUnixTimestamp,
-};
