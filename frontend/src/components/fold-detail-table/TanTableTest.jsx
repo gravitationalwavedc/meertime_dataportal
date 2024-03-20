@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { graphql, useFragment } from "react-relay";
 import { getColumns, processData } from "./processData";
+import { Form } from "react-bootstrap";
 import DebouncedInput from "../form-inputs/DebouncedInput";
 
 import {
@@ -107,6 +108,10 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  console.log(
+    [...table.getColumn("Project").getFacetedUniqueValues()].map(([key]) => key)
+  );
+
   return (
     <div className="p-2">
       <DebouncedInput
@@ -114,6 +119,26 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
         onChange={(value) => setGlobalFilter(String(value))}
         placeholder="Search observations"
       />
+      <Form.Group controlId="projectSelect">
+        <Form.Label>Project</Form.Label>
+        <Form.Control
+          custom
+          role="project-select"
+          as="select"
+          onChange={(event) =>
+            table.getColumn("Project").setFilterValue(event.target.value)
+          }
+        >
+          <option value="">All</option>
+          {[...table.getColumn("Project").getFacetedUniqueValues()].map(
+            ([key]) => (
+              <option value={key} key={key}>
+                {key}
+              </option>
+            )
+          )}
+        </Form.Control>
+      </Form.Group>
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
