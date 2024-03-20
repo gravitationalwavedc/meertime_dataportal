@@ -139,6 +139,26 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
           )}
         </Form.Control>
       </Form.Group>
+      <Form.Group controlId="projectSelect">
+        <Form.Label>Band</Form.Label>
+        <Form.Control
+          custom
+          role="project-select"
+          as="select"
+          onChange={(event) =>
+            table.getColumn("Band").setFilterValue(event.target.value)
+          }
+        >
+          <option value="">All</option>
+          {[...table.getColumn("Band").getFacetedUniqueValues()].map(
+            ([key]) => (
+              <option value={key} key={key}>
+                {key}
+              </option>
+            )
+          )}
+        </Form.Control>
+      </Form.Group>
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
