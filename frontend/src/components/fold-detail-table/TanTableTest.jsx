@@ -6,7 +6,7 @@ import DebouncedInput from "../form-inputs/DebouncedInput";
 import {
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
+  getFilteredRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -102,12 +102,18 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
+
+  console.log(data);
 
   return (
     <div className="p-2">
-      <DebouncedInput />
+      <DebouncedInput
+        value={globalFilter ?? ""}
+        onChange={(value) => setGlobalFilter(String(value))}
+        placeholder="Search all columns..."
+      />
       <table>
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (

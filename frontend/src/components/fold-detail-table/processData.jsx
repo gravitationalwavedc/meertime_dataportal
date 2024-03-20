@@ -6,9 +6,7 @@ export function getColumns() {
   const columnHelper = createColumnHelper();
 
   return [
-    columnHelper.accessor("Timestamp", {
-      cell: (info) => formatUTC(info.getValue()),
-    }),
+    columnHelper.accessor("Timestamp"),
     columnHelper.accessor("Project"),
     columnHelper.accessor("Length", {
       cell: (info) => `${info.getValue()} [s]`,
@@ -46,7 +44,7 @@ function formatNumber(value, decimals) {
 
 export function processData(fragmentData, mainProject, jname) {
   return fragmentData.pulsarFoldResult.edges.map(({ node }) => ({
-    Timestamp: node.observation.utcStart,
+    Timestamp: formatUTC(node.observation.utcStart),
     Project: node.observation.project.short,
     Length: formatNumber(node.observation.duration, 2),
     Beam: node.observation.beam,
