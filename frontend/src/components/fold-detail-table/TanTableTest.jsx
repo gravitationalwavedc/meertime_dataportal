@@ -7,6 +7,7 @@ import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
+  getFacetedUniqueValues,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -103,16 +104,15 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
   });
-
-  console.log(data);
 
   return (
     <div className="p-2">
       <DebouncedInput
         value={globalFilter ?? ""}
         onChange={(value) => setGlobalFilter(String(value))}
-        placeholder="Search all columns..."
+        placeholder="Search observations"
       />
       <table>
         <thead>
