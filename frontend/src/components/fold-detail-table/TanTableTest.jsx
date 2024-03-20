@@ -9,6 +9,7 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   getFacetedUniqueValues,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -89,7 +90,6 @@ const TanTableTestFragment = graphql`
 const TanTableTest = ({ tableData, mainProject, jname }) => {
   const fragmentData = useFragment(TanTableTestFragment, tableData);
   const [data] = useState(processData(fragmentData, mainProject, jname));
-  const [sorting, setSorting] = useState([{ id: "Timestamp", desc: "asc" }]);
   const [globalFilter, setGlobalFilter] = useState("");
 
   const columns = getColumns();
@@ -98,19 +98,24 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
     data,
     columns,
     state: {
-      sorting,
       globalFilter,
     },
-    onSortingChange: setSorting,
+    initialState: {
+      sorting: [
+        {
+          id: "Timestamp",
+          desc: true,
+        },
+      ],
+    },
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  console.log(
-    [...table.getColumn("Project").getFacetedUniqueValues()].map(([key]) => key)
-  );
+  console.log(table.getState().sorting);
 
   return (
     <div className="p-2">
@@ -164,7 +169,10 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id}>
+                <th
+                  key={header.id}
+                  onClick={header.column.getToggleSortingHandler()}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
