@@ -1,19 +1,21 @@
 import { useState, Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { Col, Container, Row, Modal } from "react-bootstrap";
-import { useScreenSize } from "../context/screenSize-context";
-import Einstein from "../assets/images/einstein-coloured.png";
-import GraphPattern from "../assets/images/graph-pattern.png";
-import Footer from "../components/Footer";
-import TopNav from "../components/TopNav";
 import FoldDetailTable from "../components/FoldDetailTable";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
 import TanTableTest from "../components/fold-detail-table/TanTableTest";
+import MainLayout from "../components/MainLayout";
+import HeaderButtons from "../components/fold-detail-table/HeaderButtons";
 
 const FoldDetailQuery = graphql`
   query FoldDetailQuery($pulsar: String!, $mainProject: String) {
+    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
+      description
+    }
+
     ...FoldDetailTableFragment
       @arguments(pulsar: $pulsar, mainProject: $mainProject)
+
     ...TanTableTestFragment
       @arguments(pulsar: $pulsar, mainProject: $mainProject)
   }
@@ -51,12 +53,13 @@ const FoldDetailFileDownloadQuery = graphql`
 
 const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
-  const { screenSize } = useScreenSize();
+
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
     mainProject: mainProject,
   });
+
   const toaData = useLazyLoadQuery(PlotContainerQuery, {
     pulsar: jname,
     mainProject: mainProject,
@@ -66,75 +69,60 @@ const FoldDetail = ({ match }) => {
     obsNchan: 1,
     obsNpol: 1,
   });
+
   const fileDownloadData = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
     mainProject: mainProject,
     pulsar: jname,
   });
+
+  console.log(tableData);
+
   return (
-    <>
-      {/* <TopNav /> */}
-      {/* <img src={GraphPattern} className="graph-pattern-top" alt="" /> */}
-      {/* <Container> */}
-      {/*   <Row> */}
-      {/*     <Col> */}
-      {/*       {screenSize === "xs" ? ( */}
-      {/*         <> */}
-      {/*           <h4 className="text-primary-600">{jname}</h4> */}
-      {/*         </> */}
-      {/*       ) : ( */}
-      {/*         <> */}
-      {/*           <h2 className="text-primary-600">{jname}</h2> */}
-      {/*         </> */}
-      {/*       )} */}
-      {/*     </Col> */}
-      {/*     <img src={Einstein} alt="" className="d-none d-md-block" /> */}
-      {/*   </Row> */}
-      <Suspense
-        fallback={
-          <div>
-            <h3>Loading...</h3>
-          </div>
-        }
-      >
-        <TanTableTest
-          tableData={tableData}
-          mainProject={mainProject}
-          jname={jname}
-        />
-        {/*     <FoldDetailTable */}
-        {/*       query={FoldDetailQuery} */}
-        {/*       tableData={tableData} */}
-        {/*       toaData={toaData} */}
-        {/*       jname={jname} */}
-        {/*       mainProject={mainProject} */}
-        {/*       match={match} */}
-        {/*       setShow={setDownloadModalVisible} */}
-        {/*     /> */}
-        {/*   </Suspense> */}
-        {/*   <Suspense */}
-        {/*     fallback={ */}
-        {/*       <Modal */}
-        {/*         show={downloadModalVisible} */}
-        {/*         onHide={() => setDownloadModalVisible(false)} */}
-        {/*         size="xl" */}
-        {/*       > */}
-        {/*         <Modal.Body> */}
-        {/*           <h4 className="text-primary">Loading</h4> */}
-        {/*         </Modal.Body> */}
-        {/*       </Modal> */}
-        {/*     } */}
-        {/*   > */}
-        {/*     {localStorage.isStaff === "true" && ( */}
-        {/*       <FoldDetailFileDownload */}
-        {/*         visible={downloadModalVisible} */}
-        {/*         data={fileDownloadData} */}
-        {/*         setShow={setDownloadModalVisible} */}
-        {/*       /> */}
-        {/*     )} */}
-      </Suspense>
-      {/* </Container> */}
-      {/* <Footer /> */}
-    </>
+    <MainLayout
+      title={jname}
+      description={tableData.pulsarFoldResult.description}
+    >
+      <HeaderButtons
+        mainProject={mainProject}
+        jname={jname}
+        tableData={tableData}
+      />
+      <TanTableTest
+        tableData={tableData}
+        mainProject={mainProject}
+        jname={jname}
+      />
+      {/*     <FoldDetailTable */}
+      {/*       query={FoldDetailQuery} */}
+      {/*       tableData={tableData} */}
+      {/*       toaData={toaData} */}
+      {/*       jname={jname} */}
+      {/*       mainProject={mainProject} */}
+      {/*       match={match} */}
+      {/*       setShow={setDownloadModalVisible} */}
+      {/*     /> */}
+      {/*   </Suspense> */}
+      {/*   <Suspense */}
+      {/*     fallback={ */}
+      {/*       <Modal */}
+      {/*         show={downloadModalVisible} */}
+      {/*         onHide={() => setDownloadModalVisible(false)} */}
+      {/*         size="xl" */}
+      {/*       > */}
+      {/*         <Modal.Body> */}
+      {/*           <h4 className="text-primary">Loading</h4> */}
+      {/*         </Modal.Body> */}
+      {/*       </Modal> */}
+      {/*     } */}
+      {/*   > */}
+      {/*     {localStorage.isStaff === "true" && ( */}
+      {/*       <FoldDetailFileDownload */}
+      {/*         visible={downloadModalVisible} */}
+      {/*         data={fileDownloadData} */}
+      {/*         setShow={setDownloadModalVisible} */}
+      {/*       /> */}
+      {/*     )} */}
+    </MainLayout>
   );
 };
 
