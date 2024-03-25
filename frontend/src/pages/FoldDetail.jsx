@@ -1,15 +1,38 @@
 import { useState } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { Button, Col, Row } from "react-bootstrap";
-import FoldDetailTable from "../components/FoldDetailTable";
+import SummaryDataRow from "../components/SummaryDataRow";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
 import TanTableTest from "../components/fold-detail-table/TanTableTest";
 import MainLayout from "../components/MainLayout";
 import Ephemeris from "../components/Ephemeris";
+import PlotContainer from "../components/plots/PlotContainer";
 import { createLink, meerWatchLink } from "../helpers";
 
 const FoldDetailQuery = graphql`
   query FoldDetailQuery($pulsar: String!, $mainProject: String) {
+    observationSummary(
+      pulsar_Name: $pulsar
+      obsType: "fold"
+      calibration_Id: "All"
+      mainProject: $mainProject
+      project_Short: "All"
+      band: "All"
+    ) {
+      edges {
+        node {
+          observations
+          observationHours
+          projects
+          pulsars
+          estimatedDiskSpaceGb
+          timespanDays
+          maxDuration
+          minDuration
+        }
+      }
+    }
+
     pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
       description
       residualEphemeris {
@@ -58,6 +81,7 @@ const FoldDetailFileDownloadQuery = graphql`
 
 const FoldDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
+  const urlQuery = match.location.query;
 
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
@@ -90,8 +114,23 @@ const FoldDetail = ({ match }) => {
     ? tableData.pulsarFoldResult.residualEphemeris.createdAt
     : null;
 
-  console.log(tableData);
-  console.log(ephemeris);
+  const summaryNode = tableData.observationSummary?.edges[0]?.node;
+
+  const summaryData = [
+    { title: "Observations", value: summaryNode.observations },
+    { title: "Projects", value: summaryNode.projects },
+    {
+      title: "Timespan [days]",
+      value: summaryNode.timespanDays,
+    },
+    { title: "Hours", value: summaryNode.observationHours },
+    summaryNode.estimatedDiskSpaceGb
+      ? {
+          title: `Size [GB]`,
+          value: summaryNode.estimatedDiskSpaceGb.toFixed(1),
+        }
+      : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
+  ];
 
   return (
     <MainLayout
@@ -165,6 +204,15 @@ const FoldDetail = ({ match }) => {
             setShow={setEphemerisVisible}
           />
         )}
+      </Row>
+      <SummaryDataRow dataPoints={summaryData} />
+      <Row className="d-none d-sm-block">
+        <PlotContainer
+          toaData={toaData}
+          urlQuery={urlQuery}
+          jname={jname}
+          mainProject={mainProject}
+        />
       </Row>
       <TanTableTest
         tableData={tableData}

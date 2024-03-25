@@ -55,16 +55,49 @@ const PlotContainerFragment = graphql`
         }
       }
     }
+    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
+      edges {
+        node {
+          observation {
+            id
+            utcStart
+            dayOfYear
+            binaryOrbitalPhase
+            duration
+            beam
+            bandwidth
+            nchan
+            band
+            foldNbin
+            nant
+            nantEff
+            restricted
+            embargoEndDate
+            project {
+              short
+            }
+            ephemeris {
+              dm
+            }
+            calibration {
+              idInt
+            }
+          }
+          pipelineRun {
+            dm
+            dmErr
+            rm
+            rmErr
+            sn
+            flux
+          }
+        }
+      }
+    }
   }
 `;
 
-const PlotContainer = ({
-  tableData,
-  toaData,
-  urlQuery,
-  jname,
-  mainProject,
-}) => {
+const PlotContainer = ({ toaData, urlQuery, jname, mainProject }) => {
   const [toaDataResult, refetch] = useRefetchableFragment(
     PlotContainerFragment,
     toaData
@@ -137,7 +170,6 @@ const PlotContainer = ({
   };
 
   const activePlotData = getActivePlotData(
-    tableData,
     toaDataResult,
     activePlot,
     timingProject,
