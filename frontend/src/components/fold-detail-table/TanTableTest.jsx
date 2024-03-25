@@ -115,8 +115,6 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
-  console.log(table.getState().sorting);
-
   return (
     <div className="p-2">
       <DebouncedInput
