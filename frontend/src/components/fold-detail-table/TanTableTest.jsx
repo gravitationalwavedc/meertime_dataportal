@@ -167,6 +167,29 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
             </Form.Control>
           </Form.Group>
         </Col>
+        <Col md={3} xl={2}>
+          <Form.Group controlId="projectSelect">
+            <Form.Label>Order by</Form.Label>
+            <Form.Control custom role="order-by" as="select">
+              {table
+                .getHeaderGroups()
+                .map((headerGroup) =>
+                  headerGroup.headers.map((header) => (
+                    <>
+                      {header.isPlaceholder ? null : (
+                        <option key={header.id}>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </option>
+                      )}
+                    </>
+                  ))
+                )}
+            </Form.Control>
+          </Form.Group>
+        </Col>
       </Form.Row>
       <Form.Row className="searchbar">
         <Col md={4} xl={3}>
@@ -182,25 +205,6 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
         </Col>
       </Form.Row>
       <Table className="react-bootstrap-table">
-        {/*   <thead> */}
-        {/*     {table.getHeaderGroups().map((headerGroup) => ( */}
-        {/*       <tr key={headerGroup.id}> */}
-        {/*         {headerGroup.headers.map((header) => ( */}
-        {/*           <th */}
-        {/*             key={header.id} */}
-        {/*             onClick={header.column.getToggleSortingHandler()} */}
-        {/*           > */}
-        {/*             {header.isPlaceholder */}
-        {/*               ? null */}
-        {/*               : flexRender( */}
-        {/*                   header.column.columnDef.header, */}
-        {/*                   header.getContext() */}
-        {/*                 )} */}
-        {/*           </th> */}
-        {/*         ))} */}
-        {/*       </tr> */}
-        {/*     ))} */}
-        {/*   </thead> */}
         <tbody>
           {table.getRowModel().rows.map((row) => (
             <tr key={row.id}>
