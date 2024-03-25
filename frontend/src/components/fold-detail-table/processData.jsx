@@ -6,16 +6,31 @@ export function getColumns() {
   const columnHelper = createColumnHelper();
 
   return [
-    columnHelper.accessor("Timestamp"),
-    columnHelper.accessor("Project"),
+    columnHelper.accessor("Timestamp", {
+      header: "Timestamp",
+    }),
+    columnHelper.accessor("Project", {
+      header: "Project",
+    }),
     columnHelper.accessor("Length", {
+      header: "Length",
       cell: (info) => `${info.getValue()} [s]`,
     }),
-    columnHelper.accessor("Beam"),
-    columnHelper.accessor("Nchan"),
-    columnHelper.accessor("BW"),
-    columnHelper.accessor("Band"),
-    columnHelper.accessor("Nbin"),
+    columnHelper.accessor("Beam", {
+      header: "Beam",
+    }),
+    columnHelper.accessor("Nchan", {
+      header: "Nchan",
+    }),
+    columnHelper.accessor("BW", {
+      header: "Band width",
+    }),
+    columnHelper.accessor("Band", {
+      header: "Band",
+    }),
+    columnHelper.accessor("Nbin", {
+      header: "Nbin",
+    }),
     columnHelper.accessor("nantEff", {
       header: "Nant Eff",
     }),

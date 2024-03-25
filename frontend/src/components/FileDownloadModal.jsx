@@ -53,15 +53,12 @@ const performFileDownload = (e, path) => {
   });
 };
 
-const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
+const FildDownloadModal = ({ visible, data, setShow }) => {
   // Work out file types and other info
-  const files = fragmentData.edges.reduce((result, edge) => {
+  const files = data.filePulsarList.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     const pathArray = row.path.split("/");
     row.fileName = pathArray[pathArray.length - 1];
-
-    const extensionArray = row.fileName.split(".");
-    const fileExtension = extensionArray[extensionArray.length - 1];
 
     if (
       row.fileName.includes("ch") &&
@@ -74,9 +71,11 @@ const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
     }
     return [...result, { ...row }];
   }, []);
+
   const sortedFiles = files.sort((a, b) =>
     b.fileName.localeCompare(a.fileName)
   );
+
   return (
     <Modal show={visible} onHide={() => setShow(false)} size="xl">
       <Modal.Body>

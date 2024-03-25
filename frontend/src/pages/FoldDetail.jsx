@@ -60,9 +60,6 @@ const FoldDetailQuery = graphql`
         obsNchan: $obsNchan
         obsNpol: $obsNpol
       )
-
-    ...FoldDetailFileDownloadFragment
-      @arguments(mainProject: $mainProject, jname: $pulsar)
   }
 `;
 
@@ -125,7 +122,8 @@ const FoldDetail = ({ match }) => {
       />
       {localStorage.isStaff === "true" && (
         <FoldDetailFileDownload
-          data={tableData}
+          mainProject={mainProject}
+          jname={jname}
           visible={downloadModalVisible}
           setShow={setDownloadModalVisible}
         />
