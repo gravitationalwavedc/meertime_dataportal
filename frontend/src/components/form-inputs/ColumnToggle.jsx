@@ -22,7 +22,6 @@ const CustomToggle = forwardRef(function CustomToggle({ onClick }, ref) {
 });
 
 const CustomColumnToggle = ({ table }) => {
-  console.log(table.getAllColumns());
   return (
     <Dropdown>
       <Dropdown.Toggle id="column-toggle" as={CustomToggle} />

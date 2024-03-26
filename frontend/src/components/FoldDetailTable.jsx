@@ -199,8 +199,6 @@ const FoldDetailTable = ({
       return;
     }
 
-    console.log(allRows, project);
-
     const newRows = allRows.filter(
       (row) =>
         row.observation.project.short.toLowerCase() === project.toLowerCase()

@@ -279,7 +279,6 @@ export const rmPlotData = (data) => {
 };
 
 export const residualPlotData = (data, timingProject, jname, mainProject) => {
-  console.log(data, timingProject);
   return data.toa.edges
     .filter(({ node }) => node.residualSec !== null)
     .filter(({ node }) => node.project.short === timingProject)

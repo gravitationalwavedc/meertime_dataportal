@@ -17,6 +17,9 @@ dependencies:
   events:
     specifier: 3.3.0
     version: 3.3.0
+  export-to-csv:
+    specifier: ^1.2.4
+    version: 1.2.4
   farce:
     specifier: ^0.4.5
     version: 0.4.5
@@ -2976,6 +2979,11 @@ packages:
       jest-message-util: 29.7.0
       jest-util: 29.7.0
     dev: true
+
+  /export-to-csv@1.2.4:
+    resolution: {integrity: sha512-mniFCil3DPLb4esJX00Nm6R77WbTMAqlzgYBlqN++QXZ2juNu19RMnRgmjuPH2pyRbrQvOieKg8zTp5lCwUFyQ==}
+    engines: {node: ^v12.20.0 || >=v14.13.0}
+    dev: false
 
   /ext@1.7.0:
     resolution: {integrity: sha512-6hxeJYaL110a9b5TEJSj0gojyHQAmA2ch5Os+ySCiA1QGdS697XWY1pzsrSjqA9LDEEgdB/KypIlR59RcLuHYw==}

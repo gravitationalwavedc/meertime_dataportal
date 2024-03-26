@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { HiDownload } from "react-icons/hi";
 import { Button, Col, Table } from "react-bootstrap";
 import { graphql, useFragment } from "react-relay";
 import { getColumns, processData } from "./processData";
@@ -8,6 +9,7 @@ import {
   HiOutlineSortAscending,
   HiOutlineSortDescending,
 } from "react-icons/hi";
+import { generateCsv, mkConfig, download } from "export-to-csv";
 
 import {
   flexRender,
@@ -115,6 +117,28 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
     getSortedRowModel: getSortedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
+
+  const handleExportCSV = () => {
+    const csvConfig = mkConfig({
+      fieldSeparator: ",",
+      decimalSeparator: ".",
+      useKeysAsHeaders: true,
+      filename: `${mainProject}_${jname}_observations`,
+    });
+
+    const data = table.getRowModel().rows.map((row) =>
+      row
+        .getVisibleCells()
+        .filter((cell) => cell.column.id !== "actions")
+        .reduce(
+          (acc, cell) => ({ ...acc, [cell.column.id]: cell.getValue() }),
+          {}
+        )
+    );
+
+    const csv = generateCsv(csvConfig)(data);
+    download(csvConfig)(csv);
+  };
 
   // These columns are displayed as information in the first column
   const infoHeaders = ["Timestamp", "Project", "Beam"];
@@ -231,9 +255,20 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
             />
           </Form.Group>
         </Col>
-        <Col>
+        <Form.Group>
           <ColumnToggle table={table} />
-        </Col>
+        </Form.Group>
+        <Form.Group>
+          <Button
+            className="mr-2 ml-2"
+            variant="link"
+            size="sm"
+            onClick={() => handleExportCSV()}
+          >
+            <HiDownload className="icon" />
+            Download CSV
+          </Button>
+        </Form.Group>
       </Form.Row>
       <Table className="react-bootstrap-table mt-1">
         <tbody>
