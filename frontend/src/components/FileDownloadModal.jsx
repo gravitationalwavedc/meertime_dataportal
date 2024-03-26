@@ -53,9 +53,19 @@ const performFileDownload = (e, path) => {
   });
 };
 
+/**
+ * File download modal component for displaying and downloading files.
+ *
+ * Data is an array of file objects containing the file path and size.
+ * Structure of data must be:
+ * {data: {edges: [{node: {path: string, fileSize: number}}]}}
+ *
+ * @param {boolean} visible - whether the modal is visible
+ * @param {object} data - relay data object containing file data
+ * @param {function} setShow - function to set the modal visibility
+ **/
 const FildDownloadModal = ({ visible, data, setShow }) => {
-  // Work out file types and other info
-  const files = data.filePulsarList.edges.reduce((result, edge) => {
+  const files = data.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     const pathArray = row.path.split("/");
     row.fileName = pathArray[pathArray.length - 1];

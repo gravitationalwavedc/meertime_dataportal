@@ -35,18 +35,19 @@ const SingleObservationFileDownloadQuery = graphql`
 `;
 
 const SingleObservation = ({
-  // router,
   match: {
     params: { mainProject, jname, utc, beam },
   },
 }) => {
   const { screenSize } = useScreenSize();
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
+
   const observationData = useLazyLoadQuery(SingleObservationQuery, {
     pulsar: jname,
     utc: utc,
     beam: beam,
   });
+
   const fileDownloadData = useLazyLoadQuery(
     SingleObservationFileDownloadQuery,
     {

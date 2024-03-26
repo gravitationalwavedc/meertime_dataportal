@@ -23,7 +23,11 @@ const FoldDetailFileDownload = ({ mainProject, jname, visible, setShow }) => {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <FileDownloadModal visible={visible} data={data} setShow={setShow} />
+      <FileDownloadModal
+        visible={visible}
+        data={data.filePulsarList}
+        setShow={setShow}
+      />
     </Suspense>
   );
 };
