@@ -21,23 +21,11 @@ const ImageGrid = ({ images }) => {
   });
 
   const openLightBox = (imageUrl) => {
-    const images = lightBoxImages.images;
+    const { images } = lightBoxImages;
     const imageIndex = images.indexOf(imageUrl);
     setIsLightBoxOpen(true);
     setLightBoxImages({ images: images, imagesIndex: imageIndex });
   };
-
-  // const openLightBox = async (imageUrl) => {
-  //   const imagePromises = urls.map((url) => getImageData(url));
-  //   const imageData = await Promise.all(imagePromises);
-  //   const images = imageData
-  //     .filter((data) => data !== null)
-  //     .map((data) => data);
-  //   const imageIndex = urls.indexOf(imageUrl);
-  //
-  //   setLightBoxImages({ images, imagesIndex: imageIndex });
-  //   setIsLightBoxOpen(true);
-  // };
 
   return (
     <>

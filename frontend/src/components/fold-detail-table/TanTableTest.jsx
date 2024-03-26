@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Col, InputGroup, Table } from "react-bootstrap";
+import { Button, Col, Table } from "react-bootstrap";
 import { graphql, useFragment } from "react-relay";
 import { getColumns, processData } from "./processData";
 import { Form } from "react-bootstrap";
@@ -17,6 +17,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import ColumnToggle from "../form-inputs/ColumnToggle";
 
 const TanTableTestFragment = graphql`
   fragment TanTableTestFragment on Query
@@ -115,10 +116,8 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  // These columns are displayed as information in the first column
   const infoHeaders = ["Timestamp", "Project", "Beam"];
-
-  // console.log(table.getRowModel().rows);
-  console.log(table.getHeaderGroups());
 
   return (
     <div className="p-2">
@@ -231,6 +230,9 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
               className="form-control"
             />
           </Form.Group>
+        </Col>
+        <Col>
+          <ColumnToggle table={table} />
         </Col>
       </Form.Row>
       <Table className="react-bootstrap-table mt-1">

@@ -8,9 +8,11 @@ export function getColumns() {
   return [
     columnHelper.accessor("Timestamp", {
       header: "Timestamp",
+      enableHiding: false,
     }),
     columnHelper.accessor("Project", {
       header: "Project",
+      enableHiding: false,
     }),
     columnHelper.accessor("Length", {
       header: "Length",
@@ -18,6 +20,7 @@ export function getColumns() {
     }),
     columnHelper.accessor("Beam", {
       header: "Beam",
+      enableHiding: false,
     }),
     columnHelper.accessor("Nchan", {
       header: "Nchan",
@@ -50,6 +53,7 @@ export function getColumns() {
       id: "actions",
       cell: (props) => <TableButtons row={props.row} />,
       canSort: false,
+      enableHiding: false,
     }),
   ];
 }
