@@ -49,6 +49,7 @@ export function getColumns() {
     columnHelper.display({
       id: "actions",
       cell: (props) => <TableButtons row={props.row} />,
+      canSort: false,
     }),
   ];
 }

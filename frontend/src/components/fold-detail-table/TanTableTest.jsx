@@ -1,9 +1,13 @@
 import { useState } from "react";
-import { Col, Table } from "react-bootstrap";
+import { Button, Col, InputGroup, Table } from "react-bootstrap";
 import { graphql, useFragment } from "react-relay";
 import { getColumns, processData } from "./processData";
 import { Form } from "react-bootstrap";
 import DebouncedInput from "../form-inputs/DebouncedInput";
+import {
+  HiOutlineSortAscending,
+  HiOutlineSortDescending,
+} from "react-icons/hi";
 
 import {
   flexRender,
@@ -92,6 +96,7 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
   const fragmentData = useFragment(TanTableTestFragment, tableData);
   const [data] = useState(processData(fragmentData, mainProject, jname));
   const [globalFilter, setGlobalFilter] = useState("");
+  const [sorting, setSorting] = useState([{ id: "Timestamp", desc: true }]);
 
   const columns = getColumns();
 
@@ -100,16 +105,10 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
     columns,
     state: {
       globalFilter,
-    },
-    initialState: {
-      sorting: [
-        {
-          id: "Timestamp",
-          desc: true,
-        },
-      ],
+      sorting,
     },
     onGlobalFilterChange: setGlobalFilter,
+    onSortChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -118,11 +117,12 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
 
   const infoHeaders = ["Timestamp", "Project", "Beam"];
 
-  console.log(table.getRowModel().rows);
+  // console.log(table.getRowModel().rows);
+  console.log(table.getHeaderGroups());
 
   return (
     <div className="p-2">
-      <Form.Row>
+      <Form.Row className="searchbar">
         <Col md={3} xl={2}>
           <Form.Group controlId="projectSelect">
             <Form.Label>Project</Form.Label>
@@ -168,28 +168,57 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
           </Form.Group>
         </Col>
         <Col md={3} xl={2}>
-          <Form.Group controlId="projectSelect">
+          <Form.Group controlId="sortSelect">
             <Form.Label>Order by</Form.Label>
-            <Form.Control custom role="order-by" as="select">
-              {table
-                .getHeaderGroups()
-                .map((headerGroup) =>
-                  headerGroup.headers.map((header) => (
-                    <>
-                      {header.isPlaceholder ? null : (
-                        <option key={header.id}>
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </option>
+            <Form.Control
+              custom
+              role="order-by"
+              as="select"
+              onChange={(event) =>
+                setSorting([{ id: event.target.value, desc: true }])
+              }
+            >
+              {table.getHeaderGroups().map((headerGroup) =>
+                headerGroup.headers
+                  .filter((header) => header.column.getCanSort())
+                  .map((header) => (
+                    <option key={header.id} value={header.id}>
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
                       )}
-                    </>
+                    </option>
                   ))
-                )}
+              )}
             </Form.Control>
           </Form.Group>
         </Col>
+        <Form.Group>
+          <Button
+            variant="link"
+            size="sm"
+            onClick={() =>
+              setSorting((prev) =>
+                prev.map((sortState) => ({
+                  id: sortState.id,
+                  desc: !sortState.desc,
+                }))
+              )
+            }
+          >
+            {sorting[0].desc ? (
+              <>
+                <HiOutlineSortDescending className="icon" />
+                Descending
+              </>
+            ) : (
+              <>
+                <HiOutlineSortAscending className="icon" />
+                Ascending
+              </>
+            )}
+          </Button>
+        </Form.Group>
       </Form.Row>
       <Form.Row className="searchbar">
         <Col md={4} xl={3}>
@@ -204,13 +233,13 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
           </Form.Group>
         </Col>
       </Form.Row>
-      <Table className="react-bootstrap-table">
+      <Table className="react-bootstrap-table mt-1">
         <tbody>
           {table.getRowModel().rows.map((row) => (
             <tr key={row.id}>
               <td>
                 <Col>
-                  <span className="text-primary-800 bold pr-2">
+                  <span className="h6 text-primary-600 bold pr-2">
                     {row.original.Timestamp}
                   </span>{" "}
                   {row.original.Project} &#183; {row.original.Beam} beam
