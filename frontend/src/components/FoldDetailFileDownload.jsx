@@ -1,6 +1,5 @@
 import { graphql, useLazyLoadQuery } from "react-relay";
 import FileDownloadModal from "./FileDownloadModal";
-import { Suspense } from "react";
 
 const FoldDetailFileDownloadQuery = graphql`
   query FoldDetailFileDownloadQuery($mainProject: String!, $jname: String!) {
@@ -15,20 +14,26 @@ const FoldDetailFileDownloadQuery = graphql`
   }
 `;
 
-const FoldDetailFileDownload = ({ mainProject, jname, visible, setShow }) => {
+const FoldDetailFileDownload = ({
+  mainProject,
+  jname,
+  visible,
+  setShow,
+  setFilesLoaded,
+}) => {
   const data = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
     mainProject: mainProject,
     jname: jname,
   });
 
+  setFilesLoaded(true);
+
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <FileDownloadModal
-        visible={visible}
-        data={data.filePulsarList}
-        setShow={setShow}
-      />
-    </Suspense>
+    <FileDownloadModal
+      visible={visible}
+      data={data.filePulsarList}
+      setShow={setShow}
+    />
   );
 };
 

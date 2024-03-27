@@ -8,6 +8,7 @@ const HeaderButtons = ({
   jname,
   tableData,
   setDownloadModalVisible,
+  filesLoaded,
 }) => {
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
 
@@ -91,9 +92,10 @@ const HeaderButtons = ({
             size="sm"
             className="mr-2 mb-2"
             variant="outline-secondary"
+            disabled={!filesLoaded}
             onClick={() => createLink(tableData.pulsarFoldResult.toasLink)}
           >
-            Download TOAs
+            {filesLoaded ? "Download TOAs" : "Loading TOAs"}
           </Button>
         )}
         {
@@ -101,9 +103,10 @@ const HeaderButtons = ({
             size="sm"
             className="mr-2 mb-2"
             variant="outline-secondary"
+            disabled={!filesLoaded}
             onClick={() => setDownloadModalVisible(true)}
           >
-            Download data files
+            {filesLoaded ? "Download Data Files" : "Loading Data Files"}
           </Button>
         }
       </Col>

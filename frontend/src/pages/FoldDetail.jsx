@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import SummaryDataRow from "../components/SummaryDataRow";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
@@ -65,6 +65,7 @@ const FoldDetailQuery = graphql`
 
 const FoldDetail = ({ match }) => {
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
+  const [filesLoaded, setFilesLoaded] = useState(false);
 
   const { jname, mainProject } = match.params;
   const urlQuery = match.location.query;
@@ -107,6 +108,7 @@ const FoldDetail = ({ match }) => {
         jname={jname}
         tableData={tableData}
         setDownloadModalVisible={setDownloadModalVisible}
+        filesLoaded={filesLoaded}
       />
       <SummaryDataRow dataPoints={summaryData} />
       <PlotContainer
@@ -121,12 +123,15 @@ const FoldDetail = ({ match }) => {
         jname={jname}
       />
       {localStorage.isStaff === "true" && (
-        <FoldDetailFileDownload
-          mainProject={mainProject}
-          jname={jname}
-          visible={downloadModalVisible}
-          setShow={setDownloadModalVisible}
-        />
+        <Suspense>
+          <FoldDetailFileDownload
+            mainProject={mainProject}
+            jname={jname}
+            visible={downloadModalVisible}
+            setShow={setDownloadModalVisible}
+            setFilesLoaded={setFilesLoaded}
+          />
+        </Suspense>
       )}
     </MainLayout>
   );
