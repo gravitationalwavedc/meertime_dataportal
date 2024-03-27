@@ -14,6 +14,22 @@ type ActivateUser {
   errors: [String]
 }
 
+type BadgeNode implements Node {
+  name: String!
+  description: String
+  id: ID!
+}
+
+type BadgeNodeConnection {
+  pageInfo: PageInfo!
+  edges: [BadgeNodeEdge]!
+}
+
+type BadgeNodeEdge {
+  node: BadgeNode
+  cursor: String!
+}
+
 enum CalibrationCalibrationType {
   PRE
   POST
@@ -237,7 +253,7 @@ scalar JSONString
 
 type JobControllerFile implements Node {
   id: ID!
-  fileSize: Int
+  fileSize: String
   isDir: Boolean
   path: String
 }
@@ -408,6 +424,7 @@ type ObservationNode implements Node {
   filterbankNchan: Int
   filterbankTsamp: Float
   filterbankDm: Float
+  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
   pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID): PulsarFoldResultNodeConnection!
   toas(offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, observation: ID, project: ID, ephemeris: ID, template: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, obsNpol: Int, dayOfYear: Float, binaryOrbitalPhase: Float, residualSec: Float, residualSecErr: Float, residualPhase: Float, residualPhaseErr: Float): ToaNodeConnection!
   id: ID!

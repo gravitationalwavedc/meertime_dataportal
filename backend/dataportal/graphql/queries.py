@@ -10,6 +10,7 @@ from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
 
 from dataportal.models import (
+    Badge,
     Calibration,
     Ephemeris,
     MainProject,
@@ -250,6 +251,13 @@ class CalibrationConnection(relay.Connection):
         node = CalibrationNode
 
 
+class BadgeNode(DjangoObjectType):
+    class Meta:
+        model = Badge
+        fields = ["name", "description"]
+        interfaces = (relay.Node,)
+
+
 class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
@@ -287,6 +295,7 @@ class ObservationNode(DjangoObjectType):
             "filterbank_dm",
             "pulsar_fold_results",
             "toas",
+            "badges",
         ]
         filter_fields = {
             "utc_start": DATETIME_FILTERS,

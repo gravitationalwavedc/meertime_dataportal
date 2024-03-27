@@ -80,6 +80,14 @@ const TanTableTestFragment = graphql`
             calibration {
               idInt
             }
+            badges {
+              edges {
+                node {
+                  name
+                  description
+                }
+              }
+            }
           }
           pipelineRun {
             dm
