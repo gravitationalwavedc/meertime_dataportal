@@ -6,6 +6,7 @@ import TanTableTest from "../components/fold-detail-table/TanTableTest";
 import HeaderButtons from "../components/fold-detail-table/HeaderButtons";
 import MainLayout from "../components/MainLayout";
 import PlotContainer from "../components/plots/PlotContainer";
+import LoadingState from "../components/LoadingState";
 
 const FoldDetailQuery = graphql`
   query FoldDetailQuery(
@@ -111,17 +112,21 @@ const FoldDetail = ({ match }) => {
         filesLoaded={filesLoaded}
       />
       <SummaryDataRow dataPoints={summaryData} />
-      <PlotContainer
-        toaData={tableData}
-        urlQuery={urlQuery}
-        jname={jname}
-        mainProject={mainProject}
-      />
-      <TanTableTest
-        tableData={tableData}
-        mainProject={mainProject}
-        jname={jname}
-      />
+      <Suspense fallback={<LoadingState />}>
+        <PlotContainer
+          toaData={tableData}
+          urlQuery={urlQuery}
+          jname={jname}
+          mainProject={mainProject}
+        />
+      </Suspense>
+      <Suspense fallback={<LoadingState />}>
+        <TanTableTest
+          tableData={tableData}
+          mainProject={mainProject}
+          jname={jname}
+        />
+      </Suspense>
       {localStorage.isStaff === "true" && (
         <Suspense>
           <FoldDetailFileDownload
