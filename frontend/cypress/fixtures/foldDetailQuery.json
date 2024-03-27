@@ -1,5 +1,10 @@
 {
   "data": {
+    "toa": {
+      "allProjects": [],
+      "allNchans": [],
+      "edges": []
+    },
     "observationSummary": {
       "edges": [
         {
@@ -48,6 +53,16 @@
               },
               "calibration": {
                 "idInt": 26
+              },
+              "badges": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "Cool badge",
+                      "description": "This is a cool badge"
+                    }
+                  }
+                ]
               }
             },
             "pipelineRun": {
@@ -85,6 +100,16 @@
               },
               "calibration": {
                 "idInt": 27
+              },
+              "badges": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "Cool badge",
+                      "description": "This is a cool badge"
+                    }
+                  }
+                ]
               }
             },
             "pipelineRun": {
@@ -122,6 +147,16 @@
               },
               "calibration": {
                 "idInt": 28
+              },
+              "badges": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "Cool badge",
+                      "description": "This is a cool badge"
+                    }
+                  }
+                ]
               }
             },
             "pipelineRun": {
