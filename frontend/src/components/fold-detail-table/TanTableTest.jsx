@@ -118,6 +118,16 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
       globalFilter,
       sorting,
     },
+    initialState: {
+      columnVisibility: {
+        dmFit: mainProject !== "MONSPSR",
+        rm: mainProject !== "MONSPSR",
+        nant: mainProject !== "MONSPSR",
+        nantEff: mainProject !== "MONSPSR",
+        band: mainProject !== "MONSPSR",
+        dmBackend: mainProject !== "MONSPSR",
+      },
+    },
     onGlobalFilterChange: setGlobalFilter,
     onSortChange: setSorting,
     getCoreRowModel: getCoreRowModel(),

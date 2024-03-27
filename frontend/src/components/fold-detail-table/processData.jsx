@@ -53,6 +53,11 @@ export function getColumns() {
     columnHelper.accessor("sn", {
       header: "S/N",
     }),
+    columnHelper.accessor("flux", {
+      header: "Flux",
+      cell: (info) =>
+        info.getValue() === null ? "null" : `${info.getValue()} [mJy]`,
+    }),
     columnHelper.display({
       id: "actions",
       cell: (props) => <TableButtons row={props.row} />,
@@ -76,6 +81,7 @@ export function processData(fragmentData, mainProject, jname) {
     Nchan: node.observation.nchan,
     Band: node.observation.band,
     Nbin: node.observation.foldNbin,
+    flux: node.pipelineRun.flux,
     nantEff: node.observation.nantEff,
     dmBackend: formatNumber(node.observation.ephemeris.dm, 2),
     dmFit: formatNumber(node.pipelineRun.dm, 1),
