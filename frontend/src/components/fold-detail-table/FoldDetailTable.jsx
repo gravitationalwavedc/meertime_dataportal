@@ -21,8 +21,8 @@ import {
 } from "@tanstack/react-table";
 import ColumnToggle from "../form-inputs/ColumnToggle";
 
-const TanTableTestFragment = graphql`
-  fragment TanTableTestFragment on Query
+const FoldDetailTableFragment = graphql`
+  fragment FoldDetailTableFragment on Query
   @argumentDefinitions(
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
@@ -103,8 +103,8 @@ const TanTableTestFragment = graphql`
   }
 `;
 
-const TanTableTest = ({ tableData, mainProject, jname }) => {
-  const fragmentData = useFragment(TanTableTestFragment, tableData);
+const FoldDetailTable = ({ tableData, mainProject, jname }) => {
+  const fragmentData = useFragment(FoldDetailTableFragment, tableData);
   const [data] = useState(processData(fragmentData, mainProject, jname));
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([{ id: "Timestamp", desc: true }]);
@@ -334,4 +334,4 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
   );
 };
 
-export default TanTableTest;
+export default FoldDetailTable;

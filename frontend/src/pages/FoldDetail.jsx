@@ -2,7 +2,7 @@ import { useState, Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import SummaryDataRow from "../components/SummaryDataRow";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
-import TanTableTest from "../components/fold-detail-table/TanTableTest";
+import FoldDetailTable from "../components/fold-detail-table/FoldDetailTable";
 import HeaderButtons from "../components/fold-detail-table/HeaderButtons";
 import MainLayout from "../components/MainLayout";
 import PlotContainer from "../components/plots/PlotContainer";
@@ -48,7 +48,7 @@ const FoldDetailQuery = graphql`
       }
     }
 
-    ...TanTableTestFragment
+    ...FoldDetailTableFragment
       @arguments(pulsar: $pulsar, mainProject: $mainProject)
 
     ...PlotContainerFragment
@@ -121,7 +121,7 @@ const FoldDetail = ({ match }) => {
         />
       </Suspense>
       <Suspense fallback={<LoadingState />}>
-        <TanTableTest
+        <FoldDetailTable
           tableData={tableData}
           mainProject={mainProject}
           jname={jname}
