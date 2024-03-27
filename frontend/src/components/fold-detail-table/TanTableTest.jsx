@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { HiDownload } from "react-icons/hi";
-import { Button, Col, Table } from "react-bootstrap";
+import { Badge, Button, Col, Table } from "react-bootstrap";
 import { graphql, useFragment } from "react-relay";
 import { getColumns, processData } from "./processData";
 import { Form } from "react-bootstrap";
@@ -149,7 +149,7 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
   };
 
   // These columns are displayed as information in the first column
-  const infoHeaders = ["Timestamp", "Project", "Beam"];
+  const infoHeaders = ["Timestamp", "Project", "Beam", "Badges"];
 
   return (
     <div className="p-2">
@@ -278,7 +278,7 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
           </Button>
         </Form.Group>
       </Form.Row>
-      <Table className="react-bootstrap-table mt-1">
+      <Table responsive className="react-bootstrap-table mt-1">
         <tbody>
           {table.getRowModel().rows.map((row) => (
             <tr key={row.id}>
@@ -289,7 +289,13 @@ const TanTableTest = ({ tableData, mainProject, jname }) => {
                   </span>{" "}
                   {row.original.Project} &#183; {row.original.Beam} beam
                 </Col>
-                <Col>Badge, badge, badge, badge</Col>
+                <Col>
+                  {row.original.Badges.map((badge) => (
+                    <Badge key={badge.name} variant="primary" className="mr-1">
+                      {badge.name}
+                    </Badge>
+                  ))}
+                </Col>
               </td>
               {row
                 .getVisibleCells()

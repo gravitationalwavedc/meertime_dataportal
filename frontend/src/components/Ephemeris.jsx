@@ -2,7 +2,15 @@ import { Modal, Table } from "react-bootstrap";
 import { formatUTC } from "../helpers";
 
 const Ephemeris = ({ ephemeris, show, setShow }) => {
-  const ephemerisJSON = JSON.parse(JSON.parse(ephemeris.ephemerisData));
+  let ephemerisJSON;
+
+  try {
+    ephemerisJSON = JSON.parse(JSON.parse(ephemeris));
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+
   const updated = formatUTC(ephemeris.createdAt);
 
   return (

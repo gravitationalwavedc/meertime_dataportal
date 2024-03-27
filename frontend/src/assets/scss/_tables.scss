@@ -40,6 +40,10 @@ $row-border-radius: 0.75rem;
       border-right-style: solid;
       border-bottom-right-radius: $row-border-radius;
       border-top-right-radius: $row-border-radius;
+
+      &:has(.embargo-message) {
+        text-align: center;
+      }
     }
   }
 
