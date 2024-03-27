@@ -21,6 +21,7 @@ $row-border-radius: 0.75rem;
   tbody tr {
     box-shadow: $shadow-base;
     border-radius: $row-border-radius;
+    height: 5rem;
   }
 
   td {
