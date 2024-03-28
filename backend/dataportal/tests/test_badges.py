@@ -104,12 +104,21 @@ def test_rm_badge():
         rm=10.3,
         rm_err=0.1,
     )
+    # And one with a None RM
+    _, _, pr6 = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2019-12-15-17:22:31_1_J0125-2327.json"),
+        telescope,
+        template,
+        rm=None,
+        rm_err=None,
+    )
     # Test only the last obs has the badge
     assert pr1.badges.filter(id=rm_badge.id).count() == 0
     assert pr2.badges.filter(id=rm_badge.id).count() == 0
     assert pr3.badges.filter(id=rm_badge.id).count() == 0
     assert pr4.badges.filter(id=rm_badge.id).count() == 1
     assert pr5.badges.filter(id=rm_badge.id).count() == 0
+    assert pr6.badges.filter(id=rm_badge.id).count() == 0
 
 
 @pytest.mark.django_db
@@ -140,7 +149,15 @@ def test_dm_badge():
         template,
         dm=11.002,
     )
+    # And one with a None DM
+    _, _, pr4 = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"),
+        telescope,
+        template,
+        dm=None,
+    )
     # Test only last pr has badge
     assert pr1.badges.filter(id=dm_badge.id).count() == 0
     assert pr2.badges.filter(id=dm_badge.id).count() == 0
     assert pr3.badges.filter(id=dm_badge.id).count() == 1
+    assert pr4.badges.filter(id=dm_badge.id).count() == 0

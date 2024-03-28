@@ -105,22 +105,30 @@ def handle_badge_creation(sender, instance, **kwargs):
         pulsar=instance.observation.pulsar,
         observation__project__main_project=instance.observation.project.main_project,
     )
-    rm_and_rm_error = pfrs_of_pulsar.values_list('pipeline_run__rm', 'pipeline_run__rm_err')
-    rms, rm_errors = zip(*rm_and_rm_error)
-    rms_array = np.array(rms)
-    rms_errors_array = np.array(rm_errors)
-    # Calculate weighted mean and std
-    rms_weights = 1 / (rms_errors_array ** 2)
-    rms_weights /= np.sum(rms_weights)
-    rm_mean = np.average(rms_array, weights=rms_weights)
-    rm_std = np.sqrt(np.average((rms_array - rm_mean) ** 2, weights=rms_weights))
-    # Loop over pipeline runs for the pulsar and check if they have the RM badge
-    for pfr in pfrs_of_pulsar:
-        pipeline_run = pfr.pipeline_run
-        if abs(pipeline_run.rm - rm_mean) > 3*rm_std and rm_std != 0:
-            pipeline_run.badges.add(rm_badge)
-        else:
-            pipeline_run.badges.remove(rm_badge)
+    rm_and_rm_error = pfrs_of_pulsar.exclude(
+        pipeline_run__rm__isnull=True
+    ).exclude(
+        pipeline_run__rm_err__isnull=True
+    ).values_list('pipeline_run__rm', 'pipeline_run__rm_err')
+    if len(rm_and_rm_error) > 0:
+        rms, rm_errors = zip(*rm_and_rm_error)
+        rms_array = np.array(rms)
+        rms_errors_array = np.array(rm_errors)
+        # Calculate weighted mean and std
+        rms_weights = 1 / (rms_errors_array ** 2)
+        rms_weights /= np.sum(rms_weights)
+        rm_mean = np.average(rms_array, weights=rms_weights)
+        rm_std = np.sqrt(np.average((rms_array - rm_mean) ** 2, weights=rms_weights))
+        # Loop over pipeline runs for the pulsar and check if they have the RM badge
+        for pfr in pfrs_of_pulsar:
+            pipeline_run = pfr.pipeline_run
+            if pipeline_run.rm is None:
+                # Skip pipeline runs with no RM
+                continue
+            if abs(pipeline_run.rm - rm_mean) > 3*rm_std and rm_std != 0:
+                pipeline_run.badges.add(rm_badge)
+            else:
+                pipeline_run.badges.remove(rm_badge)
 
     # DM badge
     dm_badge, created = Badge.objects.get_or_create(
@@ -128,7 +136,7 @@ def handle_badge_creation(sender, instance, **kwargs):
         description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of one",
     )
     # Get median DM for the pulsar
-    dms = sorted(pfrs_of_pulsar.values_list('pipeline_run__dm', flat=True))
+    dms = sorted(pfrs_of_pulsar.exclude(pipeline_run__dm__isnull=True).values_list('pipeline_run__dm', flat=True))
     count = len(dms)
     middle = count // 2
     if count % 2 == 0:
@@ -140,6 +148,9 @@ def handle_badge_creation(sender, instance, **kwargs):
     # Loop over pipeline runs for the pulsar and check if they have the DM badge
     for pfr in pfrs_of_pulsar:
         pipeline_run = pfr.pipeline_run
+        if pipeline_run.dm is None:
+            # Skip pipeline runs with no DM
+            continue
         # Get the duration os a bin in milliseconds
         bin_duration_ms = pipeline_run.observation.ephemeris.p0 / pipeline_run.observation.fold_nbin * 1000
         # Use this to calculate the DM required to cause a dispersion of one bin
