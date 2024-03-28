@@ -77,7 +77,7 @@ def create_basic_data():
     return telescope, project, ephemeris, template
 
 
-def create_observation_pipeline_run_toa(json_path, telescope, template, make_toas=True):
+def create_observation_pipeline_run_toa(json_path, telescope, template, make_toas=True, rm=10.0, rm_err=1.0):
     # Load data from json
     with open(json_path, "r") as json_file:
         meertime_data = json.load(json_file)
@@ -159,8 +159,8 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
             dm_tres=1.0,
             sn=100.0,
             flux=25.0,
-            rm=10.0,
-            rm_err=1.0,
+            rm=rm,
+            rm_err=rm_err,
             percent_rfi_zapped=0.1,
         )
         if make_toas:

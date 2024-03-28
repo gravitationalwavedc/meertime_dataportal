@@ -1,3 +1,5 @@
+import numpy as np
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -92,3 +94,30 @@ def handle_badge_creation(sender, instance, **kwargs):
     )
     if instance.percent_rfi_zapped > 0.2:
         instance.badges.add(rfi_badge)
+
+    # RM badge
+    rm_badge, created = Badge.objects.get_or_create(
+        name="RM Drift",
+        description="The Rotation Measure has drifted three weighted standard deviations from the weighted mean",
+    )
+    # Get median and std RM for the pulsar
+    pfrs_of_pulsar = PulsarFoldResult.objects.filter(
+        pulsar=instance.observation.pulsar,
+        observation__project__main_project=instance.observation.project.main_project,
+    )
+    rm_and_rm_error = pfrs_of_pulsar.values_list('pipeline_run__rm', 'pipeline_run__rm_err')
+    rms, rm_errors = zip(*rm_and_rm_error)
+    rms_array = np.array(rms)
+    rms_errors_array = np.array(rm_errors)
+    # Calculate weighted mean and std
+    rms_weights = 1 / (rms_errors_array ** 2)
+    rms_weights /= np.sum(rms_weights)
+    rm_mean = np.average(rms_array, weights=rms_weights)
+    rm_std = np.sqrt(np.average((rms_array - rm_mean) ** 2, weights=rms_weights))
+    # Loop over pipeline runs for the pulsar and check if they have the RM badge
+    for pfr in pfrs_of_pulsar:
+        pipeline_run = pfr.pipeline_run
+        if abs(pipeline_run.rm - rm_mean) > 3*rm_std and rm_std != 0:
+            pipeline_run.badges.add(rm_badge)
+        else:
+            pipeline_run.badges.remove(rm_badge)
