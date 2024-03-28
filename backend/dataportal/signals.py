@@ -9,6 +9,7 @@ from dataportal.models import (
     PulsarFoldResult,
     PulsarFoldSummary,
     PulsarSearchSummary,
+    Badge,
 )
 
 
@@ -73,3 +74,21 @@ def handle_calibration_update(sender, instance, **kwargs):
     band = None
     for project in [instance.project, None]:
         ObservationSummary.update_or_create(obs_type, pulsar, main_project, project, calibration, band)
+
+
+@receiver(post_save, sender=PipelineRun)
+def handle_badge_creation(sender, instance, **kwargs):
+    """
+    Every time a PipelineRun is saved, create badges based on the results.
+    """
+    if instance.job_state != "Completed":
+        # Only create badges for completed jobs
+        return
+
+    # RFI badge
+    rfi_badge, created = Badge.objects.get_or_create(
+        name="Strong RFI",
+        description="Over 20% of RFI removed from observation",
+    )
+    if instance.percent_rfi_zapped > 0.2:
+        instance.badges.add(rfi_badge)

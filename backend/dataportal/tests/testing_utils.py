@@ -150,7 +150,7 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
             pipeline_description="MeerTime pipeline",
             pipeline_version="3.0.0",
             created_by="test",
-            job_state="done",
+            job_state="Completed",
             location="/test/location",
             dm=20.0,
             dm_err=1.0,
@@ -161,7 +161,7 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
             flux=25.0,
             rm=10.0,
             rm_err=1.0,
-            percent_rfi_zapped=10,
+            percent_rfi_zapped=0.1,
         )
         if make_toas:
             Toa.objects.create(

@@ -465,6 +465,8 @@ class PipelineRun(Model):
     rm_err = models.FloatField(null=True)
     percent_rfi_zapped = models.FloatField(null=True)
 
+    badges = models.ManyToManyField(Badge)
+
 
 class PulsarFoldResult(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.CASCADE, related_name="pulsar_fold_results")
