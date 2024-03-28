@@ -14,7 +14,6 @@ const molonglo = {
   subprojects: ["All", "MONSPSR_TIMING"],
   bandOptions: ["All", "UHF_NS"],
   plotTypes: ["Timing Residuals", "Flux Density", "S/N"],
-
 };
 
 const trapum = {
