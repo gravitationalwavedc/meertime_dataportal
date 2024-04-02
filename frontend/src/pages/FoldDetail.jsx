@@ -112,7 +112,13 @@ const FoldDetail = ({ match }) => {
         filesLoaded={filesLoaded}
       />
       <SummaryDataRow dataPoints={summaryData} />
-      <Suspense fallback={<LoadingState />}>
+      <Suspense
+        fallback={
+          <div>
+            <h3>Loading...</h3>
+          </div>
+        }
+      >
         <PlotContainer
           toaData={tableData}
           urlQuery={urlQuery}
@@ -120,7 +126,13 @@ const FoldDetail = ({ match }) => {
           mainProject={mainProject}
         />
       </Suspense>
-      <Suspense fallback={<LoadingState />}>
+      <Suspense
+        fallback={
+          <div>
+            <h3>Loading...</h3>
+          </div>
+        }
+      >
         <FoldDetailTable
           tableData={tableData}
           mainProject={mainProject}
