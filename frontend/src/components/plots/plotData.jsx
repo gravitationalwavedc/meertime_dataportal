@@ -116,7 +116,7 @@ export const getActivePlotData = (
   } else if (activePlot == "DM") {
     return dmPlotData(toaDataResult);
   } else if (activePlot == "RM") {
-    return dmPlotData(toaDataResult);
+    return rmPlotData(toaDataResult);
   } else {
     return [];
   }
