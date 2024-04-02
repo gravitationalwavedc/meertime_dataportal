@@ -80,14 +80,6 @@ const FoldDetailTableFragment = graphql`
             calibration {
               idInt
             }
-            badges {
-              edges {
-                node {
-                  name
-                  description
-                }
-              }
-            }
           }
           pipelineRun {
             dm
@@ -96,6 +88,14 @@ const FoldDetailTableFragment = graphql`
             rmErr
             sn
             flux
+            badges {
+              edges {
+                node {
+                  name
+                  description
+                }
+              }
+            }
           }
         }
       }

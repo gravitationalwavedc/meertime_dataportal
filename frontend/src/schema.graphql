@@ -672,6 +672,7 @@ type PipelineRunNode implements Node {
   rm: Float
   rmErr: Float
   percentRfiZapped: Float
+  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
   id: ID!
   project: ProjectNode
 }

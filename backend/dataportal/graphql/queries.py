@@ -437,6 +437,7 @@ class PipelineRunNode(DjangoObjectType):
             "rm",
             "rm_err",
             "percent_rfi_zapped",
+            "badges",
         ]
         filter_fields = {
             "id": ["exact"],
