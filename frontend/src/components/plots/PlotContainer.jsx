@@ -188,11 +188,11 @@ const PlotContainer = ({ toaData, urlQuery, jname, mainProject }) => {
   const plotTypes =
     mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
 
-  const totalBadgeExcludedObservations = toaDataResult.toa.totalBadgeExcludedToas;
+  const totalBadgeExcludedObservations =
+    toaDataResult.toa.totalBadgeExcludedToas;
   const badgeString =
     totalBadgeExcludedObservations +
     " ToAs removed by the above observation flags.";
-
 
   return (
     <Suspense fallback={<h3>Loading Plot...</h3>}>
