@@ -528,6 +528,7 @@ class PulsarFoldResultConnection(relay.Connection):
     toas_link = graphene.String()
     all_projects = graphene.List(graphene.String)
     all_nchans = graphene.List(graphene.Int)
+    total_badge_excluded_observations = graphene.Int()
 
     def resolve_all_projects(self, instance):
         if "pulsar" in instance.variable_values.keys():
@@ -604,6 +605,25 @@ class PulsarFoldResultConnection(relay.Connection):
 
     def resolve_min_plot_length(self, instance):
         return PulsarFoldResult.objects.order_by("-observation__duration").last().observation.duration
+
+    def resolve_total_badge_excluded_observations(self, instance):
+        if "excludeBadges" in instance.variable_values.keys():
+            # First do all other filters
+            queryset = PulsarFoldResult.objects.all()
+            if "pulsar" in instance.variable_values.keys():
+                queryset = queryset.filter(pulsar__name=instance.variable_values["pulsar"])
+            if "mainProject" in instance.variable_values.keys():
+                queryset = queryset.filter(
+                    observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
+                )
+            if "utcStart" in instance.variable_values.keys():
+                queryset = queryset.filter(observation__utc_start=instance.variable_values["utcStart"])
+            if "beam" in instance.variable_values.keys():
+                queryset = queryset.filter(observation__pulsar__name=instance.variable_values["beam"])
+            # Filter and observations with badges
+            return queryset.filter(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]).count()
+        else:
+            return 0
 
 
 class PulsarFoldSummaryNode(DjangoObjectType):
@@ -1095,6 +1115,7 @@ class Query(graphene.ObjectType):
         mainProject=graphene.String(),
         utcStart=graphene.String(),
         beam=graphene.Int(),
+        excludeBadges=graphene.List(graphene.String),
     )
 
     @login_required
@@ -1121,6 +1142,10 @@ class Query(graphene.ObjectType):
         beam = kwargs.get("beam")
         if beam:
             queryset = queryset.filter(observation__beam=beam)
+
+        exclude_badges = kwargs.get("excludeBadges")
+        if exclude_badges:
+            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
 
         return queryset
 
