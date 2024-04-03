@@ -17,6 +17,7 @@ const PlotContainerFragment = graphql`
     maximumNsubs: { type: "Boolean", defaultValue: false }
     obsNchan: { type: "Int", defaultValue: 1 }
     obsNpol: { type: "Int", defaultValue: 1 }
+    excludeBadges: { type: "[String]", defaultValue: [] }
   ) {
     toa(
       pulsar: $pulsar
@@ -55,7 +56,11 @@ const PlotContainerFragment = graphql`
         }
       }
     }
-    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
+    pulsarFoldResult(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      excludeBadges: $excludeBadges
+    ) {
       edges {
         node {
           observation {

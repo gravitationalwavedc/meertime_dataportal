@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { HiDownload } from "react-icons/hi";
 import { Badge, Button, Col, Table } from "react-bootstrap";
-import { graphql, useFragment } from "react-relay";
+import { graphql, useRefetchableFragment } from "react-relay";
 import { getColumns, processData } from "./processData";
 import { Form } from "react-bootstrap";
 import DebouncedInput from "../form-inputs/DebouncedInput";
@@ -23,37 +23,17 @@ import ColumnToggle from "../form-inputs/ColumnToggle";
 
 const FoldDetailTableFragment = graphql`
   fragment FoldDetailTableFragment on Query
+  @refetchable(queryName: "FoldDetailTableRefetchQuery")
   @argumentDefinitions(
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
+    excludeBadges: { type: "[String]", defaultValue: [] }
   ) {
-    observationSummary(
-      pulsar_Name: $pulsar
-      obsType: "fold"
-      calibration_Id: "All"
+    pulsarFoldResult(
+      pulsar: $pulsar
       mainProject: $mainProject
-      project_Short: "All"
-      band: "All"
+      excludeBadges: $excludeBadges
     ) {
-      edges {
-        node {
-          observations
-          observationHours
-          projects
-          pulsars
-          estimatedDiskSpaceGb
-          timespanDays
-          maxDuration
-          minDuration
-        }
-      }
-    }
-    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
-      residualEphemeris {
-        ephemerisData
-        createdAt
-      }
-      description
       edges {
         node {
           observation {
@@ -103,8 +83,11 @@ const FoldDetailTableFragment = graphql`
   }
 `;
 
-const FoldDetailTable = ({ tableData, mainProject, jname }) => {
-  const fragmentData = useFragment(FoldDetailTableFragment, tableData);
+const FoldDetailTable = ({ tableData, mainProject, jname, excludeBadges }) => {
+  const [fragmentData, refetch] = useRefetchableFragment(
+    FoldDetailTableFragment,
+    tableData
+  );
   const [data] = useState(processData(fragmentData, mainProject, jname));
   const [globalFilter, setGlobalFilter] = useState("");
   const [sorting, setSorting] = useState([{ id: "Timestamp", desc: true }]);
@@ -291,7 +274,16 @@ const FoldDetailTable = ({ tableData, mainProject, jname }) => {
       <Table responsive className="react-bootstrap-table mt-1">
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id}>
+            <tr
+              key={row.id}
+              className={
+                row.original.Badges.some((badge) =>
+                  excludeBadges.includes(badge.name)
+                )
+                  ? "greyed-out"
+                  : ""
+              }
+            >
               <td>
                 <Col>
                   <span className="h6 text-primary-600 bold pr-2">

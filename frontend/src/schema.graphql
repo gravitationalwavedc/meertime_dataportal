@@ -757,6 +757,7 @@ type PulsarFoldResultConnection {
   toasLink: String
   allProjects: [String]
   allNchans: [Int]
+  totalBadgeExcludedObservations: Int
 }
 
 type PulsarFoldResultEdge {
@@ -871,7 +872,7 @@ type Query {
   observation(pulsar_Name: [String], telescope_Name: String, mainProject: String, project_Id: Int, project_Short: String, utcStartGte: String, utcStartLte: String, obsType: String, unprocessed: Boolean, incomplete: Boolean, before: String, after: String, first: Int, last: Int): ObservationConnection
   observationSummary(pulsar_Name: String, mainProject: String, project_Id: Int, project_Short: String, calibration_Id: String, calibrationInt: Int, obsType: String, band: String, before: String, after: String, first: Int, last: Int): ObservationSummaryConnection
   pipelineRun(id: Int, before: String, after: String, first: Int, last: Int): PipelineRunConnection
-  pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
+  pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, excludeBadges: [String], before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
   pulsarFoldSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
   pulsarSearchSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarSearchSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection

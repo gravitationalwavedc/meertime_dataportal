@@ -2,11 +2,11 @@ import { useState, Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import SummaryDataRow from "../components/SummaryDataRow";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
+import ObservationFlags from "../components/fold-detail/ObservationFlags";
 import FoldDetailTable from "../components/fold-detail/FoldDetailTable";
 import HeaderButtons from "../components/fold-detail/HeaderButtons";
 import MainLayout from "../components/MainLayout";
 import PlotContainer from "../components/plots/PlotContainer";
-import LoadingState from "../components/LoadingState";
 
 const FoldDetailQuery = graphql`
   query FoldDetailQuery(
@@ -17,6 +17,7 @@ const FoldDetailQuery = graphql`
     $maximumNsubs: Boolean
     $obsNchan: Int
     $obsNpol: Int
+    $excludeBadges: [String]
   ) {
     observationSummary(
       pulsar_Name: $pulsar
@@ -40,16 +41,25 @@ const FoldDetailQuery = graphql`
       }
     }
 
-    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
+    pulsarFoldResult(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      excludeBadges: $excludeBadges
+    ) {
       description
       residualEphemeris {
         ephemerisData
         createdAt
       }
+      totalBadgeExcludedObservations
     }
 
     ...FoldDetailTableFragment
-      @arguments(pulsar: $pulsar, mainProject: $mainProject)
+      @arguments(
+        pulsar: $pulsar
+        mainProject: $mainProject
+        excludeBadges: $excludeBadges
+      )
 
     ...PlotContainerFragment
       @arguments(
@@ -60,6 +70,7 @@ const FoldDetailQuery = graphql`
         maximumNsubs: $maximumNsubs
         obsNchan: $obsNchan
         obsNpol: $obsNpol
+        excludeBadges: $excludeBadges
       )
   }
 `;
@@ -67,6 +78,22 @@ const FoldDetailQuery = graphql`
 const FoldDetail = ({ match }) => {
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const [filesLoaded, setFilesLoaded] = useState(false);
+  const [observationBadges, setObservationBadges] = useState({
+    "Strong RFI": false,
+    "RM Drift": false,
+    "DM Drift": false,
+  });
+  const excludeBadges = Object.keys(observationBadges).filter(
+    (observationBadge) => observationBadges[observationBadge]
+  );
+
+  const handleObservationFlagToggle = (observationBadge) => {
+    const newObservationBadges = {
+      ...observationBadges,
+      [observationBadge]: !observationBadges[observationBadge],
+    };
+    setObservationBadges(newObservationBadges);
+  };
 
   const { jname, mainProject } = match.params;
   const urlQuery = match.location.query;
@@ -79,6 +106,7 @@ const FoldDetail = ({ match }) => {
     maximumNsubs: false,
     obsNchan: 1,
     obsNpol: 1,
+    excludeBadges: excludeBadges,
   });
 
   const summaryNode = tableData.observationSummary?.edges[0]?.node;
@@ -99,6 +127,9 @@ const FoldDetail = ({ match }) => {
       : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
   ];
 
+  const totalBadgeExcludedObservations =
+    tableData.pulsarFoldResult.totalBadgeExcludedObservations;
+
   return (
     <MainLayout
       title={jname}
@@ -112,6 +143,11 @@ const FoldDetail = ({ match }) => {
         filesLoaded={filesLoaded}
       />
       <SummaryDataRow dataPoints={summaryData} />
+      <ObservationFlags
+        observationBadges={observationBadges}
+        handleObservationFlagToggle={handleObservationFlagToggle}
+        totalBadgeExcludedObservations={totalBadgeExcludedObservations}
+      />
       <Suspense
         fallback={
           <div>
@@ -137,6 +173,7 @@ const FoldDetail = ({ match }) => {
           tableData={tableData}
           mainProject={mainProject}
           jname={jname}
+          excludeBadges={excludeBadges}
         />
       </Suspense>
       {localStorage.isStaff === "true" && (
