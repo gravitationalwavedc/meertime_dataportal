@@ -126,7 +126,7 @@ def test_rm_badge():
 def test_dm_badge():
     telescope, project, ephemeris, template = create_basic_data()
     dm_badge, created = Badge.objects.get_or_create(
-        name="Dm Drift",
+        name="DM Drift",
         description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of one",
     )
 
