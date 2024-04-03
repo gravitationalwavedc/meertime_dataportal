@@ -877,7 +877,7 @@ type Query {
   pulsarSearchSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarSearchSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
   pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
-  toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, obsNpol: Int, before: String, after: String, first: Int, last: Int): ToaConnection
+  toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, obsNchan: Int, obsNpol: Int, excludeBadges: [String], before: String, after: String, first: Int, last: Int): ToaConnection
 }
 
 input RefreshInput {
@@ -997,6 +997,7 @@ type ToaConnection {
   edges: [ToaEdge]!
   allProjects: [String]
   allNchans: [Int]
+  totalBadgeExcludedToas: Int
 }
 
 type ToaEdge {

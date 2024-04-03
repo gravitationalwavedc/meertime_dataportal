@@ -5,6 +5,7 @@ import { graphql, useRefetchableFragment } from "react-relay";
 import PlotlyPlot from "./PlotlyPlot";
 import { getActivePlotData } from "./plotData";
 import { meertime, molonglo } from "../../telescopes";
+import ReactMarkdown from "react-markdown";
 
 const PlotContainerFragment = graphql`
   fragment PlotContainerFragment on Query
@@ -27,9 +28,11 @@ const PlotContainerFragment = graphql`
       maximumNsubs: $maximumNsubs
       obsNchan: $obsNchan
       obsNpol: $obsNpol
+      excludeBadges: $excludeBadges
     ) {
       allProjects
       allNchans
+      totalBadgeExcludedToas
       edges {
         node {
           observation {
@@ -185,6 +188,12 @@ const PlotContainer = ({ toaData, urlQuery, jname, mainProject }) => {
   const plotTypes =
     mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
 
+  const totalBadgeExcludedObservations = toaDataResult.toa.totalBadgeExcludedToas;
+  const badgeString =
+    totalBadgeExcludedObservations +
+    " ToAs removed by the above observation flags.";
+
+
   return (
     <Suspense fallback={<h3>Loading Plot...</h3>}>
       <Row className="d-none d-sm-block">
@@ -288,6 +297,13 @@ const PlotContainer = ({ toaData, urlQuery, jname, mainProject }) => {
               </>
             )}
           </Form.Row>
+          {activePlot === "Timing Residuals" && (
+            <Row className="mb-3">
+              <Col md={5}>
+                <ReactMarkdown>{badgeString}</ReactMarkdown>
+              </Col>
+            </Row>
+          )}
           <Form.Text className="text-muted">
             Drag a box to zoom, hover your mouse the top right and click
             Autoscale to zoom out, click on a point to view observation.
