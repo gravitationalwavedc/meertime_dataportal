@@ -53,7 +53,15 @@
               },
               "calibration": {
                 "idInt": 26
-              },
+              }
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "dmErr": 1.0,
+              "rm": 10.0,
+              "rmErr": 1.0,
+              "sn": 100.0,
+              "flux": 25.0,
               "badges": {
                 "edges": [
                   {
@@ -64,14 +72,6 @@
                   }
                 ]
               }
-            },
-            "pipelineRun": {
-              "dm": 20.0,
-              "dmErr": 1.0,
-              "rm": 10.0,
-              "rmErr": 1.0,
-              "sn": 100.0,
-              "flux": 25.0
             }
           }
         },
@@ -118,7 +118,17 @@
               "rm": 10.0,
               "rmErr": 1.0,
               "sn": 100.0,
-              "flux": 25.0
+              "flux": 25.0,
+              "badges": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "Cool badge",
+                      "description": "This is a cool badge"
+                    }
+                  }
+                ]
+              }
             }
           }
         },
@@ -147,7 +157,15 @@
               },
               "calibration": {
                 "idInt": 28
-              },
+              }
+            },
+            "pipelineRun": {
+              "dm": 20.0,
+              "dmErr": 1.0,
+              "rm": 10.0,
+              "rmErr": 1.0,
+              "sn": 100.0,
+              "flux": 25.0,
               "badges": {
                 "edges": [
                   {
@@ -158,14 +176,6 @@
                   }
                 ]
               }
-            },
-            "pipelineRun": {
-              "dm": 20.0,
-              "dmErr": 1.0,
-              "rm": 10.0,
-              "rmErr": 1.0,
-              "sn": 100.0,
-              "flux": 25.0
             }
           }
         }
