@@ -1,8 +1,17 @@
+import os
 import json
-
 import pytest
 
-from dataportal.tests.testing_utils import setup_query_test, upload_toa_files
+from django.contrib.auth import get_user_model
+from graphql_jwt.testcases import JSONWebTokenClient
+
+from dataportal.tests.testing_utils import (
+    setup_query_test,
+    upload_toa_files,
+    create_basic_data,
+    create_observation_pipeline_run_toa,
+    TEST_DATA_DIR,
+)
 from utils.tests.test_toa import TOA_FILES
 
 
@@ -1027,3 +1036,181 @@ def test_toa_uploads():
         else:
             project = "PTA"
         upload_toa_files(pipeline_run, project, nchan, template, toa_file)
+
+
+# Query used by the command `psrdb observation list`
+OBSERVATION_LIST_QUERY = """
+query observationList(
+        $pulsar_Name: [String]
+        $telescope_Name: String
+        $project_Id: Int
+        $project_Short: String
+        $mainProject: String
+        $utcStartGte: String
+        $utcStartLte: String
+        $obsType: String
+    ) {
+    observation (
+        pulsar_Name: $pulsar_Name
+        telescope_Name: $telescope_Name
+        project_Id: $project_Id
+        project_Short: $project_Short
+        mainProject: $mainProject
+        utcStartGte: $utcStartGte
+        utcStartLte: $utcStartLte
+        obsType: $obsType
+    ) {
+        edges {
+            node {
+                id
+                pulsar {
+                    name
+                }
+                calibration {
+                    id
+                    location
+                }
+                telescope {
+                    name
+                }
+                project {
+                    code
+                    short
+                }
+                utcStart
+                beam
+                band
+                duration
+                foldNchan
+                foldNbin
+                modeDuration
+            }
+        }
+    }
+}
+"""
+
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_observation_mode_duration():
+    client = JSONWebTokenClient()
+    user = get_user_model().objects.create(username="buffy", email="slayer@sunnydail.com")
+    client.authenticate(user)
+
+    # Set up some observations
+    telescope, project, ephemeris, template = create_basic_data()
+    # "duration": 255.4990582429906
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+    )
+    # "duration": 263.99999999999994,
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope, template
+    )
+
+    response = client.execute(
+        OBSERVATION_LIST_QUERY,
+        variables={
+            "pulsar_Name": None,
+            "telescope_Name": None,
+            "project_Id": None,
+            "project_Short": None,
+            "mainProject": None,
+            "utcStartGte": None,
+            "utcStartLte": None,
+            "obsType": None,
+        },
+    )
+    assert not response.errors
+    # Should round to 256
+    assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 256
+
+    # Add two more observations and check it still rounds to the lower mode on a draw
+    # "duration": 1039.9999999999998,
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"), telescope, template
+    )
+    # "duration": 1023.2854023529411,
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope, template
+    )
+    response = client.execute(
+        OBSERVATION_LIST_QUERY,
+        variables={
+            "pulsar_Name": None,
+            "telescope_Name": None,
+            "project_Id": None,
+            "project_Short": None,
+            "mainProject": None,
+            "utcStartGte": None,
+            "utcStartLte": None,
+            "obsType": None,
+        },
+    )
+    assert not response.errors
+    # Should round to 256
+    assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 256
+
+    # Add one more obs and it will get the new higher mode
+    # "duration": 1023.2854023529411,
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope, template
+    )
+    response = client.execute(
+        OBSERVATION_LIST_QUERY,
+        variables={
+            "pulsar_Name": None,
+            "telescope_Name": None,
+            "project_Id": None,
+            "project_Short": None,
+            "mainProject": None,
+            "utcStartGte": None,
+            "utcStartLte": None,
+            "obsType": None,
+        },
+    )
+    assert not response.errors
+    assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 1024
+
+    # Add 4 obs of a different pulsar and 4 obs of a different main project to ensure the filters work
+    # J0437-4715 3 more times (already added once)
+    # "duration": 255.4990582429906
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+    )
+    # Molonglo obs of same pulsar J0125-2327
+    # "duration": 455.0798950400001,
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
+    )
+    create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
+    )
+    response = client.execute(
+        OBSERVATION_LIST_QUERY,
+        variables={
+            "pulsar_Name": ["J0125-2327"],
+            "telescope_Name": None,
+            "project_Id": None,
+            "project_Short": None,
+            "mainProject": "MeerTIME",
+            "utcStartGte": None,
+            "utcStartLte": None,
+            "obsType": None,
+        },
+    )
+    assert not response.errors
+    assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 1024

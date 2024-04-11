@@ -1,5 +1,6 @@
 import math
 from datetime import datetime
+from collections import Counter
 
 import graphene
 import pytz
@@ -307,6 +308,7 @@ class ObservationNode(DjangoObjectType):
     calibration = graphene.Field(CalibrationNode)
     ephemeris = graphene.Field(EphemerisNode)
     restricted = graphene.Boolean()
+    mode_duration = graphene.Int()
 
     def resolve_restricted(self, info):
         # by default, we assume that the user is restricted
@@ -323,6 +325,31 @@ class ObservationNode(DjangoObjectType):
         except Exception:
             # default fallback to restricted (True)
             return True
+
+    def resolve_mode_duration(self, instance):
+        obs = Observation.objects.all()
+        # Filter by input queries
+        if "pulsar_Name" in instance.variable_values.keys():
+            obs = obs.filter(pulsar__name__in=instance.variable_values["pulsar_Name"])
+        if "telescope_Name" in instance.variable_values.keys():
+            obs = obs.filter(telescope__name=instance.variable_values["telescope_Name"])
+        if "mainProject" in instance.variable_values.keys():
+            obs = obs.filter(project__main_project__name__iexact=instance.variable_values["mainProject"])
+        if "project_Id" in instance.variable_values.keys():
+            obs = obs.filter(project__id=instance.variable_values["project_Id"])
+        if "projectShort" in instance.variable_values.keys():
+            obs = obs.filter(project_short=instance.variable_values["projectShort"])
+        if "obsType" in instance.variable_values.keys():
+            obs = obs.filter(obs_type=instance.variable_values["obsType"])
+        # Then get the mode of the duration (highest count)
+        durations = obs.values('duration')
+        # Round to nearest 32 seconds
+        rounded_duration = [int(round(duration["duration"] / 32) * 32) for duration in durations]
+        counter = Counter(rounded_duration)
+        duration_count_pairs = [(value, count) for value, count in counter.items()]
+        # Sort by count and then by value to get shortest duration on draws
+        duration_count_pairs = sorted(duration_count_pairs, key=lambda x: (-x[1], x[0]))
+        return duration_count_pairs[0][0]
 
     @classmethod
     @login_required
