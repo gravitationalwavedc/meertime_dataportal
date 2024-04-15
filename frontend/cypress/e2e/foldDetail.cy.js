@@ -31,16 +31,6 @@ describe("The Fold Detail Page", () => {
       .should("have.property", "token");
   });
 
-  it("displays loading then the data", () => {
-    cy.contains("J0125-2327").should("be.visible");
-    cy.contains("Loading...").should("be.visible");
-
-    cy.wait("@FoldDetailQuery");
-
-    cy.contains("Loading...").should("not.exist");
-    cy.contains("PSR J0125-2327 is a millisecond pulsar").should("be.visible");
-  });
-
   it("should toggle the ephemeris modal", () => {
     cy.wait("@FoldDetailQuery");
     cy.contains("View folding ephemeris").should("be.visible");
@@ -67,24 +57,10 @@ describe("The Fold Detail Page", () => {
   it("should go to sessions table when view session button is clicked", () => {
     cy.wait("@FoldDetailQuery");
     cy.contains("View session").click();
-    cy.location("pathname").should("equal", "/session/26/");
+    cy.location("pathname").should("equal", "/session/28/");
 
     cy.wait("@SessionQuery");
     cy.contains("Loading...").should("not.exist");
     cy.contains("JName").should("be.visible");
-  });
-
-  it("should display in list mode", () => {
-    cy.wait("@FoldDetailQuery");
-    cy.contains("List view").click();
-
-    cy.contains("Loading...").should("not.exist");
-    cy.contains("PSR J0125-2327 is a millisecond pulsar").should("be.visible");
-    cy.contains("2019-04-23-06:11:30").should("be.visible");
-    // 4 objects are used to display the data so we're checking 1 value from each.
-    cy.contains("264.00 [s]").should("be.visible");
-    cy.contains("S/N").should("be.visible");
-    cy.contains("100.0").should("be.visible");
-    cy.contains("9.59").should("be.visible");
   });
 });

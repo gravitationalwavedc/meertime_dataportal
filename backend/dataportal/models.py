@@ -229,6 +229,14 @@ class Calibration(models.Model):
         ordering = ["-start"]
 
 
+class Badge(models.Model):
+    name = models.CharField(max_length=32, unique=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Observation(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.CASCADE)
     telescope = models.ForeignKey(Telescope, models.CASCADE)
@@ -270,6 +278,8 @@ class Observation(models.Model):
     filterbank_nchan = models.IntegerField(blank=True, null=True)
     filterbank_tsamp = models.FloatField(blank=True, null=True)
     filterbank_dm = models.FloatField(blank=True, null=True)
+
+    badges = models.ManyToManyField(Badge)
 
     def save(self, *args, **kwargs):
         Observation.clean(self)
@@ -454,6 +464,8 @@ class PipelineRun(Model):
     rm = models.FloatField(null=True)
     rm_err = models.FloatField(null=True)
     percent_rfi_zapped = models.FloatField(null=True)
+
+    badges = models.ManyToManyField(Badge)
 
 
 class PulsarFoldResult(models.Model):

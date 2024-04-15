@@ -1,5 +1,10 @@
 {
   "data": {
+    "toa": {
+      "allProjects": [],
+      "allNchans": [],
+      "edges": []
+    },
     "observationSummary": {
       "edges": [
         {
@@ -56,7 +61,17 @@
               "rm": 10.0,
               "rmErr": 1.0,
               "sn": 100.0,
-              "flux": 25.0
+              "flux": 25.0,
+              "badges": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "Cool badge",
+                      "description": "This is a cool badge"
+                    }
+                  }
+                ]
+              }
             }
           }
         },
@@ -85,6 +100,16 @@
               },
               "calibration": {
                 "idInt": 27
+              },
+              "badges": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "Cool badge",
+                      "description": "This is a cool badge"
+                    }
+                  }
+                ]
               }
             },
             "pipelineRun": {
@@ -93,7 +118,17 @@
               "rm": 10.0,
               "rmErr": 1.0,
               "sn": 100.0,
-              "flux": 25.0
+              "flux": 25.0,
+              "badges": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "Cool badge",
+                      "description": "This is a cool badge"
+                    }
+                  }
+                ]
+              }
             }
           }
         },
@@ -130,7 +165,17 @@
               "rm": 10.0,
               "rmErr": 1.0,
               "sn": 100.0,
-              "flux": 25.0
+              "flux": 25.0,
+              "badges": {
+                "edges": [
+                  {
+                    "node": {
+                      "name": "Cool badge",
+                      "description": "This is a cool badge"
+                    }
+                  }
+                ]
+              }
             }
           }
         }

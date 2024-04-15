@@ -53,15 +53,22 @@ const performFileDownload = (e, path) => {
   });
 };
 
-const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
-  // Work out file types and other info
-  const files = fragmentData.edges.reduce((result, edge) => {
+/**
+ * File download modal component for displaying and downloading files.
+ *
+ * Data is an array of file objects containing the file path and size.
+ * Structure of data must be:
+ * {data: {edges: [{node: {path: string, fileSize: number}}]}}
+ *
+ * @param {boolean} visible - whether the modal is visible
+ * @param {object} data - relay data object containing file data
+ * @param {function} setShow - function to set the modal visibility
+ **/
+const FildDownloadModal = ({ visible, data, setShow }) => {
+  const files = data.edges.reduce((result, edge) => {
     const row = { ...edge.node };
     const pathArray = row.path.split("/");
     row.fileName = pathArray[pathArray.length - 1];
-
-    const extensionArray = row.fileName.split(".");
-    const fileExtension = extensionArray[extensionArray.length - 1];
 
     if (
       row.fileName.includes("ch") &&
@@ -74,9 +81,11 @@ const FildDownloadModal = ({ visible, fragmentData, setShow }) => {
     }
     return [...result, { ...row }];
   }, []);
+
   const sortedFiles = files.sort((a, b) =>
     b.fileName.localeCompare(a.fileName)
   );
+
   return (
     <Modal show={visible} onHide={() => setShow(false)} size="xl">
       <Modal.Body>
