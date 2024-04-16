@@ -7,6 +7,7 @@ import FoldDetailTable from "../components/fold-detail/FoldDetailTable";
 import HeaderButtons from "../components/fold-detail/HeaderButtons";
 import MainLayout from "../components/MainLayout";
 import PlotContainer from "../components/plots/PlotContainer";
+import { getNsubTypeBools } from "../components/plots/plotData";
 
 const FoldDetailQuery = graphql`
   query FoldDetailQuery(
@@ -19,6 +20,7 @@ const FoldDetailQuery = graphql`
     $obsNpol: Int
     $excludeBadges: [String]
   ) {
+
     observationSummary(
       pulsar_Name: $pulsar
       obsType: "fold"
@@ -97,15 +99,17 @@ const FoldDetail = ({ match }) => {
 
   const { jname, mainProject } = match.params;
   const urlQuery = match.location.query;
+  const nsubTypeBools = getNsubTypeBools(urlQuery.nsubType);
 
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
     mainProject: mainProject,
-    projectShort: match.location.query.timingProject || "All",
-    minimumNsubs: true,
-    maximumNsubs: false,
-    obsNchan: 1,
-    obsNpol: 1,
+    projectShort: urlQuery.timingProject || "All",
+    minimumNsubs: nsubTypeBools.minimumNsubs,
+    maximumNsubs: nsubTypeBools.maximumNsubs,
+    modeNsubs: nsubTypeBools.modeNsubs,
+    obsNchan: urlQuery.obsNchan || 1,
+    obsNpol: urlQuery.obsNpol || 1,
     excludeBadges: excludeBadges,
   });
 

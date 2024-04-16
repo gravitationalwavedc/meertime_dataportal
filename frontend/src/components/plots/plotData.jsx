@@ -296,3 +296,27 @@ export const residualPlotData = (data, timingProject, jname, mainProject) => {
       band: node.observation.band,
     }));
 };
+
+
+
+export const getNsubTypeBools = (nsubType) => {
+  if (nsubType === "1") {
+    return {
+      minimumNsubs: true,
+      maximumNsubs: false,
+      modeNsubs: false,
+    };
+  } else if (nsubType === "max") {
+    return {
+      minimumNsubs: false,
+      maximumNsubs: true,
+      modeNsubs: false,
+    };
+  } else if (nsubType === "mode") {
+    return {
+      minimumNsubs: false,
+      maximumNsubs: false,
+      modeNsubs: true,
+    };
+  }
+};

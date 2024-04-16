@@ -3,7 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { graphql, useRefetchableFragment } from "react-relay";
 import PlotlyPlot from "./PlotlyPlot";
-import { getActivePlotData } from "./plotData";
+import { getActivePlotData, getNsubTypeBools } from "./plotData";
 import { meertime, molonglo } from "../../telescopes";
 import ReactMarkdown from "react-markdown";
 
@@ -16,6 +16,7 @@ const PlotContainerFragment = graphql`
     projectShort: { type: "String", defaultValue: "All" }
     minimumNsubs: { type: "Boolean", defaultValue: true }
     maximumNsubs: { type: "Boolean", defaultValue: false }
+    modeNsubs: { type: "Boolean", defaultValue: false }
     obsNchan: { type: "Int", defaultValue: 1 }
     obsNpol: { type: "Int", defaultValue: 1 }
     excludeBadges: { type: "[String]", defaultValue: [] }
@@ -26,6 +27,7 @@ const PlotContainerFragment = graphql`
       projectShort: $projectShort
       minimumNsubs: $minimumNsubs
       maximumNsubs: $maximumNsubs
+      modeNsubs: $modeNsubs
       obsNchan: $obsNchan
       obsNpol: $obsNpol
       excludeBadges: $excludeBadges
@@ -119,28 +121,29 @@ const PlotContainer = ({ toaData, urlQuery, jname, mainProject }) => {
     urlQuery.timingProject || timingProjects[0]
   );
   const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
-  const [maxNsub, setMaxNsub] = useState(urlQuery.maxNsub || false);
+  const [nsubType, setNsubType] = useState(urlQuery.nsubType || "1");
   const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
 
   const handleRefetch = ({
     newTimingProject = timingProject,
     newObsNchan = obsNchan,
-    newMaxNsub = maxNsub,
+    newNsubType = nsubType,
     newObsNpol = obsNpol,
   } = {}) => {
     const url = new URL(window.location);
     url.searchParams.set("timingProject", newTimingProject);
     url.searchParams.set("obsNchan", newObsNchan);
-    url.searchParams.set("maxNsub", newMaxNsub);
+    url.searchParams.set("nsubType", newNsubType);
     url.searchParams.set("obsNpol", newObsNpol);
     window.history.pushState({}, "", url);
-    const newMinimumNsubs = newMaxNsub === "false";
-    const newMaximumNsubs = !newMinimumNsubs;
+
+    const nsubTypeBools = getNsubTypeBools(newNsubType);
     refetch({
       projectShort: newTimingProject,
       obsNchan: newObsNchan,
-      minimumNsubs: newMinimumNsubs,
-      maximumNsubs: newMaximumNsubs,
+      minimumNsubs: nsubTypeBools.minimumNsubs,
+      maximumNsubs: nsubTypeBools.maximumNsubs,
+      modeNsubs: nsubTypeBools.modeNsubs,
       obsNpol: newObsNpol,
     });
   };
@@ -156,10 +159,10 @@ const PlotContainer = ({ toaData, urlQuery, jname, mainProject }) => {
     });
   };
 
-  const handleSetMaxNsub = (newMaxNsub) => {
-    setMaxNsub(newMaxNsub);
+  const handleSetNsubType = (newNsubType) => {
+    setNsubType(newNsubType);
     handleRefetch({
-      newMaxNsub: newMaxNsub,
+      newNsubType: newNsubType,
     });
   };
 
@@ -271,15 +274,16 @@ const PlotContainer = ({ toaData, urlQuery, jname, mainProject }) => {
                   controlId="plotMaxNsubController"
                   className="col-md-2"
                 >
-                  <Form.Label>Max Nsub</Form.Label>
+                  <Form.Label>Nsub Type</Form.Label>
                   <Form.Control
                     custom
                     as="select"
-                    value={maxNsub}
-                    onChange={(event) => handleSetMaxNsub(event.target.value)}
+                    value={nsubType}
+                    onChange={(event) => handleSetNsubType(event.target.value)}
                   >
-                    <option value="true">True</option>
-                    <option value="false">False</option>
+                    <option value="1">1</option>
+                    <option value="max">Max</option>
+                    <option value="mode">Mode</option>
                   </Form.Control>
                 </Form.Group>
                 <Form.Group controlId="plotNpolController" className="col-md-2">
