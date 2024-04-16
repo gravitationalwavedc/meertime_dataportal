@@ -77,7 +77,7 @@ def create_basic_data():
     return telescope, project, ephemeris, template
 
 
-def create_observation_pipeline_run_toa(json_path, telescope, template, make_toas=True):
+def create_observation_pipeline_run_toa(json_path, telescope, template, make_toas=True, rm=10.0, rm_err=1.0, dm=20.0):
     # Load data from json
     with open(json_path, "r") as json_file:
         meertime_data = json.load(json_file)
@@ -150,18 +150,18 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
             pipeline_description="MeerTime pipeline",
             pipeline_version="3.0.0",
             created_by="test",
-            job_state="done",
+            job_state="Completed",
             location="/test/location",
-            dm=20.0,
+            dm=dm,
             dm_err=1.0,
             dm_epoch=1.0,
             dm_chi2r=1.0,
             dm_tres=1.0,
             sn=100.0,
             flux=25.0,
-            rm=10.0,
-            rm_err=1.0,
-            percent_rfi_zapped=10,
+            rm=rm,
+            rm_err=rm_err,
+            percent_rfi_zapped=0.1,
         )
         if make_toas:
             Toa.objects.create(

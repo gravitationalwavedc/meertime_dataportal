@@ -13,6 +13,7 @@ $row-border-radius: 0.75rem;
   }
 }
 
+.react-bootstrap-table.table,
 .react-bootstrap-table .table {
   border-collapse: separate;
   border-spacing: 0 0.5rem;
@@ -20,6 +21,7 @@ $row-border-radius: 0.75rem;
   tbody tr {
     box-shadow: $shadow-base;
     border-radius: $row-border-radius;
+    height: 5rem;
   }
 
   td {
@@ -35,9 +37,14 @@ $row-border-radius: 0.75rem;
     }
 
     &:last-child {
+      text-align: right;
       border-right-style: solid;
       border-bottom-right-radius: $row-border-radius;
       border-top-right-radius: $row-border-radius;
+
+      &:has(.embargo-message) {
+        text-align: center;
+      }
     }
   }
 
@@ -65,4 +72,8 @@ $row-border-radius: 0.75rem;
       border-style: solid none;
     }
   }
+}
+
+.greyed-out {
+  opacity: 0.5;
 }

@@ -101,7 +101,6 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
 };
 
 export const getActivePlotData = (
-  tableData,
   toaDataResult,
   activePlot,
   timingProject,
@@ -111,13 +110,13 @@ export const getActivePlotData = (
   if (activePlot == "Timing Residuals") {
     return residualPlotData(toaDataResult, timingProject, jname, mainProject);
   } else if (activePlot == "S/N") {
-    return snrPlotData(tableData);
+    return snrPlotData(toaDataResult);
   } else if (activePlot == "Flux Density") {
-    return fluxPlotData(tableData);
+    return fluxPlotData(toaDataResult);
   } else if (activePlot == "DM") {
-    return dmPlotData(tableData);
+    return dmPlotData(toaDataResult);
   } else if (activePlot == "RM") {
-    return rmPlotData(tableData);
+    return rmPlotData(toaDataResult);
   } else {
     return [];
   }
@@ -226,77 +225,74 @@ export const filterBandData = (originalData) => {
 };
 
 export const snrPlotData = (data) => {
-  // Process the table data in a way that react-vis understands.
-  return data.map((row) => ({
-    id: row.observation.id,
-    utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
-    day: row.observation.dayOfYear,
-    phase: row.observation.binaryOrbitalPhase,
-    value: row.pipelineRun.sn,
-    size: row.observation.duration,
-    link: row.plotLink,
-    band: row.observation.band,
+  return data.pulsarFoldResult.edges.map(({ node }) => ({
+    id: node.observation.id,
+    utc: moment(node.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+    day: node.observation.dayOfYear,
+    phase: node.observation.binaryOrbitalPhase,
+    value: node.pipelineRun.sn,
+    size: node.observation.duration,
+    link: node.plotLink,
+    band: node.observation.band,
   }));
 };
 
 export const fluxPlotData = (data) => {
-  return data.map((row) => ({
-    id: row.observation.id,
-    utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
-    day: row.observation.dayOfYear,
-    phase: row.observation.binaryOrbitalPhase,
-    value: row.pipelineRun.flux,
-    size: row.observation.duration,
-    link: row.plotLink,
-    band: row.observation.band,
+  return data.pulsarFoldResult.edges.map(({ node }) => ({
+    id: node.observation.id,
+    utc: moment(node.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+    day: node.observation.dayOfYear,
+    phase: node.observation.binaryOrbitalPhase,
+    value: node.pipelineRun.flux,
+    size: node.observation.duration,
+    link: node.plotLink,
+    band: node.observation.band,
   }));
 };
 
 export const dmPlotData = (data) => {
-  // Process the table data in a way that react-vis understands.
-  return data.map((row) => ({
-    id: row.observation.id,
-    utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
-    day: row.observation.dayOfYear,
-    phase: row.observation.binaryOrbitalPhase,
-    value: row.pipelineRun.dm,
-    error: row.pipelineRun.dmErr,
-    size: row.observation.duration,
-    link: row.plotLink,
-    band: row.observation.band,
+  return data.pulsarFoldResult.edges.map(({ node }) => ({
+    id: node.observation.id,
+    utc: moment(node.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+    day: node.observation.dayOfYear,
+    phase: node.observation.binaryOrbitalPhase,
+    value: node.pipelineRun.dm,
+    error: node.pipelineRun.dmErr,
+    size: node.observation.duration,
+    link: node.plotLink,
+    band: node.observation.band,
   }));
 };
 
 export const rmPlotData = (data) => {
-  // Process the table data in a way that react-vis understands.
-  return data.map((row) => ({
-    id: row.observation.id,
-    utc: moment(row.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
-    day: row.observation.dayOfYear,
-    phase: row.observation.binaryOrbitalPhase,
-    value: row.pipelineRun.rm,
-    error: row.pipelineRun.rmErr,
-    size: row.observation.duration,
-    link: row.plotLink,
-    band: row.observation.band,
+  return data.pulsarFoldResult.edges.map(({ node }) => ({
+    id: node.observation.id,
+    utc: moment(node.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
+    day: node.observation.dayOfYear,
+    phase: node.observation.binaryOrbitalPhase,
+    value: node.pipelineRun.rm,
+    error: node.pipelineRun.rmErr,
+    size: node.observation.duration,
+    link: node.plotLink,
+    band: node.observation.band,
   }));
 };
 
 export const residualPlotData = (data, timingProject, jname, mainProject) => {
   return data.toa.edges
-    .filter((edge) => edge.node.residualSec !== null)
-    .filter((edge) => edge.node.project.short === timingProject)
-    .map((edge) => ({
-      id: edge.node.id,
-      utc: moment(mjdToUnixTimestamp(edge.node.mjd)).valueOf(),
-      day: edge.node.dayOfYear,
-      phase: edge.node.binaryOrbitalPhase,
-      value: edge.node.residualSec,
-      error: edge.node.residualSecErr,
-      size: edge.node.observation.duration,
-      link: `/${mainProject}/${jname}/${formatUTC(
-        edge.node.observation.utcStart
-      )}/${edge.node.observation.beam}/`,
-      band: edge.node.observation.band,
+    .filter(({ node }) => node.residualSec !== null)
+    .filter(({ node }) => node.project.short === timingProject)
+    .map(({ node }) => ({
+      id: node.id,
+      utc: moment(mjdToUnixTimestamp(node.mjd)).valueOf(),
+      day: node.dayOfYear,
+      phase: node.binaryOrbitalPhase,
+      value: node.residualSec,
+      error: node.residualSecErr,
+      size: node.observation.duration,
+      link: `/${mainProject}/${jname}/${formatUTC(node.observation.utcStart)}/${
+        node.observation.beam
+      }/`,
+      band: node.observation.band,
     }));
 };

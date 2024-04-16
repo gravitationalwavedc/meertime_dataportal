@@ -11,6 +11,7 @@ from graphene_django import DjangoObjectType
 from graphql_jwt.decorators import login_required
 
 from dataportal.models import (
+    Badge,
     Calibration,
     Ephemeris,
     MainProject,
@@ -251,6 +252,13 @@ class CalibrationConnection(relay.Connection):
         node = CalibrationNode
 
 
+class BadgeNode(DjangoObjectType):
+    class Meta:
+        model = Badge
+        fields = ["name", "description"]
+        interfaces = (relay.Node,)
+
+
 class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
@@ -288,6 +296,7 @@ class ObservationNode(DjangoObjectType):
             "filterbank_dm",
             "pulsar_fold_results",
             "toas",
+            "badges",
         ]
         filter_fields = {
             "utc_start": DATETIME_FILTERS,
@@ -455,6 +464,7 @@ class PipelineRunNode(DjangoObjectType):
             "rm",
             "rm_err",
             "percent_rfi_zapped",
+            "badges",
         ]
         filter_fields = {
             "id": ["exact"],
@@ -545,6 +555,7 @@ class PulsarFoldResultConnection(relay.Connection):
     toas_link = graphene.String()
     all_projects = graphene.List(graphene.String)
     all_nchans = graphene.List(graphene.Int)
+    total_badge_excluded_observations = graphene.Int()
 
     def resolve_all_projects(self, instance):
         if "pulsar" in instance.variable_values.keys():
@@ -621,6 +632,25 @@ class PulsarFoldResultConnection(relay.Connection):
 
     def resolve_min_plot_length(self, instance):
         return PulsarFoldResult.objects.order_by("-observation__duration").last().observation.duration
+
+    def resolve_total_badge_excluded_observations(self, instance):
+        if "excludeBadges" in instance.variable_values.keys():
+            # First do all other filters
+            queryset = PulsarFoldResult.objects.all()
+            if "pulsar" in instance.variable_values.keys():
+                queryset = queryset.filter(pulsar__name=instance.variable_values["pulsar"])
+            if "mainProject" in instance.variable_values.keys():
+                queryset = queryset.filter(
+                    observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
+                )
+            if "utcStart" in instance.variable_values.keys():
+                queryset = queryset.filter(observation__utc_start=instance.variable_values["utcStart"])
+            if "beam" in instance.variable_values.keys():
+                queryset = queryset.filter(observation__pulsar__name=instance.variable_values["beam"])
+            # Filter and observations with badges
+            return queryset.filter(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]).count()
+        else:
+            return 0
 
 
 class PulsarFoldSummaryNode(DjangoObjectType):
@@ -852,6 +882,7 @@ class ToaConnection(relay.Connection):
 
     all_projects = graphene.List(graphene.String)
     all_nchans = graphene.List(graphene.Int)
+    total_badge_excluded_toas = graphene.Int()
 
     def resolve_all_projects(self, instance):
         if "pulsar" in instance.variable_values.keys():
@@ -874,6 +905,44 @@ class ToaConnection(relay.Connection):
             return list(toa_nchan_query.values_list("obs_nchan", flat=True).distinct())
         else:
             return []
+
+    def resolve_total_badge_excluded_toas(self, instance):
+        if "excludeBadges" in instance.variable_values.keys():
+            # First do all other filters
+            queryset = Toa.objects.select_related(
+                "pipeline_run",
+                "ephemeris",
+                "template",
+                "project",
+            ).all()
+            if "pipelineRunId" in instance.variable_values.keys():
+                queryset = queryset.filter(pipeline_run__id=instance.variable_values["pipelineRunId"])
+            if "pulsar" in instance.variable_values.keys():
+                queryset = queryset.select_related("observation__pulsar").filter(
+                    observation__pulsar__name=instance.variable_values["pulsar"]
+                )
+            if "mainProject" in instance.variable_values.keys():
+                queryset = queryset.select_related("observation__project__main_project").filter(
+                    observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
+                )
+            if "projectShort" in instance.variable_values.keys():
+                queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
+            if "dmCorrected" in instance.variable_values.keys():
+                queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
+            if "minimumNsubs" in instance.variable_values.keys():
+                if bool(instance.variable_values["minimumNsubs"]):
+                    queryset = queryset.filter(minimum_nsubs=True)
+            if "maximumNsubs" in instance.variable_values.keys():
+                if bool(instance.variable_values["maximumNsubs"]):
+                    queryset = queryset.filter(maximum_nsubs=True)
+            if "obsNchan" in instance.variable_values.keys():
+                queryset = queryset.filter(obs_nchan=instance.variable_values["obsNchan"])
+            if "obsNpol" in instance.variable_values.keys():
+                queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
+            # Filter and observations with badges
+            return queryset.filter(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]).count()
+        else:
+            return 0
 
 
 class Query(graphene.ObjectType):
@@ -1114,6 +1183,7 @@ class Query(graphene.ObjectType):
         mainProject=graphene.String(),
         utcStart=graphene.String(),
         beam=graphene.Int(),
+        excludeBadges=graphene.List(graphene.String),
     )
 
     @login_required
@@ -1140,6 +1210,10 @@ class Query(graphene.ObjectType):
         beam = kwargs.get("beam")
         if beam:
             queryset = queryset.filter(observation__beam=beam)
+
+        exclude_badges = kwargs.get("excludeBadges")
+        if exclude_badges:
+            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
 
         return queryset
 
@@ -1200,6 +1274,7 @@ class Query(graphene.ObjectType):
         modeNsubs=graphene.Boolean(),
         obsNchan=graphene.Int(),
         obsNpol=graphene.Int(),
+        excludeBadges=graphene.List(graphene.String),
     )
 
     @login_required
@@ -1262,5 +1337,9 @@ class Query(graphene.ObjectType):
         obs_npol = kwargs.get("obsNpol")
         if obs_npol:
             queryset = queryset.filter(obs_npol=obs_npol)
+
+        exclude_badges = kwargs.get("excludeBadges")
+        if exclude_badges:
+            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
 
         return queryset.order_by("mjd")

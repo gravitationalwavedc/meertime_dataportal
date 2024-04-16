@@ -1,8 +1,17 @@
 import { Modal, Table } from "react-bootstrap";
 import { formatUTC } from "../helpers";
 
-const Ephemeris = ({ ephemeris, updated, show, setShow }) => {
-  const ephemerisJSON = JSON.parse(JSON.parse(ephemeris));
+const Ephemeris = ({ ephemeris, show, setShow }) => {
+  let ephemerisJSON;
+
+  try {
+    ephemerisJSON = JSON.parse(JSON.parse(ephemeris));
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+
+  const updated = formatUTC(ephemeris.createdAt);
 
   return (
     <Modal
@@ -14,13 +23,13 @@ const Ephemeris = ({ ephemeris, updated, show, setShow }) => {
       <Modal.Header style={{ borderBottom: "none" }} closeButton>
         <Modal.Title className="text-primary">
           Folding Ephemeris
-          <h6 className="text-muted">as of {formatUTC(updated)}</h6>
+          <h6 className="text-muted">as of {updated}</h6>
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Table>
           <tbody>
-            {Object.keys(ephemerisJSON).map((key, index) =>
+            {Object.keys(ephemerisJSON).map((key) =>
               key === "TIMEOFFSETS"
                 ? ephemerisJSON[key].map((item, index) => (
                     <tr key={index}>

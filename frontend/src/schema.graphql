@@ -14,6 +14,22 @@ type ActivateUser {
   errors: [String]
 }
 
+type BadgeNode implements Node {
+  name: String!
+  description: String
+  id: ID!
+}
+
+type BadgeNodeConnection {
+  pageInfo: PageInfo!
+  edges: [BadgeNodeEdge]!
+}
+
+type BadgeNodeEdge {
+  node: BadgeNode
+  cursor: String!
+}
+
 enum CalibrationCalibrationType {
   PRE
   POST
@@ -408,6 +424,7 @@ type ObservationNode implements Node {
   filterbankNchan: Int
   filterbankTsamp: Float
   filterbankDm: Float
+  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
   pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID): PulsarFoldResultNodeConnection!
   toas(offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, observation: ID, project: ID, ephemeris: ID, template: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, allNsubs: Boolean, modeNsubs: Boolean, obsNchan: Int, obsNpol: Int, dayOfYear: Float, binaryOrbitalPhase: Float, residualSec: Float, residualSecErr: Float, residualPhase: Float, residualPhaseErr: Float): ToaNodeConnection!
   id: ID!
@@ -656,6 +673,7 @@ type PipelineRunNode implements Node {
   rm: Float
   rmErr: Float
   percentRfiZapped: Float
+  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
   id: ID!
   project: ProjectNode
 }
@@ -740,6 +758,7 @@ type PulsarFoldResultConnection {
   toasLink: String
   allProjects: [String]
   allNchans: [Int]
+  totalBadgeExcludedObservations: Int
 }
 
 type PulsarFoldResultEdge {
@@ -854,12 +873,12 @@ type Query {
   observation(pulsar_Name: [String], telescope_Name: String, mainProject: String, project_Id: Int, project_Short: String, utcStartGte: String, utcStartLte: String, obsType: String, unprocessed: Boolean, incomplete: Boolean, before: String, after: String, first: Int, last: Int): ObservationConnection
   observationSummary(pulsar_Name: String, mainProject: String, project_Id: Int, project_Short: String, calibration_Id: String, calibrationInt: Int, obsType: String, band: String, before: String, after: String, first: Int, last: Int): ObservationSummaryConnection
   pipelineRun(id: Int, before: String, after: String, first: Int, last: Int): PipelineRunConnection
-  pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
+  pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, excludeBadges: [String], before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
   pulsarFoldSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
   pulsarSearchSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarSearchSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
   pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
-  toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, allNsubs: Boolean, modeNsubs: Boolean, obsNchan: Int, obsNpol: Int, before: String, after: String, first: Int, last: Int): ToaConnection
+  toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, allNsubs: Boolean, modeNsubs: Boolean, obsNchan: Int, obsNpol: Int, excludeBadges: [String], before: String, after: String, first: Int, last: Int): ToaConnection
 }
 
 input RefreshInput {
@@ -979,6 +998,7 @@ type ToaConnection {
   edges: [ToaEdge]!
   allProjects: [String]
   allNchans: [Int]
+  totalBadgeExcludedToas: Int
 }
 
 type ToaEdge {

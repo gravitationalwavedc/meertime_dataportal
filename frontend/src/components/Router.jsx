@@ -19,7 +19,9 @@ import SearchDetail from "../pages/SearchDetail";
 import Session from "../pages/Session";
 import SessionList from "../pages/SessionList";
 import SingleObservation from "../pages/SingleObservation";
+import LoadingState from "../components/LoadingState";
 import environment from "../relayEnvironment";
+import { Suspense } from "react";
 
 //Initialise Google Analytics
 const trackingID = "UA-217876641-1";
@@ -32,7 +34,11 @@ ReactGA.set({
 
 const renderTrackingRoute = (Component, props) => {
   ReactGA.pageview(props.match.location.pathname);
-  return <Component {...props} />;
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <Component {...props} />
+    </Suspense>
+  );
 };
 
 const renderPrivateRoute = (Component, props) => {

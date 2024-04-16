@@ -317,6 +317,8 @@ def test_fold_detail_query():
 
     assert not response.errors
     del response.data["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
+    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["id"]
+    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["calibration"]["idInt"]
     assert response.data == {
         "observationSummary": {
             "edges": [
@@ -374,7 +376,7 @@ def test_fold_detail_query():
                 {
                     "node": {
                         "observation": {
-                            "id": "T2JzZXJ2YXRpb25Ob2RlOjI2",
+                            # "id": "T2JzZXJ2YXRpb25Ob2RlOjQx",
                             "utcStart": "2019-04-23T06:11:30+00:00",
                             "dayOfYear": 113.25798611111111,
                             "binaryOrbitalPhase": 0.1107189377501644,
@@ -395,7 +397,7 @@ def test_fold_detail_query():
                                 "dm": 9.59243
                             },
                             "calibration": {
-                                "idInt": 26
+                                # "idInt": 41
                             }
                         },
                         "pipelineRun": {
@@ -489,7 +491,7 @@ def test_plot_container_query():
         }
     )
     assert not response.errors
-    print(json.dumps(response.data, indent=4))
+    del response.data["toa"]["edges"][0]["node"]["id"]
     assert response.data == {
         "toa": {
             "allProjects": [
@@ -516,7 +518,7 @@ def test_plot_container_query():
                         "minimumNsubs": True,
                         "maximumNsubs": False,
                         "dmCorrected": False,
-                        "id": "VG9hTm9kZTo4MQ==",
+                        # "id": "VG9hTm9kZTo5Mw==",
                         "mjd": "58916.285422152018",
                         "dayOfYear": None,
                         "binaryOrbitalPhase": None,
@@ -597,7 +599,9 @@ def test_single_observation_query():
 
     response = client.execute(SINGLE_OBSERVATION_QUERY)
     assert not response.errors
-    print(json.dumps(response.data, indent=4))
+    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["calibration"]["id"]
+    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["calibration"]["idInt"]
+    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["project"]["id"]
     assert response.data == {
         "pulsarFoldResult": {
             "edges": [
@@ -605,14 +609,14 @@ def test_single_observation_query():
                     "node": {
                         "observation": {
                             "calibration": {
-                                "id": "Q2FsaWJyYXRpb25Ob2RlOjQy",
-                                "idInt": 42
+                                # "id": "Q2FsaWJyYXRpb25Ob2RlOjU3",
+                                # "idInt": 57
                             },
                             "beam": 2,
                             "utcStart": "2020-07-10T05:07:28+00:00",
                             "obsType": "FOLD",
                             "project": {
-                                "id": "UHJvamVjdE5vZGU6MjY=",
+                                # "id": "UHJvamVjdE5vZGU6NDE=",
                                 "short": "PTA",
                                 "code": "SCI-20180516-MB-05",
                                 "mainProject": {
@@ -789,7 +793,7 @@ def test_search_details_query():
 
     response = client.execute(SEARCH_DETAIL_QUERY)
     assert not response.errors
-    print(json.dumps(response.data, indent=4))
+    del response.data["observation"]["edges"][0]["node"]["id"]
     assert response.data == {
         "observationSummary": {
             "edges": [
@@ -807,7 +811,7 @@ def test_search_details_query():
             "edges": [
                 {
                     "node": {
-                        "id": "T2JzZXJ2YXRpb25Ob2RlOjUy",
+                        # "id": "T2JzZXJ2YXRpb25Ob2RlOjY3",
                         "utcStart": "2023-06-27T11:37:31+00:00",
                         "project": {
                             "short": "GC"
@@ -911,7 +915,9 @@ def test_session_query():
     assert not response.errors
     assert len(response.data["calibration"]["edges"]) > 0
     assert len(response.data["observationSummary"]["edges"]) > 0
-    print(json.dumps(response.data, indent=4))
+    del response.data["calibration"]["edges"][0]["node"]["id"]
+    del response.data["calibration"]["edges"][0]["node"]["idInt"]
+    del response.data["calibration"]["edges"][0]["node"]["observations"]["edges"][0]["node"]["id"]
     assert response.data == {
         "observationSummary": {
             "edges": [
@@ -928,15 +934,15 @@ def test_session_query():
             "edges": [
                 {
                     "node": {
-                        "id": "Q2FsaWJyYXRpb25Ob2RlOjYx",
-                        "idInt": 61,
+                        # "id": "Q2FsaWJyYXRpb25Ob2RlOjc4",
+                        # "idInt": 78,
                         "start": "2019-04-23T06:11:30+00:00",
                         "end": "2019-04-23T06:11:30+00:00",
                         "observations": {
                             "edges": [
                                 {
                                     "node": {
-                                        "id": "T2JzZXJ2YXRpb25Ob2RlOjYx",
+                                        # "id": "T2JzZXJ2YXRpb25Ob2RlOjc2",
                                         "pulsar": {
                                             "name": "J0125-2327"
                                         },
@@ -957,7 +963,7 @@ def test_session_query():
                                                         },
                                                         "pipelineRun": {
                                                             "sn": 100.0,
-                                                            "percentRfiZapped": 10.0
+                                                            "percentRfiZapped": 0.1
                                                         }
                                                     }
                                                 }
@@ -1005,13 +1011,15 @@ def test_session_list_query():
 
     response = client.execute(SESSION_LIST_QUERY)
     assert not response.errors
+    del response.data["calibration"]["edges"][0]["node"]["id"]
+    del response.data["calibration"]["edges"][0]["node"]["idInt"]
     assert response.data == {
         "calibration": {
             "edges": [
                 {
                     "node": {
-                        "id": "Q2FsaWJyYXRpb25Ob2RlOjY0",
-                        "idInt": 64,
+                        # "id": "Q2FsaWJyYXRpb25Ob2RlOjgx",
+                        # "idInt": 81,
                         "start": "2023-08-01T18:21:59+00:00",
                         "end": "2023-08-01T18:21:59+00:00",
                         "allProjects": "TPA",

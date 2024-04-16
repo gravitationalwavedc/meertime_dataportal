@@ -31,7 +31,7 @@ const SingleObservationFileDownload = ({ visible, data, setShow }) => {
   return (
     <FileDownloadModal
       visible={visible}
-      fragmentData={fragmentData.fileSingleList}
+      data={fragmentData.fileSingleList}
       setShow={setShow}
     />
   );

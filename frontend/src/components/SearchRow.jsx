@@ -4,7 +4,6 @@ import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
 import CustomColumnToggle from "./CustomColumnToggle";
 import Form from "react-bootstrap/Form";
-import React from "react";
 import SearchBar from "./SearchBar";
 import ToggleButton from "react-bootstrap/ToggleButton";
 import ToggleButtonGroup from "react-bootstrap/ToggleButtonGroup";

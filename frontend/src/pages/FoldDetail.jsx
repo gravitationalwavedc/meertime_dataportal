@@ -1,31 +1,66 @@
 import { useState, Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
-import { Col, Container, Row, Modal } from "react-bootstrap";
-import { useScreenSize } from "../context/screenSize-context";
-import Einstein from "../assets/images/einstein-coloured.png";
-import GraphPattern from "../assets/images/graph-pattern.png";
-import Footer from "../components/Footer";
-import TopNav from "../components/TopNav";
-import FoldDetailTable from "../components/FoldDetailTable";
+import SummaryDataRow from "../components/SummaryDataRow";
 import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
+import ObservationFlags from "../components/fold-detail/ObservationFlags";
+import FoldDetailTable from "../components/fold-detail/FoldDetailTable";
+import HeaderButtons from "../components/fold-detail/HeaderButtons";
+import MainLayout from "../components/MainLayout";
+import PlotContainer from "../components/plots/PlotContainer";
 
 const FoldDetailQuery = graphql`
-  query FoldDetailQuery($pulsar: String!, $mainProject: String) {
-    ...FoldDetailTableFragment
-      @arguments(pulsar: $pulsar, mainProject: $mainProject)
-  }
-`;
-
-const PlotContainerQuery = graphql`
-  query FoldDetailPlotContainerQuery(
+  query FoldDetailQuery(
     $pulsar: String!
-    $mainProject: String
-    $projectShort: String
+    $mainProject: String!
+    $projectShort: String!
     $minimumNsubs: Boolean
     $maximumNsubs: Boolean
     $obsNchan: Int
     $obsNpol: Int
+    $excludeBadges: [String]
   ) {
+    observationSummary(
+      pulsar_Name: $pulsar
+      obsType: "fold"
+      calibration_Id: "All"
+      mainProject: $mainProject
+      project_Short: "All"
+      band: "All"
+    ) {
+      edges {
+        node {
+          observations
+          observationHours
+          projects
+          pulsars
+          estimatedDiskSpaceGb
+          timespanDays
+          maxDuration
+          minDuration
+        }
+      }
+    }
+
+    pulsarFoldResult(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      excludeBadges: $excludeBadges
+    ) {
+      description
+      residualEphemeris {
+        ephemerisData
+        createdAt
+      }
+      totalBadgeExcludedObservations
+    }
+
+    ...FoldDetailTableFragment
+      @arguments(
+        pulsar: $pulsar
+        mainProject: $mainProject
+        excludeBadges: $excludeBadges
+      )
+
     ...PlotContainerFragment
       @arguments(
         pulsar: $pulsar
@@ -35,26 +70,35 @@ const PlotContainerQuery = graphql`
         maximumNsubs: $maximumNsubs
         obsNchan: $obsNchan
         obsNpol: $obsNpol
+        excludeBadges: $excludeBadges
       )
   }
 `;
 
-const FoldDetailFileDownloadQuery = graphql`
-  query FoldDetailFileDownloadQuery($mainProject: String!, $pulsar: String!) {
-    ...FoldDetailFileDownloadFragment
-      @arguments(mainProject: $mainProject, jname: $pulsar)
-  }
-`;
-
 const FoldDetail = ({ match }) => {
-  const { jname, mainProject } = match.params;
-  const { screenSize } = useScreenSize();
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
-  const tableData = useLazyLoadQuery(FoldDetailQuery, {
-    pulsar: jname,
-    mainProject: mainProject,
+  const [filesLoaded, setFilesLoaded] = useState(false);
+  const [observationBadges, setObservationBadges] = useState({
+    "Strong RFI": false,
+    "RM Drift": false,
+    "DM Drift": false,
   });
-  const toaData = useLazyLoadQuery(PlotContainerQuery, {
+  const excludeBadges = Object.keys(observationBadges).filter(
+    (observationBadge) => observationBadges[observationBadge]
+  );
+
+  const handleObservationFlagToggle = (observationBadge) => {
+    const newObservationBadges = {
+      ...observationBadges,
+      [observationBadge]: !observationBadges[observationBadge],
+    };
+    setObservationBadges(newObservationBadges);
+  };
+
+  const { jname, mainProject } = match.params;
+  const urlQuery = match.location.query;
+
+  const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
     mainProject: mainProject,
     projectShort: match.location.query.timingProject || "All",
@@ -62,71 +106,88 @@ const FoldDetail = ({ match }) => {
     maximumNsubs: false,
     obsNchan: 1,
     obsNpol: 1,
+    excludeBadges: excludeBadges,
   });
-  const fileDownloadData = useLazyLoadQuery(FoldDetailFileDownloadQuery, {
-    mainProject: mainProject,
-    pulsar: jname,
-  });
+
+  const summaryNode = tableData.observationSummary?.edges[0]?.node;
+
+  const summaryData = [
+    { title: "Observations", value: summaryNode.observations },
+    { title: "Projects", value: summaryNode.projects },
+    {
+      title: "Timespan [days]",
+      value: summaryNode.timespanDays,
+    },
+    { title: "Hours", value: summaryNode.observationHours },
+    summaryNode.estimatedDiskSpaceGb
+      ? {
+          title: `Size [GB]`,
+          value: summaryNode.estimatedDiskSpaceGb.toFixed(1),
+        }
+      : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
+  ];
+
+  const totalBadgeExcludedObservations =
+    tableData.pulsarFoldResult.totalBadgeExcludedObservations;
+
   return (
-    <>
-      <TopNav />
-      <img src={GraphPattern} className="graph-pattern-top" alt="" />
-      <Container>
-        <Row>
-          <Col>
-            {screenSize === "xs" ? (
-              <>
-                <h4 className="text-primary-600">{jname}</h4>
-              </>
-            ) : (
-              <>
-                <h2 className="text-primary-600">{jname}</h2>
-              </>
-            )}
-          </Col>
-          <img src={Einstein} alt="" className="d-none d-md-block" />
-        </Row>
-        <Suspense
-          fallback={
-            <div>
-              <h3>Loading...</h3>
-            </div>
-          }
-        >
-          <FoldDetailTable
-            query={FoldDetailQuery}
-            tableData={tableData}
-            toaData={toaData}
-            jname={jname}
+    <MainLayout
+      title={jname}
+      description={tableData.pulsarFoldResult.description}
+    >
+      <HeaderButtons
+        mainProject={mainProject}
+        jname={jname}
+        tableData={tableData}
+        setDownloadModalVisible={setDownloadModalVisible}
+        filesLoaded={filesLoaded}
+      />
+      <SummaryDataRow dataPoints={summaryData} />
+      <ObservationFlags
+        observationBadges={observationBadges}
+        handleObservationFlagToggle={handleObservationFlagToggle}
+        totalBadgeExcludedObservations={totalBadgeExcludedObservations}
+      />
+      <Suspense
+        fallback={
+          <div>
+            <h3>Loading...</h3>
+          </div>
+        }
+      >
+        <PlotContainer
+          toaData={tableData}
+          urlQuery={urlQuery}
+          jname={jname}
+          mainProject={mainProject}
+        />
+      </Suspense>
+      <Suspense
+        fallback={
+          <div>
+            <h3>Loading...</h3>
+          </div>
+        }
+      >
+        <FoldDetailTable
+          tableData={tableData}
+          mainProject={mainProject}
+          jname={jname}
+          excludeBadges={excludeBadges}
+        />
+      </Suspense>
+      {localStorage.isStaff === "true" && (
+        <Suspense>
+          <FoldDetailFileDownload
             mainProject={mainProject}
-            match={match}
+            jname={jname}
+            visible={downloadModalVisible}
             setShow={setDownloadModalVisible}
+            setFilesLoaded={setFilesLoaded}
           />
         </Suspense>
-        <Suspense
-          fallback={
-            <Modal
-              show={downloadModalVisible}
-              onHide={() => setDownloadModalVisible(false)}
-              size="xl"
-            >
-              <Modal.Body>
-                <h4 className="text-primary">Loading</h4>
-              </Modal.Body>
-            </Modal>
-          }
-        >
-          {localStorage.isStaff === "true" && (
-            <FoldDetailFileDownload
-              visible={downloadModalVisible}
-              data={fileDownloadData}
-              setShow={setDownloadModalVisible}
-            />
-          )}
-        </Suspense>
-      </Container>
-      <Footer />
-    </>
+      )}
+    </MainLayout>
   );
 };
 
