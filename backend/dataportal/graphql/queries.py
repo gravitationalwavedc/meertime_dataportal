@@ -821,6 +821,8 @@ class ToaNode(DjangoObjectType):
             "dm_corrected",
             "minimum_nsubs",
             "maximum_nsubs",
+            "all_nsubs",
+            "mode_nsubs",
             "obs_nchan",
             "obs_npol",
             "day_of_year",
@@ -1194,6 +1196,8 @@ class Query(graphene.ObjectType):
         dmCorrected=graphene.Boolean(),
         minimumNsubs=graphene.Boolean(),
         maximumNsubs=graphene.Boolean(),
+        allNsubs=graphene.Boolean(),
+        modeNsubs=graphene.Boolean(),
         obsNchan=graphene.Int(),
         obsNpol=graphene.Int(),
     )
@@ -1242,6 +1246,14 @@ class Query(graphene.ObjectType):
         if maximum_nsubs is not None:
             if bool(maximum_nsubs):
                 queryset = queryset.filter(maximum_nsubs=True)
+        all_nsubs = kwargs.get("allNsubs")
+        if all_nsubs is not None:
+            if bool(all_nsubs):
+                queryset = queryset.filter(all_nsubs=True)
+        mode_nsubs = kwargs.get("modeNsubs")
+        if mode_nsubs is not None:
+            if bool(mode_nsubs):
+                queryset = queryset.filter(mode_nsubs=True)
 
         obs_nchan = kwargs.get("obsNchan")
         if obs_nchan:
