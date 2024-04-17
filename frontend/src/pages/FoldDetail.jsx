@@ -13,12 +13,6 @@ const FoldDetailQuery = graphql`
   query FoldDetailQuery(
     $pulsar: String!
     $mainProject: String!
-    $projectShort: String!
-    $minimumNsubs: Boolean
-    $maximumNsubs: Boolean
-    $obsNchan: Int
-    $obsNpol: Int
-    $excludeBadges: [String]
   ) {
 
     observationSummary(
@@ -46,22 +40,48 @@ const FoldDetailQuery = graphql`
     pulsarFoldResult(
       pulsar: $pulsar
       mainProject: $mainProject
-      excludeBadges: $excludeBadges
     ) {
       description
       residualEphemeris {
         ephemerisData
         createdAt
       }
-      totalBadgeExcludedObservations
+      edges {
+        node {
+          pipelineRun {
+            badges {
+              edges {
+                node {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     ...FoldDetailTableFragment
       @arguments(
         pulsar: $pulsar
         mainProject: $mainProject
-        excludeBadges: $excludeBadges
       )
+
+  }
+`;
+
+
+const FoldDetailPlotQuery = graphql`
+  query FoldDetailPlotQuery(
+    $pulsar: String!
+    $mainProject: String!
+    $projectShort: String!
+    $minimumNsubs: Boolean
+    $maximumNsubs: Boolean
+    $obsNchan: Int
+    $obsNpol: Int
+    $excludeBadges: [String]
+  ) {
 
     ...PlotContainerFragment
       @arguments(
@@ -81,9 +101,9 @@ const FoldDetail = ({ match }) => {
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const [filesLoaded, setFilesLoaded] = useState(false);
   const [observationBadges, setObservationBadges] = useState({
-    "Strong RFI": false,
-    "RM Drift": false,
-    "DM Drift": false,
+    "Strong RFI": true,
+    "RM Drift": true,
+    "DM Drift": true,
   });
   const excludeBadges = Object.keys(observationBadges).filter(
     (observationBadge) => observationBadges[observationBadge]
@@ -102,6 +122,11 @@ const FoldDetail = ({ match }) => {
   const nsubTypeBools = getNsubTypeBools(urlQuery.nsubType);
 
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
+    pulsar: jname,
+    mainProject: mainProject,
+  });
+
+  const plotData = useLazyLoadQuery(FoldDetailPlotQuery, {
     pulsar: jname,
     mainProject: mainProject,
     projectShort: urlQuery.timingProject || "All",
@@ -131,8 +156,14 @@ const FoldDetail = ({ match }) => {
       : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
   ];
 
-  const totalBadgeExcludedObservations =
-    tableData.pulsarFoldResult.totalBadgeExcludedObservations;
+  let totalBadgeExcludedObservations = 0;
+  for (const pfrNode of tableData.pulsarFoldResult.edges) {
+    for (const badgeNode of pfrNode.node.pipelineRun.badges.edges) {
+      if (excludeBadges.includes(badgeNode.node.name)) {
+        totalBadgeExcludedObservations += 1;
+      }
+    }
+  }
 
   return (
     <MainLayout
@@ -160,7 +191,7 @@ const FoldDetail = ({ match }) => {
         }
       >
         <PlotContainer
-          toaData={tableData}
+          toaData={plotData}
           urlQuery={urlQuery}
           jname={jname}
           mainProject={mainProject}
