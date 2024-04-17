@@ -95,9 +95,6 @@ react-test:
         path: frontend/reports/cobertura-coverage.xml
       junit: frontend/reports/junit.xml
 
-code-quality:
-  stage: test
-
 flake8:
   stage: test
   script:
