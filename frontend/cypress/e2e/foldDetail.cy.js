@@ -5,6 +5,7 @@ describe("The Fold Detail Page", () => {
     cy.intercept("http://localhost:8000/graphql/", (req) => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
+      aliasQuery(req, "FoldDetailPlotQuery", "foldDetailPlotQuery.json");
       aliasQuery(
         req,
         "FoldDetailFileDownloadQuery",
@@ -32,7 +33,7 @@ describe("The Fold Detail Page", () => {
   });
 
   it("should toggle the ephemeris modal", () => {
-    cy.wait("@FoldDetailQuery");
+    cy.wait(["@FoldDetailQuery", "@FoldDetailPlotQuery"]);
     cy.contains("View folding ephemeris").should("be.visible");
     cy.contains("Folding Ephemeris").should("not.exist");
     cy.contains("View folding ephemeris").click();
@@ -40,7 +41,7 @@ describe("The Fold Detail Page", () => {
   });
 
   it("should go to single observation when view button is clicked", () => {
-    cy.wait("@FoldDetailQuery");
+    cy.wait(["@FoldDetailQuery", "@FoldDetailPlotQuery"]);
     cy.contains("table tr", "2020-07-10-05:07:28").as("targetRow");
     cy.get("@targetRow").contains("View").click();
     cy.location("pathname").should(
@@ -55,7 +56,7 @@ describe("The Fold Detail Page", () => {
   });
 
   it("should go to sessions table when view session button is clicked", () => {
-    cy.wait("@FoldDetailQuery");
+    cy.wait(["@FoldDetailQuery", "@FoldDetailPlotQuery"]);
     cy.contains("View session").click();
     cy.location("pathname").should("equal", "/session/28/");
 

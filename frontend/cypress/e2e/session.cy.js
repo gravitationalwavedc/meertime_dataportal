@@ -6,6 +6,7 @@ describe("The Session Page", () => {
       aliasMutation(req, "LoginMutation", "loginMutation.json");
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
       aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
+      aliasQuery(req, "FoldDetailPlotQuery", "foldDetailPlotQuery.json");
       aliasQuery(
         req,
         "FoldDetailFileDownloadQuery",
@@ -46,7 +47,7 @@ describe("The Session Page", () => {
     cy.contains("View all").click();
     cy.location("pathname").should("equal", "/FOLD/meertime/J0125-2327/");
 
-    cy.wait("@FoldDetailQuery");
+    cy.wait(["@FoldDetailQuery", "@FoldDetailPlotQuery"]);
     cy.contains("Loading...").should("not.exist");
     cy.contains("PSR J0125-2327 is a millisecond pulsar").should("be.visible");
   });

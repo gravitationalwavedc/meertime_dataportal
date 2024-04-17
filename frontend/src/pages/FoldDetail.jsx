@@ -106,7 +106,7 @@ const FoldDetail = ({ match }) => {
 
   const { jname, mainProject } = match.params;
   const urlQuery = match.location.query;
-  const nsubTypeBools = getNsubTypeBools(urlQuery.nsubType);
+  const nsubTypeBools = getNsubTypeBools(urlQuery.nsubType || "1");
 
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
