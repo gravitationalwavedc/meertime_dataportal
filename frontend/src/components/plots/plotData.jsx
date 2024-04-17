@@ -316,5 +316,11 @@ export const getNsubTypeBools = (nsubType) => {
       maximumNsubs: false,
       modeNsubs: true,
     };
+  } else {
+    return {
+      minimumNsubs: true,
+      maximumNsubs: false,
+      modeNsubs: false,
+    };
   }
 };
