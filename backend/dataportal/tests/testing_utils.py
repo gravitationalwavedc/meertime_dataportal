@@ -232,6 +232,8 @@ def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
             dm_corrected=False,
             minimum_nsubs=True,
             maximum_nsubs=False,
+            all_nsubs=False,
+            mode_nsubs=False,
             npol=1,
             nchan=nchan,
         )
