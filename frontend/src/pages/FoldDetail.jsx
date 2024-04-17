@@ -10,11 +10,7 @@ import PlotContainer from "../components/plots/PlotContainer";
 import { getNsubTypeBools } from "../components/plots/plotData";
 
 const FoldDetailQuery = graphql`
-  query FoldDetailQuery(
-    $pulsar: String!
-    $mainProject: String!
-  ) {
-
+  query FoldDetailQuery($pulsar: String!, $mainProject: String!) {
     observationSummary(
       pulsar_Name: $pulsar
       obsType: "fold"
@@ -37,10 +33,7 @@ const FoldDetailQuery = graphql`
       }
     }
 
-    pulsarFoldResult(
-      pulsar: $pulsar
-      mainProject: $mainProject
-    ) {
+    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
       description
       residualEphemeris {
         ephemerisData
@@ -62,14 +55,9 @@ const FoldDetailQuery = graphql`
     }
 
     ...FoldDetailTableFragment
-      @arguments(
-        pulsar: $pulsar
-        mainProject: $mainProject
-      )
-
+      @arguments(pulsar: $pulsar, mainProject: $mainProject)
   }
 `;
-
 
 const FoldDetailPlotQuery = graphql`
   query FoldDetailPlotQuery(
@@ -82,7 +70,6 @@ const FoldDetailPlotQuery = graphql`
     $obsNpol: Int
     $excludeBadges: [String]
   ) {
-
     ...PlotContainerFragment
       @arguments(
         pulsar: $pulsar

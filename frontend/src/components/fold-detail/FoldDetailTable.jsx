@@ -28,10 +28,7 @@ const FoldDetailTableFragment = graphql`
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
   ) {
-    pulsarFoldResult(
-      pulsar: $pulsar
-      mainProject: $mainProject
-    ) {
+    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
       edges {
         node {
           observation {

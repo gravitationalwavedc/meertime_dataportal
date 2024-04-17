@@ -297,8 +297,6 @@ export const residualPlotData = (data, timingProject, jname, mainProject) => {
     }));
 };
 
-
-
 export const getNsubTypeBools = (nsubType) => {
   if (nsubType === "1") {
     return {
