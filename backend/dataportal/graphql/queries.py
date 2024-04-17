@@ -1314,21 +1314,17 @@ class Query(graphene.ObjectType):
         # maximum_nsubs=False, we want to return all observations that have
         # minimum_nsubs=True regardless of the maximum_nsubs value.
         minimum_nsubs = kwargs.get("minimumNsubs")
-        if minimum_nsubs is not None:
-            if bool(minimum_nsubs):
-                queryset = queryset.filter(minimum_nsubs=True)
+        if bool(minimum_nsubs):
+            queryset = queryset.filter(minimum_nsubs=True)
         maximum_nsubs = kwargs.get("maximumNsubs")
-        if maximum_nsubs is not None:
-            if bool(maximum_nsubs):
-                queryset = queryset.filter(maximum_nsubs=True)
+        if bool(maximum_nsubs):
+            queryset = queryset.filter(maximum_nsubs=True)
         all_nsubs = kwargs.get("allNsubs")
-        if all_nsubs is not None:
-            if bool(all_nsubs):
-                queryset = queryset.filter(all_nsubs=True)
+        if bool(all_nsubs):
+            queryset = queryset.filter(all_nsubs=True)
         mode_nsubs = kwargs.get("modeNsubs")
-        if mode_nsubs is not None:
-            if bool(mode_nsubs):
-                queryset = queryset.filter(mode_nsubs=True)
+        if bool(mode_nsubs):
+            queryset = queryset.filter(mode_nsubs=True)
 
         obs_nchan = kwargs.get("obsNchan")
         if obs_nchan:
