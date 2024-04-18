@@ -878,6 +878,8 @@ class Toa(models.Model):
     dm_corrected = models.BooleanField(default=False)
     minimum_nsubs = models.BooleanField(default=False)
     maximum_nsubs = models.BooleanField(default=False)
+    all_nsubs = models.BooleanField(default=False)
+    mode_nsubs = models.BooleanField(default=False)
     obs_nchan = models.IntegerField(null=True)
     obs_npol = models.IntegerField(default=4)
 
@@ -908,6 +910,8 @@ class Toa(models.Model):
         dm_corrected,
         minimum_nsubs,
         maximum_nsubs,
+        all_nsubs,
+        mode_nsubs,
         npol,
         nchan,
     ):
@@ -994,6 +998,8 @@ class Toa(models.Model):
                     dm_corrected=dm_corrected,
                     minimum_nsubs=minimum_nsubs,
                     maximum_nsubs=maximum_nsubs,
+                    all_nsubs=all_nsubs,
+                    mode_nsubs=mode_nsubs,
                     obs_nchan=nchan,
                     obs_npol=npol,
                 )
@@ -1012,6 +1018,8 @@ class Toa(models.Model):
                 # Time
                 "minimum_nsubs",
                 "maximum_nsubs",
+                "all_nsubs",
+                "mode_nsubs",
                 "subint",  # Time ID
             ],
             update_fields=[
@@ -1042,6 +1050,8 @@ class Toa(models.Model):
                 "dm_corrected",
                 "minimum_nsubs",
                 "maximum_nsubs",
+                "all_nsubs",
+                "mode_nsubs",
                 "obs_nchan",
                 "obs_npol",
             ],
@@ -1062,6 +1072,8 @@ class Toa(models.Model):
                     # Time
                     "minimum_nsubs",
                     "maximum_nsubs",
+                    "all_nsubs",
+                    "mode_nsubs",
                     "subint",  # Time ID
                 ],
                 name="Unique ToA for observations, project and type of ToA (decimations).",

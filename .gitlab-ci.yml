@@ -17,6 +17,9 @@ variables:
   DEBIAN_FRONTEND: "noninteractive"
   DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
+include:
+  - template: Jobs/Code-Quality.gitlab-ci.yml
+
 stages:
   - test
   - build
@@ -91,26 +94,6 @@ react-test:
         coverage_format: cobertura
         path: frontend/reports/cobertura-coverage.xml
       junit: frontend/reports/junit.xml
-
-code-quality:
-  stage: test
-  image: docker:stable
-  variables:
-    DOCKER_DRIVER: overlay2
-    SP_VERSION: 0.85.26
-  allow_failure: true
-  services:
-    - docker:stable-dind
-  before_script: []
-  script:
-    - docker run
-      --env SOURCE_CODE="$PWD"
-      --volume "$PWD":/code
-      --volume /var/run/docker.sock:/var/run/docker.sock
-      "registry.gitlab.com/gitlab-org/ci-cd/codequality:$SP_VERSION" /code
-  artifacts:
-    reports:
-      codequality: gl-code-quality-report.json
 
 flake8:
   stage: test

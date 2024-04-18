@@ -27,13 +27,8 @@ const FoldDetailTableFragment = graphql`
   @argumentDefinitions(
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
-    excludeBadges: { type: "[String]", defaultValue: [] }
   ) {
-    pulsarFoldResult(
-      pulsar: $pulsar
-      mainProject: $mainProject
-      excludeBadges: $excludeBadges
-    ) {
+    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
       edges {
         node {
           observation {

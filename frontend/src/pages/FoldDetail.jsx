@@ -7,18 +7,10 @@ import FoldDetailTable from "../components/fold-detail/FoldDetailTable";
 import HeaderButtons from "../components/fold-detail/HeaderButtons";
 import MainLayout from "../components/MainLayout";
 import PlotContainer from "../components/plots/PlotContainer";
+import { getNsubTypeBools } from "../components/plots/plotData";
 
 const FoldDetailQuery = graphql`
-  query FoldDetailQuery(
-    $pulsar: String!
-    $mainProject: String!
-    $projectShort: String!
-    $minimumNsubs: Boolean
-    $maximumNsubs: Boolean
-    $obsNchan: Int
-    $obsNpol: Int
-    $excludeBadges: [String]
-  ) {
+  query FoldDetailQuery($pulsar: String!, $mainProject: String!) {
     observationSummary(
       pulsar_Name: $pulsar
       obsType: "fold"
@@ -41,26 +33,43 @@ const FoldDetailQuery = graphql`
       }
     }
 
-    pulsarFoldResult(
-      pulsar: $pulsar
-      mainProject: $mainProject
-      excludeBadges: $excludeBadges
-    ) {
+    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
       description
       residualEphemeris {
         ephemerisData
         createdAt
       }
-      totalBadgeExcludedObservations
+      edges {
+        node {
+          pipelineRun {
+            badges {
+              edges {
+                node {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
     }
 
     ...FoldDetailTableFragment
-      @arguments(
-        pulsar: $pulsar
-        mainProject: $mainProject
-        excludeBadges: $excludeBadges
-      )
+      @arguments(pulsar: $pulsar, mainProject: $mainProject)
+  }
+`;
 
+const FoldDetailPlotQuery = graphql`
+  query FoldDetailPlotQuery(
+    $pulsar: String!
+    $mainProject: String!
+    $projectShort: String!
+    $minimumNsubs: Boolean
+    $maximumNsubs: Boolean
+    $obsNchan: Int
+    $obsNpol: Int
+    $excludeBadges: [String]
+  ) {
     ...PlotContainerFragment
       @arguments(
         pulsar: $pulsar
@@ -79,9 +88,9 @@ const FoldDetail = ({ match }) => {
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const [filesLoaded, setFilesLoaded] = useState(false);
   const [observationBadges, setObservationBadges] = useState({
-    "Strong RFI": false,
-    "RM Drift": false,
-    "DM Drift": false,
+    "Strong RFI": true,
+    "RM Drift": true,
+    "DM Drift": true,
   });
   const excludeBadges = Object.keys(observationBadges).filter(
     (observationBadge) => observationBadges[observationBadge]
@@ -97,15 +106,22 @@ const FoldDetail = ({ match }) => {
 
   const { jname, mainProject } = match.params;
   const urlQuery = match.location.query;
+  const nsubTypeBools = getNsubTypeBools(urlQuery.nsubType || "1");
 
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
     mainProject: mainProject,
-    projectShort: match.location.query.timingProject || "All",
-    minimumNsubs: true,
-    maximumNsubs: false,
-    obsNchan: 1,
-    obsNpol: 1,
+  });
+
+  const plotData = useLazyLoadQuery(FoldDetailPlotQuery, {
+    pulsar: jname,
+    mainProject: mainProject,
+    projectShort: urlQuery.timingProject || "All",
+    minimumNsubs: nsubTypeBools.minimumNsubs,
+    maximumNsubs: nsubTypeBools.maximumNsubs,
+    modeNsubs: nsubTypeBools.modeNsubs,
+    obsNchan: urlQuery.obsNchan || 1,
+    obsNpol: urlQuery.obsNpol || 1,
     excludeBadges: excludeBadges,
   });
 
@@ -127,8 +143,14 @@ const FoldDetail = ({ match }) => {
       : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
   ];
 
-  const totalBadgeExcludedObservations =
-    tableData.pulsarFoldResult.totalBadgeExcludedObservations;
+  let totalBadgeExcludedObservations = 0;
+  for (const pfrNode of tableData.pulsarFoldResult.edges) {
+    for (const badgeNode of pfrNode.node.pipelineRun.badges.edges) {
+      if (excludeBadges.includes(badgeNode.node.name)) {
+        totalBadgeExcludedObservations += 1;
+      }
+    }
+  }
 
   return (
     <MainLayout
@@ -156,7 +178,7 @@ const FoldDetail = ({ match }) => {
         }
       >
         <PlotContainer
-          toaData={tableData}
+          toaData={plotData}
           urlQuery={urlQuery}
           jname={jname}
           mainProject={mainProject}
