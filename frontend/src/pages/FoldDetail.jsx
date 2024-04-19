@@ -64,6 +64,15 @@ const FoldDetailQuery = graphql`
       allProjects
     }
 
+    badge {
+      edges {
+        node {
+          name
+          description
+        }
+      }
+    }
+
     ...FoldDetailTableFragment
       @arguments(pulsar: $pulsar, mainProject: $mainProject)
   }
@@ -181,6 +190,7 @@ const FoldDetail = ({ match }) => {
         observationBadges={observationBadges}
         handleObservationFlagToggle={handleObservationFlagToggle}
         totalBadgeExcludedObservations={totalBadgeExcludedObservations}
+        badgeData={tableData.badge.edges}
       />
       <Suspense
         fallback={
