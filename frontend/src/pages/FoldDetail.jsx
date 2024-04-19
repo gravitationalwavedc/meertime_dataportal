@@ -108,7 +108,7 @@ const FoldDetail = ({ match }) => {
   const [filesLoaded, setFilesLoaded] = useState(false);
   const [observationBadges, setObservationBadges] = useState({
     "Strong RFI": true,
-    "RM Drift": true,
+    "RM Drift": false,
     "DM Drift": true,
   });
   const excludeBadges = Object.keys(observationBadges).filter(
