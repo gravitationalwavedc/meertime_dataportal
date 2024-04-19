@@ -259,6 +259,11 @@ class BadgeNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 
+class BadgeConnection(relay.Connection):
+    class Meta:
+        node = BadgeNode
+
+
 class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
@@ -1340,3 +1345,11 @@ class Query(graphene.ObjectType):
             queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
 
         return queryset.order_by("mjd")
+
+    badge = relay.ConnectionField(
+        BadgeConnection,
+    )
+
+    @login_required
+    def resolve_badge(self, info, **kwargs):
+        return Badge.objects.all()

@@ -50,6 +50,9 @@ dependencies:
   react-bootstrap:
     specifier: 1.6.4
     version: 1.6.4(react-dom@18.2.0)(react@18.2.0)
+  react-bootstrap-icons:
+    specifier: ^1.11.4
+    version: 1.11.4(react@18.2.0)
   react-bootstrap-table-next:
     specifier: ^4.0.3
     version: 4.0.3(classnames@2.5.1)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
@@ -7584,6 +7587,18 @@ packages:
       }
     dependencies:
       performance-now: 2.1.0
+    dev: false
+
+  /react-bootstrap-icons@1.11.4(react@18.2.0):
+    resolution:
+      {
+        integrity: sha512-lnkOpNEZ/Zr7mNxvjA9efuarCPSgtOuGA55XiRj7ASJnBjb1wEAdtJOd2Aiv9t07r7FLI1IgyZPg9P6jqWD/IA==,
+      }
+    peerDependencies:
+      react: ">=16.8.6"
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
     dev: false
 
   /react-bootstrap-table-next@4.0.3(classnames@2.5.1)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0):

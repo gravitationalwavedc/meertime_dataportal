@@ -106,7 +106,13 @@ const PlotContainerFragment = graphql`
   }
 `;
 
-const PlotContainer = ({ toaData, urlQuery, jname, mainProject, timingProjects }) => {
+const PlotContainer = ({
+  toaData,
+  urlQuery,
+  jname,
+  mainProject,
+  timingProjects,
+}) => {
   const [toaDataResult, refetch] = useRefetchableFragment(
     PlotContainerFragment,
     toaData

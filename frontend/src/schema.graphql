@@ -14,6 +14,16 @@ type ActivateUser {
   errors: [String]
 }
 
+type BadgeConnection {
+  pageInfo: PageInfo!
+  edges: [BadgeEdge]!
+}
+
+type BadgeEdge {
+  node: BadgeNode
+  cursor: String!
+}
+
 type BadgeNode implements Node {
   name: String!
   description: String
@@ -879,6 +889,7 @@ type Query {
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
   pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
   toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, allNsubs: Boolean, modeNsubs: Boolean, obsNchan: Int, obsNpol: Int, excludeBadges: [String], before: String, after: String, first: Int, last: Int): ToaConnection
+  badge(before: String, after: String, first: Int, last: Int): BadgeConnection
 }
 
 input RefreshInput {
