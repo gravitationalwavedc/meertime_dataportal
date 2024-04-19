@@ -54,6 +54,16 @@ const FoldDetailQuery = graphql`
       }
     }
 
+    toa(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      minimumNsubs: true
+      obsNchan: 1
+      obsNpol: 1
+    ) {
+      allProjects
+    }
+
     ...FoldDetailTableFragment
       @arguments(pulsar: $pulsar, mainProject: $mainProject)
   }
@@ -113,10 +123,12 @@ const FoldDetail = ({ match }) => {
     mainProject: mainProject,
   });
 
+  const timingProjects = tableData.toa.allProjects;
+
   const plotData = useLazyLoadQuery(FoldDetailPlotQuery, {
     pulsar: jname,
     mainProject: mainProject,
-    projectShort: urlQuery.timingProject || "All",
+    projectShort: urlQuery.timingProject || timingProjects[0],
     minimumNsubs: nsubTypeBools.minimumNsubs,
     maximumNsubs: nsubTypeBools.maximumNsubs,
     modeNsubs: nsubTypeBools.modeNsubs,
@@ -182,6 +194,7 @@ const FoldDetail = ({ match }) => {
           urlQuery={urlQuery}
           jname={jname}
           mainProject={mainProject}
+          timingProjects={timingProjects}
         />
       </Suspense>
       <Suspense

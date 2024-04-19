@@ -926,7 +926,8 @@ class ToaConnection(relay.Connection):
                     observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
                 )
             if "projectShort" in instance.variable_values.keys():
-                queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
+                if instance.variable_values["projectShort"] != "All":
+                    queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
             if "dmCorrected" in instance.variable_values.keys():
                 queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
             if "minimumNsubs" in instance.variable_values.keys():
