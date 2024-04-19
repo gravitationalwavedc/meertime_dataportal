@@ -1,5 +1,30 @@
 {
   "data": {
+    "toa": {
+      "allProjects": ["PTA"]
+    },
+    "badge": {
+      "edges": [
+        {
+          "node": {
+            "name": "Strong RFI",
+            "description": "Over 20% of RFI removed from observation"
+          }
+        },
+        {
+          "node": {
+            "name": "RM Drift",
+            "description": "The Rotation Measure has drifted three weighted standard deviations from the weighted mean"
+          }
+        },
+        {
+          "node": {
+            "name": "DM Drift",
+            "description": "The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of two profile bins"
+          }
+        }
+      ]
+    },
     "observationSummary": {
       "edges": [
         {
