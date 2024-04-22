@@ -1,5 +1,5 @@
 import { Col, Row, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { QuestionCircle } from "react-bootstrap-icons";
+import { HiQuestionMarkCircle } from "react-icons/hi";
 import ReactMarkdown from "react-markdown";
 
 const ObservationFlags = ({
@@ -30,12 +30,14 @@ const ObservationFlags = ({
               id={observationBadge}
               label={
                 <>
-                  {observationBadge}
+                  Remove {observationBadge}
                   <OverlayTrigger
                     placement="right"
                     overlay={tooltip(observationBadge)}
                   >
-                    <QuestionCircle style={{ cursor: "pointer" }} />
+                    <HiQuestionMarkCircle
+                      style={{ cursor: "pointer", marginLeft: "0.5rem" }}
+                    />
                   </OverlayTrigger>
                 </>
               }
