@@ -13,11 +13,9 @@ const ObservationFlags = ({
     " observations removed by the above observation flags.";
 
   const tooltip = (observationBadgeName) => {
-    console.log(badgeData);
     const observationBadge = badgeData.find(
       (obj) => obj.node.name === observationBadgeName
     );
-    console.log(observationBadge.node.description);
     return <Tooltip id="tooltip">{observationBadge.node.description}</Tooltip>;
   };
 
