@@ -54,6 +54,25 @@ const FoldDetailQuery = graphql`
       }
     }
 
+    toa(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      minimumNsubs: true
+      obsNchan: 1
+      obsNpol: 1
+    ) {
+      allProjects
+    }
+
+    badge {
+      edges {
+        node {
+          name
+          description
+        }
+      }
+    }
+
     ...FoldDetailTableFragment
       @arguments(pulsar: $pulsar, mainProject: $mainProject)
   }
@@ -89,7 +108,7 @@ const FoldDetail = ({ match }) => {
   const [filesLoaded, setFilesLoaded] = useState(false);
   const [observationBadges, setObservationBadges] = useState({
     "Strong RFI": true,
-    "RM Drift": true,
+    "RM Drift": false,
     "DM Drift": true,
   });
   const excludeBadges = Object.keys(observationBadges).filter(
@@ -113,10 +132,12 @@ const FoldDetail = ({ match }) => {
     mainProject: mainProject,
   });
 
+  const timingProjects = tableData.toa.allProjects;
+
   const plotData = useLazyLoadQuery(FoldDetailPlotQuery, {
     pulsar: jname,
     mainProject: mainProject,
-    projectShort: urlQuery.timingProject || "All",
+    projectShort: urlQuery.timingProject || timingProjects[0],
     minimumNsubs: nsubTypeBools.minimumNsubs,
     maximumNsubs: nsubTypeBools.maximumNsubs,
     modeNsubs: nsubTypeBools.modeNsubs,
@@ -169,6 +190,7 @@ const FoldDetail = ({ match }) => {
         observationBadges={observationBadges}
         handleObservationFlagToggle={handleObservationFlagToggle}
         totalBadgeExcludedObservations={totalBadgeExcludedObservations}
+        badgeData={tableData.badge.edges}
       />
       <Suspense
         fallback={
@@ -182,6 +204,7 @@ const FoldDetail = ({ match }) => {
           urlQuery={urlQuery}
           jname={jname}
           mainProject={mainProject}
+          timingProjects={timingProjects}
         />
       </Suspense>
       <Suspense

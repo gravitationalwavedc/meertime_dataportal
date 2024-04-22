@@ -789,6 +789,7 @@ class PipelineImage(models.Model):
         ("dynamic-spectrum", "dynamic-spectrum"),
         ("snr-cumul", "snr-cumul"),
         ("snr-single", "snr-single"),
+        ("rmfit", "rmfit"),
     ]
     image_type = models.CharField(max_length=16, choices=IMAGE_TYPE_CHOICES)
     RESOLUTION_CHOICES = [

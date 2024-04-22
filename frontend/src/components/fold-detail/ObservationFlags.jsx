@@ -1,15 +1,23 @@
-import { Col, Row } from "react-bootstrap";
-import { Form } from "react-bootstrap";
+import { Col, Row, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
+import { HiQuestionMarkCircle } from "react-icons/hi";
 import ReactMarkdown from "react-markdown";
 
 const ObservationFlags = ({
   observationBadges,
   handleObservationFlagToggle,
   totalBadgeExcludedObservations,
+  badgeData,
 }) => {
   const badgeString =
     totalBadgeExcludedObservations +
     " observations removed by the above observation flags.";
+
+  const tooltip = (observationBadgeName) => {
+    const observationBadge = badgeData.find(
+      (obj) => obj.node.name === observationBadgeName
+    );
+    return <Tooltip id="tooltip">{observationBadge.node.description}</Tooltip>;
+  };
 
   return (
     <>
@@ -20,7 +28,19 @@ const ObservationFlags = ({
               key={index}
               type="switch"
               id={observationBadge}
-              label={observationBadge}
+              label={
+                <>
+                  Remove {observationBadge}
+                  <OverlayTrigger
+                    placement="right"
+                    overlay={tooltip(observationBadge)}
+                  >
+                    <HiQuestionMarkCircle
+                      style={{ cursor: "pointer", marginLeft: "0.5rem" }}
+                    />
+                  </OverlayTrigger>
+                </>
+              }
               checked={observationBadges[observationBadge]}
               onChange={() => handleObservationFlagToggle(observationBadge)}
             />

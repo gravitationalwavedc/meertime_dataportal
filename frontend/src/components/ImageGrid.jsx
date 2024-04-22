@@ -2,7 +2,6 @@ import { useState } from "react";
 import ComparisonImageGrid from "./ComparisonImageGrid";
 import LightBox from "react-image-lightbox";
 import PlotImage from "./PlotImage";
-import ToaImages from "./ToaImages";
 
 const ImageGrid = ({ images }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -29,10 +28,6 @@ const ImageGrid = ({ images }) => {
 
   return (
     <>
-      <ToaImages
-        processedImages={processedImages}
-        handleLightBox={openLightBox}
-      />
       {processedImages.length > 0 ? (
         <ComparisonImageGrid
           rawImages={rawImages}

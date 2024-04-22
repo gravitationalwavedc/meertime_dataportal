@@ -32,7 +32,6 @@ const PlotContainerFragment = graphql`
       obsNpol: $obsNpol
       excludeBadges: $excludeBadges
     ) {
-      allProjects
       allNchans
       totalBadgeExcludedToas
       edges {
@@ -107,12 +106,17 @@ const PlotContainerFragment = graphql`
   }
 `;
 
-const PlotContainer = ({ toaData, urlQuery, jname, mainProject }) => {
+const PlotContainer = ({
+  toaData,
+  urlQuery,
+  jname,
+  mainProject,
+  timingProjects,
+}) => {
   const [toaDataResult, refetch] = useRefetchableFragment(
     PlotContainerFragment,
     toaData
   );
-  const timingProjects = toaDataResult.toa.allProjects;
   const allNchans = toaDataResult.toa.allNchans.slice().sort((a, b) => a - b);
 
   const [xAxis, setXAxis] = useState("utc");

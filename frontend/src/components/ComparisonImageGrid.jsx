@@ -15,7 +15,7 @@ const ComparisonImageGrid = ({ rawImages, processedImages, openLightBox }) => {
     "snr_single",
   ];
 
-  const extraImageOrder = ["toa_single"];
+  const extraImageOrder = ["toa_single", "rmfit"];
 
   return (
     <>

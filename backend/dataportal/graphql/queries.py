@@ -259,6 +259,11 @@ class BadgeNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
 
+class BadgeConnection(relay.Connection):
+    class Meta:
+        node = BadgeNode
+
+
 class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
@@ -926,7 +931,8 @@ class ToaConnection(relay.Connection):
                     observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
                 )
             if "projectShort" in instance.variable_values.keys():
-                queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
+                if instance.variable_values["projectShort"] != "All":
+                    queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
             if "dmCorrected" in instance.variable_values.keys():
                 queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
             if "minimumNsubs" in instance.variable_values.keys():
@@ -1339,3 +1345,11 @@ class Query(graphene.ObjectType):
             queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
 
         return queryset.order_by("mjd")
+
+    badge = relay.ConnectionField(
+        BadgeConnection,
+    )
+
+    @login_required
+    def resolve_badge(self, info, **kwargs):
+        return Badge.objects.all()

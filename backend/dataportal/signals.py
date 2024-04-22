@@ -133,7 +133,7 @@ def handle_badge_creation(sender, instance, **kwargs):
     # DM badge
     dm_badge, created = Badge.objects.get_or_create(
         name="DM Drift",
-        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of one",
+        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins", # noqa
     )
     # Get median DM for the pulsar
     dms = sorted(pfrs_of_pulsar.exclude(pipeline_run__dm__isnull=True).values_list('pipeline_run__dm', flat=True))
@@ -156,7 +156,7 @@ def handle_badge_creation(sender, instance, **kwargs):
         # Use this to calculate the DM required to cause a dispersion of one bin
         dm_dispersion = bin_duration_ms * pipeline_run.observation.frequency**3 / \
             (8.3 * 10.**6 * pipeline_run.observation.bandwidth)
-        if abs(pipeline_run.dm - dm_median) > dm_dispersion:
+        if abs(pipeline_run.dm - dm_median) > 3 * dm_dispersion:
             pipeline_run.badges.add(dm_badge)
         else:
             pipeline_run.badges.remove(dm_badge)

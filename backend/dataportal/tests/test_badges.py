@@ -127,7 +127,7 @@ def test_dm_badge():
     telescope, project, ephemeris, template = create_basic_data()
     dm_badge, created = Badge.objects.get_or_create(
         name="DM Drift",
-        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of one",
+        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins", # noqa
     )
 
     # Create for three pipeline runs where one is over 0.001 DM away from the median which will be more than 1 bin
