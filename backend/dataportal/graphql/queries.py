@@ -587,12 +587,12 @@ class PulsarFoldResultConnection(relay.Connection):
         return self.iterable.first().pipeline_run.toas_download_link
 
     def resolve_residual_ephemeris(self, instance):
-        pulsar_fold_result = self.iterable.first()
-        toas = Toa.objects.select_related("pipeline_run").filter(pipeline_run=pulsar_fold_result.pipeline_run)
-        if len(toas) > 0:
-            return toas.first().ephemeris
-        else:
+        pulsar = self.iterable.first().observation.pulsar
+        first_toa = Toa.objects.select_related("observation__pulsar").filter(observation__pulsar=pulsar).first()
+        if first_toa is None:
             return None
+        else:
+            return first_toa.ephemeris
 
     def resolve_description(self, instance):
         return self.iterable.first().pulsar.comment
