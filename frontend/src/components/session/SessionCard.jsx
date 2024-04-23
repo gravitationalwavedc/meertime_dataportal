@@ -1,6 +1,6 @@
 import { Button, Card, Col, Row } from "react-bootstrap";
 import { Link } from "found";
-import { meerWatchLink } from "../helpers";
+import { meerWatchLink } from "../../helpers";
 
 const SessionCard = ({ row }) => (
   <Card className="mb-3 shadow-md job-card" data-testid="job-card">

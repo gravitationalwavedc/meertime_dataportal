@@ -1,16 +1,16 @@
 import { Button, ButtonGroup, Badge, Col } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import { columnsSizeFilter, formatUTC } from "../helpers";
 import { graphql, useFragment } from "react-relay";
-
-import DataView from "./DataView";
 import LightBox from "react-image-lightbox";
+
+import { columnsSizeFilter, formatUTC } from "../../helpers";
+import DataView from "../DataView";
 import SessionCard from "./SessionCard";
 import SessionImage from "./SessionImage";
 import moment from "moment";
 import { Link } from "found";
-import { useScreenSize } from "../context/screenSize-context";
-import image404 from "../assets/images/image404.png";
+import { useScreenSize } from "../../context/screenSize-context";
+import image404 from "../../assets/images/image404.png";
 
 const sessionTableQuery = graphql`
   fragment SessionTable_data on Query
