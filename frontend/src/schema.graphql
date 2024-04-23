@@ -73,6 +73,7 @@ type CalibrationNode implements Node {
   nAntMin: Int
   nAntMax: Int
   totalIntegrationTimeSeconds: Float
+  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
   observations(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
   id: ID!
   idInt: Int
@@ -593,6 +594,7 @@ enum PipelineImageImageType {
   DYNAMIC_SPECTRUM
   SNR_CUMUL
   SNR_SINGLE
+  RMFIT
 }
 
 type PipelineImageNode implements Node {

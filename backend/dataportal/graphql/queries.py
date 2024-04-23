@@ -232,6 +232,7 @@ class CalibrationNode(DjangoObjectType):
             "n_ant_max",
             "total_integration_time_seconds",
             "observations",
+            "badges",
         ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)

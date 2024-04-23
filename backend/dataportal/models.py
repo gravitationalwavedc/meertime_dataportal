@@ -169,6 +169,14 @@ class Template(models.Model):
         ]
 
 
+class Badge(models.Model):
+    name = models.CharField(max_length=32, unique=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Calibration(models.Model):
     # TODO use DELAYCAL_ID to note which calibrator was used.
     CALIBRATION_TYPES = [
@@ -188,6 +196,21 @@ class Calibration(models.Model):
     n_ant_min = models.IntegerField(null=True)
     n_ant_max = models.IntegerField(null=True)
     total_integration_time_seconds = models.FloatField(null=True)
+
+    # Calibration badges are done manually with the below commands
+    # cal = Calibration.objects.get(id=)
+    # cal_badge, created = Badge.objects.get_or_create(
+    #     name="Timing jump",
+    #     description="Observed jump in ToA residuals of all observations of this session",
+    # )
+    # or
+    # cal_badge, created = Badge.objects.get_or_create(
+    #     name="Significant sensitivity reduction",
+    #     description="Reduced observed sensitivity, often by a factor of 16 due to incorrect antena summation",
+    # )
+    # cal.badges.add(cal_badge)
+
+    badges = models.ManyToManyField(Badge)
 
     @classmethod
     def update_observation_session(cls, calibration):
@@ -227,14 +250,6 @@ class Calibration(models.Model):
 
     class Meta:
         ordering = ["-start"]
-
-
-class Badge(models.Model):
-    name = models.CharField(max_length=32, unique=True)
-    description = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.name}"
 
 
 class Observation(models.Model):
