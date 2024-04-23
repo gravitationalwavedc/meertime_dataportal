@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from "react-bootstrap";
+import { Button, ButtonGroup, Badge, Col } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { columnsSizeFilter, formatUTC } from "../helpers";
 import { graphql, useFragment } from "react-relay";
@@ -38,6 +38,14 @@ const sessionTableQuery = graphql`
           idInt
           start
           end
+          badges {
+            edges {
+              node {
+                name
+                description
+              }
+            }
+          }
           observations {
             edges {
               node {
@@ -299,11 +307,20 @@ const SessionTable = ({ data, id }) => {
     ...projectData,
   ];
 
+  const badges = calibration_node.badges.edges;
+
   return (
     <div className="session-table">
       <h5 style={{ marginTop: "-12rem", marginBottom: "10rem" }}>
         {startDate} UTC - {endDate} UTC
       </h5>
+      <Col>
+        {badges.map((badge) => (
+          <Badge key={badge.node.name} variant="primary" className="mr-1">
+            {badge.node.name}
+          </Badge>
+        ))}
+      </Col>
       <DataView
         summaryData={summaryData}
         columns={columnsSizeFiltered}
