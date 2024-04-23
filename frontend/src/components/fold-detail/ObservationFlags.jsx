@@ -22,7 +22,7 @@ const ObservationFlags = ({
   return (
     <>
       <Form.Row className="observationBadges">
-        <Col md={4} xl={3}>
+        <Col md={5} xl={4}>
           {Object.keys(observationBadges).map((observationBadge, index) => (
             <Form.Check
               key={index}

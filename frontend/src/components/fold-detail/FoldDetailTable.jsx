@@ -71,6 +71,18 @@ const FoldDetailTableFragment = graphql`
                 }
               }
             }
+            observation {
+              calibration {
+                badges {
+                  edges {
+                    node {
+                      name
+                      description
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

@@ -200,12 +200,12 @@ class Calibration(models.Model):
     # Calibration badges are done manually with the below commands
     # cal = Calibration.objects.get(id=)
     # cal_badge, created = Badge.objects.get_or_create(
-    #     name="Timing jump",
+    #     name="Session Timing Jump",
     #     description="Observed jump in ToA residuals of all observations of this session",
     # )
     # or
     # cal_badge, created = Badge.objects.get_or_create(
-    #     name="Significant sensitivity reduction",
+    #     name="Session Sensitivity Reduction",
     #     description="Reduced observed sensitivity, often by a factor of 16 due to incorrect antena summation",
     # )
     # cal.badges.add(cal_badge)

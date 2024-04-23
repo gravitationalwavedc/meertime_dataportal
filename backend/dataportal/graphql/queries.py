@@ -4,7 +4,7 @@ from collections import Counter
 
 import graphene
 import pytz
-from django.db.models import Subquery
+from django.db.models import Subquery, Q
 from django.template.defaultfilters import filesizeformat
 from graphene import relay
 from graphene_django import DjangoObjectType
@@ -642,7 +642,15 @@ class PulsarFoldResultConnection(relay.Connection):
     def resolve_total_badge_excluded_observations(self, instance):
         if "excludeBadges" in instance.variable_values.keys():
             # First do all other filters
-            queryset = PulsarFoldResult.objects.all()
+            queryset = PulsarFoldResult.objects.select_related(
+                "pipeline_run"
+            ).prefetch_related(
+                "pipeline_run__badges"
+            ).select_related(
+                "pipeline_run__observation__calibration"
+            ).prefetch_related(
+                "pipeline_run__observation__calibration__badges"
+            ).all()
             if "pulsar" in instance.variable_values.keys():
                 queryset = queryset.filter(pulsar__name=instance.variable_values["pulsar"])
             if "mainProject" in instance.variable_values.keys():
@@ -654,7 +662,9 @@ class PulsarFoldResultConnection(relay.Connection):
             if "beam" in instance.variable_values.keys():
                 queryset = queryset.filter(observation__pulsar__name=instance.variable_values["beam"])
             # Filter and observations with badges
-            return queryset.filter(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]).count()
+            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) | \
+                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
+            return queryset.filter(badge_filter).count()
         else:
             return 0
 
@@ -920,6 +930,7 @@ class ToaConnection(relay.Connection):
                 "ephemeris",
                 "template",
                 "project",
+                "pipeline_run__observation__calibration__badges",
             ).all()
             if "pipelineRunId" in instance.variable_values.keys():
                 queryset = queryset.filter(pipeline_run__id=instance.variable_values["pipelineRunId"])
@@ -947,7 +958,8 @@ class ToaConnection(relay.Connection):
             if "obsNpol" in instance.variable_values.keys():
                 queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
             # Filter and observations with badges
-            return queryset.filter(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]).count()
+            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
+            return queryset.filter(badge_filter).count()
         else:
             return 0
 
@@ -1199,7 +1211,11 @@ class Query(graphene.ObjectType):
             "observation__project",
             "observation__ephemeris",
             "observation__calibration",
-            "pipeline_run",
+            "pipeline_run__observation__calibration",
+        ).prefetch_related(
+            "pipeline_run__badges"
+        ).prefetch_related(
+            "pipeline_run__observation__calibration__badges"
         ).all()
 
         pulsar_name = kwargs.get("pulsar")
@@ -1220,7 +1236,11 @@ class Query(graphene.ObjectType):
 
         exclude_badges = kwargs.get("excludeBadges")
         if exclude_badges:
-            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
+            queryset = queryset.exclude(
+                pipeline_run__badges__name__in=exclude_badges
+            ).exclude(
+                pipeline_run__observation__calibration__badges__name__in=exclude_badges
+            )
 
         return queryset
 
@@ -1343,7 +1363,11 @@ class Query(graphene.ObjectType):
 
         exclude_badges = kwargs.get("excludeBadges")
         if exclude_badges:
-            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
+            queryset = queryset.exclude(
+                pipeline_run__badges__name__in=exclude_badges
+            ).exclude(
+                pipeline_run__observation__calibration__badges__name__in=exclude_badges
+            )
 
         return queryset.order_by("mjd")
 

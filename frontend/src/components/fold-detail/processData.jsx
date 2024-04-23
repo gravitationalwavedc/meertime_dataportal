@@ -90,7 +90,12 @@ export function processData(fragmentData, mainProject, jname) {
     Badges: node.pipelineRun.badges.edges.map(({ node }) => ({
       name: node.name,
       description: node.description,
-    })),
+    })).concat(
+      node.pipelineRun.observation.calibration.badges.edges.map(({ node }) => ({
+        name: node.name,
+        description: node.description,
+      }))
+    ),
     viewLink: `/${mainProject}/${jname}/${formatUTC(
       node.observation.utcStart
     )}/${node.observation.beam}/`,

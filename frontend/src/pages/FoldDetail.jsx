@@ -49,6 +49,17 @@ const FoldDetailQuery = graphql`
                 }
               }
             }
+            observation {
+              calibration {
+                badges {
+                  edges {
+                    node {
+                      name
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -107,6 +118,8 @@ const FoldDetail = ({ match }) => {
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const [filesLoaded, setFilesLoaded] = useState(false);
   const [observationBadges, setObservationBadges] = useState({
+    "Session Timing Jump": true,
+    "Session Sensitivity Reduction": true,
     "Strong RFI": true,
     "RM Drift": false,
     "DM Drift": true,
@@ -168,6 +181,11 @@ const FoldDetail = ({ match }) => {
   for (const pfrNode of tableData.pulsarFoldResult.edges) {
     for (const badgeNode of pfrNode.node.pipelineRun.badges.edges) {
       if (excludeBadges.includes(badgeNode.node.name)) {
+        totalBadgeExcludedObservations += 1;
+      }
+    }
+    for (const sessionNode of pfrNode.node.pipelineRun.observation.calibration.badges.edges) {
+      if (excludeBadges.includes(sessionNode.node.name)) {
         totalBadgeExcludedObservations += 1;
       }
     }
