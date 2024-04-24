@@ -137,8 +137,7 @@ const FoldDetail = ({ match }) => {
   };
 
   const { jname, mainProject } = match.params;
-  const urlQuery = match.location.query;
-  const nsubTypeBools = getNsubTypeBools(urlQuery.nsubType || "1");
+
 
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
@@ -147,15 +146,23 @@ const FoldDetail = ({ match }) => {
 
   const timingProjects = tableData.toa.allProjects;
 
+  const urlQuery = match.location.query;
+
+  const [projectShort, setProjectShort] = useState(urlQuery.timingProject || timingProjects[0]);
+  const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
+  const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
+  const [nsubType, setNsubType] = useState(urlQuery.nsubType || "1");
+  const nsubTypeBools = getNsubTypeBools(nsubType);
+
   const plotData = useLazyLoadQuery(FoldDetailPlotQuery, {
     pulsar: jname,
     mainProject: mainProject,
-    projectShort: urlQuery.timingProject || timingProjects[0],
+    projectShort: projectShort,
     minimumNsubs: nsubTypeBools.minimumNsubs,
     maximumNsubs: nsubTypeBools.maximumNsubs,
     modeNsubs: nsubTypeBools.modeNsubs,
-    obsNchan: urlQuery.obsNchan || 1,
-    obsNpol: urlQuery.obsNpol || 1,
+    obsNchan: obsNchan,
+    obsNpol: obsNpol,
     excludeBadges: excludeBadges,
   });
 
@@ -219,10 +226,17 @@ const FoldDetail = ({ match }) => {
       >
         <PlotContainer
           toaData={plotData}
-          urlQuery={urlQuery}
           jname={jname}
           mainProject={mainProject}
           timingProjects={timingProjects}
+          projectShort={projectShort}
+          setProjectShort={setProjectShort}
+          obsNchan={obsNchan}
+          setObsNchan={setObsNchan}
+          obsNpol={obsNpol}
+          setObsNpol={setObsNpol}
+          nsubType={nsubType}
+          setNsubType={setNsubType}
         />
       </Suspense>
       <Suspense
