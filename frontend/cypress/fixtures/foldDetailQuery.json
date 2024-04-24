@@ -22,6 +22,24 @@
             "name": "DM Drift",
             "description": "The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of two profile bins"
           }
+        },
+        {
+          "node": {
+            "name": "Session Timing Jump",
+            "description": "Observed jump in ToA residuals of all observations of this session"
+          }
+        },
+        {
+          "node": {
+            "name": "Session Sensitivity Reduction",
+            "description": "Reduced observed sensitivity, often by a factor of 16 due to incorrect antenna summation"
+          }
+        },
+        {
+          "node": {
+            "name": "Cool badge",
+            "description": "This is a cool badge"
+          }
         }
       ]
     },
@@ -91,6 +109,20 @@
                     }
                   }
                 ]
+              },
+              "observation": {
+                "calibration": {
+                  "badges": {
+                    "edges": [
+                      {
+                        "node": {
+                          "name": "Cool badge",
+                          "description": "This is a cool badge"
+                        }
+                      }
+                    ]
+                  }
+                }
               }
             }
           }
@@ -148,6 +180,20 @@
                     }
                   }
                 ]
+              },
+              "observation": {
+                "calibration": {
+                  "badges": {
+                    "edges": [
+                      {
+                        "node": {
+                          "name": "Cool badge",
+                          "description": "This is a cool badge"
+                        }
+                      }
+                    ]
+                  }
+                }
               }
             }
           }
@@ -195,6 +241,20 @@
                     }
                   }
                 ]
+              },
+              "observation": {
+                "calibration": {
+                  "badges": {
+                    "edges": [
+                      {
+                        "node": {
+                          "name": "Cool badge",
+                          "description": "This is a cool badge"
+                        }
+                      }
+                    ]
+                  }
+                }
               }
             }
           }
