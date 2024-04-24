@@ -206,7 +206,7 @@ class Calibration(models.Model):
     # or
     # cal_badge, created = Badge.objects.get_or_create(
     #     name="Session Sensitivity Reduction",
-    #     description="Reduced observed sensitivity, often by a factor of 16 due to incorrect antena summation",
+    #     description="Reduced observed sensitivity, often by a factor of 16 due to incorrect antenna summation",
     # )
     # cal.badges.add(cal_badge)
 
