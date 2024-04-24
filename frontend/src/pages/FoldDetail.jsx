@@ -100,6 +100,7 @@ const FoldDetailPlotQuery = graphql`
     $obsNchan: Int
     $obsNpol: Int
     $excludeBadges: [String]
+    $minimumSNR: Float
   ) {
     ...PlotContainerFragment
       @arguments(
@@ -111,6 +112,7 @@ const FoldDetailPlotQuery = graphql`
         obsNchan: $obsNchan
         obsNpol: $obsNpol
         excludeBadges: $excludeBadges
+        minimumSNR: $minimumSNR
       )
   }
 `;
@@ -174,6 +176,7 @@ const FoldDetail = ({ match }) => {
     obsNchan: obsNchan,
     obsNpol: obsNpol,
     excludeBadges: excludeBadges,
+    minimumSNR: minimumSNR,
   });
 
   const summaryNode = tableData.observationSummary?.edges[0]?.node;

@@ -20,6 +20,7 @@ const PlotContainerFragment = graphql`
     obsNchan: { type: "Int", defaultValue: 1 }
     obsNpol: { type: "Int", defaultValue: 1 }
     excludeBadges: { type: "[String]", defaultValue: [] }
+    minimumSNR: { type: "Float", defaultValue: 8 }
   ) {
     toa(
       pulsar: $pulsar
@@ -31,6 +32,7 @@ const PlotContainerFragment = graphql`
       obsNchan: $obsNchan
       obsNpol: $obsNpol
       excludeBadges: $excludeBadges
+      minimumSNR: $minimumSNR
     ) {
       allNchans
       totalBadgeExcludedToas
@@ -64,6 +66,7 @@ const PlotContainerFragment = graphql`
       pulsar: $pulsar
       mainProject: $mainProject
       excludeBadges: $excludeBadges
+      minimumSNR: $minimumSNR
     ) {
       edges {
         node {

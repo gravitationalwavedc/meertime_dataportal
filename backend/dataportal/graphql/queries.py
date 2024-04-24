@@ -661,10 +661,11 @@ class PulsarFoldResultConnection(relay.Connection):
                 queryset = queryset.filter(observation__utc_start=instance.variable_values["utcStart"])
             if "beam" in instance.variable_values.keys():
                 queryset = queryset.filter(observation__pulsar__name=instance.variable_values["beam"])
-            # Filter and observations with badges
-            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) | \
-                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
-            return queryset.filter(badge_filter).count()
+            # Filter and observations with badges or below minimum SNR
+            badge_snr_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) |\
+                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"]) |\
+                Q(pipeline_run__sn__lt=instance.variable_values["minimumSNR"])
+            return queryset.filter(badge_snr_filter).count()
         else:
             return 0
 
@@ -958,8 +959,9 @@ class ToaConnection(relay.Connection):
             if "obsNpol" in instance.variable_values.keys():
                 queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
             # Filter and observations with badges
-            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) | \
-                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
+            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) |\
+                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"]) |\
+                Q(snr__lt=instance.variable_values["minimumSNR"])
             return queryset.filter(badge_filter).count()
         else:
             return 0
@@ -1204,6 +1206,7 @@ class Query(graphene.ObjectType):
         utcStart=graphene.String(),
         beam=graphene.Int(),
         excludeBadges=graphene.List(graphene.String),
+        minimumSNR=graphene.Float(),
     )
 
     @login_required
@@ -1212,11 +1215,6 @@ class Query(graphene.ObjectType):
             "observation__project",
             "observation__ephemeris",
             "observation__calibration",
-            "pipeline_run__observation__calibration",
-        ).prefetch_related(
-            "pipeline_run__badges"
-        ).prefetch_related(
-            "pipeline_run__observation__calibration__badges"
         ).all()
 
         pulsar_name = kwargs.get("pulsar")
@@ -1237,11 +1235,23 @@ class Query(graphene.ObjectType):
 
         exclude_badges = kwargs.get("excludeBadges")
         if exclude_badges:
-            queryset = queryset.exclude(
+            queryset = queryset.select_related(
+                "pipeline_run",
+            ).prefetch_related(
+                "pipeline_run__badges"
+            ).select_related(
+                "pipeline_run__observation__calibration",
+            ).prefetch_related(
+                "pipeline_run__observation__calibration__badges"
+            ).exclude(
                 pipeline_run__badges__name__in=exclude_badges
             ).exclude(
                 pipeline_run__observation__calibration__badges__name__in=exclude_badges
             )
+
+        minimumSNR = kwargs.get("minimumSNR")
+        if minimumSNR:
+            queryset = queryset.filter(pipeline_run__sn__gte=minimumSNR)
 
         return queryset
 
@@ -1303,6 +1313,7 @@ class Query(graphene.ObjectType):
         obsNchan=graphene.Int(),
         obsNpol=graphene.Int(),
         excludeBadges=graphene.List(graphene.String),
+        minimumSNR=graphene.Float(),
     )
 
     @login_required
@@ -1369,6 +1380,10 @@ class Query(graphene.ObjectType):
             ).exclude(
                 pipeline_run__observation__calibration__badges__name__in=exclude_badges
             )
+
+        minimumSNR = kwargs.get("minimumSNR")
+        if minimumSNR:
+            queryset = queryset.filter(snr__gte=minimumSNR)
 
         return queryset.order_by("mjd")
 
