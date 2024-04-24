@@ -958,7 +958,8 @@ class ToaConnection(relay.Connection):
             if "obsNpol" in instance.variable_values.keys():
                 queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
             # Filter and observations with badges
-            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
+            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) | \
+                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
             return queryset.filter(badge_filter).count()
         else:
             return 0

@@ -87,15 +87,19 @@ export function processData(fragmentData, mainProject, jname) {
     dmFit: formatNumber(node.pipelineRun.dm, 1),
     rm: formatNumber(node.pipelineRun.rm, 1),
     sn: formatNumber(node.pipelineRun.sn, 1),
-    Badges: node.pipelineRun.badges.edges.map(({ node }) => ({
-      name: node.name,
-      description: node.description,
-    })).concat(
-      node.pipelineRun.observation.calibration.badges.edges.map(({ node }) => ({
+    Badges: node.pipelineRun.badges.edges
+      .map(({ node }) => ({
         name: node.name,
         description: node.description,
       }))
-    ),
+      .concat(
+        node.pipelineRun.observation.calibration.badges.edges.map(
+          ({ node }) => ({
+            name: node.name,
+            description: node.description,
+          })
+        )
+      ),
     viewLink: `/${mainProject}/${jname}/${formatUTC(
       node.observation.utcStart
     )}/${node.observation.beam}/`,

@@ -42,6 +42,7 @@ const FoldDetailQuery = graphql`
       edges {
         node {
           pipelineRun {
+            sn
             badges {
               edges {
                 node {
@@ -115,8 +116,10 @@ const FoldDetailPlotQuery = graphql`
 `;
 
 const FoldDetail = ({ match }) => {
+  const urlQuery = match.location.query;
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
   const [filesLoaded, setFilesLoaded] = useState(false);
+  const [minimumSNR, setMinimumSNR] = useState(urlQuery.minSNR || 8);
   const [observationBadges, setObservationBadges] = useState({
     "Session Timing Jump": true,
     "Session Sensitivity Reduction": true,
@@ -136,8 +139,15 @@ const FoldDetail = ({ match }) => {
     setObservationBadges(newObservationBadges);
   };
 
-  const { jname, mainProject } = match.params;
+  const handleMinimumSNRToggle = (e) => {
+    const minimumSNR = e.target.value;
+    const url = new URL(window.location);
+    url.searchParams.set("minSNR", minimumSNR);
+    window.history.pushState({}, "", url);
+    setMinimumSNR(minimumSNR);
+  };
 
+  const { jname, mainProject } = match.params;
 
   const tableData = useLazyLoadQuery(FoldDetailQuery, {
     pulsar: jname,
@@ -146,9 +156,9 @@ const FoldDetail = ({ match }) => {
 
   const timingProjects = tableData.toa.allProjects;
 
-  const urlQuery = match.location.query;
-
-  const [projectShort, setProjectShort] = useState(urlQuery.timingProject || timingProjects[0]);
+  const [projectShort, setProjectShort] = useState(
+    urlQuery.timingProject || timingProjects[0]
+  );
   const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
   const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
   const [nsubType, setNsubType] = useState(urlQuery.nsubType || "1");
@@ -191,10 +201,14 @@ const FoldDetail = ({ match }) => {
         totalBadgeExcludedObservations += 1;
       }
     }
-    for (const sessionNode of pfrNode.node.pipelineRun.observation.calibration.badges.edges) {
+    for (const sessionNode of pfrNode.node.pipelineRun.observation.calibration
+      .badges.edges) {
       if (excludeBadges.includes(sessionNode.node.name)) {
         totalBadgeExcludedObservations += 1;
       }
+    }
+    if (pfrNode.node.pipelineRun.sn < minimumSNR) {
+      totalBadgeExcludedObservations += 1;
     }
   }
 
@@ -214,6 +228,8 @@ const FoldDetail = ({ match }) => {
       <ObservationFlags
         observationBadges={observationBadges}
         handleObservationFlagToggle={handleObservationFlagToggle}
+        minimumSNR={minimumSNR}
+        handleMinimumSNRToggle={handleMinimumSNRToggle}
         totalBadgeExcludedObservations={totalBadgeExcludedObservations}
         badgeData={tableData.badge.edges}
       />
@@ -251,6 +267,7 @@ const FoldDetail = ({ match }) => {
           mainProject={mainProject}
           jname={jname}
           excludeBadges={excludeBadges}
+          minimumSNR={minimumSNR}
         />
       </Suspense>
       {localStorage.isStaff === "true" && (
