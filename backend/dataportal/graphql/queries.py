@@ -1207,6 +1207,8 @@ class Query(graphene.ObjectType):
         beam=graphene.Int(),
         excludeBadges=graphene.List(graphene.String),
         minimumSNR=graphene.Float(),
+        utcStartGte=graphene.String(),
+        utcStartLte=graphene.String(),
     )
 
     @login_required
@@ -1252,6 +1254,14 @@ class Query(graphene.ObjectType):
         minimumSNR = kwargs.get("minimumSNR")
         if minimumSNR:
             queryset = queryset.filter(pipeline_run__sn__gte=minimumSNR)
+
+        utc_start_gte = kwargs.get("utcStartGte")
+        if utc_start_gte:
+            queryset = queryset.filter(observation__utc_start__gte=utc_start_gte)
+
+        utc_start_lte = kwargs.get("utcStartLte")
+        if utc_start_lte:
+            queryset = queryset.filter(observation__utc_start__lte=utc_start_lte)
 
         return queryset
 
@@ -1314,6 +1324,8 @@ class Query(graphene.ObjectType):
         obsNpol=graphene.Int(),
         excludeBadges=graphene.List(graphene.String),
         minimumSNR=graphene.Float(),
+        utcStartGte=graphene.String(),
+        utcStartLte=graphene.String(),
     )
 
     @login_required
@@ -1384,6 +1396,14 @@ class Query(graphene.ObjectType):
         minimumSNR = kwargs.get("minimumSNR")
         if minimumSNR:
             queryset = queryset.filter(snr__gte=minimumSNR)
+
+        utc_start_gte = kwargs.get("utcStartGte")
+        if utc_start_gte:
+            queryset = queryset.filter(observation__utc_start__gte=utc_start_gte)
+
+        utc_start_lte = kwargs.get("utcStartLte")
+        if utc_start_lte:
+            queryset = queryset.filter(observation__utc_start__lte=utc_start_lte)
 
         return queryset.order_by("mjd")
 
