@@ -52,7 +52,7 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
         width: 6,
       },
       y: (xData = dataBand.data.map((point) => point.value)),
-      customdata: dataBand.data.map((point) => [point.size, point.link]),
+      customdata: dataBand.data.map((point) => [point.size, point.link, point.snr]),
       type: "scatter",
       mode: "markers",
       name: dataBand.name,
@@ -60,7 +60,7 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
         xAxis === "utc" ? "|%Y-%m-%d %H:%M:%S.%f" : ""
       }}<br>${getYaxisLabel(
         activePlot
-      )}: %{y}<br>Integration Time (s): %{customdata[0]}<extra></extra>`,
+      )}: %{y}${activePlot === "Timing Residuals" ? "<br>ToA S/N: %{customdata[2]}" : ""}<br>Integration Time (s): %{customdata[0]}<extra></extra>`,
       marker: {
         color: dataBand.colour,
         symbol: dataBand.shape,

@@ -43,10 +43,11 @@ const PlotContainerFragment = graphql`
           project {
             short
           }
+          id
           obsNchan
           dmCorrected
-          id
           mjd
+          snr
           dayOfYear
           binaryOrbitalPhase
           residualSec

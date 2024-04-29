@@ -301,6 +301,7 @@ export const residualPlotData = (data, timingProject, jname, mainProject) => {
       link: `/${mainProject}/${jname}/${formatUTC(node.observation.utcStart)}/${
         node.observation.beam
       }/`,
+      snr: node.snr,
       band: node.observation.band,
     }));
 };
