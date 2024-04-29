@@ -18,7 +18,7 @@ def test_toa_ingest():
                         observation {{
                             toas(
                                 dmCorrected: false
-                                minimumNsubs: true
+                                nsubType: "min"
                                 obsNchan: {nchan}
                             ) {{
                             edges {{

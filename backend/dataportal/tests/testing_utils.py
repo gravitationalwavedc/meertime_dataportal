@@ -175,7 +175,7 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
                 mjd_err=8,
                 length=9,
                 dm_corrected=False,
-                minimum_nsubs=True,
+                nsub_type="min",
                 obs_nchan=1,
                 day_of_year=1,
                 residual_sec=2,
@@ -220,7 +220,14 @@ def create_pulsar_with_observations():
     return telescope, project, ephemeris, template, pr, obs, cal
 
 
-def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
+def upload_toa_files(
+    pipeline_run,
+    project_short,
+    nchan,
+    template,
+    toa_path,
+    nsub_type="min",
+):
     with open(toa_path, "r") as toa_file:
         toa_lines = toa_file.readlines()
         Toa.bulk_create(
@@ -230,10 +237,7 @@ def upload_toa_files(pipeline_run, project_short, nchan, template, toa_path):
             ephemeris_text=os.path.join(TEST_DATA_DIR, "J0125-2327.par"),
             toa_lines=toa_lines,
             dm_corrected=False,
-            minimum_nsubs=True,
-            maximum_nsubs=False,
-            all_nsubs=False,
-            mode_nsubs=False,
+            nsub_type=nsub_type,
             npol=1,
             nchan=nchan,
         )

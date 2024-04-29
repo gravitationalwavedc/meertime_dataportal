@@ -866,10 +866,7 @@ class ToaNode(DjangoObjectType):
             "length",
             "subint",
             "dm_corrected",
-            "minimum_nsubs",
-            "maximum_nsubs",
-            "all_nsubs",
-            "mode_nsubs",
+            "nsub_type",
             "obs_nchan",
             "obs_npol",
             "day_of_year",
@@ -879,13 +876,19 @@ class ToaNode(DjangoObjectType):
             "residual_phase",
             "residual_phase_err",
         ]
-        filter_fields = "__all__"
+        filter_fields = {
+            "dm_corrected": ["exact"],
+            "nsub_type": ["exact"],
+            "obs_nchan": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     # ForeignKey fields
     pipeline_run = graphene.Field(PipelineRunNode)
     ephemeris = graphene.Field(EphemerisNode)
     template = graphene.Field(TemplateNode)
+
+    nsub_type = graphene.String()
 
     @classmethod
     @login_required
@@ -948,12 +951,8 @@ class ToaConnection(relay.Connection):
                     queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
             if "dmCorrected" in instance.variable_values.keys():
                 queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
-            if "minimumNsubs" in instance.variable_values.keys():
-                if bool(instance.variable_values["minimumNsubs"]):
-                    queryset = queryset.filter(minimum_nsubs=True)
-            if "maximumNsubs" in instance.variable_values.keys():
-                if bool(instance.variable_values["maximumNsubs"]):
-                    queryset = queryset.filter(maximum_nsubs=True)
+            if "nsubType" in instance.variable_values.keys():
+                queryset = queryset.filter(nsub_type=instance.variable_values["nsubType"])
             if "obsNchan" in instance.variable_values.keys():
                 queryset = queryset.filter(obs_nchan=instance.variable_values["obsNchan"])
             if "obsNpol" in instance.variable_values.keys():
@@ -1316,10 +1315,7 @@ class Query(graphene.ObjectType):
         mainProject=graphene.String(),
         projectShort=graphene.String(),
         dmCorrected=graphene.Boolean(),
-        minimumNsubs=graphene.Boolean(),
-        maximumNsubs=graphene.Boolean(),
-        allNsubs=graphene.Boolean(),
-        modeNsubs=graphene.Boolean(),
+        nsubType=graphene.String(),
         obsNchan=graphene.Int(),
         obsNpol=graphene.Int(),
         excludeBadges=graphene.List(graphene.String),
@@ -1360,22 +1356,9 @@ class Query(graphene.ObjectType):
         if dm_corrected is not None:
             queryset = queryset.filter(dm_corrected=bool(dm_corrected))
 
-        # Only filter on True because minimum_nsubs and maximum_nsubs are
-        # not mutually exclusive. When the filters are minimum_nsubs=True and
-        # maximum_nsubs=False, we want to return all observations that have
-        # minimum_nsubs=True regardless of the maximum_nsubs value.
-        minimum_nsubs = kwargs.get("minimumNsubs")
-        if bool(minimum_nsubs):
-            queryset = queryset.filter(minimum_nsubs=True)
-        maximum_nsubs = kwargs.get("maximumNsubs")
-        if bool(maximum_nsubs):
-            queryset = queryset.filter(maximum_nsubs=True)
-        all_nsubs = kwargs.get("allNsubs")
-        if bool(all_nsubs):
-            queryset = queryset.filter(all_nsubs=True)
-        mode_nsubs = kwargs.get("modeNsubs")
-        if bool(mode_nsubs):
-            queryset = queryset.filter(mode_nsubs=True)
+        nsub_type = kwargs.get("nsubType")
+        if nsub_type is not None:
+            queryset = queryset.filter(nsub_type=nsub_type)
 
         obs_nchan = kwargs.get("obsNchan")
         if obs_nchan:

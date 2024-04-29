@@ -892,10 +892,13 @@ class Toa(models.Model):
 
     # Flags for the type of TOA (used for filtering downloads)
     dm_corrected = models.BooleanField(default=False)
-    minimum_nsubs = models.BooleanField(default=False)
-    maximum_nsubs = models.BooleanField(default=False)
-    all_nsubs = models.BooleanField(default=False)
-    mode_nsubs = models.BooleanField(default=False)
+    NSUB_TYPES = [
+        ("min", "min"),
+        ("max", "max"),
+        ("all", "all"),
+        ("mode", "mode"),
+    ]
+    nsub_type = models.CharField(max_length=4, choices=NSUB_TYPES)
     obs_nchan = models.IntegerField(null=True)
     obs_npol = models.IntegerField(default=4)
 
@@ -924,10 +927,7 @@ class Toa(models.Model):
         ephemeris_text,
         toa_lines,
         dm_corrected,
-        minimum_nsubs,
-        maximum_nsubs,
-        all_nsubs,
-        mode_nsubs,
+        nsub_type,
         npol,
         nchan,
     ):
@@ -1012,10 +1012,7 @@ class Toa(models.Model):
                     length=length,
                     subint=subint,
                     dm_corrected=dm_corrected,
-                    minimum_nsubs=minimum_nsubs,
-                    maximum_nsubs=maximum_nsubs,
-                    all_nsubs=all_nsubs,
-                    mode_nsubs=mode_nsubs,
+                    nsub_type=nsub_type,
                     obs_nchan=nchan,
                     obs_npol=npol,
                 )
@@ -1032,10 +1029,7 @@ class Toa(models.Model):
                 "obs_nchan",  # Number of channels
                 "chan",  # Chan ID
                 # Time
-                "minimum_nsubs",
-                "maximum_nsubs",
-                "all_nsubs",
-                "mode_nsubs",
+                "nsub_type",
                 "subint",  # Time ID
             ],
             update_fields=[
@@ -1064,10 +1058,7 @@ class Toa(models.Model):
                 "length",
                 "subint",
                 "dm_corrected",
-                "minimum_nsubs",
-                "maximum_nsubs",
-                "all_nsubs",
-                "mode_nsubs",
+                "nsub_type",
                 "obs_nchan",
                 "obs_npol",
             ],
@@ -1086,10 +1077,7 @@ class Toa(models.Model):
                     "obs_nchan",  # Number of channels
                     "chan",  # Chan ID
                     # Time
-                    "minimum_nsubs",
-                    "maximum_nsubs",
-                    "all_nsubs",
-                    "mode_nsubs",
+                    "nsub_type",
                     "subint",  # Time ID
                 ],
                 name="Unique ToA for observations, project and type of ToA (decimations).",

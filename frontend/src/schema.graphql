@@ -437,7 +437,7 @@ type ObservationNode implements Node {
   filterbankDm: Float
   badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
   pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID): PulsarFoldResultNodeConnection!
-  toas(offset: Int, before: String, after: String, first: Int, last: Int, pipelineRun: ID, observation: ID, project: ID, ephemeris: ID, template: ID, archive: String, freqMhz: Float, mjd: Decimal, mjdErr: Float, telescope: String, fe: String, be: String, f: String, bw: Int, tobs: Int, tmplt: String, gof: Float, nbin: Int, nch: Int, chan: Int, rcvr: String, snr: Float, length: Int, subint: Int, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, allNsubs: Boolean, modeNsubs: Boolean, obsNchan: Int, obsNpol: Int, dayOfYear: Float, binaryOrbitalPhase: Float, residualSec: Float, residualSecErr: Float, residualPhase: Float, residualPhaseErr: Float): ToaNodeConnection!
+  toas(offset: Int, before: String, after: String, first: Int, last: Int, dmCorrected: Boolean, nsubType: String, obsNchan: Int): ToaNodeConnection!
   id: ID!
   restricted: Boolean
   modeDuration: Int
@@ -890,7 +890,7 @@ type Query {
   pulsarSearchSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarSearchSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
   pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
-  toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, minimumNsubs: Boolean, maximumNsubs: Boolean, allNsubs: Boolean, modeNsubs: Boolean, obsNchan: Int, obsNpol: Int, excludeBadges: [String], minimumSNR: Float, utcStartGte: String, utcStartLte: String, before: String, after: String, first: Int, last: Int): ToaConnection
+  toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, nsubType: String, obsNchan: Int, obsNpol: Int, excludeBadges: [String], minimumSNR: Float, utcStartGte: String, utcStartLte: String, before: String, after: String, first: Int, last: Int): ToaConnection
   badge(before: String, after: String, first: Int, last: Int): BadgeConnection
 }
 
@@ -1026,10 +1026,7 @@ input ToaInput {
   templateId: Int!
   toaLines: [String]!
   dmCorrected: Boolean!
-  minimumNsubs: Boolean!
-  maximumNsubs: Boolean!
-  allNsubs: Boolean!
-  modeNsubs: Boolean!
+  nsubType: String!
   obsNpol: Int!
   obsNchan: Int!
 }
@@ -1060,10 +1057,7 @@ type ToaNode implements Node {
   length: Int
   subint: Int
   dmCorrected: Boolean!
-  minimumNsubs: Boolean!
-  maximumNsubs: Boolean!
-  allNsubs: Boolean!
-  modeNsubs: Boolean!
+  nsubType: String
   obsNchan: Int
   obsNpol: Int!
   dayOfYear: Float
