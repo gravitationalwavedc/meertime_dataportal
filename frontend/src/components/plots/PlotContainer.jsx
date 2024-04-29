@@ -3,7 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { graphql, useRefetchableFragment } from "react-relay";
 import PlotlyPlot from "./PlotlyPlot";
-import { getActivePlotData, getNsubTypeBools } from "./plotData";
+import { getActivePlotData } from "./plotData";
 import { meertime, molonglo } from "../../telescopes";
 import ReactMarkdown from "react-markdown";
 
@@ -14,9 +14,7 @@ const PlotContainerFragment = graphql`
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
     projectShort: { type: "String", defaultValue: "All" }
-    minimumNsubs: { type: "Boolean", defaultValue: true }
-    maximumNsubs: { type: "Boolean", defaultValue: false }
-    modeNsubs: { type: "Boolean", defaultValue: false }
+    nsubType: { type: "String", defaultValue: "min" }
     obsNchan: { type: "Int", defaultValue: 1 }
     obsNpol: { type: "Int", defaultValue: 1 }
     excludeBadges: { type: "[String]", defaultValue: [] }
@@ -26,9 +24,7 @@ const PlotContainerFragment = graphql`
       pulsar: $pulsar
       mainProject: $mainProject
       projectShort: $projectShort
-      minimumNsubs: $minimumNsubs
-      maximumNsubs: $maximumNsubs
-      modeNsubs: $modeNsubs
+      nsubType: $nsubType
       obsNchan: $obsNchan
       obsNpol: $obsNpol
       excludeBadges: $excludeBadges
@@ -48,8 +44,6 @@ const PlotContainerFragment = graphql`
             short
           }
           obsNchan
-          minimumNsubs
-          maximumNsubs
           dmCorrected
           id
           mjd
@@ -145,13 +139,10 @@ const PlotContainer = ({
     url.searchParams.set("obsNpol", newObsNpol);
     window.history.pushState({}, "", url);
 
-    const nsubTypeBools = getNsubTypeBools(newNsubType);
     refetch({
       projectShort: newProjectShort,
       obsNchan: newObsNchan,
-      minimumNsubs: nsubTypeBools.minimumNsubs,
-      maximumNsubs: nsubTypeBools.maximumNsubs,
-      modeNsubs: nsubTypeBools.modeNsubs,
+      nsubType: newNsubType,
       obsNpol: newObsNpol,
     });
   };

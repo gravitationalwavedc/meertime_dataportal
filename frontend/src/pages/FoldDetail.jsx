@@ -7,7 +7,6 @@ import FoldDetailTable from "../components/fold-detail/FoldDetailTable";
 import HeaderButtons from "../components/fold-detail/HeaderButtons";
 import MainLayout from "../components/MainLayout";
 import PlotContainer from "../components/plots/PlotContainer";
-import { getNsubTypeBools } from "../components/plots/plotData";
 
 const FoldDetailQuery = graphql`
   query FoldDetailQuery($pulsar: String!, $mainProject: String!) {
@@ -69,7 +68,7 @@ const FoldDetailQuery = graphql`
     toa(
       pulsar: $pulsar
       mainProject: $mainProject
-      minimumNsubs: true
+      nsubType: "1"
       obsNchan: 1
       obsNpol: 1
     ) {
@@ -95,8 +94,7 @@ const FoldDetailPlotQuery = graphql`
     $pulsar: String!
     $mainProject: String!
     $projectShort: String!
-    $minimumNsubs: Boolean
-    $maximumNsubs: Boolean
+    $nsubType: String!
     $obsNchan: Int
     $obsNpol: Int
     $excludeBadges: [String]
@@ -107,8 +105,7 @@ const FoldDetailPlotQuery = graphql`
         pulsar: $pulsar
         mainProject: $mainProject
         projectShort: $projectShort
-        minimumNsubs: $minimumNsubs
-        maximumNsubs: $maximumNsubs
+        nsubType: $nsubType
         obsNchan: $obsNchan
         obsNpol: $obsNpol
         excludeBadges: $excludeBadges
@@ -164,15 +161,12 @@ const FoldDetail = ({ match }) => {
   const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
   const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
   const [nsubType, setNsubType] = useState(urlQuery.nsubType || "1");
-  const nsubTypeBools = getNsubTypeBools(nsubType);
 
   const plotData = useLazyLoadQuery(FoldDetailPlotQuery, {
     pulsar: jname,
     mainProject: mainProject,
     projectShort: projectShort,
-    minimumNsubs: nsubTypeBools.minimumNsubs,
-    maximumNsubs: nsubTypeBools.maximumNsubs,
-    modeNsubs: nsubTypeBools.modeNsubs,
+    nsubType: nsubType,
     obsNchan: obsNchan,
     obsNpol: obsNpol,
     excludeBadges: excludeBadges,
