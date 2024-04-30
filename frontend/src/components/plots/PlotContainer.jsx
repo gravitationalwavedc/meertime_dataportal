@@ -3,7 +3,7 @@ import { Col, Row } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { graphql, useRefetchableFragment } from "react-relay";
 import PlotlyPlot from "./PlotlyPlot";
-import { getActivePlotData, getNsubTypeBools } from "./plotData";
+import { getActivePlotData } from "./plotData";
 import { meertime, molonglo } from "../../telescopes";
 import ReactMarkdown from "react-markdown";
 
@@ -14,23 +14,21 @@ const PlotContainerFragment = graphql`
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
     projectShort: { type: "String", defaultValue: "All" }
-    minimumNsubs: { type: "Boolean", defaultValue: true }
-    maximumNsubs: { type: "Boolean", defaultValue: false }
-    modeNsubs: { type: "Boolean", defaultValue: false }
+    nsubType: { type: "String", defaultValue: "1" }
     obsNchan: { type: "Int", defaultValue: 1 }
     obsNpol: { type: "Int", defaultValue: 1 }
     excludeBadges: { type: "[String]", defaultValue: [] }
+    minimumSNR: { type: "Float", defaultValue: 8 }
   ) {
     toa(
       pulsar: $pulsar
       mainProject: $mainProject
       projectShort: $projectShort
-      minimumNsubs: $minimumNsubs
-      maximumNsubs: $maximumNsubs
-      modeNsubs: $modeNsubs
+      nsubType: $nsubType
       obsNchan: $obsNchan
       obsNpol: $obsNpol
       excludeBadges: $excludeBadges
+      minimumSNR: $minimumSNR
     ) {
       allNchans
       totalBadgeExcludedToas
@@ -45,12 +43,11 @@ const PlotContainerFragment = graphql`
           project {
             short
           }
-          obsNchan
-          minimumNsubs
-          maximumNsubs
-          dmCorrected
           id
+          obsNchan
+          dmCorrected
           mjd
+          snr
           dayOfYear
           binaryOrbitalPhase
           residualSec
@@ -64,6 +61,7 @@ const PlotContainerFragment = graphql`
       pulsar: $pulsar
       mainProject: $mainProject
       excludeBadges: $excludeBadges
+      minimumSNR: $minimumSNR
     ) {
       edges {
         node {
@@ -108,10 +106,17 @@ const PlotContainerFragment = graphql`
 
 const PlotContainer = ({
   toaData,
-  urlQuery,
   jname,
   mainProject,
   timingProjects,
+  projectShort,
+  setProjectShort,
+  obsNchan,
+  setObsNchan,
+  obsNpol,
+  setObsNpol,
+  nsubType,
+  setNsubType,
 }) => {
   const [toaDataResult, refetch] = useRefetchableFragment(
     PlotContainerFragment,
@@ -121,33 +126,24 @@ const PlotContainer = ({
 
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Timing Residuals");
-  const [timingProject, setTimingProject] = useState(
-    urlQuery.timingProject || timingProjects[0]
-  );
-  const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
-  const [nsubType, setNsubType] = useState(urlQuery.nsubType || "1");
-  const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
 
   const handleRefetch = ({
-    newTimingProject = timingProject,
+    newProjectShort = projectShort,
     newObsNchan = obsNchan,
     newNsubType = nsubType,
     newObsNpol = obsNpol,
   } = {}) => {
     const url = new URL(window.location);
-    url.searchParams.set("timingProject", newTimingProject);
+    url.searchParams.set("timingProject", newProjectShort);
     url.searchParams.set("obsNchan", newObsNchan);
     url.searchParams.set("nsubType", newNsubType);
     url.searchParams.set("obsNpol", newObsNpol);
     window.history.pushState({}, "", url);
 
-    const nsubTypeBools = getNsubTypeBools(newNsubType);
     refetch({
-      projectShort: newTimingProject,
+      projectShort: newProjectShort,
       obsNchan: newObsNchan,
-      minimumNsubs: nsubTypeBools.minimumNsubs,
-      maximumNsubs: nsubTypeBools.maximumNsubs,
-      modeNsubs: nsubTypeBools.modeNsubs,
+      nsubType: newNsubType,
       obsNpol: newObsNpol,
     });
   };
@@ -157,7 +153,7 @@ const PlotContainer = ({
   };
 
   const handleSetTimingProject = (newTimingProject) => {
-    setTimingProject(newTimingProject);
+    setProjectShort(newTimingProject);
     handleRefetch({
       newTimingProject: newTimingProject,
     });
@@ -187,7 +183,7 @@ const PlotContainer = ({
   const activePlotData = getActivePlotData(
     toaDataResult,
     activePlot,
-    timingProject,
+    projectShort,
     jname,
     mainProject
   );
@@ -244,7 +240,7 @@ const PlotContainer = ({
                   <Form.Control
                     custom
                     as="select"
-                    value={timingProject}
+                    value={projectShort}
                     onChange={(event) =>
                       handleSetTimingProject(event.target.value)
                     }

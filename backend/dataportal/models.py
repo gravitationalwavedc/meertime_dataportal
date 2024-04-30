@@ -169,6 +169,14 @@ class Template(models.Model):
         ]
 
 
+class Badge(models.Model):
+    name = models.CharField(max_length=32, unique=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name}"
+
+
 class Calibration(models.Model):
     # TODO use DELAYCAL_ID to note which calibrator was used.
     CALIBRATION_TYPES = [
@@ -188,6 +196,21 @@ class Calibration(models.Model):
     n_ant_min = models.IntegerField(null=True)
     n_ant_max = models.IntegerField(null=True)
     total_integration_time_seconds = models.FloatField(null=True)
+
+    # Calibration badges are done manually with the below commands
+    # cal = Calibration.objects.get(id=)
+    # cal_badge, created = Badge.objects.get_or_create(
+    #     name="Session Timing Jump",
+    #     description="Observed jump in ToA residuals of all observations of this session",
+    # )
+    # or
+    # cal_badge, created = Badge.objects.get_or_create(
+    #     name="Session Sensitivity Reduction",
+    #     description="Reduced observed sensitivity, often by a factor of 16 due to incorrect antenna summation",
+    # )
+    # cal.badges.add(cal_badge)
+
+    badges = models.ManyToManyField(Badge)
 
     @classmethod
     def update_observation_session(cls, calibration):
@@ -227,14 +250,6 @@ class Calibration(models.Model):
 
     class Meta:
         ordering = ["-start"]
-
-
-class Badge(models.Model):
-    name = models.CharField(max_length=32, unique=True)
-    description = models.CharField(max_length=255, blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.name}"
 
 
 class Observation(models.Model):
@@ -877,10 +892,13 @@ class Toa(models.Model):
 
     # Flags for the type of TOA (used for filtering downloads)
     dm_corrected = models.BooleanField(default=False)
-    minimum_nsubs = models.BooleanField(default=False)
-    maximum_nsubs = models.BooleanField(default=False)
-    all_nsubs = models.BooleanField(default=False)
-    mode_nsubs = models.BooleanField(default=False)
+    NSUB_TYPES = [
+        ("1", "1"),
+        ("max", "max"),
+        ("all", "all"),
+        ("mode", "mode"),
+    ]
+    nsub_type = models.CharField(max_length=4, choices=NSUB_TYPES)
     obs_nchan = models.IntegerField(null=True)
     obs_npol = models.IntegerField(default=4)
 
@@ -909,10 +927,7 @@ class Toa(models.Model):
         ephemeris_text,
         toa_lines,
         dm_corrected,
-        minimum_nsubs,
-        maximum_nsubs,
-        all_nsubs,
-        mode_nsubs,
+        nsub_type,
         npol,
         nchan,
     ):
@@ -997,10 +1012,7 @@ class Toa(models.Model):
                     length=length,
                     subint=subint,
                     dm_corrected=dm_corrected,
-                    minimum_nsubs=minimum_nsubs,
-                    maximum_nsubs=maximum_nsubs,
-                    all_nsubs=all_nsubs,
-                    mode_nsubs=mode_nsubs,
+                    nsub_type=nsub_type,
                     obs_nchan=nchan,
                     obs_npol=npol,
                 )
@@ -1017,10 +1029,7 @@ class Toa(models.Model):
                 "obs_nchan",  # Number of channels
                 "chan",  # Chan ID
                 # Time
-                "minimum_nsubs",
-                "maximum_nsubs",
-                "all_nsubs",
-                "mode_nsubs",
+                "nsub_type",
                 "subint",  # Time ID
             ],
             update_fields=[
@@ -1049,10 +1058,7 @@ class Toa(models.Model):
                 "length",
                 "subint",
                 "dm_corrected",
-                "minimum_nsubs",
-                "maximum_nsubs",
-                "all_nsubs",
-                "mode_nsubs",
+                "nsub_type",
                 "obs_nchan",
                 "obs_npol",
             ],
@@ -1071,10 +1077,7 @@ class Toa(models.Model):
                     "obs_nchan",  # Number of channels
                     "chan",  # Chan ID
                     # Time
-                    "minimum_nsubs",
-                    "maximum_nsubs",
-                    "all_nsubs",
-                    "mode_nsubs",
+                    "nsub_type",
                     "subint",  # Time ID
                 ],
                 name="Unique ToA for observations, project and type of ToA (decimations).",

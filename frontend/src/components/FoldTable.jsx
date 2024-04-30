@@ -138,7 +138,7 @@ const FoldTable = ({
   };
 
   const handleBandChange = (newBand) => {
-    setProject(newBand);
+    setBand(newBand);
     handleRefetch({ newBand: newBand });
   };
 

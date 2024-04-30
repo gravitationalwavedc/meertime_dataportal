@@ -1,16 +1,16 @@
-import { Button, ButtonGroup } from "react-bootstrap";
+import { Button, ButtonGroup, Badge, Col } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import { columnsSizeFilter, formatUTC } from "../helpers";
 import { graphql, useFragment } from "react-relay";
-
-import DataView from "./DataView";
 import LightBox from "react-image-lightbox";
+
+import { columnsSizeFilter, formatUTC } from "../../helpers";
+import DataView from "../DataView";
 import SessionCard from "./SessionCard";
 import SessionImage from "./SessionImage";
 import moment from "moment";
 import { Link } from "found";
-import { useScreenSize } from "../context/screenSize-context";
-import image404 from "../assets/images/image404.png";
+import { useScreenSize } from "../../context/screenSize-context";
+import image404 from "../../assets/images/image404.png";
 
 const sessionTableQuery = graphql`
   fragment SessionTable_data on Query
@@ -38,6 +38,14 @@ const sessionTableQuery = graphql`
           idInt
           start
           end
+          badges {
+            edges {
+              node {
+                name
+                description
+              }
+            }
+          }
           observations {
             edges {
               node {
@@ -299,11 +307,20 @@ const SessionTable = ({ data, id }) => {
     ...projectData,
   ];
 
+  const badges = calibration_node.badges.edges;
+
   return (
     <div className="session-table">
       <h5 style={{ marginTop: "-12rem", marginBottom: "10rem" }}>
         {startDate} UTC - {endDate} UTC
       </h5>
+      <Col>
+        {badges.map((badge) => (
+          <Badge key={badge.node.name} variant="primary" className="mr-1">
+            {badge.node.name}
+          </Badge>
+        ))}
+      </Col>
       <DataView
         summaryData={summaryData}
         columns={columnsSizeFiltered}

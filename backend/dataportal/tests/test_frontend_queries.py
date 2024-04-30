@@ -13,7 +13,9 @@ from dataportal.tests.testing_utils import (
     TEST_DATA_DIR,
 )
 from utils.tests.test_toa import TOA_FILES
-
+from dataportal.models import (
+    Badge,
+)
 
 FOLD_SUMMARY_QUERY = """
     query {
@@ -420,8 +422,7 @@ query (
     $pulsar: String!
     $mainProject: String
     $projectShort: String
-    $minimumNsubs: Boolean
-    $maximumNsubs: Boolean
+    $nsubType: String
     $obsNchan: Int
     $obsNpol: Int
 ) {
@@ -429,8 +430,7 @@ query (
         pulsar: $pulsar
         mainProject: $mainProject
         projectShort: $projectShort
-        minimumNsubs: $minimumNsubs
-        maximumNsubs: $maximumNsubs
+        nsubType: $nsubType
         obsNchan: $obsNchan
         obsNpol: $obsNpol
     ) {
@@ -448,8 +448,7 @@ query (
                 short
             }
             obsNchan
-            minimumNsubs
-            maximumNsubs
+            nsubType
             dmCorrected
             id
             mjd
@@ -484,8 +483,7 @@ def test_plot_container_query():
             "pulsar": "J0125-2327",
             "mainProject": "MeerTIME",
             "projectShort": "PTA",
-            "minimumNsubs": True,
-            "maximumNsubs": False,
+            "nsubType": "1",
             "obsNchan": 1,
             "obsNpol": 1,
         }
@@ -515,8 +513,7 @@ def test_plot_container_query():
                             "short": "PTA"
                         },
                         "obsNchan": 1,
-                        "minimumNsubs": True,
-                        "maximumNsubs": False,
+                        "nsubType": "1",
                         "dmCorrected": False,
                         # "id": "VG9hTm9kZTo5Mw==",
                         "mjd": "58916.285422152018",
@@ -1222,3 +1219,142 @@ def test_observation_mode_duration():
     )
     assert not response.errors
     assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 1024
+
+
+TOA_EXCLUDE_BADGES_QUERY = """
+query toaBadgesExcluded (
+    $pulsar: String
+    $mainProject: String
+    $projectShort: String
+    $nsubType: String
+    $obsNchan: Int
+    $obsNpol: Int
+    $excludeBadges: [String]
+    $minimumSNR: Float
+) {
+    toa(
+        pulsar: $pulsar
+        mainProject: $mainProject
+        projectShort: $projectShort
+        nsubType: $nsubType
+        obsNchan: $obsNchan
+        obsNpol: $obsNpol
+        excludeBadges: $excludeBadges
+        minimumSNR: $minimumSNR
+    ) {
+        totalBadgeExcludedToas
+        edges {
+            node {
+                id
+            }
+        }
+    }
+}
+"""
+
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_total_badge_excluded_toas():
+    client = JSONWebTokenClient()
+    user = get_user_model().objects.create(username="buffy", email="slayer@sunnydail.com")
+    client.authenticate(user)
+
+    # Set up some observations
+    telescope, project, ephemeris, template = create_basic_data()
+    obs1, cal1, pr1 = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template, make_toas=False
+    )
+    dm_badge, created = Badge.objects.get_or_create(
+        name="DM Drift",
+        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins", # noqa
+    )
+    pr1.badges.add(dm_badge)
+    obs2, cal2, pr2 = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope, template, make_toas=False
+    )
+
+    # The ToAs with a badge we will filter out
+    upload_toa_files(
+        pr1,
+        "PTA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+    )
+    # Toa fro 3 other nsub types
+    upload_toa_files(
+        pr1,
+        "PTA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        nsub_type="max",
+    )
+    upload_toa_files(
+        pr1,
+        "PTA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        nsub_type="all",
+    )
+    upload_toa_files(
+        pr1,
+        "PTA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        nsub_type="mode",
+    )
+    # Resubmit as nsub type min to make sure redundant toas are not counted
+    upload_toa_files(
+        pr1,
+        "PTA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        nsub_type="1",
+    )
+
+    upload_toa_files(
+        pr1,
+        "PTA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+    )
+    # Toa from different nchan
+    upload_toa_files(
+        pr1,
+        "PTA",
+        1,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"),
+    )
+    # Toa from different project
+    upload_toa_files(
+        pr1,
+        "TPA",
+        16,
+        template,
+        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+    )
+
+    response = client.execute(
+        TOA_EXCLUDE_BADGES_QUERY,
+        variables={
+            "pulsar": "J0437-4715",
+            "mainProject": "MeerTIME",
+            "projectShort": "PTA",
+            "nsubType": "1",
+            "modeNsubs": False,
+            "obsNchan": 16,
+            "obsNpol": 1,
+            "excludeBadges": ["DM Drift"],
+            "minimumSNR": 0,
+        },
+    )
+    assert not response.errors
+    assert response.data["toa"]["totalBadgeExcludedToas"] == 16
+    assert len(response.data["toa"]["edges"]) == 0

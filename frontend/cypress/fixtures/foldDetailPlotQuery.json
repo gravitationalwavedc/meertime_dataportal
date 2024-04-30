@@ -69,16 +69,6 @@
               },
               "calibration": {
                 "idInt": 27
-              },
-              "badges": {
-                "edges": [
-                  {
-                    "node": {
-                      "name": "Cool badge",
-                      "description": "This is a cool badge"
-                    }
-                  }
-                ]
               }
             },
             "pipelineRun": {

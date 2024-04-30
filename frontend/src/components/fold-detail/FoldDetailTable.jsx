@@ -71,6 +71,18 @@ const FoldDetailTableFragment = graphql`
                 }
               }
             }
+            observation {
+              calibration {
+                badges {
+                  edges {
+                    node {
+                      name
+                      description
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -78,7 +90,13 @@ const FoldDetailTableFragment = graphql`
   }
 `;
 
-const FoldDetailTable = ({ tableData, mainProject, jname, excludeBadges }) => {
+const FoldDetailTable = ({
+  tableData,
+  mainProject,
+  jname,
+  excludeBadges,
+  minimumSNR,
+}) => {
   const [fragmentData, refetch] = useRefetchableFragment(
     FoldDetailTableFragment,
     tableData
@@ -138,7 +156,6 @@ const FoldDetailTable = ({ tableData, mainProject, jname, excludeBadges }) => {
 
   // These columns are displayed as information in the first column
   const infoHeaders = ["Timestamp", "Project", "Beam", "Badges"];
-
   return (
     <div className="p-2">
       <Form.Row className="searchbar">
@@ -274,7 +291,7 @@ const FoldDetailTable = ({ tableData, mainProject, jname, excludeBadges }) => {
               className={
                 row.original.Badges.some((badge) =>
                   excludeBadges.includes(badge.name)
-                )
+                ) || parseFloat(row.original.sn) < minimumSNR
                   ? "greyed-out"
                   : ""
               }

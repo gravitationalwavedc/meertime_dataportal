@@ -16,10 +16,7 @@ class ToaInput(graphene.InputObjectType):
     toaLines = graphene.List(graphene.String, required=True)
 
     dmCorrected = graphene.Boolean(required=True)
-    minimumNsubs = graphene.Boolean(required=True)
-    maximumNsubs = graphene.Boolean(required=True)
-    allNsubs = graphene.Boolean(required=True)
-    modeNsubs = graphene.Boolean(required=True)
+    nsubType = graphene.String(required=True)
     obsNpol = graphene.Int(required=True)
     obsNchan = graphene.Int(required=True)
 
@@ -45,10 +42,7 @@ class CreateToa(graphene.Mutation):
             ephemeris_text=input["ephemerisText"],
             toa_lines=input["toaLines"],
             dm_corrected=input["dmCorrected"],
-            minimum_nsubs=input["minimumNsubs"],
-            maximum_nsubs=input["maximumNsubs"],
-            all_nsubs=input["allNsubs"],
-            mode_nsubs=input["modeNsubs"],
+            nsub_type=input["nsubType"],
             npol=input["obsNpol"],
             nchan=input["obsNchan"],
         )

@@ -4,7 +4,7 @@ from collections import Counter
 
 import graphene
 import pytz
-from django.db.models import Subquery
+from django.db.models import Subquery, Q
 from django.template.defaultfilters import filesizeformat
 from graphene import relay
 from graphene_django import DjangoObjectType
@@ -232,6 +232,7 @@ class CalibrationNode(DjangoObjectType):
             "n_ant_max",
             "total_integration_time_seconds",
             "observations",
+            "badges",
         ]
         filter_fields = "__all__"
         interfaces = (relay.Node,)
@@ -586,12 +587,12 @@ class PulsarFoldResultConnection(relay.Connection):
         return self.iterable.first().pipeline_run.toas_download_link
 
     def resolve_residual_ephemeris(self, instance):
-        pulsar_fold_result = self.iterable.first()
-        toas = Toa.objects.select_related("pipeline_run").filter(pipeline_run=pulsar_fold_result.pipeline_run)
-        if len(toas) > 0:
-            return toas.first().ephemeris
-        else:
+        pulsar = self.iterable.first().observation.pulsar
+        first_toa = Toa.objects.select_related("observation__pulsar").filter(observation__pulsar=pulsar).first()
+        if first_toa is None:
             return None
+        else:
+            return first_toa.ephemeris
 
     def resolve_description(self, instance):
         return self.iterable.first().pulsar.comment
@@ -641,7 +642,15 @@ class PulsarFoldResultConnection(relay.Connection):
     def resolve_total_badge_excluded_observations(self, instance):
         if "excludeBadges" in instance.variable_values.keys():
             # First do all other filters
-            queryset = PulsarFoldResult.objects.all()
+            queryset = PulsarFoldResult.objects.select_related(
+                "pipeline_run"
+            ).prefetch_related(
+                "pipeline_run__badges"
+            ).select_related(
+                "pipeline_run__observation__calibration"
+            ).prefetch_related(
+                "pipeline_run__observation__calibration__badges"
+            ).all()
             if "pulsar" in instance.variable_values.keys():
                 queryset = queryset.filter(pulsar__name=instance.variable_values["pulsar"])
             if "mainProject" in instance.variable_values.keys():
@@ -652,8 +661,11 @@ class PulsarFoldResultConnection(relay.Connection):
                 queryset = queryset.filter(observation__utc_start=instance.variable_values["utcStart"])
             if "beam" in instance.variable_values.keys():
                 queryset = queryset.filter(observation__pulsar__name=instance.variable_values["beam"])
-            # Filter and observations with badges
-            return queryset.filter(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]).count()
+            # Filter and observations with badges or below minimum SNR
+            badge_snr_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) |\
+                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"]) |\
+                Q(pipeline_run__sn__lt=instance.variable_values["minimumSNR"])
+            return queryset.filter(badge_snr_filter).count()
         else:
             return 0
 
@@ -854,10 +866,7 @@ class ToaNode(DjangoObjectType):
             "length",
             "subint",
             "dm_corrected",
-            "minimum_nsubs",
-            "maximum_nsubs",
-            "all_nsubs",
-            "mode_nsubs",
+            "nsub_type",
             "obs_nchan",
             "obs_npol",
             "day_of_year",
@@ -867,13 +876,19 @@ class ToaNode(DjangoObjectType):
             "residual_phase",
             "residual_phase_err",
         ]
-        filter_fields = "__all__"
+        filter_fields = {
+            "dm_corrected": ["exact"],
+            "nsub_type": ["exact"],
+            "obs_nchan": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     # ForeignKey fields
     pipeline_run = graphene.Field(PipelineRunNode)
     ephemeris = graphene.Field(EphemerisNode)
     template = graphene.Field(TemplateNode)
+
+    nsub_type = graphene.String()
 
     @classmethod
     @login_required
@@ -919,6 +934,7 @@ class ToaConnection(relay.Connection):
                 "ephemeris",
                 "template",
                 "project",
+                "pipeline_run__observation__calibration__badges",
             ).all()
             if "pipelineRunId" in instance.variable_values.keys():
                 queryset = queryset.filter(pipeline_run__id=instance.variable_values["pipelineRunId"])
@@ -935,18 +951,17 @@ class ToaConnection(relay.Connection):
                     queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
             if "dmCorrected" in instance.variable_values.keys():
                 queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
-            if "minimumNsubs" in instance.variable_values.keys():
-                if bool(instance.variable_values["minimumNsubs"]):
-                    queryset = queryset.filter(minimum_nsubs=True)
-            if "maximumNsubs" in instance.variable_values.keys():
-                if bool(instance.variable_values["maximumNsubs"]):
-                    queryset = queryset.filter(maximum_nsubs=True)
+            if "nsubType" in instance.variable_values.keys():
+                queryset = queryset.filter(nsub_type=instance.variable_values["nsubType"])
             if "obsNchan" in instance.variable_values.keys():
                 queryset = queryset.filter(obs_nchan=instance.variable_values["obsNchan"])
             if "obsNpol" in instance.variable_values.keys():
                 queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
             # Filter and observations with badges
-            return queryset.filter(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]).count()
+            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) |\
+                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"]) |\
+                Q(snr__lt=instance.variable_values["minimumSNR"])
+            return queryset.filter(badge_filter).count()
         else:
             return 0
 
@@ -1190,6 +1205,9 @@ class Query(graphene.ObjectType):
         utcStart=graphene.String(),
         beam=graphene.Int(),
         excludeBadges=graphene.List(graphene.String),
+        minimumSNR=graphene.Float(),
+        utcStartGte=graphene.String(),
+        utcStartLte=graphene.String(),
     )
 
     @login_required
@@ -1198,7 +1216,6 @@ class Query(graphene.ObjectType):
             "observation__project",
             "observation__ephemeris",
             "observation__calibration",
-            "pipeline_run",
         ).all()
 
         pulsar_name = kwargs.get("pulsar")
@@ -1219,7 +1236,31 @@ class Query(graphene.ObjectType):
 
         exclude_badges = kwargs.get("excludeBadges")
         if exclude_badges:
-            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
+            queryset = queryset.select_related(
+                "pipeline_run",
+            ).prefetch_related(
+                "pipeline_run__badges"
+            ).select_related(
+                "pipeline_run__observation__calibration",
+            ).prefetch_related(
+                "pipeline_run__observation__calibration__badges"
+            ).exclude(
+                pipeline_run__badges__name__in=exclude_badges
+            ).exclude(
+                pipeline_run__observation__calibration__badges__name__in=exclude_badges
+            )
+
+        minimumSNR = kwargs.get("minimumSNR")
+        if minimumSNR:
+            queryset = queryset.filter(pipeline_run__sn__gte=minimumSNR)
+
+        utc_start_gte = kwargs.get("utcStartGte")
+        if utc_start_gte:
+            queryset = queryset.filter(observation__utc_start__gte=utc_start_gte)
+
+        utc_start_lte = kwargs.get("utcStartLte")
+        if utc_start_lte:
+            queryset = queryset.filter(observation__utc_start__lte=utc_start_lte)
 
         return queryset
 
@@ -1274,13 +1315,13 @@ class Query(graphene.ObjectType):
         mainProject=graphene.String(),
         projectShort=graphene.String(),
         dmCorrected=graphene.Boolean(),
-        minimumNsubs=graphene.Boolean(),
-        maximumNsubs=graphene.Boolean(),
-        allNsubs=graphene.Boolean(),
-        modeNsubs=graphene.Boolean(),
+        nsubType=graphene.String(),
         obsNchan=graphene.Int(),
         obsNpol=graphene.Int(),
         excludeBadges=graphene.List(graphene.String),
+        minimumSNR=graphene.Float(),
+        utcStartGte=graphene.String(),
+        utcStartLte=graphene.String(),
     )
 
     @login_required
@@ -1315,22 +1356,9 @@ class Query(graphene.ObjectType):
         if dm_corrected is not None:
             queryset = queryset.filter(dm_corrected=bool(dm_corrected))
 
-        # Only filter on True because minimum_nsubs and maximum_nsubs are
-        # not mutually exclusive. When the filters are minimum_nsubs=True and
-        # maximum_nsubs=False, we want to return all observations that have
-        # minimum_nsubs=True regardless of the maximum_nsubs value.
-        minimum_nsubs = kwargs.get("minimumNsubs")
-        if bool(minimum_nsubs):
-            queryset = queryset.filter(minimum_nsubs=True)
-        maximum_nsubs = kwargs.get("maximumNsubs")
-        if bool(maximum_nsubs):
-            queryset = queryset.filter(maximum_nsubs=True)
-        all_nsubs = kwargs.get("allNsubs")
-        if bool(all_nsubs):
-            queryset = queryset.filter(all_nsubs=True)
-        mode_nsubs = kwargs.get("modeNsubs")
-        if bool(mode_nsubs):
-            queryset = queryset.filter(mode_nsubs=True)
+        nsub_type = kwargs.get("nsubType")
+        if nsub_type is not None:
+            queryset = queryset.filter(nsub_type=nsub_type)
 
         obs_nchan = kwargs.get("obsNchan")
         if obs_nchan:
@@ -1342,7 +1370,23 @@ class Query(graphene.ObjectType):
 
         exclude_badges = kwargs.get("excludeBadges")
         if exclude_badges:
-            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges)
+            queryset = queryset.exclude(
+                pipeline_run__badges__name__in=exclude_badges
+            ).exclude(
+                pipeline_run__observation__calibration__badges__name__in=exclude_badges
+            )
+
+        minimumSNR = kwargs.get("minimumSNR")
+        if minimumSNR:
+            queryset = queryset.filter(snr__gte=minimumSNR)
+
+        utc_start_gte = kwargs.get("utcStartGte")
+        if utc_start_gte:
+            queryset = queryset.filter(observation__utc_start__gte=utc_start_gte)
+
+        utc_start_lte = kwargs.get("utcStartLte")
+        if utc_start_lte:
+            queryset = queryset.filter(observation__utc_start__lte=utc_start_lte)
 
         return queryset.order_by("mjd")
 

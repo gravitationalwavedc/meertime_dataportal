@@ -1,6 +1,6 @@
 import { graphql, useLazyLoadQuery } from "react-relay";
 import MainLayout from "../components/MainLayout";
-import SessionTable from "../components/SessionTable";
+import SessionTable from "../components/session/SessionTable";
 
 const query = graphql`
   query SessionQuery($id: Int) {

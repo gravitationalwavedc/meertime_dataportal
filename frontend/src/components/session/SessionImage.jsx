@@ -1,5 +1,5 @@
 import { Image } from "react-bootstrap";
-import image404 from "../assets/images/image404.png";
+import image404 from "../../assets/images/image404.png";
 
 const SessionImage = ({
   imageHi,

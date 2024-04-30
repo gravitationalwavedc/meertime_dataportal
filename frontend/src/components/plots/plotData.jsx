@@ -110,13 +110,13 @@ export const getActivePlotData = (
   if (activePlot == "Timing Residuals") {
     return residualPlotData(toaDataResult, timingProject, jname, mainProject);
   } else if (activePlot == "S/N") {
-    return snrPlotData(toaDataResult);
+    return snrPlotData(toaDataResult, jname, mainProject);
   } else if (activePlot == "Flux Density") {
-    return fluxPlotData(toaDataResult);
+    return fluxPlotData(toaDataResult, jname, mainProject);
   } else if (activePlot == "DM") {
-    return dmPlotData(toaDataResult);
+    return dmPlotData(toaDataResult, jname, mainProject);
   } else if (activePlot == "RM") {
-    return rmPlotData(toaDataResult);
+    return rmPlotData(toaDataResult, jname, mainProject);
   } else {
     return [];
   }
@@ -224,7 +224,7 @@ export const filterBandData = (originalData) => {
   return { plotData, minValue, maxValue, medianValue, ticks };
 };
 
-export const snrPlotData = (data) => {
+export const snrPlotData = (data, jname, mainProject) => {
   return data.pulsarFoldResult.edges.map(({ node }) => ({
     id: node.observation.id,
     utc: moment(node.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
@@ -232,12 +232,14 @@ export const snrPlotData = (data) => {
     phase: node.observation.binaryOrbitalPhase,
     value: node.pipelineRun.sn,
     size: node.observation.duration,
-    link: node.plotLink,
+    link: `/${mainProject}/${jname}/${formatUTC(node.observation.utcStart)}/${
+      node.observation.beam
+    }/`,
     band: node.observation.band,
   }));
 };
 
-export const fluxPlotData = (data) => {
+export const fluxPlotData = (data, jname, mainProject) => {
   return data.pulsarFoldResult.edges.map(({ node }) => ({
     id: node.observation.id,
     utc: moment(node.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
@@ -245,12 +247,14 @@ export const fluxPlotData = (data) => {
     phase: node.observation.binaryOrbitalPhase,
     value: node.pipelineRun.flux,
     size: node.observation.duration,
-    link: node.plotLink,
+    link: `/${mainProject}/${jname}/${formatUTC(node.observation.utcStart)}/${
+      node.observation.beam
+    }/`,
     band: node.observation.band,
   }));
 };
 
-export const dmPlotData = (data) => {
+export const dmPlotData = (data, jname, mainProject) => {
   return data.pulsarFoldResult.edges.map(({ node }) => ({
     id: node.observation.id,
     utc: moment(node.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
@@ -259,12 +263,14 @@ export const dmPlotData = (data) => {
     value: node.pipelineRun.dm,
     error: node.pipelineRun.dmErr,
     size: node.observation.duration,
-    link: node.plotLink,
+    link: `/${mainProject}/${jname}/${formatUTC(node.observation.utcStart)}/${
+      node.observation.beam
+    }/`,
     band: node.observation.band,
   }));
 };
 
-export const rmPlotData = (data) => {
+export const rmPlotData = (data, jname, mainProject) => {
   return data.pulsarFoldResult.edges.map(({ node }) => ({
     id: node.observation.id,
     utc: moment(node.observation.utcStart, "YYYY-MM-DD-HH:mm:ss").valueOf(),
@@ -273,7 +279,9 @@ export const rmPlotData = (data) => {
     value: node.pipelineRun.rm,
     error: node.pipelineRun.rmErr,
     size: node.observation.duration,
-    link: node.plotLink,
+    link: `/${mainProject}/${jname}/${formatUTC(node.observation.utcStart)}/${
+      node.observation.beam
+    }/`,
     band: node.observation.band,
   }));
 };
@@ -293,34 +301,7 @@ export const residualPlotData = (data, timingProject, jname, mainProject) => {
       link: `/${mainProject}/${jname}/${formatUTC(node.observation.utcStart)}/${
         node.observation.beam
       }/`,
+      snr: node.snr,
       band: node.observation.band,
     }));
-};
-
-export const getNsubTypeBools = (nsubType) => {
-  if (nsubType === "1") {
-    return {
-      minimumNsubs: true,
-      maximumNsubs: false,
-      modeNsubs: false,
-    };
-  } else if (nsubType === "max") {
-    return {
-      minimumNsubs: false,
-      maximumNsubs: true,
-      modeNsubs: false,
-    };
-  } else if (nsubType === "mode") {
-    return {
-      minimumNsubs: false,
-      maximumNsubs: false,
-      modeNsubs: true,
-    };
-  } else {
-    return {
-      minimumNsubs: true,
-      maximumNsubs: false,
-      modeNsubs: false,
-    };
-  }
 };
