@@ -175,7 +175,7 @@ def create_observation_pipeline_run_toa(json_path, telescope, template, make_toa
                 mjd_err=8,
                 length=9,
                 dm_corrected=False,
-                nsub_type="min",
+                nsub_type="1",
                 obs_nchan=1,
                 day_of_year=1,
                 residual_sec=2,
@@ -226,7 +226,7 @@ def upload_toa_files(
     nchan,
     template,
     toa_path,
-    nsub_type="min",
+    nsub_type="1",
 ):
     with open(toa_path, "r") as toa_file:
         toa_lines = toa_file.readlines()

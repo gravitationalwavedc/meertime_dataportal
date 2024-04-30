@@ -483,7 +483,7 @@ def test_plot_container_query():
             "pulsar": "J0125-2327",
             "mainProject": "MeerTIME",
             "projectShort": "PTA",
-            "nsubType": "min",
+            "nsubType": "1",
             "obsNchan": 1,
             "obsNpol": 1,
         }
@@ -513,7 +513,7 @@ def test_plot_container_query():
                             "short": "PTA"
                         },
                         "obsNchan": 1,
-                        "nsubType": "min",
+                        "nsubType": "1",
                         "dmCorrected": False,
                         # "id": "VG9hTm9kZTo5Mw==",
                         "mjd": "58916.285422152018",
@@ -1314,7 +1314,7 @@ def test_total_badge_excluded_toas():
         16,
         template,
         os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
-        nsub_type="min",
+        nsub_type="1",
     )
 
     upload_toa_files(
@@ -1347,7 +1347,7 @@ def test_total_badge_excluded_toas():
             "pulsar": "J0437-4715",
             "mainProject": "MeerTIME",
             "projectShort": "PTA",
-            "nsubType": "min",
+            "nsubType": "1",
             "modeNsubs": False,
             "obsNchan": 16,
             "obsNpol": 1,

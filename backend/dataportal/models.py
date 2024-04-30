@@ -893,7 +893,7 @@ class Toa(models.Model):
     # Flags for the type of TOA (used for filtering downloads)
     dm_corrected = models.BooleanField(default=False)
     NSUB_TYPES = [
-        ("min", "min"),
+        ("1", "1"),
         ("max", "max"),
         ("all", "all"),
         ("mode", "mode"),

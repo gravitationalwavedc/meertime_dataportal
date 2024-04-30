@@ -14,7 +14,7 @@ const PlotContainerFragment = graphql`
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
     projectShort: { type: "String", defaultValue: "All" }
-    nsubType: { type: "String", defaultValue: "min" }
+    nsubType: { type: "String", defaultValue: "1" }
     obsNchan: { type: "Int", defaultValue: 1 }
     obsNpol: { type: "Int", defaultValue: 1 }
     excludeBadges: { type: "[String]", defaultValue: [] }
