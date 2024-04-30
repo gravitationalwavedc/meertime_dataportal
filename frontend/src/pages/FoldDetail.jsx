@@ -153,7 +153,10 @@ const FoldDetail = ({ match }) => {
     mainProject: mainProject,
   });
 
-  const timingProjects = tableData.toa.allProjects;
+  let timingProjects = tableData.toa.allProjects;
+  if (timingProjects.length === 0) {
+    timingProjects = ["All"];
+  }
 
   const [projectShort, setProjectShort] = useState(
     urlQuery.timingProject || timingProjects[0]
