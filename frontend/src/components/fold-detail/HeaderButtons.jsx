@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import Ephemeris from "../Ephemeris";
-import { createLink, meerWatchLink } from "../../helpers";
+import { createLink } from "../../helpers";
 
 const HeaderButtons = ({
   mainProject,
@@ -29,17 +29,6 @@ const HeaderButtons = ({
               ? "Folding ephemeris unavailable"
               : "View folding ephemeris"}
           </Button>
-          {mainProject !== "MONSPSR" && (
-            <Button
-              size="sm"
-              className="mr-2 mb-2"
-              as="a"
-              href={meerWatchLink(jname)}
-              variant="outline-secondary"
-            >
-              View MeerWatch
-            </Button>
-          )}
           {ephemeris && (
             <Ephemeris
               ephemeris={ephemeris}
@@ -66,17 +55,6 @@ const HeaderButtons = ({
             ? "Folding ephemeris unavailable"
             : "View folding ephemeris"}
         </Button>
-        {mainProject !== "MONSPSR" && (
-          <Button
-            size="sm"
-            className="mr-2 mb-2"
-            as="a"
-            href={meerWatchLink(jname)}
-            variant="outline-secondary"
-          >
-            View MeerWatch
-          </Button>
-        )}
         {tableData.pulsarFoldResult.ephemerisLink && (
           <Button
             size="sm"

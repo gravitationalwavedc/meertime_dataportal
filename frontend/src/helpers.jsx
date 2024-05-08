@@ -63,10 +63,6 @@ export const mjdToUnixTimestamp = (mjdValue) =>
 export const kronosLink = (beam, jname, utc) =>
   `http://astronomy.swin.edu.au/pulsar/kronos/utc_start.php?beam=${beam}&utc_start=${utc}&jname=${jname}&data=${localStorage.meerWatchKey}`;
 
-// This is a really insecure, temporary fix that will be changed asap.
-export const meerWatchLink = (jname) =>
-  `http://astronomy.swin.edu.au/pulsar/meerwatch/pulsar.php?jname=${jname}&data=${localStorage.meerWatchKey}`;
-
 export const nullCellFormatter = (cell) => cell || "-";
 
 export const sessionLink = (calid) => `/session/${calid}/`;
