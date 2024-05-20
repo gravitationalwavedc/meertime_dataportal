@@ -16,7 +16,6 @@ const PlotContainerFragment = graphql`
     projectShort: { type: "String", defaultValue: "All" }
     nsubType: { type: "String", defaultValue: "1" }
     obsNchan: { type: "Int", defaultValue: 1 }
-    obsNpol: { type: "Int", defaultValue: 1 }
     excludeBadges: { type: "[String]", defaultValue: [] }
     minimumSNR: { type: "Float", defaultValue: 8 }
   ) {
@@ -26,7 +25,6 @@ const PlotContainerFragment = graphql`
       projectShort: $projectShort
       nsubType: $nsubType
       obsNchan: $obsNchan
-      obsNpol: $obsNpol
       excludeBadges: $excludeBadges
       minimumSNR: $minimumSNR
     ) {
@@ -113,8 +111,6 @@ const PlotContainer = ({
   setProjectShort,
   obsNchan,
   setObsNchan,
-  obsNpol,
-  setObsNpol,
   nsubType,
   setNsubType,
 }) => {
@@ -131,20 +127,17 @@ const PlotContainer = ({
     newProjectShort = projectShort,
     newObsNchan = obsNchan,
     newNsubType = nsubType,
-    newObsNpol = obsNpol,
   } = {}) => {
     const url = new URL(window.location);
     url.searchParams.set("timingProject", newProjectShort);
     url.searchParams.set("obsNchan", newObsNchan);
     url.searchParams.set("nsubType", newNsubType);
-    url.searchParams.set("obsNpol", newObsNpol);
     window.history.pushState({}, "", url);
 
     refetch({
       projectShort: newProjectShort,
       obsNchan: newObsNchan,
       nsubType: newNsubType,
-      obsNpol: newObsNpol,
     });
   };
 
@@ -170,13 +163,6 @@ const PlotContainer = ({
     setObsNchan(parseInt(newObsNchan, 10));
     handleRefetch({
       newObsNchan: newObsNchan,
-    });
-  };
-
-  const handleSetNpol = (newObsNpol) => {
-    setObsNpol(parseInt(newObsNpol, 10));
-    handleRefetch({
-      newObsNpol: newObsNpol,
     });
   };
 
@@ -284,18 +270,6 @@ const PlotContainer = ({
                     <option value="1">1</option>
                     <option value="max">Max</option>
                     <option value="mode">Mode</option>
-                  </Form.Control>
-                </Form.Group>
-                <Form.Group controlId="plotNpolController" className="col-md-2">
-                  <Form.Label>Npol</Form.Label>
-                  <Form.Control
-                    custom
-                    as="select"
-                    value={obsNpol}
-                    onChange={(event) => handleSetNpol(event.target.value)}
-                  >
-                    <option value="1">1</option>
-                    {mainProject !== "MONSPSR" && <option value="4">4</option>}
                   </Form.Control>
                 </Form.Group>
               </>

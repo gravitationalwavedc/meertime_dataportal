@@ -70,7 +70,6 @@ const FoldDetailQuery = graphql`
       mainProject: $mainProject
       nsubType: "1"
       obsNchan: 1
-      obsNpol: 1
     ) {
       allProjects
     }
@@ -96,7 +95,6 @@ const FoldDetailPlotQuery = graphql`
     $projectShort: String!
     $nsubType: String!
     $obsNchan: Int
-    $obsNpol: Int
     $excludeBadges: [String]
     $minimumSNR: Float
   ) {
@@ -107,7 +105,6 @@ const FoldDetailPlotQuery = graphql`
         projectShort: $projectShort
         nsubType: $nsubType
         obsNchan: $obsNchan
-        obsNpol: $obsNpol
         excludeBadges: $excludeBadges
         minimumSNR: $minimumSNR
       )
@@ -162,7 +159,6 @@ const FoldDetail = ({ match }) => {
     urlQuery.timingProject || timingProjects[0]
   );
   const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
-  const [obsNpol, setObsNpol] = useState(urlQuery.obsNpol || 1);
   const [nsubType, setNsubType] = useState(urlQuery.nsubType || "1");
 
   const plotData = useLazyLoadQuery(FoldDetailPlotQuery, {
@@ -171,7 +167,6 @@ const FoldDetail = ({ match }) => {
     projectShort: projectShort,
     nsubType: nsubType,
     obsNchan: obsNchan,
-    obsNpol: obsNpol,
     excludeBadges: excludeBadges,
     minimumSNR: minimumSNR,
   });
@@ -249,8 +244,6 @@ const FoldDetail = ({ match }) => {
           setProjectShort={setProjectShort}
           obsNchan={obsNchan}
           setObsNchan={setObsNchan}
-          obsNpol={obsNpol}
-          setObsNpol={setObsNpol}
           nsubType={nsubType}
           setNsubType={setNsubType}
         />
