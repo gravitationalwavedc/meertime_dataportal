@@ -18,7 +18,8 @@ variables:
   DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
 include:
-  - template: Jobs/Code-Quality.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
 
 stages:
   - test
