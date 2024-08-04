@@ -26,12 +26,12 @@ stages:
   - build
   - package-publish
 
-# cache:
-#   - key:
-#       files:
-#         - backend/poetry.lock
-#     paths:
-#       - backend/.venv/
+cache:
+  - key:
+      files:
+        - backend/poetry.lock
+    paths:
+      - backend/.venv/
 
 image:
   name: ubuntu:20.04
@@ -40,21 +40,23 @@ image:
 services:
   - postgres:12.2-alpine
 
-before_script:
-  - apt -y update
-  - apt -y install apt-utils
-  - apt -y install net-tools git curl wget python3.9 python3-pip python3.8-venv python3.9-dev postgresql postgresql-client libpq-dev
-  - apt -y upgrade
-  - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-  - echo $POETRY_HOME
-  - python3 -m venv $POETRY_HOME
-  - $POETRY_HOME/bin/pip install poetry
-  - $POETRY_HOME/bin/poetry --version
-  - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
-  - export PGPASSWORD=$POSTGRES_PASSWORD
 
 django-tests:
   stage: test
+
+  before_script:
+    - apt -y update
+    - apt -y install apt-utils
+    - apt -y install net-tools git curl wget python3.9 python3-pip python3.8-venv python3.9-dev postgresql postgresql-client libpq-dev
+    - apt -y upgrade
+    - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+    - echo $POETRY_HOME
+    - python3 -m venv $POETRY_HOME
+    - $POETRY_HOME/bin/pip install poetry
+    - $POETRY_HOME/bin/poetry --version
+    - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
+    - export PGPASSWORD=$POSTGRES_PASSWORD
+
   script:
     - cd backend/
     - $POETRY_HOME/bin/poetry install
