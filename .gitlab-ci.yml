@@ -26,6 +26,13 @@ stages:
   - build
   - package-publish
 
+# cache:
+#   - key:
+#       files:
+#         - backend/poetry.lock
+#     paths:
+#       - backend/.venv/
+
 image:
   name: ubuntu:20.04
   entrypoint: ["/usr/bin/env"]
@@ -45,13 +52,6 @@ before_script:
   - $POETRY_HOME/bin/poetry --version
   - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
   - export PGPASSWORD=$POSTGRES_PASSWORD
-
-cache:
-  - key:
-      files:
-        - backend/poetry.lock
-    paths:
-      - backend/.venv/
 
 django-tests:
   stage: test
