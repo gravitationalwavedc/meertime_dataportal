@@ -81,7 +81,7 @@ black:
   image: pyfound/black:23.11.0
   script:
     - cd backend/
-    - echo black --version
+    - black --version
     - black . --check
 
 # flake8:
