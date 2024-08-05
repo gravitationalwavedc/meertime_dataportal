@@ -44,7 +44,6 @@ ddtrace = "^2.4.0"
 pytest = "^6.0.0"
 pytest-django = "^3.9.0"
 pylint = "^2.5.3"
-black = "^22"
 pytest-cov = "^2.10.0"
 nplusone = "^1.0.0"
 coverage = "^5.2.1"
@@ -58,24 +57,25 @@ django-test-migrations = "^1.0.0"
 django-coverage-plugin = "^1.8.0"
 xenon = "^0.9.1"
 model_bakery = "^1.2.1"
+black = "^24.8.0"
 
 [tool.black]
 line-length = 119
 target_version = ['py37', 'py38']
-# include = '\.pyi?$'
-# exclude = '''
-# /(\.git/
-#   |\.eggs
-#   |__pycache__
-#   |\.cache
-#   |\.ipynb_checkpoints
-#   |\.mypy_cache
-#   |\.pytest_cache
-#   |\.tox
-#   |\.venv
-#   |src/templates
-# )/
-# '''
+include = '\.pyi?$'
+exclude = '''
+/(\.git/
+  |\.eggs
+  |__pycache__
+  |\.cache
+  |\.ipynb_checkpoints
+  |\.mypy_cache
+  |\.pytest_cache
+  |\.tox
+  |\.venv
+  |src/templates
+)/
+'''
 
 [tool.isort]
 multi_line_output = 3

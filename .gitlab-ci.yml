@@ -82,7 +82,7 @@ black:
   script:
     - cd backend/
     - black --version
-    - black . --check
+    - black . --check --config pyproject.toml
 
 # flake8:
 #   stage: test
