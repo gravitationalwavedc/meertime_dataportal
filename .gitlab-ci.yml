@@ -78,11 +78,11 @@ flake8:
 
 black:
   stage: test
-  image: pyfound/black:23.11.0
+  image: pyfound/black:24.8.0
   script:
     - cd backend/
     - black --version
-    - black . --check --config pyproject.toml
+    - black . --check --verbose --config pyproject.toml
 
 # flake8:
 #   stage: test
