@@ -71,7 +71,7 @@ flake8:
   stage: test
   image: registry.gitlab.com/pipeline-components/flake8:latest
   script:
-    - flake8 --verbose --exit-zero gl-codeclimate --output-file gl-code-quality-report.json src
+    - flake8 --verbose --exit-zero gl-codeclimate --output-file gl-code-quality-report.json backend
   artifacts:
     reports:
       codequality: gl-code-quality-report.json
@@ -80,7 +80,8 @@ black:
   stage: test
   image: pyfound/black:23.11.0
   script:
-    - black backend --check
+    - cd backend/
+    - black . --check
 
 # flake8:
 #   stage: test
