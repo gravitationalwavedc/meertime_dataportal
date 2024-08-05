@@ -84,23 +84,6 @@ black:
     - black --version
     - black . --check --verbose --config pyproject.toml
 
-# flake8:
-#   stage: test
-#   script:
-#     - cd backend/
-#     - pip3 install flake8-gl-codeclimate
-#     - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json .
-#   artifacts:
-#     reports:
-#       codequality: backend/gl-code-quality-report.json
-#
-# black:
-#   stage: test
-#   script:
-#     - cd backend/
-#     - $POETRY_HOME/bin/poetry install
-#     - $POETRY_HOME/bin/poetry run black .
-
 react-test:
   stage: test
   image: cypress/browsers:node-18.16.0-chrome-113.0.5672.92-1-ff-113.0-edge-113.0.1774.35-1
