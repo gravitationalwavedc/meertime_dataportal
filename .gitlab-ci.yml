@@ -26,23 +26,21 @@ stages:
   - build
   - package-publish
 
-cache:
-  - key:
-      files:
-        - backend/poetry.lock
-    paths:
-      - backend/.venv/
-
-image:
-  name: ubuntu:20.04
-  entrypoint: ["/usr/bin/env"]
-
-services:
-  - postgres:12.2-alpine
-
-
 django-tests:
   stage: test
+  image:
+    name: ubuntu:20.04
+    entrypoint: ["/usr/bin/env"]
+
+  services:
+    - postgres:12.2-alpine
+
+  cache:
+    - key:
+        files:
+          - backend/poetry.lock
+      paths:
+        - backend/.venv/
 
   before_script:
     - apt -y update
@@ -68,6 +66,38 @@ django-tests:
         coverage_format: cobertura
         path: backend/coverage.xml
       junit: backend/reports/junit.xml
+
+flake8:
+  stage: test
+  image: registry.gitlab.com/pipeline-components/flake8:latest
+  script:
+    - flake8 --verbose --exit-zero gl-codeclimate --output-file gl-code-quality-report.json src
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+
+black:
+  stage: test
+  image: pyfound/black:23.11.0
+  script:
+    - black backend --check
+
+# flake8:
+#   stage: test
+#   script:
+#     - cd backend/
+#     - pip3 install flake8-gl-codeclimate
+#     - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json .
+#   artifacts:
+#     reports:
+#       codequality: backend/gl-code-quality-report.json
+#
+# black:
+#   stage: test
+#   script:
+#     - cd backend/
+#     - $POETRY_HOME/bin/poetry install
+#     - $POETRY_HOME/bin/poetry run black .
 
 react-test:
   stage: test
@@ -97,23 +127,6 @@ react-test:
         coverage_format: cobertura
         path: frontend/reports/cobertura-coverage.xml
       junit: frontend/reports/junit.xml
-
-flake8:
-  stage: test
-  script:
-    - cd backend/
-    - pip3 install flake8-gl-codeclimate
-    - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json .
-  artifacts:
-    reports:
-      codequality: backend/gl-code-quality-report.json
-
-black:
-  stage: test
-  script:
-    - cd backend/
-    - $POETRY_HOME/bin/poetry install
-    - $POETRY_HOME/bin/poetry run black .
 
 react-formatting:
   stage: test
