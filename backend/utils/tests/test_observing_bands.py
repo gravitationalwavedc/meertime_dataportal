@@ -1,5 +1,6 @@
 from utils.observing_bands import get_band
 
+
 def test_get_band():
     # Test all LBAND frequencies
     assert get_band(1283.5, 856.0) == "LBAND"
@@ -25,4 +26,3 @@ def test_get_band():
 
     # Test Other
     assert get_band(1000, 475.2) == "OTHER"
-    

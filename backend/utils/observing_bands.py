@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class Band:
     band_width: float
@@ -7,7 +8,7 @@ class Band:
     high_frequency: int
 
     def test_frequency_range(self, freq):
-       return self.low_frequency < freq < self.high_frequency 
+        return self.low_frequency < freq < self.high_frequency
 
 
 BANDS = {
@@ -19,6 +20,7 @@ BANDS = {
     "SBAND_3": Band(875.0, 2841, 2845),
     "SBAND_4": Band(875.0, 3060, 3064),
 }
+
 
 def get_band(freq, bw):
     for key, band in BANDS.items():
