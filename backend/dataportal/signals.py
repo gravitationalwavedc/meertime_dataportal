@@ -105,17 +105,17 @@ def handle_badge_creation(sender, instance, **kwargs):
         pulsar=instance.observation.pulsar,
         observation__project__main_project=instance.observation.project.main_project,
     )
-    rm_and_rm_error = pfrs_of_pulsar.exclude(
-        pipeline_run__rm__isnull=True
-    ).exclude(
-        pipeline_run__rm_err__isnull=True
-    ).values_list('pipeline_run__rm', 'pipeline_run__rm_err')
+    rm_and_rm_error = (
+        pfrs_of_pulsar.exclude(pipeline_run__rm__isnull=True)
+        .exclude(pipeline_run__rm_err__isnull=True)
+        .values_list("pipeline_run__rm", "pipeline_run__rm_err")
+    )
     if len(rm_and_rm_error) > 0:
         rms, rm_errors = zip(*rm_and_rm_error)
         rms_array = np.array(rms)
         rms_errors_array = np.array(rm_errors)
         # Calculate weighted mean and std
-        rms_weights = 1 / (rms_errors_array ** 2)
+        rms_weights = 1 / (rms_errors_array**2)
         rms_weights /= np.sum(rms_weights)
         rm_mean = np.average(rms_array, weights=rms_weights)
         rm_std = np.sqrt(np.average((rms_array - rm_mean) ** 2, weights=rms_weights))
@@ -125,7 +125,7 @@ def handle_badge_creation(sender, instance, **kwargs):
             if pipeline_run.rm is None:
                 # Skip pipeline runs with no RM
                 continue
-            if abs(pipeline_run.rm - rm_mean) > 3*rm_std and rm_std != 0:
+            if abs(pipeline_run.rm - rm_mean) > 3 * rm_std and rm_std != 0:
                 pipeline_run.badges.add(rm_badge)
             else:
                 pipeline_run.badges.remove(rm_badge)
@@ -133,10 +133,10 @@ def handle_badge_creation(sender, instance, **kwargs):
     # DM badge
     dm_badge, created = Badge.objects.get_or_create(
         name="DM Drift",
-        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins", # noqa
+        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins",  # noqa
     )
     # Get median DM for the pulsar
-    dms = sorted(pfrs_of_pulsar.exclude(pipeline_run__dm__isnull=True).values_list('pipeline_run__dm', flat=True))
+    dms = sorted(pfrs_of_pulsar.exclude(pipeline_run__dm__isnull=True).values_list("pipeline_run__dm", flat=True))
     count = len(dms)
     middle = count // 2
     if count % 2 == 0:
@@ -154,8 +154,11 @@ def handle_badge_creation(sender, instance, **kwargs):
         # Get the duration os a bin in milliseconds
         bin_duration_ms = pipeline_run.observation.ephemeris.p0 / pipeline_run.observation.fold_nbin * 1000
         # Use this to calculate the DM required to cause a dispersion of one bin
-        dm_dispersion = bin_duration_ms * pipeline_run.observation.frequency**3 / \
-            (8.3 * 10.**6 * pipeline_run.observation.bandwidth)
+        dm_dispersion = (
+            bin_duration_ms
+            * pipeline_run.observation.frequency**3
+            / (8.3 * 10.0**6 * pipeline_run.observation.bandwidth)
+        )
         if abs(pipeline_run.dm - dm_median) > 3 * dm_dispersion:
             pipeline_run.badges.add(dm_badge)
         else:

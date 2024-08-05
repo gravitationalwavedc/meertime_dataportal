@@ -50,7 +50,7 @@ def create_basic_data():
     main_project = MainProject.objects.create(name="MONSPSR", telescope=telescope)
     project = Project.objects.create(code="MONSPSR_TIMING", short="MONSPSR_TIMING", main_project=main_project)
 
-    with open(os.path.join(TEST_DATA_DIR, "J0125-2327.par"), 'r') as par_file:
+    with open(os.path.join(TEST_DATA_DIR, "J0125-2327.par"), "r") as par_file:
         par_text = par_file.read()
     ephemeris_dict = parse_ephemeris_file(par_text)
     ephemeris, _ = Ephemeris.objects.get_or_create(

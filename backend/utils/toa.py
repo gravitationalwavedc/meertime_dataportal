@@ -61,7 +61,7 @@ def toa_dict_to_line(toa_dict):
         str: A line from a .toa file.
     """
     toa_line = ""
-    telescope = toa_dict['telescope']
+    telescope = toa_dict["telescope"]
     if telescope == "meerkat":
         telescope = " meerkat "
     toa_line += f"{toa_dict['archive']} {toa_dict['freq_MHz']:.6f} {toa_dict['mjd']} {toa_dict['mjd_err']:>7.3f} {telescope}"  # noqa: E501
