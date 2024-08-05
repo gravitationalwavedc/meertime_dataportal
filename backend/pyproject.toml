@@ -4,6 +4,10 @@ version = "3.0.4"
 description = ""
 authors = ["GWDC"]
 license = "MIT"
+package-mode = false
+classifiers = [
+  "Private :: Do not Upload", # Stop project accidentally being uploaded to PyPI
+]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
@@ -58,20 +62,20 @@ model_bakery = "^1.2.1"
 [tool.black]
 line-length = 119
 target_version = ['py37', 'py38']
-include = '\.pyi?$'
-exclude = '''
-/(\.git/
-  |\.eggs
-  |__pycache__
-  |\.cache
-  |\.ipynb_checkpoints
-  |\.mypy_cache
-  |\.pytest_cache
-  |\.tox
-  |\.venv
-  |src/templates
-)/
-'''
+# include = '\.pyi?$'
+# exclude = '''
+# /(\.git/
+#   |\.eggs
+#   |__pycache__
+#   |\.cache
+#   |\.ipynb_checkpoints
+#   |\.mypy_cache
+#   |\.pytest_cache
+#   |\.tox
+#   |\.venv
+#   |src/templates
+# )/
+# '''
 
 [tool.isort]
 multi_line_output = 3
