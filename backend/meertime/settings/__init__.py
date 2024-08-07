@@ -3,6 +3,7 @@ This is a django-split-settings main file.
 For more information read this:
 https://github.com/sobolevn/django-split-settings
 """
+
 import environ
 from split_settings.tools import include, optional
 

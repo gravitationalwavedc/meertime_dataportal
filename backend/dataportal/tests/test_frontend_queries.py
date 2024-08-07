@@ -74,9 +74,7 @@ def test_pulsar_fold_summary_query_with_token():
             "edges": [
                 {
                     "node": {
-                        "pulsar": {
-                            "name": "J0437-4715"
-                        },
+                        "pulsar": {"name": "J0437-4715"},
                         "latestObservation": "2023-04-17T15:08:35+00:00",
                         "firstObservation": "2023-04-17T15:08:35+00:00",
                         "mostCommonProject": "PTA",
@@ -86,10 +84,10 @@ def test_pulsar_fold_summary_query_with_token():
                         "avgSnPipe": 108.35924627749955,
                         "highestSn": 100.0,
                         "lastSn": 100.0,
-                        "lastIntegrationMinutes": 4.258317637383176
+                        "lastIntegrationMinutes": 4.258317637383176,
                     }
                 }
-            ]
+            ],
         }
     }
 
@@ -154,24 +152,12 @@ def test_fold_query():
     print(json.dumps(response.data, indent=4))
     assert not response.errors
     assert response.data == {
-        "observationSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "observations": 3,
-                        "pulsars": 1,
-                        "observationHours": 0
-                    }
-                }
-            ]
-        },
+        "observationSummary": {"edges": [{"node": {"observations": 3, "pulsars": 1, "observationHours": 0}}]},
         "pulsarFoldSummary": {
             "edges": [
                 {
                     "node": {
-                        "pulsar": {
-                            "name": "J0437-4715"
-                        },
+                        "pulsar": {"name": "J0437-4715"},
                         "latestObservation": "2023-04-17T15:08:35+00:00",
                         "latestObservationBeam": 1,
                         "firstObservation": "2023-04-17T15:08:35+00:00",
@@ -185,35 +171,23 @@ def test_fold_query():
                         "lastIntegrationMinutes": 4.258317637383176,
                         "maxSnPipe": 108.35924627749955,
                         "avgSnPipe": 108.35924627749955,
-                        "totalIntegrationHours": 0.07097196062305294
+                        "totalIntegrationHours": 0.07097196062305294,
                     }
                 }
             ]
-        }
+        },
     }
 
     response = client.execute(FOLD_QUERY.format(band="UHF"))
     print(json.dumps(response.data, indent=4))
     assert not response.errors
     assert response.data == {
-        "observationSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "observations": 1,
-                        "pulsars": 1,
-                        "observationHours": 0
-                    }
-                }
-            ]
-        },
+        "observationSummary": {"edges": [{"node": {"observations": 1, "pulsars": 1, "observationHours": 0}}]},
         "pulsarFoldSummary": {
             "edges": [
                 {
                     "node": {
-                        "pulsar": {
-                            "name": "J0125-2327"
-                        },
+                        "pulsar": {"name": "J0125-2327"},
                         "latestObservation": "2020-07-10T05:07:28+00:00",
                         "latestObservationBeam": 2,
                         "firstObservation": "2019-04-23T06:11:30+00:00",
@@ -227,11 +201,11 @@ def test_fold_query():
                         "lastIntegrationMinutes": 17.05475670588235,
                         "maxSnPipe": 106.60035817780525,
                         "avgSnPipe": 71.48481915250221,
-                        "totalIntegrationHours": 0.6464681673202614
+                        "totalIntegrationHours": 0.6464681673202614,
                     }
                 }
             ]
-        }
+        },
     }
 
 
@@ -333,42 +307,42 @@ def test_fold_detail_query():
                         "estimatedDiskSpaceGb": 1.0766774425551469,
                         "timespanDays": 444,
                         "maxDuration": 1039.9999999999998,
-                        "minDuration": 263.99999999999994
+                        "minDuration": 263.99999999999994,
                     }
                 }
             ]
         },
         "pulsarFoldResult": {
             "residualEphemeris": {
-                "ephemerisData": "\"{\\\"PSRJ\\\": \\\"J0125-2327\\\", "
-                "\\\"RAJ\\\": \\\"01:25:01.05950406\\\", "
-                "\\\"DECJ\\\": \\\"-23:27:08.1841977\\\", "
-                "\\\"DM\\\": 9.59243, "
-                "\\\"PEPOCH\\\": 57089.119311, "
-                "\\\"F0\\\": 272.08108871500735, "
-                "\\\"F1\\\": -1.361e-15, "
-                "\\\"PMRA\\\": 40.3478, "
-                "\\\"PMDEC\\\": 5.6682, "
-                "\\\"DMEPOCH\\\": 58595.551, "
-                "\\\"BINARY\\\": \\\"ELL1\\\", "
-                "\\\"PB\\\": 7.27719962431521, "
-                "\\\"A1\\\": 4.729804686, "
-                "\\\"TASC\\\": 57089.07346805, "
-                "\\\"EPS1\\\": -1.05e-08, "
-                "\\\"EPS2\\\": 2.657e-07, "
-                "\\\"CLK\\\": \\\"UNCORR\\\", "
-                "\\\"EPHEM\\\": \\\"DE405\\\", "
-                "\\\"TZRMJD\\\": 57089.810474242644, "
-                "\\\"TZRFRQ\\\": 368.58, "
-                "\\\"TZRSITE\\\": 1.0, "
-                "\\\"PX\\\": 7.2143, "
-                "\\\"EPHVER\\\": 2.0, "
-                "\\\"UNITS\\\": \\\"TDB\\\", "
-                "\\\"F0_ERR\\\": null, "
-                "\\\"P0\\\": 0.0036753748844612086, "
-                "\\\"P0_ERR\\\": null, "
-                "\\\"START\\\": \\\"1970-01-01T00:00:00\\\", "
-                "\\\"FINISH\\\": \\\"2106-02-07T06:28:15\\\"}\""
+                "ephemerisData": '"{\\"PSRJ\\": \\"J0125-2327\\", '
+                '\\"RAJ\\": \\"01:25:01.05950406\\", '
+                '\\"DECJ\\": \\"-23:27:08.1841977\\", '
+                '\\"DM\\": 9.59243, '
+                '\\"PEPOCH\\": 57089.119311, '
+                '\\"F0\\": 272.08108871500735, '
+                '\\"F1\\": -1.361e-15, '
+                '\\"PMRA\\": 40.3478, '
+                '\\"PMDEC\\": 5.6682, '
+                '\\"DMEPOCH\\": 58595.551, '
+                '\\"BINARY\\": \\"ELL1\\", '
+                '\\"PB\\": 7.27719962431521, '
+                '\\"A1\\": 4.729804686, '
+                '\\"TASC\\": 57089.07346805, '
+                '\\"EPS1\\": -1.05e-08, '
+                '\\"EPS2\\": 2.657e-07, '
+                '\\"CLK\\": \\"UNCORR\\", '
+                '\\"EPHEM\\": \\"DE405\\", '
+                '\\"TZRMJD\\": 57089.810474242644, '
+                '\\"TZRFRQ\\": 368.58, '
+                '\\"TZRSITE\\": 1.0, '
+                '\\"PX\\": 7.2143, '
+                '\\"EPHVER\\": 2.0, '
+                '\\"UNITS\\": \\"TDB\\", '
+                '\\"F0_ERR\\": null, '
+                '\\"P0\\": 0.0036753748844612086, '
+                '\\"P0_ERR\\": null, '
+                '\\"START\\": \\"1970-01-01T00:00:00\\", '
+                '\\"FINISH\\": \\"2106-02-07T06:28:15\\"}"'
             },
             "description": "PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small "
             "dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux "
@@ -392,28 +366,17 @@ def test_fold_detail_query():
                             "nantEff": 56,
                             "restricted": False,
                             "embargoEndDate": "2020-10-22T06:11:30+00:00",
-                            "project": {
-                                "short": "PTA"
-                            },
-                            "ephemeris": {
-                                "dm": 9.59243
-                            },
+                            "project": {"short": "PTA"},
+                            "ephemeris": {"dm": 9.59243},
                             "calibration": {
                                 # "idInt": 41
-                            }
+                            },
                         },
-                        "pipelineRun": {
-                            "dm": 20.0,
-                            "dmErr": 1.0,
-                            "rm": 10.0,
-                            "rmErr": 1.0,
-                            "sn": 100.0,
-                            "flux": 25.0
-                        }
+                        "pipelineRun": {"dm": 20.0, "dmErr": 1.0, "rm": 10.0, "rmErr": 1.0, "sn": 100.0, "flux": 25.0},
                     }
                 }
-            ]
-        }
+            ],
+        },
     }
 
 
@@ -486,20 +449,14 @@ def test_plot_container_query():
             "nsubType": "1",
             "obsNchan": 1,
             "obsNpol": 1,
-        }
+        },
     )
     assert not response.errors
     del response.data["toa"]["edges"][0]["node"]["id"]
     assert response.data == {
         "toa": {
-            "allProjects": [
-                "PTA"
-            ],
-            "allNchans": [
-                1,
-                4,
-                16
-            ],
+            "allProjects": ["PTA"],
+            "allNchans": [1, 4, 16],
             "edges": [
                 {
                     "node": {
@@ -507,11 +464,9 @@ def test_plot_container_query():
                             "duration": 263.99999999999994,
                             "utcStart": "2019-04-23T06:11:30+00:00",
                             "beam": 1,
-                            "band": "LBAND"
+                            "band": "LBAND",
                         },
-                        "project": {
-                            "short": "PTA"
-                        },
+                        "project": {"short": "PTA"},
                         "obsNchan": 1,
                         "nsubType": "1",
                         "dmCorrected": False,
@@ -522,10 +477,10 @@ def test_plot_container_query():
                         "residualSec": None,
                         "residualSecErr": None,
                         "residualPhase": None,
-                        "residualPhaseErr": None
+                        "residualPhaseErr": None,
                     }
                 }
-            ]
+            ],
         }
     }
 
@@ -616,9 +571,7 @@ def test_single_observation_query():
                                 # "id": "UHJvamVjdE5vZGU6NDE=",
                                 "short": "PTA",
                                 "code": "SCI-20180516-MB-05",
-                                "mainProject": {
-                                    "name": "MeerTIME"
-                                }
+                                "mainProject": {"name": "MeerTIME"},
                             },
                             "frequency": 815.734375,
                             "bandwidth": 544.0,
@@ -628,16 +581,10 @@ def test_single_observation_query():
                             "foldNbin": 1024,
                             "foldNchan": 1024,
                             "foldTsubint": 8,
-                            "nant": 28
+                            "nant": 28,
                         },
-                        "pipelineRun": {
-                            "dm": 20.0,
-                            "rm": 10.0,
-                            "sn": 100.0
-                        },
-                        "images": {
-                            "edges": []
-                        }
+                        "pipelineRun": {"dm": 20.0, "rm": 10.0, "sn": 100.0},
+                        "images": {"edges": []},
                     }
                 }
             ]
@@ -699,24 +646,12 @@ def test_search_query():
     assert not response.errors
     print(json.dumps(response.data, indent=4))
     assert response.data == {
-        "observationSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "observations": 3,
-                        "pulsars": 3,
-                        "observationHours": 4
-                    }
-                }
-            ]
-        },
+        "observationSummary": {"edges": [{"node": {"observations": 3, "pulsars": 3, "observationHours": 4}}]},
         "pulsarSearchSummary": {
             "edges": [
                 {
                     "node": {
-                        "pulsar": {
-                            "name": "J1614+0737"
-                        },
+                        "pulsar": {"name": "J1614+0737"},
                         "latestObservation": "2023-08-01T18:21:59+00:00",
                         "firstObservation": "2023-08-01T18:21:59+00:00",
                         "allProjects": "TPA",
@@ -724,11 +659,11 @@ def test_search_query():
                         "timespan": 1,
                         "numberOfObservations": 1,
                         "lastIntegrationMinutes": 2.0044833333333334,
-                        "totalIntegrationHours": 0.03340805555555555
+                        "totalIntegrationHours": 0.03340805555555555,
                     }
                 }
             ]
-        }
+        },
     }
 
 
@@ -793,16 +728,7 @@ def test_search_details_query():
     del response.data["observation"]["edges"][0]["node"]["id"]
     assert response.data == {
         "observationSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "observations": 1,
-                        "projects": 1,
-                        "observationHours": 3,
-                        "timespanDays": 1
-                    }
-                }
-            ]
+            "edges": [{"node": {"observations": 1, "projects": 1, "observationHours": 3, "timespanDays": 1}}]
         },
         "observation": {
             "edges": [
@@ -810,9 +736,7 @@ def test_search_details_query():
                     "node": {
                         # "id": "T2JzZXJ2YXRpb25Ob2RlOjY3",
                         "utcStart": "2023-06-27T11:37:31+00:00",
-                        "project": {
-                            "short": "GC"
-                        },
+                        "project": {"short": "GC"},
                         "raj": "13:26:47.24",
                         "decj": "-47:28:46.5",
                         "beam": 1,
@@ -823,11 +747,11 @@ def test_search_details_query():
                         "filterbankNpol": 4,
                         "filterbankNchan": 256,
                         "filterbankTsamp": 19.14,
-                        "filterbankDm": 99.9
+                        "filterbankDm": 99.9,
                     }
                 }
             ]
-        }
+        },
     }
 
 
@@ -916,17 +840,7 @@ def test_session_query():
     del response.data["calibration"]["edges"][0]["node"]["idInt"]
     del response.data["calibration"]["edges"][0]["node"]["observations"]["edges"][0]["node"]["id"]
     assert response.data == {
-        "observationSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "observations": 1,
-                        "projects": 1,
-                        "pulsars": 1
-                    }
-                }
-            ]
-        },
+        "observationSummary": {"edges": [{"node": {"observations": 1, "projects": 1, "pulsars": 1}}]},
         "calibration": {
             "edges": [
                 {
@@ -940,40 +854,31 @@ def test_session_query():
                                 {
                                     "node": {
                                         # "id": "T2JzZXJ2YXRpb25Ob2RlOjc2",
-                                        "pulsar": {
-                                            "name": "J0125-2327"
-                                        },
+                                        "pulsar": {"name": "J0125-2327"},
                                         "utcStart": "2019-04-23T06:11:30+00:00",
                                         "beam": 1,
                                         "obsType": "FOLD",
                                         "duration": 263.99999999999994,
                                         "frequency": 1283.58203125,
-                                        "project": {
-                                            "short": "PTA"
-                                        },
+                                        "project": {"short": "PTA"},
                                         "pulsarFoldResults": {
                                             "edges": [
                                                 {
                                                     "node": {
-                                                        "images": {
-                                                            "edges": []
-                                                        },
-                                                        "pipelineRun": {
-                                                            "sn": 100.0,
-                                                            "percentRfiZapped": 0.1
-                                                        }
+                                                        "images": {"edges": []},
+                                                        "pipelineRun": {"sn": 100.0, "percentRfiZapped": 0.1},
                                                     }
                                                 }
                                             ]
-                                        }
+                                        },
                                     }
                                 }
                             ]
-                        }
+                        },
                     }
                 }
             ]
-        }
+        },
     }
 
 
@@ -1023,7 +928,7 @@ def test_session_list_query():
                         "nObservations": 1,
                         "nAntMin": 31,
                         "nAntMax": 31,
-                        "totalIntegrationTimeSeconds": 120.26899999999999
+                        "totalIntegrationTimeSeconds": 120.26899999999999,
                     }
                 }
             ]
@@ -1192,18 +1097,10 @@ def test_observation_mode_duration():
     )
     # Molonglo obs of same pulsar J0125-2327
     # "duration": 455.0798950400001,
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
-    )
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
-    )
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
-    )
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
-    )
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template)
+    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template)
     response = client.execute(
         OBSERVATION_LIST_QUERY,
         variables={
@@ -1267,7 +1164,7 @@ def test_total_badge_excluded_toas():
     )
     dm_badge, created = Badge.objects.get_or_create(
         name="DM Drift",
-        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins", # noqa
+        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins",  # noqa
     )
     pr1.badges.add(dm_badge)
     obs2, cal2, pr2 = create_observation_pipeline_run_toa(

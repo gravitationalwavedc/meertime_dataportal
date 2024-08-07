@@ -4,6 +4,10 @@ version = "3.0.4"
 description = ""
 authors = ["GWDC"]
 license = "MIT"
+package-mode = false
+classifiers = [
+  "Private :: Do not Upload", # Stop project accidentally being uploaded to PyPI
+]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<3.13"
@@ -32,16 +36,13 @@ scipy = "^1.11.2"
 astropy = "^5.3.2"
 pyyaml = "6.0.1"
 django-querycount = "^0.7.0"
+pytz = "^2024.1"
 
 [tool.poetry.group.dev.dependencies]
 freezegun = "^1.2.2"
 pyflame = "^0.3.1"
 ddtrace = "^2.4.0"
-pytest = "^6.0.0"
-pytest-django = "^3.9.0"
 pylint = "^2.5.3"
-black = "^22"
-pytest-cov = "^2.10.0"
 nplusone = "^1.0.0"
 coverage = "^5.2.1"
 django-debug-toolbar = "^4.2"
@@ -54,6 +55,10 @@ django-test-migrations = "^1.0.0"
 django-coverage-plugin = "^1.8.0"
 xenon = "^0.9.1"
 model_bakery = "^1.2.1"
+black = "^24.8.0"
+pytest = "^8.3.2"
+pytest-cov = "^5.0.0"
+pytest-django = "^4.8.0"
 
 [tool.black]
 line-length = 119

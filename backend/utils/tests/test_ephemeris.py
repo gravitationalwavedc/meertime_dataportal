@@ -100,6 +100,6 @@ def test_ephemeris_parse():
         print(f"Testing {test_ephem}")
         ephemeris_dict = parse_ephemeris_file(test_ephem)
         print(json.dumps(ephemeris_dict, indent=4))
-        with open(os.path.join(TEST_DATA_DIR, expected_json), 'r') as f:
+        with open(os.path.join(TEST_DATA_DIR, expected_json), "r") as f:
             expected_dict = json.load(f)
         assert ephemeris_dict == expected_dict

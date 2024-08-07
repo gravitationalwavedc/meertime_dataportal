@@ -357,7 +357,7 @@ class ObservationNode(DjangoObjectType):
         if "obsType" in instance.variable_values.keys():
             obs = obs.filter(obs_type=instance.variable_values["obsType"])
         # Then get the mode of the duration (highest count)
-        durations = obs.values('duration')
+        durations = obs.values("duration")
         # Round to nearest 32 seconds
         rounded_duration = [int(round(duration["duration"] / 32) * 32) for duration in durations]
         counter = Counter(rounded_duration)
@@ -642,15 +642,13 @@ class PulsarFoldResultConnection(relay.Connection):
     def resolve_total_badge_excluded_observations(self, instance):
         if "excludeBadges" in instance.variable_values.keys():
             # First do all other filters
-            queryset = PulsarFoldResult.objects.select_related(
-                "pipeline_run"
-            ).prefetch_related(
-                "pipeline_run__badges"
-            ).select_related(
-                "pipeline_run__observation__calibration"
-            ).prefetch_related(
-                "pipeline_run__observation__calibration__badges"
-            ).all()
+            queryset = (
+                PulsarFoldResult.objects.select_related("pipeline_run")
+                .prefetch_related("pipeline_run__badges")
+                .select_related("pipeline_run__observation__calibration")
+                .prefetch_related("pipeline_run__observation__calibration__badges")
+                .all()
+            )
             if "pulsar" in instance.variable_values.keys():
                 queryset = queryset.filter(pulsar__name=instance.variable_values["pulsar"])
             if "mainProject" in instance.variable_values.keys():
@@ -662,9 +660,11 @@ class PulsarFoldResultConnection(relay.Connection):
             if "beam" in instance.variable_values.keys():
                 queryset = queryset.filter(observation__pulsar__name=instance.variable_values["beam"])
             # Filter and observations with badges or below minimum SNR
-            badge_snr_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) |\
-                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"]) |\
-                Q(pipeline_run__sn__lt=instance.variable_values["minimumSNR"])
+            badge_snr_filter = (
+                Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"])
+                | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
+                | Q(pipeline_run__sn__lt=instance.variable_values["minimumSNR"])
+            )
             return queryset.filter(badge_snr_filter).count()
         else:
             return 0
@@ -958,9 +958,11 @@ class ToaConnection(relay.Connection):
             if "obsNpol" in instance.variable_values.keys():
                 queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
             # Filter and observations with badges
-            badge_filter = Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"]) |\
-                Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"]) |\
-                Q(snr__lt=instance.variable_values["minimumSNR"])
+            badge_filter = (
+                Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"])
+                | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
+                | Q(snr__lt=instance.variable_values["minimumSNR"])
+            )
             return queryset.filter(badge_filter).count()
         else:
             return 0
@@ -1236,18 +1238,17 @@ class Query(graphene.ObjectType):
 
         exclude_badges = kwargs.get("excludeBadges")
         if exclude_badges:
-            queryset = queryset.select_related(
-                "pipeline_run",
-            ).prefetch_related(
-                "pipeline_run__badges"
-            ).select_related(
-                "pipeline_run__observation__calibration",
-            ).prefetch_related(
-                "pipeline_run__observation__calibration__badges"
-            ).exclude(
-                pipeline_run__badges__name__in=exclude_badges
-            ).exclude(
-                pipeline_run__observation__calibration__badges__name__in=exclude_badges
+            queryset = (
+                queryset.select_related(
+                    "pipeline_run",
+                )
+                .prefetch_related("pipeline_run__badges")
+                .select_related(
+                    "pipeline_run__observation__calibration",
+                )
+                .prefetch_related("pipeline_run__observation__calibration__badges")
+                .exclude(pipeline_run__badges__name__in=exclude_badges)
+                .exclude(pipeline_run__observation__calibration__badges__name__in=exclude_badges)
             )
 
         minimumSNR = kwargs.get("minimumSNR")
@@ -1370,9 +1371,7 @@ class Query(graphene.ObjectType):
 
         exclude_badges = kwargs.get("excludeBadges")
         if exclude_badges:
-            queryset = queryset.exclude(
-                pipeline_run__badges__name__in=exclude_badges
-            ).exclude(
+            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges).exclude(
                 pipeline_run__observation__calibration__badges__name__in=exclude_badges
             )
 

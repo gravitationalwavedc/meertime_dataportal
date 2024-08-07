@@ -18,42 +18,43 @@ variables:
   DOCKER_REGISTRY: "nexus.gwdc.org.au"
 
 include:
-  - template: Jobs/Code-Quality.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
 
 stages:
   - test
   - build
   - package-publish
 
-image:
-  name: ubuntu:20.04
-  entrypoint: ["/usr/bin/env"]
-
-services:
-  - postgres:12.2-alpine
-
-before_script:
-  - apt -y update
-  - apt -y install apt-utils
-  - apt -y install net-tools git curl wget python3.9 python3-pip python3.8-venv python3.9-dev postgresql postgresql-client libpq-dev
-  - apt -y upgrade
-  - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
-  - echo $POETRY_HOME
-  - python3 -m venv $POETRY_HOME
-  - $POETRY_HOME/bin/pip install poetry
-  - $POETRY_HOME/bin/poetry --version
-  - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
-  - export PGPASSWORD=$POSTGRES_PASSWORD
-
-cache:
-  - key:
-      files:
-        - backend/poetry.lock
-    paths:
-      - backend/.venv/
-
 django-tests:
   stage: test
+  image:
+    name: ubuntu:20.04
+    entrypoint: ["/usr/bin/env"]
+
+  services:
+    - postgres:12.2-alpine
+
+  cache:
+    - key:
+        files:
+          - backend/poetry.lock
+      paths:
+        - backend/.venv/
+
+  before_script:
+    - apt -y update
+    - apt -y install apt-utils
+    - apt -y install net-tools git curl wget python3.9 python3-pip python3.8-venv python3.9-dev postgresql postgresql-client libpq-dev
+    - apt -y upgrade
+    - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+    - echo $POETRY_HOME
+    - python3 -m venv $POETRY_HOME
+    - $POETRY_HOME/bin/pip install poetry
+    - $POETRY_HOME/bin/poetry --version
+    - $POETRY_HOME/bin/poetry config virtualenvs.in-project true
+    - export PGPASSWORD=$POSTGRES_PASSWORD
+
   script:
     - cd backend/
     - $POETRY_HOME/bin/poetry install
@@ -65,6 +66,23 @@ django-tests:
         coverage_format: cobertura
         path: backend/coverage.xml
       junit: backend/reports/junit.xml
+
+flake8:
+  stage: test
+  image: registry.gitlab.com/pipeline-components/flake8:latest
+  script:
+    - flake8 --verbose --exit-zero gl-codeclimate --output-file gl-code-quality-report.json backend
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+
+black:
+  stage: test
+  image: pyfound/black:24.8.0
+  script:
+    - cd backend/
+    - black --version
+    - black . --check --verbose --config pyproject.toml
 
 react-test:
   stage: test
@@ -94,23 +112,6 @@ react-test:
         coverage_format: cobertura
         path: frontend/reports/cobertura-coverage.xml
       junit: frontend/reports/junit.xml
-
-flake8:
-  stage: test
-  script:
-    - cd backend/
-    - pip3 install flake8-gl-codeclimate
-    - flake8 --exit-zero --format gl-codeclimate --output-file gl-code-quality-report.json .
-  artifacts:
-    reports:
-      codequality: backend/gl-code-quality-report.json
-
-black:
-  stage: test
-  script:
-    - cd backend/
-    - $POETRY_HOME/bin/poetry install
-    - $POETRY_HOME/bin/poetry run black .
 
 react-formatting:
   stage: test
