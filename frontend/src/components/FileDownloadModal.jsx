@@ -79,6 +79,7 @@ const FildDownloadModal = ({ visible, data, setShow }) => {
     } else {
       row.fileType = "Cleaned Archive";
     }
+
     return [...result, { ...row }];
   }, []);
 
@@ -101,7 +102,7 @@ const FildDownloadModal = ({ visible, data, setShow }) => {
           </thead>
           <tbody>
             {sortedFiles.map((file) => (
-              <tr key={file.path}>
+              <tr key={file.id}>
                 <td>{file.fileName} </td>
                 <td>{file.fileType}</td>
                 <td>{(file.fileSize / 1024 ** 2).toFixed(2)} MB</td>

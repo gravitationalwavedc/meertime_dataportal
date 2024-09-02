@@ -1,80 +1,124 @@
 import { useState } from "react";
-import { Col, Row, Form, OverlayTrigger, Tooltip } from "react-bootstrap";
-import { HiQuestionMarkCircle } from "react-icons/hi";
-import ReactMarkdown from "react-markdown";
+import { Col, Form } from "react-bootstrap";
+
+const observationFilters = [
+  {
+    id: "timingJump",
+    label: "Session Timing Jump",
+    queryString: "Session Timing Jump",
+    isActive: false,
+    description:
+      "Observed jump in ToA residuals of all observations of this session",
+  },
+  {
+    id: "sensitivityReduction",
+    label: "Session Sensitivity Reduction",
+    queryString: "Session Sensitivity Reduction",
+    isActive: false,
+    description:
+      "Reduced observed sensitivity, often by a factor of 16 due to incorrect antenna summation",
+  },
+  {
+    id: "strongRFI",
+    label: "Strong RFI",
+    queryString: "Strong RFI",
+    isActive: false,
+    description: "Over 20% of RFI removed from observation",
+  },
+  {
+    id: "rmDrift",
+    label: "RM Drift",
+    queryString: "RM Drift",
+    isActive: true,
+    description:
+      "The Rotation Measure has drifted three weighted standard deviations from the weighted mean",
+  },
+  {
+    id: "dmDrift",
+    label: "DM Drift",
+    queryString: "DM Drift",
+    isActive: false,
+    description:
+      "The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins",
+  },
+];
 
 const ObservationFlags = ({
-  observationBadges,
-  handleObservationFlagToggle,
   minimumSNR,
-  handleMinimumSNRToggle,
-  totalBadgeExcludedObservations,
-  badgeData,
+  setMinimumSNR,
+  setExcludeBadges,
+  excludeBadges,
 }) => {
   const [localMinimumSNR, setLocalMinimumSNR] = useState(minimumSNR);
+
   const handleMinimumSNRSlide = (e) => {
     setLocalMinimumSNR(parseInt(e.target.value));
   };
 
-  const badgeString =
-    totalBadgeExcludedObservations +
-    " observations removed by the above observation flags.";
+  const handleMinimumSNRToggle = (e) => {
+    const minimumSNR = e.target.value;
+    const url = new URL(window.location);
+    url.searchParams.set("minSNR", minimumSNR);
+    window.history.pushState({}, "", url);
+    setMinimumSNR(minimumSNR);
+  };
 
-  const tooltip = (observationBadgeName) => {
-    const observationBadge = badgeData.find(
-      (obj) => obj.node.name === observationBadgeName
-    );
-    return <Tooltip id="tooltip">{observationBadge.node.description}</Tooltip>;
+  const handleCheckbox = (e) => {
+    const flag = observationFilters.find((flag) => flag.id === e.target.id);
+
+    let newExcludeBadges = [...excludeBadges];
+
+    if (e.target.checked) {
+      newExcludeBadges.push(flag.queryString);
+    } else {
+      newExcludeBadges = newExcludeBadges.filter((queryString) => {
+        return queryString !== flag.queryString;
+      });
+    }
+
+    setExcludeBadges(newExcludeBadges);
   };
 
   return (
-    <>
-      <Form.Row className="observationBadges">
+    <Form className="mb-5">
+      <Form.Row className="searchbar">
         <Col md={5} xl={4}>
-          {Object.keys(observationBadges).map((observationBadge, index) => (
+          <h6 className="text-primary-600">Filter by Badge</h6>
+          {observationFilters.map((checkBox) => (
             <Form.Check
-              key={index}
-              type="switch"
-              id={observationBadge}
-              label={
-                <>
-                  Remove {observationBadge}
-                  <OverlayTrigger
-                    placement="right"
-                    overlay={tooltip(observationBadge)}
-                  >
-                    <HiQuestionMarkCircle
-                      style={{ cursor: "pointer", marginLeft: "0.5rem" }}
-                    />
-                  </OverlayTrigger>
-                </>
-              }
-              checked={observationBadges[observationBadge]}
-              onChange={() => handleObservationFlagToggle(observationBadge)}
-            />
+              type="checkbox"
+              key={checkBox.id}
+              id={checkBox.id}
+              className="mt-3"
+            >
+              <Form.Check.Input
+                onChange={handleCheckbox}
+                type="checkbox"
+                defaultChecked={checkBox.isActive}
+              />
+              <Form.Check.Label>Show {checkBox.label}</Form.Check.Label>
+              <Form.Text muted>{checkBox.description}</Form.Text>
+            </Form.Check>
           ))}
         </Col>
       </Form.Row>
-      <Form.Row className="mb-3">
-        <Form.Label>
-          Remove observations and ToAs with SNR less than {localMinimumSNR}
-        </Form.Label>
-        <Form.Control
-          type="range"
-          value={localMinimumSNR}
-          min={0}
-          max={50}
-          onChange={handleMinimumSNRSlide}
-          onMouseUp={handleMinimumSNRToggle}
-          className="custom-slider"
-        />
-      </Form.Row>
-      <Row className="mb-3">
-        <Col md={5}>
-          <ReactMarkdown>{badgeString}</ReactMarkdown>
+      <Form.Row>
+        <Col md={5} xl={4} className="mt-4">
+          <Form.Label>
+            Remove observations and ToAs with SNR less than {localMinimumSNR}
+          </Form.Label>
+          <Form.Control
+            type="range"
+            value={localMinimumSNR}
+            min={0}
+            max={50}
+            onChange={handleMinimumSNRSlide}
+            onMouseUp={handleMinimumSNRToggle}
+            className="custom-slider"
+          />
         </Col>
-      </Row>
-    </>
+      </Form.Row>
+    </Form>
   );
 };
 

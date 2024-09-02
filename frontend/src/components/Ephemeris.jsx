@@ -1,17 +1,56 @@
 import { Modal, Table } from "react-bootstrap";
 import { formatUTC } from "../helpers";
+import { graphql, usePreloadedQuery } from "react-relay";
+import { useEffect, useState } from "react";
 
-const Ephemeris = ({ ephemeris, show, setShow }) => {
-  let ephemerisJSON;
-
-  try {
-    ephemerisJSON = JSON.parse(JSON.parse(ephemeris));
-  } catch (e) {
-    console.log(e);
-    return null;
+export const ephemerisQuery = graphql`
+  query EphemerisQuery($jname: String, $mainProject: String) {
+    pulsarFoldResult(pulsar: $jname, mainProject: $mainProject) {
+      residualEphemeris {
+        id
+        ephemerisData
+        createdAt
+      }
+    }
   }
+`;
 
-  const updated = formatUTC(ephemeris.createdAt);
+const Ephemeris = ({ show, setShow, queryRef }) => {
+  const data = usePreloadedQuery(ephemerisQuery, queryRef);
+  const [updated, setUpdated] = useState("");
+  const [ephemeris, setEphemeris] = useState({});
+
+  useEffect(() => {
+    const jsonData = data?.pulsarFoldResult?.residualEphemeris?.ephemerisData;
+    if (jsonData !== undefined) {
+      setEphemeris(
+        JSON.parse(
+          JSON.parse(data?.pulsarFoldResult?.residualEphemeris?.ephemerisData)
+        )
+      );
+      setUpdated(
+        formatUTC(data?.pulsarFoldResult?.residualEphemeris?.createdAt)
+      );
+    }
+  }, [setUpdated, setEphemeris, data]);
+
+  if (data.pulsarFoldResult.residualEphemeris === null) {
+    return (
+      <Modal
+        className="ephemeris-table"
+        show={show}
+        onHide={() => setShow(false)}
+        aria-labelledby="ephemeris-data"
+      >
+        <Modal.Header style={{ borderBottom: "none" }} closeButton>
+          <Modal.Title className="text-primary">Folding Ephemeris</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <h5>No residual ephemeris data available.</h5>
+        </Modal.Body>
+      </Modal>
+    );
+  }
 
   return (
     <Modal
@@ -29,10 +68,10 @@ const Ephemeris = ({ ephemeris, show, setShow }) => {
       <Modal.Body>
         <Table>
           <tbody>
-            {Object.keys(ephemerisJSON).map((key) =>
+            {Object.keys(ephemeris).map((key) =>
               key === "TIMEOFFSETS"
-                ? ephemerisJSON[key].map((item, index) => (
-                    <tr key={index}>
+                ? ephemeris[key].map((item) => (
+                    <tr key={item.id}>
                       <th>{key}</th>
                       <td className="ephemris-item">{item["type"]} </td>
                       <td className="ephemris-item">{item["mjd"]} </td>
@@ -44,9 +83,9 @@ const Ephemeris = ({ ephemeris, show, setShow }) => {
                 : !key.includes("_ERR") && (
                     <tr key={key}>
                       <th>{key}</th>
-                      <td className="ephemris-item">{ephemerisJSON[key]} </td>
+                      <td className="ephemris-item">{ephemeris[key]} </td>
                       <td className="ephemris-item">
-                        {ephemerisJSON[key + "_ERR"]}
+                        {ephemeris[key + "_ERR"]}
                       </td>
                     </tr>
                   )

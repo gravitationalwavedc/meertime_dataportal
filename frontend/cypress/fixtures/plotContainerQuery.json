@@ -1,8 +1,12 @@
 {
   "data": {
     "toa": {
-      "allProjects": [],
       "allNchans": [],
+      "allProjects": [],
+      "totalBadgeExcludedToas": 0,
+      "edges": []
+    },
+    "pulsarFoldResult": {
       "edges": []
     }
   }

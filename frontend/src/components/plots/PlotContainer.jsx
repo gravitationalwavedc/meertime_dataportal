@@ -1,13 +1,14 @@
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import { graphql, useRefetchableFragment } from "react-relay";
 import PlotlyPlot from "./PlotlyPlot";
 import { getActivePlotData } from "./plotData";
 import { meertime, molonglo } from "../../telescopes";
-import ReactMarkdown from "react-markdown";
+import ObservationFlags from "../fold-detail/ObservationFlags";
+import { useEffect } from "react";
 
-const PlotContainerFragment = graphql`
+const plotContainerFragment = graphql`
   fragment PlotContainerFragment on Query
   @refetchable(queryName: "PlotContainerRefetchQuery")
   @argumentDefinitions(
@@ -29,6 +30,7 @@ const PlotContainerFragment = graphql`
       minimumSNR: $minimumSNR
     ) {
       allNchans
+      allProjects
       totalBadgeExcludedToas
       edges {
         node {
@@ -103,71 +105,54 @@ const PlotContainerFragment = graphql`
 `;
 
 const PlotContainer = ({
-  toaData,
+  queryData,
   jname,
   mainProject,
-  timingProjects,
-  projectShort,
-  setProjectShort,
-  obsNchan,
-  setObsNchan,
-  nsubType,
-  setNsubType,
+  match,
+  minimumSNR,
+  setMinimumSNR,
+  excludeBadges,
+  setExcludeBadges,
 }) => {
-  const [toaDataResult, refetch] = useRefetchableFragment(
-    PlotContainerFragment,
-    toaData
+  const [data, refetch] = useRefetchableFragment(
+    plotContainerFragment,
+    queryData
   );
-  const allNchans = toaDataResult.toa.allNchans.slice().sort((a, b) => a - b);
+
+  const { query } = match.location;
+
+  console.log("Here", data);
+  const allNchans = data.toa?.allNchans?.slice().sort((a, b) => a - b);
+
+  const timingProjects =
+    data.toa.allProjects.length === 0 ? ["All"] : data.toa.allProjects;
 
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Timing Residuals");
+  const [projectShort, setProjectShort] = useState(
+    query.timingProject || timingProjects[0]
+  );
+  const [obsNchan, setObsNchan] = useState(query.obsNchan || 1);
+  const [nsubType, setNsubType] = useState(query.nsubType || "1");
 
-  const handleRefetch = ({
-    newProjectShort = projectShort,
-    newObsNchan = obsNchan,
-    newNsubType = nsubType,
-  } = {}) => {
+  useEffect(() => {
     const url = new URL(window.location);
-    url.searchParams.set("timingProject", newProjectShort);
-    url.searchParams.set("obsNchan", newObsNchan);
-    url.searchParams.set("nsubType", newNsubType);
+    url.searchParams.set("timingProject", projectShort);
+    url.searchParams.set("obsNchan", obsNchan);
+    url.searchParams.set("nsubType", nsubType);
     window.history.pushState({}, "", url);
 
     refetch({
-      projectShort: newProjectShort,
-      obsNchan: newObsNchan,
-      nsubType: newNsubType,
+      projectShort: projectShort,
+      obsNchan: obsNchan,
+      nsubType: nsubType,
+      excludeBadges: excludeBadges,
+      minimumSNR: minimumSNR,
     });
-  };
-
-  const handleSetActivePlot = (activePlot) => {
-    setActivePlot(activePlot);
-  };
-
-  const handleSetTimingProject = (newTimingProject) => {
-    setProjectShort(newTimingProject);
-    handleRefetch({
-      newTimingProject: newTimingProject,
-    });
-  };
-
-  const handleSetNsubType = (newNsubType) => {
-    setNsubType(newNsubType);
-    handleRefetch({
-      newNsubType: newNsubType,
-    });
-  };
-
-  const handleSetNchan = (newObsNchan) => {
-    setObsNchan(parseInt(newObsNchan, 10));
-    handleRefetch({
-      newObsNchan: newObsNchan,
-    });
-  };
+  }, [refetch, projectShort, obsNchan, nsubType, excludeBadges, minimumSNR]);
 
   const activePlotData = getActivePlotData(
-    toaDataResult,
+    data,
     activePlot,
     projectShort,
     jname,
@@ -177,14 +162,13 @@ const PlotContainer = ({
   const plotTypes =
     mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
 
-  const totalBadgeExcludedObservations =
-    toaDataResult.toa.totalBadgeExcludedToas;
-  const badgeString =
-    totalBadgeExcludedObservations +
-    " ToAs removed by the above observation flags.";
-
   return (
-    <Suspense fallback={<h3>Loading Plot...</h3>}>
+    <>
+      <Row className="mt-5 mb-2">
+        <Col>
+          <h4 className="text-primary-600">Observation Plot</h4>
+        </Col>
+      </Row>
       <Row className="d-none d-sm-block">
         <Col md={10} className="pulsar-plot-display">
           <Form.Row>
@@ -194,7 +178,7 @@ const PlotContainer = ({
                 custom
                 as="select"
                 value={activePlot}
-                onChange={(event) => handleSetActivePlot(event.target.value)}
+                onChange={(event) => setActivePlot(event.target.value)}
               >
                 {plotTypes.map((item) => (
                   <option key={item} value={item}>
@@ -203,7 +187,19 @@ const PlotContainer = ({
                 ))}
               </Form.Control>
             </Form.Group>
-            <Form.Group controlId="xAxisController" className="col-md-2">
+          </Form.Row>
+          <ObservationFlags
+            minimumSNR={minimumSNR}
+            setMinimumSNR={setMinimumSNR}
+            data={queryData}
+            setExcludeBadges={setExcludeBadges}
+            excludeBadges={excludeBadges}
+          />
+          <Form.Row>
+            <Form.Group
+              controlId="xAxisController"
+              className="col-md-2 searchbar"
+            >
               <Form.Label>X Axis</Form.Label>
               <Form.Control
                 custom
@@ -220,16 +216,14 @@ const PlotContainer = ({
               <>
                 <Form.Group
                   controlId="plotProjectController"
-                  className="col-md-2"
+                  className="col-md-2 searchbar"
                 >
                   <Form.Label>Timing Project</Form.Label>
                   <Form.Control
                     custom
                     as="select"
                     value={projectShort}
-                    onChange={(event) =>
-                      handleSetTimingProject(event.target.value)
-                    }
+                    onChange={(event) => setProjectShort(event.target.value)}
                   >
                     {timingProjects.map((timingProject) => (
                       <option key={timingProject} value={timingProject}>
@@ -240,14 +234,14 @@ const PlotContainer = ({
                 </Form.Group>
                 <Form.Group
                   controlId="plotNchanController"
-                  className="col-md-2"
+                  className="col-md-2 searchbar"
                 >
                   <Form.Label>Nchan</Form.Label>
                   <Form.Control
                     custom
                     as="select"
                     value={obsNchan}
-                    onChange={(event) => handleSetNchan(event.target.value)}
+                    onChange={(event) => setObsNchan(event.target.value)}
                   >
                     {allNchans.map((nchan) => (
                       <option key={nchan} value={nchan} disabled={nchan > 32}>
@@ -258,14 +252,14 @@ const PlotContainer = ({
                 </Form.Group>
                 <Form.Group
                   controlId="plotMaxNsubController"
-                  className="col-md-2"
+                  className="col-md-2 searchbar"
                 >
                   <Form.Label>Nsub Type</Form.Label>
                   <Form.Control
                     custom
                     as="select"
                     value={nsubType}
-                    onChange={(event) => handleSetNsubType(event.target.value)}
+                    onChange={(event) => setNsubType(event.target.value)}
                   >
                     <option value="1">1</option>
                     <option value="max">Max</option>
@@ -275,17 +269,6 @@ const PlotContainer = ({
               </>
             )}
           </Form.Row>
-          {activePlot === "Timing Residuals" && (
-            <Row className="mb-3">
-              <Col md={5}>
-                <ReactMarkdown>{badgeString}</ReactMarkdown>
-              </Col>
-            </Row>
-          )}
-          <Form.Text className="text-muted">
-            Drag a box to zoom, hover your mouse the top right and click
-            Autoscale to zoom out, click on a point to view observation.
-          </Form.Text>
           <div className="pulsar-plot-wrapper">
             <PlotlyPlot
               data={activePlotData}
@@ -295,7 +278,7 @@ const PlotContainer = ({
           </div>
         </Col>
       </Row>
-    </Suspense>
+    </>
   );
 };
 

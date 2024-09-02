@@ -196,20 +196,6 @@ class Calibration(models.Model):
     n_ant_min = models.IntegerField(null=True)
     n_ant_max = models.IntegerField(null=True)
     total_integration_time_seconds = models.FloatField(null=True)
-
-    # Calibration badges are done manually with the below commands
-    # cal = Calibration.objects.get(id=)
-    # cal_badge, created = Badge.objects.get_or_create(
-    #     name="Session Timing Jump",
-    #     description="Observed jump in ToA residuals of all observations of this session",
-    # )
-    # or
-    # cal_badge, created = Badge.objects.get_or_create(
-    #     name="Session Sensitivity Reduction",
-    #     description="Reduced observed sensitivity, often by a factor of 16 due to incorrect antenna summation",
-    # )
-    # cal.badges.add(cal_badge)
-
     badges = models.ManyToManyField(Badge)
 
     @classmethod

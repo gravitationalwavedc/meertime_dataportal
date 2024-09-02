@@ -81,6 +81,7 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
       <Plot
         data={plotlyData}
         layout={{
+          title: activePlot,
           autosize: true,
           margin: {
             t: 40,
@@ -96,10 +97,16 @@ const PlotlyPlot = ({ data, xAxis, activePlot }) => {
               text: getYaxisLabel(activePlot),
             },
           },
+          legend: { orientation: "h" },
         }}
         useResizeHandler={true}
         style={{ width: "100%", height: "100%" }}
         onClick={handlePlotClick}
+        config={{
+          displaylogo: false,
+          displayModeBar: true,
+          modeBarButtonsToRemove: ["resetScale2d"],
+        }}
       />
     </>
   );
