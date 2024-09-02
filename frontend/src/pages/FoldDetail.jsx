@@ -1,15 +1,32 @@
-import { useState, Suspense } from "react";
-import { graphql, useLazyLoadQuery } from "react-relay";
-import SummaryDataRow from "../components/SummaryDataRow";
-import FoldDetailFileDownload from "../components/FoldDetailFileDownload";
-import ObservationFlags from "../components/fold-detail/ObservationFlags";
-import FoldDetailTable from "../components/fold-detail/FoldDetailTable";
 import HeaderButtons from "../components/fold-detail/HeaderButtons";
 import MainLayout from "../components/MainLayout";
+import SummaryDataRow from "../components/SummaryDataRow";
+import FoldDetailTable from "../components/fold-detail/FoldDetailTable";
+import { graphql } from "relay-runtime";
+import { useLazyLoadQuery } from "react-relay";
 import PlotContainer from "../components/plots/PlotContainer";
+import { Suspense } from "react";
+import { useState } from "react";
 
-const FoldDetailQuery = graphql`
-  query FoldDetailQuery($pulsar: String!, $mainProject: String!) {
+const foldDetailQuery = graphql`
+  query FoldDetailQuery(
+    $pulsar: String!
+    $mainProject: String
+    $projectShort: String
+    $nsubType: String
+    $obsNchan: Int
+    $excludeBadges: [String]
+    $minimumSNR: Float
+  ) {
+    pulsarFoldResult(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      excludeBadges: $excludeBadges
+      minimumSNR: $minimumSNR
+    ) {
+      description
+      toasLink
+    }
     observationSummary(
       pulsar_Name: $pulsar
       obsType: "fold"
@@ -32,72 +49,14 @@ const FoldDetailQuery = graphql`
       }
     }
 
-    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
-      description
-      residualEphemeris {
-        ephemerisData
-        createdAt
-      }
-      edges {
-        node {
-          pipelineRun {
-            sn
-            badges {
-              edges {
-                node {
-                  name
-                }
-              }
-            }
-            observation {
-              calibration {
-                badges {
-                  edges {
-                    node {
-                      name
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    toa(
-      pulsar: $pulsar
-      mainProject: $mainProject
-      nsubType: "1"
-      obsNchan: 1
-    ) {
-      allProjects
-    }
-
-    badge {
-      edges {
-        node {
-          name
-          description
-        }
-      }
-    }
-
     ...FoldDetailTableFragment
-      @arguments(pulsar: $pulsar, mainProject: $mainProject)
-  }
-`;
+      @arguments(
+        pulsar: $pulsar
+        mainProject: $mainProject
+        excludeBadges: $excludeBadges
+        minimumSNR: $minimumSNR
+      )
 
-const FoldDetailPlotQuery = graphql`
-  query FoldDetailPlotQuery(
-    $pulsar: String!
-    $mainProject: String!
-    $projectShort: String!
-    $nsubType: String!
-    $obsNchan: Int
-    $excludeBadges: [String]
-    $minimumSNR: Float
-  ) {
     ...PlotContainerFragment
       @arguments(
         pulsar: $pulsar
@@ -112,67 +71,17 @@ const FoldDetailPlotQuery = graphql`
 `;
 
 const FoldDetail = ({ match }) => {
-  const urlQuery = match.location.query;
-  const [downloadModalVisible, setDownloadModalVisible] = useState(false);
-  const [filesLoaded, setFilesLoaded] = useState(false);
-  const [minimumSNR, setMinimumSNR] = useState(urlQuery.minSNR || 8);
-  const [observationBadges, setObservationBadges] = useState({
-    "Session Timing Jump": true,
-    "Session Sensitivity Reduction": true,
-    "Strong RFI": true,
-    "RM Drift": false,
-    "DM Drift": true,
-  });
-  const excludeBadges = Object.keys(observationBadges).filter(
-    (observationBadge) => observationBadges[observationBadge]
-  );
+  const { jname, mainProject, minSNR } = match.params;
 
-  const handleObservationFlagToggle = (observationBadge) => {
-    const newObservationBadges = {
-      ...observationBadges,
-      [observationBadge]: !observationBadges[observationBadge],
-    };
-    setObservationBadges(newObservationBadges);
-  };
+  const [excludeBadges, setExcludeBadges] = useState([]);
+  const [minimumSNR, setMinimumSNR] = useState(minSNR || 8);
 
-  const handleMinimumSNRToggle = (e) => {
-    const minimumSNR = e.target.value;
-    const url = new URL(window.location);
-    url.searchParams.set("minSNR", minimumSNR);
-    window.history.pushState({}, "", url);
-    setMinimumSNR(minimumSNR);
-  };
-
-  const { jname, mainProject } = match.params;
-
-  const tableData = useLazyLoadQuery(FoldDetailQuery, {
+  const data = useLazyLoadQuery(foldDetailQuery, {
     pulsar: jname,
     mainProject: mainProject,
   });
 
-  let timingProjects = tableData.toa.allProjects;
-  if (timingProjects.length === 0) {
-    timingProjects = ["All"];
-  }
-
-  const [projectShort, setProjectShort] = useState(
-    urlQuery.timingProject || timingProjects[0]
-  );
-  const [obsNchan, setObsNchan] = useState(urlQuery.obsNchan || 1);
-  const [nsubType, setNsubType] = useState(urlQuery.nsubType || "1");
-
-  const plotData = useLazyLoadQuery(FoldDetailPlotQuery, {
-    pulsar: jname,
-    mainProject: mainProject,
-    projectShort: projectShort,
-    nsubType: nsubType,
-    obsNchan: obsNchan,
-    excludeBadges: excludeBadges,
-    minimumSNR: minimumSNR,
-  });
-
-  const summaryNode = tableData.observationSummary?.edges[0]?.node;
-
+  const summaryNode = data.observationSummary?.edges[0]?.node;
   const summaryData = [
     { title: "Observations", value: summaryNode.observations },
     { title: "Projects", value: summaryNode.projects },
@@ -189,91 +98,31 @@ const FoldDetail = ({ match }) => {
       : { title: `Size [GB]`, value: summaryNode.estimatedDiskSpaceGb },
   ];
 
-  let totalBadgeExcludedObservations = 0;
-  for (const pfrNode of tableData.pulsarFoldResult.edges) {
-    for (const badgeNode of pfrNode.node.pipelineRun.badges.edges) {
-      if (excludeBadges.includes(badgeNode.node.name)) {
-        totalBadgeExcludedObservations += 1;
-      }
-    }
-    for (const sessionNode of pfrNode.node.pipelineRun.observation.calibration
-      .badges.edges) {
-      if (excludeBadges.includes(sessionNode.node.name)) {
-        totalBadgeExcludedObservations += 1;
-      }
-    }
-    if (pfrNode.node.pipelineRun.sn < minimumSNR) {
-      totalBadgeExcludedObservations += 1;
-    }
-  }
-
   return (
-    <MainLayout
-      title={jname}
-      description={tableData.pulsarFoldResult.description}
-    >
+    <MainLayout title={jname} description={data.pulsarFoldResult.description}>
       <HeaderButtons
-        mainProject={mainProject}
         jname={jname}
-        tableData={tableData}
-        setDownloadModalVisible={setDownloadModalVisible}
-        filesLoaded={filesLoaded}
+        mainProject={mainProject}
+        toasLink={data.pulsarFoldResult.toasLink}
       />
       <SummaryDataRow dataPoints={summaryData} />
-      <ObservationFlags
-        observationBadges={observationBadges}
-        handleObservationFlagToggle={handleObservationFlagToggle}
-        minimumSNR={minimumSNR}
-        handleMinimumSNRToggle={handleMinimumSNRToggle}
-        totalBadgeExcludedObservations={totalBadgeExcludedObservations}
-        badgeData={tableData.badge.edges}
-      />
-      <Suspense
-        fallback={
-          <div>
-            <h3>Loading...</h3>
-          </div>
-        }
-      >
+      <Suspense fallback="<h1>Loading</h1>">
         <PlotContainer
-          toaData={plotData}
+          queryData={data}
           jname={jname}
           mainProject={mainProject}
-          timingProjects={timingProjects}
-          projectShort={projectShort}
-          setProjectShort={setProjectShort}
-          obsNchan={obsNchan}
-          setObsNchan={setObsNchan}
-          nsubType={nsubType}
-          setNsubType={setNsubType}
-        />
-      </Suspense>
-      <Suspense
-        fallback={
-          <div>
-            <h3>Loading...</h3>
-          </div>
-        }
-      >
-        <FoldDetailTable
-          tableData={tableData}
-          mainProject={mainProject}
-          jname={jname}
-          excludeBadges={excludeBadges}
+          match={match}
           minimumSNR={minimumSNR}
+          setMinimumSNR={setMinimumSNR}
+          excludeBadges={excludeBadges}
+          setExcludeBadges={setExcludeBadges}
         />
       </Suspense>
-      {localStorage.isStaff === "true" && (
-        <Suspense>
-          <FoldDetailFileDownload
-            mainProject={mainProject}
-            jname={jname}
-            visible={downloadModalVisible}
-            setShow={setDownloadModalVisible}
-            setFilesLoaded={setFilesLoaded}
-          />
-        </Suspense>
-      )}
+      <FoldDetailTable
+        tableData={data}
+        jname={jname}
+        mainProject={mainProject}
+      />
     </MainLayout>
   );
 };

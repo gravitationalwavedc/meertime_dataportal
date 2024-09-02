@@ -6,36 +6,36 @@ export function getColumns() {
   const columnHelper = createColumnHelper();
 
   return [
-    columnHelper.accessor("Timestamp", {
+    columnHelper.accessor("timestamp", {
       header: "Timestamp",
       enableHiding: false,
     }),
-    columnHelper.accessor("Project", {
+    columnHelper.accessor("project", {
       header: "Project",
       enableHiding: false,
     }),
-    columnHelper.accessor("Badges", {
+    columnHelper.accessor("badges", {
       header: "Badges",
       enableHiding: false,
     }),
-    columnHelper.accessor("Length", {
+    columnHelper.accessor("length", {
       header: "Length",
       cell: (info) => `${info.getValue()} [s]`,
     }),
-    columnHelper.accessor("Beam", {
+    columnHelper.accessor("beam", {
       header: "Beam",
       enableHiding: false,
     }),
-    columnHelper.accessor("Nchan", {
+    columnHelper.accessor("nchan", {
       header: "Nchan",
     }),
-    columnHelper.accessor("BW", {
+    columnHelper.accessor("bw", {
       header: "Band width",
     }),
-    columnHelper.accessor("Band", {
+    columnHelper.accessor("band", {
       header: "Band",
     }),
-    columnHelper.accessor("Nbin", {
+    columnHelper.accessor("nbin", {
       header: "Nbin",
     }),
     columnHelper.accessor("nantEff", {
@@ -60,6 +60,7 @@ export function getColumns() {
     }),
     columnHelper.display({
       id: "actions",
+      header: null,
       cell: (props) => <TableButtons row={props.row} />,
       canSort: false,
       enableHiding: false,
@@ -71,23 +72,23 @@ function formatNumber(value, decimals) {
   return value ? value.toFixed(decimals) : "null";
 }
 
-export function processData(fragmentData, mainProject, jname) {
-  return fragmentData.pulsarFoldResult.edges.map(({ node }) => ({
-    Timestamp: formatUTC(node.observation.utcStart),
-    Project: node.observation.project.short,
-    Length: formatNumber(node.observation.duration, 2),
-    Beam: node.observation.beam,
-    BW: node.observation.bandwidth,
-    Nchan: node.observation.nchan,
-    Band: node.observation.band,
-    Nbin: node.observation.foldNbin,
+export function processData(data, mainProject, jname) {
+  return data.pulsarFoldResult.edges.map(({ node }) => ({
+    timestamp: formatUTC(node.observation.utcStart),
+    project: node.observation.project.short,
+    length: formatNumber(node.observation.duration, 2),
+    beam: node.observation.beam,
+    bw: node.observation.bandwidth,
+    nchan: node.observation.nchan,
+    band: node.observation.band,
+    nbin: node.observation.foldNbin,
     flux: node.pipelineRun.flux,
     nantEff: node.observation.nantEff,
     dmBackend: formatNumber(node.observation.ephemeris.dm, 2),
     dmFit: formatNumber(node.pipelineRun.dm, 1),
     rm: formatNumber(node.pipelineRun.rm, 1),
     sn: formatNumber(node.pipelineRun.sn, 1),
-    Badges: node.pipelineRun.badges.edges
+    badges: node.pipelineRun.badges.edges
       .map(({ node }) => ({
         name: node.name,
         description: node.description,

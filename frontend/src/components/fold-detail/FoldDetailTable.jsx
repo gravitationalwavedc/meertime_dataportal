@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { HiDownload } from "react-icons/hi";
-import { Badge, Button, Col, Table } from "react-bootstrap";
-import { graphql, useRefetchableFragment } from "react-relay";
+import { Badge, Button, Col, Row, Table } from "react-bootstrap";
+import { graphql, useFragment } from "react-relay";
 import { getColumns, processData } from "./processData";
 import { Form } from "react-bootstrap";
 import DebouncedInput from "../form-inputs/DebouncedInput";
@@ -27,8 +27,15 @@ const FoldDetailTableFragment = graphql`
   @argumentDefinitions(
     pulsar: { type: "String" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
+    excludeBadges: { type: "[String]", defaultValue: [] }
+    minimumSNR: { type: "Float", defaultValue: 8 }
   ) {
-    pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
+    pulsarFoldResult(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      excludeBadges: $excludeBadges
+      minimumSNR: $minimumSNR
+    ) {
       edges {
         node {
           observation {
@@ -97,13 +104,10 @@ const FoldDetailTable = ({
   excludeBadges,
   minimumSNR,
 }) => {
-  const [fragmentData, refetch] = useRefetchableFragment(
-    FoldDetailTableFragment,
-    tableData
-  );
+  const fragmentData = useFragment(FoldDetailTableFragment, tableData);
   const [data] = useState(processData(fragmentData, mainProject, jname));
   const [globalFilter, setGlobalFilter] = useState("");
-  const [sorting, setSorting] = useState([{ id: "Timestamp", desc: true }]);
+  const [sorting, setSorting] = useState([{ id: "timestamp", desc: true }]);
 
   const columns = getColumns();
 
@@ -155,9 +159,15 @@ const FoldDetailTable = ({
   };
 
   // These columns are displayed as information in the first column
-  const infoHeaders = ["Timestamp", "Project", "Beam", "Badges"];
+  const infoHeaders = ["timestamp", "project", "beam", "badges"];
+
   return (
-    <div className="p-2">
+    <div>
+      <Row className="mt-5 mb-4">
+        <Col>
+          <h4 className="text-primary-600">Observations</h4>
+        </Col>
+      </Row>
       <Form.Row className="searchbar">
         <Col md={3} xl={2}>
           <Form.Group controlId="projectSelect">
@@ -167,11 +177,11 @@ const FoldDetailTable = ({
               role="project-select"
               as="select"
               onChange={(event) =>
-                table.getColumn("Project").setFilterValue(event.target.value)
+                table.getColumn("project").setFilterValue(event.target.value)
               }
             >
               <option value="">All</option>
-              {[...table.getColumn("Project").getFacetedUniqueValues()].map(
+              {[...table.getColumn("project").getFacetedUniqueValues()].map(
                 ([key]) => (
                   <option value={key} key={key}>
                     {key}
@@ -189,11 +199,11 @@ const FoldDetailTable = ({
               role="project-select"
               as="select"
               onChange={(event) =>
-                table.getColumn("Band").setFilterValue(event.target.value)
+                table.getColumn("band").setFilterValue(event.target.value)
               }
             >
               <option value="">All</option>
-              {[...table.getColumn("Band").getFacetedUniqueValues()].map(
+              {[...table.getColumn("band").getFacetedUniqueValues()].map(
                 ([key]) => (
                   <option value={key} key={key}>
                     {key}
@@ -289,7 +299,7 @@ const FoldDetailTable = ({
             <tr
               key={row.id}
               className={
-                row.original.Badges.some((badge) =>
+                row.original.badges.some((badge) =>
                   excludeBadges.includes(badge.name)
                 ) || parseFloat(row.original.sn) < minimumSNR
                   ? "greyed-out"
@@ -299,12 +309,12 @@ const FoldDetailTable = ({
               <td>
                 <Col>
                   <span className="h6 text-primary-600 bold pr-2">
-                    {row.original.Timestamp}
+                    {row.original.timestamp}
                   </span>{" "}
-                  {row.original.Project} &#183; {row.original.Beam} beam
+                  {row.original.project} &#183; {row.original.beam} beam
                 </Col>
                 <Col>
-                  {row.original.Badges.map((badge) => (
+                  {row.original.badges.map((badge) => (
                     <Badge key={badge.name} variant="primary" className="mr-1">
                       {badge.name}
                     </Badge>
@@ -333,7 +343,6 @@ const FoldDetailTable = ({
           ))}
         </tbody>
       </Table>
-      <div className="h-4" />
     </div>
   );
 };

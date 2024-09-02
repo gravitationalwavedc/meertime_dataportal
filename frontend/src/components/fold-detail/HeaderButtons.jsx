@@ -1,20 +1,35 @@
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { Button, Col, Row } from "react-bootstrap";
-import Ephemeris from "../Ephemeris";
+import Ephemeris, { ephemerisQuery } from "../Ephemeris";
 import { createLink } from "../../helpers";
+import { useQueryLoader } from "react-relay";
+import FoldDetailFileDownload, {
+  foldDetailFileDownloadQuery,
+} from "../FoldDetailFileDownload";
+import LoadingModal from "./LoadingModal";
 
-const HeaderButtons = ({
-  mainProject,
-  jname,
-  tableData,
-  setDownloadModalVisible,
-  filesLoaded,
-}) => {
+const HeaderButtons = ({ jname, mainProject, toasLink }) => {
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
+  const [fileDownloadVisible, setFileDownloadVisible] = useState(false);
 
-  const ephemeris = tableData.pulsarFoldResult.residualEphemeris?.ephemerisData;
+  const [ephemerisQueryRef, loadEphemerisQuery] =
+    useQueryLoader(ephemerisQuery);
 
-  if (localStorage.isStaff !== "true") {
+  const [fileDownloadQueryRef, loadFileDownloadQuery] = useQueryLoader(
+    foldDetailFileDownloadQuery
+  );
+
+  const handleEphemerisButton = () => {
+    loadEphemerisQuery({ jname: jname, mainProject: mainProject });
+    setEphemerisVisible(true);
+  };
+
+  const handleFileDownload = () => {
+    loadFileDownloadQuery({ jname: jname, mainProject: mainProject });
+    setFileDownloadVisible(true);
+  };
+
+  if (localStorage.isStaff === "true") {
     return (
       <Row>
         <Col>
@@ -22,20 +37,19 @@ const HeaderButtons = ({
             size="sm"
             variant="outline-secondary"
             className="mr-2 mb-2"
-            disabled={!ephemeris}
-            onClick={() => setEphemerisVisible(true)}
+            onClick={handleEphemerisButton}
           >
-            {ephemeris === undefined
-              ? "Folding ephemeris unavailable"
-              : "View folding ephemeris"}
+            View folding ephemeris
           </Button>
-          {ephemeris && (
-            <Ephemeris
-              ephemeris={ephemeris}
-              show={ephemerisVisible}
-              setShow={setEphemerisVisible}
-            />
-          )}
+          <Suspense>
+            {ephemerisQueryRef != null && (
+              <Ephemeris
+                show={ephemerisVisible}
+                setShow={setEphemerisVisible}
+                queryRef={ephemerisQueryRef}
+              />
+            )}
+          </Suspense>
         </Col>
       </Row>
     );
@@ -48,55 +62,71 @@ const HeaderButtons = ({
           size="sm"
           variant="outline-secondary"
           className="mr-2 mb-2"
-          disabled={!ephemeris}
-          onClick={() => setEphemerisVisible(true)}
+          onClick={handleEphemerisButton}
         >
-          {ephemeris === undefined
-            ? "Folding ephemeris unavailable"
-            : "View folding ephemeris"}
+          View folding ephemeris
         </Button>
-        {tableData.pulsarFoldResult.ephemerisLink && (
+        <Suspense>
+          {ephemerisQueryRef !== null && (
+            <Ephemeris
+              show={ephemerisVisible}
+              setShow={setEphemerisVisible}
+              queryRef={ephemerisQueryRef}
+            />
+          )}
+        </Suspense>
+        <Button
+          size="sm"
+          className="mr-2 mb-2"
+          variant="outline-secondary"
+          onClick={handleFileDownload}
+        >
+          Download Data Files
+        </Button>
+        <Suspense fallback={<LoadingModal />}>
+          {fileDownloadQueryRef !== null && (
+            <FoldDetailFileDownload
+              setShow={setFileDownloadVisible}
+              visible={fileDownloadVisible}
+              queryRef={fileDownloadQueryRef}
+            />
+          )}
+        </Suspense>
+        {toasLink && (
           <Button
             size="sm"
             className="mr-2 mb-2"
             variant="outline-secondary"
-            onClick={() => createLink(tableData.pulsarFoldResult.ephemerisLink)}
+            onClick={() => createLink(toasLink)}
           >
-            Download ephemeris
+            Download TOAs
           </Button>
         )}
-        {tableData.pulsarFoldResult.toasLink && (
-          <Button
-            size="sm"
-            className="mr-2 mb-2"
-            variant="outline-secondary"
-            disabled={!filesLoaded}
-            onClick={() => createLink(tableData.pulsarFoldResult.toasLink)}
-          >
-            {filesLoaded ? "Download TOAs" : "Loading TOAs"}
-          </Button>
-        )}
-        {
-          <Button
-            size="sm"
-            className="mr-2 mb-2"
-            variant="outline-secondary"
-            disabled={!filesLoaded}
-            onClick={() => setDownloadModalVisible(true)}
-          >
-            {filesLoaded ? "Download Data Files" : "Loading Data Files"}
-          </Button>
-        }
       </Col>
-      {ephemeris && (
-        <Ephemeris
-          ephemeris={ephemeris}
-          show={ephemerisVisible}
-          setShow={setEphemerisVisible}
-        />
-      )}
     </Row>
   );
 };
 
 export default HeaderButtons;
+//
+//   {tableData.pulsarFoldResult.ephemerisLink && (
+//     <Button
+//       size="sm"
+//       className="mr-2 mb-2"
+//       variant="outline-secondary"
+//       onClick={() => createLink(tableData.pulsarFoldResult.ephemerisLink)}
+//     >
+//       Download ephemeris
+//     </Button>
+//   )}
+//   {tableData.pulsarFoldResult.toasLink && (
+//     <Button
+//       size="sm"
+//       className="mr-2 mb-2"
+//       variant="outline-secondary"
+//       disabled={!filesLoaded}
+//       onClick={() => createLink(tableData.pulsarFoldResult.toasLink)}
+//     >
+//       {filesLoaded ? "Download TOAs" : "Loading TOAs"}
+//     </Button>
+//   )}

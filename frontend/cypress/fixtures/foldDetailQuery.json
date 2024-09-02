@@ -1,44 +1,223 @@
 {
   "data": {
-    "toa": {
-      "allProjects": ["PTA"]
-    },
-    "badge": {
+    "pulsarFoldResult": {
+      "description": "PSR J0125-2327 is a millisecond pulsar.",
+      "toasLink": null,
       "edges": [
         {
           "node": {
-            "name": "Strong RFI",
-            "description": "Over 20% of RFI removed from observation"
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjY4NDUy",
+              "utcStart": "2023-12-13T16:07:10+00:00",
+              "dayOfYear": 347.6716435185185,
+              "binaryOrbitalPhase": 0.9396868349974183,
+              "duration": 7207.114857411764,
+              "beam": 1,
+              "bandwidth": 544,
+              "nchan": 4096,
+              "band": "UHF",
+              "foldNbin": 1024,
+              "nant": 60,
+              "nantEff": 60,
+              "restricted": false,
+              "embargoEndDate": "2025-06-13T16:07:10+00:00",
+              "project": {
+                "short": "GC",
+                "id": "UHJvamVjdE5vZGU6NQ=="
+              },
+              "ephemeris": {
+                "dm": 24.236235,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDEx"
+              },
+              "calibration": {
+                "idInt": 28,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjM5OTA="
+              }
+            },
+            "pipelineRun": {
+              "dm": null,
+              "dmErr": null,
+              "rm": null,
+              "rmErr": null,
+              "sn": null,
+              "flux": null,
+              "badges": {
+                "edges": []
+              },
+              "observation": {
+                "calibration": {
+                  "badges": {
+                    "edges": []
+                  },
+                  "id": "Q2FsaWJyYXRpb25Ob2RlOjM5OTA="
+                },
+                "id": "T2JzZXJ2YXRpb25Ob2RlOjY4NDUy"
+              },
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjE4NDE4NQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6MzkyOTU="
           }
         },
         {
           "node": {
-            "name": "RM Drift",
-            "description": "The Rotation Measure has drifted three weighted standard deviations from the weighted mean"
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjM2MDUz",
+              "utcStart": "2023-05-26T22:54:49+00:00",
+              "dayOfYear": 146.95473379629627,
+              "binaryOrbitalPhase": 0.002689475253644302,
+              "duration": 7200.221590588235,
+              "beam": 2,
+              "bandwidth": 544,
+              "nchan": 4096,
+              "band": "UHF",
+              "foldNbin": 1024,
+              "nant": 62,
+              "nantEff": 62,
+              "restricted": false,
+              "embargoEndDate": "2024-11-24T22:54:49+00:00",
+              "project": {
+                "short": "GC",
+                "id": "UHJvamVjdE5vZGU6NQ=="
+              },
+              "ephemeris": {
+                "dm": 24.236235,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDEx"
+              },
+              "calibration": {
+                "idInt": 3651,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTE="
+              }
+            },
+            "pipelineRun": {
+              "dm": null,
+              "dmErr": null,
+              "rm": null,
+              "rmErr": null,
+              "sn": null,
+              "flux": null,
+              "badges": {
+                "edges": []
+              },
+              "observation": {
+                "calibration": {
+                  "badges": {
+                    "edges": []
+                  },
+                  "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTE="
+                },
+                "id": "T2JzZXJ2YXRpb25Ob2RlOjM2MDUz"
+              },
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjE4MzQwMg=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6MzkyNTA="
           }
         },
         {
           "node": {
-            "name": "DM Drift",
-            "description": "The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of two profile bins"
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjQwNjYy",
+              "utcStart": "2023-10-25T15:22:23+00:00",
+              "dayOfYear": 298.64054398148147,
+              "binaryOrbitalPhase": 0.2140132153887235,
+              "duration": 7200.221590588235,
+              "beam": 2,
+              "bandwidth": 544,
+              "nchan": 4096,
+              "band": "UHF",
+              "foldNbin": 1024,
+              "nant": 61,
+              "nantEff": 61,
+              "restricted": false,
+              "embargoEndDate": "2025-04-25T15:22:23+00:00",
+              "project": {
+                "short": "GC",
+                "id": "UHJvamVjdE5vZGU6NQ=="
+              },
+              "ephemeris": {
+                "dm": 24.236235,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDEx"
+              },
+              "calibration": {
+                "idInt": 3652,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTI="
+              }
+            },
+            "pipelineRun": {
+              "dm": null,
+              "dmErr": null,
+              "rm": null,
+              "rmErr": null,
+              "sn": null,
+              "flux": null,
+              "badges": {
+                "edges": []
+              },
+              "observation": {
+                "calibration": {
+                  "badges": {
+                    "edges": []
+                  },
+                  "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTI="
+                },
+                "id": "T2JzZXJ2YXRpb25Ob2RlOjQwNjYy"
+              },
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjE4MjYwNg=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Mzc4MTQ="
           }
         },
         {
           "node": {
-            "name": "Session Timing Jump",
-            "description": "Observed jump in ToA residuals of all observations of this session"
-          }
-        },
-        {
-          "node": {
-            "name": "Session Sensitivity Reduction",
-            "description": "Reduced observed sensitivity, often by a factor of 16 due to incorrect antenna summation"
-          }
-        },
-        {
-          "node": {
-            "name": "Cool badge",
-            "description": "This is a cool badge"
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjQwNjYx",
+              "utcStart": "2023-08-16T17:41:25+00:00",
+              "dayOfYear": 228.73709490740742,
+              "binaryOrbitalPhase": 0.24002900018458556,
+              "duration": 7200.221590588235,
+              "beam": 2,
+              "bandwidth": 544,
+              "nchan": 4096,
+              "band": "UHF",
+              "foldNbin": 1024,
+              "nant": 59,
+              "nantEff": 59,
+              "restricted": false,
+              "embargoEndDate": "2025-02-14T17:41:25+00:00",
+              "project": {
+                "short": "GC",
+                "id": "UHJvamVjdE5vZGU6NQ=="
+              },
+              "ephemeris": {
+                "dm": 24.236235,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDEx"
+              },
+              "calibration": {
+                "idInt": 3653,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTM="
+              }
+            },
+            "pipelineRun": {
+              "dm": null,
+              "dmErr": null,
+              "rm": null,
+              "rmErr": null,
+              "sn": null,
+              "flux": null,
+              "badges": {
+                "edges": []
+              },
+              "observation": {
+                "calibration": {
+                  "badges": {
+                    "edges": []
+                  },
+                  "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTM="
+                },
+                "id": "T2JzZXJ2YXRpb25Ob2RlOjQwNjYx"
+              },
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjE4MjYwNQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Mzc4MTM="
           }
         }
       ]
@@ -47,219 +226,24 @@
       "edges": [
         {
           "node": {
-            "observations": 3,
-            "observationHours": 0,
+            "observations": 15,
+            "observationHours": 35,
             "projects": 1,
             "pulsars": 1,
-            "estimatedDiskSpaceGb": 1.0766774425551469,
-            "timespanDays": 444,
-            "maxDuration": 1039.9999999999998,
-            "minDuration": 263.99999999999994
+            "estimatedDiskSpaceGb": 246.11968979411765,
+            "timespanDays": 687,
+            "maxDuration": 18000.21918117647,
+            "minDuration": 3600.186608941177,
+            "id": "T2JzZXJ2YXRpb25TdW1tYXJ5Tm9kZToxNjY1MTc="
           }
         }
       ]
     },
-    "pulsarFoldResult": {
-      "residualEphemeris": {
-        "ephemerisData": "\"{\\\"PSRJ\\\": \\\"J0125-2327\\\", \\\"RAJ\\\": \\\"01:25:01.05950406\\\", \\\"DECJ\\\": \\\"-23:27:08.1841977\\\", \\\"DM\\\": 9.59243, \\\"PEPOCH\\\": 57089.119311, \\\"F0\\\": 272.08108871500735, \\\"F1\\\": -1.361e-15, \\\"PMRA\\\": 40.3478, \\\"PMDEC\\\": 5.6682, \\\"DMEPOCH\\\": 58595.551, \\\"BINARY\\\": \\\"ELL1\\\", \\\"PB\\\": 7.27719962431521, \\\"A1\\\": 4.729804686, \\\"TASC\\\": 57089.07346805, \\\"EPS1\\\": -1.05e-08, \\\"EPS2\\\": 2.657e-07, \\\"CLK\\\": \\\"UNCORR\\\", \\\"EPHEM\\\": \\\"DE405\\\", \\\"TZRMJD\\\": 57089.810474242644, \\\"TZRFRQ\\\": 368.58, \\\"TZRSITE\\\": 1.0, \\\"PX\\\": 7.2143, \\\"EPHVER\\\": 2.0, \\\"UNITS\\\": \\\"TDB\\\", \\\"F0_ERR\\\": null, \\\"P0\\\": 0.0036753748844612086, \\\"P0_ERR\\\": null, \\\"START\\\": \\\"1970-01-01T00:00:00\\\", \\\"FINISH\\\": \\\"2106-02-07T06:28:15\\\"}\"",
-        "createdAt": "2024-02-15T07:18:44.566517+00:00"
-      },
-      "description": "PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
-      "edges": [
-        {
-          "node": {
-            "observation": {
-              "id": "T2JzZXJ2YXRpb25Ob2RlOjI2",
-              "utcStart": "2019-04-23T06:11:30+00:00",
-              "dayOfYear": 113.25798611111111,
-              "binaryOrbitalPhase": 0.1107189377501644,
-              "duration": 263.99999999999994,
-              "beam": 1,
-              "bandwidth": 775.75,
-              "nchan": 928,
-              "band": "LBAND",
-              "foldNbin": 1024,
-              "nant": 56,
-              "nantEff": 56,
-              "restricted": false,
-              "embargoEndDate": "2020-10-22T06:11:30+00:00",
-              "project": {
-                "short": "PTA"
-              },
-              "ephemeris": {
-                "dm": 9.59243
-              },
-              "calibration": {
-                "idInt": 26
-              }
-            },
-            "pipelineRun": {
-              "dm": 20.0,
-              "dmErr": 1.0,
-              "rm": 10.0,
-              "rmErr": 1.0,
-              "sn": 100.0,
-              "flux": 25.0,
-              "badges": {
-                "edges": [
-                  {
-                    "node": {
-                      "name": "Cool badge",
-                      "description": "This is a cool badge"
-                    }
-                  }
-                ]
-              },
-              "observation": {
-                "calibration": {
-                  "badges": {
-                    "edges": [
-                      {
-                        "node": {
-                          "name": "Cool badge",
-                          "description": "This is a cool badge"
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "node": {
-            "observation": {
-              "id": "T2JzZXJ2YXRpb25Ob2RlOjI3",
-              "utcStart": "2019-05-14T10:14:18+00:00",
-              "dayOfYear": 134.42659722222223,
-              "binaryOrbitalPhase": 0.020231221242274857,
-              "duration": 1039.9999999999998,
-              "beam": 1,
-              "bandwidth": 775.75,
-              "nchan": 928,
-              "band": "LBAND",
-              "foldNbin": 1024,
-              "nant": 54,
-              "nantEff": 54,
-              "restricted": false,
-              "embargoEndDate": "2020-11-12T10:14:18+00:00",
-              "project": {
-                "short": "PTA"
-              },
-              "ephemeris": {
-                "dm": 9.592429
-              },
-              "calibration": {
-                "idInt": 27
-              },
-              "badges": {
-                "edges": [
-                  {
-                    "node": {
-                      "name": "Cool badge",
-                      "description": "This is a cool badge"
-                    }
-                  }
-                ]
-              }
-            },
-            "pipelineRun": {
-              "dm": 20.0,
-              "dmErr": 1.0,
-              "rm": 10.0,
-              "rmErr": 1.0,
-              "sn": 100.0,
-              "flux": 25.0,
-              "badges": {
-                "edges": [
-                  {
-                    "node": {
-                      "name": "Cool badge",
-                      "description": "This is a cool badge"
-                    }
-                  }
-                ]
-              },
-              "observation": {
-                "calibration": {
-                  "badges": {
-                    "edges": [
-                      {
-                        "node": {
-                          "name": "Cool badge",
-                          "description": "This is a cool badge"
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        {
-          "node": {
-            "observation": {
-              "id": "T2JzZXJ2YXRpb25Ob2RlOjI4",
-              "utcStart": "2020-07-10T05:07:28+00:00",
-              "dayOfYear": 192.21351851851853,
-              "binaryOrbitalPhase": 0.11769268443202004,
-              "duration": 1023.2854023529411,
-              "beam": 2,
-              "bandwidth": 544.0,
-              "nchan": 1024,
-              "band": "UHF",
-              "foldNbin": 1024,
-              "nant": 28,
-              "nantEff": 28,
-              "restricted": false,
-              "embargoEndDate": "2022-01-09T05:07:28+00:00",
-              "project": {
-                "short": "PTA"
-              },
-              "ephemeris": {
-                "dm": 9.592429
-              },
-              "calibration": {
-                "idInt": 28
-              }
-            },
-            "pipelineRun": {
-              "dm": 20.0,
-              "dmErr": 1.0,
-              "rm": 10.0,
-              "rmErr": 1.0,
-              "sn": 100.0,
-              "flux": 25.0,
-              "badges": {
-                "edges": [
-                  {
-                    "node": {
-                      "name": "Cool badge",
-                      "description": "This is a cool badge"
-                    }
-                  }
-                ]
-              },
-              "observation": {
-                "calibration": {
-                  "badges": {
-                    "edges": [
-                      {
-                        "node": {
-                          "name": "Cool badge",
-                          "description": "This is a cool badge"
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        }
-      ]
+    "toa": {
+      "allNchans": [],
+      "allProjects": [],
+      "totalBadgeExcludedToas": 0,
+      "edges": []
     }
   }
 }

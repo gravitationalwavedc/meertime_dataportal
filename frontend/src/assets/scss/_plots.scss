@@ -1,6 +1,22 @@
 .pulsar-plot-wrapper {
   height: 30rem;
   margin-bottom: 2rem;
+
+  .js-plotly-plot .plotly {
+    .modebar .modebar-group {
+      background-color: transparent !important;
+    }
+
+    .modebar-btn {
+      font-size: 1.4rem;
+      background: none;
+      padding: 0.8rem 0.5rem;
+
+      .icon path {
+        fill: $primary !important;
+      }
+    }
+  }
 }
 
 .pulsar-plot-display {
