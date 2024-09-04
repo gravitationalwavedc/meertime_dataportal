@@ -48,6 +48,7 @@ const ObservationFlags = ({
   setMinimumSNR,
   setExcludeBadges,
   excludeBadges,
+  excludedToasCount,
 }) => {
   const [localMinimumSNR, setLocalMinimumSNR] = useState(minimumSNR);
 
@@ -116,6 +117,14 @@ const ObservationFlags = ({
             onMouseUp={handleMinimumSNRToggle}
             className="custom-slider"
           />
+        </Col>
+      </Form.Row>
+      <Form.Row>
+        <Col md={5} xl={4} className="mt-4">
+          <p className="text-muted text-primary-600">
+            Filtered {excludedToasCount} TOAs (Time of Arrivals) from the
+            Observation Plot.
+          </p>
         </Col>
       </Form.Row>
     </Form>

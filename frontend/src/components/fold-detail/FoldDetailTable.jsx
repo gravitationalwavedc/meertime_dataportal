@@ -97,13 +97,7 @@ const FoldDetailTableFragment = graphql`
   }
 `;
 
-const FoldDetailTable = ({
-  tableData,
-  mainProject,
-  jname,
-  excludeBadges,
-  minimumSNR,
-}) => {
+const FoldDetailTable = ({ tableData, mainProject, jname }) => {
   const fragmentData = useFragment(FoldDetailTableFragment, tableData);
   const [data] = useState(processData(fragmentData, mainProject, jname));
   const [globalFilter, setGlobalFilter] = useState("");
@@ -296,16 +290,7 @@ const FoldDetailTable = ({
       <Table responsive className="react-bootstrap-table mt-1">
         <tbody>
           {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className={
-                row.original.badges.some((badge) =>
-                  excludeBadges.includes(badge.name)
-                ) || parseFloat(row.original.sn) < minimumSNR
-                  ? "greyed-out"
-                  : ""
-              }
-            >
+            <tr key={row.id}>
               <td>
                 <Col>
                   <span className="h6 text-primary-600 bold pr-2">
