@@ -120,10 +120,7 @@ const PlotContainer = ({
   );
 
   const { query } = match.location;
-
-  console.log("Here", data);
   const allNchans = data.toa?.allNchans?.slice().sort((a, b) => a - b);
-
   const timingProjects =
     data.toa.allProjects.length === 0 ? ["All"] : data.toa.allProjects;
 
@@ -162,6 +159,8 @@ const PlotContainer = ({
   const plotTypes =
     mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
 
+  const excludedToasCount = data?.toa?.totalBadgeExcludedToas;
+
   return (
     <>
       <Row className="mt-5 mb-2">
@@ -191,9 +190,9 @@ const PlotContainer = ({
           <ObservationFlags
             minimumSNR={minimumSNR}
             setMinimumSNR={setMinimumSNR}
-            data={queryData}
             setExcludeBadges={setExcludeBadges}
             excludeBadges={excludeBadges}
+            excludedToasCount={excludedToasCount}
           />
           <Form.Row>
             <Form.Group
