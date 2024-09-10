@@ -305,3 +305,67 @@ export const residualPlotData = (data, timingProject, jname, mainProject) => {
       band: node.observation.band,
     }));
 };
+
+export const getPlotlyData = (plotData, xAxis, activePlot) =>
+  plotData.reduce((data, dataBand) => {
+    const sizes = dataBand.data.map((point) => point.size);
+
+    // Set size scale from max size
+    let sizeScale;
+    if (sizes.length > 0) {
+      const max = Math.max(...sizes);
+      sizeScale = max / 30;
+    } else {
+      sizeScale = 1;
+    }
+    // Set x data
+    let xData;
+
+    if (xAxis === "utc") {
+      xData = dataBand.data.map((point) => point.utc);
+    } else if (xAxis === "day") {
+      xData = dataBand.data.map((point) => point.day);
+    } else if (xAxis === "phase") {
+      xData = dataBand.data.map((point) => point.phase);
+    } else {
+      xData = dataBand.data.utc;
+    }
+
+    // Hover Template Vars
+    const xAxisTemplateData = xAxis === "utc" ? "|%Y-%m-%d %H:%M:%S.%f" : "";
+    const yAxixTemplateData =
+      activePlot === "Timing Residuals"
+        ? "<br>ToA S/N: %{customdata[2]:.4f}"
+        : "";
+
+    const row = {
+      id: dataBand.data.map((point) => point.id),
+      x: xData,
+      error_y: {
+        array: dataBand.data.map((point) => point.error),
+        width: 6,
+      },
+      y: (xData = dataBand.data.map((point) => point.value)),
+      customdata: dataBand.data.map((point) => [
+        point.size,
+        point.link,
+        point.snr,
+      ]),
+      type: "scatter",
+      mode: "markers",
+      name: dataBand.name,
+      hovertemplate: `${getXaxisLabel(
+        xAxis
+      )}: %{x${xAxisTemplateData}}<br>${getYaxisLabel(
+        activePlot
+      )}: %{y:.4f}${yAxixTemplateData}<br>Integration Time (s): %{customdata[0]:.4f}<br>S/N: %{customdata[2]}<extra></extra>`,
+      marker: {
+        color: dataBand.colour,
+        symbol: dataBand.shape,
+        size: dataBand.data.map((point) => point.size),
+        sizeref: sizeScale,
+        sizemin: 3,
+      },
+    };
+    return [...data, { ...row }];
+  }, []);
