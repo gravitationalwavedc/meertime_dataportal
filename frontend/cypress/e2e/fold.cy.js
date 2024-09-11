@@ -7,13 +7,12 @@ describe("The Fold Page", () => {
       aliasQuery(req, "FoldQuery", "foldQuery.json");
       aliasQuery(req, "FoldTableRefetchQuery", "foldQueryFewer.json");
       aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
-      aliasQuery(req, "PlotContainerRefetchQuery", "plotContainerQuery.json");
+      aliasQuery(req, "PlotlyPlotQuery", "plotlyPlotQuery.json");
       aliasQuery(
         req,
         "FoldDetailFileDownloadQuery",
         "foldDetailFileDownloadQuery.json"
       );
-      aliasQuery(req, "PlotContainerQuery", "plotContainerQuery.json");
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
       aliasQuery(
         req,
@@ -105,7 +104,7 @@ describe("The Fold Page", () => {
     cy.contains("tr", "J0125-2327").contains("View all").click();
     cy.location("pathname").should("equal", "/fold/meertime/J0125-2327/");
 
-    cy.wait(["@FoldDetailQuery", "@PlotContainerRefetchQuery"]);
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
 
     cy.contains("Loading...").should("not.exist");
     cy.contains("PSR J0125-2327 is a millisecond pulsar").should("be.visible");

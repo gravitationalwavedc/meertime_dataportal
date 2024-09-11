@@ -103,12 +103,11 @@ export const getYaxisTicks = (yAxis, minValue, maxValue, medianValue) => {
 export const getActivePlotData = (
   toaDataResult,
   activePlot,
-  timingProject,
   jname,
   mainProject
 ) => {
   if (activePlot == "Timing Residuals") {
-    return residualPlotData(toaDataResult, timingProject, jname, mainProject);
+    return residualPlotData(toaDataResult, jname, mainProject);
   } else if (activePlot == "S/N") {
     return snrPlotData(toaDataResult, jname, mainProject);
   } else if (activePlot == "Flux Density") {
@@ -286,10 +285,9 @@ export const rmPlotData = (data, jname, mainProject) => {
   }));
 };
 
-export const residualPlotData = (data, timingProject, jname, mainProject) => {
+export const residualPlotData = (data, jname, mainProject) => {
   return data.toa.edges
     .filter(({ node }) => node.residualSec !== null)
-    .filter(({ node }) => node.project.short === timingProject)
     .map(({ node }) => ({
       id: node.id,
       utc: moment(mjdToUnixTimestamp(node.mjd)).valueOf(),

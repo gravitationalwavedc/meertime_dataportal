@@ -48,7 +48,6 @@ const ObservationFlags = ({
   setMinimumSNR,
   setExcludeBadges,
   excludeBadges,
-  excludedToasCount,
 }) => {
   const [localMinimumSNR, setLocalMinimumSNR] = useState(minimumSNR);
 
@@ -97,7 +96,7 @@ const ObservationFlags = ({
                 type="checkbox"
                 defaultChecked={checkBox.isActive}
               />
-              <Form.Check.Label>Show {checkBox.label}</Form.Check.Label>
+              <Form.Check.Label>Hide {checkBox.label}</Form.Check.Label>
               <Form.Text muted>{checkBox.description}</Form.Text>
             </Form.Check>
           ))}
@@ -117,14 +116,6 @@ const ObservationFlags = ({
             onMouseUp={handleMinimumSNRToggle}
             className="custom-slider"
           />
-        </Col>
-      </Form.Row>
-      <Form.Row>
-        <Col md={5} xl={4} className="mt-4">
-          <p className="text-muted text-primary-600">
-            Filtered {excludedToasCount} TOAs (Time of Arrivals) from the
-            Observation Plot.
-          </p>
         </Col>
       </Form.Row>
     </Form>

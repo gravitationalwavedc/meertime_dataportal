@@ -17,6 +17,15 @@
       }
     }
   }
+
+  .plot-spinner {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    z-index: 100;
+    width: 4rem;
+    height: 4rem;
+  }
 }
 
 .pulsar-plot-display {
