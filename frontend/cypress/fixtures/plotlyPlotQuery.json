@@ -1,0 +1,1993 @@
+{
+  "data": {
+    "toa": {
+      "totalBadgeExcludedToas": 8677,
+      "edges": [
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2MzM=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771132265881",
+            "snr": 31.367,
+            "dayOfYear": 195.77762731481482,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0017533175850813268,
+            "residualSecErr": 0.00011986499999999999,
+            "residualPhase": 0.004928835501432711,
+            "residualPhaseErr": 0.0003369582740776549
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2MzA=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771133157937",
+            "snr": 28.584,
+            "dayOfYear": 195.77762731481482,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0017418776933379022,
+            "residualSecErr": 0.000131856,
+            "residualPhase": 0.004896676270819095,
+            "residualPhaseErr": 0.00037066675165213584
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NTM=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771133423596",
+            "snr": 27.709,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.001538151562020269,
+            "residualSecErr": 0.00013002699999999998,
+            "residualPhase": 0.004323971931826615,
+            "residualPhaseErr": 0.00036552516166933824
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NTE=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771133593781",
+            "snr": 28.091,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0017865287757320083,
+            "residualSecErr": 0.00013633799999999998,
+            "residualPhase": 0.005022197078888364,
+            "residualPhaseErr": 0.0003832663177007409
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NTA=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771133684640",
+            "snr": 29.693,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0018935736626600668,
+            "residualSecErr": 0.00012085500000000001,
+            "residualPhase": 0.005323116115705868,
+            "residualPhaseErr": 0.00033974131075505766
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NDk=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771133777882",
+            "snr": 30.226,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.001752146178820779,
+            "residualSecErr": 0.000123383,
+            "residualPhase": 0.004925542504879938,
+            "residualPhaseErr": 0.000346847893300991
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NDg=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771133876422",
+            "snr": 27.688,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0016209574738111452,
+            "residualSecErr": 0.000147281,
+            "residualPhase": 0.004556751618311334,
+            "residualPhaseErr": 0.0004140287120045976
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NDc=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771133982230",
+            "snr": 32.257,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.001636652982423689,
+            "residualSecErr": 0.00011109000000000001,
+            "residualPhase": 0.0046008740184519566,
+            "residualPhaseErr": 0.00031229044898249436
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NDY=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771134092135",
+            "snr": 31.845,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0014970644627137542,
+            "residualSecErr": 0.000116793,
+            "residualPhase": 0.004208470008252713,
+            "residualPhaseErr": 0.00032832242693322947
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NDQ=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771134338036",
+            "snr": 28.943,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0017639378397856797,
+            "residualSecErr": 0.00011640399999999999,
+            "residualPhase": 0.004958690610892897,
+            "residualPhaseErr": 0.0003272288902993813
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2NDA=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771134918442",
+            "snr": 28.028,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0017352173270963156,
+            "residualSecErr": 0.00014026,
+            "residualPhase": 0.004877952994520835,
+            "residualPhaseErr": 0.0003942916407803101
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2Mzk=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771135092867",
+            "snr": 28.717,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0016900486526965606,
+            "residualSecErr": 0.00013249199999999998,
+            "residualPhase": 0.0047509771586377765,
+            "residualPhaseErr": 0.0003724546418812551
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2MzY=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771135669776",
+            "snr": 31.706,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0018012300581144712,
+            "residualSecErr": 0.000116179,
+            "residualPhase": 0.005063524561792671,
+            "residualPhaseErr": 0.00032659638196360795
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2MzU=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771135893583",
+            "snr": 28.666,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.001683221368840541,
+            "residualSecErr": 0.000124169,
+            "residualPhase": 0.004731784652194999,
+            "residualPhaseErr": 0.0003490574557539593
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 961.7844013457941,
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ=="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI2ODc2MzQ=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58678.771136126476",
+            "snr": 30.283,
+            "dayOfYear": 195.7776388888889,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0016331460249808052,
+            "residualSecErr": 0.00011546299999999999,
+            "residualPhase": 0.004591015441492725,
+            "residualPhaseErr": 0.0003245835998817692
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNTM=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928521539037",
+            "snr": 33.162,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0016830009533677947,
+            "residualSecErr": 0.00011351699999999999,
+            "residualPhase": 0.004731165031644575,
+            "residualPhaseErr": 0.00031911310556436947
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzODA=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522226447",
+            "snr": 26.567,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0018969755396922175,
+            "residualSecErr": 0.000145368,
+            "residualPhase": 0.005332679296061921,
+            "residualPhaseErr": 0.0004086509855764446
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNzk=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522291861",
+            "snr": 28.335,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0019185679516173367,
+            "residualSecErr": 0.00012384,
+            "residualPhase": 0.005393378765093455,
+            "residualPhaseErr": 0.0003481325880096507
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNzc=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522414686",
+            "snr": 26.528,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0021466953660111868,
+            "residualSecErr": 0.00014644999999999998,
+            "residualPhase": 0.006034678726082727,
+            "residualPhaseErr": 0.00041169264788447465
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNTA=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522437862",
+            "snr": 26.91,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.002253146062933265,
+            "residualSecErr": 0.00013073500000000001,
+            "residualPhase": 0.006333927406758828,
+            "residualPhaseErr": 0.0003675154545659051
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNzU=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522555241",
+            "snr": 35.284,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0021656930923373004,
+            "residualSecErr": 0.00011806,
+            "residualPhase": 0.006088084149469448,
+            "residualPhaseErr": 0.00033188415165067315
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNzQ=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522626357",
+            "snr": 29.399,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0020416152982215235,
+            "residualSecErr": 0.00014443,
+            "residualPhase": 0.005739283086968878,
+            "residualPhaseErr": 0.00040601412860330954
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNzM=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522703726",
+            "snr": 33.591,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0020393413797710424,
+            "residualSecErr": 0.000109399,
+            "residualPhase": 0.0057328907653031065,
+            "residualPhaseErr": 0.00030753679744563775
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNzI=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522784946",
+            "snr": 34.028,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.002029796934268925,
+            "residualSecErr": 0.00010658299999999999,
+            "residualPhase": 0.005706059914901213,
+            "residualPhaseErr": 0.0002996206042299144
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNzE=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522871046",
+            "snr": 33.885,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0020409163629833416,
+            "residualSecErr": 0.000129681,
+            "residualPhase": 0.005737318276460807,
+            "residualPhaseErr": 0.00036455250440632685
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNzA=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928522956453",
+            "snr": 34.351,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0016977408369287514,
+            "residualSecErr": 0.000120679,
+            "residualPhase": 0.00477260102818074,
+            "residualPhaseErr": 0.0003392465486790749
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNjk=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928523055340",
+            "snr": 34.186,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0020240203548725633,
+            "residualSecErr": 0.000108853,
+            "residualPhase": 0.00568982109436585,
+            "residualPhaseErr": 0.00030600191055082774
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNjg=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928523157049",
+            "snr": 35.174,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0021670608834522677,
+            "residualSecErr": 0.000108447,
+            "residualPhase": 0.006091929212944176,
+            "residualPhaseErr": 0.00030486058439827674
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNjc=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928523260647",
+            "snr": 35.158,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.001992286776129667,
+            "residualSecErr": 0.0001032,
+            "residualPhase": 0.005600613302904473,
+            "residualPhaseErr": 0.0002901104900080423
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNjY=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928523373048",
+            "snr": 33.241,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0020614740308998675,
+            "residualSecErr": 0.000118175,
+            "residualPhase": 0.005795108926777554,
+            "residualPhaseErr": 0.0003322074336889573
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNjQ=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928523614224",
+            "snr": 31.592,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0019042442226148693,
+            "residualSecErr": 0.000111228,
+            "residualPhase": 0.005353112640678243,
+            "residualPhaseErr": 0.0003126783874284353
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNjM=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928523746306",
+            "snr": 27.8,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0019140161223388887,
+            "residualSecErr": 0.000131749,
+            "residualPhase": 0.005380582898597292,
+            "residualPhaseErr": 0.0003703659587991236
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNjA=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928524195389",
+            "snr": 29.505,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.001873274040800578,
+            "residualSecErr": 0.000133958,
+            "residualPhase": 0.005266050871087297,
+            "residualPhaseErr": 0.0003765757850823384
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNTk=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928524364745",
+            "snr": 30.424,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0018722276315437973,
+            "residualSecErr": 0.000129199,
+            "residualPhase": 0.005263109259631544,
+            "residualPhaseErr": 0.0003631975309936924
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNTg=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928524545557",
+            "snr": 31.184,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0018869488680489366,
+            "residualSecErr": 0.000120948,
+            "residualPhase": 0.005304492836531078,
+            "residualPhaseErr": 0.0003400027475338439
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNTc=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928524736945",
+            "snr": 33.645,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0017495268362466546,
+            "residualSecErr": 0.000109452,
+            "residualPhase": 0.004918179144824914,
+            "residualPhaseErr": 0.00030768578829806434
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNTY=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928524944501",
+            "snr": 29.07,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.0018452721081760532,
+            "residualSecErr": 0.000133529,
+            "residualPhase": 0.005187333289741598,
+            "residualPhaseErr": 0.0003753698025221305
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNTU=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928525167709",
+            "snr": 32.651,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.002017935593699168,
+            "residualSecErr": 0.00011423499999999999,
+            "residualPhase": 0.005672715929195344,
+            "residualPhaseErr": 0.0003211315099425262
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "duration": 901.0215045981306,
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "beam": 1,
+              "band": "LBAND",
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA="
+            },
+            "project": {
+              "short": "TPA",
+              "id": "UHJvamVjdE5vZGU6Mg=="
+            },
+            "id": "VG9hTm9kZTo0NzI3MDMzNTQ=",
+            "obsNchan": 32,
+            "dmCorrected": false,
+            "mjd": "58712.928525403796",
+            "snr": 28.568,
+            "dayOfYear": 229.93384259259258,
+            "binaryOrbitalPhase": null,
+            "residualSec": 0.001903399791423365,
+            "residualSecErr": 0.00012878800000000001,
+            "residualPhase": 0.005350738819488849,
+            "residualPhaseErr": 0.0003620421491003464
+          }
+        }
+      ]
+    },
+    "pulsarFoldResult": {
+      "edges": [
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjExNzAz",
+              "utcStart": "2020-10-24T13:32:13+00:00",
+              "dayOfYear": 298.5640393518519,
+              "binaryOrbitalPhase": null,
+              "duration": 90.62101413084108,
+              "beam": 2,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 31,
+              "nantEff": 31,
+              "restricted": false,
+              "embargoEndDate": "2022-04-25T13:32:13+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1921,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE5MjE="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.11344280645189,
+              "dmErr": 0.10472223631029287,
+              "rm": 221.036,
+              "rmErr": 0.38,
+              "sn": 37.3249664306641,
+              "flux": 0.747,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjUzNg=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6ODg0Mw=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjk3Mzg=",
+              "utcStart": "2020-08-29T17:16:32+00:00",
+              "dayOfYear": 242.71981481481484,
+              "binaryOrbitalPhase": null,
+              "duration": 90.54447611214948,
+              "beam": 2,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 28,
+              "nantEff": 28,
+              "restricted": false,
+              "embargoEndDate": "2022-02-28T17:16:32+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1915,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE5MTU="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.35687673735157,
+              "dmErr": 0.08055766240029719,
+              "rm": 220.826,
+              "rmErr": 0.56,
+              "sn": 26.0183544158936,
+              "flux": 0.879,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjU3NA=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NTkzOA=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEyNTA3",
+              "utcStart": "2020-11-20T12:46:18+00:00",
+              "dayOfYear": 325.53215277777775,
+              "binaryOrbitalPhase": null,
+              "duration": 90.54447611214948,
+              "beam": 2,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 30,
+              "nantEff": 30,
+              "restricted": false,
+              "embargoEndDate": "2022-05-22T12:46:18+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1898,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4OTg="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.2326659191463,
+              "dmErr": 0.05518625531296778,
+              "rm": 216.907,
+              "rmErr": 0.42,
+              "sn": 37.3849487304688,
+              "flux": 0.856,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM4OTMxMQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NjE4OQ=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjM3OTY=",
+              "utcStart": "2020-02-24T05:50:09+00:00",
+              "dayOfYear": 55.243159722222224,
+              "binaryOrbitalPhase": null,
+              "duration": 91.48844500934572,
+              "beam": 4,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 28,
+              "nantEff": 30,
+              "restricted": false,
+              "embargoEndDate": "2021-08-25T05:50:09+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1866,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4NjY="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.16894120311036,
+              "dmErr": 0.07067278803626317,
+              "rm": 219.006,
+              "rmErr": 0.48,
+              "sn": 34.8491134643555,
+              "flux": 0.874,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM4NzY0Nw=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NTM3NA=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjI3Mjgx",
+              "utcStart": "2022-08-02T20:46:47+00:00",
+              "dayOfYear": 214.86582175925926,
+              "binaryOrbitalPhase": null,
+              "duration": 119.55238519626164,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 31,
+              "nantEff": 31,
+              "restricted": false,
+              "embargoEndDate": "2024-02-01T20:46:47+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1877,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4Nzc="
+              }
+            },
+            "pipelineRun": {
+              "dm": 106.43861889184124,
+              "dmErr": 3.1764317118701713,
+              "rm": 219.365,
+              "rmErr": 0.49,
+              "sn": 38.4541244506836,
+              "flux": 0.952,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjYwMg=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Nzg2OA=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjQwNjU2",
+              "utcStart": "2023-09-03T21:30:08+00:00",
+              "dayOfYear": 246.89592592592592,
+              "binaryOrbitalPhase": null,
+              "duration": 118.53187828037377,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 31,
+              "nantEff": 31,
+              "restricted": false,
+              "embargoEndDate": "2025-03-04T21:30:08+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1886,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4ODY="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.15398898871894,
+              "dmErr": 0.11141140378054008,
+              "rm": 220.966,
+              "rmErr": 0.52,
+              "sn": 33.4575805664062,
+              "flux": 0.814,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjYxMA=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Mzc3NDQ="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjI0Mzg1",
+              "utcStart": "2022-05-06T02:51:45+00:00",
+              "dayOfYear": 126.11927083333333,
+              "binaryOrbitalPhase": null,
+              "duration": 118.99907229906538,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 30,
+              "nantEff": 30,
+              "restricted": false,
+              "embargoEndDate": "2023-11-05T02:51:45+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1873,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4NzM="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.07193975279296,
+              "dmErr": 0.08046807509724026,
+              "rm": 219.374,
+              "rmErr": 0.5,
+              "sn": 38.5117263793945,
+              "flux": 0.548,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjYzMA=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NzYwNA=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwNDA=",
+              "utcStart": "2019-08-17T22:09:35+00:00",
+              "dayOfYear": 229.92332175925924,
+              "binaryOrbitalPhase": null,
+              "duration": 901.0215045981306,
+              "beam": 1,
+              "bandwidth": 775.75,
+              "nchan": 928,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 59,
+              "nantEff": 59,
+              "restricted": false,
+              "embargoEndDate": "2021-02-15T22:09:35+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 2212,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjIyMTI="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.1329195191061,
+              "dmErr": 0.0299247633230407,
+              "rm": 221.402,
+              "rmErr": 0.32,
+              "sn": 138.214904785156,
+              "flux": 0.465,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM4NzIzMQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NDg3Mw=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjI2MzQy",
+              "utcStart": "2022-07-01T21:08:45+00:00",
+              "dayOfYear": 182.88107638888889,
+              "binaryOrbitalPhase": null,
+              "duration": 119.55238519626164,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 32,
+              "nantEff": 32,
+              "restricted": false,
+              "embargoEndDate": "2023-12-31T21:08:45+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1892,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4OTI="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.03819122322892,
+              "dmErr": 0.03774798358524776,
+              "rm": 219.044,
+              "rmErr": 0.64,
+              "sn": 27.3305168151855,
+              "flux": 1.111,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjYyNQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Nzc5Mw=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjI1Mzky",
+              "utcStart": "2022-06-01T23:40:38+00:00",
+              "dayOfYear": 152.98655092592594,
+              "binaryOrbitalPhase": null,
+              "duration": 119.47584717757005,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 31,
+              "nantEff": 31,
+              "restricted": false,
+              "embargoEndDate": "2023-12-01T23:40:38+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1863,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4NjM="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.14292150599145,
+              "dmErr": 0.07511363583012466,
+              "rm": 222.692,
+              "rmErr": 0.63,
+              "sn": 31.7943649291992,
+              "flux": 0.776,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjU3Ng=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NzcxMA=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjIyNjM2",
+              "utcStart": "2022-03-08T08:13:12+00:00",
+              "dayOfYear": 67.34249999999999,
+              "binaryOrbitalPhase": null,
+              "duration": 119.55238519626162,
+              "beam": 2,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 31,
+              "nantEff": 31,
+              "restricted": false,
+              "embargoEndDate": "2023-09-07T08:13:12+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1861,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4NjE="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.03064431753246,
+              "dmErr": 0.036847298182305255,
+              "rm": 218.181,
+              "rmErr": 0.33,
+              "sn": 53.8950958251953,
+              "flux": 0.878,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MTIxMw=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NzQyMA=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEzMDQ=",
+              "utcStart": "2019-09-17T19:33:23+00:00",
+              "dayOfYear": 260.81484953703705,
+              "binaryOrbitalPhase": null,
+              "duration": 202.5776711775699,
+              "beam": 1,
+              "bandwidth": 775.75,
+              "nchan": 928,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 57,
+              "nantEff": 57,
+              "restricted": false,
+              "embargoEndDate": "2021-03-18T19:33:23+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1478,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE0Nzg="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.24508399713093,
+              "dmErr": 0.03153398186493801,
+              "rm": 220.836,
+              "rmErr": 0.27,
+              "sn": 81.565185546875,
+              "flux": 0.637,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM4NzI4NA=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NDk2Ng=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwOTkxMg==",
+              "utcStart": "2024-08-05T23:00:56+00:00",
+              "dayOfYear": 218.9589814814815,
+              "binaryOrbitalPhase": null,
+              "duration": 119.47584717757003,
+              "beam": 2,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 31,
+              "nantEff": 31,
+              "restricted": false,
+              "embargoEndDate": "2026-02-04T23:00:56+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 4207,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjQyMDc="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.22542176728777,
+              "dmErr": 0.4565703629741663,
+              "rm": 218.24,
+              "rmErr": 0.36,
+              "sn": 41.2911949157715,
+              "flux": 0.699,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjQ0Nzc0MA=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Nzc2Mjg="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjExMDUwOQ==",
+              "utcStart": "2024-08-30T21:45:00+00:00",
+              "dayOfYear": 243.90625,
+              "binaryOrbitalPhase": null,
+              "duration": 119.47584717757006,
+              "beam": 2,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 30,
+              "nantEff": 30,
+              "restricted": false,
+              "embargoEndDate": "2026-03-01T21:45:00+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 4224,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjQyMjQ="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.02822928179235,
+              "dmErr": 0.10736390509372373,
+              "rm": 223.563,
+              "rmErr": 1.07,
+              "sn": 27.1869125366211,
+              "flux": 0.874,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjQ0OTE5Mg=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NzgwMjY="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjY4NDQz",
+              "utcStart": "2023-12-10T13:48:43+00:00",
+              "dayOfYear": 344.5754976851852,
+              "binaryOrbitalPhase": null,
+              "duration": 119.55238519626162,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 33,
+              "nantEff": 33,
+              "restricted": false,
+              "embargoEndDate": "2025-06-10T13:48:43+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 3912,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjM5MTI="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.10025598284474,
+              "dmErr": 0.05712291272387888,
+              "rm": 221.613,
+              "rmErr": 0.4,
+              "sn": 40.1383056640625,
+              "flux": 0.63,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MzYxOA=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Mzg2MDc="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjQwNjU1",
+              "utcStart": "2023-10-01T18:24:22+00:00",
+              "dayOfYear": 274.7669212962963,
+              "binaryOrbitalPhase": null,
+              "duration": 119.55238519626162,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 32,
+              "nantEff": 32,
+              "restricted": false,
+              "embargoEndDate": "2025-04-01T18:24:22+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1872,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4NzI="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.06430563582629,
+              "dmErr": 0.07319169163012908,
+              "rm": 219.809,
+              "rmErr": 0.47,
+              "sn": 38.2591514587402,
+              "flux": 0.796,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM4NzAyMQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Mzc2MjI="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjMwMDc4",
+              "utcStart": "2022-11-03T14:43:15+00:00",
+              "dayOfYear": 307.61336805555555,
+              "binaryOrbitalPhase": null,
+              "duration": 119.55238519626164,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 29,
+              "nantEff": 29,
+              "restricted": false,
+              "embargoEndDate": "2024-05-04T14:43:15+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1876,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4NzY="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.35988930666862,
+              "dmErr": 0.12252020488056274,
+              "rm": 219.784,
+              "rmErr": 0.34,
+              "sn": 41.1452369689941,
+              "flux": 0.915,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5Mjc3Mg=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6ODExMQ=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjQwNjUy",
+              "utcStart": "2023-08-01T22:06:02+00:00",
+              "dayOfYear": 213.92085648148148,
+              "binaryOrbitalPhase": null,
+              "duration": 119.55238519626162,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 31,
+              "nantEff": 31,
+              "restricted": false,
+              "embargoEndDate": "2025-01-30T22:06:02+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1867,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4Njc="
+              }
+            },
+            "pipelineRun": {
+              "dm": 101.28383076622188,
+              "dmErr": 6.089905479351404,
+              "rm": 224.217,
+              "rmErr": 4.09,
+              "sn": 41.0496444702148,
+              "flux": 1.346,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjU2NQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6Mzc3NDE="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjEwMzg3Mg==",
+              "utcStart": "2024-03-10T08:10:40+00:00",
+              "dayOfYear": 70.34074074074073,
+              "binaryOrbitalPhase": null,
+              "duration": 119.55238519626162,
+              "beam": 4,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 33,
+              "nantEff": 33,
+              "restricted": false,
+              "embargoEndDate": "2025-09-09T08:10:40+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 4098,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjQwOTg="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.48074570538836,
+              "dmErr": 0.08581005287120151,
+              "rm": 219.405,
+              "rmErr": 0.54,
+              "sn": 32.3411636352539,
+              "flux": 0.628,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5Mzg5MA=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NzQzMjA="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjMxODg1",
+              "utcStart": "2023-01-02T09:06:21+00:00",
+              "dayOfYear": 2.3794097222222224,
+              "binaryOrbitalPhase": null,
+              "duration": 118.53187828037379,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 30,
+              "nantEff": 30,
+              "restricted": false,
+              "embargoEndDate": "2024-07-03T09:06:21+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1874,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4NzQ="
+              }
+            },
+            "pipelineRun": {
+              "dm": 110.42959505669866,
+              "dmErr": 6.614499347964662,
+              "rm": 220.908,
+              "rmErr": 0.45,
+              "sn": 29.0088939666748,
+              "flux": 0.767,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MzAwMg=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6ODI2MQ=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjM1NTU3",
+              "utcStart": "2023-05-05T04:21:11+00:00",
+              "dayOfYear": 125.18137731481482,
+              "binaryOrbitalPhase": null,
+              "duration": 119.47584717757002,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 31,
+              "nantEff": 31,
+              "restricted": false,
+              "embargoEndDate": "2024-11-03T04:21:11+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1859,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4NTk="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.14587766443886,
+              "dmErr": 0.998338119808088,
+              "rm": 221.899,
+              "rmErr": 0.72,
+              "sn": 32.6834983825684,
+              "flux": 0.942,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MzQ3MA=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6ODUzMQ=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjc1NQ==",
+              "utcStart": "2019-07-14T18:22:30+00:00",
+              "dayOfYear": 195.765625,
+              "binaryOrbitalPhase": null,
+              "duration": 961.7844013457941,
+              "beam": 1,
+              "bandwidth": 775.75,
+              "nchan": 928,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 60,
+              "nantEff": 60,
+              "restricted": false,
+              "embargoEndDate": "2021-01-12T18:22:30+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1475,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE0NzU="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.21517009403584,
+              "dmErr": 0.024183278452176934,
+              "rm": 221.099,
+              "rmErr": 0.26,
+              "sn": 132.456146240234,
+              "flux": 0.375,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM4NzE4OQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6NDc2Mg=="
+          }
+        },
+        {
+          "node": {
+            "observation": {
+              "id": "T2JzZXJ2YXRpb25Ob2RlOjI5MTcz",
+              "utcStart": "2022-10-02T16:19:51+00:00",
+              "dayOfYear": 275.6804513888889,
+              "binaryOrbitalPhase": null,
+              "duration": 118.53187828037379,
+              "beam": 3,
+              "bandwidth": 856,
+              "nchan": 1024,
+              "band": "LBAND",
+              "foldNbin": 1024,
+              "nant": 33,
+              "nantEff": 33,
+              "restricted": false,
+              "embargoEndDate": "2024-04-02T16:19:51+00:00",
+              "project": {
+                "short": "TPA",
+                "id": "UHJvamVjdE5vZGU6Mg=="
+              },
+              "ephemeris": {
+                "dm": 106.4,
+                "id": "RXBoZW1lcmlzTm9kZTo4MDA2"
+              },
+              "calibration": {
+                "idInt": 1881,
+                "id": "Q2FsaWJyYXRpb25Ob2RlOjE4ODE="
+              }
+            },
+            "pipelineRun": {
+              "dm": 107.0759316863492,
+              "dmErr": 0.047222636181548885,
+              "rm": 221.089,
+              "rmErr": 0.78,
+              "sn": 39.1646728515625,
+              "flux": 0.537,
+              "id": "UGlwZWxpbmVSdW5Ob2RlOjM5MjY2MQ=="
+            },
+            "id": "UHVsc2FyRm9sZFJlc3VsdE5vZGU6ODAzMQ=="
+          }
+        }
+      ]
+    }
+  }
+}

@@ -156,8 +156,8 @@ const FoldDetailTable = ({ tableData, mainProject, jname }) => {
   const infoHeaders = ["timestamp", "project", "beam", "badges"];
 
   return (
-    <div>
-      <Row className="mt-5 mb-4">
+    <>
+      <Row className="pt-5 pb-4">
         <Col>
           <h4 className="text-primary-600">Observations</h4>
         </Col>
@@ -328,7 +328,7 @@ const FoldDetailTable = ({ tableData, mainProject, jname }) => {
           ))}
         </tbody>
       </Table>
-    </div>
+    </>
   );
 };
 

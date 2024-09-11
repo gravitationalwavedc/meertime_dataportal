@@ -898,45 +898,53 @@ class ToaConnection(relay.Connection):
         return []
 
     def resolve_total_badge_excluded_toas(self, instance):
-        if "excludeBadges" in instance.variable_values.keys():
-            # First do all other filters
-            queryset = Toa.objects.select_related(
-                "pipeline_run",
-                "ephemeris",
-                "template",
-                "project",
-                "pipeline_run__observation__calibration__badges",
-            ).all()
-            if "pipelineRunId" in instance.variable_values.keys():
-                queryset = queryset.filter(pipeline_run__id=instance.variable_values["pipelineRunId"])
-            if "pulsar" in instance.variable_values.keys():
-                queryset = queryset.select_related("observation__pulsar").filter(
-                    observation__pulsar__name=instance.variable_values["pulsar"]
-                )
-            if "mainProject" in instance.variable_values.keys():
-                queryset = queryset.select_related("observation__project__main_project").filter(
-                    observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
-                )
-            if "projectShort" in instance.variable_values.keys():
-                if instance.variable_values["projectShort"] != "All":
-                    queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
-            if "dmCorrected" in instance.variable_values.keys():
-                queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
-            if "nsubType" in instance.variable_values.keys():
-                queryset = queryset.filter(nsub_type=instance.variable_values["nsubType"])
-            if "obsNchan" in instance.variable_values.keys():
-                queryset = queryset.filter(obs_nchan=instance.variable_values["obsNchan"])
-            if "obsNpol" in instance.variable_values.keys():
-                queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
-            # Filter and observations with badges
-            badge_filter = (
-                Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"])
-                | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
-                | Q(snr__lt=instance.variable_values["minimumSNR"])
-            )
-            return queryset.filter(badge_filter).count()
-        else:
+        if "excludeBadges" not in instance.variable_values.keys():
             return 0
+
+        queryset = Toa.objects.select_related(
+            "pipeline_run",
+            "ephemeris",
+            "template",
+            "project",
+            "pipeline_run__observation__calibration__badges",
+            "observation__pulsar",
+            "observation__project__main_project",
+        ).all()
+
+        if "pipelineRunId" in instance.variable_values.keys():
+            queryset = queryset.filter(pipeline_run__id=instance.variable_values["pipelineRunId"])
+
+        if "pulsar" in instance.variable_values.keys():
+            queryset = queryset.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+
+        if "mainProject" in instance.variable_values.keys():
+            queryset = queryset.filter(
+                observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
+            )
+
+        if "projectShort" in instance.variable_values.keys() and instance.variable_values["projectShort"] != "All":
+            queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
+
+        if "dmCorrected" in instance.variable_values.keys():
+            queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
+
+        if "nsubType" in instance.variable_values.keys():
+            queryset = queryset.filter(nsub_type=instance.variable_values["nsubType"])
+
+        if "obsNchan" in instance.variable_values.keys():
+            queryset = queryset.filter(obs_nchan=instance.variable_values["obsNchan"])
+
+        if "obsNpol" in instance.variable_values.keys():
+            queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
+        #
+        # Filter and observations with badges
+        badge_filter = (
+            Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"])
+            | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
+            | Q(snr__lt=instance.variable_values["minimumSNR"])
+        )
+
+        return queryset.filter(badge_filter).count()
 
 
 class Query(graphene.ObjectType):
@@ -1289,7 +1297,7 @@ class Query(graphene.ObjectType):
     )
 
     @login_required
-    def resolve_toa(self, info, **kwargs):
+    def resolve_toa(self, _, **kwargs):
         queryset = Toa.objects.select_related(
             "pipeline_run",
             "ephemeris",
@@ -1297,24 +1305,20 @@ class Query(graphene.ObjectType):
             "project",
         ).all()
 
-        pipelineRunId = kwargs.get("pipelineRunId")
-        if pipelineRunId:
+        if pipelineRunId := kwargs.get("pipelineRunId"):
             queryset = queryset.select_related("pipeline_run").filter(pipeline_run__id=pipelineRunId)
 
-        pulsar_name = kwargs.get("pulsar")
-        if pulsar_name:
+        if pulsar_name := kwargs.get("pulsar"):
             queryset = queryset.select_related("observation__pulsar").filter(observation__pulsar__name=pulsar_name)
 
-        main_project_name = kwargs.get("mainProject")
-        if main_project_name:
+        if main_project_name := kwargs.get("mainProject"):
             queryset = queryset.select_related("observation__project__main_project").filter(
                 observation__project__main_project__name__iexact=main_project_name
             )
 
         project_short = kwargs.get("projectShort")
-        if project_short:
-            if project_short != "All":
-                queryset = queryset.select_related("project").filter(project__short=project_short)
+        if project_short and project_short != "All":
+            queryset = queryset.select_related("project").filter(project__short=project_short)
 
         dm_corrected = kwargs.get("dmCorrected")
         if dm_corrected is not None:
@@ -1324,30 +1328,24 @@ class Query(graphene.ObjectType):
         if nsub_type is not None:
             queryset = queryset.filter(nsub_type=nsub_type)
 
-        obs_nchan = kwargs.get("obsNchan")
-        if obs_nchan:
+        if obs_nchan := kwargs.get("obsNchan"):
             queryset = queryset.filter(obs_nchan=obs_nchan)
 
-        obs_npol = kwargs.get("obsNpol")
-        if obs_npol:
+        if obs_npol := kwargs.get("obsNpol"):
             queryset = queryset.filter(obs_npol=obs_npol)
 
-        exclude_badges = kwargs.get("excludeBadges")
-        if exclude_badges:
+        if exclude_badges := kwargs.get("excludeBadges"):
             queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges).exclude(
                 pipeline_run__observation__calibration__badges__name__in=exclude_badges
             )
 
-        minimumSNR = kwargs.get("minimumSNR")
-        if minimumSNR:
+        if minimumSNR := kwargs.get("minimumSNR"):
             queryset = queryset.filter(snr__gte=minimumSNR)
 
-        utc_start_gte = kwargs.get("utcStartGte")
-        if utc_start_gte:
+        if utc_start_gte := kwargs.get("utcStartGte"):
             queryset = queryset.filter(observation__utc_start__gte=utc_start_gte)
 
-        utc_start_lte = kwargs.get("utcStartLte")
-        if utc_start_lte:
+        if utc_start_lte := kwargs.get("utcStartLte"):
             queryset = queryset.filter(observation__utc_start__lte=utc_start_lte)
 
         return queryset.order_by("mjd")

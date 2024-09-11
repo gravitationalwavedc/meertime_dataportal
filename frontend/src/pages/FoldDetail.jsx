@@ -5,16 +5,12 @@ import FoldDetailTable from "../components/fold-detail/FoldDetailTable";
 import { graphql } from "relay-runtime";
 import { useLazyLoadQuery } from "react-relay";
 import PlotContainer from "../components/plots/PlotContainer";
-import { Suspense } from "react";
 import { useState } from "react";
 
 const foldDetailQuery = graphql`
   query FoldDetailQuery(
     $pulsar: String!
     $mainProject: String
-    $projectShort: String
-    $nsubType: String
-    $obsNchan: Int
     $excludeBadges: [String]
     $minimumSNR: Float
   ) {
@@ -53,17 +49,6 @@ const foldDetailQuery = graphql`
       @arguments(
         pulsar: $pulsar
         mainProject: $mainProject
-        excludeBadges: $excludeBadges
-        minimumSNR: $minimumSNR
-      )
-
-    ...PlotContainerFragment
-      @arguments(
-        pulsar: $pulsar
-        mainProject: $mainProject
-        projectShort: $projectShort
-        nsubType: $nsubType
-        obsNchan: $obsNchan
         excludeBadges: $excludeBadges
         minimumSNR: $minimumSNR
       )
@@ -106,18 +91,16 @@ const FoldDetail = ({ match }) => {
         toasLink={data.pulsarFoldResult.toasLink}
       />
       <SummaryDataRow dataPoints={summaryData} />
-      <Suspense fallback="<h1>Loading</h1>">
-        <PlotContainer
-          queryData={data}
-          jname={jname}
-          mainProject={mainProject}
-          match={match}
-          minimumSNR={minimumSNR}
-          setMinimumSNR={setMinimumSNR}
-          excludeBadges={excludeBadges}
-          setExcludeBadges={setExcludeBadges}
-        />
-      </Suspense>
+      <PlotContainer
+        queryData={data}
+        jname={jname}
+        mainProject={mainProject}
+        match={match}
+        minimumSNR={minimumSNR}
+        setMinimumSNR={setMinimumSNR}
+        excludeBadges={excludeBadges}
+        setExcludeBadges={setExcludeBadges}
+      />
       <FoldDetailTable
         tableData={data}
         jname={jname}

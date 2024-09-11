@@ -91,3 +91,6 @@ build-backend = "poetry.masonry.api"
 
 [flake8]
 max-line-length = 119
+
+[tool.django-stubs]
+django_settings_module = "meertime.settings"
