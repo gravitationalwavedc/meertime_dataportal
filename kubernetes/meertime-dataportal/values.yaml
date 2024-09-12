@@ -50,10 +50,12 @@ podAnnotations:
 
 podLabels: {}
 
-podSecurityContext: {}
+podSecurityContext:
+  {}
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  {}
   # capabilities:
   #   drop:
   #   - ALL
@@ -111,6 +113,13 @@ deployments:
           - |
             set -ex
             psql -w -U $POSTGRES_USER -d $POSTGRES_DATABASE -c "SELECT 1"
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 4096Mi
+      requests:
+        cpu: 1000m
+        memory: 4096Mi
     volumes:
       - name: db-storage-data
         persistentVolumeClaim:
@@ -149,7 +158,13 @@ deployments:
         - name: meertime-img-storage
           mountPath: /media
       command:
-        ["gunicorn", "--bind=0.0.0.0:8000", "--timeout=120", "--workers=8", "meertime.wsgi:application"]
+        [
+          "gunicorn",
+          "--bind=0.0.0.0:8000",
+          "--timeout=120",
+          "--workers=8",
+          "meertime.wsgi:application",
+        ]
     port: 8000
     initContainers:
       - name: postgres-ingest-script
@@ -243,7 +258,6 @@ deployments:
         persistentVolumeClaim:
           claimName: meertime-storage-img
 
-
 cronJobs:
   - name: db-bkp-cronjob
     schedule: "20 1 * * *"
@@ -293,73 +307,71 @@ cronJobs:
     imagePullSecrets:
       name: regcred
     annotations:
-        vault.hashicorp.com/agent-init-first: "true"
-        vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/agent-pre-populate-only : "true"
-        vault.hashicorp.com/agent-inject-secret-db-config-secret.yaml: kv/meertime/db-config
-        vault.hashicorp.com/agent-inject-secret-db-control-secret.yaml: kv/meertime/db-control
-        vault.hashicorp.com/agent-inject-secret-db-root-credentials.yaml: kv/meertime/dbroot
-        vault.hashicorp.com/agent-inject-secret-django-multi-secret.yaml: kv/meertime/django-multi
-        vault.hashicorp.com/agent-inject-secret-regcred.yaml: kv/nexus/docker
-        vault.hashicorp.com/agent-inject-template-db-config-secret.yaml: |
-          {{- with secret "kv/meertime/db-config" -}}
-          apiVersion: v1
-          kind: Secret
-          type: Opaque
-          data:
-            {{ range $k, $v := .Data }}
-            {{ $k }}: {{ $v }}
-            {{ end }}
-          metadata:
-            name: db-config
-          {{- end }}
-        vault.hashicorp.com/agent-inject-template-db-control-secret.yaml: |
-          {{- with secret "kv/meertime/db-control" -}}
-          apiVersion: v1
-          kind: Secret
-          type: Opaque
-          data:
-            {{ range $k, $v := .Data }}
-            {{ $k }}: {{ $v }}
-            {{ end }}
-          metadata:
-            name: db-control
-          {{- end }}
-        vault.hashicorp.com/agent-inject-template-db-root-credentials.yaml:
-          |
-          {{- with secret "kv/meertime/dbroot" -}}
-          apiVersion: v1
-          kind: Secret
-          type: Opaque
-          data:
-            password: {{ .Data.password }}
-          metadata:
-            name: db-root-credentials
-          {{- end }}
-        vault.hashicorp.com/agent-inject-template-django-multi-secret.yaml:
-          |
-          {{- with secret "kv/meertime/django-multi" -}}
-          apiVersion: v1
-          kind: Secret
-          type: Opaque
-          data:
-            {{ range $k, $v := .Data }}
-            {{ $k }}: {{ $v }}
-            {{ end }}
-          metadata:
-            name: django-multi
-          {{- end }}
-        vault.hashicorp.com/agent-inject-template-regcred.yaml: |
-          {{- with secret "kv/nexus/docker" -}}
-          apiVersion: v1
-          kind: Secret
-          data:
-            .dockerconfigjson: {{ .Data.auth }}
-          metadata:
-            name: meertime-regcred
-          type: kubernetes.io/dockerconfigjson
-          {{- end }}
-        vault.hashicorp.com/role: meertime
+      vault.hashicorp.com/agent-init-first: "true"
+      vault.hashicorp.com/agent-inject: "true"
+      vault.hashicorp.com/agent-pre-populate-only: "true"
+      vault.hashicorp.com/agent-inject-secret-db-config-secret.yaml: kv/meertime/db-config
+      vault.hashicorp.com/agent-inject-secret-db-control-secret.yaml: kv/meertime/db-control
+      vault.hashicorp.com/agent-inject-secret-db-root-credentials.yaml: kv/meertime/dbroot
+      vault.hashicorp.com/agent-inject-secret-django-multi-secret.yaml: kv/meertime/django-multi
+      vault.hashicorp.com/agent-inject-secret-regcred.yaml: kv/nexus/docker
+      vault.hashicorp.com/agent-inject-template-db-config-secret.yaml: |
+        {{- with secret "kv/meertime/db-config" -}}
+        apiVersion: v1
+        kind: Secret
+        type: Opaque
+        data:
+          {{ range $k, $v := .Data }}
+          {{ $k }}: {{ $v }}
+          {{ end }}
+        metadata:
+          name: db-config
+        {{- end }}
+      vault.hashicorp.com/agent-inject-template-db-control-secret.yaml: |
+        {{- with secret "kv/meertime/db-control" -}}
+        apiVersion: v1
+        kind: Secret
+        type: Opaque
+        data:
+          {{ range $k, $v := .Data }}
+          {{ $k }}: {{ $v }}
+          {{ end }}
+        metadata:
+          name: db-control
+        {{- end }}
+      vault.hashicorp.com/agent-inject-template-db-root-credentials.yaml: |
+        {{- with secret "kv/meertime/dbroot" -}}
+        apiVersion: v1
+        kind: Secret
+        type: Opaque
+        data:
+          password: {{ .Data.password }}
+        metadata:
+          name: db-root-credentials
+        {{- end }}
+      vault.hashicorp.com/agent-inject-template-django-multi-secret.yaml: |
+        {{- with secret "kv/meertime/django-multi" -}}
+        apiVersion: v1
+        kind: Secret
+        type: Opaque
+        data:
+          {{ range $k, $v := .Data }}
+          {{ $k }}: {{ $v }}
+          {{ end }}
+        metadata:
+          name: django-multi
+        {{- end }}
+      vault.hashicorp.com/agent-inject-template-regcred.yaml: |
+        {{- with secret "kv/nexus/docker" -}}
+        apiVersion: v1
+        kind: Secret
+        data:
+          .dockerconfigjson: {{ .Data.auth }}
+        metadata:
+          name: meertime-regcred
+        type: kubernetes.io/dockerconfigjson
+        {{- end }}
+      vault.hashicorp.com/role: meertime
 
 configMapScripts:
   - name: db-ingest-script
@@ -448,20 +460,20 @@ configMapScripts:
       du -h -d 2 ${BACKUP_DIR}
       echo "Backup successful! :-)"
 
-
 ingress: {}
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
   # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
   # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
+  #   cpu: 1000m
+  #   memory: 4096Mi
   # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+  #   cpu: 1000m
+  #   memory: 4096Mi
 
 # Additional volumes on the output Deployment definition.
 volumes: []

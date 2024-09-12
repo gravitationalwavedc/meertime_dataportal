@@ -204,3 +204,6 @@ frontend/reports/
 backend/reports/
 frontend/cypress/screenshots/
 frontend/cypress/videos/
+
+# helm test files
+baseline.yaml

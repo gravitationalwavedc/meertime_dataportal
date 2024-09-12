@@ -123,8 +123,10 @@ spec:
             exec:
               {{- toYaml $value.livereadinessProbe.exec | nindent 14 }}
             {{- end }}
+          {{- with $value.resources}}
           resources:
-            {{- toYaml $.Values.resources | nindent 12 }}
+              {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             {{- range $volumeKey, $volumeValue := $value.volumeMounts }}
               - name: {{ $volumeValue.name }}
