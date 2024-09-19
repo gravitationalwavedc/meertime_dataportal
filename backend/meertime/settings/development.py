@@ -22,3 +22,12 @@ SITE_URL = "http://localhost:3000/"  # with a trailing slash
 
 # Email settings for Development
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Don't use the redis cache in local development.
+# It's only currently used for django-cachalot so this shouldn't
+# cause any issues.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+    }
+}

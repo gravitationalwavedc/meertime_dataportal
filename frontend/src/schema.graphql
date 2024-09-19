@@ -875,6 +875,7 @@ input PulsarsInput {
 type Query {
   fileSingleList(mainProject: String!, jname: String!, utc: String!, beam: Int!, before: String, after: String, first: Int, last: Int): FileConnection
   filePulsarList(mainProject: String!, jname: String!, before: String, after: String, first: Int, last: Int): FileConnection
+  node(id: ID!): Node
   pulsar(name: String, before: String, after: String, first: Int, last: Int): PulsarConnection
   telescope(before: String, after: String, first: Int, last: Int): TelescopeConnection
   mainProject(name: String!, before: String, after: String, first: Int, last: Int): MainProjectConnection

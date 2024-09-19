@@ -11,7 +11,7 @@ RUN pnpm install
 
 COPY ./frontend /app/
 
-RUN pnpm run relay
+RUN pnpm run relay 
 RUN pnpm run build
 
 
@@ -19,6 +19,6 @@ RUN pnpm run build
 FROM nginx:1.17.8
 
 COPY --from=build /app/dist /react_app/
-ADD ./nginx/react_app.conf /etc/nginx/conf.d/nginx.conf
+COPY ./nginx/react_app.conf /etc/nginx/conf.d/nginx.conf
 
 EXPOSE 3000

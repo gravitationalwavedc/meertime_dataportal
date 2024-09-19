@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "user_manage",
     "dataportal",
+    "cachalot",
 ]
 
 AUTH_USER_MODEL = "user_manage.User"
