@@ -1,43 +1,69 @@
-version: "3"
+version: "3.8"
 
 services:
   postgres:
     image: postgres:14.9
-    container_name: meertime-postgres
     env_file:
-      - backend/.env
+      - ./backend/.env
     volumes:
-      - ~/docker_postgres:/var/lib/postgresql/data
-      # to create the db from a dump inside a docker container
-      - ~/dumps/meertime_backup.sql:/docker-entrypoint-initdb.d/data.sql
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - meertime_network
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - meertime_network
+
   django-service:
-    image: nexus.gwdc.org.au/meertime/django:3.0.2-7a87b77b
-    container_name: meertime_django
+    build:
+      context: .
+      dockerfile: ./docker/meertime_django.Dockerfile
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
     depends_on:
       - postgres
+      - redis
     env_file:
-      - backend/.env
-    volumes:
-      - ./src/static:/static
-      - ./backend/media:/media
-      - ~/meertime_docker_logs/django:/var/log/django
-    command: >
-      bash -c "python manage.py collectstatic --noinput
-      && gunicorn --bind=0.0.0.0:8000 meertime.wsgi:application"
+      - ./backend/.env
+    environment:
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    networks:
+      - meertime_network
+
   react-service:
-    image: nexus.gwdc.org.au/meertime/react:3.0.2-7a87b77b
-    container_name: meertime_react
+    build:
+      context: .
+      dockerfile: ./docker/meertime_react.Dockerfile
+    volumes:
+      - ./frontend:/app
     ports:
       - "3000:3000"
+    networks:
+      - meertime_network
+
   nginx:
-    image: nexus.gwdc.org.au/meertime/nginx:1.5.2
+    build:
+      context: .
+      dockerfile: ./docker/meertime_nginx.Dockerfile
     ports:
       - "80:80"
-    container_name: meertime_nginx
     depends_on:
       - django-service
-    volumes:
-      - ./src/static:/static
-      - ./nginx:/etc/nginx/conf.d
+      - react-service
+    networks:
+      - meertime_network
+
 volumes:
-  mysql-persistent-storage:
+  postgres_data:
+
+networks:
+  meertime_network:

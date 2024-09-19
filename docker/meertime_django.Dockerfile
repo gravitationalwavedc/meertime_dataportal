@@ -25,14 +25,14 @@ ENV \
 # System dependencies:
 RUN apt-get update && apt-get upgrade -y \
   && apt-get install --no-install-recommends -y \
-    bash \
-    build-essential \
-    curl \
-    gettext \
-    git \
-    wget \
-    libpq-dev \
-    python3-dev \
+  bash \
+  build-essential \
+  curl \
+  gettext \
+  git \
+  wget \
+  libpq-dev \
+  python3-dev \
   # Installing `poetry` package manager:
   && curl -sSL https://install.python-poetry.org | python3 \
   && poetry --version \

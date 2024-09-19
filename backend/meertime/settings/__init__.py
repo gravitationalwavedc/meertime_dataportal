@@ -27,6 +27,7 @@ base_settings = [
     "slack.py",
     "job_controller.py",
     "email.py",
+    "cache.py",
     # Optionally override some settings:
     optional("local.py"),
 ]
