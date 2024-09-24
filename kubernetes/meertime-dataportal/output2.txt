@@ -124,7 +124,7 @@ metadata:
     helm.sh/chart: redis-20.1.4
 type: Opaque
 data:
-  redis-password: "TkxzUThHZGsyVw=="
+  redis-password: "T1VZUTVnRnVJNQ=="
 ---
 # Source: meertime-dataportal/charts/redis/templates/configmap.yaml
 apiVersion: v1
@@ -448,6 +448,140 @@ data:
     echo "Disk usage in ${BACKUP_DIR}"
     du -h -d 2 ${BACKUP_DIR}
     echo "Backup successful! :-)"
+---
+# Source: meertime-dataportal/templates/config-map.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-configmap
+  namespace: default
+data:
+  host: database-service.meertime-staging.svc.cluster.local
+---
+# Source: meertime-dataportal/templates/persistant-volume.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-storage-data-default
+  labels:
+    helm.sh/chart: meertime-dataportal-1.0.45
+    app.kubernetes.io/name: meertime-dataportal
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "3.0.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/sharedfolder/meertime/staging/db
+    server: nfs1.private.loc
+---
+# Source: meertime-dataportal/templates/persistant-volume.yaml
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-storage-bkp-default
+  labels:
+    helm.sh/chart: meertime-dataportal-1.0.45
+    app.kubernetes.io/name: meertime-dataportal
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "3.0.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/sharedfolder/meertime/staging/bkp
+    server: nfs1.private.loc
+---
+# Source: meertime-dataportal/templates/persistant-volume.yaml
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: meertime-storage-img-default
+  labels:
+    helm.sh/chart: meertime-dataportal-1.0.45
+    app.kubernetes.io/name: meertime-dataportal
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "3.0.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    path: /mnt/sharedfolder/meertime/staging/img
+    server: nfs1.private.loc
+---
+# Source: meertime-dataportal/templates/persistant-volume.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-storage-data
+  namespace: default
+  labels:
+    helm.sh/chart: meertime-dataportal-1.0.45
+    app.kubernetes.io/name: meertime-dataportal
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "3.0.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: ""
+  volumeName: db-storage-data-default
+---
+# Source: meertime-dataportal/templates/persistant-volume.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-storage-bkp
+  namespace: default
+  labels:
+    helm.sh/chart: meertime-dataportal-1.0.45
+    app.kubernetes.io/name: meertime-dataportal
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "3.0.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: ""
+  volumeName: db-storage-bkp-default
+---
+# Source: meertime-dataportal/templates/persistant-volume.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: meertime-storage-img
+  namespace: default
+  labels:
+    helm.sh/chart: meertime-dataportal-1.0.45
+    app.kubernetes.io/name: meertime-dataportal
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "3.0.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 3Gi
+  storageClassName: ""
+  volumeName: meertime-storage-img-default
 ---
 # Source: meertime-dataportal/templates/role.yaml
 kind: Role
@@ -1147,7 +1281,7 @@ spec:
         checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
         checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
         checksum/scripts: 3993a5a33ba3c60149cbc8f1b111bb8e895ade574ce1aee868a8b3eb6235f25b
-        checksum/secret: d999b1b4fc66804c9e7579698ee196e3701fa533f8820c7209ec0e02f0048cd5
+        checksum/secret: 17bf48ddac05ee110230d8fd3b394d31827a5b713bdced53ba016ac00386b1bc
     spec:
       
       securityContext:
@@ -1328,7 +1462,7 @@ spec:
         checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
         checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
         checksum/scripts: 3993a5a33ba3c60149cbc8f1b111bb8e895ade574ce1aee868a8b3eb6235f25b
-        checksum/secret: c0df41b7699cf2d819e96a541b03a54738742446d61cc08d06ec08ddc24cd63e
+        checksum/secret: 739c5691cd0e4c717376a209b5554e4d0eec85c80939608bffd18e3a032eaad1
     spec:
       
       securityContext:
@@ -1675,3 +1809,29 @@ spec:
               {{- end }}
             vault.hashicorp.com/agent-pre-populate-only: "true"
             vault.hashicorp.com/role: meertime
+---
+# Source: meertime-dataportal/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: release-name-meertime-dataportal
+  namespace: default
+  labels:
+    helm.sh/chart: meertime-dataportal-1.0.45
+    app.kubernetes.io/name: meertime-dataportal
+    app.kubernetes.io/instance: release-name
+    app.kubernetes.io/version: "3.0.5"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "dev.pulsars.org.au"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: "nginx-service"
+                port:
+                  number: 80

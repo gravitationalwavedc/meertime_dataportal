@@ -172,7 +172,6 @@ helm-package:
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git remote set-url --push origin "https://GIT_PUSH_TOKEN:${GIT_PUSH_TOKEN}@gitlab.com/CAS-eResearch/GWDC/code/meertime_dataportal.git"
     - helm plugin install --version=v0.9.0 https://github.com/chartmuseum/helm-push.git
-    - helm repo add bitnami https://charts.bitnami.com/bitnami
     - helm repo add ${REMOTE_REPO} ${NEXUS_HELM_URL}
     - helm repo update
   script:
