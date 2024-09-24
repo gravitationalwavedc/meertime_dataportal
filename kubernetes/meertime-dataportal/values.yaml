@@ -88,6 +88,11 @@ services:
     port: 5432
     selector: database
     label: database
+  - name: redis
+    portName: redis
+    port: 6379
+    selector: redis
+    label: redis
 
 deployments:
   - name: database
@@ -257,6 +262,64 @@ deployments:
       - name: meertime-img-storage
         persistentVolumeClaim:
           claimName: meertime-storage-img
+
+  - name: redis
+    image: docker.io/bitnami/redis:7.4.0-debian-12-r4
+    imagePullPolicy: "IfNotPresent"
+    securityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+          - ALL
+      readOnlyRootFilesystem: true
+      runAsGroup: 1001
+      runAsNonRoot: true
+      runAsUser: 1001
+      seLinuxOptions: {}
+      seccompProfile:
+        type: RuntimeDefault
+    command:
+      - /bin/bash
+    args:
+      - -c
+      - /opt/bitnami/scripts/start-scripts/start-master.sh
+    env:
+      - name: BITNAMI_DEBUG
+        value: "false"
+      - name: REDIS_REPLICATION_MODE
+        value: master
+      - name: ALLOW_EMPTY_PASSWORD
+        value: "yes"
+      - name: REDIS_TLS_ENABLED
+        value: "no"
+      - name: REDIS_PORT
+        value: "6379"
+    ports:
+      - name: redis
+        containerPort: 6379
+    livenessProbe: {}
+    readinessProbe: {}
+    resources:
+      limits:
+        cpu: 150m
+        ephemeral-storage: 2Gi
+        memory: 192Mi
+      requests:
+        cpu: 100m
+        ephemeral-storage: 50Mi
+        memory: 128Mi
+    volumeMounts:
+      - name: empty-dir
+        mountPath: /data
+      - name: empty-dir
+        mountPath: /opt/bitnami/redis/etc/
+        subPath: app-conf-dir
+      - name: empty-dir
+        mountPath: /tmp
+        subPath: tmp-dir
+    volumes:
+      - name: empty-dir
+        emptyDir: {}
 
 cronJobs:
   - name: db-bkp-cronjob
