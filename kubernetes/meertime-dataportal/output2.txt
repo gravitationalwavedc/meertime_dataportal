@@ -124,7 +124,7 @@ metadata:
     helm.sh/chart: redis-20.1.4
 type: Opaque
 data:
-  redis-password: "NGVGaTRWU3l6TQ=="
+  redis-password: "TkxzUThHZGsyVw=="
 ---
 # Source: meertime-dataportal/charts/redis/templates/configmap.yaml
 apiVersion: v1
@@ -647,7 +647,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: redis
+  name: redis-service
   namespace: default
   labels:
     name: redis
@@ -1078,18 +1078,18 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - name: redis
-              containerPort: 
+              containerPort: 6379
               protocol: TCP
           livenessProbe:
             initialDelaySeconds: 20
             periodSeconds: 5
-            exec:
-              null
+            tcpSocket:
+              port: 6379
           readinessProbe:
             initialDelaySeconds: 20
             periodSeconds: 5
-            exec:
-              null
+            tcpSocket:
+              port: 6379
           resources:
             limits:
               cpu: 150m
@@ -1147,7 +1147,7 @@ spec:
         checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
         checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
         checksum/scripts: 3993a5a33ba3c60149cbc8f1b111bb8e895ade574ce1aee868a8b3eb6235f25b
-        checksum/secret: 673e5d673341ec87269ab1b31d22250495bdc4055fdfd5543ba7192b296e2b4b
+        checksum/secret: d999b1b4fc66804c9e7579698ee196e3701fa533f8820c7209ec0e02f0048cd5
     spec:
       
       securityContext:
@@ -1328,7 +1328,7 @@ spec:
         checksum/configmap: 86bcc953bb473748a3d3dc60b7c11f34e60c93519234d4c37f42e22ada559d47
         checksum/health: aff24913d801436ea469d8d374b2ddb3ec4c43ee7ab24663d5f8ff1a1b6991a9
         checksum/scripts: 3993a5a33ba3c60149cbc8f1b111bb8e895ade574ce1aee868a8b3eb6235f25b
-        checksum/secret: 15c0891732ef8d3bbc3fddb47ffa8c676ab027b67d61136f514874a6b3d70a9e
+        checksum/secret: c0df41b7699cf2d819e96a541b03a54738742446d61cc08d06ec08ddc24cd63e
     spec:
       
       securityContext:

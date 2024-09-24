@@ -107,10 +107,14 @@ spec:
               path: /
               port: {{ $value.port }}
             {{- end }}
-            {{- if not $value.livereadinessProbe.httpGet }}
+            {{- if $value.livereadinessProbe.exec }}
             exec:
               {{- toYaml $value.livereadinessProbe.exec | nindent 14 }}
             {{- end }}
+            {{- if $value.livereadinessProbe.tcpSocket }}
+            tcpSocket:
+              {{- toYaml $value.livereadinessProbe.tcpSocket | nindent 14 }}
+            {{- end}}
           readinessProbe:
             initialDelaySeconds: {{ $value.livereadinessProbe.initialDelaySeconds }}
             periodSeconds: {{ $value.livereadinessProbe.periodSeconds }}
@@ -119,10 +123,14 @@ spec:
               path: /
               port: {{ $value.port }}
             {{- end }}
-            {{- if not $value.livereadinessProbe.httpGet }}
+            {{- if $value.livereadinessProbe.exec }}
             exec:
               {{- toYaml $value.livereadinessProbe.exec | nindent 14 }}
             {{- end }}
+            {{- if $value.livereadinessProbe.tcpSocket }}
+            tcpSocket:
+              {{- toYaml $value.livereadinessProbe.tcpSocket | nindent 14 }}
+            {{- end}}
           {{- with $value.resources}}
           resources:
               {{- toYaml . | nindent 12 }}

@@ -88,7 +88,7 @@ services:
     port: 5432
     selector: database
     label: database
-  - name: redis
+  - name: redis-service
     portName: redis
     port: 6379
     selector: redis
@@ -264,8 +264,13 @@ deployments:
           claimName: meertime-storage-img
 
   - name: redis
-    image: docker.io/bitnami/redis:7.4.0-debian-12-r4
+    label: redis
+    container:
+      name: redis
+      image: docker.io/bitnami/redis
+      imageTag: 7.4.0-debian-12-r4
     imagePullPolicy: "IfNotPresent"
+    port: 6379
     securityContext:
       allowPrivilegeEscalation: false
       capabilities:
@@ -294,11 +299,15 @@ deployments:
         value: "no"
       - name: REDIS_PORT
         value: "6379"
-    ports:
-      - name: redis
-        containerPort: 6379
-    livenessProbe: {}
-    readinessProbe: {}
+    livereadinessProbe:
+      initialDelaySeconds: 20
+      periodSeconds: 5
+      # One second longer than command timeout should prevent generation of zombie processes.
+      timeoutSeconds: 6
+      successThreshold: 1
+      failureThreshold: 5
+      tcpSocket:
+        port: 6379
     resources:
       limits:
         cpu: 150m
