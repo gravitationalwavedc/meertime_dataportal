@@ -26,8 +26,10 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # Don't use the redis cache in local development.
 # It's only currently used for django-cachalot so this shouldn't
 # cause any issues.
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.dummy.DummyCache",
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.dummy.DummyCache",
+#         "LOCATION": "",
+#         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient", "PASSWORD": ""},
+#     }
+# }
