@@ -1,4 +1,5 @@
 import math
+from astropy.time import Time
 from collections import Counter
 from datetime import datetime
 
@@ -6,7 +7,7 @@ import graphene
 import pytz
 from django.db.models import Q, Subquery
 from django.template.defaultfilters import filesizeformat
-from graphene import relay
+from graphene import ObjectType, relay
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required
@@ -518,25 +519,149 @@ class PulsarFoldResultNode(DjangoObjectType):
         return self.images.all()
 
 
-class PulsarFoldResultConnection(relay.Connection):
-    class Meta:
-        node = PulsarFoldResultNode
+class TimingResidualPlotDataType(ObjectType):
+    day = graphene.Float()
+    size = graphene.Float()
+    band = graphene.String()
+    error = graphene.Float()
+    link = graphene.String()
+    phase = graphene.Float()
+    snr = graphene.Float()
+    utc = graphene.Int()
+    value = graphene.Float()
 
+
+class PulsarFoldResultConnection(relay.Connection):
     total_observations = graphene.Int()
     total_observation_hours = graphene.Int()
     total_estimated_disk_space = graphene.String()
     total_projects = graphene.Int()
     total_timespan_days = graphene.Int()
+    total_observations = graphene.Int()
+    total_toa = graphene.Field(
+        graphene.Int,
+        pulsar=graphene.String(required=True),
+        main_project=graphene.String(default_value="Meertime"),
+        project_short=graphene.String(default_value="All"),
+        nsub_type=graphene.String(default_value="1"),
+    )
     max_plot_length = graphene.Int()
     min_plot_length = graphene.Int()
     description = graphene.String()
     residual_ephemeris = graphene.Field(EphemerisNode)
     toas_link = graphene.String()
     all_projects = graphene.List(graphene.String)
+    most_common_project = graphene.String()
     all_nchans = graphene.List(graphene.Int)
-    total_badge_excluded_observations = graphene.Int()
+    timing_residual_plot_data = graphene.Field(
+        graphene.List(TimingResidualPlotDataType),
+        pulsar=graphene.String(required=True),
+        main_project=graphene.String(default_value="Meertime"),
+        project_short=graphene.String(default_value="All"),
+        nsub_type=graphene.String(default_value="1"),
+        obs_nchan=graphene.Int(default_value=32),
+        exclude_badges=graphene.List(graphene.String, default_value=[]),
+        minimumSNR=graphene.Float(default_value=8),
+        dm_corrected=graphene.Boolean(default_value=False),
+    )
+
+    class Meta:
+        node = PulsarFoldResultNode
+
+    def resolve_total_toa(self, instance, **kwargs):
+        toas = Toa.objects.filter(
+            observation__pulsar__name=kwargs.get("pulsar"),
+            observation__project__main_project__name__iexact=kwargs.get("main_project"),
+            dm_corrected=False,
+            obs_nchan=32,
+            nsub_type=kwargs.get("nsub_type"),
+        )
+
+        if kwargs.get("project_short") != "All":
+            toas = toas.filter(project__short=kwargs.get("project_short"))
+
+        return toas.count()
+
+    def resolve_most_common_project(self, instance):
+        return self.iterable.first().pulsar.pulsarfoldsummary_set.first().most_common_project
+
+    def resolve_timing_residual_plot_data(self, _, **kwargs):
+        toas = (
+            Toa.objects.select_related(
+                "pipeline_run__badges",
+                "pipeline_run__observation__calibration__badges",
+                "observation__pulsar",
+                "observation__project__main_project",
+                "observation",
+            )
+            .filter(
+                observation__pulsar__name=kwargs.get("pulsar"),
+                observation__project__main_project__name__iexact=kwargs.get("main_project"),
+                dm_corrected=kwargs.get("dm_corrected"),
+                nsub_type=kwargs.get("nsub_type"),
+                obs_nchan=kwargs.get("obs_nchan"),
+                snr__gte=kwargs.get("minimumSNR"),
+            )
+            .exclude(
+                pipeline_run__badges__name__in=kwargs.get("exclude_badges"),
+                pipeline_run__observation__calibration__badges__name__in=kwargs.get("exclude_badges"),
+            )
+        )
+
+        unfiltered_toas = Toa.objects.select_related(
+            "pipeline_run__badges",
+            "pipeline_run__observation__calibration__badges",
+            "observation__pulsar",
+            "observation__project__main_project",
+            "observation",
+        ).filter(
+            observation__pulsar__name=kwargs.get("pulsar"),
+            observation__project__main_project__name__iexact=kwargs.get("main_project"),
+            dm_corrected=kwargs.get("dm_corrected"),
+            nsub_type=kwargs.get("nsub_type"),
+            obs_nchan=kwargs.get("obs_nchan"),
+            snr__gte=kwargs.get("minimumSNR"),
+        )
+
+        print("filtered: ", toas.count(), " unfiltered: ", unfiltered_toas.count())
+
+        if kwargs.get("project_short") != "All":
+            toas = toas.filter(project__short=kwargs.get("project_short"))
+
+        toas = toas.order_by("mjd").values(
+            "observation__band",
+            "day_of_year",
+            "observation__duration",
+            "residual_sec",
+            "residual_sec_err",
+            "snr",
+            "binary_orbital_phase",
+            "mjd",
+            "observation__utc_start",
+            "observation__beam",
+        )
+
+        def mjd_to_unix_milliseconds(mjd):
+            t = Time(mjd, format="mjd")
+            return t.unix
+
+        return [
+            {
+                "band": t["observation__band"],
+                "day": t["day_of_year"],
+                "size": t["observation__duration"],
+                "error": t["residual_sec_err"],
+                "value": t["residual_sec"],
+                "snr": t["snr"],
+                "phase": t["binary_orbital_phase"],
+                "utc": mjd_to_unix_milliseconds(t["mjd"]),
+                "link": f"/{kwargs.get('main_project')}/{kwargs.get('pulsar')}/{t['observation__utc_start'].strftime('%Y-%m-%d-%H:%M:%S')}/{t['observation__beam']}/",
+            }
+            for t in toas
+        ]
 
     def resolve_all_projects(self, instance):
+        # print(self.iterable.first().pulsar.pulsar_fold_summary.all_projects)
         if "pulsar" in instance.variable_values.keys():
             return list(
                 Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
@@ -840,8 +965,8 @@ class ToaNode(DjangoObjectType):
             "nsub_type",
             "obs_nchan",
             "obs_npol",
-            "day_of_year",
             "binary_orbital_phase",
+            "day_of_year",
             "residual_sec",
             "residual_sec_err",
             "residual_phase",
@@ -860,11 +985,6 @@ class ToaNode(DjangoObjectType):
     template = graphene.Field(TemplateNode)
 
     nsub_type = graphene.String()
-
-    @classmethod
-    @login_required
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
 
 
 class ToaConnection(relay.Connection):

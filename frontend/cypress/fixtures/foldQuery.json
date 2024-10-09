@@ -4,6 +4,7 @@
       "edges": [
         {
           "node": {
+            "id": "1231231AB",
             "observations": 3,
             "pulsars": 1,
             "observationHours": 0
@@ -16,8 +17,10 @@
         {
           "node": {
             "pulsar": {
+              "id": "pulsar1",
               "name": "J0437-4715"
             },
+            "id": "foldresult1",
             "latestObservation": "2023-04-17T15:08:35+00:00",
             "latestObservationBeam": 1,
             "firstObservation": "2023-04-17T15:08:35+00:00",
@@ -37,8 +40,10 @@
         {
           "node": {
             "pulsar": {
+              "id": "pulsar2",
               "name": "J0125-2327"
             },
+            "id": "foldresult2",
             "latestObservation": "2020-07-10T05:07:28+00:00",
             "latestObservationBeam": 2,
             "firstObservation": "2019-04-23T06:11:30+00:00",

@@ -2,6 +2,8 @@
   "data": {
     "pulsarFoldResult": {
       "description": "PSR J0125-2327 is a millisecond pulsar.",
+      "allProjects": ["PTA"],
+      "mostCommonProject": "PTA",
       "toasLink": null,
       "edges": [
         {
@@ -238,12 +240,6 @@
           }
         }
       ]
-    },
-    "toa": {
-      "allNchans": [],
-      "allProjects": [],
-      "totalBadgeExcludedToas": 0,
-      "edges": []
     }
   }
 }
