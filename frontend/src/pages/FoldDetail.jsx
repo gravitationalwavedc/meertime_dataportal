@@ -22,6 +22,8 @@ const foldDetailQuery = graphql`
     ) {
       description
       toasLink
+      allProjects
+      mostCommonProject
     }
     observationSummary(
       pulsar_Name: $pulsar
@@ -60,6 +62,8 @@ const FoldDetail = ({ match }) => {
 
   const [excludeBadges, setExcludeBadges] = useState([]);
   const [minimumSNR, setMinimumSNR] = useState(minSNR || 8);
+
+  console.log(excludeBadges);
 
   const data = useLazyLoadQuery(foldDetailQuery, {
     pulsar: jname,
@@ -100,6 +104,8 @@ const FoldDetail = ({ match }) => {
         setMinimumSNR={setMinimumSNR}
         excludeBadges={excludeBadges}
         setExcludeBadges={setExcludeBadges}
+        allProjects={data?.pulsarFoldResult?.allProjects}
+        mostCommonProject={data?.pulsarFoldResult?.mostCommonProject}
       />
       <FoldDetailTable
         tableData={data}

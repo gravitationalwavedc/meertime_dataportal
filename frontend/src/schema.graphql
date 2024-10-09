@@ -758,19 +758,23 @@ type PulsarEdge {
 type PulsarFoldResultConnection {
   pageInfo: PageInfo!
   edges: [PulsarFoldResultEdge]!
-  totalObservations: Int
   totalObservationHours: Int
   totalEstimatedDiskSpace: String
   totalProjects: Int
   totalTimespanDays: Int
+  totalObservations: Int
+  totalToa(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1"): Int
   maxPlotLength: Int
   minPlotLength: Int
   description: String
   residualEphemeris: EphemerisNode
   toasLink: String
   allProjects: [String]
+  mostCommonProject: String
   allNchans: [Int]
   totalBadgeExcludedObservations: Int
+  totalBadgeExcludedToas: Int
+  timingResidualPlotData(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1", obsNchan: Int = 32, excludeBadges: [String] = [], minimumSNR: Float = 8.0, dmCorrected: Boolean = false): [TimingResidualPlotDataType]
 }
 
 type PulsarFoldResultEdge {
@@ -1005,6 +1009,18 @@ type TemplateNodeConnection {
 type TemplateNodeEdge {
   node: TemplateNode
   cursor: String!
+}
+
+type TimingResidualPlotDataType {
+  day: Float
+  size: Float
+  band: String
+  error: Float
+  link: String
+  phase: Float
+  snr: Float
+  utc: Int
+  value: Float
 }
 
 type ToaConnection {

@@ -61,6 +61,7 @@ black = "^24.8.0"
 pytest = "^8.3.2"
 pytest-cov = "^5.0.0"
 pytest-django = "^4.8.0"
+pydotplus = "^2.0.2"
 
 [tool.black]
 line-length = 119

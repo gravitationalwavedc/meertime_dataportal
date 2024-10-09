@@ -13,9 +13,12 @@ const PlotContainer = ({
   setMinimumSNR,
   excludeBadges,
   setExcludeBadges,
+  allProjects,
+  mostCommonProject,
 }) => {
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Timing Residuals");
+  const [projectShort, setProjectShort] = useState(mostCommonProject);
 
   const plotTypes =
     mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
@@ -69,6 +72,24 @@ const PlotContainer = ({
                 <option value="phase">Binary Phase</option>
               </Form.Control>
             </Form.Group>
+            <Form.Group
+              controlId="projectController"
+              className="col-md-2 searchbar"
+            >
+              <Form.Label>Project</Form.Label>
+              <Form.Control
+                custom
+                as="select"
+                value={projectShort}
+                onChange={(event) => setProjectShort(event.target.value)}
+              >
+                {allProjects.map((projectShort) => (
+                  <option key={projectShort} value={projectShort}>
+                    {projectShort}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
           </Form.Row>
           <div className="pulsar-plot-wrapper">
             <Suspense fallback={<PlotLoading />}>
@@ -77,6 +98,7 @@ const PlotContainer = ({
                 activePlot={activePlot}
                 jname={jname}
                 mainProject={mainProject}
+                projectShort={projectShort}
                 excludeBadges={excludeBadges}
                 minimumSNR={minimumSNR}
               />

@@ -4,6 +4,7 @@
       "edges": [
         {
           "node": {
+            "id": "observation1",
             "observations": 1,
             "projects": 1,
             "observationHours": 3,

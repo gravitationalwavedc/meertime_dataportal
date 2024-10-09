@@ -107,7 +107,13 @@ export const getActivePlotData = (
   mainProject
 ) => {
   if (activePlot == "Timing Residuals") {
-    return residualPlotData(toaDataResult, jname, mainProject);
+    // Convert to milliseconds here because python struggles with large ints
+    return toaDataResult?.pulsarFoldResult?.timingResidualPlotData?.map(
+      (toa) => ({
+        ...toa,
+        utc: toa.utc * 1000,
+      })
+    );
   } else if (activePlot == "S/N") {
     return snrPlotData(toaDataResult, jname, mainProject);
   } else if (activePlot == "Flux Density") {
@@ -135,8 +141,8 @@ export const filterBandData = (originalData) => {
 
   const lBandData = data.filter((row) => row.band === "LBAND");
   const lBand = {
-    data: lBandData,
     name: "LBAND",
+    data: lBandData,
     colour: "#6001a6",
     shape: "circle",
   };

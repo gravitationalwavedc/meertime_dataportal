@@ -4,6 +4,7 @@
       "edges": [
         {
           "node": {
+            "id": "obervation1",
             "observations": 3,
             "pulsars": 3,
             "observationHours": 4
@@ -16,8 +17,10 @@
         {
           "node": {
             "pulsar": {
+              "id": "pulsar1",
               "name": "J1614+0737"
             },
+            "id": "pulsarsearch1",
             "latestObservation": "2023-08-01T18:21:59+00:00",
             "firstObservation": "2023-08-01T18:21:59+00:00",
             "allProjects": "TPA",
@@ -31,8 +34,10 @@
         {
           "node": {
             "pulsar": {
+              "id": "pulsar2",
               "name": "OmegaCen1"
             },
+            "id": "pulsarsearch2",
             "latestObservation": "2023-06-27T11:37:31+00:00",
             "firstObservation": "2023-06-27T11:37:31+00:00",
             "allProjects": "GC",
@@ -46,8 +51,10 @@
         {
           "node": {
             "pulsar": {
+              "id": "pulsar3",
               "name": "J1709-3626"
             },
+            "id": "pulsarsearch3",
             "latestObservation": "2020-03-15T22:58:52+00:00",
             "firstObservation": "2020-03-15T22:58:52+00:00",
             "allProjects": "TPA",
