@@ -140,7 +140,7 @@ celerybeat.pid
 *.sage.py
 
 # Environments
-.env
+backend/.env
 .venv
 *.local
 env/
@@ -187,6 +187,7 @@ cython_debug/
 node_modules
 .pnp
 .pnp.js
+frontend/package-lock.json
 
 # Reach Logging
 npm-debug.log*
@@ -199,6 +200,7 @@ __generated__
 # pnpm logs
 pnpm-debug.log*
 
+
 # Don't track reports
 frontend/reports/
 backend/reports/
@@ -207,3 +209,7 @@ frontend/cypress/videos/
 
 # helm test files
 baseline.yaml
+
+
+#Database copy
+prd.meertime.sql
