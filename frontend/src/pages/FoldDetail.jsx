@@ -24,6 +24,7 @@ const foldDetailQuery = graphql`
       toasLink
       allProjects
       mostCommonProject
+      allNchans
     }
     observationSummary(
       pulsar_Name: $pulsar
@@ -60,7 +61,10 @@ const foldDetailQuery = graphql`
 const FoldDetail = ({ match }) => {
   const { jname, mainProject, minSNR } = match.params;
 
-  const [excludeBadges, setExcludeBadges] = useState([]);
+  const [excludeBadges, setExcludeBadges] = useState([
+    "Session Timing Jump",
+    "RM Drift",
+  ]);
   const [minimumSNR, setMinimumSNR] = useState(minSNR || 8);
 
   const data = useLazyLoadQuery(foldDetailQuery, {
@@ -104,6 +108,7 @@ const FoldDetail = ({ match }) => {
         setExcludeBadges={setExcludeBadges}
         allProjects={data?.pulsarFoldResult?.allProjects}
         mostCommonProject={data?.pulsarFoldResult?.mostCommonProject}
+        allNchans={data?.pulsarFoldResult?.allNchans}
       />
       <FoldDetailTable
         tableData={data}

@@ -594,23 +594,6 @@ class PulsarFoldResultConnection(relay.Connection):
             )
         )
 
-        unfiltered_toas = Toa.objects.select_related(
-            "pipeline_run__badges",
-            "pipeline_run__observation__calibration__badges",
-            "observation__pulsar",
-            "observation__project__main_project",
-            "observation",
-        ).filter(
-            observation__pulsar__name=kwargs.get("pulsar"),
-            observation__project__main_project__name__iexact=kwargs.get("main_project"),
-            dm_corrected=kwargs.get("dm_corrected"),
-            nsub_type=kwargs.get("nsub_type"),
-            obs_nchan=kwargs.get("obs_nchan"),
-            snr__gte=kwargs.get("minimumSNR"),
-        )
-
-        print("filtered: ", toas.count(), " unfiltered: ", unfiltered_toas.count())
-
         if kwargs.get("project_short") != "All":
             toas = toas.filter(project__short=kwargs.get("project_short"))
 
@@ -658,14 +641,15 @@ class PulsarFoldResultConnection(relay.Connection):
             return []
 
     def resolve_all_nchans(self, instance):
-        if "pulsar" in instance.variable_values.keys():
-            return list(
-                Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
-                .values_list("obs_nchan", flat=True)
-                .distinct()
-            )
-        else:
+        if "pulsar" not in instance.variable_values.keys():
             return []
+
+        return list(
+            Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+            .values_list("obs_nchan", flat=True)
+            .order_by("obs_nchan")
+            .distinct()
+        )
 
     def resolve_toas_link(self, instance):
         return self.iterable.first().pipeline_run.toas_download_link

@@ -16,6 +16,7 @@ const plotQuery = graphql`
     $projectShort: String
     $excludeBadges: [String]
     $minimumSNR: Float
+    $obsNchan: Int
   ) {
     pulsarFoldResult(
       pulsar: $pulsar
@@ -34,6 +35,7 @@ const plotQuery = graphql`
         projectShort: $projectShort
         excludeBadges: $excludeBadges
         minimumSNR: $minimumSNR
+        obsNchan: $obsNchan
       ) {
         utc
         band
@@ -93,13 +95,15 @@ const PlotlyPlot = ({
   projectShort,
   excludeBadges,
   minimumSNR,
+  nchan,
 }) => {
   const queryData = useLazyLoadQuery(plotQuery, {
     pulsar: jname,
-    projectShort: projectShort,
     mainProject: mainProject,
+    projectShort: projectShort,
     excludeBadges: excludeBadges,
     minimumSNR: minimumSNR,
+    obsNchan: nchan,
   });
 
   const data = getActivePlotData(queryData, activePlot, jname, mainProject);
