@@ -14,10 +14,6 @@ export function getColumns() {
       header: "Project",
       enableHiding: false,
     }),
-    columnHelper.accessor("badges", {
-      header: "Badges",
-      enableHiding: false,
-    }),
     columnHelper.accessor("length", {
       header: "Length",
       cell: (info) => `${info.getValue()} [s]`,

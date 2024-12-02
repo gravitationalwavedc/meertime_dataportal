@@ -2,10 +2,11 @@ from datetime import datetime
 
 import graphene
 from graphene import relay
-from jobcontroller import request_file_list, get_fluxcal_archive_path
-from graphql_jwt.decorators import login_required
+from graphql_jwt.decorators import login_required, user_passes_test
 
 from dataportal.models import PulsarFoldResult
+from jobcontroller import get_fluxcal_archive_path, request_file_list
+from utils.constants import UserRole
 
 
 class JobControllerFile(graphene.ObjectType):
@@ -32,8 +33,8 @@ class Query(graphene.ObjectType):
     )
 
     @login_required
+    @user_passes_test(lambda user: user.is_unrestricted())
     def resolve_file_single_list(self, info, **kwargs):
-
         pulsar_fold_result = PulsarFoldResult.objects.get(
             pulsar__name=kwargs.get("jname"),
             observation__utc_start=datetime.strptime(kwargs.get("utc"), "%Y-%m-%d-%H:%M:%S"),
@@ -75,8 +76,8 @@ class Query(graphene.ObjectType):
     )
 
     @login_required
+    @user_passes_test(lambda user: user.is_unrestricted())
     def resolve_file_pulsar_list(self, info, **kwargs):
-
         path = get_fluxcal_archive_path(
             main_project=kwargs.get("mainProject"),
             jname=kwargs.get("jname"),

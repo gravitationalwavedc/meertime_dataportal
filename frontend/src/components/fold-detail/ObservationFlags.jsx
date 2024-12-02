@@ -6,7 +6,7 @@ const observationFilters = [
     id: "timingJump",
     label: "Session Timing Jump",
     queryString: "Session Timing Jump",
-    isActive: false,
+    isActive: true,
     description:
       "Observed jump in ToA residuals of all observations of this session",
   },

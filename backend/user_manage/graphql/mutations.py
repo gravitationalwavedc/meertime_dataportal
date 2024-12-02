@@ -7,10 +7,17 @@ import requests
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
+from graphql_jwt.decorators import login_required
 
 from ..models import PasswordResetRequest, ProvisionalUser, Registration
 from . import admin_api
-from .types import PasswordResetRequestType, ProvisionalUserType, RegistrationInput, RegistrationType, UserType
+from .types import (
+    PasswordResetRequestType,
+    ProvisionalUserType,
+    RegistrationInput,
+    RegistrationType,
+    UserType,
+)
 
 UserModel = django.contrib.auth.get_user_model()
 
@@ -27,7 +34,10 @@ class CreateRegistration(graphene.Mutation):
     def mutate(cls, self, info, input):
         r = requests.post(
             "https://www.google.com/recaptcha/api/siteverify",
-            data={"secret": settings.SECRET_CAPTCHA_KEY, "response": input.get("captcha")},
+            data={
+                "secret": settings.SECRET_CAPTCHA_KEY,
+                "response": input.get("captcha"),
+            },
         )
 
         if not r.json()["success"]:
@@ -65,7 +75,11 @@ class VerifyRegistration(graphene.Mutation):
             registration.save()
             return VerifyRegistration(ok=True, registration=registration, errors=None)
         except Registration.DoesNotExist:
-            return VerifyRegistration(ok=False, registration=None, errors=["Verification code does not exist."])
+            return VerifyRegistration(
+                ok=False,
+                registration=None,
+                errors=["Verification code does not exist."],
+            )
         except Exception as e:
             return VerifyRegistration(ok=False, registration=None, errors=e.messages)
 
@@ -91,7 +105,11 @@ class AccountActivation(graphene.Mutation):
                 activation_code=activation_code, email=user_input.get("email")
             )
             if provisional_user.activated:
-                return AccountActivation(ok=False, provisional_user=None, errors=["Account already activated."])
+                return AccountActivation(
+                    ok=False,
+                    provisional_user=None,
+                    errors=["Account already activated."],
+                )
 
             provisional_user.user.set_password(user_input.get("password"))
             provisional_user.user.first_name = user_input.get("first_name")
@@ -106,7 +124,9 @@ class AccountActivation(graphene.Mutation):
             return AccountActivation(ok=True, provisional_user=provisional_user, errors=None)
         except ProvisionalUser.DoesNotExist:
             return AccountActivation(
-                ok=False, provisional_user=None, errors=["Activation code for this email does not exist."]
+                ok=False,
+                provisional_user=None,
+                errors=["Activation code for this email does not exist."],
             )
         except Exception as e:
             return AccountActivation(ok=False, provisional_user=None, errors=e.messages)
@@ -143,19 +163,27 @@ class PasswordReset(graphene.Mutation):
         try:
             UUID(str(verification_code), version=4)
         except ValueError:
-            return PasswordReset(ok=False, password_reset_request=None, errors=["Invalid verification code."])
+            return PasswordReset(
+                ok=False,
+                password_reset_request=None,
+                errors=["Invalid verification code."],
+            )
 
         try:
             password_reset_request = PasswordResetRequest.objects.get(verification_code=verification_code)
 
             if password_reset_request.verification_expiry < timezone.now():
                 return PasswordReset(
-                    ok=False, password_reset_request=None, errors=["The verification code has been expired."]
+                    ok=False,
+                    password_reset_request=None,
+                    errors=["The verification code has been expired."],
                 )
 
             if password_reset_request.status == PasswordResetRequest.UPDATED:
                 return PasswordReset(
-                    ok=False, password_reset_request=None, errors=["The verification code has been used."]
+                    ok=False,
+                    password_reset_request=None,
+                    errors=["The verification code has been used."],
                 )
 
             # Change the user password here
@@ -180,7 +208,11 @@ class PasswordReset(graphene.Mutation):
                     errors=["No user found. Please contact support regarding this."],
                 )
         except PasswordResetRequest.DoesNotExist:
-            return PasswordReset(ok=False, password_reset_request=None, errors=["Verification code does not exist."])
+            return PasswordReset(
+                ok=False,
+                password_reset_request=None,
+                errors=["Verification code does not exist."],
+            )
         except Exception as e:
             return PasswordReset(ok=False, registration=None, errors=e.messages)
 
@@ -199,7 +231,11 @@ class PasswordChange(graphene.Mutation):
     def mutate(cls, self, info, username, old_password, password):
         try:
             if old_password == password:
-                return PasswordChange(ok=False, user=None, errors=["New and current passwords cannot be same."])
+                return PasswordChange(
+                    ok=False,
+                    user=None,
+                    errors=["New and current passwords cannot be same."],
+                )
 
             user = UserModel.objects.get(username=username)
 

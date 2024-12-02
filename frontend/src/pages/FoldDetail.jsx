@@ -63,8 +63,6 @@ const FoldDetail = ({ match }) => {
   const [excludeBadges, setExcludeBadges] = useState([]);
   const [minimumSNR, setMinimumSNR] = useState(minSNR || 8);
 
-  console.log(excludeBadges);
-
   const data = useLazyLoadQuery(foldDetailQuery, {
     pulsar: jname,
     mainProject: mainProject,

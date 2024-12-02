@@ -6,6 +6,8 @@ import ReactMarkdown from "react-markdown";
 import TopNav from "../components/TopNav";
 import { useScreenSize } from "../context/screenSize-context";
 import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import ErrorFallback from "./ErrorFallback";
 
 const MainLayout = ({ title, subtitle, description, children }) => {
   const { screenSize } = useScreenSize();
@@ -37,7 +39,9 @@ const MainLayout = ({ title, subtitle, description, children }) => {
             </Col>
           </Row>
         )}
-        <Suspense fallback={<h1>Loading...</h1>}>{children}</Suspense>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <Suspense fallback={<h1>Loading...</h1>}>{children}</Suspense>
+        </ErrorBoundary>
       </Container>
       <Footer />
     </>

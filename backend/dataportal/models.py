@@ -54,7 +54,8 @@ class Pulsar(models.Model):
 
     name = models.CharField(max_length=32, unique=True)
     comment = models.TextField(
-        null=True, help_text="Auto generated description based on information from the ANTF catalogue"
+        null=True,
+        help_text="Auto generated description based on information from the ANTF catalogue",
     )
 
     def __str__(self):
@@ -304,8 +305,15 @@ class Observation(models.Model):
         super(Observation, self).save(*args, **kwargs)
 
     def is_restricted(self, user):
+        # No login means they can't see embargo data.
+        if user.is_anonymous:
+            return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
+
         # If the user role isn't restricted they can access everything
-        if user.role.upper() in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]:
+        if user.role.upper() in [
+            UserRole.UNRESTRICTED.value,
+            UserRole.ADMIN.value,
+        ]:
             return False
 
         # If there's no embargo then it's not restricted

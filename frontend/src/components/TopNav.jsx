@@ -1,8 +1,10 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
-import { Link, useRouter } from "found";
+import { Link, useRouter, useLocation } from "found";
+import { isLoggedIn } from "../helpers";
 
 const TopNav = () => {
   const { router } = useRouter();
+  const location = useLocation();
 
   const logout = () => {
     sessionStorage.clear();
@@ -33,13 +35,21 @@ const TopNav = () => {
             </Link>
           </Nav>
           <Nav>
-            <Link to="/token_generate/" exact as={Nav.Link}>
-              Generate Token
-            </Link>
-            <Link to="/password_change/" exact as={Nav.Link}>
-              Change Password
-            </Link>
-            <Nav.Link onClick={logout}>Log out</Nav.Link>
+            {isLoggedIn() ? (
+              <>
+                <Link to="/token_generate/" exact as={Nav.Link}>
+                  Generate Token
+                </Link>
+                <Link to="/password_change/" exact as={Nav.Link}>
+                  Change Password
+                </Link>
+                <Nav.Link onClick={logout}>Log out</Nav.Link>
+              </>
+            ) : (
+              <Link to={`/login?next=${location.pathname}`} exact as={Nav.Link}>
+                Log in
+              </Link>
+            )}
           </Nav>
         </Navbar.Collapse>
       </Container>

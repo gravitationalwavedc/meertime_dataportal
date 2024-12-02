@@ -108,3 +108,5 @@ export const formatProjectName = (projectName) => {
 
   return projectName;
 };
+
+export const isLoggedIn = () => localStorage.getItem("jwt") !== null;
