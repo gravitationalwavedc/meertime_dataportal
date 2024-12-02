@@ -296,6 +296,8 @@ const FoldDetailTable = ({ tableData, mainProject, jname }) => {
                   <span className="h6 text-primary-600 bold pr-2">
                     {row.original.timestamp}
                   </span>{" "}
+                </Col>
+                <Col>
                   {row.original.project} &#183; {row.original.beam} beam
                 </Col>
                 <Col>

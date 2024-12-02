@@ -11,15 +11,30 @@ afterEach(() => {
   cleanup();
 });
 
-vi.mock("found", () => {
-  const actual = vi.importActual("found");
+vi.mock("found", async () => {
+  const actual = await vi.importActual("found");
   return {
     ...actual,
     createHref: vi.fn(),
     useRouter: () => ({
-      router: () => ({
+      router: {
+        push: vi.fn(),
+        replace: vi.fn(),
+        go: vi.fn(),
         createHref: vi.fn(),
-      }),
+        createLocation: vi.fn(),
+        isActive: vi.fn(),
+        matcher: {
+          match: vi.fn(),
+          getRoutes: vi.fn(),
+          isActive: vi.fn(),
+          format: vi.fn(),
+        },
+        addTransitionHook: vi.fn(),
+      },
+    }),
+    useLocation: () => ({
+      pathname: vi.fn(),
     }),
     Link: (component) => <>{component.children}</>,
   };

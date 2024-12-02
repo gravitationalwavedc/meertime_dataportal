@@ -24,8 +24,13 @@ class User(AbstractUser):
     )
 
     role = models.CharField(
-        max_length=55, choices=[(r.name, r.value) for r in UserRole], default=UserRole.RESTRICTED.value
+        max_length=55,
+        choices=[(r.name, r.value) for r in UserRole],
+        default=UserRole.RESTRICTED.value,
     )
+
+    def is_unrestricted(self):
+        return self.role in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]
 
 
 class ProvisionalUser(models.Model):
@@ -42,7 +47,9 @@ class ProvisionalUser(models.Model):
     )
 
     role = models.CharField(
-        max_length=55, choices=[(r.name, r.value) for r in UserRole], default=UserRole.RESTRICTED.value
+        max_length=55,
+        choices=[(r.name, r.value) for r in UserRole],
+        default=UserRole.RESTRICTED.value,
     )
 
     activation_code = models.UUIDField(editable=False, default=uuid.uuid4)

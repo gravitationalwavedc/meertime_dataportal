@@ -48,22 +48,11 @@ FOLD_SUMMARY_QUERY = """
 
 @pytest.mark.django_db
 @pytest.mark.enable_signals
-def test_pulsar_fold_summary_query_no_token():
-    client = setup_query_test()[0]
-    response = client.execute(FOLD_SUMMARY_QUERY)
-    expected_error_message = "You do not have permission to perform this action"
-    assert not response.data["pulsarFoldSummary"]
-    assert response.errors[0].message == expected_error_message
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
 def test_pulsar_fold_summary_query_with_token():
     client, user = setup_query_test()[:2]
     client.authenticate(user)
 
     response = client.execute(FOLD_SUMMARY_QUERY)
-    print(json.dumps(response.data, indent=4))
     assert not response.errors
     assert response.data == {
         "pulsarFoldSummary": {
@@ -149,7 +138,6 @@ def test_fold_query():
     client.authenticate(user)
 
     response = client.execute(FOLD_QUERY.format(band="All"))
-    print(json.dumps(response.data, indent=4))
     assert not response.errors
     assert response.data == {
         "observationSummary": {"edges": [{"node": {"observations": 3, "pulsars": 1, "observationHours": 0}}]},
@@ -179,7 +167,6 @@ def test_fold_query():
     }
 
     response = client.execute(FOLD_QUERY.format(band="UHF"))
-    print(json.dumps(response.data, indent=4))
     assert not response.errors
     assert response.data == {
         "observationSummary": {"edges": [{"node": {"observations": 1, "pulsars": 1, "observationHours": 0}}]},
@@ -372,7 +359,14 @@ def test_fold_detail_query():
                                 # "idInt": 41
                             },
                         },
-                        "pipelineRun": {"dm": 20.0, "dmErr": 1.0, "rm": 10.0, "rmErr": 1.0, "sn": 100.0, "flux": 25.0},
+                        "pipelineRun": {
+                            "dm": 20.0,
+                            "dmErr": 1.0,
+                            "rm": 10.0,
+                            "rmErr": 1.0,
+                            "sn": 100.0,
+                            "flux": 25.0,
+                        },
                     }
                 }
             ],
@@ -644,7 +638,6 @@ def test_search_query():
 
     response = client.execute(SEARCH_QUERY)
     assert not response.errors
-    print(json.dumps(response.data, indent=4))
     assert response.data == {
         "observationSummary": {"edges": [{"node": {"observations": 3, "pulsars": 3, "observationHours": 4}}]},
         "pulsarSearchSummary": {
@@ -728,7 +721,16 @@ def test_search_details_query():
     del response.data["observation"]["edges"][0]["node"]["id"]
     assert response.data == {
         "observationSummary": {
-            "edges": [{"node": {"observations": 1, "projects": 1, "observationHours": 3, "timespanDays": 1}}]
+            "edges": [
+                {
+                    "node": {
+                        "observations": 1,
+                        "projects": 1,
+                        "observationHours": 3,
+                        "timespanDays": 1,
+                    }
+                }
+            ]
         },
         "observation": {
             "edges": [
@@ -866,7 +868,10 @@ def test_session_query():
                                                 {
                                                     "node": {
                                                         "images": {"edges": []},
-                                                        "pipelineRun": {"sn": 100.0, "percentRfiZapped": 0.1},
+                                                        "pipelineRun": {
+                                                            "sn": 100.0,
+                                                            "percentRfiZapped": 0.1,
+                                                        },
                                                     }
                                                 }
                                             ]
@@ -1012,11 +1017,15 @@ def test_observation_mode_duration():
     telescope, project, ephemeris, template = create_basic_data()
     # "duration": 255.4990582429906
     create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+        telescope,
+        template,
     )
     # "duration": 263.99999999999994,
     create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope, template
+        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"),
+        telescope,
+        template,
     )
 
     response = client.execute(
@@ -1039,11 +1048,15 @@ def test_observation_mode_duration():
     # Add two more observations and check it still rounds to the lower mode on a draw
     # "duration": 1039.9999999999998,
     create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"), telescope, template
+        os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"),
+        telescope,
+        template,
     )
     # "duration": 1023.2854023529411,
     create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope, template
+        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"),
+        telescope,
+        template,
     )
     response = client.execute(
         OBSERVATION_LIST_QUERY,
@@ -1065,7 +1078,9 @@ def test_observation_mode_duration():
     # Add one more obs and it will get the new higher mode
     # "duration": 1023.2854023529411,
     create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"), telescope, template
+        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"),
+        telescope,
+        template,
     )
     response = client.execute(
         OBSERVATION_LIST_QUERY,
@@ -1087,13 +1102,19 @@ def test_observation_mode_duration():
     # J0437-4715 3 more times (already added once)
     # "duration": 255.4990582429906
     create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+        telescope,
+        template,
     )
     create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+        telescope,
+        template,
     )
     create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+        telescope,
+        template,
     )
     # Molonglo obs of same pulsar J0125-2327
     # "duration": 455.0798950400001,
@@ -1160,7 +1181,10 @@ def test_total_badge_excluded_toas():
     # Set up some observations
     telescope, project, ephemeris, template = create_basic_data()
     obs1, cal1, pr1 = create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"), telescope, template, make_toas=False
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+        telescope,
+        template,
+        make_toas=False,
     )
     dm_badge, created = Badge.objects.get_or_create(
         name="DM Drift",
@@ -1168,7 +1192,10 @@ def test_total_badge_excluded_toas():
     )
     pr1.badges.add(dm_badge)
     obs2, cal2, pr2 = create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"), telescope, template, make_toas=False
+        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"),
+        telescope,
+        template,
+        make_toas=False,
     )
 
     # The ToAs with a badge we will filter out
@@ -1177,7 +1204,10 @@ def test_total_badge_excluded_toas():
         "PTA",
         16,
         template,
-        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        os.path.join(
+            TEST_DATA_DIR,
+            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+        ),
     )
     # Toa fro 3 other nsub types
     upload_toa_files(
@@ -1185,7 +1215,10 @@ def test_total_badge_excluded_toas():
         "PTA",
         16,
         template,
-        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        os.path.join(
+            TEST_DATA_DIR,
+            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+        ),
         nsub_type="max",
     )
     upload_toa_files(
@@ -1193,7 +1226,10 @@ def test_total_badge_excluded_toas():
         "PTA",
         16,
         template,
-        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        os.path.join(
+            TEST_DATA_DIR,
+            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+        ),
         nsub_type="all",
     )
     upload_toa_files(
@@ -1201,7 +1237,10 @@ def test_total_badge_excluded_toas():
         "PTA",
         16,
         template,
-        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        os.path.join(
+            TEST_DATA_DIR,
+            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+        ),
         nsub_type="mode",
     )
     # Resubmit as nsub type min to make sure redundant toas are not counted
@@ -1210,7 +1249,10 @@ def test_total_badge_excluded_toas():
         "PTA",
         16,
         template,
-        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        os.path.join(
+            TEST_DATA_DIR,
+            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+        ),
         nsub_type="1",
     )
 
@@ -1219,7 +1261,10 @@ def test_total_badge_excluded_toas():
         "PTA",
         16,
         template,
-        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        os.path.join(
+            TEST_DATA_DIR,
+            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+        ),
     )
     # Toa from different nchan
     upload_toa_files(
@@ -1227,7 +1272,10 @@ def test_total_badge_excluded_toas():
         "PTA",
         1,
         template,
-        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim"),
+        os.path.join(
+            TEST_DATA_DIR,
+            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim",
+        ),
     )
     # Toa from different project
     upload_toa_files(
@@ -1235,7 +1283,10 @@ def test_total_badge_excluded_toas():
         "TPA",
         16,
         template,
-        os.path.join(TEST_DATA_DIR, "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim"),
+        os.path.join(
+            TEST_DATA_DIR,
+            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+        ),
     )
 
     response = client.execute(

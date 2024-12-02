@@ -14,20 +14,10 @@ describe("Single Observation Page", () => {
     });
 
     cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
-
-    cy.get("input[name=username]").type("buffy@sunnydale.com");
-    cy.get("input[name=password]").type("slayer!#1");
-    cy.contains("button", "Sign in").click();
-
-    cy.wait("@LoginMutation")
-      .its("response.body.data.tokenAuth")
-      .should("have.property", "token");
   });
 
   it("displays loading then the data", () => {
     cy.contains("J0125-2327").should("be.visible");
-    cy.contains("Loading...").should("be.visible");
-
     cy.wait("@SingleObservationQuery");
 
     cy.contains("Loading...").should("not.exist");
@@ -39,8 +29,17 @@ describe("Single Observation Page", () => {
   });
 
   it("should display the download buttons where there are files", () => {
-    cy.wait("@SingleObservationQuery");
+    cy.visit("/login/");
+    cy.get("input[name=username]").type("buffy@sunnydale.com");
+    cy.get("input[name=password]").type("slayer!#1");
+    cy.contains("button", "Sign in").click();
 
+    cy.wait("@LoginMutation")
+      .its("response.body.data.tokenAuth")
+      .should("have.property", "token");
+
+    cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
+    cy.wait("@SingleObservationQuery");
     // Correct page loads
     cy.contains("J0125-2327").should("be.visible");
 

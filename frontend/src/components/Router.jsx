@@ -91,6 +91,41 @@ const routeConfig = () =>
         render={({ Component, props }) => renderTrackingRoute(Component, props)}
       />
       <Route
+        path="/search/"
+        Component={Search}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/search/:mainProject/:jname/"
+        Component={SearchDetail}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/last-session/"
+        Component={Session}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/session/:id/"
+        Component={Session}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/sessions/"
+        Component={SessionList}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/fold/:mainProject/:jname/"
+        Component={FoldDetail}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/:mainProject/:jname/:utc/:beam/"
+        Component={SingleObservation}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
         path="/password_change/"
         Component={PasswordChange}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
@@ -101,44 +136,9 @@ const routeConfig = () =>
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
-        path="/search/"
-        Component={Search}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
-        path="/search/:mainProject/:jname/"
-        Component={SearchDetail}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
-        path="/last-session/"
-        Component={Session}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
-        path="/session/:id/"
-        Component={Session}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
-        path="/sessions/"
-        Component={SessionList}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
-        path="/fold/:mainProject/:jname/"
-        Component={FoldDetail}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
-        path="/:mainProject/:jname/:utc/:beam/"
-        Component={SingleObservation}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
-      <Route
         path="/"
         Component={Fold}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
       />
     </Route>
   );

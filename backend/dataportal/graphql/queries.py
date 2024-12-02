@@ -10,7 +10,7 @@ from django.template.defaultfilters import filesizeformat
 from graphene import ObjectType, relay
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
-from graphql_jwt.decorators import login_required
+from graphql_jwt.decorators import login_required, user_passes_test
 
 from dataportal.models import (
     Badge,
@@ -33,7 +33,17 @@ from dataportal.models import (
 )
 from utils import constants
 
-DATETIME_FILTERS = ["exact", "isnull", "lt", "lte", "gt", "gte", "month", "year", "date"]
+DATETIME_FILTERS = [
+    "exact",
+    "isnull",
+    "lt",
+    "lte",
+    "gt",
+    "gte",
+    "month",
+    "year",
+    "date",
+]
 NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
 
 
@@ -62,7 +72,6 @@ class TelescopeNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -86,7 +95,6 @@ class MainProjectNode(DjangoObjectType):
     telescope = graphene.Field(TelescopeNode)
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -118,7 +126,6 @@ class ProjectNode(DjangoObjectType):
         return self.embargo_period.days
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -191,7 +198,6 @@ class TemplateNode(DjangoObjectType):
     project = graphene.Field(ProjectNode)
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -227,7 +233,6 @@ class CalibrationNode(DjangoObjectType):
         return self.id
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -310,20 +315,7 @@ class ObservationNode(DjangoObjectType):
     mode_duration = graphene.Int()
 
     def resolve_restricted(self, info):
-        # by default, we assume that the user is restricted
-        try:
-            # checking whether the user is restricted or not
-            user_restricted = info.context.user.role.casefold() == constants.UserRole.RESTRICTED.value.casefold()
-
-            if user_restricted:
-                # if the user is restricted, then we check this Pulsar's embargo date
-                return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
-            else:
-                # if the user is not restricted, we return False (restricted)
-                return False
-        except Exception:
-            # default fallback to restricted (True)
-            return True
+        return self.is_restricted(info.context.user)
 
     def resolve_mode_duration(self, instance):
         obs = Observation.objects.all()
@@ -413,7 +405,6 @@ class ObservationSummaryNode(DjangoObjectType):
     calibration = graphene.Field(CalibrationNode)
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -503,11 +494,6 @@ class PulsarFoldResultNode(DjangoObjectType):
     observation = graphene.Field(ObservationNode)
     pipeline_run = graphene.Field(PipelineRunNode)
     project = graphene.Field(ProjectNode)
-
-    @classmethod
-    @login_required
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
 
     def resolve_images(self, info):
         """
@@ -685,10 +671,7 @@ class PulsarFoldResultConnection(relay.Connection):
         return self.iterable.first().pipeline_run.toas_download_link
 
     def resolve_residual_ephemeris(self, instance):
-        pulsar = self.iterable.first().observation.pulsar
-        first_toa = Toa.objects.select_related("observation__pulsar").filter(observation__pulsar=pulsar).first()
-
-        return None if first_toa is None else first_toa.ephemeris
+        return self.iterable.first().pipeline_run.toas.first().ephemeris
 
     def resolve_description(self, instance):
         return self.iterable.first().pulsar.comment
@@ -796,7 +779,6 @@ class PulsarFoldSummaryNode(DjangoObjectType):
     main_project = graphene.Field(MainProjectNode)
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -851,7 +833,6 @@ class PulsarSearchSummaryNode(DjangoObjectType):
     main_project = graphene.Field(MainProjectNode)
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -899,7 +880,6 @@ class PipelineImageNode(DjangoObjectType):
     pulsar_fold_result = graphene.Field(PulsarFoldResultNode)
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -923,7 +903,6 @@ class PipelineFileNode(DjangoObjectType):
     pulsar_fold_result = graphene.Field(PulsarFoldResultNode)
 
     @classmethod
-    @login_required
     def get_queryset(cls, queryset, info):
         return super().get_queryset(queryset, info)
 
@@ -1138,7 +1117,8 @@ class Query(graphene.ObjectType):
         id=graphene.Int(),
     )
 
-    @login_required
+    # This requires public access for the frontend web app to work.
+    # Don't put behind a login
     def resolve_calibration(self, info, **kwargs):
         queryset = Calibration.objects.all()
 
@@ -1165,7 +1145,8 @@ class Query(graphene.ObjectType):
         incomplete=graphene.Boolean(),
     )
 
-    @login_required
+    # This requires public access for the frontend web app to work.
+    # Don't put behind a login
     def resolve_observation(self, info, **kwargs):
         queryset = Observation.objects.select_related(
             "pulsar", "telescope", "project__main_project", "calibration"
@@ -1231,7 +1212,8 @@ class Query(graphene.ObjectType):
         band=graphene.String(),
     )
 
-    @login_required
+    # This requires public access for the frontend web app to work.
+    # Don't put behind a login
     def resolve_observation_summary(self, info, **kwargs):
         queryset = ObservationSummary.objects.all()
 
@@ -1293,7 +1275,6 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_pipeline_run(self, info, **kwargs):
-
         if pipeline_run_id := kwargs.get("id"):
             try:
                 PipelineRun.objects.get(id=pipeline_run_id)
@@ -1314,12 +1295,13 @@ class Query(graphene.ObjectType):
         utcStartLte=graphene.String(),
     )
 
-    @login_required
+    # This requires public access for the frontend web app to work.
+    # Don't put behind a login
     def resolve_pulsar_fold_result(self, info, **kwargs):
-
         queryset = (
             PulsarFoldResult.objects.prefetch_related(
-                "pipeline_run__badges", "pipeline_run__observation__calibration__badges"
+                "pipeline_run__badges",
+                "pipeline_run__observation__calibration__badges",
             )
             .select_related(
                 "observation__project",
@@ -1327,6 +1309,7 @@ class Query(graphene.ObjectType):
                 "observation__calibration",
                 "pipeline_run",
                 "pipeline_run__observation",
+                "pipeline_run__observation__ephemeris",
                 "pipeline_run__observation__calibration",
             )
             .all()
@@ -1368,7 +1351,8 @@ class Query(graphene.ObjectType):
         band=graphene.String(),
     )
 
-    @login_required
+    # This requires public access for the frontend web app to work.
+    # Don't put behind a login
     def resolve_pulsar_fold_summary(self, info, **kwargs):
         return PulsarFoldSummary.get_query(**kwargs)
 
@@ -1380,7 +1364,8 @@ class Query(graphene.ObjectType):
         band=graphene.String(),
     )
 
-    @login_required
+    # This requires public access for the frontend web app to work.
+    # Don't put behind a login
     def resolve_pulsar_search_summary(self, info, **kwargs):
         return PulsarSearchSummary.get_query(**kwargs)
 
