@@ -5,6 +5,7 @@
       "allProjects": ["PTA"],
       "mostCommonProject": "PTA",
       "toasLink": null,
+      "allNchans": [1, 16, 32],
       "edges": [
         {
           "node": {

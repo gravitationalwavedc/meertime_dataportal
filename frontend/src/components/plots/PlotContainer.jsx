@@ -15,10 +15,12 @@ const PlotContainer = ({
   setExcludeBadges,
   allProjects,
   mostCommonProject,
+  allNchans,
 }) => {
   const [xAxis, setXAxis] = useState("utc");
   const [activePlot, setActivePlot] = useState("Timing Residuals");
   const [projectShort, setProjectShort] = useState(mostCommonProject);
+  const [nchan, setNchan] = useState(allNchans[0] || 1);
 
   const plotTypes =
     mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
@@ -90,6 +92,24 @@ const PlotContainer = ({
                 ))}
               </Form.Control>
             </Form.Group>
+            <Form.Group
+              controlId="plotNchanController"
+              className="col-md-2 searchbar"
+            >
+              <Form.Label>Nchan</Form.Label>
+              <Form.Control
+                custom
+                as="select"
+                value={nchan}
+                onChange={(event) => setNchan(event.target.value)}
+              >
+                {allNchans.map((nchan) => (
+                  <option key={nchan} value={nchan} disabled={nchan > 32}>
+                    {nchan}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
           </Form.Row>
           <div className="pulsar-plot-wrapper">
             <Suspense fallback={<PlotLoading />}>
@@ -101,6 +121,7 @@ const PlotContainer = ({
                 projectShort={projectShort}
                 excludeBadges={excludeBadges}
                 minimumSNR={minimumSNR}
+                nchan={nchan}
               />
             </Suspense>
           </div>
