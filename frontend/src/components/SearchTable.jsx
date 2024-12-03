@@ -14,7 +14,6 @@ const searchTableQuery = graphql`
     pulsar: { type: "String", defaultValue: "All" }
     mainProject: { type: "String", defaultValue: "All" }
     project: { type: "String", defaultValue: "All" }
-    project: { type: "String", defaultValue: "All" }
     band: { type: "String", defaultValue: "All" }
     obsType: { type: "String", defaultValue: "search" }
   ) {
@@ -168,8 +167,8 @@ const SearchTable = ({ data }) => {
 
   const summaryNode = fragmentData.observationSummary.edges[0]?.node;
   const summaryData = [
-    { title: "Observations", value: summaryNode.observations },
-    { title: "Pulsars", value: summaryNode.pulsars },
+    { title: "Observations", value: summaryNode?.observations },
+    { title: "Pulsars", value: summaryNode?.pulsars },
   ];
 
   return (
