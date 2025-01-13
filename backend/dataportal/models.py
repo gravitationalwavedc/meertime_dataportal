@@ -799,6 +799,7 @@ class PipelineImage(models.Model):
         ("snr-cumul", "snr-cumul"),
         ("snr-single", "snr-single"),
         ("rmfit", "rmfit"),
+        ("dmfit", "dmfit"),
     ]
     image_type = models.CharField(max_length=16, choices=IMAGE_TYPE_CHOICES)
     RESOLUTION_CHOICES = [
