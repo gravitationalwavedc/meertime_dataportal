@@ -120,15 +120,9 @@ To manually run tests of the frontend, run `npm run cypress` in the `frontend` d
 
 Requirements are managed using [python poetry](https://python-poetry.org/).
 
-#### Add a production package
-1. Run `poetry add hello` to add package `hello`
+#### Add a package
+1. Run `poetry add hello` to add package `hello` (production, use `--dev` for development)
 2. Run `poetry install`
-3. Update requirements.txt with `poetry export -f requirements.txt --without-hashes > src/requirements.txt`. We may move to using poetry in docker too but while we use alpine images, we will stick with this method.
-
-#### Add a development package
-1. Run `poetry add --dev hello` to add development package `hello`
-2. Follow the steps for production package aside from the 1st step
-3. Update requirements.dev.txt with `poetry export --dev -f requirements.txt --without-hashes > src/requirements.dev.txt`. We may move to using poetry in docker too but while we use alpine images, we will stick with this method.
 
 ## Uninstall
 Local install:
