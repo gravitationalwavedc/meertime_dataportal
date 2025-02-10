@@ -34,23 +34,6 @@ const PlotContainer = ({
       </Row>
       <Row className="d-none d-sm-block">
         <Col md={10} className="pulsar-plot-display">
-          <Form.Row>
-            <Form.Group controlId="plotController" className="col-md-2">
-              <Form.Label>Plot Type</Form.Label>
-              <Form.Control
-                custom
-                as="select"
-                value={activePlot}
-                onChange={(event) => setActivePlot(event.target.value)}
-              >
-                {plotTypes.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-          </Form.Row>
           <ObservationFlags
             minimumSNR={minimumSNR}
             setMinimumSNR={setMinimumSNR}
@@ -72,6 +55,24 @@ const PlotContainer = ({
                 <option value="utc">UTC date</option>
                 <option value="day">Day of the year</option>
                 <option value="phase">Binary Phase</option>
+              </Form.Control>
+            </Form.Group>
+            <Form.Group
+              controlId="plotController"
+              className="col-md-2 searchbar"
+            >
+              <Form.Label>Y Axis</Form.Label>
+              <Form.Control
+                custom
+                as="select"
+                value={activePlot}
+                onChange={(event) => setActivePlot(event.target.value)}
+              >
+                {plotTypes.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
               </Form.Control>
             </Form.Group>
             <Form.Group
