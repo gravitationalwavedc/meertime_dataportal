@@ -3,30 +3,33 @@ version: "3.8"
 services:
   postgres:
     image: postgres:14.9
+    restart: always
     env_file:
       - ./backend/.env
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres_data:/var/lib/postgresql/data
+      - ./postgres.conf:/etc/postgresql/postgresql.conf
     ports:
-      - "5432:5432"
-    networks:
-      - meertime_network
+      - "5432"
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
 
   redis:
     image: redis
+    restart: always
+    command: redis-server --maxmemory-policy allkeys-lru --maxmemory 3GB
     ports:
-      - "6379:6379"
-    networks:
-      - meertime_network
+      - "6379"
 
   django-service:
     build:
       context: .
       dockerfile: ./docker/meertime_django.Dockerfile
+    restart: always
     volumes:
       - ./backend:/app
+      - ./media:/media
     ports:
-      - "8000:8000"
+      - "8000"
     depends_on:
       - postgres
       - redis
@@ -36,34 +39,26 @@ services:
       - DB_HOST=postgres
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    networks:
-      - meertime_network
 
   react-service:
     build:
       context: .
       dockerfile: ./docker/meertime_react.Dockerfile
+    restart: always
     volumes:
       - ./frontend:/app
     ports:
-      - "3000:3000"
-    networks:
-      - meertime_network
+      - "3000"
 
   nginx:
     build:
       context: .
       dockerfile: ./docker/meertime_nginx.Dockerfile
+    restart: always
     ports:
-      - "80:80"
+      - "8000:8000"
+    volumes:
+      - ./media:/media
     depends_on:
       - django-service
       - react-service
-    networks:
-      - meertime_network
-
-volumes:
-  postgres_data:
-
-networks:
-  meertime_network:
