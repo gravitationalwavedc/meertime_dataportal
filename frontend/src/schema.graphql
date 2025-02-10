@@ -595,6 +595,7 @@ enum PipelineImageImageType {
   SNR_CUMUL
   SNR_SINGLE
   RMFIT
+  DMFIT
 }
 
 type PipelineImageNode implements Node {

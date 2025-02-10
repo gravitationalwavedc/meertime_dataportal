@@ -78,7 +78,7 @@ You likely want to create at least one Django user via that admin page although 
 You can set up the following aliases in your `.bashrc` (`.zshrc` for Mac) to set up Django then React locally, replacing paths as required:
 ```
 alias djangomanage="cd yourpath/meertime_dataportal/backend/ && poetry run python manage.py"
-alias django="cd yourpath/meertime_dataportal/backend/ && poetry run python manage.py graphql_schema && poetry run python manage.py runserver"
+alias django="cd yourpath/meertime_dataportal/backend/ && poetry run python manage.py makemigrations && poetry run python manage.py migrate && poetry run python manage.py graphql_schema && poetry run python manage.py runserver"
 alias react="cd yourpath/meertime_dataportal/frontend/ && npm run relay && npm run dev"
 ```
 
