@@ -6,6 +6,7 @@ import {
   getPlotlyData,
   getXaxisFormatter,
   getYaxisLabel,
+  calculatewRMS,
 } from "./plotData";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
@@ -123,40 +124,6 @@ const PlotlyPlot = ({
   const plotlyData = getPlotlyData(plotData, xAxis, activePlot);
 
   const totalToaCount = queryData?.pulsarFoldResult?.totalToa;
-
-  const calculatewRMS = (data) => {
-    const bandData = {};
-
-    // Step 1: Calculate weighted mean for each band
-    data.forEach((item) => {
-      const { band, value, error } = item;
-      if (!bandData[band]) {
-        bandData[band] = { sum: 0, weightSum: 0, values: [] };
-      }
-      const weight = 1 / error ** 2;
-      bandData[band].sum += value * weight;
-      bandData[band].weightSum += weight;
-      bandData[band].values.push({ value, weight });
-    });
-
-    const bandwRMS = {};
-
-    Object.keys(bandData).forEach((band) => {
-      const weightedMean = bandData[band].sum / bandData[band].weightSum;
-
-      // Step 2: Calculate weighted RMS with the weighted mean subtracted
-      let sum = 0;
-      let weightSum = 0;
-      bandData[band].values.forEach(({ value, weight }) => {
-        sum += weight * (value - weightedMean) ** 2;
-        weightSum += weight;
-      });
-
-      bandwRMS[band] = Math.sqrt(sum / weightSum);
-    });
-
-    return bandwRMS;
-  };
 
   const wrmsValues = calculatewRMS(data);
 
