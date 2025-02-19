@@ -1,6 +1,11 @@
 import { Button, Col, Row } from "react-bootstrap";
 import { graphql, useFragment } from "react-relay";
-import { formatUTC, kronosLink, sessionLink } from "../helpers";
+import {
+  formatUTC,
+  kronosLink,
+  sessionLink,
+  generateObservationUrl,
+} from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
 
@@ -14,6 +19,18 @@ const SingleObservationTableFragment = graphql`
     pulsarFoldResult(pulsar: $pulsar, utcStart: $utc, beam: $beam) {
       edges {
         node {
+          nextObservation {
+            observation {
+              utcStart
+              beam
+            }
+          }
+          previousObservation {
+            observation {
+              utcStart
+              beam
+            }
+          }
           observation {
             calibration {
               id
@@ -71,6 +88,17 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
   const relayObservationModel = pulsarFoldResult.edges[0].node;
 
   const displayDate = formatUTC(relayObservationModel.observation.utcStart);
+
+  const previousObservationUrl = generateObservationUrl(
+    relayObservationModel.observation.project.mainProject.name,
+    jname,
+    relayObservationModel.previousObservation.observation
+  );
+  const nextObservationUrl = generateObservationUrl(
+    relayObservationModel.observation.project.mainProject.name,
+    jname,
+    relayObservationModel.nextObservation.observation
+  );
 
   const dataItems = {
     Project:
@@ -130,6 +158,24 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
             variant="outline-secondary"
           >
             View Observation Session
+          </Button>
+          <Button
+            size="sm"
+            as="a"
+            className="mr-2 mb-2"
+            href={previousObservationUrl}
+            variant="outline-secondary"
+          >
+            View Previous
+          </Button>
+          <Button
+            size="sm"
+            as="a"
+            className="mr-2 mb-2"
+            href={nextObservationUrl}
+            variant="outline-secondary"
+          >
+            View Next
           </Button>
           {localStorage.isStaff === "true" && (
             <Button

@@ -4,6 +4,18 @@
       "edges": [
         {
           "node": {
+            "nextObservation": {
+              "observation": {
+                "utcStart": "2023-05-10T05:28:55+00:00",
+                "beam": "2"
+              }
+            },
+              "previousObservation": {
+                "observation": {
+                  "utcStart": "2023-04-15T07:15:41+00:00",
+                  "beam": "2"
+              }
+            },
             "observation": {
               "calibration": {
                 "id": "Q2FsaWJyYXRpb25Ob2RlOjQy",

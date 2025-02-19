@@ -491,6 +491,8 @@ class PulsarFoldResultNode(DjangoObjectType):
         interfaces = (relay.Node,)
 
     # ForeignKey fields
+    next_observation = graphene.Field(lambda: PulsarFoldResultNode)
+    previous_observation = graphene.Field(lambda: PulsarFoldResultNode)
     observation = graphene.Field(ObservationNode)
     pipeline_run = graphene.Field(PipelineRunNode)
     project = graphene.Field(ProjectNode)
@@ -503,6 +505,34 @@ class PulsarFoldResultNode(DjangoObjectType):
             return []
 
         return self.images.all()
+
+    def resolve_next_observation(self, info):
+        """
+        Find next observation.
+        """
+        return (
+            PulsarFoldResult.objects.filter(
+                observation__project__main_project=self.observation.project.main_project,
+                pulsar__name=self.observation.pulsar.name,
+                observation__utc_start__gt=self.observation.utc_start,
+            )
+            .order_by("observation__utc_start")
+            .first()
+        )
+
+    def resolve_previous_observation(self, info):
+        """
+        Find previous observation.
+        """
+        return (
+            PulsarFoldResult.objects.filter(
+                observation__project__main_project=self.observation.project.main_project,
+                pulsar__name=self.observation.pulsar.name,
+                observation__utc_start__lt=self.observation.utc_start,
+            )
+            .order_by("-observation__utc_start")
+            .first()
+        )
 
 
 class TimingResidualPlotDataType(ObjectType):
