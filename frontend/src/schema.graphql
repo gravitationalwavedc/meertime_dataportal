@@ -789,6 +789,8 @@ type PulsarFoldResultNode implements Node {
   pulsar: PulsarNode!
   images(offset: Int, before: String, after: String, first: Int, last: Int): PipelineImageNodeConnection!
   id: ID!
+  nextObservation: PulsarFoldResultNode
+  previousObservation: PulsarFoldResultNode
   project: ProjectNode
 }
 
