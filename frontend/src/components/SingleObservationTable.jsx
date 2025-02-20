@@ -89,16 +89,21 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
 
   const displayDate = formatUTC(relayObservationModel.observation.utcStart);
 
-  const previousObservationUrl = generateObservationUrl(
-    relayObservationModel.observation.project.mainProject.name,
-    jname,
-    relayObservationModel.previousObservation.observation
-  );
-  const nextObservationUrl = generateObservationUrl(
-    relayObservationModel.observation.project.mainProject.name,
-    jname,
-    relayObservationModel.nextObservation.observation
-  );
+  const previousObservationUrl = relayObservationModel.previousObservation
+    ? generateObservationUrl(
+        relayObservationModel.observation.project.mainProject.name,
+        jname,
+        relayObservationModel.previousObservation.observation
+      )
+    : null;
+
+  const nextObservationUrl = relayObservationModel.nextObservation
+    ? generateObservationUrl(
+        relayObservationModel.observation.project.mainProject.name,
+        jname,
+        relayObservationModel.nextObservation.observation
+      )
+    : null;
 
   const dataItems = {
     Project:
@@ -159,24 +164,28 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
           >
             View Observation Session
           </Button>
-          <Button
-            size="sm"
-            as="a"
-            className="mr-2 mb-2"
-            href={previousObservationUrl}
-            variant="outline-secondary"
-          >
-            View Previous
-          </Button>
-          <Button
-            size="sm"
-            as="a"
-            className="mr-2 mb-2"
-            href={nextObservationUrl}
-            variant="outline-secondary"
-          >
-            View Next
-          </Button>
+          {previousObservationUrl && (
+            <Button
+              size="sm"
+              as="a"
+              className="mr-2 mb-2"
+              href={previousObservationUrl}
+              variant="outline-secondary"
+            >
+              View Previous
+            </Button>
+          )}
+          {nextObservationUrl && (
+            <Button
+              size="sm"
+              as="a"
+              className="mr-2 mb-2"
+              href={nextObservationUrl}
+              variant="outline-secondary"
+            >
+              View Next
+            </Button>
+          )}
           {localStorage.isStaff === "true" && (
             <Button
               size="sm"

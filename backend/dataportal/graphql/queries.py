@@ -510,7 +510,7 @@ class PulsarFoldResultNode(DjangoObjectType):
         """
         Find next observation.
         """
-        return (
+        next_obs = (
             PulsarFoldResult.objects.filter(
                 observation__project__main_project=self.observation.project.main_project,
                 pulsar__name=self.observation.pulsar.name,
@@ -519,12 +519,13 @@ class PulsarFoldResultNode(DjangoObjectType):
             .order_by("observation__utc_start")
             .first()
         )
+        return next_obs if next_obs else None
 
     def resolve_previous_observation(self, info):
         """
         Find previous observation.
         """
-        return (
+        prev_obs = (
             PulsarFoldResult.objects.filter(
                 observation__project__main_project=self.observation.project.main_project,
                 pulsar__name=self.observation.pulsar.name,
@@ -533,6 +534,7 @@ class PulsarFoldResultNode(DjangoObjectType):
             .order_by("-observation__utc_start")
             .first()
         )
+        return prev_obs if prev_obs else None
 
 
 class TimingResidualPlotDataType(ObjectType):
