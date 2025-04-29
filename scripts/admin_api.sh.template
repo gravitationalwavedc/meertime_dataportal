@@ -1,4 +1,0 @@
-#!/bin/bash
-export API_ADMIN_USER=apiadmin
-export API_ADMIN_PASS=TheVery\$ecretP@55\#0rd\*
-export API_END_POINT=https://pulsars.org.au/api/

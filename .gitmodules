@@ -1,3 +1,0 @@
-[submodule ".make"]
-	path = .make
-	url = https://gitlab.com/CAS-eResearch/GWDC/code/gwcloud_cicd_makefiles.git
