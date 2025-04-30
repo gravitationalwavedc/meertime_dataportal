@@ -77,17 +77,20 @@ def create_basic_data():
     return telescope, project, ephemeris, template
 
 
-def create_observation_pipeline_run_toa(json_path, telescope, template, make_toas=True, rm=10.0, rm_err=1.0, dm=20.0):
+def create_observation_pipeline_run_toa(
+    json_path, telescope, template, calibration=None, make_toas=True, rm=10.0, rm_err=1.0, dm=20.0
+):
     # Load data from json
     with open(json_path, "r") as json_file:
         meertime_data = json.load(json_file)
 
     # Get or upload calibration
-    calibration = Calibration.objects.create(
-        schedule_block_id=meertime_data["schedule_block_id"],
-        calibration_type=meertime_data["cal_type"],
-        location=meertime_data["cal_location"],
-    )
+    if calibration is None:
+        calibration = Calibration.objects.create(
+            schedule_block_id=meertime_data["schedule_block_id"],
+            calibration_type=meertime_data["cal_type"],
+            location=meertime_data["cal_location"],
+        )
 
     pulsar, _ = Pulsar.objects.get_or_create(
         name=meertime_data["pulsarName"],

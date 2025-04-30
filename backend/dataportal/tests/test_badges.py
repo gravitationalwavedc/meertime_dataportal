@@ -1,10 +1,7 @@
 import os
 import pytest
 
-from dataportal.models import (
-    PipelineRun,
-    Badge,
-)
+from dataportal.models import PipelineRun, Badge, Calibration, Toa
 
 from dataportal.tests.testing_utils import setup_query_test, create_basic_data, create_observation_pipeline_run_toa
 
@@ -160,3 +157,64 @@ def test_dm_badge():
     assert pr2.badges.filter(id=dm_badge.id).count() == 0
     assert pr3.badges.filter(id=dm_badge.id).count() == 1
     assert pr4.badges.filter(id=dm_badge.id).count() == 0
+
+
+@pytest.mark.django_db
+@pytest.mark.enable_signals
+def test_session_timing_jump_badge():
+    telescope, project, ephemeris, template = create_basic_data()
+
+    # Create Session Timing Jump badge
+    timing_jump_badge, created = Badge.objects.get_or_create(
+        name="Session Timing Jump",
+        description="Observed jump in ToA residuals of all observations of this session",
+    )
+
+    # Create a calibration (session) with two observations loaded from JSON files below
+    calibration = Calibration.objects.create(
+        schedule_block_id="20000101-0BAD",
+        calibration_type="pre",
+        location=None,
+    )
+
+    # Create observations linked to the calibration
+    obs1, _, pr1 = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"),
+        telescope,
+        template,
+        calibration=calibration,
+    )
+    obs2, _, pr2 = create_observation_pipeline_run_toa(
+        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+        telescope,
+        template,
+        calibration=calibration,
+    )
+
+    # Simulate a condition where the Session Timing Jump badge should be applied to the calibration (session)
+    calibration.badges.add(timing_jump_badge)
+
+    # Verify that the badge is attached to the calibration
+    assert timing_jump_badge in calibration.badges.all()
+
+    # Verify that the badge is accessible via the observations
+    assert timing_jump_badge in obs1.calibration.badges.all()
+    assert timing_jump_badge in obs2.calibration.badges.all()
+
+    # Verify that the badge is accessible via the pipeline runs
+    assert timing_jump_badge in pr1.observation.calibration.badges.all()
+    assert timing_jump_badge in pr2.observation.calibration.badges.all()
+
+    # Verify filtering logic: ToAs linked to the calibration should be excluded
+    exclude_badges = ["Session Timing Jump"]
+    filtered_toas = Toa.objects.exclude(pipeline_run__badges__name__in=exclude_badges).exclude(
+        pipeline_run__observation__calibration__badges__name__in=exclude_badges,
+    )
+
+    # Ensure no ToAs from the calibration are included in the filtered queryset
+    assert obs1.toas.count() > 0
+    assert obs2.toas.count() > 0
+    for toa in obs1.toas.all():
+        assert toa not in filtered_toas
+    for toa in obs2.toas.all():
+        assert toa not in filtered_toas
