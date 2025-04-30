@@ -620,10 +620,8 @@ class PulsarFoldResultConnection(relay.Connection):
                 obs_nchan=kwargs.get("obs_nchan"),
                 snr__gte=kwargs.get("minimumSNR"),
             )
-            .exclude(
-                pipeline_run__badges__name__in=kwargs.get("exclude_badges"),
-                pipeline_run__observation__calibration__badges__name__in=kwargs.get("exclude_badges"),
-            )
+            .exclude(pipeline_run__badges__name__in=kwargs.get("exclude_badges"))
+            .exclude(pipeline_run__observation__calibration__badges__name__in=kwargs.get("exclude_badges"))
         )
 
         if kwargs.get("project_short") != "All":
