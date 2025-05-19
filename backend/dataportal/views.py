@@ -1,10 +1,12 @@
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
+from django.views.decorators.http import require_GET
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from sentry_sdk import last_event_id
 
+from .file_utils import serve_file
 from .models import PipelineImage, PipelineRun, Project, Pulsar, PulsarFoldResult, Template
 from .serializers import UploadPipelineImageSerializer, UploadTemplateSerializer
 from .storage import create_file_hash
@@ -139,3 +141,23 @@ class UploadPipelineImage(ViewSet):
             },
             status=201,
         )
+
+
+@require_GET
+def download_file(request, file_path):
+    """
+    View to serve files from the mounted data directory
+
+    :param request: HTTP request
+    :param file_path: Path to the file to download
+    :return: File download response
+    """
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        return HttpResponse("Unauthorized", status=401)
+
+    # Check if user is unrestricted (has sufficient permissions)
+    if not request.user.is_unrestricted():
+        return HttpResponse("Access denied", status=403)
+
+    return serve_file(file_path)

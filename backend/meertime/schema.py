@@ -2,15 +2,13 @@ import graphene
 import graphql_jwt
 from django.conf import settings
 
-import jobcontroller.mutations
-import jobcontroller.queries
 from dataportal.graphql import mutations as dataportal_mutations
 from dataportal.graphql import queries as dataportal_queries
 from user_manage.graphql import mutations as user_manage_mutations
 from user_manage.graphql.types import UserType
 
 
-class Query(dataportal_queries.Query, jobcontroller.queries.Query, graphene.ObjectType):
+class Query(dataportal_queries.Query, graphene.ObjectType):
     pass
 
 
@@ -29,7 +27,6 @@ class ObtainJSONWebToken(graphql_jwt.relay.JSONWebTokenMutation):
 class Mutation(
     dataportal_mutations.Mutation,
     user_manage_mutations.Mutation,
-    jobcontroller.mutations.Mutation,
     graphene.ObjectType,
 ):
     token_auth = ObtainJSONWebToken.Field()

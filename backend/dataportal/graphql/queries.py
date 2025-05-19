@@ -12,6 +12,7 @@ from graphene_django import DjangoObjectType
 from graphql import GraphQLError
 from graphql_jwt.decorators import login_required, user_passes_test
 
+from dataportal.file_utils import get_file_list
 from dataportal.models import (
     Badge,
     Calibration,
@@ -32,6 +33,27 @@ from dataportal.models import (
     Toa,
 )
 from utils import constants
+
+
+# FileNode and FileConnection classes for file queries
+class FileNode(graphene.ObjectType):
+    """GraphQL node representing a file or directory"""
+
+    class Meta:
+        interfaces = (relay.Node,)
+
+    path = graphene.String(description="Path to the file")
+    file_name = graphene.String(description="Name of the file")
+    file_size = graphene.String(description="Size of the file in bytes")  # Use string to avoid > 32bit int error
+    is_directory = graphene.Boolean(description="Whether this item is a directory")
+
+
+class FileConnection(relay.Connection):
+    """GraphQL connection for files"""
+
+    class Meta:
+        node = FileNode
+
 
 DATETIME_FILTERS = [
     "exact",
@@ -1063,6 +1085,31 @@ class ToaConnection(relay.Connection):
 class Query(graphene.ObjectType):
     node = relay.Node.Field()
 
+    # File-related fields
+    files = relay.ConnectionField(
+        FileConnection,
+        path=graphene.String(required=True),
+        recursive=graphene.Boolean(default_value=False),
+        description="List files at the given path",
+    )
+
+    file_single_list = relay.ConnectionField(
+        FileConnection,
+        main_project=graphene.String(required=True),
+        jname=graphene.String(required=True),
+        utc=graphene.String(required=True),
+        beam=graphene.Int(required=True),
+        description="Get files for a specific pulsar observation",
+    )
+
+    file_pulsar_list = relay.ConnectionField(
+        FileConnection,
+        main_project=graphene.String(required=True),
+        jname=graphene.String(required=True),
+        description="Get files for a pulsar",
+    )
+
+    # Original pulsar field
     pulsar = relay.ConnectionField(
         PulsarConnection,
         name=graphene.String(),
@@ -1476,3 +1523,88 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_badge(self, info, **kwargs):
         return Badge.objects.all()
+
+    @login_required
+    @user_passes_test(lambda user: user.is_unrestricted())
+    def resolve_files(self, info, path, recursive=False, **kwargs):
+        """Get list of files at specified path"""
+        success, result = get_file_list(path, recursive)
+
+        if not success:
+            return []
+
+        return [
+            FileNode(
+                id=file["fileName"],
+                path=file["path"],
+                file_name=file["fileName"],
+                file_size=str(file["fileSize"]),  # Convert to string for GraphQL
+                is_directory=file["isDirectory"],
+            )
+            for file in result
+        ]
+
+    @login_required
+    @user_passes_test(lambda user: user.is_unrestricted())
+    def resolve_file_single_list(self, info, **kwargs):
+        """Get files for a specific pulsar observation"""
+        try:
+            pulsar_fold_result = PulsarFoldResult.objects.get(
+                pulsar__name=kwargs.get("jname"),
+                observation__utc_start=datetime.strptime(kwargs.get("utc"), "%Y-%m-%d-%H:%M:%S"),
+                observation__beam=kwargs.get("beam"),
+            )
+
+            # Only allow files if the user has access to this fold pulsar observation
+            if not pulsar_fold_result.observation.is_restricted(info.context.user):
+                # Construct path in the local file system
+                path = f"/{kwargs.get('jname')}/{kwargs.get('utc')}/{kwargs.get('beam')}/"
+                if kwargs.get("main_project") == "MONSPSR":
+                    raise Exception("MONSPSR is unusable until the file structure is fixed.")
+                    path = f"/post/{kwargs.get('jname')}/{kwargs.get('utc')}/"
+
+                success, files = get_file_list(path, True)
+
+                if success:
+                    return [
+                        FileNode(
+                            id=file["fileName"],
+                            path=file["path"],
+                            file_name=file["fileName"],
+                            file_size=str(file["fileSize"]),
+                            is_directory=file["isDirectory"],
+                        )
+                        for file in files
+                        if file["path"].endswith(".ar") and not file["isDirectory"]
+                    ]
+        except Exception as e:
+            print(f"Error retrieving file list: {str(e)}")
+
+        return []
+
+    @login_required
+    @user_passes_test(lambda user: user.is_unrestricted())
+    def resolve_file_pulsar_list(self, info, **kwargs):
+        """Get files for a pulsar"""
+        # Construct path in the local file system
+        path = f"/{kwargs.get('jname')}/"
+        if kwargs.get("main_project") == "MONSPSR":
+            raise Exception("MONSPSR is unusable until the file structure is fixed.")
+            path = f"/post/{kwargs.get('jname')}/"
+
+        success, files = get_file_list(path, True)
+
+        if success:
+            return [
+                FileNode(
+                    id=file["fileName"],
+                    path=file["path"],
+                    file_name=file["fileName"],
+                    file_size=str(file["fileSize"]),
+                    is_directory=file["isDirectory"],
+                )
+                for file in files
+                if file["path"].endswith(".ar") and not file["isDirectory"]
+            ]
+
+        return []

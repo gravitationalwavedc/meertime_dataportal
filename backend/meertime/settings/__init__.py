@@ -25,9 +25,9 @@ base_settings = [
     "authentication.py",
     "kronos_payload.py",
     "slack.py",
-    "job_controller.py",
     "email.py",
     "cache.py",
+    "file_download.py",
     # Optionally override some settings:
     optional("local.py"),
 ]
