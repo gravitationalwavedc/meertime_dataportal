@@ -1,56 +1,20 @@
 import { Button, Modal, Table } from "react-bootstrap";
-import { graphql, commitMutation } from "react-relay";
-import environment from "../relayEnvironment";
 
-const FileDownloadModalMutation = graphql`
-  mutation FileDownloadModalMutation($input: FileDownloadTokenMutationInput!) {
-    getFileDownloadToken(input: $input) {
-      downloadToken
-    }
-  }
-`;
+// We now use direct file downloads instead of GraphQL mutation
+const performFileDownload = (e, path) => {
+  e.preventDefault();
 
-const generateDownload = (url) => {
-  // Generate a file download link and click it to download the file
+  // Generate the download URL and open it in a new tab to trigger download
+  const downloadUrl = `${import.meta.env.VITE_DJANGO_DOWNLOAD_URL}${path}`;
+
+  // Create a hidden anchor element to trigger the download
   const link = document.createElement("a");
-  link.href = url;
+  link.href = downloadUrl;
   link.target = "_blank";
+
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-};
-
-const performFileDownload = (e, path) => {
-  e.preventDefault();
-  const originalButtonLabel = e.target.innerText;
-  e.target.classList.add("disabled");
-  e.target.innerText = "Downloading...";
-
-  commitMutation(environment, {
-    mutation: FileDownloadModalMutation,
-    variables: {
-      input: {
-        path: path,
-      },
-    },
-    onCompleted: (response, errors) => {
-      if (errors) {
-        // eslint-disable-next-line no-alert
-        alert("Unable to download file.");
-        e.target.classList.remove("disabled");
-      } else {
-        generateDownload(
-          import.meta.env.VITE_JOB_CONTROLLER_URL +
-            response.getFileDownloadToken.downloadToken
-        );
-
-        setTimeout(() => {
-          e.target.innerText = originalButtonLabel;
-          e.target.classList.remove("disabled");
-        }, 3000);
-      }
-    },
-  });
 };
 
 /**

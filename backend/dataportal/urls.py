@@ -9,4 +9,5 @@ router.register(r"upload/image", views.UploadPipelineImage, basename="upload_ima
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("download/<path:file_path>", views.download_file, name="download_file"),
 ]

@@ -28,6 +28,7 @@ services:
     volumes:
       - ./backend:/app
       - ./media:/media
+      - /mnt/meertime_data:/mnt/meertime_data
     ports:
       - "8000"
     depends_on:

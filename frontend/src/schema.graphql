@@ -243,31 +243,22 @@ type FileConnection {
   edges: [FileEdge]!
 }
 
-input FileDownloadTokenMutationInput {
-  path: String!
-  clientMutationId: String
-}
-
-type FileDownloadTokenMutationPayload {
-  downloadToken: String
-  clientMutationId: String
-}
-
 type FileEdge {
-  node: JobControllerFile
+  node: FileNode
   cursor: String!
+}
+
+type FileNode implements Node {
+  id: ID!
+  path: String
+  fileName: String
+  fileSize: String
+  isDirectory: Boolean
 }
 
 scalar GenericScalar
 
 scalar JSONString
-
-type JobControllerFile implements Node {
-  id: ID!
-  fileSize: String
-  isDir: Boolean
-  path: String
-}
 
 type MainProjectConnection {
   pageInfo: PageInfo!
@@ -291,7 +282,6 @@ type MainProjectNode implements Node {
 }
 
 type Mutation {
-  getFileDownloadToken(input: FileDownloadTokenMutationInput!): FileDownloadTokenMutationPayload
   createProvisionalUser(email: String!, role: String!): CreateProvisionalUser
   deleteUser(username: String): DeleteUser
   activateUser(username: String): ActivateUser
@@ -773,8 +763,6 @@ type PulsarFoldResultConnection {
   allProjects: [String]
   mostCommonProject: String
   allNchans: [Int]
-  totalBadgeExcludedObservations: Int
-  totalBadgeExcludedToas: Int
   timingResidualPlotData(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1", obsNchan: Int = 32, excludeBadges: [String] = [], minimumSNR: Float = 8.0, dmCorrected: Boolean = false): [TimingResidualPlotDataType]
 }
 
@@ -880,9 +868,10 @@ input PulsarsInput {
 }
 
 type Query {
+  node(id: ID!): Node
+  files(path: String!, recursive: Boolean = false, before: String, after: String, first: Int, last: Int): FileConnection
   fileSingleList(mainProject: String!, jname: String!, utc: String!, beam: Int!, before: String, after: String, first: Int, last: Int): FileConnection
   filePulsarList(mainProject: String!, jname: String!, before: String, after: String, first: Int, last: Int): FileConnection
-  node(id: ID!): Node
   pulsar(name: String, before: String, after: String, first: Int, last: Int): PulsarConnection
   telescope(before: String, after: String, first: Int, last: Int): TelescopeConnection
   mainProject(name: String!, before: String, after: String, first: Int, last: Int): MainProjectConnection

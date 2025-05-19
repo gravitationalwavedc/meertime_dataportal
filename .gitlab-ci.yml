@@ -3,11 +3,9 @@ variables:
   DEVELOPMENT_MODE: "True"
   DJANGO_SECRET_KEY: "averysecretkey"
   SECRET_CAPTCHA_KEY: "captcha-fake-key"
-  JOB_CONTROLLER_JWT_SECRET: "jwt_secret_token_from_job_controller"
   EMAIL_HOST: "mail.host.yes"
   EMAIL_PORT: 587
   DEFAULT_FROM_EMAIL: "noreply@adacs.org"
-  GWCLOUD_JOB_CONTROLLER_API_URL: "url_to_the_job_controller_api"
   POSTGRES_ROOT_PASSWORD: "postgresrootpassword"
   POSTGRES_DATABASE: "meertime"
   POSTGRES_USER: "buffy"
