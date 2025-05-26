@@ -1,5 +1,5 @@
 import graphene
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import ToaNode
 from dataportal.models import Toa
@@ -32,9 +32,8 @@ class CreateToa(graphene.Mutation):
     toa = graphene.List(ToaNode)
     Output = CreateToaOutput
 
-    @classmethod
     @permission_required("dataportal.add_toa")
-    def mutate(cls, self, info, input):
+    def mutate(root, info, input):
         created_toas = Toa.bulk_create(
             pipeline_run_id=input["pipelineRunId"],
             project_short=input["projectShort"],
@@ -56,9 +55,8 @@ class UpdateToa(graphene.Mutation):
 
     toa = graphene.Field(ToaNode)
 
-    @classmethod
     @permission_required("dataportal.add_toa")
-    def mutate(cls, self, info, id, input):
+    def mutate(root, info, id, input):
         try:
             toa = Toa.objects.get(pk=id)
             for key, val in input.__dict__.items():
@@ -75,11 +73,10 @@ class DeleteToa(graphene.Mutation):
 
     ok = graphene.Boolean()
 
-    @classmethod
     @permission_required("dataportal.add_toa")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         Toa.objects.get(pk=id).delete()
-        return cls(ok=True)
+        return DeleteToa(ok=True)
 
 
 class Mutation(graphene.ObjectType):

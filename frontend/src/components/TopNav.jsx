@@ -1,16 +1,11 @@
 import { Container, Nav, Navbar } from "react-bootstrap";
 import { Link, useRouter, useLocation } from "found";
-import { isLoggedIn } from "../helpers";
+import { useAuth } from "../auth/AuthContext.jsx";
 
 const TopNav = () => {
   const { router } = useRouter();
   const location = useLocation();
-
-  const logout = () => {
-    sessionStorage.clear();
-    localStorage.clear();
-    router.replace("/");
-  };
+  const { isAuthenticated, logout } = useAuth();
 
   return (
     <Navbar bg="dark" variant="dark" className="mb-5" expand="md">
@@ -35,11 +30,8 @@ const TopNav = () => {
             </Link>
           </Nav>
           <Nav>
-            {isLoggedIn() ? (
+            {isAuthenticated ? (
               <>
-                <Link to="/token_generate/" exact as={Nav.Link}>
-                  Generate Token
-                </Link>
                 <Link to="/password_change/" exact as={Nav.Link}>
                   Change Password
                 </Link>

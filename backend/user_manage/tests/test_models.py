@@ -1,6 +1,5 @@
 from datetime import timedelta
 
-import pytest
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.exceptions import ValidationError
@@ -17,8 +16,6 @@ from ..models import Registration, ProvisionalUser
 User = get_user_model()
 
 
-@pytest.mark.django_db
-@pytest.mark.enable_signals
 class RegistrationTest(TestCase):
     def setUp(self):
         self.user_details = dict(
@@ -32,16 +29,16 @@ class RegistrationTest(TestCase):
 
     def test_registration(self):
         registration = Registration.objects.create(**self.user_details)
-        assert registration.status == Registration.UNVERIFIED
-        assert check_password(self.user_details.get("password"), registration.password)
+        self.assertEqual(registration.status, Registration.UNVERIFIED)
+        self.assertTrue(check_password(self.user_details.get("password"), registration.password))
 
         try:
             UUID(str(registration.verification_code), version=4)
         except ValueError:
-            assert False
+            self.fail("Invalid UUID format")
 
-        assert registration.verification_expiry > timezone.now() + timedelta(days=1, hours=23, minutes=50)
-        assert registration.verification_expiry <= timezone.now() + timedelta(days=2)
+        self.assertGreater(registration.verification_expiry, timezone.now() + timedelta(days=1, hours=23, minutes=50))
+        self.assertLessEqual(registration.verification_expiry, timezone.now() + timedelta(days=2))
 
     def test_registration_existing_email(self):
         user_details = dict(
@@ -79,16 +76,15 @@ class RegistrationTest(TestCase):
         try:
             user = User.objects.get(username=registration.email)
             # the user exists
-            assert True
+            self.assertTrue(True)
 
             # the user has been assigned a role (public)
             self.assertEqual(user.role, UserRole.RESTRICTED.value)
 
         except User.DoesNotExist:
-            assert False
+            self.fail("User does not exist")
 
 
-@pytest.mark.django_db
 class ProvisionalUserTest(TestCase):
     def setUp(self):
         self.user_details = dict(
@@ -103,30 +99,30 @@ class ProvisionalUserTest(TestCase):
 
         User.objects.create_user(**self.user_details)
 
-    @pytest.mark.enable_signals
     def test_provisional_user(self):
         provisional_user = ProvisionalUser.objects.create(
             email="prvusr@test.com",
             role=UserRole.UNRESTRICTED.value,
         )
-        assert provisional_user.role == UserRole.UNRESTRICTED.value
+        self.assertEqual(provisional_user.role, UserRole.UNRESTRICTED.value)
 
         try:
             UUID(str(provisional_user.activation_code), version=4)
         except ValueError:
-            assert False
+            self.fail("Invalid UUID format")
 
-        assert provisional_user.activation_expiry > timezone.now() + timedelta(days=29, hours=23, minutes=50)
-        assert provisional_user.activation_expiry <= timezone.now() + timedelta(days=30)
+        self.assertGreater(
+            provisional_user.activation_expiry, timezone.now() + timedelta(days=29, hours=23, minutes=50)
+        )
+        self.assertLessEqual(provisional_user.activation_expiry, timezone.now() + timedelta(days=30))
 
-        assert provisional_user.email_sent
-        assert len(mail.outbox) == 1
-        assert mail.outbox[0].subject == "[MeerTime] Please activate your account"
+        self.assertTrue(provisional_user.email_sent)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].subject, "[MeerTime] Please activate your account")
 
-        assert provisional_user.user.role == UserRole.UNRESTRICTED.value
-        assert not provisional_user.user.is_active
+        self.assertEqual(provisional_user.user.role, UserRole.UNRESTRICTED.value)
+        self.assertFalse(provisional_user.user.is_active)
 
-    @pytest.mark.enable_signals
     def test_existing_user(self):
         with self.assertRaises(Exception) as raised:
             ProvisionalUser.objects.create(
@@ -135,7 +131,6 @@ class ProvisionalUserTest(TestCase):
             )
         self.assertEqual(IntegrityError, type(raised.exception))
 
-    @pytest.mark.enable_signals
     def test_existing_provisional_user(self):
         ProvisionalUser.objects.create(
             email="existing@test.com",

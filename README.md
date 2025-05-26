@@ -42,7 +42,7 @@ sudo -u postgres psql
 
 CREATE DATABASE meertime; CREATE USER meertime WITH ENCRYPTED PASSWORD '$POSTGRES_PASSWORD'; ALTER ROLE meertime SET client_encoding TO 'utf8'; ALTER ROLE meertime SET default_transaction_isolation TO 'read committed'; ALTER ROLE meertime SET timezone TO 'UTC'; ALTER USER meertime CREATEDB; \q
 ```
-The last command is to be able to run `pytest`. Also, change `POSTGRES_DATABASE=meertime` and `POSTGRES_USER=meertime` in your `backend/.env`.
+The last command is to be able to run `poetry run python manage.py test`. Also, change `POSTGRES_DATABASE=meertime` and `POSTGRES_USER=meertime` in your `backend/.env`.
 
 To then load a local copy of the database, ask ADACS for a copy (here named `prd.meertime.sql`) and do: `pg_restore -U meertime -d meertime -h localhost -p 5432 -v prd.meertime.sql`. You can check this step was successful using the postgreSQL shell (see 5.) by running `\du` and `\l`.
 
@@ -52,7 +52,7 @@ To then load a local copy of the database, ask ADACS for a copy (here named `prd
 
 8. Start the development server: run `poetry run python manage.py runserver` and open the [Django development server](http://localhost:8000).
 
-9. Run tests on the backend development server to check it is all working. In the `backend` folder run: `poetry run pytest`.
+9. Run tests on the backend development server to check it is all working. In the `backend` folder run: `poetry run python manage.py test`.
 
 ### Starting the React frontend
 The React frontend is currently only available locally (not using Docker compose) while in development.
@@ -113,7 +113,7 @@ Contributions can be made to the code base on GitLab.
 
 ### Testing
 
-To manually run tests of the backend, execute `poetry run pytest` while in the `backend` directory.
+To manually run tests of the backend, execute `poetry run python manage.py test` while in the `backend` directory.
 To manually run tests of the frontend, run `npm run cypress` in the `frontend` directory.
 
 ### Adding requirements

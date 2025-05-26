@@ -11,61 +11,60 @@ import {
 } from "react-bootstrap";
 import { Field, Formik } from "formik";
 import { useState } from "react";
-import { commitMutation, graphql } from "react-relay";
 
 import { HiOutlineLockClosed } from "react-icons/hi";
 import { Link } from "found";
-import environment from "../relayEnvironment";
+import { fetchCSRFToken, authenticatedFetch } from "../auth/csrfUtils";
+import { useAuth } from "../auth/AuthContext";
 
-const mutation = graphql`
-  mutation LoginMutation($username: String!, $password: String!) {
-    tokenAuth(input: { username: $username, password: $password }) {
-      token
-      meerWatchKey
-      payload
-      user {
-        isStaff
-      }
-    }
-  }
-`;
+// API endpoint for login
+const LOGIN_URL = "/api/auth/login/";
 
 const validationSchema = Yup.object().shape({
-  username: Yup.string().required("Please include an email."),
+  email: Yup.string().required("Please include an email."),
   password: Yup.string().required("Please include a password."),
 });
 
 const Login = ({ router, match }) => {
   const [formErrors, setFormErrors] = useState([]);
+  const { refreshAuth } = useAuth();
 
-  const login = (username, password) => {
-    const variables = {
-      username: username,
-      password: password,
-    };
+  const login = async (email, password) => {
+    try {
+      // First get CSRF token
+      await fetchCSRFToken();
 
-    commitMutation(environment, {
-      mutation,
-      variables,
-      onCompleted: ({ tokenAuth }, errors) => {
-        if (errors) {
-          setFormErrors(errors.map((e) => e.message));
-        } else if (tokenAuth) {
-          localStorage.jwt = tokenAuth.token;
-          localStorage.meerWatchKey = tokenAuth.meerWatchKey;
-          localStorage.username = tokenAuth.payload["username"];
-          localStorage.isStaff = tokenAuth.user.isStaff;
-          const nextPath =
-            match.location.query.next === undefined
-              ? "/"
-              : match.location.query.next;
-          router.replace(nextPath);
-        }
-      },
-      onError: () => {
-        setFormErrors(["Please enter valid credentials."]);
-      },
-    });
+      // Then attempt login
+      const response = await authenticatedFetch(LOGIN_URL, {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setFormErrors([errorData.detail || "Login failed"]);
+        return;
+      }
+
+      const data = await response.json();
+
+      // Store user info in localStorage (only non-sensitive info)
+      localStorage.username = data.user.username;
+      localStorage.isStaff = data.user.isStaff;
+
+      // Update AuthContext state
+      await refreshAuth();
+
+      // Navigate to next page
+      const nextPath =
+        match.location.query.next === undefined
+          ? "/"
+          : match.location.query.next;
+      router.replace(nextPath);
+    } catch (error) {
+      console.error("Login error:", error);
+      setFormErrors(["An error occurred during login. Please try again."]);
+    }
   };
 
   return (
@@ -98,17 +97,17 @@ const Login = ({ router, match }) => {
                 <h4 className="text-primary-600 mb-4">Sign in</h4>
                 <Formik
                   initialValues={{
-                    username: "",
+                    email: "",
                     password: "",
                   }}
                   validationSchema={validationSchema}
-                  onSubmit={(values) => login(values.username, values.password)}
+                  onSubmit={(values) => login(values.email, values.password)}
                 >
                   {({ handleSubmit }) => (
                     <Form onSubmit={handleSubmit}>
-                      <Field name="username">
+                      <Field name="email">
                         {({ field, meta }) => (
-                          <Form.Group controlId="username">
+                          <Form.Group controlId="email">
                             <Form.Label>Email</Form.Label>
                             <Form.Control
                               {...field}

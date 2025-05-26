@@ -1,7 +1,7 @@
 import json
 import graphene
 from decimal import Decimal
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 from django.contrib.postgres.fields import JSONField
 from graphene_django.converter import convert_django_field
 from django.db import IntegrityError
@@ -34,9 +34,8 @@ class CreateEphemeris(graphene.Mutation):
 
     ephemeris = graphene.Field(EphemerisNode)
 
-    @classmethod
     @permission_required("dataportal.add_ephemeris")
-    def mutate(cls, self, info, input):
+    def mutate(root, info, input):
         # Get foreign key models
         pulsar = Pulsar.objects.get(name=input["pulsarName"])
         if input["projectCode"] is not None:
@@ -79,9 +78,8 @@ class UpdateEphemeris(graphene.Mutation):
 
     ephemeris = graphene.Field(EphemerisNode)
 
-    @classmethod
     @permission_required("dataportal.add_ephemerides")
-    def mutate(cls, self, info, id, input):
+    def mutate(root, info, id, input):
         _ephemeris = Ephemeris.objects.get(pk=id)
         if _ephemeris:
             for key, val in input.__dict__.items():
@@ -102,12 +100,11 @@ class DeleteEphemeris(graphene.Mutation):
     ok = graphene.Boolean()
     ephemeris = graphene.Field(EphemerisNode)
 
-    @classmethod
     @permission_required("dataportal.add_ephemerides")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         _ephemeris = Ephemeris.objects.get(pk=id)
         _ephemeris.delete()
-        return cls(ok=True)
+        return DeleteEphemeris(ok=True)
 
 
 class Mutation(graphene.ObjectType):

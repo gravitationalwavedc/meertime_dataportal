@@ -42,10 +42,13 @@ const SingleObservation = ({
   const { screenSize } = useScreenSize();
   const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
+  // Convert beam from string to integer since URL params are always strings
+  const beamInt = parseInt(beam, 10);
+
   const observationData = useLazyLoadQuery(SingleObservationQuery, {
     pulsar: jname,
     utc: utc,
-    beam: beam,
+    beam: beamInt,
   });
 
   const fileDownloadData = useLazyLoadQuery(
@@ -54,7 +57,7 @@ const SingleObservation = ({
       mainProject: mainProject,
       pulsar: jname,
       utc: utc,
-      beam: beam,
+      beam: beamInt,
     }
   );
 

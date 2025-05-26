@@ -1,6 +1,6 @@
 import graphene
 from graphene_django.converter import convert_django_field
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 from django.contrib.postgres.fields import JSONField
 
 from dataportal.models import Template
@@ -25,12 +25,11 @@ class DeleteTemplate(graphene.Mutation):
     ok = graphene.Boolean()
     template = graphene.Field(TemplateNode)
 
-    @classmethod
     @permission_required("dataportal.delete_template")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         _template = Template.objects.get(pk=id)
         _template.delete()
-        return cls(ok=True)
+        return DeleteTemplate(ok=True)
 
 
 class Mutation(graphene.ObjectType):

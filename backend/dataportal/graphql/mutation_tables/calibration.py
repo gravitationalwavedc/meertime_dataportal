@@ -1,5 +1,5 @@
 import graphene
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import CalibrationNode
 from dataportal.models import Calibration
@@ -17,9 +17,8 @@ class CreateCalibration(graphene.Mutation):
 
     calibration = graphene.Field(CalibrationNode)
 
-    @classmethod
     @permission_required("dataportal.add_calibrations")
-    def mutate(cls, self, info, input):
+    def mutate(root, info, input):
         calibration, _ = Calibration.objects.get_or_create(**input.__dict__)
         return CreateCalibration(calibration=calibration)
 
@@ -31,9 +30,8 @@ class UpdateCalibration(graphene.Mutation):
 
     calibration = graphene.Field(CalibrationNode)
 
-    @classmethod
     @permission_required("dataportal.add_calibrations")
-    def mutate(cls, self, info, id, input):
+    def mutate(root, info, id, input):
         try:
             calibration = Calibration.objects.get(pk=id)
             for key, val in input.__dict__.items():
@@ -50,11 +48,10 @@ class DeleteCalibration(graphene.Mutation):
 
     ok = graphene.Boolean()
 
-    @classmethod
     @permission_required("dataportal.add_calibrations")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         Calibration.objects.get(pk=id).delete()
-        return cls(ok=True)
+        return DeleteCalibration(ok=True)
 
 
 class Mutation(graphene.ObjectType):

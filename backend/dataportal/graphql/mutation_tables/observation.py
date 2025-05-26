@@ -2,7 +2,7 @@ import json
 
 import graphene
 from django.db import IntegrityError
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import ObservationNode
 from dataportal.models import Calibration, Ephemeris, Observation, Project, Pulsar, Telescope
@@ -53,9 +53,8 @@ class CreateObservation(graphene.Mutation):
 
     observation = graphene.Field(ObservationNode)
 
-    @classmethod
     @permission_required("dataportal.add_observations")
-    def mutate(cls, self, info, input=None):
+    def mutate(root, info, input=None):
         # Get foreign key models
         pulsar = Pulsar.objects.get(name=input["pulsarName"])
         telescope = Telescope.objects.get(name=input["telescopeName"])
@@ -173,9 +172,8 @@ class UpdateObservation(graphene.Mutation):
 
     observation = graphene.Field(ObservationNode)
 
-    @classmethod
     @permission_required("dataportal.add_observations")
-    def mutate(cls, self, info, id, input=None):
+    def mutate(root, info, id, input=None):
         try:
             observation = Observation.objects.get(pk=id)
             for key, val in input.__dict__.items():
@@ -192,11 +190,10 @@ class DeleteObservation(graphene.Mutation):
 
     ok = graphene.Boolean()
 
-    @classmethod
     @permission_required("dataportal.add_observations")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         Observation.objects.get(pk=id).delete()
-        return cls(ok=True)
+        return DeleteObservation(ok=True)
 
 
 class Mutation(graphene.ObjectType):

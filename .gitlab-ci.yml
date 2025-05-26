@@ -53,14 +53,17 @@ django-tests:
   script:
     - cd backend/
     - $POETRY_HOME/bin/poetry install
-    - $POETRY_HOME/bin/poetry run pytest --junit-xml=reports/junit.xml
+    - export PATH=$PATH:$POETRY_HOME/bin
+    - ./run_coverage.sh
+
+  coverage: '/TOTAL.*\s+(\d.+%)$/'
 
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
         path: backend/coverage.xml
-      junit: backend/reports/junit.xml
+      junit: backend/junit-reports/*.xml
 
 flake8:
   stage: test
@@ -85,7 +88,7 @@ react-test:
 
   variables:
     CYPRESS_RECORD_KEY: $CYPRESS_RECORD_KEY
-    VITE_GRAPHQL_API: "http://localhost:8000/graphql/"
+    VITE_GRAPHQL_API: "http://localhost:5173/api/graphql/"
 
   before_script:
     - corepack enable

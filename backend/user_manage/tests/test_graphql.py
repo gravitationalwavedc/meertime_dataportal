@@ -2,7 +2,6 @@ import datetime
 import json
 from unittest.mock import patch
 
-import pytest
 import responses
 from django.contrib.auth import authenticate, get_user_model
 from django.core import mail
@@ -16,8 +15,6 @@ from ..models import PasswordResetRequest, ProvisionalUser, Registration
 User = get_user_model()
 
 
-@pytest.mark.django_db
-@pytest.mark.enable_signals
 class RegistrationTestCase(GraphQLTestCase):
     def setUp(self) -> None:
         self.user_details = dict(
@@ -66,7 +63,7 @@ class RegistrationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="RegisterMutation",
+            operation_name="RegisterMutation",
             variables={
                 "first_name": "First Name",
                 "last_name": "Last Name",
@@ -119,7 +116,7 @@ class RegistrationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="RegisterMutation",
+            operation_name="RegisterMutation",
             variables={
                 "first_name": "First Name",
                 "last_name": "Last Name",
@@ -140,8 +137,6 @@ class RegistrationTestCase(GraphQLTestCase):
         )
 
 
-@pytest.mark.django_db
-@pytest.mark.enable_signals
 class VerifyRegistrationMutationTestCase(GraphQLTestCase):
     def setUp(self) -> None:
         self.user_details = dict(
@@ -169,7 +164,7 @@ class VerifyRegistrationMutationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="VerifyRegistrationMutation",
+            operation_name="VerifyRegistrationMutation",
             variables={
                 "verification_code": f"{self.registration.verification_code}",
             },
@@ -191,12 +186,12 @@ class VerifyRegistrationMutationTestCase(GraphQLTestCase):
         try:
             user = User.objects.get(username=self.registration.email)
             # the user exists
-            assert True
+            self.assertTrue(True)
 
             self.assertEqual(user.role, UserRole.RESTRICTED.value)
 
         except User.DoesNotExist:
-            assert False
+            self.fail("User does not exist")
 
     def test_verify_registration_invalid_code(self):
         response = self.query(
@@ -213,7 +208,7 @@ class VerifyRegistrationMutationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="VerifyRegistrationMutation",
+            operation_name="VerifyRegistrationMutation",
             variables={
                 "verification_code": "invalid_code",
             },
@@ -249,7 +244,7 @@ class VerifyRegistrationMutationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="VerifyRegistrationMutation",
+            operation_name="VerifyRegistrationMutation",
             variables={
                 "verification_code": f"{self.registration.verification_code}",
             },
@@ -284,7 +279,7 @@ class VerifyRegistrationMutationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="VerifyRegistrationMutation",
+            operation_name="VerifyRegistrationMutation",
             variables={
                 "verification_code": f"{self.registration.verification_code}",
             },
@@ -320,7 +315,7 @@ class VerifyRegistrationMutationTestCase(GraphQLTestCase):
                     }
                 }
                 """,
-                op_name="VerifyRegistrationMutation",
+                operation_name="VerifyRegistrationMutation",
                 variables={
                     "verification_code": f"{self.registration.verification_code}",
                 },
@@ -339,8 +334,6 @@ class VerifyRegistrationMutationTestCase(GraphQLTestCase):
         )
 
 
-@pytest.mark.django_db
-@pytest.mark.enable_signals
 class PasswordResetRequestTestCase(GraphQLTestCase):
     def setUp(self) -> None:
         self.user_details = dict(
@@ -369,7 +362,7 @@ class PasswordResetRequestTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordResetRequestMutation",
+            operation_name="PasswordResetRequestMutation",
             variables={
                 "email": "test@test.com",
             },
@@ -401,7 +394,7 @@ class PasswordResetRequestTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordResetRequestMutation",
+            operation_name="PasswordResetRequestMutation",
             variables={
                 "email": "doesnotexist@test.com",
             },
@@ -453,7 +446,7 @@ class PasswordResetTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordResetMutation",
+            operation_name="PasswordResetMutation",
             variables={
                 "verification_code": f"{self.prr.verification_code}",
                 "password": self.new_password,
@@ -489,7 +482,7 @@ class PasswordResetTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordResetMutation",
+            operation_name="PasswordResetMutation",
             variables={
                 "verification_code": "invalid_uuid_code",
                 "password": self.new_password,
@@ -538,7 +531,7 @@ class PasswordResetTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordResetMutation",
+            operation_name="PasswordResetMutation",
             variables={
                 "verification_code": f"{prr.verification_code}",
                 "password": new_password,
@@ -589,7 +582,7 @@ class PasswordResetTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordResetMutation",
+            operation_name="PasswordResetMutation",
             variables={
                 "verification_code": f"{prr.verification_code}",
                 "password": new_password,
@@ -640,7 +633,7 @@ class PasswordResetTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordResetMutation",
+            operation_name="PasswordResetMutation",
             variables={
                 "verification_code": f"{prr.verification_code}",
                 "password": new_password,
@@ -675,7 +668,7 @@ class PasswordResetTestCase(GraphQLTestCase):
                     }
                 }
                 """,
-                op_name="PasswordResetMutation",
+                operation_name="PasswordResetMutation",
                 variables={
                     "verification_code": f"{self.prr.verification_code}",
                     "password": self.new_password,
@@ -724,7 +717,7 @@ class PasswordChangeTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordChangeMutation",
+            operation_name="PasswordChangeMutation",
             variables={
                 "username": self.user_details.get("username"),
                 "old_password": self.user_details.get("password"),
@@ -758,7 +751,7 @@ class PasswordChangeTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordChangeMutation",
+            operation_name="PasswordChangeMutation",
             variables={
                 "username": self.user_details.get("username"),
                 "old_password": self.user_details.get("password"),
@@ -794,7 +787,7 @@ class PasswordChangeTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordChangeMutation",
+            operation_name="PasswordChangeMutation",
             variables={
                 "username": self.user_details.get("username"),
                 "old_password": "incorrect_password",
@@ -830,7 +823,7 @@ class PasswordChangeTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="PasswordChangeMutation",
+            operation_name="PasswordChangeMutation",
             variables={
                 "username": "non_existent_user",
                 "old_password": "non_existent_password",
@@ -848,8 +841,6 @@ class PasswordChangeTestCase(GraphQLTestCase):
         self.assertEqual(content["data"]["passwordChange"]["errors"][0], "User does not exist.")
 
 
-@pytest.mark.django_db
-@pytest.mark.enable_signals
 class VerifyRegistrationTestCase(GraphQLTestCase):
     def setUp(self) -> None:
         self.user_details = dict(
@@ -891,7 +882,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="AccountActivationMutation",
+            operation_name="AccountActivationMutation",
             variables={
                 "activation_code": f"{self.provisional_user.activation_code}",
                 "first_name": "First Name",
@@ -947,7 +938,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="AccountActivationMutation",
+            operation_name="AccountActivationMutation",
             variables={
                 "activation_code": "invalidcode",
                 "first_name": "First Name",
@@ -1006,7 +997,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="AccountActivationMutation",
+            operation_name="AccountActivationMutation",
             variables={
                 "activation_code": f"{self.provisional_user.activation_code}",
                 "first_name": "First Name",
@@ -1061,7 +1052,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                 }
             }
             """,
-            op_name="AccountActivationMutation",
+            operation_name="AccountActivationMutation",
             variables={
                 "activation_code": f"{self.provisional_user.activation_code}",
                 "first_name": "First Name",
@@ -1119,7 +1110,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
                     }
                 }
                 """,
-                op_name="AccountActivationMutation",
+                operation_name="AccountActivationMutation",
                 variables={
                     "activation_code": f"{self.provisional_user.activation_code}",
                     "first_name": "First Name",

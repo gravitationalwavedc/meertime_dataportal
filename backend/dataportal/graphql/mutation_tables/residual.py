@@ -4,7 +4,7 @@ from decimal import getcontext
 
 import graphene
 import numpy as np
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import ToaNode
 from dataportal.models import Toa
@@ -25,9 +25,8 @@ class CreateResidual(graphene.Mutation):
 
     Output = CreateResidualOutput
 
-    @classmethod
     @permission_required("dataportal.add_residual")
-    def mutate(cls, self, info, input):
+    def mutate(root, info, input):
         # MJDs are stored as Decimals as standard floats don't have enough precision
         getcontext().prec = 12
         base_date = datetime(1858, 11, 17)  # Base date for MJD

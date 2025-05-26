@@ -5,7 +5,6 @@
 **/test_*py
 src/setup.cfg
 src/.coverage
-src/.pytest_cache
 src/.env.template
 src/.env.development
 src/frontend

@@ -4,5 +4,6 @@
 GRAPHENE = {
     "SCHEMA": "meertime.schema.schema",
     "SCHEMA_OUTPUT": "../frontend/src/schema.graphql",
-    "MIDDLEWARE": ["graphql_jwt.middleware.JSONWebTokenMiddleware"],
+    "MIDDLEWARE": [],
+    "TESTING_ENDPOINT": "/api/graphql/",
 }

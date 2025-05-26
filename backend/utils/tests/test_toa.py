@@ -1,5 +1,6 @@
 import os
 
+from django.test import TestCase
 from utils.toa import toa_line_to_dict, toa_dict_to_line
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
@@ -16,17 +17,20 @@ TOA_FILES = [
 ]
 
 
-def test_toa_line_to_dict_to_line():
-    """
-    Test that toa_line_to_dict(toa_line_to_str(toa_dict)) == toa_dict
-    """
-    for toa_file, _ in TOA_FILES:
-        with open(toa_file, "r") as f:
-            toa_lines = f.readlines()
-            for toa_line in toa_lines:
-                if "FORMAT" in toa_line:
-                    continue
-                input_toa_line = toa_line.rstrip("\n")
-                toa_dict = toa_line_to_dict(input_toa_line)
-                output_toa_line = toa_dict_to_line(toa_dict)
-                assert input_toa_line == output_toa_line
+class ToaTestCase(TestCase):
+    """Test case for TOA utility functions."""
+
+    def test_toa_line_to_dict_to_line(self):
+        """
+        Test that toa_line_to_dict(toa_line_to_str(toa_dict)) == toa_dict
+        """
+        for toa_file, _ in TOA_FILES:
+            with open(toa_file, "r") as f:
+                toa_lines = f.readlines()
+                for toa_line in toa_lines:
+                    if "FORMAT" in toa_line:
+                        continue
+                    input_toa_line = toa_line.rstrip("\n")
+                    toa_dict = toa_line_to_dict(input_toa_line)
+                    output_toa_line = toa_dict_to_line(toa_dict)
+                    self.assertEqual(input_toa_line, output_toa_line)

@@ -85,5 +85,10 @@ MEDIA_ROOT = "/media/"
 MEDIA_URL = "/media/"
 
 SITE_URL = "https://pulsars.org.au/"  # with a trailing slash
+CSRF_TRUSTED_ORIGINS = [SITE_URL]
 
 SECRET_CAPTCHA_KEY = env("SECRET_CAPTCHA_KEY")
+
+# XML Runner configuration
+TEST_RUNNER = "xmlrunner.extra.djangotestrunner.XMLTestRunner"
+TEST_OUTPUT_DIR = "./junit-reports/"
