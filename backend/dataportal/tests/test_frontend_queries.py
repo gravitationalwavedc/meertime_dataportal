@@ -1,9 +1,7 @@
 import os
 import json
-import pytest
-
 from django.contrib.auth import get_user_model
-from graphql_jwt.testcases import JSONWebTokenClient
+from graphene_django.utils.testing import GraphQLTestCase
 
 from dataportal.tests.testing_utils import (
     setup_query_test,
@@ -17,7 +15,14 @@ from dataportal.models import (
     Badge,
 )
 
-FOLD_SUMMARY_QUERY = """
+User = get_user_model()
+
+
+class FrontendQueriesTestCase(GraphQLTestCase):
+    """Test cases for frontend GraphQL queries"""
+
+    # Define all GraphQL queries
+    FOLD_SUMMARY_QUERY = """
     query {
         pulsarFoldSummary (
             first: 1
@@ -43,160 +48,58 @@ FOLD_SUMMARY_QUERY = """
             }
         }
     }
-"""
+    """
 
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_pulsar_fold_summary_query_with_token():
-    client, user = setup_query_test()[:2]
-    client.authenticate(user)
-
-    response = client.execute(FOLD_SUMMARY_QUERY)
-    assert not response.errors
-    assert response.data == {
-        "pulsarFoldSummary": {
-            "totalObservations": 1,
-            "totalPulsars": 1,
-            "totalObservationTime": 0,
-            "totalProjectTime": 0,
-            "edges": [
-                {
-                    "node": {
-                        "pulsar": {"name": "J0437-4715"},
-                        "latestObservation": "2023-04-17T15:08:35+00:00",
-                        "firstObservation": "2023-04-17T15:08:35+00:00",
-                        "mostCommonProject": "PTA",
-                        "timespan": 1,
-                        "numberOfObservations": 1,
-                        "totalIntegrationHours": 0.07097196062305294,
-                        "avgSnPipe": 108.35924627749955,
-                        "highestSn": 100.0,
-                        "lastSn": 100.0,
-                        "lastIntegrationMinutes": 4.258317637383176,
-                    }
-                }
-            ],
-        }
-    }
-
-
-FOLD_QUERY = """
-query {{
-    observationSummary(
-        pulsar_Name: "J0125-2327"
-        obsType: "fold"
-        calibration_Id: "All"
-        mainProject: "MeerTIME"
-        project_Short: "All"
-        band: "{band}"
-    ) {{
-        edges {{
-            node {{
-                observations
-                pulsars
-                observationHours
-            }}
-        }}
-    }}
-    pulsarFoldSummary (
-        mainProject: "MeerTIME"
-        project: "All"
-        band: "{band}"
-        first: 1
-    ) {{
-        edges {{
-            node {{
-                pulsar {{
-                    name
+    FOLD_QUERY = """
+    query {{
+        observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            calibration_Id: "All"
+            mainProject: "MeerTIME"
+            project_Short: "All"
+            band: "{band}"
+        ) {{
+            edges {{
+                node {{
+                    observations
+                    pulsars
+                    observationHours
                 }}
-                latestObservation
-                latestObservationBeam
-                firstObservation
-                allProjects
-                mostCommonProject
-                timespan
-                numberOfObservations
-                lastSn
-                highestSn
-                lowestSn
-                lastIntegrationMinutes
-                maxSnPipe
-                avgSnPipe
-                totalIntegrationHours
+            }}
+        }}
+        pulsarFoldSummary (
+            mainProject: "MeerTIME"
+            project: "All"
+            band: "{band}"
+            first: 1
+        ) {{
+            edges {{
+                node {{
+                    pulsar {{
+                        name
+                    }}
+                    latestObservation
+                    latestObservationBeam
+                    firstObservation
+                    allProjects
+                    mostCommonProject
+                    timespan
+                    numberOfObservations
+                    lastSn
+                    highestSn
+                    lowestSn
+                    lastIntegrationMinutes
+                    maxSnPipe
+                    avgSnPipe
+                    totalIntegrationHours
+                }}
             }}
         }}
     }}
-}}
-"""
+    """
 
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_fold_query():
-    client, user = setup_query_test()[:2]
-    client.authenticate(user)
-
-    response = client.execute(FOLD_QUERY.format(band="All"))
-    assert not response.errors
-    assert response.data == {
-        "observationSummary": {"edges": [{"node": {"observations": 3, "pulsars": 1, "observationHours": 0}}]},
-        "pulsarFoldSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "pulsar": {"name": "J0437-4715"},
-                        "latestObservation": "2023-04-17T15:08:35+00:00",
-                        "latestObservationBeam": 1,
-                        "firstObservation": "2023-04-17T15:08:35+00:00",
-                        "allProjects": "PTA",
-                        "mostCommonProject": "PTA",
-                        "timespan": 1,
-                        "numberOfObservations": 1,
-                        "lastSn": 100.0,
-                        "highestSn": 100.0,
-                        "lowestSn": 100.0,
-                        "lastIntegrationMinutes": 4.258317637383176,
-                        "maxSnPipe": 108.35924627749955,
-                        "avgSnPipe": 108.35924627749955,
-                        "totalIntegrationHours": 0.07097196062305294,
-                    }
-                }
-            ]
-        },
-    }
-
-    response = client.execute(FOLD_QUERY.format(band="UHF"))
-    assert not response.errors
-    assert response.data == {
-        "observationSummary": {"edges": [{"node": {"observations": 1, "pulsars": 1, "observationHours": 0}}]},
-        "pulsarFoldSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "pulsar": {"name": "J0125-2327"},
-                        "latestObservation": "2020-07-10T05:07:28+00:00",
-                        "latestObservationBeam": 2,
-                        "firstObservation": "2019-04-23T06:11:30+00:00",
-                        "allProjects": "PTA",
-                        "mostCommonProject": "PTA",
-                        "timespan": 444,
-                        "numberOfObservations": 3,
-                        "lastSn": 100.0,
-                        "highestSn": 100.0,
-                        "lowestSn": 100.0,
-                        "lastIntegrationMinutes": 17.05475670588235,
-                        "maxSnPipe": 106.60035817780525,
-                        "avgSnPipe": 71.48481915250221,
-                        "totalIntegrationHours": 0.6464681673202614,
-                    }
-                }
-            ]
-        },
-    }
-
-
-FOLD_DETAIL_QUERY = """
+    FOLD_DETAIL_QUERY = """
     query {
         observationSummary (
             pulsar_Name: "J0125-2327"
@@ -268,552 +171,262 @@ FOLD_DETAIL_QUERY = """
         }
     }
 }
-"""
+    """
 
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_fold_detail_query():
-    client, user, _, _, _, _, _, _, _ = setup_query_test()
-    client.authenticate(user)
-    response = client.execute(FOLD_DETAIL_QUERY)
-
-    assert not response.errors
-    del response.data["pulsarFoldResult"]["residualEphemeris"]["createdAt"]
-    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["id"]
-    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["calibration"]["idInt"]
-    assert response.data == {
-        "observationSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "observations": 3,
-                        "observationHours": 0,
-                        "projects": 1,
-                        "pulsars": 1,
-                        "estimatedDiskSpaceGb": 1.0766774425551469,
-                        "timespanDays": 444,
-                        "maxDuration": 1039.9999999999998,
-                        "minDuration": 263.99999999999994,
-                    }
-                }
-            ]
-        },
-        "pulsarFoldResult": {
-            "residualEphemeris": {
-                "ephemerisData": '"{\\"PSRJ\\": \\"J0125-2327\\", '
-                '\\"RAJ\\": \\"01:25:01.05950406\\", '
-                '\\"DECJ\\": \\"-23:27:08.1841977\\", '
-                '\\"DM\\": 9.59243, '
-                '\\"PEPOCH\\": 57089.119311, '
-                '\\"F0\\": 272.08108871500735, '
-                '\\"F1\\": -1.361e-15, '
-                '\\"PMRA\\": 40.3478, '
-                '\\"PMDEC\\": 5.6682, '
-                '\\"DMEPOCH\\": 58595.551, '
-                '\\"BINARY\\": \\"ELL1\\", '
-                '\\"PB\\": 7.27719962431521, '
-                '\\"A1\\": 4.729804686, '
-                '\\"TASC\\": 57089.07346805, '
-                '\\"EPS1\\": -1.05e-08, '
-                '\\"EPS2\\": 2.657e-07, '
-                '\\"CLK\\": \\"UNCORR\\", '
-                '\\"EPHEM\\": \\"DE405\\", '
-                '\\"TZRMJD\\": 57089.810474242644, '
-                '\\"TZRFRQ\\": 368.58, '
-                '\\"TZRSITE\\": 1.0, '
-                '\\"PX\\": 7.2143, '
-                '\\"EPHVER\\": 2.0, '
-                '\\"UNITS\\": \\"TDB\\", '
-                '\\"F0_ERR\\": null, '
-                '\\"P0\\": 0.0036753748844612086, '
-                '\\"P0_ERR\\": null, '
-                '\\"START\\": \\"1970-01-01T00:00:00\\", '
-                '\\"FINISH\\": \\"2106-02-07T06:28:15\\"}"'
-            },
-            "description": "PSR J0125-2327 is a millisecond pulsar with a period of 3.68 milliseconds and has a small "
-            "dispersion measure of 9.597 pc/cm^3. It is a moderately bright pulsar with a 1400 MHz catalogue flux "
-            "density of 2.490 mJy. PSR J0125-2327 is a Southern Hemisphere pulsar. PSR J0125-2327 has no measured "
-            "period derivative. The estimated distance to J0125-2327 is 873 pc. This pulsar appears to be solitary.",
-            "edges": [
-                {
-                    "node": {
-                        "observation": {
-                            # "id": "T2JzZXJ2YXRpb25Ob2RlOjQx",
-                            "utcStart": "2019-04-23T06:11:30+00:00",
-                            "dayOfYear": 113.25798611111111,
-                            "binaryOrbitalPhase": 0.1107189377501644,
-                            "duration": 263.99999999999994,
-                            "beam": 1,
-                            "bandwidth": 775.75,
-                            "nchan": 928,
-                            "band": "LBAND",
-                            "foldNbin": 1024,
-                            "nant": 56,
-                            "nantEff": 56,
-                            "restricted": False,
-                            "embargoEndDate": "2020-10-22T06:11:30+00:00",
-                            "project": {"short": "PTA"},
-                            "ephemeris": {"dm": 9.59243},
-                            "calibration": {
-                                # "idInt": 41
-                            },
-                        },
-                        "pipelineRun": {
-                            "dm": 20.0,
-                            "dmErr": 1.0,
-                            "rm": 10.0,
-                            "rmErr": 1.0,
-                            "sn": 100.0,
-                            "flux": 25.0,
-                        },
-                    }
-                }
-            ],
-        },
-    }
-
-
-PLOT_CONTAINER_QUERY = """
-query (
-    $pulsar: String!
-    $mainProject: String
-    $projectShort: String
-    $nsubType: String
-    $obsNchan: Int
-    $obsNpol: Int
-) {
-    toa(
-        pulsar: $pulsar
-        mainProject: $mainProject
-        projectShort: $projectShort
-        nsubType: $nsubType
-        obsNchan: $obsNchan
-        obsNpol: $obsNpol
+    PLOT_CONTAINER_QUERY = """
+    query (
+        $pulsar: String!
+        $mainProject: String
+        $projectShort: String
+        $nsubType: String
+        $obsNchan: Int
+        $obsNpol: Int
     ) {
-    allProjects
-    allNchans
-    edges {
-        node {
-            observation {
-                duration
-                utcStart
-                beam
-                band
-            }
-            project {
-                short
-            }
-            obsNchan
-            nsubType
-            dmCorrected
-            id
-            mjd
-            dayOfYear
-            binaryOrbitalPhase
-            residualSec
-            residualSecErr
-            residualPhase
-            residualPhaseErr
-            }
-        }
-    }
-}
-"""
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_plot_container_query():
-    client, user, _, _, _, template, pipeline_run, _, _ = setup_query_test()
-    client.authenticate(user)
-    for toa_file, nchan in TOA_FILES:
-        if "molonglo" in toa_file:
-            project = "MONSPSR_TIMING"
-        else:
-            project = "PTA"
-        upload_toa_files(pipeline_run, project, nchan, template, toa_file)
-
-    response = client.execute(
-        PLOT_CONTAINER_QUERY,
-        variables={
-            "pulsar": "J0125-2327",
-            "mainProject": "MeerTIME",
-            "projectShort": "PTA",
-            "nsubType": "1",
-            "obsNchan": 1,
-            "obsNpol": 1,
-        },
-    )
-    assert not response.errors
-    del response.data["toa"]["edges"][0]["node"]["id"]
-    assert response.data == {
-        "toa": {
-            "allProjects": ["PTA"],
-            "allNchans": [1, 4, 16],
-            "edges": [
-                {
-                    "node": {
-                        "observation": {
-                            "duration": 263.99999999999994,
-                            "utcStart": "2019-04-23T06:11:30+00:00",
-                            "beam": 1,
-                            "band": "LBAND",
-                        },
-                        "project": {"short": "PTA"},
-                        "obsNchan": 1,
-                        "nsubType": "1",
-                        "dmCorrected": False,
-                        # "id": "VG9hTm9kZTo5Mw==",
-                        "mjd": "58916.285422152018",
-                        "dayOfYear": None,
-                        "binaryOrbitalPhase": None,
-                        "residualSec": None,
-                        "residualSecErr": None,
-                        "residualPhase": None,
-                        "residualPhaseErr": None,
-                    }
-                }
-            ],
-        }
-    }
-
-
-SINGLE_OBSERVATION_QUERY = """
-query {
-    pulsarFoldResult (
-        pulsar: "J0125-2327",
-        utcStart: "2020-07-10-05:07:28"
-        beam: 2
-    ) {
+        toa(
+            pulsar: $pulsar
+            mainProject: $mainProject
+            projectShort: $projectShort
+            nsubType: $nsubType
+            obsNchan: $obsNchan
+            obsNpol: $obsNpol
+        ) {
+        allProjects
+        allNchans
         edges {
             node {
                 observation {
-                    calibration {
-                        id
-                        idInt
-                    }
-                    beam
-                    utcStart
-                    obsType
-                    project {
-                        id
-                        short
-                        code
-                        mainProject {
-                            name
-                        }
-                    }
-                    frequency
-                    bandwidth
-                    raj
-                    decj
                     duration
-                    foldNbin
-                    foldNchan
-                    foldTsubint
-                    nant
+                    utcStart
+                    beam
+                    band
                 }
-                pipelineRun {
-                    dm
-                    rm
-                    sn
+                project {
+                    short
                 }
-                images {
-                    edges {
-                        node {
-                            image
-                            cleaned
-                            imageType
-                            resolution
-                            url
+                obsNchan
+                nsubType
+                dmCorrected
+                id
+                mjd
+                dayOfYear
+                binaryOrbitalPhase
+                residualSec
+                residualSecErr
+                residualPhase
+                residualPhaseErr
+                }
+            }
+        }
+    }
+    """
+
+    SINGLE_OBSERVATION_QUERY = """
+    query {
+        pulsarFoldResult (
+            pulsar: "J0125-2327",
+            utcStart: "2020-07-10-05:07:28"
+            beam: 2
+        ) {
+            edges {
+                node {
+                    observation {
+                        calibration {
+                            id
+                            idInt
+                        }
+                        beam
+                        utcStart
+                        obsType
+                        project {
+                            id
+                            short
+                            code
+                            mainProject {
+                                name
+                            }
+                        }
+                        frequency
+                        bandwidth
+                        raj
+                        decj
+                        duration
+                        foldNbin
+                        foldNchan
+                        foldTsubint
+                        nant
+                    }
+                    pipelineRun {
+                        dm
+                        rm
+                        sn
+                    }
+                    images {
+                        edges {
+                            node {
+                                image
+                                cleaned
+                                imageType
+                                resolution
+                                url
+                            }
                         }
                     }
                 }
             }
         }
     }
-}
-"""
+    """
 
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_single_observation_query():
-    client, user = setup_query_test()[:2]
-    client.authenticate(user)
-
-    response = client.execute(SINGLE_OBSERVATION_QUERY)
-    assert not response.errors
-    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["calibration"]["id"]
-    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["calibration"]["idInt"]
-    del response.data["pulsarFoldResult"]["edges"][0]["node"]["observation"]["project"]["id"]
-    assert response.data == {
-        "pulsarFoldResult": {
-            "edges": [
-                {
-                    "node": {
-                        "observation": {
-                            "calibration": {
-                                # "id": "Q2FsaWJyYXRpb25Ob2RlOjU3",
-                                # "idInt": 57
-                            },
-                            "beam": 2,
-                            "utcStart": "2020-07-10T05:07:28+00:00",
-                            "obsType": "FOLD",
-                            "project": {
-                                # "id": "UHJvamVjdE5vZGU6NDE=",
-                                "short": "PTA",
-                                "code": "SCI-20180516-MB-05",
-                                "mainProject": {"name": "MeerTIME"},
-                            },
-                            "frequency": 815.734375,
-                            "bandwidth": 544.0,
-                            "raj": "01:25:01.0595040",
-                            "decj": "-23:27:08.184197",
-                            "duration": 1023.2854023529411,
-                            "foldNbin": 1024,
-                            "foldNchan": 1024,
-                            "foldTsubint": 8,
-                            "nant": 28,
-                        },
-                        "pipelineRun": {"dm": 20.0, "rm": 10.0, "sn": 100.0},
-                        "images": {"edges": []},
-                    }
-                }
-            ]
-        }
-    }
-
-
-SEARCH_QUERY = """
-query {
-    observationSummary(
-        pulsar_Name: "All"
-        obsType: "search"
-        calibration_Id: "All"
-        mainProject: "MeerTIME"
-        project_Short: "All"
-        band: "All"
-    ) {
-    edges {
-        node {
-            observations
-            pulsars
-            observationHours
-            }
-        }
-    }
-pulsarSearchSummary(
-    mainProject: "MeerTIME"
-    project: "All"
-    band: "All"
-    first: 1
-) {
-    edges {
-        node {
-            pulsar {
-                name
-            }
-            latestObservation
-            firstObservation
-            allProjects
-            mostCommonProject
-            timespan
-            numberOfObservations
-            lastIntegrationMinutes
-            totalIntegrationHours
-            }
-        }
-    }
-}
-"""
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_search_query():
-    client, user = setup_query_test()[:2]
-    client.authenticate(user)
-
-    response = client.execute(SEARCH_QUERY)
-    assert not response.errors
-    assert response.data == {
-        "observationSummary": {"edges": [{"node": {"observations": 3, "pulsars": 3, "observationHours": 4}}]},
-        "pulsarSearchSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "pulsar": {"name": "J1614+0737"},
-                        "latestObservation": "2023-08-01T18:21:59+00:00",
-                        "firstObservation": "2023-08-01T18:21:59+00:00",
-                        "allProjects": "TPA",
-                        "mostCommonProject": "TPA",
-                        "timespan": 1,
-                        "numberOfObservations": 1,
-                        "lastIntegrationMinutes": 2.0044833333333334,
-                        "totalIntegrationHours": 0.03340805555555555,
-                    }
-                }
-            ]
-        },
-    }
-
-
-SEARCH_DETAIL_QUERY = """
-query {
-    observationSummary(
-        pulsar_Name: "OmegaCen1"
-        obsType: "search"
-        calibration_Id: "All"
-        mainProject: "MeerTIME"
-        project_Short: "All"
-        band: "All"
-    ) {
+    SEARCH_QUERY = """
+    query {
+        observationSummary(
+            pulsar_Name: "All"
+            obsType: "search"
+            calibration_Id: "All"
+            mainProject: "MeerTIME"
+            project_Short: "All"
+            band: "All"
+        ) {
         edges {
             node {
                 observations
-                projects
+                pulsars
                 observationHours
-                timespanDays
+                }
             }
         }
-    }
-    observation(
-        pulsar_Name: ["OmegaCen1"]
+    pulsarSearchSummary(
         mainProject: "MeerTIME"
-        obsType: "search"
+        project: "All"
+        band: "All"
         first: 1
     ) {
         edges {
             node {
-                id
-                utcStart
-                project {
-                    short
+                pulsar {
+                    name
                 }
-                raj
-                decj
-                beam
-                duration
-                frequency
-                nantEff
-                filterbankNbit
-                filterbankNpol
-                filterbankNchan
-                filterbankTsamp
-                filterbankDm
+                latestObservation
+                firstObservation
+                allProjects
+                mostCommonProject
+                timespan
+                numberOfObservations
+                lastIntegrationMinutes
+                totalIntegrationHours
+                }
             }
         }
     }
-}
-"""
+    """
 
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_search_details_query():
-    client, user = setup_query_test()[:2]
-    client.authenticate(user)
-
-    response = client.execute(SEARCH_DETAIL_QUERY)
-    assert not response.errors
-    del response.data["observation"]["edges"][0]["node"]["id"]
-    assert response.data == {
-        "observationSummary": {
-            "edges": [
-                {
-                    "node": {
-                        "observations": 1,
-                        "projects": 1,
-                        "observationHours": 3,
-                        "timespanDays": 1,
-                    }
+    SEARCH_DETAIL_QUERY = """
+    query {
+        observationSummary(
+            pulsar_Name: "OmegaCen1"
+            obsType: "search"
+            calibration_Id: "All"
+            mainProject: "MeerTIME"
+            project_Short: "All"
+            band: "All"
+        ) {
+            edges {
+                node {
+                    observations
+                    projects
+                    observationHours
+                    timespanDays
                 }
-            ]
-        },
-        "observation": {
-            "edges": [
-                {
-                    "node": {
-                        # "id": "T2JzZXJ2YXRpb25Ob2RlOjY3",
-                        "utcStart": "2023-06-27T11:37:31+00:00",
-                        "project": {"short": "GC"},
-                        "raj": "13:26:47.24",
-                        "decj": "-47:28:46.5",
-                        "beam": 1,
-                        "duration": 14399.068999999645,
-                        "frequency": 1283.89550781,
-                        "nantEff": 41,
-                        "filterbankNbit": 8,
-                        "filterbankNpol": 4,
-                        "filterbankNchan": 256,
-                        "filterbankTsamp": 19.14,
-                        "filterbankDm": 99.9,
+            }
+        }
+        observation(
+            pulsar_Name: ["OmegaCen1"]
+            mainProject: "MeerTIME"
+            obsType: "search"
+            first: 1
+        ) {
+            edges {
+                node {
+                    id
+                    utcStart
+                    project {
+                        short
                     }
+                    raj
+                    decj
+                    beam
+                    duration
+                    frequency
+                    nantEff
+                    filterbankNbit
+                    filterbankNpol
+                    filterbankNchan
+                    filterbankTsamp
+                    filterbankDm
                 }
-            ]
-        },
+            }
+        }
     }
+    """
 
-
-SESSION_QUERY = """
-query {{
-    observationSummary (
-        pulsar_Name: "All",
-        obsType: "All",
-        calibrationInt: {cal},
-        mainProject: "All",
-        project_Short: "All",
-        band: "All",
-    ) {{
-        edges {{
-            node {{
-                observations
-                projects
-                pulsars
+    SESSION_QUERY = """
+    query {{
+        observationSummary (
+            pulsar_Name: "All",
+            obsType: "All",
+            calibrationInt: {cal},
+            mainProject: "All",
+            project_Short: "All",
+            band: "All",
+        ) {{
+            edges {{
+                node {{
+                    observations
+                    projects
+                    pulsars
+                }}
             }}
         }}
-    }}
-    calibration (
-        id: {cal}
-    ) {{
-        edges {{
-            node {{
-                id
-                idInt
-                start
-                end
-                observations {{
-                    edges {{
-                        node {{
-                            id
-                            pulsar {{
-                                name
-                            }}
-                            utcStart
-                            beam
-                            obsType
-                            duration
-                            frequency
-                            project {{
-                                short
-                            }}
-                            pulsarFoldResults {{
-                                edges {{
-                                    node {{
-                                        images {{
-                                            edges {{
-                                                node {{
-                                                    url
-                                                    imageType
-                                                    cleaned
+        calibration (
+            id: {cal}
+        ) {{
+            edges {{
+                node {{
+                    id
+                    idInt
+                    start
+                    end
+                    observations {{
+                        edges {{
+                            node {{
+                                id
+                                pulsar {{
+                                    name
+                                }}
+                                utcStart
+                                beam
+                                obsType
+                                duration
+                                frequency
+                                project {{
+                                    short
+                                }}
+                                pulsarFoldResults {{
+                                    edges {{
+                                        node {{
+                                            images {{
+                                                edges {{
+                                                    node {{
+                                                        url
+                                                        imageType
+                                                        cleaned
+                                                    }}
                                                 }}
                                             }}
-                                        }}
-                                        pipelineRun {{
-                                            sn
-                                            percentRfiZapped
+                                            pipelineRun {{
+                                                sn
+                                                percentRfiZapped
+                                            }}
                                         }}
                                     }}
                                 }}
@@ -824,485 +437,693 @@ query {{
             }}
         }}
     }}
-}}
-"""
+    """
 
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_session_query():
-    client, user, _, _, _, _, _, _, cal = setup_query_test()
-    client.authenticate(user)
-
-    response = client.execute(SESSION_QUERY.format(cal=cal.id))
-    assert not response.errors
-    assert len(response.data["calibration"]["edges"]) > 0
-    assert len(response.data["observationSummary"]["edges"]) > 0
-    del response.data["calibration"]["edges"][0]["node"]["id"]
-    del response.data["calibration"]["edges"][0]["node"]["idInt"]
-    del response.data["calibration"]["edges"][0]["node"]["observations"]["edges"][0]["node"]["id"]
-    assert response.data == {
-        "observationSummary": {"edges": [{"node": {"observations": 1, "projects": 1, "pulsars": 1}}]},
-        "calibration": {
-            "edges": [
-                {
-                    "node": {
-                        # "id": "Q2FsaWJyYXRpb25Ob2RlOjc4",
-                        # "idInt": 78,
-                        "start": "2019-04-23T06:11:30+00:00",
-                        "end": "2019-04-23T06:11:30+00:00",
-                        "observations": {
-                            "edges": [
-                                {
-                                    "node": {
-                                        # "id": "T2JzZXJ2YXRpb25Ob2RlOjc2",
-                                        "pulsar": {"name": "J0125-2327"},
-                                        "utcStart": "2019-04-23T06:11:30+00:00",
-                                        "beam": 1,
-                                        "obsType": "FOLD",
-                                        "duration": 263.99999999999994,
-                                        "frequency": 1283.58203125,
-                                        "project": {"short": "PTA"},
-                                        "pulsarFoldResults": {
-                                            "edges": [
-                                                {
-                                                    "node": {
-                                                        "images": {"edges": []},
-                                                        "pipelineRun": {
-                                                            "sn": 100.0,
-                                                            "percentRfiZapped": 0.1,
-                                                        },
-                                                    }
-                                                }
-                                            ]
-                                        },
-                                    }
-                                }
-                            ]
-                        },
-                    }
-                }
-            ]
-        },
-    }
-
-
-SESSION_LIST_QUERY = """
-query {
-    calibration (
-        first: 1
-    ) {
-        edges {
-            node {
-                id
-                idInt
-                start
-                end
-                allProjects
-                nObservations
-                nAntMin
-                nAntMax
-                totalIntegrationTimeSeconds
-            }
-        }
-    }
-}
-"""
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_session_list_query():
-    client, user = setup_query_test()[:2]
-    client.authenticate(user)
-
-    response = client.execute(SESSION_LIST_QUERY)
-    assert not response.errors
-    del response.data["calibration"]["edges"][0]["node"]["id"]
-    del response.data["calibration"]["edges"][0]["node"]["idInt"]
-    assert response.data == {
-        "calibration": {
-            "edges": [
-                {
-                    "node": {
-                        # "id": "Q2FsaWJyYXRpb25Ob2RlOjgx",
-                        # "idInt": 81,
-                        "start": "2023-08-01T18:21:59+00:00",
-                        "end": "2023-08-01T18:21:59+00:00",
-                        "allProjects": "TPA",
-                        "nObservations": 1,
-                        "nAntMin": 31,
-                        "nAntMax": 31,
-                        "totalIntegrationTimeSeconds": 120.26899999999999,
-                    }
-                }
-            ]
-        }
-    }
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_toa_uploads():
-    _, _, _, _, _, template, pipeline_run, _, _ = setup_query_test()
-    for toa_file, nchan in TOA_FILES:
-        if "molonglo" in toa_file:
-            project = "MONSPSR_TIMING"
-        else:
-            project = "PTA"
-        upload_toa_files(pipeline_run, project, nchan, template, toa_file)
-
-
-# Query used by the command `psrdb observation list`
-OBSERVATION_LIST_QUERY = """
-query observationList(
-        $pulsar_Name: [String]
-        $telescope_Name: String
-        $project_Id: Int
-        $project_Short: String
-        $mainProject: String
-        $utcStartGte: String
-        $utcStartLte: String
-        $obsType: String
-    ) {
-    observation (
-        pulsar_Name: $pulsar_Name
-        telescope_Name: $telescope_Name
-        project_Id: $project_Id
-        project_Short: $project_Short
-        mainProject: $mainProject
-        utcStartGte: $utcStartGte
-        utcStartLte: $utcStartLte
-        obsType: $obsType
-    ) {
-        edges {
-            node {
-                id
-                pulsar {
-                    name
-                }
-                calibration {
+    SESSION_LIST_QUERY = """
+    query {
+        calibration (
+            first: 1
+        ) {
+            edges {
+                node {
                     id
-                    location
+                    idInt
+                    start
+                    end
+                    allProjects
+                    nObservations
+                    nAntMin
+                    nAntMax
+                    totalIntegrationTimeSeconds
                 }
-                telescope {
-                    name
-                }
-                project {
-                    code
-                    short
-                }
-                utcStart
-                beam
-                band
-                duration
-                foldNchan
-                foldNbin
-                modeDuration
             }
         }
     }
-}
-"""
+    """
 
+    OBSERVATION_LIST_QUERY = """
+    query observationList(
+            $pulsar_Name: [String]
+            $telescope_Name: String
+            $project_Id: Int
+            $project_Short: String
+            $mainProject: String
+            $utcStartGte: String
+            $utcStartLte: String
+            $obsType: String
+        ) {
+        observation (
+            pulsar_Name: $pulsar_Name
+            telescope_Name: $telescope_Name
+            project_Id: $project_Id
+            project_Short: $project_Short
+            mainProject: $mainProject
+            utcStartGte: $utcStartGte
+            utcStartLte: $utcStartLte
+            obsType: $obsType
+        ) {
+            edges {
+                node {
+                    id
+                    pulsar {
+                        name
+                    }
+                    calibration {
+                        id
+                        location
+                    }
+                    telescope {
+                        name
+                    }
+                    project {
+                        code
+                        short
+                    }
+                    utcStart
+                    beam
+                    band
+                    duration
+                    foldNchan
+                    foldNbin
+                    modeDuration
+                }
+            }
+        }
+    }
+    """
 
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_observation_mode_duration():
-    client = JSONWebTokenClient()
-    user = get_user_model().objects.create(username="buffy", email="slayer@sunnydail.com")
-    client.authenticate(user)
-
-    # Set up some observations
-    telescope, project, ephemeris, template = create_basic_data()
-    # "duration": 255.4990582429906
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
-        telescope,
-        template,
-    )
-    # "duration": 263.99999999999994,
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"),
-        telescope,
-        template,
-    )
-
-    response = client.execute(
-        OBSERVATION_LIST_QUERY,
-        variables={
-            "pulsar_Name": None,
-            "telescope_Name": None,
-            "project_Id": None,
-            "project_Short": None,
-            "mainProject": None,
-            "utcStartGte": None,
-            "utcStartLte": None,
-            "obsType": None,
-        },
-    )
-    assert not response.errors
-    # Should round to 256
-    assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 256
-
-    # Add two more observations and check it still rounds to the lower mode on a draw
-    # "duration": 1039.9999999999998,
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"),
-        telescope,
-        template,
-    )
-    # "duration": 1023.2854023529411,
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"),
-        telescope,
-        template,
-    )
-    response = client.execute(
-        OBSERVATION_LIST_QUERY,
-        variables={
-            "pulsar_Name": None,
-            "telescope_Name": None,
-            "project_Id": None,
-            "project_Short": None,
-            "mainProject": None,
-            "utcStartGte": None,
-            "utcStartLte": None,
-            "obsType": None,
-        },
-    )
-    assert not response.errors
-    # Should round to 256
-    assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 256
-
-    # Add one more obs and it will get the new higher mode
-    # "duration": 1023.2854023529411,
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"),
-        telescope,
-        template,
-    )
-    response = client.execute(
-        OBSERVATION_LIST_QUERY,
-        variables={
-            "pulsar_Name": None,
-            "telescope_Name": None,
-            "project_Id": None,
-            "project_Short": None,
-            "mainProject": None,
-            "utcStartGte": None,
-            "utcStartLte": None,
-            "obsType": None,
-        },
-    )
-    assert not response.errors
-    assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 1024
-
-    # Add 4 obs of a different pulsar and 4 obs of a different main project to ensure the filters work
-    # J0437-4715 3 more times (already added once)
-    # "duration": 255.4990582429906
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
-        telescope,
-        template,
-    )
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
-        telescope,
-        template,
-    )
-    create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
-        telescope,
-        template,
-    )
-    # Molonglo obs of same pulsar J0125-2327
-    # "duration": 455.0798950400001,
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template)
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template)
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template)
-    create_observation_pipeline_run_toa(os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template)
-    response = client.execute(
-        OBSERVATION_LIST_QUERY,
-        variables={
-            "pulsar_Name": ["J0125-2327"],
-            "telescope_Name": None,
-            "project_Id": None,
-            "project_Short": None,
-            "mainProject": "MeerTIME",
-            "utcStartGte": None,
-            "utcStartLte": None,
-            "obsType": None,
-        },
-    )
-    assert not response.errors
-    assert response.data["observation"]["edges"][0]["node"]["modeDuration"] == 1024
-
-
-TOA_EXCLUDE_BADGES_QUERY = """
-query toaBadgesExcluded (
-    $pulsar: String
-    $mainProject: String
-    $projectShort: String
-    $nsubType: String
-    $obsNchan: Int
-    $obsNpol: Int
-    $excludeBadges: [String]
-    $minimumSNR: Float
-) {
-    toa(
-        pulsar: $pulsar
-        mainProject: $mainProject
-        projectShort: $projectShort
-        nsubType: $nsubType
-        obsNchan: $obsNchan
-        obsNpol: $obsNpol
-        excludeBadges: $excludeBadges
-        minimumSNR: $minimumSNR
+    TOA_EXCLUDE_BADGES_QUERY = """
+    query toaBadgesExcluded (
+        $pulsar: String
+        $mainProject: String
+        $projectShort: String
+        $nsubType: String
+        $obsNchan: Int
+        $obsNpol: Int
+        $excludeBadges: [String]
+        $minimumSNR: Float
     ) {
-        totalBadgeExcludedToas
-        edges {
-            node {
-                id
+        toa(
+            pulsar: $pulsar
+            mainProject: $mainProject
+            projectShort: $projectShort
+            nsubType: $nsubType
+            obsNchan: $obsNchan
+            obsNpol: $obsNpol
+            excludeBadges: $excludeBadges
+            minimumSNR: $minimumSNR
+        ) {
+            totalBadgeExcludedToas
+            edges {
+                node {
+                    id
+                }
             }
         }
     }
-}
-"""
+    """
 
+    def setUp(self):
+        """Setup basic test environment."""
+        # Call setup_query_test once for all tests and store results as instance attributes
+        # GraphQLTestCase provides self.client, so we ignore the client returned by setup_query_test
+        (
+            _,
+            self.user,
+            self.telescope,
+            self.project,
+            self.ephemeris,
+            self.template,
+            self.pipeline_run,
+            self.observation,
+            self.cal,
+        ) = setup_query_test()
 
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_total_badge_excluded_toas():
-    client = JSONWebTokenClient()
-    user = get_user_model().objects.create(username="buffy", email="slayer@sunnydail.com")
-    client.authenticate(user)
+        # Force login with the user from setup_query_test
+        self.client.force_login(self.user)
 
-    # Set up some observations
-    telescope, project, ephemeris, template = create_basic_data()
-    obs1, cal1, pr1 = create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
-        telescope,
-        template,
-        make_toas=False,
-    )
-    dm_badge, created = Badge.objects.get_or_create(
-        name="DM Drift",
-        description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins",  # noqa
-    )
-    pr1.badges.add(dm_badge)
-    obs2, cal2, pr2 = create_observation_pipeline_run_toa(
-        os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"),
-        telescope,
-        template,
-        make_toas=False,
-    )
+    def test_pulsar_fold_summary_query_with_token(self):
+        """Test the pulsar fold summary query with an authenticated user."""
+        # User is already logged in from setUp, just execute the query
+        response = self.query(self.FOLD_SUMMARY_QUERY)
 
-    # The ToAs with a badge we will filter out
-    upload_toa_files(
-        pr1,
-        "PTA",
-        16,
-        template,
-        os.path.join(
-            TEST_DATA_DIR,
-            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
-        ),
-    )
-    # Toa fro 3 other nsub types
-    upload_toa_files(
-        pr1,
-        "PTA",
-        16,
-        template,
-        os.path.join(
-            TEST_DATA_DIR,
-            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
-        ),
-        nsub_type="max",
-    )
-    upload_toa_files(
-        pr1,
-        "PTA",
-        16,
-        template,
-        os.path.join(
-            TEST_DATA_DIR,
-            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
-        ),
-        nsub_type="all",
-    )
-    upload_toa_files(
-        pr1,
-        "PTA",
-        16,
-        template,
-        os.path.join(
-            TEST_DATA_DIR,
-            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
-        ),
-        nsub_type="mode",
-    )
-    # Resubmit as nsub type min to make sure redundant toas are not counted
-    upload_toa_files(
-        pr1,
-        "PTA",
-        16,
-        template,
-        os.path.join(
-            TEST_DATA_DIR,
-            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
-        ),
-        nsub_type="1",
-    )
+        # Parse the response content and check for errors
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
 
-    upload_toa_files(
-        pr1,
-        "PTA",
-        16,
-        template,
-        os.path.join(
-            TEST_DATA_DIR,
-            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
-        ),
-    )
-    # Toa from different nchan
-    upload_toa_files(
-        pr1,
-        "PTA",
-        1,
-        template,
-        os.path.join(
-            TEST_DATA_DIR,
-            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim",
-        ),
-    )
-    # Toa from different project
-    upload_toa_files(
-        pr1,
-        "TPA",
-        16,
-        template,
-        os.path.join(
-            TEST_DATA_DIR,
-            "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
-        ),
-    )
+        # Check the response data
+        self.assertEqual(content["data"]["pulsarFoldSummary"]["totalObservations"], 1)
+        self.assertEqual(content["data"]["pulsarFoldSummary"]["totalPulsars"], 1)
+        self.assertEqual(content["data"]["pulsarFoldSummary"]["totalObservationTime"], 0.1)
+        self.assertEqual(content["data"]["pulsarFoldSummary"]["totalProjectTime"], 0)
 
-    response = client.execute(
-        TOA_EXCLUDE_BADGES_QUERY,
-        variables={
-            "pulsar": "J0437-4715",
-            "mainProject": "MeerTIME",
-            "projectShort": "PTA",
-            "nsubType": "1",
-            "modeNsubs": False,
-            "obsNchan": 16,
-            "obsNpol": 1,
-            "excludeBadges": ["DM Drift"],
-            "minimumSNR": 0,
-        },
-    )
-    assert not response.errors
-    assert response.data["toa"]["totalBadgeExcludedToas"] == 16
-    assert len(response.data["toa"]["edges"]) == 0
+        # Check the node data
+        node = content["data"]["pulsarFoldSummary"]["edges"][0]["node"]
+        self.assertEqual(node["pulsar"]["name"], "J0437-4715")
+        self.assertEqual(node["latestObservation"], "2023-04-17T15:08:35+00:00")
+        self.assertEqual(node["firstObservation"], "2023-04-17T15:08:35+00:00")
+        self.assertEqual(node["mostCommonProject"], "PTA")
+        self.assertEqual(node["timespan"], 1)
+        self.assertEqual(node["numberOfObservations"], 1)
+        self.assertAlmostEqual(node["totalIntegrationHours"], 0.07097196062305294)
+        self.assertAlmostEqual(node["avgSnPipe"], 108.35924627749955)
+        self.assertEqual(node["highestSn"], 100.0)
+        self.assertEqual(node["lastSn"], 100.0)
+        self.assertAlmostEqual(node["lastIntegrationMinutes"], 4.258317637383176)
+
+    def test_fold_query(self):
+        """Test fold query with different band parameters."""
+        # User is already logged in from setUp, just execute the queries
+
+        # Test with band="All"
+        response = self.query(self.FOLD_QUERY.format(band="All"))
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check the response data for band="All"
+        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observations"], 3)
+        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["pulsars"], 1)
+        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observationHours"], 0)
+
+        # Check pulsarFoldSummary
+        node = content["data"]["pulsarFoldSummary"]["edges"][0]["node"]
+        self.assertEqual(node["pulsar"]["name"], "J0437-4715")
+        self.assertEqual(node["latestObservation"], "2023-04-17T15:08:35+00:00")
+        self.assertEqual(node["latestObservationBeam"], 1)
+
+        # Test with band="UHF"
+        response = self.query(self.FOLD_QUERY.format(band="UHF"))
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check the response data for band="UHF"
+        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observations"], 1)
+        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["pulsars"], 1)
+
+        # Check pulsarFoldSummary for UHF band
+        node = content["data"]["pulsarFoldSummary"]["edges"][0]["node"]
+        self.assertEqual(node["pulsar"]["name"], "J0125-2327")
+        self.assertEqual(node["latestObservation"], "2020-07-10T05:07:28+00:00")
+        self.assertEqual(node["latestObservationBeam"], 2)
+
+    def test_fold_detail_query(self):
+        """Test the fold detail query."""
+        # User is already logged in from setUp, just execute the query
+        response = self.query(self.FOLD_DETAIL_QUERY)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check observation summary
+        obs_summary = content["data"]["observationSummary"]["edges"][0]["node"]
+        self.assertEqual(obs_summary["observations"], 3)
+        self.assertEqual(obs_summary["observationHours"], 0)
+        self.assertEqual(obs_summary["projects"], 1)
+        self.assertEqual(obs_summary["pulsars"], 1)
+        self.assertAlmostEqual(obs_summary["estimatedDiskSpaceGb"], 1.0766774425551469)
+
+        # Remove variable parts that can change between test runs
+        fold_result = content["data"]["pulsarFoldResult"]
+        if "residualEphemeris" in fold_result and "createdAt" in fold_result["residualEphemeris"]:
+            del fold_result["residualEphemeris"]["createdAt"]
+
+        if "edges" in fold_result and len(fold_result["edges"]) > 0:
+            observation = fold_result["edges"][0]["node"]["observation"]
+            if "id" in observation:
+                del observation["id"]
+            if "calibration" in observation and "idInt" in observation["calibration"]:
+                del observation["calibration"]["idInt"]
+
+    def test_plot_container_query(self):
+        """Test the plot container query."""
+        # Upload TOA files for testing using instance attributes from setUp
+        for toa_file, nchan in TOA_FILES:
+            if "molonglo" in toa_file:
+                project = "MONSPSR_TIMING"
+            else:
+                project = "PTA"
+            upload_toa_files(self.pipeline_run, project, nchan, self.template, toa_file)
+
+        # Execute the query
+        response = self.query(
+            self.PLOT_CONTAINER_QUERY,
+            variables={
+                "pulsar": "J0125-2327",
+                "mainProject": "MeerTIME",
+                "projectShort": "PTA",
+                "nsubType": "1",
+                "obsNchan": 1,
+                "obsNpol": 1,
+            },
+        )
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check the response data
+        toa_data = content["data"]["toa"]
+        self.assertEqual(toa_data["allProjects"], ["PTA"])
+        self.assertEqual(toa_data["allNchans"], [1, 4, 16])
+
+        # Check first node (removing variable ID)
+        node = toa_data["edges"][0]["node"]
+        if "id" in node:
+            del node["id"]
+
+        # Check observation details
+        self.assertEqual(node["observation"]["duration"], 263.99999999999994)
+        self.assertEqual(node["observation"]["utcStart"], "2019-04-23T06:11:30+00:00")
+        self.assertEqual(node["observation"]["beam"], 1)
+        self.assertEqual(node["observation"]["band"], "LBAND")
+        self.assertEqual(node["project"]["short"], "PTA")
+        self.assertEqual(node["obsNchan"], 1)
+        self.assertEqual(node["nsubType"], "1")
+        self.assertEqual(node["dmCorrected"], False)
+        self.assertEqual(node["mjd"], "58916.285422152018")
+
+    def test_single_observation_query(self):
+        """Test the single observation query."""
+        # User is already logged in from setUp, just execute the query
+        response = self.query(self.SINGLE_OBSERVATION_QUERY)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Extract the node and remove variable parts
+        result = content["data"]["pulsarFoldResult"]["edges"][0]["node"]
+        if "calibration" in result["observation"]:
+            if "id" in result["observation"]["calibration"]:
+                del result["observation"]["calibration"]["id"]
+            if "idInt" in result["observation"]["calibration"]:
+                del result["observation"]["calibration"]["idInt"]
+
+        if "project" in result["observation"] and "id" in result["observation"]["project"]:
+            del result["observation"]["project"]["id"]
+
+        # Check observation details
+        observation = result["observation"]
+        self.assertEqual(observation["beam"], 2)
+        self.assertEqual(observation["utcStart"], "2020-07-10T05:07:28+00:00")
+        self.assertEqual(observation["obsType"], "FOLD")
+        self.assertEqual(observation["project"]["short"], "PTA")
+        self.assertEqual(observation["project"]["code"], "SCI-20180516-MB-05")
+        self.assertEqual(observation["project"]["mainProject"]["name"], "MeerTIME")
+
+    def test_search_query(self):
+        """Test the search query."""
+        # User is already logged in from setUp, just execute the query
+        response = self.query(self.SEARCH_QUERY)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check observation summary
+        obs_summary = content["data"]["observationSummary"]["edges"][0]["node"]
+        self.assertEqual(obs_summary["observations"], 3)
+        self.assertEqual(obs_summary["pulsars"], 3)
+        self.assertEqual(obs_summary["observationHours"], 4)
+
+        # Check search summary
+        search_summary = content["data"]["pulsarSearchSummary"]["edges"][0]["node"]
+        self.assertEqual(search_summary["pulsar"]["name"], "J1614+0737")
+        self.assertEqual(search_summary["latestObservation"], "2023-08-01T18:21:59+00:00")
+        self.assertEqual(search_summary["firstObservation"], "2023-08-01T18:21:59+00:00")
+        self.assertEqual(search_summary["allProjects"], "TPA")
+        self.assertEqual(search_summary["mostCommonProject"], "TPA")
+
+    def test_search_details_query(self):
+        """Test the search details query."""
+        # User is already logged in from setUp, just execute the query
+        response = self.query(self.SEARCH_DETAIL_QUERY)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check observation summary
+        obs_summary = content["data"]["observationSummary"]["edges"][0]["node"]
+        self.assertEqual(obs_summary["observations"], 1)
+        self.assertEqual(obs_summary["projects"], 1)
+        self.assertEqual(obs_summary["observationHours"], 3)
+        self.assertEqual(obs_summary["timespanDays"], 1)
+
+        # Check observation details (removing variable ID)
+        observation = content["data"]["observation"]["edges"][0]["node"]
+        if "id" in observation:
+            del observation["id"]
+
+        self.assertEqual(observation["utcStart"], "2023-06-27T11:37:31+00:00")
+        self.assertEqual(observation["project"]["short"], "GC")
+        self.assertEqual(observation["raj"], "13:26:47.24")
+        self.assertEqual(observation["decj"], "-47:28:46.5")
+
+    def test_session_query(self):
+        """Test the session query."""
+        # User is already logged in from setUp and self.cal is available from setUp
+        response = self.query(self.SESSION_QUERY.format(cal=self.cal.id))
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check if edges exist in the response
+        self.assertTrue(len(content["data"]["calibration"]["edges"]) > 0)
+        self.assertTrue(len(content["data"]["observationSummary"]["edges"]) > 0)
+
+        # Remove variable IDs
+        calibration = content["data"]["calibration"]["edges"][0]["node"]
+        if "id" in calibration:
+            del calibration["id"]
+        if "idInt" in calibration:
+            del calibration["idInt"]
+
+        if len(calibration["observations"]["edges"]) > 0:
+            observation = calibration["observations"]["edges"][0]["node"]
+            if "id" in observation:
+                del observation["id"]
+
+        # Check calibration details
+        self.assertEqual(calibration["start"], "2019-04-23T06:11:30+00:00")
+        self.assertEqual(calibration["end"], "2019-04-23T06:11:30+00:00")
+
+        # Check observation summary
+        obs_summary = content["data"]["observationSummary"]["edges"][0]["node"]
+        self.assertEqual(obs_summary["observations"], 1)
+        self.assertEqual(obs_summary["projects"], 1)
+        self.assertEqual(obs_summary["pulsars"], 1)
+
+    def test_session_list_query(self):
+        """Test the session list query."""
+        # User is already logged in from setUp, just execute the query
+        response = self.query(self.SESSION_LIST_QUERY)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check if edges exist in the response
+        self.assertTrue(len(content["data"]["calibration"]["edges"]) > 0)
+
+        # Remove variable IDs
+        calibration = content["data"]["calibration"]["edges"][0]["node"]
+        if "id" in calibration:
+            del calibration["id"]
+        if "idInt" in calibration:
+            del calibration["idInt"]
+
+        # Check calibration details
+        self.assertEqual(calibration["start"], "2023-08-01T18:21:59+00:00")
+        self.assertEqual(calibration["end"], "2023-08-01T18:21:59+00:00")
+        self.assertEqual(calibration["allProjects"], "TPA")
+        self.assertEqual(calibration["nObservations"], 1)
+        self.assertEqual(calibration["nAntMin"], 31)
+        self.assertEqual(calibration["nAntMax"], 31)
+        self.assertAlmostEqual(calibration["totalIntegrationTimeSeconds"], 120.26899999999999)
+
+    def test_toa_uploads(self):
+        """Test TOA file uploads."""
+        # Use self.template and self.pipeline_run from setUp
+        for toa_file, nchan in TOA_FILES:
+            if "molonglo" in toa_file:
+                project = "MONSPSR_TIMING"
+            else:
+                project = "PTA"
+            upload_toa_files(self.pipeline_run, project, nchan, self.template, toa_file)
+
+        # This test is successful if no exceptions are raised
+
+    def test_observation_mode_duration(self):
+        """Test observation mode duration calculations."""
+        # This test specifically needs a fresh set of observations to test mode duration
+        # but we can use the client from the base class
+
+        from dataportal.models import Telescope, Pulsar, Project, Ephemeris, Template
+
+        Pulsar.objects.all().delete()  # Clear existing pulsars
+        Telescope.objects.all().delete()  # Clear existing telescopes
+        Project.objects.all().delete()  # Clear existing projects
+        Ephemeris.objects.all().delete()  # Clear existing ephemerides
+        Template.objects.all().delete()  # Clear existing templates
+
+        # Set up some observations using create_basic_data
+        telescope, project, ephemeris, template = create_basic_data()
+        # "duration": 255.4990582429906
+        create_observation_pipeline_run_toa(
+            os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+            telescope,
+            template,
+        )
+        # "duration": 263.99999999999994,
+        create_observation_pipeline_run_toa(
+            os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"),
+            telescope,
+            template,
+        )
+
+        # Execute query using self.query (which uses self.client)
+        response = self.query(
+            self.OBSERVATION_LIST_QUERY,
+            variables={
+                "pulsar_Name": None,
+                "telescope_Name": None,
+                "project_Id": None,
+                "project_Short": None,
+                "mainProject": None,
+                "utcStartGte": None,
+                "utcStartLte": None,
+                "obsType": None,
+            },
+        )
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Should round to 256
+        self.assertEqual(content["data"]["observation"]["edges"][0]["node"]["modeDuration"], 256)
+
+        # Add two more observations and check it still rounds to the lower mode on a draw
+        create_observation_pipeline_run_toa(
+            os.path.join(TEST_DATA_DIR, "2019-05-14-10:14:18_1_J0125-2327.json"),
+            telescope,
+            template,
+        )
+        create_observation_pipeline_run_toa(
+            os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"),
+            telescope,
+            template,
+        )
+
+        response = self.query(
+            self.OBSERVATION_LIST_QUERY,
+            variables={
+                "pulsar_Name": None,
+                "telescope_Name": None,
+                "project_Id": None,
+                "project_Short": None,
+                "mainProject": None,
+                "utcStartGte": None,
+                "utcStartLte": None,
+                "obsType": None,
+            },
+        )
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Should still be 256
+        self.assertEqual(content["data"]["observation"]["edges"][0]["node"]["modeDuration"], 256)
+
+        # Add one more obs and it will get the new higher mode
+        create_observation_pipeline_run_toa(
+            os.path.join(TEST_DATA_DIR, "2020-07-10-05:07:28_2_J0125-2327.json"),
+            telescope,
+            template,
+        )
+
+        response = self.query(
+            self.OBSERVATION_LIST_QUERY,
+            variables={
+                "pulsar_Name": None,
+                "telescope_Name": None,
+                "project_Id": None,
+                "project_Short": None,
+                "mainProject": None,
+                "utcStartGte": None,
+                "utcStartLte": None,
+                "obsType": None,
+            },
+        )
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Should now be 1024
+        self.assertEqual(content["data"]["observation"]["edges"][0]["node"]["modeDuration"], 1024)
+
+        # Add additional observations for filtering tests
+        for _ in range(3):
+            create_observation_pipeline_run_toa(
+                os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+                telescope,
+                template,
+            )
+
+        for _ in range(4):
+            create_observation_pipeline_run_toa(
+                os.path.join(TEST_DATA_DIR, "molongolo_J0125-2327.json"), telescope, template
+            )
+
+        # Test filtered query
+        response = self.query(
+            self.OBSERVATION_LIST_QUERY,
+            variables={
+                "pulsar_Name": ["J0125-2327"],
+                "telescope_Name": None,
+                "project_Id": None,
+                "project_Short": None,
+                "mainProject": "MeerTIME",
+                "utcStartGte": None,
+                "utcStartLte": None,
+                "obsType": None,
+            },
+        )
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        self.assertEqual(content["data"]["observation"]["edges"][0]["node"]["modeDuration"], 1024)
+
+    def test_total_badge_excluded_toas(self):
+        """Test excluding TOAs with badges."""
+        # This test specifically needs to create its own data with badges
+        # but we can use the client from the base class
+
+        from dataportal.models import Telescope, Pulsar
+
+        Pulsar.objects.all().delete()  # Clear existing pulsars
+        Telescope.objects.all().delete()  # Clear existing telescopes
+
+        # Set up basic data
+        telescope, project, ephemeris, template = create_basic_data()
+
+        # Create badge and pipeline runs
+        obs1, cal1, pr1 = create_observation_pipeline_run_toa(
+            os.path.join(TEST_DATA_DIR, "2023-04-17-15:08:35_1_J0437-4715.json"),
+            telescope,
+            template,
+            make_toas=False,
+        )
+        dm_badge, created = Badge.objects.get_or_create(
+            name="DM Drift",
+            description="The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins",
+        )
+        pr1.badges.add(dm_badge)
+
+        obs2, cal2, pr2 = create_observation_pipeline_run_toa(
+            os.path.join(TEST_DATA_DIR, "2019-04-23-06:11:30_1_J0125-2327.json"),
+            telescope,
+            template,
+            make_toas=False,
+        )
+
+        # Upload TOA files with various parameters
+        upload_toa_files(
+            pr1,
+            "PTA",
+            16,
+            template,
+            os.path.join(
+                TEST_DATA_DIR,
+                "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+            ),
+        )
+
+        # Different nsub types
+        upload_toa_files(
+            pr1,
+            "PTA",
+            16,
+            template,
+            os.path.join(
+                TEST_DATA_DIR,
+                "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+            ),
+            nsub_type="max",
+        )
+        upload_toa_files(
+            pr1,
+            "PTA",
+            16,
+            template,
+            os.path.join(
+                TEST_DATA_DIR,
+                "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+            ),
+            nsub_type="all",
+        )
+        upload_toa_files(
+            pr1,
+            "PTA",
+            16,
+            template,
+            os.path.join(
+                TEST_DATA_DIR,
+                "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+            ),
+            nsub_type="mode",
+        )
+
+        # Redundant toa
+        upload_toa_files(
+            pr1,
+            "PTA",
+            16,
+            template,
+            os.path.join(
+                TEST_DATA_DIR,
+                "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+            ),
+            nsub_type="1",
+        )
+        upload_toa_files(
+            pr1,
+            "PTA",
+            16,
+            template,
+            os.path.join(
+                TEST_DATA_DIR,
+                "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+            ),
+        )
+
+        # Different nchan
+        upload_toa_files(
+            pr1,
+            "PTA",
+            1,
+            template,
+            os.path.join(
+                TEST_DATA_DIR,
+                "timing_files/J0437-4715_2023-10-22-04:41:07_zap.1ch1p1t.ar.tim",
+            ),
+        )
+
+        # Different project
+        upload_toa_files(
+            pr1,
+            "TPA",
+            16,
+            template,
+            os.path.join(
+                TEST_DATA_DIR,
+                "timing_files/J0437-4715_2023-10-22-04:41:07_zap.16ch1p1t.ar.tim",
+            ),
+        )
+
+        # Execute query with badge exclusion using self.query (which uses self.client)
+        response = self.query(
+            self.TOA_EXCLUDE_BADGES_QUERY,
+            variables={
+                "pulsar": "J0437-4715",
+                "mainProject": "MeerTIME",
+                "projectShort": "PTA",
+                "nsubType": "1",
+                "modeNsubs": False,
+                "obsNchan": 16,
+                "obsNpol": 1,
+                "excludeBadges": ["DM Drift"],
+                "minimumSNR": 0,
+            },
+        )
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        # Check that badges are excluded
+        self.assertEqual(content["data"]["toa"]["totalBadgeExcludedToas"], 16)
+        self.assertEqual(len(content["data"]["toa"]["edges"]), 0)

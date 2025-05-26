@@ -7,7 +7,6 @@ import FoldDetail from "../pages/FoldDetail";
 import Login from "../pages/Login";
 import PasswordChange from "../pages/PasswordChange";
 import PasswordReset from "../pages/PasswordReset";
-import GenerateToken from "../pages/GenerateToken";
 import PasswordResetRequest from "../pages/PasswordResetRequest";
 import ReactGA from "react-ga";
 import { RedirectException } from "found";
@@ -42,7 +41,7 @@ const renderTrackingRoute = (Component, props) => {
 };
 
 const renderPrivateRoute = (Component, props) => {
-  if (localStorage.getItem("jwt") === null) {
+  if (localStorage.getItem("username") === null) {
     // There will always be a redirect route.
     const redirectRoute = props.match.location.pathname;
 
@@ -130,11 +129,7 @@ const routeConfig = () =>
         Component={PasswordChange}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
-      <Route
-        path="/token_generate/"
-        Component={GenerateToken}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
-      />
+      {/* Token generation route removed - using Django session auth instead */}
       <Route
         path="/"
         Component={Fold}

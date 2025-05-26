@@ -1,5 +1,5 @@
 import graphene
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import PulsarNode
 from dataportal.models import Pulsar
@@ -16,9 +16,8 @@ class CreatePulsar(graphene.Mutation):
 
     pulsar = graphene.Field(PulsarNode)
 
-    @classmethod
     @permission_required("dataportal.add_pulsars")
-    def mutate(cls, self, info, input):
+    def mutate(root, info, input):
         pulsar, _ = Pulsar.objects.get_or_create(
             name=input.name,
             defaults={
@@ -35,9 +34,8 @@ class UpdatePulsar(graphene.Mutation):
 
     pulsar = graphene.Field(PulsarNode)
 
-    @classmethod
     @permission_required("dataportal.add_pulsars")
-    def mutate(cls, self, info, id, input):
+    def mutate(root, info, id, input):
         try:
             pulsar = Pulsar.objects.get(pk=id)
             for key, value in input.__dict__.items():
@@ -54,11 +52,10 @@ class DeletePulsar(graphene.Mutation):
 
     ok = graphene.Boolean()
 
-    @classmethod
     @permission_required("dataportal.add_pulsars")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         Pulsar.objects.get(pk=id).delete()
-        return cls(ok=True)
+        return DeletePulsar(ok=True)
 
 
 class Mutation(graphene.ObjectType):

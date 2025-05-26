@@ -2,7 +2,7 @@ import { aliasQuery } from "../utils/graphql-test-utils";
 
 describe("The Session Page", () => {
   beforeEach(() => {
-    cy.intercept("http://localhost:8000/graphql/", (req) => {
+    cy.intercept("http://localhost:5173/api/graphql/", (req) => {
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
       aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
       aliasQuery(req, "PlotlyPlotQuery", "plotlyPlotQuery.json");
@@ -18,6 +18,30 @@ describe("The Session Page", () => {
         "singleObservationFileDownloadQuery.json"
       );
     });
+
+    // Mock session-based authentication endpoints to prevent leaking requests
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: false,
+        user: null
+      }
+    }).as("checkSession");
+
+    cy.intercept("GET", "/api/auth/csrf/", {
+      statusCode: 200,
+      body: { csrfToken: "mock-csrf-token" }
+    }).as("getCSRF");
+
+    // Mock image requests to prevent network calls
+    cy.intercept("GET", "/media/**/*.png", {
+      fixture: "example.json"
+    }).as("plotImages");
+
+    cy.intercept("GET", "/media/**/*.jpg", {
+      fixture: "example.json"
+    }).as("plotImagesJpg");
+
     cy.visit("/session/2419/");
   });
 

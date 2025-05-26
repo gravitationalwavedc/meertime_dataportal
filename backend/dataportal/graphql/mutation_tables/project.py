@@ -3,7 +3,7 @@ from datetime import timedelta
 import graphene
 from django.db.models.fields import DurationField
 from graphene_django.converter import convert_django_field
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import ProjectNode
 from dataportal.models import MainProject, Project
@@ -28,9 +28,8 @@ class CreateProject(graphene.Mutation):
 
     project = graphene.Field(ProjectNode)
 
-    @classmethod
     @permission_required("dataportal.add_projects")
-    def mutate(cls, self, info, input):
+    def mutate(root, info, input):
         main_project = MainProject.objects.get(name=input["main_project_name"])
         project, _ = Project.objects.get_or_create(
             main_project=main_project,
@@ -49,9 +48,8 @@ class UpdateProject(graphene.Mutation):
 
     project = graphene.Field(ProjectNode)
 
-    @classmethod
     @permission_required("dataportal.add_projects")
-    def mutate(cls, self, info, id, input):
+    def mutate(root, info, id, input):
         try:
             main_project = MainProject.objects.get(name=input["main_project_name"])
             project = Project.objects.get(pk=id)
@@ -72,11 +70,10 @@ class DeleteProject(graphene.Mutation):
 
     project = graphene.Field(ProjectNode)
 
-    @classmethod
     @permission_required("dataportal.add_projects")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         Project.objects.get(pk=id).delete()
-        return cls(ok=True)
+        return DeleteProject(ok=True)
 
 
 class Mutation(graphene.ObjectType):

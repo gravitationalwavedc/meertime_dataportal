@@ -18,7 +18,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-SITE_URL = "http://localhost:3000/"  # with a trailing slash
+SITE_URL = "http://localhost:5173/"  # with a trailing slash
 
 # Email settings for Development
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
@@ -33,3 +33,6 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 #         "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient", "PASSWORD": ""},
 #     }
 # }
+
+SESSION_COOKIE_SECURE = False  # Set to False in development if not using HTTPS
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]

@@ -1,17 +1,66 @@
-import { aliasMutation, aliasQuery } from "../utils/graphql-test-utils";
+import { aliasQuery } from "../utils/graphql-test-utils";
 
 describe("Single Observation Page", () => {
   beforeEach(() => {
-    cy.intercept("http://localhost:8000/graphql/", (req) => {
-      aliasMutation(req, "LoginMutation", "loginMutation.json");
-      aliasMutation(req, "RefreshTokenMutation", "refreshTokenMutation.json");
+    cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      // Handle all possible GraphQL queries that might be made
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
       aliasQuery(
         req,
         "SingleObservationFileDownloadQuery",
         "singleObservationFileDownloadQuery.json"
       );
+      // Handle any other queries that might be made during navigation
+      aliasQuery(req, "FoldQuery", "foldQuery.json");
+      aliasQuery(req, "SessionQuery", "sessionQuery.json");
     });
+
+    // Mock session-based authentication endpoints
+    cy.intercept("GET", "/api/auth/csrf/", {
+      statusCode: 200,
+      body: { csrfToken: "mock-csrf-token" }
+    }).as("getCSRF");
+
+    cy.intercept("POST", "/api/auth/login/", {
+      statusCode: 200,
+      body: {
+        user: {
+          username: "buffy@sunnydale.com",
+          email: "buffy@sunnydale.com",
+          isStaff: true,
+          isUnrestricted: true
+        },
+        detail: "Successfully logged in."
+      }
+    }).as("sessionLogin");
+
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: true,
+        user: {
+          username: "buffy@sunnydale.com",
+          email: "buffy@sunnydale.com",
+          isStaff: true,
+          isUnrestricted: true
+        }
+      }
+    }).as("checkSession");
+
+    // Mock all image requests to prevent network calls
+    cy.intercept("GET", "/media/**/*.png", {
+      fixture: "example.json" // Using a small fixture file as placeholder
+    }).as("plotImages");
+
+    cy.intercept("GET", "/media/**/*.jpg", {
+      fixture: "example.json"
+    }).as("plotImagesJpg");
+
+    // Mock any other session check requests
+    cy.intercept("POST", "/api/auth/logout/", {
+      statusCode: 200,
+      body: { detail: "Successfully logged out." }
+    }).as("logout");
 
     cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
   });
@@ -30,16 +79,17 @@ describe("Single Observation Page", () => {
 
   it("should display the download buttons where there are files", () => {
     cy.visit("/login/");
-    cy.get("input[name=username]").type("buffy@sunnydale.com");
+    cy.get("input[name=email]").type("buffy@sunnydale.com");
     cy.get("input[name=password]").type("slayer!#1");
     cy.contains("button", "Sign in").click();
 
-    cy.wait("@LoginMutation")
-      .its("response.body.data.tokenAuth")
-      .should("have.property", "token");
+    cy.wait("@getCSRF");
+    cy.wait("@sessionLogin");
 
     cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
     cy.wait("@SingleObservationQuery");
+    cy.wait("@SingleObservationFileDownloadQuery");
+    
     // Correct page loads
     cy.contains("J0125-2327").should("be.visible");
 
@@ -67,11 +117,16 @@ describe("Single Observation Page", () => {
   });
 
   it("should render even without images", () => {
-    cy.intercept("http://localhost:8000/graphql/", (req) => {
+    cy.intercept("http://localhost:5173/api/graphql/", (req) => {
       aliasQuery(
         req,
         "SingleObservationQuery",
         "singleObservationQueryNoImages.json"
+      );
+      aliasQuery(
+        req,
+        "SingleObservationFileDownloadQuery",
+        "singleObservationFileDownloadQuery.json"
       );
     });
     cy.wait("@SingleObservationQuery");

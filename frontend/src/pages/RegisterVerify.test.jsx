@@ -2,8 +2,6 @@ import RegisterVerify from "./RegisterVerify";
 import React from "react";
 import { render } from "@testing-library/react";
 
-/* eslint-disable react/display-name */
-
 vi.mock("found", () => ({
   Link: (component) => <div>{component.children}</div>,
   useRouter: () => ({

@@ -10,7 +10,7 @@ from django.template.defaultfilters import filesizeformat
 from graphene import ObjectType, relay
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
-from graphql_jwt.decorators import login_required, user_passes_test
+from user_manage.graphql.decorators import login_required, user_passes_test
 
 from dataportal.file_utils import get_file_list
 from dataportal.models import (
@@ -339,21 +339,27 @@ class ObservationNode(DjangoObjectType):
     def resolve_restricted(self, info):
         return self.is_restricted(info.context.user)
 
-    def resolve_mode_duration(self, instance):
+    def resolve_mode_duration(self, info):
         obs = Observation.objects.all()
         # Filter by input queries
-        if "pulsar_Name" in instance.variable_values.keys():
-            obs = obs.filter(pulsar__name__in=instance.variable_values["pulsar_Name"])
-        if "telescope_Name" in instance.variable_values.keys():
-            obs = obs.filter(telescope__name=instance.variable_values["telescope_Name"])
-        if "mainProject" in instance.variable_values.keys():
-            obs = obs.filter(project__main_project__name__iexact=instance.variable_values["mainProject"])
-        if "project_Id" in instance.variable_values.keys():
-            obs = obs.filter(project__id=instance.variable_values["project_Id"])
-        if "projectShort" in instance.variable_values.keys():
-            obs = obs.filter(project_short=instance.variable_values["projectShort"])
-        if "obsType" in instance.variable_values.keys():
-            obs = obs.filter(obs_type=instance.variable_values["obsType"])
+        # Map GraphQL filter names to Django filter names
+        filter_map = {
+            "pulsar_Name": "pulsar__name__in",
+            "telescope_Name": "telescope__name",
+            "mainProject": "project__main_project__name__iexact",
+            "project_Id": "project__id",
+            "project_Short": "project__short",
+            "obsType": "obs_type",
+        }
+
+        # Build filters dictionary with only values that exist
+        filters = {
+            filter_map[key]: value for key, value in info.variable_values.items() if key in filter_map and value
+        }
+
+        # Apply all filters at once if any exist
+        if filters:
+            obs = obs.filter(**filters)
         # Then get the mode of the duration (highest count)
         durations = obs.values("duration")
         # Round to nearest 32 seconds
@@ -825,7 +831,7 @@ class PulsarFoldSummaryConnection(relay.Connection):
 
     total_observations = graphene.Int()
     total_pulsars = graphene.Int()
-    total_observation_time = graphene.Int()
+    total_observation_time = graphene.Float()
     total_project_time = graphene.Int()
 
     def resolve_total_observations(self, instance):
@@ -879,7 +885,7 @@ class PulsarSearchSummaryConnection(relay.Connection):
 
     total_observations = graphene.Int()
     total_pulsars = graphene.Int()
-    total_observation_time = graphene.Int()
+    total_observation_time = graphene.Float()
     total_project_time = graphene.Int()
 
     def resolve_total_observations(self, instance):
@@ -1463,7 +1469,7 @@ class Query(graphene.ObjectType):
     )
 
     @login_required
-    def resolve_toa(self, _, **kwargs):
+    def resolve_toa(self, info, **kwargs):
         queryset = Toa.objects.select_related(
             "pipeline_run",
             "ephemeris",

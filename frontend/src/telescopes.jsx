@@ -46,7 +46,6 @@ const meertime = {
     "J1902-5105",
     "J1227-6208",
     "J0737-3039A",
-    "NGC1851E",
     "RelBin",
     "PTA",
     "PTA2",

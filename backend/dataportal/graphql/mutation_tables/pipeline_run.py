@@ -1,5 +1,5 @@
 import graphene
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import PipelineRunNode
 from dataportal.models import Ephemeris, Observation, PipelineRun, Template
@@ -38,9 +38,8 @@ class CreatePipelineRun(graphene.Mutation):
 
     pipeline_run = graphene.Field(PipelineRunNode)
 
-    @classmethod
     @permission_required("dataportal.add_pipeline_run")
-    def mutate(cls, self, info, input=None):
+    def mutate(root, info, input=None):
         # Get foreign key models
         observation = Observation.objects.get(id=input["observationId"])
         ephemeris = Ephemeris.objects.get(id=input["ephemerisId"])
@@ -82,9 +81,8 @@ class UpdatePipelineRun(graphene.Mutation):
 
     pipeline_run = graphene.Field(PipelineRunNode)
 
-    @classmethod
     @permission_required("dataportal.add_pipeline_run")
-    def mutate(cls, self, info, id, input=None):
+    def mutate(root, info, id, input=None):
         try:
             pipeline_run = PipelineRun.objects.get(id=id)
             pipeline_run.job_state = input.jobState
@@ -110,11 +108,10 @@ class DeletePipelineRun(graphene.Mutation):
 
     ok = graphene.Boolean()
 
-    @classmethod
     @permission_required("dataportal.add_pipeline_run")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         PipelineRun.objects.get(pk=id).delete()
-        return cls(ok=True)
+        return DeletePipelineRun(ok=True)
 
 
 class Mutation(graphene.ObjectType):

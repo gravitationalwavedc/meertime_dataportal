@@ -1,7 +1,7 @@
 import graphene
 from django.contrib.postgres.fields import JSONField
 from graphene_django.converter import convert_django_field
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import PipelineImageNode
 from dataportal.models import PipelineImage
@@ -25,12 +25,11 @@ class DeletePipelineImage(graphene.Mutation):
     ok = graphene.Boolean()
     pipeline_image = graphene.Field(PipelineImageNode)
 
-    @classmethod
     @permission_required("dataportal.delete_pipeline_image")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         _pipeline_image = PipelineImage.objects.get(pk=id)
         _pipeline_image.delete()
-        return cls(ok=True)
+        return DeletePipelineImage(ok=True)
 
 
 class Mutation(graphene.ObjectType):

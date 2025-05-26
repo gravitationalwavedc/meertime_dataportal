@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from graphql_jwt.testcases import JSONWebTokenClient
+from graphene_django.utils.testing import GraphQLTestCase, Client
 
 from dataportal.models import (
     Calibration,
@@ -25,8 +25,11 @@ TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 
 
 def setup_query_test():
-    client = JSONWebTokenClient()
+    # Create a session-based client instead of JWT
+    client = Client()
     user = get_user_model().objects.create(username="buffy", email="slayer@sunnydail.com")
+    # Authenticate with session auth instead of JWT
+    client.force_login(user)
     telescope, project, ephemeris, template, pipeline_run, obs, cal = create_pulsar_with_observations()
     return client, user, telescope, project, ephemeris, template, pipeline_run, obs, cal
 
@@ -247,8 +250,9 @@ def upload_toa_files(
 
 
 def setup_timing_obs():
-    client = JSONWebTokenClient()
+    client = Client()
     user = get_user_model().objects.create(username="buffy", is_staff=True, is_superuser=True)
+    client.force_login(user)
     telescope, _, _, template = create_basic_data()
 
     _, _, pr = create_observation_pipeline_run_toa(

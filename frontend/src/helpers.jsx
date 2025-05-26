@@ -13,7 +13,6 @@ export const calculateMedian = (arr) => {
   return null;
 };
 
-/* eslint-disable complexity */
 export const createLink = async (url) => {
   const link = document.createElement("a");
   link.href = `${import.meta.env.VITE_DJANGO_MEDIA_URL}${url}`;
@@ -124,4 +123,4 @@ export const formatProjectName = (projectName) => {
   return projectName;
 };
 
-export const isLoggedIn = () => localStorage.getItem("jwt") !== null;
+export const isLoggedIn = () => localStorage.getItem("username") !== null;

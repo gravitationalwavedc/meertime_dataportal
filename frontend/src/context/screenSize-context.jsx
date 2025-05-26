@@ -2,7 +2,6 @@ import React from "react";
 
 const ScreenSizeContext = React.createContext({});
 
-/* eslint-disable complexity */
 const bootstap4Breakpoints = (width) => {
   if (width >= 1440) return "xxl"; // not support by bootstrap4. Only used in the tables.
   if (width >= 1200) return "xl";

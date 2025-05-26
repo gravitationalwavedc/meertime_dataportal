@@ -12,7 +12,8 @@ handler500 = "dataportal.views.handler500"
 urlpatterns = [
     path("", include("dataportal.urls")),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("graphql/", csrf_exempt(GraphQLView.as_view(schema=schema, graphiql=settings.DEVELOPMENT_MODE))),
+    path("api/auth/", include("user_manage.urls")),  # New session-based auth endpoints
+    path("api/graphql/", csrf_exempt(GraphQLView.as_view(schema=schema, graphiql=settings.DEVELOPMENT_MODE))),
 ]
 
 if "debug_toolbar" in settings.INSTALLED_APPS:

@@ -1,0 +1,18 @@
+[run]
+omit =
+    # Ignore manage.py files
+    ./*manage.py
+    **/tests/**
+    **/__init__.py
+    **/migrations/**
+    meertime/settings/**
+    **/virtualenvs/**
+    **/.venv/**
+
+parallel = true
+
+concurrency = multiprocessing,thread
+
+[report]
+show_missing=true
+

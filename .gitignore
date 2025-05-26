@@ -81,7 +81,6 @@ coverage.xml
 *.cover
 *.py,cover
 .hypothesis/
-.pytest_cache/
 cover/
 /coverage
 coverage
@@ -216,3 +215,5 @@ postgres_data
 
 #Database copy
 prd.meertime.sql
+
+junit-reports/

@@ -7,7 +7,7 @@ import requests
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
-from graphql_jwt.decorators import login_required
+from .decorators import login_required
 
 from ..models import PasswordResetRequest, ProvisionalUser, Registration
 from . import admin_api
@@ -30,8 +30,7 @@ class CreateRegistration(graphene.Mutation):
     registration = graphene.Field(RegistrationType)
     errors = graphene.List(graphene.String)
 
-    @classmethod
-    def mutate(cls, self, info, input):
+    def mutate(root, info, input):
         r = requests.post(
             "https://www.google.com/recaptcha/api/siteverify",
             data={
@@ -60,8 +59,7 @@ class VerifyRegistration(graphene.Mutation):
     registration = graphene.Field(RegistrationType)
     errors = graphene.List(graphene.String)
 
-    @classmethod
-    def mutate(cls, self, info, verification_code):
+    def mutate(root, info, verification_code):
         try:
             UUID(str(verification_code), version=4)
         except ValueError:
@@ -93,8 +91,7 @@ class AccountActivation(graphene.Mutation):
     provisional_user = graphene.Field(ProvisionalUserType)
     errors = graphene.List(graphene.String)
 
-    @classmethod
-    def mutate(cls, self, info, activation_code, user_input):
+    def mutate(root, info, activation_code, user_input):
         try:
             UUID(str(activation_code), version=4)
         except ValueError:
@@ -140,8 +137,7 @@ class CreatePasswordResetRequest(graphene.Mutation):
     password_reset_request = graphene.Field(PasswordResetRequestType)
     errors = graphene.List(graphene.String)
 
-    @classmethod
-    def mutate(cls, self, info, email):
+    def mutate(root, info, email):
         try:
             password_reset_request = PasswordResetRequest.objects.create(email=email)
             return CreatePasswordResetRequest(ok=True, password_reset_request=password_reset_request, errors=None)
@@ -158,8 +154,7 @@ class PasswordReset(graphene.Mutation):
     password_reset_request = graphene.Field(PasswordResetRequestType)
     errors = graphene.List(graphene.String)
 
-    @classmethod
-    def mutate(cls, self, info, verification_code, password):
+    def mutate(root, info, verification_code, password):
         try:
             UUID(str(verification_code), version=4)
         except ValueError:
@@ -227,8 +222,7 @@ class PasswordChange(graphene.Mutation):
     user = graphene.Field(UserType)
     errors = graphene.List(graphene.String)
 
-    @classmethod
-    def mutate(cls, self, info, username, old_password, password):
+    def mutate(root, info, username, old_password, password):
         try:
             if old_password == password:
                 return PasswordChange(

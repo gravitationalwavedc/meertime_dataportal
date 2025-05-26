@@ -1,5 +1,5 @@
 import graphene
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.models import (
     PipelineFile,
@@ -20,12 +20,11 @@ class DeletePipelineFile(graphene.Mutation):
     ok = graphene.Boolean()
     pipeline_file = graphene.Field(PipelineFileNode)
 
-    @classmethod
     @permission_required("dataportal.delete_pipeline_file")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         _pipeline_file = PipelineFile.objects.get(pk=id)
         _pipeline_file.delete()
-        return cls(ok=True)
+        return DeletePipelineFile(ok=True)
 
 
 class Mutation(graphene.ObjectType):

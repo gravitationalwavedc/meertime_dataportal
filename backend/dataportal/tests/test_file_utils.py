@@ -134,8 +134,8 @@ class FileDownloadViewTestCase(TestCase):
         mock_response["Content-Disposition"] = 'attachment; filename="myfile.txt"'
         mock_serve_file.return_value = mock_response
 
-        # Login the unrestricted user
-        self.client.login(username="unrestricted", password="secret")
+        # Login the unrestricted user using email
+        self.client.login(username="unrestricted@example.com", password="secret")
 
         # Call the view
         response = self.client.get(reverse("download_file", kwargs={"file_path": "test/myfile.txt"}))
@@ -153,8 +153,8 @@ class FileDownloadViewTestCase(TestCase):
         http_response = HttpResponse(test_content)
         mock_serve_file.return_value = http_response
 
-        # Login the admin user
-        self.client.login(username="admin", password="secret")
+        # Login the admin user using email
+        self.client.login(username="admin@example.com", password="secret")
 
         # Call the view
         response = self.client.get(reverse("download_file", kwargs={"file_path": "test/myfile.txt"}))
@@ -166,8 +166,8 @@ class FileDownloadViewTestCase(TestCase):
     @override_settings(MEERTIME_DATA_DIR="/mnt/meertime_data")
     def test_download_file_view_restricted(self):
         """Test download_file view when authenticated as restricted user"""
-        # Login the restricted user
-        self.client.login(username="restricted", password="secret")
+        # Login the restricted user using email
+        self.client.login(username="restricted@example.com", password="secret")
 
         # Call the view
         response = self.client.get(reverse("download_file", kwargs={"file_path": "test/myfile.txt"}))

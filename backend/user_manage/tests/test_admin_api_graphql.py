@@ -1,24 +1,26 @@
-import pytest
+import json
 from django.contrib.auth import get_user_model
-from graphql_jwt.testcases import JSONWebTokenClient
+from django.test import tag
+from graphene_django.utils.testing import GraphQLTestCase
 from utils.constants import UserRole
 
 
 User = get_user_model()
 
 
-@pytest.fixture
-def create_users():
-    client = JSONWebTokenClient()
-    admin = User.objects.create(username="adminuser", email="a@test.com", role=UserRole.ADMIN.value)
-    unrestricted = User.objects.create(username="nonadminuser", email="u@test.com", role=UserRole.UNRESTRICTED.value)
-    my_user = User.objects.create(username="myuser@myuser.com", email="myuser@myuser.com")
-    return client, admin, unrestricted, my_user
+class AdminUserGraphQLTestCase(GraphQLTestCase):
+    """Test cases for Admin user GraphQL mutations"""
 
+    def setUp(self):
+        # Create test users
+        self.admin = User.objects.create(username="adminuser", email="a@test.com", role=UserRole.ADMIN.value)
+        self.unrestricted = User.objects.create(
+            username="nonadminuser", email="u@test.com", role=UserRole.UNRESTRICTED.value
+        )
+        self.my_user = User.objects.create(username="myuser@myuser.com", email="myuser@myuser.com")
 
-@pytest.fixture
-def queries():
-    create_provisional_user = """
+        # Define GraphQL queries
+        self.create_provisional_user = """
           mutation CreateProvisionalUser($email: String!, $role: String!) {
             createProvisionalUser(email: $email, role: $role) {
               ok,
@@ -28,7 +30,7 @@ def queries():
           }
         """
 
-    delete_user = """
+        self.delete_user = """
           mutation DeleteUser($username: String!) {
             deleteUser(username: $username) {
               ok,
@@ -37,7 +39,7 @@ def queries():
           }
         """
 
-    deactivate_user = """
+        self.deactivate_user = """
           mutation DeactivateUser($username: String!) {
             deactivateUser(username: $username) {
               ok,
@@ -46,7 +48,7 @@ def queries():
           }
         """
 
-    activate_user = """
+        self.activate_user = """
           mutation ActivateUser($username: String!) {
             activateUser(username: $username) {
               ok,
@@ -55,7 +57,7 @@ def queries():
           }
         """
 
-    update_role = """
+        self.update_role = """
           mutation UpdateRole($username: String!, $role: String!) {
             updateRole(username: $username, role: $role) {
               ok,
@@ -64,361 +66,316 @@ def queries():
           }
         """
 
-    return {
-        "create_provisional_user": create_provisional_user,
-        "delete_user": delete_user,
-        "deactivate_user": deactivate_user,
-        "activate_user": activate_user,
-        "update_role": update_role,
-    }
-
-
-@pytest.mark.django_db
-def test_create_provisional_user_no_token(create_users, queries):
-    client, user, _, _ = create_users
-
-    query = queries.get("create_provisional_user")
-
-    variables = {
-        "email": "shiblicse@gmail.com",
-        "role": "unrestricted",
-    }
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-    expected_error_message = "'AnonymousUser' object has no attribute 'role'"
-    assert response.errors[0].message == expected_error_message
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_create_provisional_user_with_token(create_users, queries):
-    client, user, _, _ = create_users
-    client.authenticate(user)
-
-    query = queries.get("create_provisional_user")
-
-    variables = {
-        "email": "shiblicse@gmail.com",
-        "role": "unrestricted",
-    }
-
-    expected = {
-        "createProvisionalUser": {
-            "ok": True,
-            "emailSent": True,
-            "errors": None,
+    def test_create_provisional_user_no_token(self):
+        """Test creating provisional user without authentication token fails"""
+        variables = {
+            "email": "shiblicse@gmail.com",
+            "role": "unrestricted",
         }
-    }
 
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
+        response = self.query(
+            self.create_provisional_user,
+            variables=variables,
+        )
 
-    assert not response.errors
-    assert response.data == expected
+        # Parse the response content to a JSON dict
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        expected_error_message = "'AnonymousUser' object has no attribute 'role'"
+        self.assertEqual(content["errors"][0]["message"], expected_error_message)
 
+    def test_create_provisional_user_with_token(self):
+        """Test creating provisional user with admin authentication token succeeds"""
+        self.client.force_login(self.admin)
 
-@pytest.mark.django_db
-def test_create_provisional_user_unauthorized(create_users, queries):
-    client, _, user, _ = create_users
-    client.authenticate(user)
-
-    query = queries.get("create_provisional_user")
-
-    variables = {
-        "email": "shiblicse@gmail.com",
-        "role": "unrestricted",
-    }
-
-    expected = "You do not have permission to perform this action"
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-
-    assert response.errors
-    assert response.errors[0].message == expected
-
-
-@pytest.mark.django_db
-def test_delete_user_no_token(create_users, queries):
-    client, user, _, my_user = create_users
-
-    query = queries.get("delete_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-    expected_error_message = "'AnonymousUser' object has no attribute 'role'"
-    assert response.errors[0].message == expected_error_message
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_delete_user_with_token(create_users, queries):
-    client, user, _, my_user = create_users
-    client.authenticate(user)
-
-    query = queries.get("delete_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    expected = {
-        "deleteUser": {
-            "ok": True,
-            "errors": None,
+        variables = {
+            "email": "shiblicse@gmail.com",
+            "role": "unrestricted",
         }
-    }
 
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-
-    assert not response.errors
-    assert response.data == expected
-    assert not User.objects.filter(username=my_user.username).exists()
-
-
-@pytest.mark.django_db
-def test_delete_user_unauthorized(create_users, queries):
-    client, _, user, my_user = create_users
-    client.authenticate(user)
-
-    query = queries.get("delete_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    expected = "You do not have permission to perform this action"
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-
-    assert response.errors
-    assert response.errors[0].message == expected
-
-
-@pytest.mark.django_db
-def test_deactivate_user_no_token(create_users, queries):
-    client, user, _, my_user = create_users
-
-    query = queries.get("deactivate_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-    expected_error_message = "'AnonymousUser' object has no attribute 'role'"
-    assert response.errors[0].message == expected_error_message
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_deactivate_user_with_token(create_users, queries):
-    client, user, _, my_user = create_users
-    client.authenticate(user)
-
-    query = queries.get("deactivate_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    expected = {
-        "deactivateUser": {
-            "ok": True,
-            "errors": None,
+        expected = {
+            "createProvisionalUser": {
+                "ok": True,
+                "emailSent": True,
+                "errors": None,
+            }
         }
-    }
 
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
+        response = self.query(
+            self.create_provisional_user,
+            variables=variables,
+        )
 
-    assert not response.errors
-    assert response.data == expected
-    assert not User.objects.get(username=my_user.username).is_active
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(content["data"], expected)
 
+    def test_create_provisional_user_unauthorized(self):
+        """Test creating provisional user with non-admin authentication token fails"""
+        self.client.force_login(self.unrestricted)
 
-@pytest.mark.django_db
-def test_deactivate_user_unauthorized(create_users, queries):
-    client, _, user, my_user = create_users
-    client.authenticate(user)
-
-    query = queries.get("deactivate_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    expected = "You do not have permission to perform this action"
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-
-    assert response.errors
-    assert response.errors[0].message == expected
-
-
-@pytest.mark.django_db
-def test_activate_user_no_token(create_users, queries):
-    client, user, _, my_user = create_users
-
-    query = queries.get("activate_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-    expected_error_message = "'AnonymousUser' object has no attribute 'role'"
-    assert response.errors[0].message == expected_error_message
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_activate_user_with_token(create_users, queries):
-    client, user, _, my_user = create_users
-    client.authenticate(user)
-
-    query = queries.get("activate_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    expected = {
-        "activateUser": {
-            "ok": True,
-            "errors": None,
+        variables = {
+            "email": "shiblicse@gmail.com",
+            "role": "unrestricted",
         }
-    }
 
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
+        expected = "You do not have permission to perform this action"
 
-    assert not response.errors
-    assert response.data == expected
-    assert User.objects.get(username=my_user.username).is_active
+        response = self.query(
+            self.create_provisional_user,
+            variables=variables,
+        )
 
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertEqual(content["errors"][0]["message"], expected)
 
-@pytest.mark.django_db
-def test_activate_user_unauthorized(create_users, queries):
-    client, _, user, my_user = create_users
-    client.authenticate(user)
-
-    query = queries.get("activate_user")
-
-    variables = {
-        "username": my_user.username,
-    }
-
-    expected = "You do not have permission to perform this action"
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-
-    assert response.errors
-    assert response.errors[0].message == expected
-
-
-@pytest.mark.django_db
-def test_update_role_no_token(create_users, queries):
-    client, user, _, my_user = create_users
-
-    query = queries.get("update_role")
-
-    variables = {
-        "username": my_user.username,
-        "role": "unrestricted",
-    }
-
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
-    expected_error_message = "'AnonymousUser' object has no attribute 'role'"
-    assert response.errors[0].message == expected_error_message
-
-
-@pytest.mark.django_db
-@pytest.mark.enable_signals
-def test_update_role_with_token(create_users, queries):
-    client, user, _, my_user = create_users
-    client.authenticate(user)
-
-    query = queries.get("update_role")
-
-    variables = {
-        "username": my_user.username,
-        "role": "unrestricted",
-    }
-
-    expected = {
-        "updateRole": {
-            "ok": True,
-            "errors": None,
+    def test_delete_user_no_token(self):
+        """Test deleting user without authentication token fails"""
+        variables = {
+            "username": self.my_user.username,
         }
-    }
 
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
+        response = self.query(
+            self.delete_user,
+            variables=variables,
+        )
 
-    assert not response.errors
-    assert response.data == expected
-    assert User.objects.get(username=my_user.username).role == UserRole.UNRESTRICTED.value
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        expected_error_message = "'AnonymousUser' object has no attribute 'role'"
+        self.assertEqual(content["errors"][0]["message"], expected_error_message)
 
+    def test_delete_user_with_token(self):
+        """Test deleting user with admin authentication token succeeds"""
+        self.client.force_login(self.admin)
 
-@pytest.mark.django_db
-def test_update_role_unauthorized(create_users, queries):
-    client, _, user, my_user = create_users
-    client.authenticate(user)
+        variables = {
+            "username": self.my_user.username,
+        }
 
-    query = queries.get("update_role")
+        expected = {
+            "deleteUser": {
+                "ok": True,
+                "errors": None,
+            }
+        }
 
-    variables = {
-        "username": my_user.username,
-        "role": "unrestricted",
-    }
+        response = self.query(
+            self.delete_user,
+            variables=variables,
+        )
 
-    expected = "You do not have permission to perform this action"
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(content["data"], expected)
+        self.assertFalse(User.objects.filter(username=self.my_user.username).exists())
 
-    response = client.execute(
-        query=query,
-        variables=variables,
-    )
+    def test_delete_user_unauthorized(self):
+        """Test deleting user with non-admin authentication token fails"""
+        self.client.force_login(self.unrestricted)
 
-    assert response.errors
-    assert response.errors[0].message == expected
+        variables = {
+            "username": self.my_user.username,
+        }
+
+        expected = "You do not have permission to perform this action"
+
+        response = self.query(
+            self.delete_user,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertEqual(content["errors"][0]["message"], expected)
+
+    def test_deactivate_user_no_token(self):
+        """Test deactivating user without authentication token fails"""
+        variables = {
+            "username": self.my_user.username,
+        }
+
+        response = self.query(
+            self.deactivate_user,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        expected_error_message = "'AnonymousUser' object has no attribute 'role'"
+        self.assertEqual(content["errors"][0]["message"], expected_error_message)
+
+    def test_deactivate_user_with_token(self):
+        """Test deactivating user with admin authentication token succeeds"""
+        self.client.force_login(self.admin)
+
+        variables = {
+            "username": self.my_user.username,
+        }
+
+        expected = {
+            "deactivateUser": {
+                "ok": True,
+                "errors": None,
+            }
+        }
+
+        response = self.query(
+            self.deactivate_user,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(content["data"], expected)
+        user = User.objects.get(username=self.my_user.username)
+        self.assertFalse(user.is_active)
+
+    def test_deactivate_user_unauthorized(self):
+        """Test deactivating user with non-admin authentication token fails"""
+        self.client.force_login(self.unrestricted)
+
+        variables = {
+            "username": self.my_user.username,
+        }
+
+        expected = "You do not have permission to perform this action"
+
+        response = self.query(
+            self.deactivate_user,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertEqual(content["errors"][0]["message"], expected)
+
+    def test_activate_user_no_token(self):
+        """Test activating user without authentication token fails"""
+        variables = {
+            "username": self.my_user.username,
+        }
+
+        response = self.query(
+            self.activate_user,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        expected_error_message = "'AnonymousUser' object has no attribute 'role'"
+        self.assertEqual(content["errors"][0]["message"], expected_error_message)
+
+    def test_activate_user_with_token(self):
+        """Test activating user with admin authentication token succeeds"""
+        self.client.force_login(self.admin)
+
+        # First deactivate the user
+        self.my_user.is_active = False
+        self.my_user.save()
+
+        variables = {
+            "username": self.my_user.username,
+        }
+
+        expected = {
+            "activateUser": {
+                "ok": True,
+                "errors": None,
+            }
+        }
+
+        response = self.query(
+            self.activate_user,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(content["data"], expected)
+        user = User.objects.get(username=self.my_user.username)
+        self.assertTrue(user.is_active)
+
+    def test_activate_user_unauthorized(self):
+        """Test activating user with non-admin authentication token fails"""
+        self.client.force_login(self.unrestricted)
+
+        variables = {
+            "username": self.my_user.username,
+        }
+
+        expected = "You do not have permission to perform this action"
+
+        response = self.query(
+            self.activate_user,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertEqual(content["errors"][0]["message"], expected)
+
+    def test_update_role_no_token(self):
+        """Test updating user role without authentication token fails"""
+        variables = {
+            "username": self.my_user.username,
+            "role": "unrestricted",
+        }
+
+        response = self.query(
+            self.update_role,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        expected_error_message = "'AnonymousUser' object has no attribute 'role'"
+        self.assertEqual(content["errors"][0]["message"], expected_error_message)
+
+    def test_update_role_with_token(self):
+        """Test updating user role with admin authentication token succeeds"""
+        self.client.force_login(self.admin)
+
+        variables = {
+            "username": self.my_user.username,
+            "role": "unrestricted",
+        }
+
+        expected = {
+            "updateRole": {
+                "ok": True,
+                "errors": None,
+            }
+        }
+
+        response = self.query(
+            self.update_role,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(content["data"], expected)
+        user = User.objects.get(username=self.my_user.username)
+        self.assertEqual(user.role, UserRole.UNRESTRICTED.value)
+
+    def test_update_role_unauthorized(self):
+        """Test updating user role with non-admin authentication token fails"""
+        self.client.force_login(self.unrestricted)
+
+        variables = {
+            "username": self.my_user.username,
+            "role": "unrestricted",
+        }
+
+        expected = "You do not have permission to perform this action"
+
+        response = self.query(
+            self.update_role,
+            variables=variables,
+        )
+
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertEqual(content["errors"][0]["message"], expected)

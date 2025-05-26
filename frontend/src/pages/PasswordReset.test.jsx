@@ -6,7 +6,6 @@ import React from "react";
 import environment from "../relayEnvironment";
 
 /* global mockRouter */
-/* eslint-disable react/display-name */
 
 vi.mock("found", () => ({
   Link: (component) => <div>{component.children}</div>,

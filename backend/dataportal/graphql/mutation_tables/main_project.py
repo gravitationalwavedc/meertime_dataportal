@@ -1,7 +1,7 @@
 import graphene
 from django.db.models.fields import DurationField
 from graphene_django.converter import convert_django_field
-from graphql_jwt.decorators import permission_required
+from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import MainProjectNode
 from dataportal.models import MainProject, Telescope
@@ -23,9 +23,8 @@ class CreateMainProject(graphene.Mutation):
 
     mainproject = graphene.Field(MainProjectNode)
 
-    @classmethod
     @permission_required("dataportal.add_main_project")
-    def mutate(cls, self, info, input):
+    def mutate(root, info, input):
         telescope = Telescope.objects.get(name=input["telescope_name"])
         main_project, _ = MainProject.objects.get_or_create(
             telescope=telescope,
@@ -41,9 +40,8 @@ class UpdateMainProject(graphene.Mutation):
 
     mainproject = graphene.Field(MainProjectNode)
 
-    @classmethod
     @permission_required("dataportal.add_main_project")
-    def mutate(cls, self, info, id, input):
+    def mutate(root, info, id, input):
         try:
             telescope = Telescope.objects.get(name=input["telescope_name"])
             main_project = MainProject.objects.get(pk=id)
@@ -62,11 +60,10 @@ class DeleteMainProject(graphene.Mutation):
     ok = graphene.Boolean()
     mainproject = graphene.Field(MainProjectNode)
 
-    @classmethod
     @permission_required("dataportal.add_main_project")
-    def mutate(cls, self, info, id):
+    def mutate(root, info, id):
         MainProject.objects.get(pk=id).delete()
-        return cls(ok=True)
+        return DeleteMainProject(ok=True)
 
 
 class Mutation(graphene.ObjectType):

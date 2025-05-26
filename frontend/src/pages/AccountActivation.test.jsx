@@ -5,7 +5,7 @@ describe("account activation page", () => {
   it("should have code, first name, last name, email, password and confirm password fields", () => {
     expect.hasAssertions();
     const { getByLabelText } = render(
-      <AccountActivation router={{}} match={{ params: { code: null } }} />
+      <AccountActivation router={{}} match={{ params: { code: "" } }} />
     );
 
     expect(

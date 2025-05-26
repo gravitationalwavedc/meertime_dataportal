@@ -3,21 +3,17 @@ import { Environment, Network, RecordSource, Store } from "relay-runtime";
 const HTTP_ENDPOINT = import.meta.env.VITE_GRAPHQL_API;
 
 const fetchFn = async (request, variables) => {
-  let token = localStorage.getItem("jwt");
-
-  if (token === null) {
-    token = "";
-  }
-
+  // With session-based authentication, we need to include credentials
+  // No need for Authorization header as cookies will handle the session
   const resp = await fetch(HTTP_ENDPOINT, {
     method: "POST",
     headers: {
       Accept:
         "application/graphql-response+json; charset=utf-8, application/json; charset=utf-8",
       "Content-Type": "application/json",
-      // <-- Additional headers like 'Authorization' would go here
-      Authorization: `JWT ${token}`,
     },
+    // Include credentials to send cookies with the request
+    credentials: "include",
     body: JSON.stringify({
       query: request.text, // <-- The GraphQL document composed by Relay
       variables,
