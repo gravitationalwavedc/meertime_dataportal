@@ -1,4 +1,4 @@
-import { render, waitFor, screen } from "@testing-library/react";
+import { render, waitFor, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useRouter } from "found";
 import { vi } from "vitest";
@@ -30,15 +30,23 @@ vi.mock("../auth/csrfUtils", () => ({
 // Import after mocking
 import Login from "./Login";
 import { AuthProvider } from "../auth/AuthContext";
-import * as csrfUtils from "../auth/csrfUtils";
 
-// Helper function to render Login with AuthProvider
-const renderLoginWithProvider = (props) => {
-  return render(
-    <AuthProvider>
-      <Login {...props} />
-    </AuthProvider>
-  );
+// Helper function to render Login with AuthProvider and wait for auth initialization
+const renderLoginWithProvider = async (props) => {
+  let component;
+  await act(async () => {
+    component = render(
+      <AuthProvider>
+        <Login {...props} />
+      </AuthProvider>
+    );
+    // Wait for AuthProvider's useEffect to complete
+    await waitFor(() => {
+      // The AuthProvider calls checkAuthStatus which resolves immediately in tests
+      // This ensures the initial auth check is complete
+    });
+  });
+  return component;
 };
 
 describe("login page", () => {
@@ -47,9 +55,9 @@ describe("login page", () => {
     vi.clearAllMocks();
   });
 
-  it("should have a email and password field", () => {
+  it("should have a email and password field", async () => {
     expect.hasAssertions();
-    const { getByLabelText } = renderLoginWithProvider({
+    const { getByLabelText } = await renderLoginWithProvider({
       router: {},
       match: {},
     });
@@ -70,7 +78,10 @@ describe("login page", () => {
       }),
     });
 
-    renderLoginWithProvider({ router, match: { location: { query: {} } } });
+    await renderLoginWithProvider({
+      router,
+      match: { location: { query: {} } },
+    });
 
     const emailField = screen.getByLabelText("Email");
     const passwordField = screen.getByLabelText("Password");

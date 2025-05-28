@@ -1,0 +1,10 @@
+{
+  "data": {
+    "createApiToken": {
+      "token": null,
+      "tokenValue": null,
+      "ok": false,
+      "errors": ["Token name already exists"]
+    }
+  }
+}

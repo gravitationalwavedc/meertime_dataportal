@@ -5,6 +5,7 @@ from .models import (
     PasswordResetRequest,
     User,
     ProvisionalUser,
+    ApiToken,
 )
 
 
@@ -65,3 +66,25 @@ class ProvisionalUserAdmin(admin.ModelAdmin):
         "email_sent_on",
         "user",
     ]
+
+
+@admin.register(ApiToken)
+class ApiTokenAdmin(admin.ModelAdmin):
+    list_display = [
+        "name",
+        "user",
+        "key_preview",
+        "created",
+        "last_used",
+        "expires_at",
+        "is_active",
+    ]
+    list_filter = ["is_active", "created", "expires_at"]
+    search_fields = ["name", "user__username", "user__email"]
+    readonly_fields = ["key", "created", "last_used"]
+
+    def key_preview(self, obj):
+        """Show first 8 characters of the key for security"""
+        return f"{obj.preview}..." if obj.preview else ""
+
+    key_preview.short_description = "Token Key (preview)"

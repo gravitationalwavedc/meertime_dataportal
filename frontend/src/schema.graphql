@@ -1,876 +1,18 @@
-schema {
-  query: Query
-  mutation: Mutation
-}
-
-type AccountActivation {
-  ok: Boolean
-  provisionalUser: ProvisionalUserType
-  errors: [String]
-}
-
-type ActivateUser {
-  ok: Boolean
-  errors: [String]
-}
-
-type BadgeConnection {
-  pageInfo: PageInfo!
-  edges: [BadgeEdge]!
-}
-
-type BadgeEdge {
-  node: BadgeNode
-  cursor: String!
-}
-
-type BadgeNode implements Node {
-  name: String!
-  description: String
-  id: ID!
-}
-
-type BadgeNodeConnection {
-  pageInfo: PageInfo!
-  edges: [BadgeNodeEdge]!
-}
-
-type BadgeNodeEdge {
-  node: BadgeNode
-  cursor: String!
-}
-
-enum CalibrationCalibrationType {
-  PRE
-  POST
-  NONE
-}
-
-type CalibrationConnection {
-  pageInfo: PageInfo!
-  edges: [CalibrationEdge]!
-}
-
-type CalibrationEdge {
-  node: CalibrationNode
-  cursor: String!
-}
-
-input CalibrationInput {
-  scheduleBlockId: String
-  calibrationType: String!
-  location: String
-}
-
-type CalibrationNode implements Node {
-  scheduleBlockId: String
-  calibrationType: CalibrationCalibrationType!
-  location: String
-  start: DateTime
-  end: DateTime
-  allProjects: String
-  nObservations: Int
-  nAntMin: Int
-  nAntMax: Int
-  totalIntegrationTimeSeconds: Float
-  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
-  observations(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
-  id: ID!
-  idInt: Int
-}
-
-type CreateCalibration {
-  calibration: CalibrationNode
-}
-
-type CreateEphemeris {
-  ephemeris: EphemerisNode
-}
-
-type CreateMainProject {
-  mainproject: MainProjectNode
-}
-
-type CreateObservation {
-  observation: ObservationNode
-}
-
-type CreatePasswordResetRequest {
-  ok: Boolean
-  passwordResetRequest: PasswordResetRequestType
-  errors: [String]
-}
-
-type CreatePipelineRun {
-  pipelineRun: PipelineRunNode
-}
-
-type CreateProject {
-  project: ProjectNode
-}
-
-type CreateProvisionalUser {
-  ok: Boolean
-  emailSent: Boolean
-  errors: [String]
-}
-
-type CreatePulsar {
-  pulsar: PulsarNode
-}
-
-type CreateRegistration {
-  ok: Boolean
-  registration: RegistrationType
-  errors: [String]
-}
-
-type CreateResidualOutput {
-  toa: [ToaNode]
-}
-
-type CreateTelescope {
-  telescope: TelescopeNode
-}
-
-type CreateToaOutput {
-  toa: [ToaNode]
-}
-
-scalar DateTime
-
-type DeactivateUser {
-  ok: Boolean
-  errors: [String]
-}
-
-scalar Decimal
-
-type DeleteCalibration {
-  ok: Boolean
-}
-
-type DeleteEphemeris {
-  ok: Boolean
-  ephemeris: EphemerisNode
-}
-
-type DeleteMainProject {
-  ok: Boolean
-  mainproject: MainProjectNode
-}
-
-type DeleteObservation {
-  ok: Boolean
-}
-
-type DeletePipelineRun {
-  ok: Boolean
-}
-
-type DeleteProject {
-  project: ProjectNode
-}
-
-type DeletePulsar {
-  ok: Boolean
-}
-
-type DeleteTelescope {
-  ok: Boolean
-}
-
-type DeleteTemplate {
-  ok: Boolean
-  template: TemplateNode
-}
-
-type DeleteToa {
-  ok: Boolean
-}
-
-type DeleteUser {
-  ok: Boolean
-  errors: [String]
-}
-
-type EphemerisConnection {
-  pageInfo: PageInfo!
-  edges: [EphemerisEdge]!
-}
-
-type EphemerisEdge {
-  node: EphemerisNode
-  cursor: String!
-}
-
-input EphemerisInput {
-  pulsarName: String!
-  ephemerisText: String!
-  projectCode: String
-  projectShort: String
-  comment: String
-}
-
-type EphemerisNode implements Node {
-  pulsar: PulsarNode
-  project: ProjectNode
-  createdAt: DateTime!
-  createdBy: UserType
-  ephemerisData: JSONString
-  ephemerisHash: String
-  p0: Float!
-  dm: Float!
-  validFrom: DateTime!
-  validTo: DateTime!
-  comment: String
-  id: ID!
-  idInt: Int
-}
-
-type EphemerisNodeConnection {
-  pageInfo: PageInfo!
-  edges: [EphemerisNodeEdge]!
-}
-
-type EphemerisNodeEdge {
-  node: EphemerisNode
-  cursor: String!
-}
-
-type FileConnection {
-  pageInfo: PageInfo!
-  edges: [FileEdge]!
-}
-
-type FileEdge {
-  node: FileNode
-  cursor: String!
-}
-
-type FileNode implements Node {
-  id: ID!
-  path: String
-  fileName: String
-  fileSize: String
-  isDirectory: Boolean
-}
-
-scalar GenericScalar
-
-scalar JSONString
-
-type MainProjectConnection {
-  pageInfo: PageInfo!
-  edges: [MainProjectEdge]!
-}
-
-type MainProjectEdge {
-  node: MainProjectNode
-  cursor: String!
-}
-
-input MainProjectInput {
-  telescopeName: String!
-  name: String!
-}
-
-type MainProjectNode implements Node {
-  telescope: TelescopeNode
-  name: String!
-  id: ID!
-}
-
-type Mutation {
-  createProvisionalUser(email: String!, role: String!): CreateProvisionalUser
-  deleteUser(username: String): DeleteUser
-  activateUser(username: String): ActivateUser
-  deactivateUser(username: String): DeactivateUser
-  updateRole(role: String, username: String): UpdateRole
-  createRegistration(input: RegistrationInput!): CreateRegistration
-  verifyRegistration(verificationCode: String!): VerifyRegistration
-  createPasswordResetRequest(email: String!): CreatePasswordResetRequest
-  passwordReset(password: String!, verificationCode: String!): PasswordReset
-  passwordChange(oldPassword: String!, password: String!, username: String!): PasswordChange
-  accountActivation(activationCode: String!, userInput: RegistrationInput!): AccountActivation
-  createResidual(input: ResidualInput!): CreateResidualOutput
-  createToa(input: ToaInput!): CreateToaOutput
-  updateToa(id: Int!, input: ToaInput!): UpdateToa
-  deleteToa(id: Int!): DeleteToa
-  createPipelineRun(input: PipelineRunInput): CreatePipelineRun
-  updatePipelineRun(id: Int!, input: PipelineRunInput!): UpdatePipelineRun
-  deletePipelineRun(id: Int!): DeletePipelineRun
-  deleteTemplate(id: Int!): DeleteTemplate
-  createProject(input: ProjectInput!): CreateProject
-  updateProject(id: Int!, input: ProjectInput!): UpdateProject
-  deleteProject(id: Int!): DeleteProject
-  createMainProject(input: MainProjectInput!): CreateMainProject
-  updateMainProject(id: Int!, input: MainProjectInput!): UpdateMainProject
-  deleteMainProject(id: Int!): DeleteMainProject
-  createTelescope(input: TelescopeInput!): CreateTelescope
-  updateTelescope(id: Int!, input: TelescopeInput!): UpdateTelescope
-  deleteTelescope(id: Int!): DeleteTelescope
-  createEphemeris(input: EphemerisInput): CreateEphemeris
-  updateEphemeris(id: Int!, input: EphemerisInput!): UpdateEphemeris
-  deleteEphemeris(id: Int!): DeleteEphemeris
-  createCalibration(input: CalibrationInput): CreateCalibration
-  updateCalibration(id: Int!, input: CalibrationInput!): UpdateCalibration
-  deleteCalibration(id: Int!): DeleteCalibration
-  createObservation(input: ObservationInput): CreateObservation
-  updateObservation(id: Int!, input: ObservationInput!): UpdateObservation
-  deleteObservation(id: Int!): DeleteObservation
-  createPulsar(input: PulsarsInput): CreatePulsar
-  updatePulsar(id: Int!, input: PulsarsInput!): UpdatePulsar
-  deletePulsar(id: Int!): DeletePulsar
-  tokenAuth(input: ObtainJSONWebTokenInput!): ObtainJSONWebTokenPayload
-  verifyToken(input: VerifyInput!): VerifyPayload
-  refreshToken(input: RefreshInput!): RefreshPayload
-}
-
-interface Node {
-  id: ID!
-}
-
-enum ObservationBand {
-  UHF
-  LBAND
-  SBAND_0
-  SBAND_1
-  SBAND_2
-  SBAND_3
-  SBAND_4
-  OTHER
-  UHF_NS
-}
-
-type ObservationConnection {
-  pageInfo: PageInfo!
-  edges: [ObservationEdge]!
-  pulsar_Name: [String]
-  telescope_Name: String
-  project_Id: Int
-  project_Short: String
-  utcStartGte: DateTime
-  utcStartLte: DateTime
-  totalObservations: Int
-  totalObservationHours: Int
-  totalPulsars: Int
-  totalObservationsTelLt35: Int
-}
-
-type ObservationEdge {
-  node: ObservationNode
-  cursor: String!
-}
-
-input ObservationInput {
-  pulsarName: String!
-  telescopeName: String!
-  projectCode: String!
-  calibrationId: Int!
-  frequency: Float
-  bandwidth: Float
-  nchan: Int
-  beam: Int
-  nant: Int
-  nantEff: Int
-  npol: Int
-  obsType: String
-  utcStart: DateTime
-  raj: String
-  decj: String
-  duration: Float
-  nbit: Int
-  tsamp: Float
-  ephemerisText: String
-  foldNbin: Int
-  foldNchan: Int
-  foldTsubint: Int
-  filterbankNbit: Int
-  filterbankNpol: Int
-  filterbankNchan: Int
-  filterbankTsamp: Float
-  filterbankDm: Float
-}
-
-type ObservationNode implements Node {
-  pulsar: PulsarNode
-  telescope: TelescopeNode
-  project: ProjectNode
-  calibration: CalibrationNode
-  embargoEndDate: DateTime
-  band: ObservationBand!
-  frequency: Float!
-  bandwidth: Float!
-  nchan: Int!
-  beam: Int!
-  nant: Int
-  nantEff: Int
-  npol: Int!
-  obsType: ObservationObsType!
-  utcStart: DateTime!
-  dayOfYear: Float
-  binaryOrbitalPhase: Float
-  raj: String!
-  decj: String!
-  duration: Float
-  nbit: Int!
-  tsamp: Float!
-  ephemeris: EphemerisNode
-  foldNbin: Int
-  foldNchan: Int
-  foldTsubint: Int
-  filterbankNbit: Int
-  filterbankNpol: Int
-  filterbankNchan: Int
-  filterbankTsamp: Float
-  filterbankDm: Float
-  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
-  pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID): PulsarFoldResultNodeConnection!
-  toas(offset: Int, before: String, after: String, first: Int, last: Int, dmCorrected: Boolean, nsubType: String, obsNchan: Int): ToaNodeConnection!
-  id: ID!
-  restricted: Boolean
-  modeDuration: Int
-}
-
-type ObservationNodeConnection {
-  pageInfo: PageInfo!
-  edges: [ObservationNodeEdge]!
-}
-
-type ObservationNodeEdge {
-  node: ObservationNode
-  cursor: String!
-}
-
-enum ObservationObsType {
-  CAL
-  FOLD
-  SEARCH
-}
-
-enum ObservationSummaryBand {
-  UHF
-  LBAND
-  SBAND_0
-  SBAND_1
-  SBAND_2
-  SBAND_3
-  SBAND_4
-  OTHER
-  UHF_NS
-}
-
-type ObservationSummaryConnection {
-  pageInfo: PageInfo!
-  edges: [ObservationSummaryEdge]!
-}
-
-type ObservationSummaryEdge {
-  node: ObservationSummaryNode
-  cursor: String!
-}
-
-type ObservationSummaryNode implements Node {
-  pulsar: PulsarNode
-  mainProject: MainProjectNode
-  project: ProjectNode
-  calibration: CalibrationNode
-  obsType: ObservationSummaryObsType
-  band: ObservationSummaryBand
-  observations: Int
-  pulsars: Int
-  projects: Int
-  estimatedDiskSpaceGb: Float
-  observationHours: Int
-  timespanDays: Int
-  minDuration: Float
-  maxDuration: Float
-  id: ID!
-}
-
-enum ObservationSummaryObsType {
-  CAL
-  FOLD
-  SEARCH
-}
-
-input ObtainJSONWebTokenInput {
-  clientMutationId: String
-  username: String!
-  password: String!
-}
-
-type ObtainJSONWebTokenPayload {
-  payload: GenericScalar!
-  refreshExpiresIn: Int!
-  meerWatchKey: String
-  user: UserType
-  clientMutationId: String
-  token: String!
-}
-
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-}
-
-type PasswordChange {
-  ok: Boolean
-  user: UserType
-  errors: [String]
-}
-
-type PasswordReset {
-  ok: Boolean
-  passwordResetRequest: PasswordResetRequestType
-  errors: [String]
-}
-
-enum PasswordResetRequestStatus {
-  NOT_UPDATED
-  UPDATED
-}
-
-type PasswordResetRequestType implements Node {
-  id: ID!
-  email: String!
-  status: PasswordResetRequestStatus!
-  verificationExpiry: DateTime
-  created: DateTime!
-  lastUpdated: DateTime!
-}
-
-type PipelineFileConnection {
-  pageInfo: PageInfo!
-  edges: [PipelineFileEdge]!
-}
-
-type PipelineFileEdge {
-  node: PipelineFileNode
-  cursor: String!
-}
-
-enum PipelineFileFileType {
-  FTS
-}
-
-type PipelineFileNode implements Node {
-  pulsarFoldResult: PulsarFoldResultNode
-  file: String
-  fileType: PipelineFileFileType!
-  id: ID!
-}
-
-type PipelineImageConnection {
-  pageInfo: PageInfo!
-  edges: [PipelineImageEdge]!
-}
-
-type PipelineImageEdge {
-  node: PipelineImageNode
-  cursor: String!
-}
-
-enum PipelineImageImageType {
-  TOA_SINGLE
-  PROFILE
-  PROFILE_POL
-  PHASE_TIME
-  PHASE_FREQ
-  BANDPASS
-  DYNAMIC_SPECTRUM
-  SNR_CUMUL
-  SNR_SINGLE
-  RMFIT
-  DMFIT
-}
-
-type PipelineImageNode implements Node {
-  pulsarFoldResult: PulsarFoldResultNode
-  image: String
-  url: String
-  cleaned: Boolean!
-  imageType: PipelineImageImageType!
-  resolution: PipelineImageResolution!
-  id: ID!
-}
-
-type PipelineImageNodeConnection {
-  pageInfo: PageInfo!
-  edges: [PipelineImageNodeEdge]!
-}
-
-type PipelineImageNodeEdge {
-  node: PipelineImageNode
-  cursor: String!
-}
-
-enum PipelineImageResolution {
-  HIGH
-  LOW
-}
-
-type PipelineRunConnection {
-  pageInfo: PageInfo!
-  edges: [PipelineRunEdge]!
-}
-
-type PipelineRunEdge {
-  node: PipelineRunNode
-  cursor: String!
-}
-
-input PipelineRunInput {
-  observationId: Int
-  ephemerisId: Int
-  templateId: Int
-  pipelineName: String
-  pipelineDescription: String
-  pipelineVersion: String
-  jobState: String
-  location: String
-  configuration: String
-  dm: Float
-  dmErr: Float
-  dmEpoch: Float
-  dmChi2r: Float
-  dmTres: Float
-  sn: Float
-  flux: Float
-  rm: Float
-  rmErr: Float
-  percentRfiZapped: Float
-}
-
-enum PipelineRunJobState {
-  PENDING
-  RUNNING
-  COMPLETED
-  FAILED
-  CANCELLED
-}
-
-type PipelineRunNode implements Node {
-  observation: ObservationNode
-  ephemeris: EphemerisNode
-  template: TemplateNode
-  pipelineName: String!
-  pipelineDescription: String
-  pipelineVersion: String!
-  createdAt: DateTime!
-  createdBy: String!
-  jobState: PipelineRunJobState!
-  location: String!
-  configuration: JSONString
-  toasDownloadLink: String
-  dm: Float
-  dmErr: Float
-  dmEpoch: Float
-  dmChi2r: Float
-  dmTres: Float
-  sn: Float
-  flux: Float
-  rm: Float
-  rmErr: Float
-  percentRfiZapped: Float
-  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
-  id: ID!
-  project: ProjectNode
-}
-
-type ProjectConnection {
-  pageInfo: PageInfo!
-  edges: [ProjectEdge]!
-}
-
-type ProjectEdge {
-  node: ProjectNode
-  cursor: String!
-}
-
-input ProjectInput {
-  mainProjectName: String!
-  code: String
-  short: String
-  embargoPeriod: Int
-  description: String
-}
-
-type ProjectNode implements Node {
-  mainProject: MainProjectNode
-  code: String!
-  short: String!
-  embargoPeriod: Int
-  description: String
-  id: ID!
-}
-
-enum ProvisionalUserRole {
-  RESTRICTED
-  UNRESTRICTED
-  ADMIN
-}
-
-type ProvisionalUserType implements Node {
-  id: ID!
-  email: String!
-  role: ProvisionalUserRole!
-  activationExpiry: DateTime
-  activated: Boolean!
-  activatedOn: DateTime
-  created: DateTime!
-  emailSent: Boolean!
-  emailSentOn: DateTime
-}
-
-type ProvisionalUserTypeConnection {
-  pageInfo: PageInfo!
-  edges: [ProvisionalUserTypeEdge]!
-}
-
-type ProvisionalUserTypeEdge {
-  node: ProvisionalUserType
-  cursor: String!
-}
-
-type PulsarConnection {
-  pageInfo: PageInfo!
-  edges: [PulsarEdge]!
-}
-
-type PulsarEdge {
-  node: PulsarNode
-  cursor: String!
-}
-
-type PulsarFoldResultConnection {
-  pageInfo: PageInfo!
-  edges: [PulsarFoldResultEdge]!
-  totalObservationHours: Int
-  totalEstimatedDiskSpace: String
-  totalProjects: Int
-  totalTimespanDays: Int
-  totalObservations: Int
-  totalToa(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1"): Int
-  maxPlotLength: Int
-  minPlotLength: Int
-  description: String
-  residualEphemeris: EphemerisNode
-  toasLink: String
-  allProjects: [String]
-  mostCommonProject: String
-  allNchans: [Int]
-  timingResidualPlotData(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1", obsNchan: Int = 32, excludeBadges: [String] = [], minimumSNR: Float = 8.0, dmCorrected: Boolean = false): [TimingResidualPlotDataType]
-}
-
-type PulsarFoldResultEdge {
-  node: PulsarFoldResultNode
-  cursor: String!
-}
-
-type PulsarFoldResultNode implements Node {
-  observation: ObservationNode
-  pipelineRun: PipelineRunNode
-  pulsar: PulsarNode!
-  images(offset: Int, before: String, after: String, first: Int, last: Int): PipelineImageNodeConnection!
-  id: ID!
-  nextObservation: PulsarFoldResultNode
-  previousObservation: PulsarFoldResultNode
-  project: ProjectNode
-}
-
-type PulsarFoldResultNodeConnection {
-  pageInfo: PageInfo!
-  edges: [PulsarFoldResultNodeEdge]!
-}
-
-type PulsarFoldResultNodeEdge {
-  node: PulsarFoldResultNode
-  cursor: String!
-}
-
-type PulsarFoldSummaryConnection {
-  pageInfo: PageInfo!
-  edges: [PulsarFoldSummaryEdge]!
-  totalObservations: Int
-  totalPulsars: Int
-  totalObservationTime: Int
-  totalProjectTime: Int
-}
-
-type PulsarFoldSummaryEdge {
-  node: PulsarFoldSummaryNode
-  cursor: String!
-}
-
-type PulsarFoldSummaryNode implements Node {
-  pulsar: PulsarNode
-  mainProject: MainProjectNode
-  firstObservation: DateTime!
-  latestObservation: DateTime!
-  latestObservationBeam: Int!
-  timespan: Int!
-  numberOfObservations: Int!
-  totalIntegrationHours: Float!
-  lastIntegrationMinutes: Float
-  allBands: String!
-  lastSn: Float!
-  highestSn: Float!
-  lowestSn: Float!
-  avgSnPipe: Float
-  maxSnPipe: Float
-  mostCommonProject: String!
-  allProjects: String!
-  id: ID!
-}
-
-type PulsarNode implements Node {
-  name: String!
-  comment: String
-  id: ID!
-}
-
-type PulsarSearchSummaryConnection {
-  pageInfo: PageInfo!
-  edges: [PulsarSearchSummaryEdge]!
-  totalObservations: Int
-  totalPulsars: Int
-  totalObservationTime: Int
-  totalProjectTime: Int
-}
-
-type PulsarSearchSummaryEdge {
-  node: PulsarSearchSummaryNode
-  cursor: String!
-}
-
-type PulsarSearchSummaryNode implements Node {
-  pulsar: PulsarNode
-  mainProject: MainProjectNode
-  firstObservation: DateTime!
-  latestObservation: DateTime!
-  timespan: Int!
-  numberOfObservations: Int!
-  totalIntegrationHours: Float!
-  lastIntegrationMinutes: Float
-  allBands: String!
-  mostCommonProject: String!
-  allProjects: String!
-  id: ID!
-}
-
-input PulsarsInput {
-  name: String!
-  comment: String
-}
-
 type Query {
-  node(id: ID!): Node
+  """List all API tokens for the authenticated user"""
+  apiTokens(before: String, after: String, first: Int, last: Int): ApiTokenConnection
+  node(
+    """The ID of the object"""
+    id: ID!
+  ): Node
+
+  """List files at the given path"""
   files(path: String!, recursive: Boolean = false, before: String, after: String, first: Int, last: Int): FileConnection
+
+  """Get files for a specific pulsar observation"""
   fileSingleList(mainProject: String!, jname: String!, utc: String!, beam: Int!, before: String, after: String, first: Int, last: Int): FileConnection
+
+  """Get files for a pulsar"""
   filePulsarList(mainProject: String!, jname: String!, before: String, after: String, first: Int, last: Int): FileConnection
   pulsar(name: String, before: String, after: String, first: Int, last: Int): PulsarConnection
   telescope(before: String, after: String, first: Int, last: Int): TelescopeConnection
@@ -891,94 +33,420 @@ type Query {
   badge(before: String, after: String, first: Int, last: Int): BadgeConnection
 }
 
-input RefreshInput {
-  token: String
-  clientMutationId: String
+"""Relay connection for API tokens"""
+type ApiTokenConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ApiTokenEdge]!
 }
 
-type RefreshPayload {
-  payload: GenericScalar!
-  refreshExpiresIn: Int!
-  clientMutationId: String
-  token: String!
+"""
+The Relay compliant `PageInfo` type, containing data necessary to paginate this connection.
+"""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
 }
 
-input RegistrationInput {
+"""A Relay edge containing a `ApiToken` and its cursor."""
+type ApiTokenEdge {
+  """The item at the end of the edge"""
+  node: ApiTokenNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""Relay-compatible API token node"""
+type ApiTokenNode implements Node {
+  name: String!
+  created: DateTime!
+  lastUsed: DateTime
+  expiresAt: DateTime
+  isActive: Boolean!
+
+  """The ID of the object"""
+  id: ID!
+  preview: String
+}
+
+"""An object with an ID"""
+interface Node {
+  """The ID of the object"""
+  id: ID!
+}
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+"""GraphQL connection for files"""
+type FileConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [FileEdge]!
+}
+
+"""A Relay edge containing a `File` and its cursor."""
+type FileEdge {
+  """The item at the end of the edge"""
+  node: FileNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""GraphQL node representing a file or directory"""
+type FileNode implements Node {
+  """The ID of the object"""
+  id: ID!
+
+  """Path to the file"""
+  path: String
+
+  """Name of the file"""
+  fileName: String
+
+  """Size of the file in bytes"""
+  fileSize: String
+
+  """Whether this item is a directory"""
+  isDirectory: Boolean
+}
+
+type PulsarConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PulsarEdge]!
+}
+
+"""A Relay edge containing a `Pulsar` and its cursor."""
+type PulsarEdge {
+  """The item at the end of the edge"""
+  node: PulsarNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PulsarNode implements Node {
+  name: String!
+
+  """
+  Auto generated description based on information from the ANTF catalogue
+  """
+  comment: String
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type TelescopeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [TelescopeEdge]!
+}
+
+"""A Relay edge containing a `Telescope` and its cursor."""
+type TelescopeEdge {
+  """The item at the end of the edge"""
+  node: TelescopeNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type TelescopeNode implements Node {
+  name: String!
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type MainProjectConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [MainProjectEdge]!
+}
+
+"""A Relay edge containing a `MainProject` and its cursor."""
+type MainProjectEdge {
+  """The item at the end of the edge"""
+  node: MainProjectNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type MainProjectNode implements Node {
+  telescope: TelescopeNode
+  name: String!
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type ProjectConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProjectEdge]!
+}
+
+"""A Relay edge containing a `Project` and its cursor."""
+type ProjectEdge {
+  """The item at the end of the edge"""
+  node: ProjectNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ProjectNode implements Node {
+  mainProject: MainProjectNode
+  code: String!
+  short: String!
+  embargoPeriod: Int
+  description: String
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type EphemerisConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [EphemerisEdge]!
+}
+
+"""A Relay edge containing a `Ephemeris` and its cursor."""
+type EphemerisEdge {
+  """The item at the end of the edge"""
+  node: EphemerisNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type EphemerisNode implements Node {
+  pulsar: PulsarNode
+  project: ProjectNode
+  createdAt: DateTime!
+  createdBy: UserType
+  ephemerisData: JSONString
+  ephemerisHash: String
+  p0: Float!
+  dm: Float!
+  validFrom: DateTime!
+  validTo: DateTime!
+  comment: String
+
+  """The ID of the object"""
+  id: ID!
+  idInt: Int
+}
+
+type UserType implements Node {
+  """The ID of the object"""
+  id: ID!
+  lastLogin: DateTime
+
+  """
+  Designates that this user has all permissions without explicitly assigning them.
+  """
+  isSuperuser: Boolean!
+
+  """Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."""
+  username: String!
   firstName: String!
   lastName: String!
+
+  """Designates whether the user can log into this admin site."""
+  isStaff: Boolean!
+
+  """
+  Designates whether this user should be treated as active. Unselect this instead of deleting accounts.
+  """
+  isActive: Boolean!
+  dateJoined: DateTime!
+
+  """Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."""
   email: String!
-  password: String!
-  captcha: String!
+  role: UserManageUserRoleChoices!
+  apiTokens(offset: Int, before: String, after: String, first: Int, last: Int): ApiTokenNodeConnection!
+  provisionaluserSet(offset: Int, before: String, after: String, first: Int, last: Int): ProvisionalUserTypeConnection!
+  registrationSet(offset: Int, before: String, after: String, first: Int, last: Int): RegistrationTypeConnection!
+  ephemerisSet(offset: Int, before: String, after: String, first: Int, last: Int, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String): EphemerisNodeConnection!
+  templateSet(offset: Int, before: String, after: String, first: Int, last: Int, band: DataportalTemplateBandChoices, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, templateHash: String): TemplateNodeConnection!
 }
 
-enum RegistrationStatus {
-  UNVERIFIED
-  VERIFIED
+"""An enumeration."""
+enum UserManageUserRoleChoices {
+  """RESTRICTED"""
+  RESTRICTED
+
+  """UNRESTRICTED"""
+  UNRESTRICTED
+
+  """ADMIN"""
+  ADMIN
+}
+
+type ApiTokenNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ApiTokenNodeEdge]!
+}
+
+"""A Relay edge containing a `ApiTokenNode` and its cursor."""
+type ApiTokenNodeEdge {
+  """The item at the end of the edge"""
+  node: ApiTokenNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ProvisionalUserTypeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProvisionalUserTypeEdge]!
+}
+
+"""A Relay edge containing a `ProvisionalUserType` and its cursor."""
+type ProvisionalUserTypeEdge {
+  """The item at the end of the edge"""
+  node: ProvisionalUserType
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ProvisionalUserType implements Node {
+  """The ID of the object"""
+  id: ID!
+
+  """Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."""
+  email: String!
+  role: UserManageProvisionalUserRoleChoices!
+  activationExpiry: DateTime
+  activated: Boolean!
+  activatedOn: DateTime
+  created: DateTime!
+  emailSent: Boolean!
+  emailSentOn: DateTime
+}
+
+"""An enumeration."""
+enum UserManageProvisionalUserRoleChoices {
+  """RESTRICTED"""
+  RESTRICTED
+
+  """UNRESTRICTED"""
+  UNRESTRICTED
+
+  """ADMIN"""
+  ADMIN
+}
+
+type RegistrationTypeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [RegistrationTypeEdge]!
+}
+
+"""A Relay edge containing a `RegistrationType` and its cursor."""
+type RegistrationTypeEdge {
+  """The item at the end of the edge"""
+  node: RegistrationType
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }
 
 type RegistrationType implements Node {
+  """The ID of the object"""
   id: ID!
   firstName: String!
   lastName: String!
   email: String!
-  status: RegistrationStatus!
+  status: UserManageRegistrationStatusChoices!
   verificationExpiry: DateTime
   created: DateTime!
   lastUpdated: DateTime!
 }
 
-type RegistrationTypeConnection {
-  pageInfo: PageInfo!
-  edges: [RegistrationTypeEdge]!
+"""An enumeration."""
+enum UserManageRegistrationStatusChoices {
+  """UNVERIFIED"""
+  UNVERIFIED
+
+  """VERIFIED"""
+  VERIFIED
 }
 
-type RegistrationTypeEdge {
-  node: RegistrationType
+type EphemerisNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [EphemerisNodeEdge]!
+}
+
+"""A Relay edge containing a `EphemerisNode` and its cursor."""
+type EphemerisNodeEdge {
+  """The item at the end of the edge"""
+  node: EphemerisNode
+
+  """A cursor for use in pagination"""
   cursor: String!
 }
 
-input ResidualInput {
-  residualLines: [String]!
-}
-
-type TelescopeConnection {
+type TemplateNodeConnection {
+  """Pagination data for this connection."""
   pageInfo: PageInfo!
-  edges: [TelescopeEdge]!
+
+  """Contains the nodes in this connection."""
+  edges: [TemplateNodeEdge]!
 }
 
-type TelescopeEdge {
-  node: TelescopeNode
-  cursor: String!
-}
-
-input TelescopeInput {
-  name: String!
-}
-
-type TelescopeNode implements Node {
-  name: String!
-  id: ID!
-}
-
-enum TemplateBand {
-  UHF
-  LBAND
-  SBAND_0
-  SBAND_1
-  SBAND_2
-  SBAND_3
-  SBAND_4
-  OTHER
-  UHF_NS
-}
-
-type TemplateConnection {
-  pageInfo: PageInfo!
-  edges: [TemplateEdge]!
-}
-
-type TemplateEdge {
+"""A Relay edge containing a `TemplateNode` and its cursor."""
+type TemplateNodeEdge {
+  """The item at the end of the edge"""
   node: TemplateNode
+
+  """A cursor for use in pagination"""
   cursor: String!
 }
 
@@ -987,57 +455,410 @@ type TemplateNode implements Node {
   project: ProjectNode
   templateFile: String
   templateHash: String
-  band: TemplateBand!
+  band: DataportalTemplateBandChoices!
   createdAt: DateTime!
   createdBy: UserType
+
+  """The ID of the object"""
   id: ID!
 }
 
-type TemplateNodeConnection {
-  pageInfo: PageInfo!
-  edges: [TemplateNodeEdge]!
+"""An enumeration."""
+enum DataportalTemplateBandChoices {
+  """UHF"""
+  UHF
+
+  """LBAND"""
+  LBAND
+
+  """SBAND_0"""
+  SBAND_0
+
+  """SBAND_1"""
+  SBAND_1
+
+  """SBAND_2"""
+  SBAND_2
+
+  """SBAND_3"""
+  SBAND_3
+
+  """SBAND_4"""
+  SBAND_4
+
+  """OTHER"""
+  OTHER
+
+  """UHF_NS"""
+  UHF_NS
 }
 
-type TemplateNodeEdge {
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
+
+type TemplateConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [TemplateEdge]!
+}
+
+"""A Relay edge containing a `Template` and its cursor."""
+type TemplateEdge {
+  """The item at the end of the edge"""
   node: TemplateNode
+
+  """A cursor for use in pagination"""
   cursor: String!
 }
 
-type TimingResidualPlotDataType {
-  day: Float
-  size: Float
-  band: String
-  error: Float
-  link: String
-  phase: Float
-  snr: Float
-  utc: Int
-  value: Float
-}
-
-type ToaConnection {
+type CalibrationConnection {
+  """Pagination data for this connection."""
   pageInfo: PageInfo!
-  edges: [ToaEdge]!
-  allProjects: [String]
-  allNchans: [Int]
-  totalBadgeExcludedToas: Int
+
+  """Contains the nodes in this connection."""
+  edges: [CalibrationEdge]!
 }
 
-type ToaEdge {
-  node: ToaNode
+"""A Relay edge containing a `Calibration` and its cursor."""
+type CalibrationEdge {
+  """The item at the end of the edge"""
+  node: CalibrationNode
+
+  """A cursor for use in pagination"""
   cursor: String!
 }
 
-input ToaInput {
-  pipelineRunId: Int!
-  projectShort: String!
-  ephemerisText: String!
-  templateId: Int!
-  toaLines: [String]!
-  dmCorrected: Boolean!
-  nsubType: String!
-  obsNpol: Int!
-  obsNchan: Int!
+type CalibrationNode implements Node {
+  scheduleBlockId: String
+  calibrationType: DataportalCalibrationCalibrationTypeChoices!
+  location: String
+  start: DateTime
+  end: DateTime
+  allProjects: String
+  nObservations: Int
+  nAntMin: Int
+  nAntMax: Int
+  totalIntegrationTimeSeconds: Float
+  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
+  observations(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
+
+  """The ID of the object"""
+  id: ID!
+  idInt: Int
+}
+
+"""An enumeration."""
+enum DataportalCalibrationCalibrationTypeChoices {
+  """pre"""
+  PRE
+
+  """post"""
+  POST
+
+  """none"""
+  NONE
+}
+
+type BadgeNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [BadgeNodeEdge]!
+}
+
+"""A Relay edge containing a `BadgeNode` and its cursor."""
+type BadgeNodeEdge {
+  """The item at the end of the edge"""
+  node: BadgeNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type BadgeNode implements Node {
+  name: String!
+  description: String
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type ObservationNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ObservationNodeEdge]!
+}
+
+"""A Relay edge containing a `ObservationNode` and its cursor."""
+type ObservationNodeEdge {
+  """The item at the end of the edge"""
+  node: ObservationNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ObservationNode implements Node {
+  pulsar: PulsarNode
+  telescope: TelescopeNode
+  project: ProjectNode
+  calibration: CalibrationNode
+  embargoEndDate: DateTime
+  band: DataportalObservationBandChoices!
+  frequency: Float!
+  bandwidth: Float!
+  nchan: Int!
+  beam: Int!
+  nant: Int
+  nantEff: Int
+  npol: Int!
+  obsType: DataportalObservationObsTypeChoices!
+  utcStart: DateTime!
+  dayOfYear: Float
+  binaryOrbitalPhase: Float
+  raj: String!
+  decj: String!
+  duration: Float
+  nbit: Int!
+  tsamp: Float!
+  ephemeris: EphemerisNode
+  foldNbin: Int
+  foldNchan: Int
+  foldTsubint: Int
+  filterbankNbit: Int
+  filterbankNpol: Int
+  filterbankNchan: Int
+  filterbankTsamp: Float
+  filterbankDm: Float
+  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
+  pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID): PulsarFoldResultNodeConnection!
+  toas(offset: Int, before: String, after: String, first: Int, last: Int, dmCorrected: Boolean, nsubType: String, obsNchan: Int): ToaNodeConnection!
+
+  """The ID of the object"""
+  id: ID!
+  restricted: Boolean
+  modeDuration: Int
+}
+
+"""An enumeration."""
+enum DataportalObservationBandChoices {
+  """UHF"""
+  UHF
+
+  """LBAND"""
+  LBAND
+
+  """SBAND_0"""
+  SBAND_0
+
+  """SBAND_1"""
+  SBAND_1
+
+  """SBAND_2"""
+  SBAND_2
+
+  """SBAND_3"""
+  SBAND_3
+
+  """SBAND_4"""
+  SBAND_4
+
+  """OTHER"""
+  OTHER
+
+  """UHF_NS"""
+  UHF_NS
+}
+
+"""An enumeration."""
+enum DataportalObservationObsTypeChoices {
+  """cal"""
+  CAL
+
+  """fold"""
+  FOLD
+
+  """search"""
+  SEARCH
+}
+
+type PulsarFoldResultNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PulsarFoldResultNodeEdge]!
+}
+
+"""A Relay edge containing a `PulsarFoldResultNode` and its cursor."""
+type PulsarFoldResultNodeEdge {
+  """The item at the end of the edge"""
+  node: PulsarFoldResultNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PulsarFoldResultNode implements Node {
+  observation: ObservationNode
+  pipelineRun: PipelineRunNode
+  pulsar: PulsarNode!
+  images(offset: Int, before: String, after: String, first: Int, last: Int): PipelineImageNodeConnection!
+
+  """The ID of the object"""
+  id: ID!
+  nextObservation: PulsarFoldResultNode
+  previousObservation: PulsarFoldResultNode
+  project: ProjectNode
+}
+
+type PipelineRunNode implements Node {
+  observation: ObservationNode
+  ephemeris: EphemerisNode
+  template: TemplateNode
+  pipelineName: String!
+  pipelineDescription: String
+  pipelineVersion: String!
+  createdAt: DateTime!
+  createdBy: String!
+  jobState: DataportalPipelineRunJobStateChoices!
+  location: String!
+  configuration: JSONString
+  toasDownloadLink: String
+  dm: Float
+  dmErr: Float
+  dmEpoch: Float
+  dmChi2r: Float
+  dmTres: Float
+  sn: Float
+  flux: Float
+  rm: Float
+  rmErr: Float
+  percentRfiZapped: Float
+  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
+
+  """The ID of the object"""
+  id: ID!
+  project: ProjectNode
+}
+
+"""An enumeration."""
+enum DataportalPipelineRunJobStateChoices {
+  """Pending"""
+  PENDING
+
+  """Running"""
+  RUNNING
+
+  """Completed"""
+  COMPLETED
+
+  """Failed"""
+  FAILED
+
+  """Cancelled"""
+  CANCELLED
+}
+
+type PipelineImageNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PipelineImageNodeEdge]!
+}
+
+"""A Relay edge containing a `PipelineImageNode` and its cursor."""
+type PipelineImageNodeEdge {
+  """The item at the end of the edge"""
+  node: PipelineImageNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PipelineImageNode implements Node {
+  pulsarFoldResult: PulsarFoldResultNode
+  image: String
+  url: String
+  cleaned: Boolean!
+  imageType: DataportalPipelineImageImageTypeChoices!
+  resolution: DataportalPipelineImageResolutionChoices!
+
+  """The ID of the object"""
+  id: ID!
+}
+
+"""An enumeration."""
+enum DataportalPipelineImageImageTypeChoices {
+  """toa-single"""
+  TOA_SINGLE
+
+  """profile"""
+  PROFILE
+
+  """profile-pol"""
+  PROFILE_POL
+
+  """phase-time"""
+  PHASE_TIME
+
+  """phase-freq"""
+  PHASE_FREQ
+
+  """bandpass"""
+  BANDPASS
+
+  """dynamic-spectrum"""
+  DYNAMIC_SPECTRUM
+
+  """snr-cumul"""
+  SNR_CUMUL
+
+  """snr-single"""
+  SNR_SINGLE
+
+  """rmfit"""
+  RMFIT
+
+  """dmfit"""
+  DMFIT
+}
+
+"""An enumeration."""
+enum DataportalPipelineImageResolutionChoices {
+  """high"""
+  HIGH
+
+  """low"""
+  LOW
+}
+
+type ToaNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ToaNodeEdge]!
+}
+
+"""A Relay edge containing a `ToaNode` and its cursor."""
+type ToaNodeEdge {
+  """The item at the end of the edge"""
+  node: ToaNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }
 
 type ToaNode implements Node {
@@ -1075,45 +896,417 @@ type ToaNode implements Node {
   residualSecErr: Float
   residualPhase: Float
   residualPhaseErr: Float
+
+  """The ID of the object"""
   id: ID!
 }
 
-type ToaNodeConnection {
+"""The `Decimal` scalar type represents a python Decimal."""
+scalar Decimal
+
+type ObservationConnection {
+  """Pagination data for this connection."""
   pageInfo: PageInfo!
-  edges: [ToaNodeEdge]!
+
+  """Contains the nodes in this connection."""
+  edges: [ObservationEdge]!
+  pulsar_Name: [String]
+  telescope_Name: String
+  project_Id: Int
+  project_Short: String
+  utcStartGte: DateTime
+  utcStartLte: DateTime
+  totalObservations: Int
+  totalObservationHours: Int
+  totalPulsars: Int
+  totalObservationsTelLt35: Int
 }
 
-type ToaNodeEdge {
-  node: ToaNode
+"""A Relay edge containing a `Observation` and its cursor."""
+type ObservationEdge {
+  """The item at the end of the edge"""
+  node: ObservationNode
+
+  """A cursor for use in pagination"""
   cursor: String!
 }
 
-type UpdateCalibration {
-  calibration: CalibrationNode
+type ObservationSummaryConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ObservationSummaryEdge]!
 }
 
-type UpdateEphemeris {
-  ephemeris: EphemerisNode
+"""A Relay edge containing a `ObservationSummary` and its cursor."""
+type ObservationSummaryEdge {
+  """The item at the end of the edge"""
+  node: ObservationSummaryNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
 }
 
-type UpdateMainProject {
-  mainproject: MainProjectNode
-}
-
-type UpdateObservation {
-  observation: ObservationNode
-}
-
-type UpdatePipelineRun {
-  pipelineRun: PipelineRunNode
-}
-
-type UpdateProject {
-  project: ProjectNode
-}
-
-type UpdatePulsar {
+type ObservationSummaryNode implements Node {
   pulsar: PulsarNode
+  mainProject: MainProjectNode
+  project: ProjectNode
+  calibration: CalibrationNode
+  obsType: DataportalObservationSummaryObsTypeChoices
+  band: DataportalObservationSummaryBandChoices
+  observations: Int
+  pulsars: Int
+  projects: Int
+  estimatedDiskSpaceGb: Float
+  observationHours: Int
+  timespanDays: Int
+  minDuration: Float
+  maxDuration: Float
+
+  """The ID of the object"""
+  id: ID!
+}
+
+"""An enumeration."""
+enum DataportalObservationSummaryObsTypeChoices {
+  """cal"""
+  CAL
+
+  """fold"""
+  FOLD
+
+  """search"""
+  SEARCH
+}
+
+"""An enumeration."""
+enum DataportalObservationSummaryBandChoices {
+  """UHF"""
+  UHF
+
+  """LBAND"""
+  LBAND
+
+  """SBAND_0"""
+  SBAND_0
+
+  """SBAND_1"""
+  SBAND_1
+
+  """SBAND_2"""
+  SBAND_2
+
+  """SBAND_3"""
+  SBAND_3
+
+  """SBAND_4"""
+  SBAND_4
+
+  """OTHER"""
+  OTHER
+
+  """UHF_NS"""
+  UHF_NS
+}
+
+type PipelineRunConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PipelineRunEdge]!
+}
+
+"""A Relay edge containing a `PipelineRun` and its cursor."""
+type PipelineRunEdge {
+  """The item at the end of the edge"""
+  node: PipelineRunNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PulsarFoldResultConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PulsarFoldResultEdge]!
+  totalObservationHours: Int
+  totalEstimatedDiskSpace: String
+  totalProjects: Int
+  totalTimespanDays: Int
+  totalObservations: Int
+  totalToa(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1"): Int
+  maxPlotLength: Int
+  minPlotLength: Int
+  description: String
+  residualEphemeris: EphemerisNode
+  toasLink: String
+  allProjects: [String]
+  mostCommonProject: String
+  allNchans: [Int]
+  timingResidualPlotData(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1", obsNchan: Int = 32, excludeBadges: [String] = [], minimumSNR: Float = 8, dmCorrected: Boolean = false): [TimingResidualPlotDataType]
+}
+
+"""A Relay edge containing a `PulsarFoldResult` and its cursor."""
+type PulsarFoldResultEdge {
+  """The item at the end of the edge"""
+  node: PulsarFoldResultNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type TimingResidualPlotDataType {
+  day: Float
+  size: Float
+  band: String
+  error: Float
+  link: String
+  phase: Float
+  snr: Float
+  utc: Int
+  value: Float
+}
+
+type PulsarFoldSummaryConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PulsarFoldSummaryEdge]!
+  totalObservations: Int
+  totalPulsars: Int
+  totalObservationTime: Float
+  totalProjectTime: Int
+}
+
+"""A Relay edge containing a `PulsarFoldSummary` and its cursor."""
+type PulsarFoldSummaryEdge {
+  """The item at the end of the edge"""
+  node: PulsarFoldSummaryNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PulsarFoldSummaryNode implements Node {
+  pulsar: PulsarNode
+  mainProject: MainProjectNode
+  firstObservation: DateTime!
+  latestObservation: DateTime!
+  latestObservationBeam: Int!
+  timespan: Int!
+  numberOfObservations: Int!
+  totalIntegrationHours: Float!
+  lastIntegrationMinutes: Float
+  allBands: String!
+  lastSn: Float!
+  highestSn: Float!
+  lowestSn: Float!
+  avgSnPipe: Float
+  maxSnPipe: Float
+  mostCommonProject: String!
+  allProjects: String!
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type PulsarSearchSummaryConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PulsarSearchSummaryEdge]!
+  totalObservations: Int
+  totalPulsars: Int
+  totalObservationTime: Float
+  totalProjectTime: Int
+}
+
+"""A Relay edge containing a `PulsarSearchSummary` and its cursor."""
+type PulsarSearchSummaryEdge {
+  """The item at the end of the edge"""
+  node: PulsarSearchSummaryNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PulsarSearchSummaryNode implements Node {
+  pulsar: PulsarNode
+  mainProject: MainProjectNode
+  firstObservation: DateTime!
+  latestObservation: DateTime!
+  timespan: Int!
+  numberOfObservations: Int!
+  totalIntegrationHours: Float!
+  lastIntegrationMinutes: Float
+  allBands: String!
+  mostCommonProject: String!
+  allProjects: String!
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type PipelineImageConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PipelineImageEdge]!
+}
+
+"""A Relay edge containing a `PipelineImage` and its cursor."""
+type PipelineImageEdge {
+  """The item at the end of the edge"""
+  node: PipelineImageNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PipelineFileConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PipelineFileEdge]!
+}
+
+"""A Relay edge containing a `PipelineFile` and its cursor."""
+type PipelineFileEdge {
+  """The item at the end of the edge"""
+  node: PipelineFileNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type PipelineFileNode implements Node {
+  pulsarFoldResult: PulsarFoldResultNode
+  file: String
+  fileType: DataportalPipelineFileFileTypeChoices!
+
+  """The ID of the object"""
+  id: ID!
+}
+
+"""An enumeration."""
+enum DataportalPipelineFileFileTypeChoices {
+  """FTS"""
+  FTS
+}
+
+type ToaConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ToaEdge]!
+  allProjects: [String]
+  allNchans: [Int]
+  totalBadgeExcludedToas: Int
+}
+
+"""A Relay edge containing a `Toa` and its cursor."""
+type ToaEdge {
+  """The item at the end of the edge"""
+  node: ToaNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type BadgeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [BadgeEdge]!
+}
+
+"""A Relay edge containing a `Badge` and its cursor."""
+type BadgeEdge {
+  """The item at the end of the edge"""
+  node: BadgeNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type Mutation {
+  createProvisionalUser(email: String!, role: String!): CreateProvisionalUser
+  deleteUser(username: String): DeleteUser
+  activateUser(username: String): ActivateUser
+  deactivateUser(username: String): DeactivateUser
+  updateRole(role: String, username: String): UpdateRole
+  createRegistration(input: RegistrationInput!): CreateRegistration
+  verifyRegistration(verificationCode: String!): VerifyRegistration
+  createPasswordResetRequest(email: String!): CreatePasswordResetRequest
+  passwordReset(password: String!, verificationCode: String!): PasswordReset
+  passwordChange(oldPassword: String!, password: String!, username: String!): PasswordChange
+  accountActivation(activationCode: String!, userInput: RegistrationInput!): AccountActivation
+
+  """Create a new API token for the authenticated user"""
+  createApiToken(input: CreateApiTokenInput!): CreateApiToken
+
+  """Delete an API token for the authenticated user"""
+  deleteApiToken(input: DeleteApiTokenInput!): DeleteApiToken
+  createResidual(input: ResidualInput!): CreateResidualOutput
+  createToa(input: ToaInput!): CreateToaOutput
+  updateToa(id: Int!, input: ToaInput!): UpdateToa
+  deleteToa(id: Int!): DeleteToa
+  createPipelineRun(input: PipelineRunInput): CreatePipelineRun
+  updatePipelineRun(id: Int!, input: PipelineRunInput!): UpdatePipelineRun
+  deletePipelineRun(id: Int!): DeletePipelineRun
+  deleteTemplate(id: Int!): DeleteTemplate
+  createProject(input: ProjectInput!): CreateProject
+  updateProject(id: Int!, input: ProjectInput!): UpdateProject
+  deleteProject(id: Int!): DeleteProject
+  createMainProject(input: MainProjectInput!): CreateMainProject
+  updateMainProject(id: Int!, input: MainProjectInput!): UpdateMainProject
+  deleteMainProject(id: Int!): DeleteMainProject
+  createTelescope(input: TelescopeInput!): CreateTelescope
+  updateTelescope(id: Int!, input: TelescopeInput!): UpdateTelescope
+  deleteTelescope(id: Int!): DeleteTelescope
+  createEphemeris(input: EphemerisInput): CreateEphemeris
+  updateEphemeris(id: Int!, input: EphemerisInput!): UpdateEphemeris
+  deleteEphemeris(id: Int!): DeleteEphemeris
+  createCalibration(input: CalibrationInput): CreateCalibration
+  updateCalibration(id: Int!, input: CalibrationInput!): UpdateCalibration
+  deleteCalibration(id: Int!): DeleteCalibration
+  createObservation(input: ObservationInput): CreateObservation
+  updateObservation(id: Int!, input: ObservationInput!): UpdateObservation
+  deleteObservation(id: Int!): DeleteObservation
+  createPulsar(input: PulsarsInput): CreatePulsar
+  updatePulsar(id: Int!, input: PulsarsInput!): UpdatePulsar
+  deletePulsar(id: Int!): DeletePulsar
+}
+
+type CreateProvisionalUser {
+  ok: Boolean
+  emailSent: Boolean
+  errors: [String]
+}
+
+type DeleteUser {
+  ok: Boolean
+  errors: [String]
+}
+
+type ActivateUser {
+  ok: Boolean
+  errors: [String]
+}
+
+type DeactivateUser {
+  ok: Boolean
+  errors: [String]
 }
 
 type UpdateRole {
@@ -1121,50 +1314,312 @@ type UpdateRole {
   errors: [String]
 }
 
-type UpdateTelescope {
-  telescope: TelescopeNode
+type CreateRegistration {
+  ok: Boolean
+  registration: RegistrationType
+  errors: [String]
 }
 
-type UpdateToa {
-  toa: ToaNode
-}
-
-enum UserRole {
-  RESTRICTED
-  UNRESTRICTED
-  ADMIN
-}
-
-type UserType implements Node {
-  id: ID!
-  lastLogin: DateTime
-  isSuperuser: Boolean!
-  username: String!
+input RegistrationInput {
   firstName: String!
   lastName: String!
-  isStaff: Boolean!
-  isActive: Boolean!
-  dateJoined: DateTime!
   email: String!
-  role: UserRole!
-  provisionaluserSet(offset: Int, before: String, after: String, first: Int, last: Int): ProvisionalUserTypeConnection!
-  registrationSet(offset: Int, before: String, after: String, first: Int, last: Int): RegistrationTypeConnection!
-  ephemerisSet(offset: Int, before: String, after: String, first: Int, last: Int, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String): EphemerisNodeConnection!
-  templateSet(offset: Int, before: String, after: String, first: Int, last: Int, band: TemplateBand, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, templateHash: String): TemplateNodeConnection!
-}
-
-input VerifyInput {
-  token: String
-  clientMutationId: String
-}
-
-type VerifyPayload {
-  payload: GenericScalar!
-  clientMutationId: String
+  password: String!
+  captcha: String!
 }
 
 type VerifyRegistration {
   ok: Boolean
   registration: RegistrationType
   errors: [String]
+}
+
+type CreatePasswordResetRequest {
+  ok: Boolean
+  passwordResetRequest: PasswordResetRequestType
+  errors: [String]
+}
+
+type PasswordResetRequestType implements Node {
+  """The ID of the object"""
+  id: ID!
+  email: String!
+  status: UserManagePasswordResetRequestStatusChoices!
+  verificationExpiry: DateTime
+  created: DateTime!
+  lastUpdated: DateTime!
+}
+
+"""An enumeration."""
+enum UserManagePasswordResetRequestStatusChoices {
+  """NOT_UPDATED"""
+  NOT_UPDATED
+
+  """UPDATED"""
+  UPDATED
+}
+
+type PasswordReset {
+  ok: Boolean
+  passwordResetRequest: PasswordResetRequestType
+  errors: [String]
+}
+
+type PasswordChange {
+  ok: Boolean
+  user: UserType
+  errors: [String]
+}
+
+type AccountActivation {
+  ok: Boolean
+  provisionalUser: ProvisionalUserType
+  errors: [String]
+}
+
+"""Create a new API token for the authenticated user"""
+type CreateApiToken {
+  token: ApiTokenNode
+  tokenValue: String
+  ok: Boolean
+  errors: [String]
+}
+
+"""Input for creating a new API token"""
+input CreateApiTokenInput {
+  name: String = "API Token"
+}
+
+"""Delete an API token for the authenticated user"""
+type DeleteApiToken {
+  ok: Boolean
+  errors: [String]
+}
+
+"""Input for deleting an API token"""
+input DeleteApiTokenInput {
+  tokenId: ID!
+}
+
+type CreateResidualOutput {
+  toa: [ToaNode]
+}
+
+input ResidualInput {
+  residualLines: [String]!
+}
+
+type CreateToaOutput {
+  toa: [ToaNode]
+}
+
+input ToaInput {
+  pipelineRunId: Int!
+  projectShort: String!
+  ephemerisText: String!
+  templateId: Int!
+  toaLines: [String]!
+  dmCorrected: Boolean!
+  nsubType: String!
+  obsNpol: Int!
+  obsNchan: Int!
+}
+
+type UpdateToa {
+  toa: ToaNode
+}
+
+type DeleteToa {
+  ok: Boolean
+}
+
+type CreatePipelineRun {
+  pipelineRun: PipelineRunNode
+}
+
+input PipelineRunInput {
+  observationId: Int
+  ephemerisId: Int
+  templateId: Int
+  pipelineName: String
+  pipelineDescription: String
+  pipelineVersion: String
+  jobState: String
+  location: String
+  configuration: String
+  dm: Float
+  dmErr: Float
+  dmEpoch: Float
+  dmChi2r: Float
+  dmTres: Float
+  sn: Float
+  flux: Float
+  rm: Float
+  rmErr: Float
+  percentRfiZapped: Float
+}
+
+type UpdatePipelineRun {
+  pipelineRun: PipelineRunNode
+}
+
+type DeletePipelineRun {
+  ok: Boolean
+}
+
+type DeleteTemplate {
+  ok: Boolean
+  template: TemplateNode
+}
+
+type CreateProject {
+  project: ProjectNode
+}
+
+input ProjectInput {
+  mainProjectName: String!
+  code: String
+  short: String
+  embargoPeriod: Int
+  description: String
+}
+
+type UpdateProject {
+  project: ProjectNode
+}
+
+type DeleteProject {
+  project: ProjectNode
+}
+
+type CreateMainProject {
+  mainproject: MainProjectNode
+}
+
+input MainProjectInput {
+  telescopeName: String!
+  name: String!
+}
+
+type UpdateMainProject {
+  mainproject: MainProjectNode
+}
+
+type DeleteMainProject {
+  ok: Boolean
+  mainproject: MainProjectNode
+}
+
+type CreateTelescope {
+  telescope: TelescopeNode
+}
+
+input TelescopeInput {
+  name: String!
+}
+
+type UpdateTelescope {
+  telescope: TelescopeNode
+}
+
+type DeleteTelescope {
+  ok: Boolean
+}
+
+type CreateEphemeris {
+  ephemeris: EphemerisNode
+}
+
+input EphemerisInput {
+  pulsarName: String!
+  ephemerisText: String!
+  projectCode: String
+  projectShort: String
+  comment: String
+}
+
+type UpdateEphemeris {
+  ephemeris: EphemerisNode
+}
+
+type DeleteEphemeris {
+  ok: Boolean
+  ephemeris: EphemerisNode
+}
+
+type CreateCalibration {
+  calibration: CalibrationNode
+}
+
+input CalibrationInput {
+  scheduleBlockId: String
+  calibrationType: String!
+  location: String
+}
+
+type UpdateCalibration {
+  calibration: CalibrationNode
+}
+
+type DeleteCalibration {
+  ok: Boolean
+}
+
+type CreateObservation {
+  observation: ObservationNode
+}
+
+input ObservationInput {
+  pulsarName: String!
+  telescopeName: String!
+  projectCode: String!
+  calibrationId: Int!
+  frequency: Float
+  bandwidth: Float
+  nchan: Int
+  beam: Int
+  nant: Int
+  nantEff: Int
+  npol: Int
+  obsType: String
+  utcStart: DateTime
+  raj: String
+  decj: String
+  duration: Float
+  nbit: Int
+  tsamp: Float
+  ephemerisText: String
+  foldNbin: Int
+  foldNchan: Int
+  foldTsubint: Int
+  filterbankNbit: Int
+  filterbankNpol: Int
+  filterbankNchan: Int
+  filterbankTsamp: Float
+  filterbankDm: Float
+}
+
+type UpdateObservation {
+  observation: ObservationNode
+}
+
+type DeleteObservation {
+  ok: Boolean
+}
+
+type CreatePulsar {
+  pulsar: PulsarNode
+}
+
+input PulsarsInput {
+  name: String!
+  comment: String
+}
+
+type UpdatePulsar {
+  pulsar: PulsarNode
+}
+
+type DeletePulsar {
+  ok: Boolean
 }

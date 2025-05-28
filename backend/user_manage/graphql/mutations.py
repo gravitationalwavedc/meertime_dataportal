@@ -18,6 +18,7 @@ from .types import (
     RegistrationType,
     UserType,
 )
+from .token_mutations import CreateApiToken, DeleteApiToken
 
 UserModel = django.contrib.auth.get_user_model()
 
@@ -253,3 +254,7 @@ class Mutation(admin_api.Mutation, graphene.ObjectType):
     password_reset = PasswordReset.Field()
     password_change = PasswordChange.Field()
     account_activation = AccountActivation.Field()
+
+    # API Token management mutations
+    create_api_token = CreateApiToken.Field()
+    delete_api_token = DeleteApiToken.Field()
