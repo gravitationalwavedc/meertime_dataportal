@@ -1,0 +1,41 @@
+{
+  "data": {
+    "apiTokens": {
+      "edges": [
+        {
+          "node": {
+            "id": "1",
+            "name": "Web Interface Token",
+            "preview": "abcd1234",
+            "created": "2025-05-20T10:30:00Z",
+            "lastUsed": "2025-05-27T08:15:00Z",
+            "expiresAt": "2025-12-31T23:59:59Z",
+            "isActive": true
+          }
+        },
+        {
+          "node": {
+            "id": "2",
+            "name": "CLI Token",
+            "preview": "efgh5678",
+            "created": "2025-05-15T14:20:00Z",
+            "lastUsed": "2025-05-26T16:45:00Z",
+            "expiresAt": null,
+            "isActive": true
+          }
+        },
+        {
+          "node": {
+            "id": "3",
+            "name": "Mobile App Token",
+            "preview": "ijkl9012",
+            "created": "2025-05-10T09:15:00Z",
+            "lastUsed": null,
+            "expiresAt": "2025-01-01T00:00:00Z",
+            "isActive": false
+          }
+        }
+      ]
+    }
+  }
+}

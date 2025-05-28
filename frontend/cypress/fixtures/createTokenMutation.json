@@ -1,0 +1,18 @@
+{
+  "data": {
+    "createApiToken": {
+      "token": {
+        "id": "VG9rZW46Ng==",
+        "name": "Test Integration Token",
+        "preview": "test_tok",
+        "created": "2025-05-28T10:00:00Z",
+        "lastUsed": null,
+        "expiresAt": null,
+        "isActive": true
+      },
+      "tokenValue": "test_token_abcd1234567890efghijklmnopqrstuv",
+      "ok": true,
+      "errors": null
+    }
+  }
+}

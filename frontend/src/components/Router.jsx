@@ -4,6 +4,7 @@ import { Route, createFarceRouter, createRender, makeRouteConfig } from "found";
 import AccountActivation from "../pages/AccountActivation";
 import Fold from "../pages/Fold";
 import FoldDetail from "../pages/FoldDetail";
+import TokenManagement from "../pages/TokenManagement";
 import Login from "../pages/Login";
 import PasswordChange from "../pages/PasswordChange";
 import PasswordReset from "../pages/PasswordReset";
@@ -129,7 +130,11 @@ const routeConfig = () =>
         Component={PasswordChange}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
-      {/* Token generation route removed - using Django session auth instead */}
+      <Route
+        path="/api-tokens/"
+        Component={TokenManagement}
+        render={({ Component, props }) => renderPrivateRoute(Component, props)}
+      />
       <Route
         path="/"
         Component={Fold}

@@ -2,6 +2,8 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
+from rest_framework.decorators import action
+from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from sentry_sdk import last_event_id
@@ -10,6 +12,24 @@ from .file_utils import serve_file
 from .models import PipelineImage, PipelineRun, Project, Pulsar, PulsarFoldResult, Template
 from .serializers import UploadPipelineImageSerializer, UploadTemplateSerializer
 from .storage import create_file_hash
+
+
+class TemplateAddPermission(BasePermission):
+    """
+    Custom permission to check for dataportal.add_template permission.
+    """
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("dataportal.add_template")
+
+
+class PipelineImageAddPermission(BasePermission):
+    """
+    Custom permission to check for dataportal.add_pipelineimage permission.
+    """
+
+    def has_permission(self, request, view):
+        return request.user.has_perm("dataportal.add_pipelineimage")
 
 
 def handler500(request):
@@ -28,6 +48,7 @@ def handler500(request):
 
 class UploadTemplate(ViewSet):
     serializer_class = UploadTemplateSerializer
+    permission_classes = [TemplateAddPermission]
 
     def create(self, request):
         template_upload = request.FILES.get("template_upload")
@@ -89,6 +110,7 @@ class UploadTemplate(ViewSet):
 
 class UploadPipelineImage(ViewSet):
     serializer_class = UploadPipelineImageSerializer
+    permission_classes = [PipelineImageAddPermission]
 
     def list(self, request):
         return Response("GET API")

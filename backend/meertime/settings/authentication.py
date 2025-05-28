@@ -19,7 +19,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = ["user_manage.backends.EmailBackend"]
+AUTHENTICATION_BACKENDS = [
+    "user_manage.backends.EmailBackend",
+    "user_manage.backends.BearerTokenAuthentication",
+]
 
 LOGIN_REDIRECT_URL = "/"
 
@@ -33,3 +36,8 @@ SESSION_COOKIE_SAMESITE = "Lax"  # Prevents CSRF attacks while allowing normal l
 # Session Security
 SESSION_ENGINE = "django.contrib.sessions.backends.db"  # Default, using DB for sessions
 SESSION_SAVE_EVERY_REQUEST = True  # Update session expiry on each request
+
+# API Token Settings
+API_TOKEN_BYTES = 32  # Number of random bytes for token generation (32 bytes = 256 bits)
+API_TOKEN_MAX_LENGTH = 64  # Maximum length for token storage in database
+API_TOKEN_DEFAULT_EXPIRY_DAYS = 90  # Default expiry period for new API tokens in days

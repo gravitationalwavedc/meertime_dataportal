@@ -35,6 +35,9 @@ const TopNav = () => {
                 <Link to="/password_change/" exact as={Nav.Link}>
                   Change Password
                 </Link>
+                <Link to="/api-tokens/" exact as={Nav.Link}>
+                  API Tokens
+                </Link>
                 <Nav.Link onClick={logout}>Log out</Nav.Link>
               </>
             ) : (

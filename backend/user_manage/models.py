@@ -1,11 +1,13 @@
 import uuid
 import datetime
+import secrets
 
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.conf import settings
 
 from utils.constants import UserRole
 
@@ -31,6 +33,62 @@ class User(AbstractUser):
 
     def is_unrestricted(self):
         return self.role in [UserRole.UNRESTRICTED.value, UserRole.ADMIN.value]
+
+
+class ApiToken(models.Model):
+    """
+    Bearer token model for API authentication
+    Similar to Django REST Framework's Token model but with additional features
+    """
+
+    key = models.CharField(max_length=settings.API_TOKEN_MAX_LENGTH, unique=True, db_index=True)
+    user = models.ForeignKey(User, related_name="api_tokens", on_delete=models.CASCADE, verbose_name=_("User"))
+    name = models.CharField(max_length=64, default="API Token")
+    created = models.DateTimeField(auto_now_add=True)
+    last_used = models.DateTimeField(null=True, blank=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = _("API Token")
+        verbose_name_plural = _("API Tokens")
+        constraints = [models.UniqueConstraint(fields=["user", "name"], name="unique_token_name_per_user")]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.name}"
+
+    @property
+    def preview(self):
+        """Return first 8 characters of the token key for display purposes"""
+        return self.key[:8] if self.key else ""
+
+    def is_expired(self):
+        """Check if token is expired"""
+        if self.expires_at is None:
+            return False
+        return timezone.now() > self.expires_at
+
+    def is_valid(self):
+        """Check if token is valid (active and not expired)"""
+        return self.is_active and not self.is_expired()
+
+    def update_last_used(self):
+        """Update the last_used timestamp"""
+        self.last_used = timezone.now()
+        self.save(update_fields=["last_used"])
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            token_bytes = settings.API_TOKEN_BYTES
+            self.key = secrets.token_urlsafe(token_bytes)
+
+        # Set default expiry for new tokens based on configured days
+        # Only if expires_at is None and it wasn't explicitly set to None
+        if not self.pk and self.expires_at is None:
+            expiry_days = settings.API_TOKEN_DEFAULT_EXPIRY_DAYS
+            self.expires_at = timezone.now() + datetime.timedelta(days=expiry_days)
+
+        super().save(*args, **kwargs)
 
 
 class ProvisionalUser(models.Model):

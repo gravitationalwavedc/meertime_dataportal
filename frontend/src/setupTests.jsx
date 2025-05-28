@@ -34,9 +34,26 @@ vi.mock("found", async () => {
       },
     }),
     useLocation: () => ({
-      pathname: vi.fn(),
+      pathname: "/",
     }),
-    Link: (component) => <>{component.children}</>,
+    Link: ({ children, to, as: Component = "a", exact, ...props }) => {
+      // Filter out router-specific props that shouldn't be passed to DOM elements
+      const { exact: _, ...filteredProps } = props;
+
+      if (Component && typeof Component !== "string") {
+        // For React Bootstrap components, pass through props but filter out router-specific ones
+        return (
+          <Component href={to} {...filteredProps}>
+            {children}
+          </Component>
+        );
+      }
+      return (
+        <a href={to} {...filteredProps}>
+          {children}
+        </a>
+      );
+    },
   };
 });
 
