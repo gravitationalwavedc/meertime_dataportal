@@ -1,19 +1,20 @@
 from django.contrib import admin
+
 from .models import (
-    Pulsar,
-    Telescope,
-    MainProject,
-    Project,
-    Ephemeris,
-    Template,
     Calibration,
+    Ephemeris,
+    MainProject,
     Observation,
     ObservationSummary,
+    PipelineImage,
     PipelineRun,
+    Project,
+    Pulsar,
     PulsarFoldResult,
     PulsarFoldSummary,
     PulsarSearchSummary,
-    PipelineImage,
+    Telescope,
+    Template,
     Toa,
 )
 

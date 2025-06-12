@@ -1,10 +1,10 @@
 import graphene
 from django.contrib.postgres.fields import JSONField
 from graphene_django.converter import convert_django_field
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import PipelineImageNode
 from dataportal.models import PipelineImage
+from user_manage.graphql.decorators import permission_required
 
 
 @convert_django_field.register(JSONField)

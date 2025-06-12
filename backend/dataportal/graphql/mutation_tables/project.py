@@ -3,10 +3,10 @@ from datetime import timedelta
 import graphene
 from django.db.models.fields import DurationField
 from graphene_django.converter import convert_django_field
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import ProjectNode
 from dataportal.models import MainProject, Project
+from user_manage.graphql.decorators import permission_required
 
 
 @convert_django_field.register(DurationField)

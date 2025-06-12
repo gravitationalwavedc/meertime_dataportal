@@ -1,8 +1,9 @@
-import os
 import json
+import os
 
 from django.test import TestCase
-from utils.ephemeris import parse_ephemeris_file, convert_frequency_to_period, convert_to_float_if_possible
+
+from utils.ephemeris import convert_frequency_to_period, convert_to_float_if_possible, parse_ephemeris_file
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "test_data")
 

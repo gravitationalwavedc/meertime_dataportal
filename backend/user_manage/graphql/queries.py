@@ -5,9 +5,9 @@ GraphQL queries for user management
 import graphene
 from graphene import relay
 
+from ..models import ApiToken
 from .decorators import login_required
 from .token_mutations import ApiTokenConnection
-from ..models import ApiToken
 
 
 class Query(graphene.ObjectType):

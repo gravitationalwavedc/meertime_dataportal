@@ -1,10 +1,9 @@
-from django.contrib.auth.models import AnonymousUser
-from django.utils.functional import SimpleLazyObject
-from graphene_django.views import GraphQLView
+import logging
+
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.urls import reverse
-import logging
+from graphene_django.views import GraphQLView
 
 logger = logging.getLogger(__name__)
 

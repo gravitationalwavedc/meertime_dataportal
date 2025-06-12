@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Dict, Tuple, Union, Optional
+from typing import Dict, List, Tuple, Union
 
 from django.conf import settings
 from django.http import FileResponse, HttpResponse

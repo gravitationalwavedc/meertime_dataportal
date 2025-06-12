@@ -1,9 +1,9 @@
 import numpy as np
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from dataportal.models import (
+    Badge,
     Calibration,
     Observation,
     ObservationSummary,
@@ -11,7 +11,6 @@ from dataportal.models import (
     PulsarFoldResult,
     PulsarFoldSummary,
     PulsarSearchSummary,
-    Badge,
 )
 
 

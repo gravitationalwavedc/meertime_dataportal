@@ -1,8 +1,8 @@
 import graphene
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import PipelineRunNode
 from dataportal.models import Ephemeris, Observation, PipelineRun, Template
+from user_manage.graphql.decorators import permission_required
 
 
 class PipelineRunInput(graphene.InputObjectType):

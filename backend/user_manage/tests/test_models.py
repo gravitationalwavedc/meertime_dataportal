@@ -1,18 +1,18 @@
 from datetime import timedelta
+from uuid import UUID
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import check_password
 from django.core import mail
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
-from django.utils import timezone
-from django.conf import settings
-from uuid import UUID
-
-from django.contrib.auth.hashers import check_password
 from django.test import TestCase
+from django.utils import timezone
 
 from utils.constants import UserRole
-from ..models import Registration, ProvisionalUser, ApiToken
+
+from ..models import ApiToken, ProvisionalUser, Registration
 
 User = get_user_model()
 

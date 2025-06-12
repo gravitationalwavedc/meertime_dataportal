@@ -1,9 +1,9 @@
 import os
+
 from django.test import TestCase, TransactionTestCase
 
-from dataportal.models import PipelineRun, Badge, Calibration, Toa
-
-from dataportal.tests.testing_utils import setup_query_test, create_basic_data, create_observation_pipeline_run_toa
+from dataportal.models import Badge, Calibration, PipelineRun, Toa
+from dataportal.tests.testing_utils import create_basic_data, create_observation_pipeline_run_toa, setup_query_test
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 

@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.backends import ModelBackend, BaseBackend
-from django.utils import timezone
+from django.contrib.auth.backends import BaseBackend, ModelBackend
 
 
 class EmailBackend(ModelBackend):

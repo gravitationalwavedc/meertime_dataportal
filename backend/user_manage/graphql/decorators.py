@@ -1,7 +1,5 @@
 from functools import wraps
-from django.contrib.auth.decorators import login_required as django_login_required
-from django.contrib.auth.decorators import user_passes_test as django_user_passes_test
-from django.contrib.auth.decorators import permission_required as django_permission_required
+
 from graphql.error import GraphQLError
 
 

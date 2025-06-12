@@ -1,16 +1,14 @@
 import json
+
+import pytz
 from django.contrib.auth import get_user_model
-from graphene_django.utils.testing import GraphQLTestCase
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
+from graphene_django.utils.testing import GraphQLTestCase
 from graphql_relay import from_global_id
-import pytz
-from django.db.models.signals import post_save
-from dataportal.signals import handle_pulsar_fold_summary_update
-from dataportal.models import PipelineRun
 
+from dataportal.models import Toa
 from dataportal.tests.testing_utils import setup_query_test
-from dataportal.models import Toa, PulsarFoldResult
 
 User = get_user_model()
 

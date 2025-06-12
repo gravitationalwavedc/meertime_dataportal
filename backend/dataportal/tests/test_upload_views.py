@@ -1,18 +1,16 @@
 import json
 import os
-from unittest import mock
-from io import BytesIO
 
-from django.test import TestCase, Client
-from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase
+from django.urls import reverse
 
-from utils.constants import UserRole
-from dataportal.models import Project, Pulsar, PipelineRun, PulsarFoldResult, Template, PipelineImage
+from dataportal.models import PipelineImage, Template
 from dataportal.tests.testing_utils import create_basic_data, create_observation_pipeline_run_toa
+from utils.constants import UserRole
 
 User = get_user_model()
 

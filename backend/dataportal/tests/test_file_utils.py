@@ -1,13 +1,13 @@
 from pathlib import Path
 from unittest import mock
 
-from django.test import TestCase, Client, override_settings
-from django.urls import reverse
 from django.contrib.auth import get_user_model
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse
+from django.test import Client, TestCase, override_settings
+from django.urls import reverse
 
+from dataportal.file_utils import get_file_list, serve_file
 from utils.constants import UserRole
-from dataportal.file_utils import get_file_list, get_file_path, serve_file
 
 
 class FileUtilsTestCase(TestCase):

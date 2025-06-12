@@ -1,16 +1,17 @@
 import graphene
+
 from dataportal.graphql.mutation_tables import (
-    pulsar,
-    observation,
     calibration,
     ephemeris,
-    telescope,
     main_project,
-    project,
-    template,
+    observation,
     pipeline_run,
-    toa,
+    project,
+    pulsar,
     residual,
+    telescope,
+    template,
+    toa,
 )
 
 

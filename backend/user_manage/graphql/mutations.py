@@ -7,18 +7,11 @@ import requests
 from django.conf import settings
 from django.db.models import Q
 from django.utils import timezone
-from .decorators import login_required
 
 from ..models import PasswordResetRequest, ProvisionalUser, Registration
 from . import admin_api
-from .types import (
-    PasswordResetRequestType,
-    ProvisionalUserType,
-    RegistrationInput,
-    RegistrationType,
-    UserType,
-)
 from .token_mutations import CreateApiToken, DeleteApiToken
+from .types import PasswordResetRequestType, ProvisionalUserType, RegistrationInput, RegistrationType, UserType
 
 UserModel = django.contrib.auth.get_user_model()
 

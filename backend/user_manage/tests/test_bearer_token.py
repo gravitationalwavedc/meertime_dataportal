@@ -1,15 +1,16 @@
 import json
 from datetime import timedelta
-from django.test import TestCase
-from django.contrib.auth import get_user_model
-from django.utils import timezone
+
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import IntegrityError
+from django.test import TestCase
+from django.utils import timezone
 from graphene_django.utils.testing import GraphQLTestCase
 from graphql_relay import to_global_id
 
-from user_manage.models import ApiToken
 from user_manage.backends import BearerTokenAuthentication
+from user_manage.models import ApiToken
 from utils.constants import UserRole
 
 User = get_user_model()

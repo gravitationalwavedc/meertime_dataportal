@@ -1,16 +1,14 @@
 import math
-from astropy.time import Time
 from collections import Counter
 from datetime import datetime
 
 import graphene
-import pytz
+from astropy.time import Time
 from django.db.models import Q, Subquery
 from django.template.defaultfilters import filesizeformat
 from graphene import ObjectType, relay
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
-from user_manage.graphql.decorators import login_required, user_passes_test
 
 from dataportal.file_utils import get_file_list
 from dataportal.models import (
@@ -32,7 +30,7 @@ from dataportal.models import (
     Template,
     Toa,
 )
-from utils import constants
+from user_manage.graphql.decorators import login_required, user_passes_test
 
 
 # FileNode and FileConnection classes for file queries

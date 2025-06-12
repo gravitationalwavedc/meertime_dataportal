@@ -1,9 +1,7 @@
-from base64 import b64decode
 import json
+from base64 import b64decode
 
-from django.test import TestCase
 from graphene_django.utils.testing import GraphQLTestCase
-from django.contrib.auth import get_user_model
 
 from dataportal.tests.testing_utils import setup_timing_obs
 

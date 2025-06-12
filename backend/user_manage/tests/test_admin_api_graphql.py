@@ -1,9 +1,9 @@
 import json
-from django.contrib.auth import get_user_model
-from django.test import tag
-from graphene_django.utils.testing import GraphQLTestCase
-from utils.constants import UserRole
 
+from django.contrib.auth import get_user_model
+from graphene_django.utils.testing import GraphQLTestCase
+
+from utils.constants import UserRole
 
 User = get_user_model()
 

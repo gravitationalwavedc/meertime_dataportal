@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.core.files.base import ContentFile
-from graphene_django.utils.testing import GraphQLTestCase, Client
+from graphene_django.utils.testing import Client
 
 from dataportal.models import (
     Calibration,
