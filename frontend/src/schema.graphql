@@ -1067,7 +1067,7 @@ type TimingResidualPlotDataType {
   link: String
   phase: Float
   snr: Float
-  utc: Int
+  utc: Float
   value: Float
 }
 

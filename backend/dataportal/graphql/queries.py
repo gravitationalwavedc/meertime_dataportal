@@ -500,6 +500,13 @@ class PipelineRunNode(DjangoObjectType):
     template = graphene.Field(TemplateNode)
     observation = graphene.Field(ObservationNode)
 
+    def resolve_dm_err(self, info):
+        """
+        Return None for any non-scalar dm_err values (inf, -inf, nan).
+        GraphQL Float scalar type cannot represent these values.
+        """
+        return None if self.dm_err is None or math.isinf(self.dm_err) or math.isnan(self.dm_err) else self.dm_err
+
 
 class PipelineRunConnection(relay.Connection):
     class Meta:
@@ -573,7 +580,7 @@ class TimingResidualPlotDataType(ObjectType):
     link = graphene.String()
     phase = graphene.Float()
     snr = graphene.Float()
-    utc = graphene.Int()
+    utc = graphene.Float()
     value = graphene.Float()
 
 

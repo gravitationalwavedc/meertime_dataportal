@@ -951,8 +951,7 @@ class Toa(models.Model):
                 ephemeris_data=json.dumps(ephemeris_dict),
             )
 
-        # created_toas = []
-        toas_to_create = []
+        created_toas = []
         for toa_line in toa_lines:
             if "FORMAT" in toa_line:
                 continue
@@ -979,85 +978,43 @@ class Toa(models.Model):
                 length = toa_dict["length"]
                 subint = toa_dict["subint"]
 
-            # Upload the toa
-            toas_to_create.append(
-                Toa(
-                    pipeline_run=pipeline_run,
-                    observation=observation,
-                    project=project,
-                    ephemeris=ephemeris,
-                    template=template,
-                    archive=toa_dict["archive"],
-                    freq_MHz=toa_dict["freq_MHz"],
-                    mjd=toa_dict["mjd"],
-                    mjd_err=toa_dict["mjd_err"],
-                    telescope=toa_dict["telescope"],
-                    fe=toa_dict["fe"],
-                    be=toa_dict["be"],
-                    f=toa_dict["f"],
-                    bw=toa_dict["bw"],
-                    tobs=toa_dict["tobs"],
-                    tmplt=toa_dict["tmplt"],
-                    gof=toa_dict.get("gof", None),
-                    nbin=toa_dict["nbin"],
-                    snr=toa_dict["snr"],
-                    nch=nch,
-                    chan=chan,
-                    rcvr=rcvr,
-                    length=length,
-                    subint=subint,
-                    dm_corrected=dm_corrected,
-                    nsub_type=nsub_type,
-                    obs_nchan=nchan,
-                    obs_npol=npol,
-                )
+            # Create or update the TOA
+            toa, _ = Toa.objects.update_or_create(
+                # Lookup fields (unique constraint)
+                observation=observation,
+                project=project,
+                dm_corrected=dm_corrected,
+                obs_npol=npol,
+                obs_nchan=nchan,
+                chan=chan,
+                nsub_type=nsub_type,
+                subint=subint,
+                # Defaults (fields to update/create)
+                defaults={
+                    "pipeline_run": pipeline_run,
+                    "ephemeris": ephemeris,
+                    "template": template,
+                    "archive": toa_dict["archive"],
+                    "freq_MHz": toa_dict["freq_MHz"],
+                    "mjd": toa_dict["mjd"],
+                    "mjd_err": toa_dict["mjd_err"],
+                    "telescope": toa_dict["telescope"],
+                    "fe": toa_dict["fe"],
+                    "be": toa_dict["be"],
+                    "f": toa_dict["f"],
+                    "bw": toa_dict["bw"],
+                    "tobs": toa_dict["tobs"],
+                    "tmplt": toa_dict["tmplt"],
+                    "gof": toa_dict.get("gof", None),
+                    "nbin": toa_dict["nbin"],
+                    "snr": toa_dict["snr"],
+                    "nch": nch,
+                    "rcvr": rcvr,
+                    "length": length,
+                },
             )
-        created_toas = Toa.objects.bulk_create(
-            toas_to_create,
-            update_conflicts=True,
-            unique_fields=[
-                "observation",
-                "project",
-                "dm_corrected",
-                "obs_npol",
-                # Frequency
-                "obs_nchan",  # Number of channels
-                "chan",  # Chan ID
-                # Time
-                "nsub_type",
-                "subint",  # Time ID
-            ],
-            update_fields=[
-                "pipeline_run",
-                "observation",
-                "project",
-                "ephemeris",
-                "template",
-                "archive",
-                "freq_MHz",
-                "mjd",
-                "mjd_err",
-                "telescope",
-                "fe",
-                "be",
-                "f",
-                "bw",
-                "tobs",
-                "tmplt",
-                "gof",
-                "nbin",
-                "nch",
-                "chan",
-                "rcvr",
-                "snr",
-                "length",
-                "subint",
-                "dm_corrected",
-                "nsub_type",
-                "obs_nchan",
-                "obs_npol",
-            ],
-        )
+            created_toas.append(toa)
+
         return created_toas
 
     class Meta:

@@ -85,7 +85,7 @@ STATIC_URL = "/static/"
 MEDIA_ROOT = "/media/"
 MEDIA_URL = "/media/"
 
-SITE_URL = "https://pulsars.org.au/"  # with a trailing slash
+SITE_URL = "https://pulsars.org.au"
 CSRF_TRUSTED_ORIGINS = [SITE_URL]
 
 SECRET_CAPTCHA_KEY = env("SECRET_CAPTCHA_KEY")

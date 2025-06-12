@@ -65,7 +65,7 @@ const FoldDetail = ({ match }) => {
     "Session Timing Jump",
     "RM Drift",
   ]);
-  const [minimumSNR, setMinimumSNR] = useState(minSNR || 8);
+  const [minimumSNR, setMinimumSNR] = useState(minSNR ? Number(minSNR) : 8);
 
   const data = useLazyLoadQuery(foldDetailQuery, {
     pulsar: jname,
