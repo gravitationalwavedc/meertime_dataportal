@@ -1,8 +1,8 @@
 import graphene
 from django.contrib.auth import get_user_model
 from django.db import IntegrityError
-from user_manage.graphql.decorators import user_passes_test
 
+from user_manage.graphql.decorators import user_passes_test
 from user_manage.models import ProvisionalUser
 from utils.constants import UserRole
 

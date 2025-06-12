@@ -3,10 +3,9 @@ GraphQL mutations for Bearer token authentication
 """
 
 import graphene
+from django.db import IntegrityError
 from graphene import relay
 from graphene_django import DjangoObjectType
-from graphql.error import GraphQLError
-from django.db import IntegrityError
 from graphql_relay import from_global_id
 
 from ..models import ApiToken
@@ -80,7 +79,7 @@ class CreateApiToken(graphene.Mutation):
                 ok=True,
                 errors=None,
             )
-        except IntegrityError as e:
+        except IntegrityError:
             # Handle unique constraint violation for token names
             error_msg = f"You already have a token named '{name}'. Please use a different name."
 

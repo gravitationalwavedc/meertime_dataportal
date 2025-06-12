@@ -1,8 +1,9 @@
 import json
+
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
-from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_protect, ensure_csrf_cookie
 from django.views.decorators.http import require_POST
 
 

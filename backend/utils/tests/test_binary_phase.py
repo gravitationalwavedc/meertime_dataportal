@@ -1,5 +1,6 @@
 import numpy as np
 from django.test import TestCase
+
 from utils.binary_phase import get_binary_phase
 
 

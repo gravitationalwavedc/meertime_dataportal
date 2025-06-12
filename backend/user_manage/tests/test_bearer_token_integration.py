@@ -4,8 +4,9 @@ Tests the complete flow from HTTP request to GraphQL resolution
 """
 
 import json
-from django.test import TestCase, Client
+
 from django.contrib.auth import get_user_model
+from django.test import Client, TestCase
 from django.urls import reverse
 
 from user_manage.models import ApiToken

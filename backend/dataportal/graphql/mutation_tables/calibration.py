@@ -1,8 +1,8 @@
 import graphene
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import CalibrationNode
 from dataportal.models import Calibration
+from user_manage.graphql.decorators import permission_required
 
 
 class CalibrationInput(graphene.InputObjectType):

@@ -1,18 +1,15 @@
 import json
-import graphene
 from decimal import Decimal
-from user_manage.graphql.decorators import permission_required
-from django.contrib.postgres.fields import JSONField
-from graphene_django.converter import convert_django_field
-from django.db import IntegrityError
 
-from utils.ephemeris import parse_ephemeris_file
-from dataportal.models import (
-    Ephemeris,
-    Pulsar,
-    Project,
-)
+import graphene
+from django.contrib.postgres.fields import JSONField
+from django.db import IntegrityError
+from graphene_django.converter import convert_django_field
+
 from dataportal.graphql.queries import EphemerisNode
+from dataportal.models import Ephemeris, Project, Pulsar
+from user_manage.graphql.decorators import permission_required
+from utils.ephemeris import parse_ephemeris_file
 
 
 @convert_django_field.register(JSONField)

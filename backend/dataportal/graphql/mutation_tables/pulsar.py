@@ -1,8 +1,8 @@
 import graphene
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import PulsarNode
 from dataportal.models import Pulsar
+from user_manage.graphql.decorators import permission_required
 
 
 class PulsarsInput(graphene.InputObjectType):

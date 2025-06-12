@@ -1,8 +1,8 @@
 import graphene
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import ToaNode
 from dataportal.models import Toa
+from user_manage.graphql.decorators import permission_required
 
 
 class ToaInput(graphene.InputObjectType):

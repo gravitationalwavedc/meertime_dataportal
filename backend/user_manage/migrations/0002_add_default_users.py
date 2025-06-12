@@ -1,7 +1,7 @@
-from django.db import migrations
 from django.contrib.auth.hashers import make_password
-from meertime.settings import env
+from django.db import migrations
 
+from meertime.settings import env
 from utils.constants import UserRole
 
 SHARED_MEERTIME_USER_ID = env("SHARED_MEERTIME_USER_ID", default="shared_id")

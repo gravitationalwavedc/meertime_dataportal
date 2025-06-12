@@ -1,19 +1,18 @@
-import os
 import json
+import os
+
 from django.contrib.auth import get_user_model
 from graphene_django.utils.testing import GraphQLTestCase
 
+from dataportal.models import Badge
 from dataportal.tests.testing_utils import (
-    setup_query_test,
-    upload_toa_files,
+    TEST_DATA_DIR,
     create_basic_data,
     create_observation_pipeline_run_toa,
-    TEST_DATA_DIR,
+    setup_query_test,
+    upload_toa_files,
 )
 from utils.tests.test_toa import TOA_FILES
-from dataportal.models import (
-    Badge,
-)
 
 User = get_user_model()
 
@@ -847,7 +846,7 @@ class FrontendQueriesTestCase(GraphQLTestCase):
         # This test specifically needs a fresh set of observations to test mode duration
         # but we can use the client from the base class
 
-        from dataportal.models import Telescope, Pulsar, Project, Ephemeris, Template
+        from dataportal.models import Ephemeris, Project, Pulsar, Telescope, Template
 
         Pulsar.objects.all().delete()  # Clear existing pulsars
         Telescope.objects.all().delete()  # Clear existing telescopes
@@ -984,7 +983,7 @@ class FrontendQueriesTestCase(GraphQLTestCase):
         # This test specifically needs to create its own data with badges
         # but we can use the client from the base class
 
-        from dataportal.models import Telescope, Pulsar
+        from dataportal.models import Pulsar, Telescope
 
         Pulsar.objects.all().delete()  # Clear existing pulsars
         Telescope.objects.all().delete()  # Clear existing telescopes

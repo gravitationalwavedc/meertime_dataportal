@@ -3,11 +3,7 @@ from django.contrib.auth import get_user_model
 from graphene import relay
 from graphene_django import DjangoObjectType
 
-from ..models import (
-    Registration,
-    PasswordResetRequest,
-    ProvisionalUser,
-)
+from ..models import PasswordResetRequest, ProvisionalUser, Registration
 
 
 class RegistrationType(DjangoObjectType):

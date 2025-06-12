@@ -1,10 +1,8 @@
 import graphene
-from user_manage.graphql.decorators import permission_required
 
-from dataportal.models import (
-    PipelineFile,
-)
 from dataportal.graphql.queries import PipelineFileNode
+from dataportal.models import PipelineFile
+from user_manage.graphql.decorators import permission_required
 
 
 class PipelineFileInput(graphene.InputObjectType):

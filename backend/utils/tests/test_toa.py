@@ -1,7 +1,8 @@
 import os
 
 from django.test import TestCase
-from utils.toa import toa_line_to_dict, toa_dict_to_line
+
+from utils.toa import toa_dict_to_line, toa_line_to_dict
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 

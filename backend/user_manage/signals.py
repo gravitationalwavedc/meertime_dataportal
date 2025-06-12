@@ -1,18 +1,14 @@
 import datetime
 import logging
 
-from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 from django.db.models import Q
-from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from .models import Registration, PasswordResetRequest, User, ProvisionalUser
-from .utility import (
-    send_verification_email,
-    send_password_reset_email,
-    send_activation_email,
-)
+from django.utils import timezone
 
+from .models import PasswordResetRequest, ProvisionalUser, Registration, User
+from .utility import send_activation_email, send_password_reset_email, send_verification_email
 
 logger = logging.getLogger(__name__)
 

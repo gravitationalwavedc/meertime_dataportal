@@ -1,6 +1,5 @@
 from django.db import migrations
 
-
 TO_UPDATE = [
     "ssaleheen@swin.edu.au",
     "mbailes@swin.edu.au",

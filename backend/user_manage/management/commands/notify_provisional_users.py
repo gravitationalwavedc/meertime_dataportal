@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+
 from user_manage.management.commands._command_functions import notify_provisional_users
 from utils.constants import UserRole
 

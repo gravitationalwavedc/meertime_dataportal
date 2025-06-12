@@ -1,8 +1,8 @@
 import graphene
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import TelescopeNode
 from dataportal.models import Telescope
+from user_manage.graphql.decorators import permission_required
 
 
 class TelescopeInput(graphene.InputObjectType):

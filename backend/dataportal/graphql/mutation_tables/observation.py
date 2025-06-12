@@ -2,10 +2,10 @@ import json
 
 import graphene
 from django.db import IntegrityError
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import ObservationNode
 from dataportal.models import Calibration, Ephemeris, Observation, Project, Pulsar, Telescope
+from user_manage.graphql.decorators import permission_required
 from utils.ephemeris import parse_ephemeris_file
 
 

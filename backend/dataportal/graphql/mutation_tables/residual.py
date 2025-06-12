@@ -4,10 +4,10 @@ from decimal import getcontext
 
 import graphene
 import numpy as np
-from user_manage.graphql.decorators import permission_required
 
 from dataportal.graphql.queries import ToaNode
 from dataportal.models import Toa
+from user_manage.graphql.decorators import permission_required
 from utils.binary_phase import get_binary_phase, is_binary
 
 

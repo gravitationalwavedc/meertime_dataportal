@@ -1,12 +1,6 @@
 from django.contrib import admin
 
-from .models import (
-    Registration,
-    PasswordResetRequest,
-    User,
-    ProvisionalUser,
-    ApiToken,
-)
+from .models import ApiToken, PasswordResetRequest, ProvisionalUser, Registration, User
 
 
 @admin.register(Registration)
