@@ -18,7 +18,7 @@ const Session = ({ match }) => {
 
   let params;
   if (id) {
-    params = { id: id };
+    params = { id: Number(id) };
   } else {
     params = { id: -1 };
   }

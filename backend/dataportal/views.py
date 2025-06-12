@@ -2,6 +2,8 @@ from django.conf import settings
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render
 from django.views.decorators.http import require_GET
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
@@ -46,6 +48,7 @@ def handler500(request):
     return render(request, "500.html", {})
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class UploadTemplate(ViewSet):
     serializer_class = UploadTemplateSerializer
     permission_classes = [TemplateAddPermission]
@@ -108,6 +111,7 @@ class UploadTemplate(ViewSet):
         )
 
 
+@method_decorator(csrf_exempt, name="dispatch")
 class UploadPipelineImage(ViewSet):
     serializer_class = UploadPipelineImageSerializer
     permission_classes = [PipelineImageAddPermission]

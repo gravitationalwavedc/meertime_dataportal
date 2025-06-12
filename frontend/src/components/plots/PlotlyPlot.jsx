@@ -104,7 +104,7 @@ const PlotlyPlot = ({
     projectShort: projectShort,
     excludeBadges: excludeBadges,
     minimumSNR: minimumSNR,
-    obsNchan: nchan,
+    obsNchan: nchan !== undefined ? Number(nchan) : undefined,
   });
 
   const data = getActivePlotData(queryData, activePlot, jname, mainProject);

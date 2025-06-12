@@ -52,11 +52,11 @@ const ObservationFlags = ({
   const [localMinimumSNR, setLocalMinimumSNR] = useState(minimumSNR);
 
   const handleMinimumSNRSlide = (e) => {
-    setLocalMinimumSNR(parseInt(e.target.value));
+    setLocalMinimumSNR(parseFloat(e.target.value));
   };
 
   const handleMinimumSNRToggle = (e) => {
-    const minimumSNR = e.target.value;
+    const minimumSNR = Number(e.target.value);
     const url = new URL(window.location);
     url.searchParams.set("minSNR", minimumSNR);
     window.history.pushState({}, "", url);
