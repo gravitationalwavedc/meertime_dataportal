@@ -40,6 +40,7 @@ psycopg = "^3.2.2"
 django4-jenkins = "^1.0.0"
 unittest-xml-reporting = "^3.2.0"
 tblib = "^3.1.0"
+zipstream-ng = "^1.8.0"
 
 [tool.poetry.group.dev.dependencies]
 freezegun = "^1.2.2"

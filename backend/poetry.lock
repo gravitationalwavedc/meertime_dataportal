@@ -2324,7 +2324,21 @@ enabler = ["pytest-enabler (>=2.2)"]
 test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more-itertools", "pytest (>=6,!=8.1.*)", "pytest-ignore-flaky"]
 type = ["pytest-mypy"]
 
+[[package]]
+name = "zipstream-ng"
+version = "1.8.0"
+description = "A modern and easy to use streamable zip file generator"
+optional = false
+python-versions = ">=3.5.0"
+files = [
+    {file = "zipstream_ng-1.8.0-py3-none-any.whl", hash = "sha256:e7196cb845cf924ed12e7a3b38404ef9e82a5a699801295f5f4cf601449e2bf6"},
+    {file = "zipstream_ng-1.8.0.tar.gz", hash = "sha256:b7129d2c15d26934b3e1cb22256593b6bdbd03c553c26f4199a5bf05110642bc"},
+]
+
+[package.extras]
+tests = ["pytest", "pytest-cov"]
+
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.13"
-content-hash = "f2901cc6ceb179d40d19d83dd9f54a16b8674143392795177040ef1d3150746b"
+content-hash = "4b7f40bc556c0dd149ce593c5d0e76376e9231ef0f6a42e30bd22c93a961545b"

@@ -1,5 +1,9 @@
+import os
+from pathlib import Path
+from datetime import datetime
+
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -8,9 +12,10 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from sentry_sdk import last_event_id
+from zipstream import ZipStream
 
-from .file_utils import serve_file
-from .models import PipelineImage, PipelineRun, Project, Pulsar, PulsarFoldResult, Template
+from .file_utils import get_file_list, get_file_path, serve_file
+from .models import Observation, PipelineImage, PipelineRun, Project, Pulsar, PulsarFoldResult, Template
 from .serializers import UploadPipelineImageSerializer, UploadTemplateSerializer
 from .storage import create_file_hash
 
@@ -169,20 +174,140 @@ class UploadPipelineImage(ViewSet):
 
 
 @require_GET
-def download_file(request, file_path):
+def download_observation_files(request, jname, observation_timestamp, beam, file_type):
     """
-    View to serve files from the mounted data directory
+    View to serve files for a specific observation using new URL format
 
     :param request: HTTP request
-    :param file_path: Path to the file to download
+    :param jname: Name of the pulsar (e.g., 'J1227-6208')
+    :param observation_timestamp: UTC timestamp in format 'YYYY-MM-DD-HH:MM:SS'
+    :param beam: Beam number
+    :param file_type: Type of file to download ('full' or 'decimated')
     :return: File download response
     """
     # Check if user is authenticated
     if not request.user.is_authenticated:
         return HttpResponse("Unauthorized", status=401)
 
-    # Check if user is unrestricted (has sufficient permissions)
-    if not request.user.is_unrestricted():
-        return HttpResponse("Access denied", status=403)
+    # Validate file type
+    if file_type not in ["full", "decimated"]:
+        return HttpResponse("Invalid file type specified", status=400)
 
-    return serve_file(file_path)
+    try:
+        # Parse the timestamp
+        utc_start = datetime.strptime(observation_timestamp, "%Y-%m-%d-%H:%M:%S")
+
+        # Find the observation by pulsar name, timestamp, and beam
+        observation = Observation.objects.get(pulsar__name=jname, utc_start=utc_start, beam=beam)
+
+        # Check if the observation is restricted for this user
+        if observation.is_restricted(request.user):
+            return HttpResponse("Access denied - data is under embargo", status=403)
+
+        # Construct the relative path for the observation
+        base_path = Path(
+            f"{observation.pulsar.name}/{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}/{observation.beam}"
+        )
+
+        if file_type == "full":
+            # Full resolution file
+            file_path = (
+                base_path / f"{observation.pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap.ar"
+            )
+        elif file_type == "decimated":
+            # Decimated file
+            file_path = (
+                base_path
+                / "decimated"
+                / f"{observation.pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
+            )
+
+        return serve_file(str(file_path))
+
+    except Observation.DoesNotExist:
+        return HttpResponse("Observation not found", status=404)
+    except ValueError:
+        return HttpResponse("Invalid timestamp format", status=400)
+
+
+@require_GET
+def download_pulsar_files(request, jname, file_type):
+    """
+    View to serve files for a specific pulsar using new URL format
+
+    :param request: HTTP request
+    :param jname: Name of the pulsar (e.g., 'J1227-6208')
+    :param file_type: Type of file to download ('full' or 'decimated')
+    :return: File download response
+    """
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        return HttpResponse("Unauthorized", status=401)
+
+    # Validate file type
+    if file_type not in ["full", "decimated"]:
+        return HttpResponse("Invalid file type specified", status=400)
+
+    try:
+        pulsar = Pulsar.objects.get(name=jname)
+        observations = Observation.objects.filter(pulsar=pulsar).order_by("utc_start")
+
+        # If there are no observations, return 404
+        if not observations.exists():
+            return HttpResponse("No observations found for this pulsar", status=404)
+
+        # Check if all observations are restricted
+        all_restricted = all(obs.is_restricted(request.user) for obs in observations)
+        if all_restricted:
+            return HttpResponse("Access denied - all data is under embargo", status=403)
+
+        def generate_zip():
+            # Create a ZipStream for streaming
+            zs = ZipStream()
+
+            for observation in observations:
+                # Check if the observation is restricted for this user
+                if observation.is_restricted(request.user):
+                    continue
+
+                # Construct the relative path for the observation
+                base_path = Path(
+                    f"{pulsar.name}/{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}/{observation.beam}"
+                )
+
+                if file_type == "full":
+                    # Add full resolution file
+                    full_res_path = (
+                        base_path / f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap.ar"
+                    )
+                    full_res_abs_path = Path(settings.MEERTIME_DATA_DIR) / full_res_path
+                    if full_res_abs_path.exists():
+                        timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+                        beam_dir = str(observation.beam)
+                        full_filename = f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap.ar"
+                        zs.add_path(str(full_res_abs_path), f"{timestamp_dir}/{beam_dir}/{full_filename}")
+
+                elif file_type == "decimated":
+                    # Add decimated file
+                    decimated_path = (
+                        base_path
+                        / "decimated"
+                        / f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
+                    )
+                    decimated_abs_path = Path(settings.MEERTIME_DATA_DIR) / decimated_path
+                    if decimated_abs_path.exists():
+                        timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+                        beam_dir = str(observation.beam)
+                        decimated_filename = f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
+                        zs.add_path(str(decimated_abs_path), f"{timestamp_dir}/{beam_dir}/{decimated_filename}")
+
+            # Stream the ZIP data
+            for chunk in zs:
+                yield chunk
+
+        response = StreamingHttpResponse(generate_zip(), content_type="application/zip")
+        response["Content-Disposition"] = f'attachment; filename="pulsar_{pulsar.name}_{file_type}_files.zip"'
+        return response
+
+    except Pulsar.DoesNotExist:
+        return HttpResponse("Pulsar not found", status=404)

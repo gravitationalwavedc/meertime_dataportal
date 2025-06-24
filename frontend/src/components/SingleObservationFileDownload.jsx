@@ -1,39 +1,38 @@
-import { graphql, useFragment } from "react-relay";
-import FileDownloadModal from "./FileDownloadModal";
+import { Button } from "react-bootstrap";
 
-const SingleObservationFileDownloadQuery = graphql`
-  fragment SingleObservationFileDownloadFragment on Query
-  @argumentDefinitions(
-    mainProject: { type: "String!" }
-    jname: { type: "String!" }
-    utc: { type: "String!" }
-    beam: { type: "Int!" }
-  ) {
-    fileSingleList(
-      mainProject: $mainProject
-      jname: $jname
-      utc: $utc
-      beam: $beam
-    ) {
-      edges {
-        node {
-          path
-          fileSize
-        }
-      }
-    }
-  }
-`;
-
-const SingleObservationFileDownload = ({ visible, data, setShow }) => {
-  const fragmentData = useFragment(SingleObservationFileDownloadQuery, data);
+const SingleObservationFileDownload = ({ jname, utc, beam }) => {
+  const downloadFile = (e, fileType) => {
+    e.preventDefault();
+    const downloadUrl = `${
+      import.meta.env.VITE_DJANGO_DOWNLOAD_URL
+    }/${jname}/${utc}/${beam}/${fileType}`;
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
-    <FileDownloadModal
-      visible={visible}
-      data={fragmentData.fileSingleList}
-      setShow={setShow}
-    />
+    <>
+      <Button
+        size="sm"
+        variant="outline-secondary"
+        onClick={(e) => downloadFile(e, "full")}
+        className="mr-2 mb-2"
+      >
+        Download Full Resolution
+      </Button>
+      <Button
+        size="sm"
+        variant="outline-secondary"
+        onClick={(e) => downloadFile(e, "decimated")}
+        className="mr-2 mb-2"
+      >
+        Download Decimated
+      </Button>
+    </>
   );
 };
 

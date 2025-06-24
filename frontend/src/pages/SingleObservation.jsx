@@ -1,36 +1,18 @@
 import { Link } from "found";
 import { useState, Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
-import { Col, Container, Row, Modal } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { useScreenSize } from "../context/screenSize-context";
 import Einstein from "../assets/images/einstein-coloured.png";
 import GraphPattern from "../assets/images/graph-pattern.png";
 import Footer from "../components/Footer";
 import TopNav from "../components/TopNav";
 import SingleObservationTable from "../components/SingleObservationTable";
-import SingleObservationFileDownload from "../components/SingleObservationFileDownload";
 
 const SingleObservationQuery = graphql`
   query SingleObservationQuery($pulsar: String!, $utc: String!, $beam: Int!) {
     ...SingleObservationTableFragment
       @arguments(pulsar: $pulsar, utc: $utc, beam: $beam)
-  }
-`;
-
-const SingleObservationFileDownloadQuery = graphql`
-  query SingleObservationFileDownloadQuery(
-    $mainProject: String!
-    $pulsar: String!
-    $utc: String!
-    $beam: Int!
-  ) {
-    ...SingleObservationFileDownloadFragment
-      @arguments(
-        mainProject: $mainProject
-        jname: $pulsar
-        utc: $utc
-        beam: $beam
-      )
   }
 `;
 
@@ -40,7 +22,6 @@ const SingleObservation = ({
   },
 }) => {
   const { screenSize } = useScreenSize();
-  const [downloadModalVisible, setDownloadModalVisible] = useState(false);
 
   // Convert beam from string to integer since URL params are always strings
   const beamInt = parseInt(beam, 10);
@@ -50,16 +31,6 @@ const SingleObservation = ({
     utc: utc,
     beam: beamInt,
   });
-
-  const fileDownloadData = useLazyLoadQuery(
-    SingleObservationFileDownloadQuery,
-    {
-      mainProject: mainProject,
-      pulsar: jname,
-      utc: utc,
-      beam: beamInt,
-    }
-  );
 
   const title = (
     <Link size="sm" to={`/fold/${mainProject}/${jname}/`}>
@@ -96,29 +67,7 @@ const SingleObservation = ({
           <SingleObservationTable
             observationData={observationData}
             jname={jname}
-            setShow={setDownloadModalVisible}
           />
-        </Suspense>
-        <Suspense
-          fallback={
-            <Modal
-              show={downloadModalVisible}
-              onHide={() => setDownloadModalVisible(false)}
-              size="xl"
-            >
-              <Modal.Body>
-                <h4 className="text-primary">Loading</h4>
-              </Modal.Body>
-            </Modal>
-          }
-        >
-          {localStorage.isStaff === "true" && (
-            <SingleObservationFileDownload
-              visible={downloadModalVisible}
-              data={fileDownloadData}
-              setShow={setDownloadModalVisible}
-            />
-          )}
         </Suspense>
       </Container>
       <Footer />
