@@ -8,6 +8,7 @@ import {
 } from "../helpers";
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
+import SingleObservationFileDownload from "./SingleObservationFileDownload";
 
 const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
@@ -79,7 +80,7 @@ const SingleObservationTableFragment = graphql`
   }
 `;
 
-const SingleObservationTable = ({ observationData, jname, setShow }) => {
+const SingleObservationTable = ({ observationData, jname }) => {
   const relayData = useFragment(
     SingleObservationTableFragment,
     observationData
@@ -186,16 +187,11 @@ const SingleObservationTable = ({ observationData, jname, setShow }) => {
               View Next
             </Button>
           )}
-          {localStorage.isStaff === "true" && (
-            <Button
-              size="sm"
-              className="mr-2 mb-2"
-              variant="outline-secondary"
-              onClick={() => setShow(true)}
-            >
-              Download Data Files
-            </Button>
-          )}
+          <SingleObservationFileDownload
+            jname={jname}
+            utc={formatUTC(relayObservationModel.observation.utcStart)}
+            beam={relayObservationModel.observation.beam}
+          />
         </Col>
       </Row>
       <Row>

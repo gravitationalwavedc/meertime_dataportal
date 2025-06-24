@@ -9,5 +9,14 @@ router.register(r"api/upload/image", views.UploadPipelineImage, basename="upload
 
 urlpatterns = [
     path("", include(router.urls)),
-    path("download/<path:file_path>", views.download_file, name="download_file"),
+    path(
+        "download/<str:jname>/<str:observation_timestamp>/<int:beam>/<str:file_type>",
+        views.download_observation_files,
+        name="download_observation_files",
+    ),
+    path(
+        "download/<str:jname>/<str:file_type>",
+        views.download_pulsar_files,
+        name="download_pulsar_files",
+    ),
 ]

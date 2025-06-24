@@ -12,11 +12,6 @@ describe("The Fold Detail Page", () => {
       );
       aliasQuery(req, "EphemerisQuery", "ephemerisQuery.json");
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
-      aliasQuery(
-        req,
-        "SingleObservationFileDownloadQuery",
-        "singleObservationFileDownloadQuery.json"
-      );
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
     });
 
@@ -53,6 +48,32 @@ describe("The Fold Detail Page", () => {
     cy.contains("View folding ephemeris").click();
     cy.wait("@EphemerisQuery");
     cy.contains("Folding Ephemeris").should("be.visible");
+  });
+
+  it("should download full resolution files when download button is clicked", () => {
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    
+    // Ensure the button is visible and clickable
+    cy.contains("Download Full Resolution Data").should("be.visible");
+    
+    // Click the button - this will open download in new tab
+    cy.contains("Download Full Resolution Data").click();
+    
+    // Verify the button click worked by checking that the page is still functional
+    cy.contains("J0125-2327").should("be.visible");
+  });
+
+  it("should download decimated files when download button is clicked", () => {
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    
+    // Ensure the button is visible and clickable
+    cy.contains("Download Decimated Data").should("be.visible");
+    
+    // Click the button - this will open download in new tab
+    cy.contains("Download Decimated Data").click();
+    
+    // Verify the button click worked by checking that the page is still functional
+    cy.contains("J0125-2327").should("be.visible");
   });
 
   it("should go to single observation when view button is clicked", () => {

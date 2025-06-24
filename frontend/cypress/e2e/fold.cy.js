@@ -13,11 +13,6 @@ describe("The Fold Page", () => {
         "foldDetailFileDownloadQuery.json"
       );
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
-      aliasQuery(
-        req,
-        "SingleObservationFileDownloadQuery",
-        "singleObservationFileDownloadQuery.json"
-      );
     });
 
     // Mock session-based authentication endpoints to prevent leaking requests

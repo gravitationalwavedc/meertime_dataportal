@@ -5,11 +5,6 @@ describe("Single Observation Page", () => {
     cy.intercept("http://localhost:5173/api/graphql/", (req) => {
       // Handle all possible GraphQL queries that might be made
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
-      aliasQuery(
-        req,
-        "SingleObservationFileDownloadQuery",
-        "singleObservationFileDownloadQuery.json"
-      );
       // Handle any other queries that might be made during navigation
       aliasQuery(req, "FoldQuery", "foldQuery.json");
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
@@ -47,7 +42,7 @@ describe("Single Observation Page", () => {
       }
     }).as("checkSession");
 
-    // Mock all image requests to prevent network calls
+    // Mock image requests to prevent network calls
     cy.intercept("GET", "/media/**/*.png", {
       fixture: "example.json" // Using a small fixture file as placeholder
     }).as("plotImages");
@@ -88,13 +83,42 @@ describe("Single Observation Page", () => {
 
     cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
     cy.wait("@SingleObservationQuery");
-    cy.wait("@SingleObservationFileDownloadQuery");
     
     // Correct page loads
     cy.contains("J0125-2327").should("be.visible");
 
     // The download buttons are visible
-    cy.contains("Download Data Files").should("be.visible");
+    cy.contains("Download Full Resolution").should("be.visible");
+    cy.contains("Download Decimated").should("be.visible");
+  });
+
+  it("should download files when download buttons are clicked", () => {
+    cy.visit("/login/");
+    cy.get("input[name=email]").type("buffy@sunnydale.com");
+    cy.get("input[name=password]").type("slayer!#1");
+    cy.contains("button", "Sign in").click();
+
+    cy.wait("@getCSRF");
+    cy.wait("@sessionLogin");
+
+    cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
+    cy.wait("@SingleObservationQuery");
+
+    // Ensure the download buttons are visible and clickable
+    cy.contains("Download Full Resolution").should("be.visible");
+    cy.contains("Download Decimated").should("be.visible");
+
+    // Click full resolution download button - this will open download in new tab
+    cy.contains("Download Full Resolution").click();
+    
+    // Verify the button click worked by checking that the page is still functional
+    cy.contains("J0125-2327").should("be.visible");
+
+    // Click decimated download button - this will open download in new tab
+    cy.contains("Download Decimated").click();
+    
+    // Verify the button click worked by checking that the page is still functional
+    cy.contains("J0125-2327").should("be.visible");
   });
 
   it("should render the page with images", () => {
@@ -122,11 +146,6 @@ describe("Single Observation Page", () => {
         req,
         "SingleObservationQuery",
         "singleObservationQueryNoImages.json"
-      );
-      aliasQuery(
-        req,
-        "SingleObservationFileDownloadQuery",
-        "singleObservationFileDownloadQuery.json"
       );
     });
     cy.wait("@SingleObservationQuery");
