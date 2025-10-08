@@ -718,7 +718,19 @@ class PulsarFoldResultConnection(relay.Connection):
         return self.iterable.first().pipeline_run.toas_download_link
 
     def resolve_residual_ephemeris(self, instance):
-        return self.iterable.first().pipeline_run.toas.first().ephemeris
+        ids = self.iterable.values_list("id", flat=True)
+
+        # DRAFT!!
+        return (
+            Ephemeris.objects.filter(
+                pipelinerun__pulsarfoldresult__id__in=ids,
+                pipelinerun__pulsarfoldresult__observation__project__short__isnull=False,  # We don't want observations without projects
+                toa__isnull=False,  # We don't want pipeline runs without TOAs
+            )
+            .exclude(toa__pipeline_run__pulsarfoldresult__observation__project__short__iexact="PTUSE")
+            .order_by("-pipelinerun__created_at")  # We want the latest pipeline run
+            .first()  # We don't want it to return None!
+        )
 
     def resolve_description(self, instance):
         return self.iterable.first().pulsar.comment
@@ -1192,7 +1204,7 @@ class Query(graphene.ObjectType):
     # This requires public access for the frontend web app to work.
     # Don't put behind a login
     def resolve_calibration(self, info, **kwargs):
-        queryset = Calibration.objects.all()
+        queryset = Calibration.objects.filter(n_observations__gt=0)
 
         calibration_id = kwargs.get("id")
         if calibration_id:

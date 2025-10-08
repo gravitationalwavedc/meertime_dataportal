@@ -48,7 +48,7 @@ To then load a local copy of the database, ask ADACS for a copy (here named `prd
 
 6. Migrate all the changes to the database if any, so it is in the correct format: `poetry run python manage.py migrate`.
 
-7. Create Django superuser. Execute the following in the `backend` folder: `poetry run python manage.py createsuperuser` to create a Django admin that will be able to log in on the Django admin page: http://localhost:8000/admin. 
+7. Create Django superuser. Execute the following in the `backend` folder: `poetry run python manage.py createsuperuser` to create a Django admin that will be able to log in on the Django admin page: http://localhost:8000/admin. You will have to login using e-mail.
 
 8. Start the development server: run `poetry run python manage.py runserver` and open the [Django development server](http://localhost:8000).
 
