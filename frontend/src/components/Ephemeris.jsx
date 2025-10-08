@@ -8,6 +8,9 @@ export const ephemerisQuery = graphql`
         id
         ephemerisData
         createdAt
+        project {
+          short
+        }
       }
     }
   }

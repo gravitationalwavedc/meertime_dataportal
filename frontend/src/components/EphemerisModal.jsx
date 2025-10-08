@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 const EphemerisModal = ({ show, setShow, data }) => {
   const [updated, setUpdated] = useState("");
   const [ephemeris, setEphemeris] = useState({});
+  const projectShort = data?.pulsarFoldResult?.residualEphemeris?.project.short;
 
   useEffect(() => {
     const jsonData = data?.pulsarFoldResult?.residualEphemeris?.ephemerisData;
@@ -32,7 +33,7 @@ const EphemerisModal = ({ show, setShow, data }) => {
           <Modal.Title className="text-primary">Folding Ephemeris</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <h5>No residual ephemeris data available.</h5>
+          <h5>No MeerPipe folding ephemeris data available.</h5>
         </Modal.Body>
       </Modal>
     );
@@ -47,8 +48,9 @@ const EphemerisModal = ({ show, setShow, data }) => {
     >
       <Modal.Header style={{ borderBottom: "none" }} closeButton>
         <Modal.Title className="text-primary">
-          Folding Ephemeris
+          Latest MeerPipe Run Folding Ephemeris
           <h6 className="text-muted">as of {updated}</h6>
+          <h6 className="text-muted">from project {projectShort}</h6>
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
