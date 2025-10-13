@@ -8,13 +8,12 @@ from unittest import mock
 import pytz
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.http import HttpResponse
-from django.test import Client, TestCase, override_settings
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from freezegun import freeze_time
 
 from dataportal.file_utils import get_file_list, get_file_path, serve_file
-from dataportal.models import MainProject, Observation, PipelineRun, Project, Pulsar, Telescope
+from dataportal.models import Observation
 from dataportal.tests.testing_utils import setup_query_test
 from utils.constants import UserRole
 
@@ -336,6 +335,8 @@ class DownloadViewsTestCase(TestCase):
     @freeze_time("1900-01-01")
     def test_download_observation_files_unrestricted_access(self):
         """Test that unrestricted users can access restricted observation files"""
+        # TEMPORARY: Currently, only unembargoed observations are visible regardless of user role.
+        # TODO: Update this test when the authorization ssystem is implemented.
         # Use freezegun to set current time to 1900, making the embargo date
         # (utc_start + project.embargo_period) be in the future (restricted)
         # But unrestricted users should still be able to access it
@@ -351,10 +352,11 @@ class DownloadViewsTestCase(TestCase):
                 },
             )
         )
-        self.assertEqual(response.status_code, 200)
+        # self.assertEqual(response.status_code, 200)
         # Read the file content from the response
-        expected_content = self.full_res_file.read_text()
-        self.assertEqual(response.streaming_content.__next__().decode(), expected_content)
+        # expected_content = self.full_res_file.read_text()
+        # self.assertEqual(response.streaming_content.__next__().decode(), expected_content)
+        self.assertEqual(response.status_code, 403)
 
     def test_download_pulsar_files_unauthorized(self):
         """Test downloading pulsar files without authentication"""
@@ -524,6 +526,8 @@ class DownloadViewsTestCase(TestCase):
     @freeze_time("1900-01-01")
     def test_download_pulsar_files_unrestricted_access(self):
         """Test that unrestricted users can access all pulsar files, including restricted ones"""
+        # TEMPORARY: Currently, only unembargoed observations are visible regardless of user role.
+        # TODO: Update this test when the authorization system is implemented.
         # Use freezegun to set current time to 1900, making all embargo dates
         # (utc_start + project.embargo_period) be in the future (restricted)
         # But unrestricted users should still be able to access all files
@@ -531,12 +535,13 @@ class DownloadViewsTestCase(TestCase):
         response = self.client.get(
             reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "full"})
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response["Content-Type"], "application/zip")
-        self.assertEqual(
-            response["Content-Disposition"],
-            f'attachment; filename="pulsar_{self.observation.pulsar.name}_full_files.zip"',
-        )
-        # Check that the zip file contains our test files
-        content = b"".join(response.streaming_content)
-        self.assertGreater(len(content), 0)  # Zip file should not be empty
+        # self.assertEqual(response.status_code, 200)
+        # self.assertEqual(response["Content-Type"], "application/zip")
+        # self.assertEqual(
+        #     response["Content-Disposition"],
+        #     f'attachment; filename="pulsar_{self.observation.pulsar.name}_full_files.zip"',
+        # )
+        # # Check that the zip file contains our test files
+        # content = b"".join(response.streaming_content)
+        # self.assertGreater(len(content), 0)  # Zip file should not be empty
+        self.assertEqual(response.status_code, 403)
