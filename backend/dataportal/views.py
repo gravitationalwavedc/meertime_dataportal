@@ -201,7 +201,11 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
         observation = Observation.objects.get(pulsar__name=jname, utc_start=utc_start, beam=beam)
 
         # Check if the observation is restricted for this user
-        if observation.is_restricted(request.user):
+        # if observation.is_restricted(request.user):
+        #     return HttpResponse("Access denied - data is under embargo", status=403)
+        # For now we're not allowing downloads of any embargoed data.
+        # This will be changed in the future when the authorization system is implemented.
+        if observation.is_embargoed:
             return HttpResponse("Access denied - data is under embargo", status=403)
 
         # Construct the relative path for the observation
@@ -256,10 +260,14 @@ def download_pulsar_files(request, jname, file_type):
         if not observations.exists():
             return HttpResponse("No observations found for this pulsar", status=404)
 
-        # Check if all observations are restricted
-        all_restricted = all(obs.is_restricted(request.user) for obs in observations)
-        if all_restricted:
+        # For now we're just allowing non-embargoed observations
+        all_embargoed = all(observation.is_embargoed for observation in observations)
+        if all_embargoed:
             return HttpResponse("Access denied - all data is under embargo", status=403)
+        # Check if all observations are restricted
+        # all_restricted = all(obs.is_restricted(request.user) for obs in observations)
+        # if all_restricted:
+        #     return HttpResponse("Access denied - all data is under embargo", status=403)
 
         def generate_zip():
             # Create a ZipStream for streaming
@@ -267,7 +275,8 @@ def download_pulsar_files(request, jname, file_type):
 
             for observation in observations:
                 # Check if the observation is restricted for this user
-                if observation.is_restricted(request.user):
+                # if observation.is_restricted(request.user):
+                if observation.is_embargoed:
                     continue
 
                 # Construct the relative path for the observation

@@ -304,11 +304,23 @@ class Observation(models.Model):
         self.embargo_end_date = self.utc_start + self.project.embargo_period
         super(Observation, self).save(*args, **kwargs)
 
-    def is_restricted(self, user):
-        # No login means they can't see embargo data.
-        if user.is_anonymous:
-            return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
+    @property
+    def is_embargoed(self):
+        """
+        Check if the observation still under embargo.
+        :return: bool
+        """
+        return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
 
+    def is_restricted(self, user):
+        """
+        Check if the observation is restricted for the user.
+
+        Currently if a user has an admin or unrestricted role they can access anything.
+        Otherwise they can only access observations that are passed their embargo date.
+        :param user: Django user model instance
+        :return: bool
+        """
         # If the user role isn't restricted they can access everything
         if user.role.upper() in [
             UserRole.UNRESTRICTED.value,
@@ -316,8 +328,8 @@ class Observation(models.Model):
         ]:
             return False
 
-        # If there's no embargo then it's not restricted
-        return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
+        # If they aren't logged in or don't have an unrestricted account they can't see embargo data.
+        return self.is_embargoed
 
     def __str__(self):
         return f"{self.utc_start} {self.beam}"

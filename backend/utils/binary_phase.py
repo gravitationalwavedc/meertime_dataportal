@@ -267,7 +267,7 @@ def get_eccentric_anomaly(mjds, ephemeris_dict):
 
     # eccentric anomaly
     if ECC < 1e-4:
-        print("Assuming circular orbit for true anomaly calculation")
+        # print("Assuming circular orbit for true anomaly calculation")
         E = np.atleast_1d(M).astype(np.float128)
     else:
         M = np.asarray(M, dtype=np.float64)
