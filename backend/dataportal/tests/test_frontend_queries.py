@@ -642,7 +642,11 @@ class FrontendQueriesTestCase(GraphQLTestCase):
 
         # Remove variable parts that can change between test runs
         fold_result = content["data"]["pulsarFoldResult"]
-        if "residualEphemeris" in fold_result and "createdAt" in fold_result["residualEphemeris"]:
+        if (
+            "residualEphemeris" in fold_result
+            and fold_result["residualEphemeris"]
+            and "kcreatedAt" in fold_result["residualEphemeris"]
+        ):
             del fold_result["residualEphemeris"]["createdAt"]
 
         if "edges" in fold_result and len(fold_result["edges"]) > 0:

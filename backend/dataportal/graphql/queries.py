@@ -4,8 +4,10 @@ from datetime import datetime
 
 import graphene
 from astropy.time import Time
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q, Subquery
 from django.template.defaultfilters import filesizeformat
+from django.utils import timezone
 from graphene import ObjectType, relay
 from graphene_django import DjangoObjectType
 from graphql import GraphQLError
@@ -718,12 +720,15 @@ class PulsarFoldResultConnection(relay.Connection):
         return self.iterable.first().pipeline_run.toas_download_link
 
     def resolve_residual_ephemeris(self, instance):
-        ids = self.iterable.values_list("id", flat=True)
+        embargo_period = relativedelta(years=1, months=6)
+        embargo_date = timezone.now() - embargo_period
 
-        # DRAFT!!
+        pulsar_fold_reult_ids = self.iterable.values_list("id", flat=True)
+
         return (
             Ephemeris.objects.filter(
-                pipelinerun__pulsarfoldresult__id__in=ids,
+                created_at__lte=embargo_date,
+                pipelinerun__pulsarfoldresult__id__in=pulsar_fold_reult_ids,
                 pipelinerun__pulsarfoldresult__observation__project__short__isnull=False,  # We don't want observations without projects
                 toa__isnull=False,  # We don't want pipeline runs without TOAs
             )
