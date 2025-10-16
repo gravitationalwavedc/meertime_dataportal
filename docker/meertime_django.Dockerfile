@@ -1,6 +1,6 @@
 # This Dockerfile builds the MeerTime Django application for deployment on Kubernetes.
 
-FROM python:3.10-slim-buster
+FROM python:3.10-slim-bookworm
 
 ARG DEVELOPMENT_MODE
 
