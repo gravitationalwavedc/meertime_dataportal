@@ -48,9 +48,12 @@ const EphemerisModal = ({ show, setShow, data }) => {
     >
       <Modal.Header style={{ borderBottom: "none" }} closeButton>
         <Modal.Title className="text-primary">
-          Latest MeerPipe Run Folding Ephemeris
+          Folding Ephemeris
           <h6 className="text-muted">as of {updated}</h6>
           <h6 className="text-muted">from project {projectShort}</h6>
+          <h6 className="text-muted">
+            displayed ephemeris is the latest non-embargoed ephemeris available.
+          </h6>
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
