@@ -30,7 +30,9 @@ const EphemerisModal = ({ show, setShow, data }) => {
         aria-labelledby="ephemeris-data"
       >
         <Modal.Header style={{ borderBottom: "none" }} closeButton>
-          <Modal.Title className="text-primary">Folding Ephemeris</Modal.Title>
+          <Modal.Title className="text-primary">
+            MeerPipe Folding Ephemeris
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <h5>No MeerPipe folding ephemeris data available.</h5>
@@ -48,11 +50,12 @@ const EphemerisModal = ({ show, setShow, data }) => {
     >
       <Modal.Header style={{ borderBottom: "none" }} closeButton>
         <Modal.Title className="text-primary">
-          Folding Ephemeris
+          MeerPipe Folding Ephemeris
           <h6 className="text-muted">as of {updated}</h6>
           <h6 className="text-muted">from project {projectShort}</h6>
           <h6 className="text-muted">
-            displayed ephemeris is the latest non-embargoed ephemeris available.
+            displayed ephemeris is the latest non-embargoed ephemeris used by
+            MeerPipe to fold the data.
           </h6>
         </Modal.Title>
       </Modal.Header>

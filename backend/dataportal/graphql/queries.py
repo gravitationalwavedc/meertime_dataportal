@@ -643,6 +643,7 @@ class PulsarFoldResultConnection(relay.Connection):
             Toa.objects.select_related(
                 "pipeline_run__badges",
                 "pipeline_run__observation__calibration__badges",
+                "observation__badges",
                 "observation__pulsar",
                 "observation__project__main_project",
                 "observation",
@@ -657,6 +658,7 @@ class PulsarFoldResultConnection(relay.Connection):
             )
             .exclude(pipeline_run__badges__name__in=kwargs.get("exclude_badges"))
             .exclude(pipeline_run__observation__calibration__badges__name__in=kwargs.get("exclude_badges"))
+            .exclude(pipeline_run__observation__badges__name__in=kwargs.get("exclude_badges"))
         )
 
         if kwargs.get("project_short") != "All":
@@ -723,12 +725,12 @@ class PulsarFoldResultConnection(relay.Connection):
         embargo_period = relativedelta(years=1, months=6)
         embargo_date = timezone.now() - embargo_period
 
-        pulsar_fold_reult_ids = self.iterable.values_list("id", flat=True)
+        pulsar_fold_result_ids = self.iterable.values_list("id", flat=True)
 
         return (
             Ephemeris.objects.filter(
                 created_at__lte=embargo_date,
-                pipelinerun__pulsarfoldresult__id__in=pulsar_fold_reult_ids,
+                pipelinerun__pulsarfoldresult__id__in=pulsar_fold_result_ids,
                 pipelinerun__pulsarfoldresult__observation__project__short__isnull=False,  # We don't want observations without projects
                 toa__isnull=False,  # We don't want pipeline runs without TOAs
             )

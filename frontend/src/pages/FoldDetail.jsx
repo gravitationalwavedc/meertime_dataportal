@@ -64,6 +64,7 @@ const FoldDetail = ({ match }) => {
   const [excludeBadges, setExcludeBadges] = useState([
     "Session Timing Jump",
     "RM Drift",
+    "Bad Online Folding",
   ]);
   const [minimumSNR, setMinimumSNR] = useState(minSNR ? Number(minSNR) : 8);
 
