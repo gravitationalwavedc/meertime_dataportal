@@ -96,6 +96,12 @@ export function processData(data, mainProject, jname) {
             description: node.description,
           })
         )
+      )
+      .concat(
+        node.observation.badges.edges.map(({ node }) => ({
+          name: node.name,
+          description: node.description,
+        }))
       ),
     viewLink: `/${mainProject}/${jname}/${formatUTC(
       node.observation.utcStart

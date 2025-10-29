@@ -41,6 +41,14 @@ const observationFilters = [
     description:
       "The DM has drifted away from the median DM of the pulsar enough to cause a dispersion of three profile bins",
   },
+  {
+    id: "badOnlineFolding",
+    label: "Bad Online Folding",
+    queryString: "Bad Online Folding",
+    isActive: true,
+    description:
+      "The PTUSE online folding was drifting significantly due to an erroneous parameter file, causing the raw data to be irretrievably corrupted",
+  },
 ];
 
 const ObservationFlags = ({

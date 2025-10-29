@@ -35,6 +35,9 @@
               "calibration": {
                 "idInt": 28,
                 "id": "Q2FsaWJyYXRpb25Ob2RlOjM5OTA="
+              },
+              "badges": {
+                "edges": []
               }
             },
             "pipelineRun": {
@@ -89,6 +92,9 @@
               "calibration": {
                 "idInt": 3651,
                 "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTE="
+              },
+              "badges": {
+                "edges": []
               }
             },
             "pipelineRun": {
@@ -143,6 +149,9 @@
               "calibration": {
                 "idInt": 3652,
                 "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTI="
+              },
+              "badges": {
+                "edges": []
               }
             },
             "pipelineRun": {
@@ -197,6 +206,9 @@
               "calibration": {
                 "idInt": 3653,
                 "id": "Q2FsaWJyYXRpb25Ob2RlOjM2NTM="
+              },
+              "badges": {
+                "edges": []
               }
             },
             "pipelineRun": {
