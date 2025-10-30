@@ -322,7 +322,7 @@ class Observation(models.Model):
         :return: bool
         """
         # If the user role isn't restricted they can access everything
-        if user.role.upper() in [
+        if user.is_authenticated and user.role.upper() in [
             UserRole.UNRESTRICTED.value,
             UserRole.ADMIN.value,
         ]:
