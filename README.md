@@ -1,9 +1,9 @@
 # MeerTime
 
 ## About
-The MeerTime project is a five-year program on the MeerKAT array by an international consortium that will regularly time over 1000 radio pulsars to perform tests of relativistic gravity, search for the gravitational wave signature induced by supermassive black hole binaries in the timing residuals of millisecond pulsars, explore the interiors of neutron stars through a pulsar glitch monitoring programme, explore the origin and evolution of binary pulsars, monitor the swarms of pulsars that inhabit globular clusters and monitor radio magnetars. MeerTime will complement the TRAPUM project and time pulsars TRAPUM discovers in surveys of the galactic plane, globular clusters and the galactic centre. In addition to these primary programmes, over 1000 pulsars will have their arrival times monitored and the data made immediately public.
+The MeerTime project is a five-year program on the MeerKAT array by an international consortium that has regularly timed over 1000 radio pulsars to perform tests of relativistic gravity, search for the gravitational wave signature induced by supermassive black hole binaries in the timing residuals of millisecond pulsars, explore the interiors of neutron stars through a pulsar glitch monitoring programme, explore the origin and evolution of binary pulsars, monitor the swarms of pulsars that inhabit globular clusters and monitor radio magnetars. MeerTime has complemented the TRAPUM project and time pulsars TRAPUM discovers in surveys of the galactic plane, globular clusters and the galactic centre. In addition to these primary MeerKAT programmes, new MeerKAT timing projects will have their arrival times monitored and the data made immediately public.
 
-This application provides a ReactJS frontend for access to the MeerTime project data for authenticated astronomers and provides a Django powered graphQL API.
+This application provides a ReactJS frontend for access to the MeerKAT and Molonglo timing projects' data for authenticated astronomers and provides a Django powered graphQL API.
 
 
 ## Requirements

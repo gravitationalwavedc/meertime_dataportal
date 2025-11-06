@@ -16,26 +16,9 @@ const molonglo = {
   plotTypes: ["Timing Residuals", "Flux Density", "S/N"],
 };
 
-const trapum = {
-  value: "trapum",
-  title: "Trapum",
-  subprojects: ["All"],
-  bandOptions: [
-    "All",
-    "LBAND",
-    "UHF",
-    "SBAND_0",
-    "SBAND_1",
-    "SBAND_2",
-    "SBAND_3",
-    "SBAND_4",
-    "UNKNOWN",
-  ],
-};
-
 const meertime = {
   value: "meertime",
-  title: "MeerTime",
+  title: "MeerKAT",
   subprojects: [
     "All",
     "TPA",
@@ -51,9 +34,6 @@ const meertime = {
     "PTA2",
     "GC",
     "NGC6440",
-    "MeerTime",
-    "Flux",
-    "Unknown",
   ],
   bandOptions: [
     "All",
@@ -64,12 +44,11 @@ const meertime = {
     "SBAND_2",
     "SBAND_3",
     "SBAND_4",
-    "UNKNOWN",
   ],
   plotTypes: ["Timing Residuals", "Flux Density", "S/N", "DM", "RM"],
 };
 
-const allProjects = [meertime, trapum, molonglo];
+const allProjects = [meertime, molonglo];
 
 const projectOptions = allProjects.map((project) => (
   <option value={project.value} key={project.value}>
@@ -77,11 +56,4 @@ const projectOptions = allProjects.map((project) => (
   </option>
 ));
 
-export {
-  molonglo,
-  trapum,
-  meertime,
-  getProject,
-  getSubProjectOptions,
-  projectOptions,
-};
+export { molonglo, meertime, getProject, getSubProjectOptions, projectOptions };

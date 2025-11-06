@@ -377,7 +377,7 @@ class PasswordResetRequestTestCase(GraphQLTestCase):
         self.assertIsNotNone(
             content["data"]["createPasswordResetRequest"]["passwordResetRequest"]["verificationExpiry"]
         )
-        self.assertEqual(mail.outbox[0].subject, "[MeerTime] Your password reset code.")
+        self.assertEqual(mail.outbox[0].subject, "[Pulsar Portal] Your password reset code.")
 
     def test_create_password_reset_request_no_email(self):
         response = self.query(

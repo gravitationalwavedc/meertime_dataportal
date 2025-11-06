@@ -306,7 +306,7 @@ const FoldDetailTable = ({ tableData, mainProject, jname }) => {
                   </span>{" "}
                 </Col>
                 <Col>
-                  {row.original.project} &#183; {row.original.beam} beam
+                  {row.original.project} &#183; Beam {row.original.beam}
                 </Col>
                 <Col>
                   {row.original.badges.map((badge) => (

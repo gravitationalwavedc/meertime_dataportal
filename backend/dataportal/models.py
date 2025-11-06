@@ -75,7 +75,7 @@ class Telescope(models.Model):
 
 class MainProject(Model):
     """
-    E.g. Meertime and trapam
+    E.g. Meertime , molonglo
     """
 
     telescope = models.ForeignKey(Telescope, models.CASCADE)

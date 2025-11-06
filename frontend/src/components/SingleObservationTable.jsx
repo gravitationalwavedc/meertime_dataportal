@@ -127,7 +127,7 @@ const SingleObservationTable = ({ observationData, jname }) => {
         : null,
     "DM (pc cm^-3)":
       relayObservationModel.pipelineRun.dm !== null
-        ? relayObservationModel.pipelineRun.dm.toFixed(4)
+        ? relayObservationModel.pipelineRun.dm.toFixed(6)
         : null,
     "RM (rad m^-2)":
       relayObservationModel.pipelineRun.rm !== null

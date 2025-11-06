@@ -81,7 +81,7 @@ export function processData(data, mainProject, jname) {
     flux: node.pipelineRun.flux,
     nantEff: node.observation.nantEff,
     dmBackend: formatNumber(node.observation.ephemeris.dm, 2),
-    dmFit: formatNumber(node.pipelineRun.dm, 1),
+    dmFit: formatNumber(node.pipelineRun.dm, 2),
     rm: formatNumber(node.pipelineRun.rm, 1),
     sn: formatNumber(node.pipelineRun.sn, 1),
     badges: node.pipelineRun.badges.edges

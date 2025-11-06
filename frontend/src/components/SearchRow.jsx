@@ -38,7 +38,7 @@ const SearchRow = ({
         name="viewType"
         defaultValue={isTableView ? "table" : "list"}
       >
-        <ToggleButton
+        {/* <ToggleButton
           data-testid="table-view-button"
           variant="outline-primary"
           size="sm"
@@ -57,7 +57,7 @@ const SearchRow = ({
         >
           <HiViewList className="icon" />
           List view
-        </ToggleButton>
+        </ToggleButton> */}
       </ToggleButtonGroup>
     </Form.Group>
     {isTableView && <CustomColumnToggle {...columnToggleProps} />}

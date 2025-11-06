@@ -200,6 +200,12 @@ const SessionTable = ({ data, id }) => {
   const columns = [
     { dataField: "pulsar.name", text: "JName", sort: true },
     {
+      dataField: "obsType",
+      text: "ObsType",
+      sort: true,
+      screenSizes: ["md", "lg", "xl", "xxl"],
+    },
+    {
       dataField: "project.short",
       text: "Project",
       sort: true,
@@ -245,6 +251,7 @@ const SessionTable = ({ data, id }) => {
       align: "center",
       headerAlign: "center",
       sort: false,
+      toggle: false,
     },
     {
       dataField: "phaseVsTime",
@@ -253,6 +260,7 @@ const SessionTable = ({ data, id }) => {
       headerAlign: "center",
       sort: false,
       screenSizes: ["sm", "md", "lg", "xl", "xxl"],
+      toggle: false,
     },
     {
       dataField: "phaseVsFrequency",
@@ -261,6 +269,7 @@ const SessionTable = ({ data, id }) => {
       headerAlign: "center",
       sort: false,
       screenSizes: ["sm", "md", "lg", "xl", "xxl"],
+      toggle: false,
     },
     {
       dataField: "action",
@@ -268,6 +277,7 @@ const SessionTable = ({ data, id }) => {
       align: "right",
       headerAlign: "right",
       sort: false,
+      toggle: false,
     },
   ];
 
@@ -326,7 +336,7 @@ const SessionTable = ({ data, id }) => {
         columns={columnsSizeFiltered}
         rows={rows}
         project={project}
-        setProject={setProject}
+        // setProject={setProject} // This doesn't work when turned on, + is not needed as sessions tend to be one project, and can sort.
         card={SessionCard}
       />
       {isLightBoxOpen && (
