@@ -75,42 +75,47 @@ const PlotContainer = ({
                 ))}
               </Form.Control>
             </Form.Group>
-            <Form.Group
-              controlId="projectController"
-              className="col-md-2 searchbar"
-            >
-              <Form.Label>Project</Form.Label>
-              <Form.Control
-                custom
-                as="select"
-                value={projectShort}
-                onChange={(event) => setProjectShort(event.target.value)}
-              >
-                {allProjects.map((projectShort) => (
-                  <option key={projectShort} value={projectShort}>
-                    {projectShort}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
-            <Form.Group
-              controlId="plotNchanController"
-              className="col-md-2 searchbar"
-            >
-              <Form.Label>Nchan</Form.Label>
-              <Form.Control
-                custom
-                as="select"
-                value={nchan}
-                onChange={(event) => setNchan(event.target.value)}
-              >
-                {allNchans.map((nchan) => (
-                  <option key={nchan} value={nchan} disabled={nchan > 32}>
-                    {nchan}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
+
+            {activePlot === "Timing Residuals" && (
+              <>
+                <Form.Group
+                  controlId="projectController"
+                  className="col-md-2 searchbar"
+                >
+                  <Form.Label>Project</Form.Label>
+                  <Form.Control
+                    custom
+                    as="select"
+                    value={projectShort}
+                    onChange={(event) => setProjectShort(event.target.value)}
+                  >
+                    {allProjects.map((projectShort) => (
+                      <option key={projectShort} value={projectShort}>
+                        {projectShort}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+                <Form.Group
+                  controlId="plotNchanController"
+                  className="col-md-2 searchbar"
+                >
+                  <Form.Label>Nchan</Form.Label>
+                  <Form.Control
+                    custom
+                    as="select"
+                    value={nchan}
+                    onChange={(event) => setNchan(event.target.value)}
+                  >
+                    {allNchans.map((nchan) => (
+                      <option key={nchan} value={nchan} disabled={nchan > 32}>
+                        {nchan}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </>
+            )}
           </Form.Row>
           <div className="pulsar-plot-wrapper">
             <Suspense fallback={<PlotLoading />}>

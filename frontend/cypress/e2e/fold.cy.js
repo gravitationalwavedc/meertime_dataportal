@@ -67,12 +67,12 @@ describe("The Fold Page", () => {
     cy.wait("@FoldQuery");
     cy.get("table").get("tbody").find("tr").should("have.length", 2);
 
-    cy.get("#mainProjectSelect").select("Trapum", { force: true });
+    cy.get("#mainProjectSelect").select("Molonglo", { force: true });
 
     cy.wait("@FoldTableRefetchQuery");
     cy.url().should(
       "eq",
-      "http://localhost:5173/?search=&mainProject=trapum&mostCommonProject=All&project=All&band=All"
+      "http://localhost:5173/?search=&mainProject=MONSPSR&mostCommonProject=All&project=All&band=All"
     );
     cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });

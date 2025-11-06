@@ -79,13 +79,13 @@ const Login = ({ router, match }) => {
             className="text-gray-100 w-100 mt-5 text-center d-none d-sm-block"
             style={{ marginBottom: "-3rem" }}
           >
-            MEERTIME
+            The Pulsar Portal
           </h1>
           <h2
             className="text-gray-100 w-100 mt-5 text-center d-block d-sm-none"
             style={{ marginBottom: "-3rem" }}
           >
-            MEERTIME
+            The Pulsar Portal
           </h2>
           <Col
             xl={{ span: 8, offset: 2 }}

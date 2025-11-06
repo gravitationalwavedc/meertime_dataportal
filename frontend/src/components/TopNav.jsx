@@ -11,7 +11,7 @@ const TopNav = () => {
     <Navbar bg="dark" variant="dark" className="mb-5" expand="md">
       <Container>
         <Link to="/" exact as={Navbar.Brand}>
-          MEERTIME
+          The Pulsar Portal
         </Link>
         <Navbar.Toggle aria-controls="top-navbar" />
         <Navbar.Collapse id="top-navbar">

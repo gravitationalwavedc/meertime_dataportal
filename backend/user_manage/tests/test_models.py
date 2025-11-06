@@ -67,7 +67,7 @@ class RegistrationTest(TestCase):
     def test_verification_email_sent(self):
         Registration.objects.create(**self.user_details)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, "[MeerTime] Please verify your email address")
+        self.assertEqual(mail.outbox[0].subject, "[Pulsar Portal] Please verify your email address")
 
     def test_verify_user_created(self):
         registration = Registration.objects.create(**self.user_details)
@@ -119,7 +119,7 @@ class ProvisionalUserTest(TestCase):
 
         self.assertTrue(provisional_user.email_sent)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].subject, "[MeerTime] Please activate your account")
+        self.assertEqual(mail.outbox[0].subject, "[Pulsar Portal] Please activate your account")
 
         self.assertEqual(provisional_user.user.role, UserRole.UNRESTRICTED.value)
         self.assertFalse(provisional_user.user.is_active)

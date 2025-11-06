@@ -7,10 +7,10 @@ const Footer = () => (
     <Container>
       <Row>
         <Col md={3} className="p-2 mr-5">
-          <h3 className="mb-3">MEERTIME</h3>
+          <h3 className="mb-3">The Pulsar Portal</h3>
           <p className="tagline">
-            MeerTime uses the power of the MeerKAT telescope to explore
-            fundamental physics and astrophysics via radio pulsar timing.
+            The MeerKAT and Molonglo telescopes explores fundamental physics and
+            astrophysics via radio pulsar timing.
           </p>
         </Col>
         <Col md={4} className="p-2 ml-5 mr-5">
@@ -30,7 +30,7 @@ const Footer = () => (
       <hr />
       <Row>
         <Col>
-          <p>&#169; 2020 MEERTIME. All rights reserved.</p>
+          <p>&#169; 2025 The Pulsar Portal. All rights reserved.</p>
         </Col>
       </Row>
     </Container>

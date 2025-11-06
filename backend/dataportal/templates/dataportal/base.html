@@ -33,9 +33,9 @@
 
   <link rel="stylesheet" type="text/css" href="{% static 'dataportal/main.css' %}">
   {% if title %}
-  <title>MeerTime - {{ title }}</title>
+  <title>The Pulsar Portal - {{ title }}</title>
   {% else %}
-  <title>MeerTime metadata</title>
+  <title>Pulsar Portal metadata</title>
   {% endif %}
 
   {% block ready %}
@@ -64,7 +64,7 @@
         <a href="https://gwdc.org.au/" class="navbar-brand">
           <img src="{% static 'images/gwdc-logo-white-137x96-1.png' %}" height=75 />
         </a>
-        <a class="navbar-brand mr-4" href="{% url 'fold' %}">MeerTime Observations</a>
+        <a class="navbar-brand mr-4" href="{% url 'fold' %}">Pulsar Portal Observations</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarToggle" aria-controls="navbarToggle" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
@@ -72,21 +72,11 @@
           <div class="navbar-nav mr-auto">
             <div class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="meertimeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Meertime
+                Pulsar Portal
               </a>
               <div class="dropdown-menu" aria-labelledby="meertimeDropdown">
                 <!--<a class="dropdown-item" href="{% url 'fold' %}">Folded data</a>-->
                 <a class="dropdown-item" href="{% url 'fold' %}">Folded data</a>
-                <a class="dropdown-item" href="">Searchmode data</a>
-                <a class="dropdown-item" href="">Last session</a>
-              </div>
-            </div>
-            <div class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" id="meertimeDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Trapum
-              </a>
-              <div class="dropdown-menu" aria-labelledby="meertimeDropdown">
-                <a class="dropdown-item" href="{% url 'trapum' %}">Folded data</a>
                 <a class="dropdown-item" href="">Searchmode data</a>
                 <a class="dropdown-item" href="">Last session</a>
               </div>

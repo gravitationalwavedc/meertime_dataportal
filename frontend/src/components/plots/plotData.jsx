@@ -8,8 +8,6 @@ export const getXaxisFormatter = (xAxis) => {
         text: getXaxisLabel(xAxis),
       },
       type: "date",
-      tickformat: "%Y",
-      dtick: "M12",
     };
   } else if (xAxis === "day") {
     return {
@@ -241,6 +239,7 @@ export const snrPlotData = (data, jname, mainProject) => {
       node.observation.beam
     }/`,
     band: node.observation.band,
+    snr: node.pipelineRun.sn,
   }));
 };
 
@@ -256,6 +255,7 @@ export const fluxPlotData = (data, jname, mainProject) => {
       node.observation.beam
     }/`,
     band: node.observation.band,
+    snr: node.pipelineRun.sn,
   }));
 };
 
@@ -272,6 +272,7 @@ export const dmPlotData = (data, jname, mainProject) => {
       node.observation.beam
     }/`,
     band: node.observation.band,
+    snr: node.pipelineRun.sn,
   }));
 };
 
@@ -288,6 +289,7 @@ export const rmPlotData = (data, jname, mainProject) => {
       node.observation.beam
     }/`,
     band: node.observation.band,
+    snr: node.pipelineRun.sn,
   }));
 };
 
@@ -362,7 +364,7 @@ export const getPlotlyData = (plotData, xAxis, activePlot) =>
         xAxis
       )}: %{x${xAxisTemplateData}}<br>${getYaxisLabel(
         activePlot
-      )}: %{y:.4f}${yAxixTemplateData}<br>Integration Time (s): %{customdata[0]:.4f}<br>S/N: %{customdata[2]}<extra></extra>`,
+      )}: %{y:.6f}${yAxixTemplateData}<br>Integration Time (s): %{customdata[0]:.4f}<br>S/N: %{customdata[2]:.4f}<extra></extra>`,
       marker: {
         color: dataBand.colour,
         symbol: dataBand.shape,
