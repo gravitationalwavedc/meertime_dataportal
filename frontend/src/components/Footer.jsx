@@ -9,7 +9,7 @@ const Footer = () => (
         <Col md={3} className="p-2 mr-5">
           <h3 className="mb-3">The Pulsar Portal</h3>
           <p className="tagline">
-            The MeerKAT and Molonglo telescopes explores fundamental physics and
+            The MeerKAT and Molonglo telescopes explore fundamental physics and
             astrophysics via radio pulsar timing.
           </p>
         </Col>
