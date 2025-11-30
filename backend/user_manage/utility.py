@@ -18,7 +18,7 @@ def send_verification_email(name, to, verification_code):
     :param str verification_code: Verification code used in the email template.
     """
     subject = "[Pulsar Portal] Please verify your email address"
-    verification_link = f"{settings.SITE_URL}verify/{verification_code}/"
+    verification_link = f"{settings.SITE_URL}/verify/{verification_code}/"
     email_context = {"name": name, "verification_link": verification_link}
     text_message = render_to_string("user_manage/verification_link.txt", email_context)
     html_message = render_to_string("user_manage/verification_link.html", email_context)
