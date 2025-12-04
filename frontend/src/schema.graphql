@@ -1,4 +1,12 @@
 type Query {
+  projectMembershipRequest(
+    """The ID of the object"""
+    id: ID!
+  ): ProjectMembershipRequestNode
+  projectMembershipRequests(before: String, after: String, first: Int, last: Int): ProjectMembershipRequestConnection
+  projectMembershipRequestsForApproval(before: String, after: String, first: Int, last: Int): ProjectMembershipRequestConnection
+  projectMemberships(before: String, after: String, first: Int, last: Int): ProjectMembershipConnection
+
   """List all API tokens for the authenticated user"""
   apiTokens(before: String, after: String, first: Int, last: Int): ApiTokenConnection
   node(
@@ -33,242 +41,21 @@ type Query {
   badge(before: String, after: String, first: Int, last: Int): BadgeConnection
 }
 
-"""Relay connection for API tokens"""
-type ApiTokenConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [ApiTokenEdge]!
-}
-
-"""
-The Relay compliant `PageInfo` type, containing data necessary to paginate this connection.
-"""
-type PageInfo {
-  """When paginating forwards, are there more items?"""
-  hasNextPage: Boolean!
-
-  """When paginating backwards, are there more items?"""
-  hasPreviousPage: Boolean!
-
-  """When paginating backwards, the cursor to continue."""
-  startCursor: String
-
-  """When paginating forwards, the cursor to continue."""
-  endCursor: String
-}
-
-"""A Relay edge containing a `ApiToken` and its cursor."""
-type ApiTokenEdge {
-  """The item at the end of the edge"""
-  node: ApiTokenNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-"""Relay-compatible API token node"""
-type ApiTokenNode implements Node {
-  name: String!
-  created: DateTime!
-  lastUsed: DateTime
-  expiresAt: DateTime
-  isActive: Boolean!
+type ProjectMembershipRequestNode implements Node {
+  user: UserType!
+  project: ProjectNode!
+  requestedAt: DateTime!
+  message: String
+  status: DataportalProjectMembershipRequestStatusChoices!
 
   """The ID of the object"""
   id: ID!
-  preview: String
 }
 
 """An object with an ID"""
 interface Node {
   """The ID of the object"""
   id: ID!
-}
-
-"""
-The `DateTime` scalar type represents a DateTime
-value as specified by
-[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
-"""
-scalar DateTime
-
-"""GraphQL connection for files"""
-type FileConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [FileEdge]!
-}
-
-"""A Relay edge containing a `File` and its cursor."""
-type FileEdge {
-  """The item at the end of the edge"""
-  node: FileNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-"""GraphQL node representing a file or directory"""
-type FileNode implements Node {
-  """The ID of the object"""
-  id: ID!
-
-  """Path to the file"""
-  path: String
-
-  """Name of the file"""
-  fileName: String
-
-  """Size of the file in bytes"""
-  fileSize: String
-
-  """Whether this item is a directory"""
-  isDirectory: Boolean
-}
-
-type PulsarConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [PulsarEdge]!
-}
-
-"""A Relay edge containing a `Pulsar` and its cursor."""
-type PulsarEdge {
-  """The item at the end of the edge"""
-  node: PulsarNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type PulsarNode implements Node {
-  name: String!
-
-  """
-  Auto generated description based on information from the ANTF catalogue
-  """
-  comment: String
-
-  """The ID of the object"""
-  id: ID!
-}
-
-type TelescopeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [TelescopeEdge]!
-}
-
-"""A Relay edge containing a `Telescope` and its cursor."""
-type TelescopeEdge {
-  """The item at the end of the edge"""
-  node: TelescopeNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type TelescopeNode implements Node {
-  name: String!
-
-  """The ID of the object"""
-  id: ID!
-}
-
-type MainProjectConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [MainProjectEdge]!
-}
-
-"""A Relay edge containing a `MainProject` and its cursor."""
-type MainProjectEdge {
-  """The item at the end of the edge"""
-  node: MainProjectNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type MainProjectNode implements Node {
-  telescope: TelescopeNode
-  name: String!
-
-  """The ID of the object"""
-  id: ID!
-}
-
-type ProjectConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [ProjectEdge]!
-}
-
-"""A Relay edge containing a `Project` and its cursor."""
-type ProjectEdge {
-  """The item at the end of the edge"""
-  node: ProjectNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type ProjectNode implements Node {
-  mainProject: MainProjectNode
-  code: String!
-  short: String!
-  embargoPeriod: Int
-  description: String
-
-  """The ID of the object"""
-  id: ID!
-}
-
-type EphemerisConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [EphemerisEdge]!
-}
-
-"""A Relay edge containing a `Ephemeris` and its cursor."""
-type EphemerisEdge {
-  """The item at the end of the edge"""
-  node: EphemerisNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type EphemerisNode implements Node {
-  pulsar: PulsarNode
-  project: ProjectNode
-  createdAt: DateTime!
-  createdBy: UserType
-  ephemerisData: JSONString
-  ephemerisHash: String
-  p0: Float!
-  dm: Float!
-  validFrom: DateTime!
-  validTo: DateTime!
-  comment: String
-
-  """The ID of the object"""
-  id: ID!
-  idInt: Int
 }
 
 type UserType implements Node {
@@ -301,9 +88,21 @@ type UserType implements Node {
   apiTokens(offset: Int, before: String, after: String, first: Int, last: Int): ApiTokenNodeConnection!
   provisionaluserSet(offset: Int, before: String, after: String, first: Int, last: Int): ProvisionalUserTypeConnection!
   registrationSet(offset: Int, before: String, after: String, first: Int, last: Int): RegistrationTypeConnection!
+  projectMemberships(offset: Int, before: String, after: String, first: Int, last: Int): ProjectMembershipNodeConnection!
+
+  """User who approved this membership (null for initial owner)"""
+  approvedMemberships(offset: Int, before: String, after: String, first: Int, last: Int): ProjectMembershipNodeConnection!
+  projectMembershipRequests(offset: Int, before: String, after: String, first: Int, last: Int): ProjectMembershipRequestNodeConnection!
   ephemerisSet(offset: Int, before: String, after: String, first: Int, last: Int, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String): EphemerisNodeConnection!
   templateSet(offset: Int, before: String, after: String, first: Int, last: Int, band: DataportalTemplateBandChoices, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, templateHash: String): TemplateNodeConnection!
 }
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
 
 """An enumeration."""
 enum UserManageUserRoleChoices {
@@ -325,6 +124,23 @@ type ApiTokenNodeConnection {
   edges: [ApiTokenNodeEdge]!
 }
 
+"""
+The Relay compliant `PageInfo` type, containing data necessary to paginate this connection.
+"""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
 """A Relay edge containing a `ApiTokenNode` and its cursor."""
 type ApiTokenNodeEdge {
   """The item at the end of the edge"""
@@ -332,6 +148,19 @@ type ApiTokenNodeEdge {
 
   """A cursor for use in pagination"""
   cursor: String!
+}
+
+"""Relay-compatible API token node"""
+type ApiTokenNode implements Node {
+  name: String!
+  created: DateTime!
+  lastUsed: DateTime
+  expiresAt: DateTime
+  isActive: Boolean!
+
+  """The ID of the object"""
+  id: ID!
+  preview: String
 }
 
 type ProvisionalUserTypeConnection {
@@ -416,6 +245,93 @@ enum UserManageRegistrationStatusChoices {
   VERIFIED
 }
 
+type ProjectMembershipNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProjectMembershipNodeEdge]!
+}
+
+"""A Relay edge containing a `ProjectMembershipNode` and its cursor."""
+type ProjectMembershipNodeEdge {
+  """The item at the end of the edge"""
+  node: ProjectMembershipNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ProjectMembershipNode implements Node {
+  user: UserType!
+  project: ProjectNode!
+  role: DataportalProjectMembershipRoleChoices!
+  joinedAt: DateTime!
+
+  """User who approved this membership (null for initial owner)"""
+  approvedBy: UserType
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type ProjectNode implements Node {
+  mainProject: MainProjectNode
+  code: String!
+  short: String!
+  embargoPeriod: Int
+  description: String
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type MainProjectNode implements Node {
+  telescope: TelescopeNode
+  name: String!
+
+  """The ID of the object"""
+  id: ID!
+}
+
+type TelescopeNode implements Node {
+  name: String!
+
+  """The ID of the object"""
+  id: ID!
+}
+
+"""An enumeration."""
+enum DataportalProjectMembershipRoleChoices {
+  """Member"""
+  MEMBER
+
+  """Manager"""
+  MANAGER
+
+  """Owner"""
+  OWNER
+}
+
+type ProjectMembershipRequestNodeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProjectMembershipRequestNodeEdge]!
+}
+
+"""
+A Relay edge containing a `ProjectMembershipRequestNode` and its cursor.
+"""
+type ProjectMembershipRequestNodeEdge {
+  """The item at the end of the edge"""
+  node: ProjectMembershipRequestNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
 type EphemerisNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
@@ -432,6 +348,44 @@ type EphemerisNodeEdge {
   """A cursor for use in pagination"""
   cursor: String!
 }
+
+type EphemerisNode implements Node {
+  pulsar: PulsarNode
+  project: ProjectNode
+  createdAt: DateTime!
+  createdBy: UserType
+  ephemerisData: JSONString
+  ephemerisHash: String
+  p0: Float!
+  dm: Float!
+  validFrom: DateTime!
+  validTo: DateTime!
+  comment: String
+
+  """The ID of the object"""
+  id: ID!
+  idInt: Int
+}
+
+type PulsarNode implements Node {
+  name: String!
+
+  """
+  Auto generated description based on information from the ANTF catalogue
+  """
+  comment: String
+
+  """The ID of the object"""
+  id: ID!
+}
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
 
 type TemplateNodeConnection {
   """Pagination data for this connection."""
@@ -493,13 +447,190 @@ enum DataportalTemplateBandChoices {
   UHF_NS
 }
 
-"""
-Allows use of a JSON String for input / output from the GraphQL schema.
+"""An enumeration."""
+enum DataportalProjectMembershipRequestStatusChoices {
+  """Pending"""
+  PENDING
 
-Use of this type is *not recommended* as you lose the benefits of having a defined, static
-schema (one of the key benefits of GraphQL).
-"""
-scalar JSONString
+  """Approved"""
+  APPROVED
+
+  """Rejected"""
+  REJECTED
+}
+
+type ProjectMembershipRequestConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProjectMembershipRequestEdge]!
+}
+
+"""A Relay edge containing a `ProjectMembershipRequest` and its cursor."""
+type ProjectMembershipRequestEdge {
+  """The item at the end of the edge"""
+  node: ProjectMembershipRequestNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ProjectMembershipConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProjectMembershipEdge]!
+}
+
+"""A Relay edge containing a `ProjectMembership` and its cursor."""
+type ProjectMembershipEdge {
+  """The item at the end of the edge"""
+  node: ProjectMembershipNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""Relay connection for API tokens"""
+type ApiTokenConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ApiTokenEdge]!
+}
+
+"""A Relay edge containing a `ApiToken` and its cursor."""
+type ApiTokenEdge {
+  """The item at the end of the edge"""
+  node: ApiTokenNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""GraphQL connection for files"""
+type FileConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [FileEdge]!
+}
+
+"""A Relay edge containing a `File` and its cursor."""
+type FileEdge {
+  """The item at the end of the edge"""
+  node: FileNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+"""GraphQL node representing a file or directory"""
+type FileNode implements Node {
+  """The ID of the object"""
+  id: ID!
+
+  """Path to the file"""
+  path: String
+
+  """Name of the file"""
+  fileName: String
+
+  """Size of the file in bytes"""
+  fileSize: String
+
+  """Whether this item is a directory"""
+  isDirectory: Boolean
+}
+
+type PulsarConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [PulsarEdge]!
+}
+
+"""A Relay edge containing a `Pulsar` and its cursor."""
+type PulsarEdge {
+  """The item at the end of the edge"""
+  node: PulsarNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type TelescopeConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [TelescopeEdge]!
+}
+
+"""A Relay edge containing a `Telescope` and its cursor."""
+type TelescopeEdge {
+  """The item at the end of the edge"""
+  node: TelescopeNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type MainProjectConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [MainProjectEdge]!
+}
+
+"""A Relay edge containing a `MainProject` and its cursor."""
+type MainProjectEdge {
+  """The item at the end of the edge"""
+  node: MainProjectNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type ProjectConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [ProjectEdge]!
+}
+
+"""A Relay edge containing a `Project` and its cursor."""
+type ProjectEdge {
+  """The item at the end of the edge"""
+  node: ProjectNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type EphemerisConnection {
+  """Pagination data for this connection."""
+  pageInfo: PageInfo!
+
+  """Contains the nodes in this connection."""
+  edges: [EphemerisEdge]!
+}
+
+"""A Relay edge containing a `Ephemeris` and its cursor."""
+type EphemerisEdge {
+  """The item at the end of the edge"""
+  node: EphemerisNode
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
 
 type TemplateConnection {
   """Pagination data for this connection."""
@@ -1257,6 +1388,10 @@ type Mutation {
 
   """Delete an API token for the authenticated user"""
   deleteApiToken(input: DeleteApiTokenInput!): DeleteApiToken
+  createProjectMembershipRequest(input: CreateProjectMembershipRequestInput!): CreateProjectMembershipRequest
+  removeProjectMembershipRequest(input: RemoveProjectMembershipRequestInput!): RemoveProjectMembershipRequest
+  approveProjectMembershipRequest(input: ApproveProjectMembershipRequestInput!): ApproveProjectMembershipRequest
+  leaveProject(input: LeaveProjectInput!): LeaveProject
   createResidual(input: ResidualInput!): CreateResidualOutput
   createToa(input: ToaInput!): CreateToaOutput
   updateToa(id: Int!, input: ToaInput!): UpdateToa
@@ -1399,6 +1534,45 @@ type DeleteApiToken {
 """Input for deleting an API token"""
 input DeleteApiTokenInput {
   tokenId: ID!
+}
+
+type CreateProjectMembershipRequest {
+  ok: Boolean
+  errors: [String]
+}
+
+input CreateProjectMembershipRequestInput {
+  projectCode: String!
+  message: String
+}
+
+type RemoveProjectMembershipRequest {
+  deletedProjectMembershipRequestId: ID
+  errors: [String]
+}
+
+input RemoveProjectMembershipRequestInput {
+  requestId: ID!
+}
+
+type ApproveProjectMembershipRequest {
+  approvedProjectMembershipRequestId: ID
+  errors: [String]
+}
+
+input ApproveProjectMembershipRequestInput {
+  requestId: ID!
+}
+
+type LeaveProject {
+  projectId: ID
+  userId: ID
+  errors: [String]
+}
+
+input LeaveProjectInput {
+  projectId: ID!
+  userId: ID!
 }
 
 type CreateResidualOutput {

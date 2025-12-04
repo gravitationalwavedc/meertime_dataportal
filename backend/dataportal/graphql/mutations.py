@@ -1,5 +1,6 @@
 import graphene
 
+from dataportal.graphql import project_membership_mutations
 from dataportal.graphql.mutation_tables import (
     calibration,
     ephemeris,
@@ -27,6 +28,7 @@ class Mutation(
     pipeline_run.Mutation,
     toa.Mutation,
     residual.Mutation,
+    project_membership_mutations.Mutation,
     graphene.ObjectType,
 ):
     pass

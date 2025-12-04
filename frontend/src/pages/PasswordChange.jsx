@@ -77,11 +77,7 @@ const PasswordChange = () => {
   return (
     <MainLayout title="Change Password">
       <Row>
-        <Col
-          xl={{ span: 4, offset: 1 }}
-          md={{ span: 6, offset: 1 }}
-          sm={{ span: 10, offset: 1 }}
-        >
+        <Col xl={4} md={6}>
           {success && (
             <div>
               <h5>Password Change Successful</h5>
@@ -167,14 +163,9 @@ const PasswordChange = () => {
                         {e}
                       </Alert>
                     ))}
-                  <Row className="buttons-row">
-                    <Col xl={{ span: 12 }} md={{ span: 12 }}>
-                      <Button
-                        className="text-uppercase shadow-md mt-2 float-right"
-                        type="submit"
-                      >
-                        Change Password
-                      </Button>
+                  <Row>
+                    <Col>
+                      <Button type="submit">Change Password</Button>
                     </Col>
                   </Row>
                 </Form>

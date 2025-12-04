@@ -32,6 +32,9 @@ const TopNav = () => {
           <Nav>
             {isAuthenticated ? (
               <>
+                <Link to="/projects/" exact as={Nav.Link}>
+                  Projects
+                </Link>
                 <Link to="/password_change/" exact as={Nav.Link}>
                   Change Password
                 </Link>

@@ -108,6 +108,171 @@ class Project(models.Model):
                 kwargs["code"] = kwargs.pop("code")
         return cls.objects.filter(**kwargs)
 
+    def can_edit(self, user):
+        """Check if a user can edit the project"""
+        return self.is_owner(user) or self.is_manager(user)
+
+    def is_owner(self, user):
+        """Check if a user is an owner of the project"""
+        return self.memberships.filter(
+            user=user,
+            project=self,
+            role=ProjectMembership.RoleChoices.OWNER,
+        ).exists()
+
+    def is_manager(self, user):
+        """Check if a user is a manager of the project"""
+        return self.memberships.filter(
+            user=user,
+            project=self,
+            role__in=[ProjectMembership.RoleChoices.MANAGER, ProjectMembership.RoleChoices.OWNER],
+        ).exists()
+
+
+class ProjectMembership(models.Model):
+    """Links users to projects with their role"""
+
+    class RoleChoices(models.TextChoices):
+        MEMBER = "Member"
+        MANAGER = "Manager"
+        OWNER = "Owner"
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_memberships")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="memberships")
+    role = models.CharField(max_length=7, choices=RoleChoices.choices, default=RoleChoices.MEMBER)
+    joined_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    approved_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="approved_memberships",
+        help_text="User who approved this membership (null for initial owner)",
+    )
+
+    class Meta:
+        unique_together = ("user", "project")
+        indexes = [
+            models.Index(fields=["user", "project"]),
+            models.Index(fields=["project", "role"]),
+        ]
+        verbose_name = "Project Membership"
+        verbose_name_plural = "Project Memberships"
+
+    def __str__(self):
+        return f"{self.user.username} - {self.project.code} ({self.role})"
+
+
+class ProjectMembershipRequest(models.Model):
+    """Tracks requests by users to join projects"""
+
+    class StatusChoices(models.TextChoices):
+        PENDING = "Pending"
+        APPROVED = "Approved"
+        REJECTED = "Rejected"
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="project_membership_requests")
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="membership_requests")
+    requested_at = models.DateTimeField(auto_now_add=True)
+    message = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=8, choices=StatusChoices.choices, default=StatusChoices.PENDING)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["user", "project"]),
+            models.Index(fields=["project", "requested_at"]),
+        ]
+        verbose_name = "Project Membership Request"
+        verbose_name_plural = "Project Membership Requests"
+
+    @classmethod
+    def create(cls, user, project, message):
+        return cls.objects.create(user=user, project=project, message=message)
+
+    @classmethod
+    def request_to_join(cls, user, project, message=None):
+        """
+        Create a membership request for a user to join a project.
+
+        Validates that:
+        - User is not already an active member
+        - User doesn't have a pending request
+
+        Args:
+            user: The user requesting to join
+            project: The project to join
+            message: Optional message from the user
+
+        Returns:
+            dict: {
+                'success': bool - Whether the request was created
+                'request': ProjectMembershipRequest or None - The created request
+                'error': str or None - Error message if creation failed
+            }
+        """
+        # Check if user is already an active member
+        active_membership = ProjectMembership.objects.filter(user=user, project=project, is_active=True).first()
+
+        if active_membership:
+            return {
+                "success": False,
+                "request": None,
+                "error": f"You are already a member of {project.short} ({project.code}).",
+            }
+
+        # Check for existing pending request
+        pending_request = cls.objects.filter(user=user, project=project, status=cls.StatusChoices.PENDING).first()
+
+        if pending_request:
+            return {
+                "success": False,
+                "request": None,
+                "error": f"You already have a pending request to join {project.short} ({project.code}).",
+            }
+
+        # Create the new request
+        try:
+            request = cls.objects.create(user=user, project=project, message=message or "")
+            return {"success": True, "request": request, "error": None}
+        except Exception as e:
+            return {
+                "success": False,
+                "request": None,
+                "error": "Something went wrong. Please try again later.",
+            }
+
+    @classmethod
+    def user_requests(cls, user):
+        return cls.objects.filter(user=user).order_by("-requested_at")
+
+    @classmethod
+    def membership_approval_requests(cls, user):
+        """Get all membership requests for projects the user can manage"""
+        manageable_projects = Project.objects.filter(
+            memberships__user=user,
+            memberships__role__in=[ProjectMembership.RoleChoices.MANAGER, ProjectMembership.RoleChoices.OWNER],
+        )
+        return cls.objects.filter(
+            project__in=manageable_projects,
+            status=cls.StatusChoices.PENDING,
+        ).order_by("requested_at")
+
+    def approve(self, approver):
+        ProjectMembership.objects.update_or_create(
+            user=self.user,
+            project=self.project,
+            defaults={
+                "is_active": True,
+                "approved_by": approver,
+            },
+        )
+        self.status = self.StatusChoices.APPROVED
+        self.save()
+
+    def __str__(self):
+        return f"{self.user.username} - {self.project.code} (requested at {self.requested_at})"
+
 
 class Ephemeris(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.CASCADE)
