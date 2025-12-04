@@ -84,7 +84,7 @@ black:
 
 react-test:
   stage: test
-  image: cypress/browsers:node-18.16.0-chrome-113.0.5672.92-1-ff-113.0-edge-113.0.1774.35-1
+  image: cypress/browsers:node-24.11.1-chrome-143.0.7499.40-1-ff-145.0.2-edge-142.0.3595.94-1
 
   variables:
     CYPRESS_RECORD_KEY: $CYPRESS_RECORD_KEY
@@ -101,7 +101,7 @@ react-test:
     - pnpm run relay
     - pnpm run test --run --coverage --reporter=junit --outputFile=./reports/junit.xml
     - pnpm run build
-    - pnpm run preview --port 5173 & npx wait-on http://localhost:5173
+    - pnpm run preview --port 5173 --host 0.0.0.0 & npx wait-on http://localhost:5173 --timeout 60000
     - pnpm run cypress:e2e --browser chrome
 
   artifacts:
@@ -113,7 +113,7 @@ react-test:
 
 react-formatting:
   stage: test
-  image: node:18
+  image: node:20
 
   before_script:
     - corepack enable

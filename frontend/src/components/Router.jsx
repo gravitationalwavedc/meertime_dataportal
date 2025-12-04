@@ -9,6 +9,7 @@ import Login from "../pages/Login";
 import PasswordChange from "../pages/PasswordChange";
 import PasswordReset from "../pages/PasswordReset";
 import PasswordResetRequest from "../pages/PasswordResetRequest";
+import Projects from "../pages/Projects";
 import ReactGA from "react-ga";
 import { RedirectException } from "found";
 import Register from "../pages/Register";
@@ -124,6 +125,11 @@ const routeConfig = () =>
         path="/:mainProject/:jname/:utc/:beam/"
         Component={SingleObservation}
         render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/projects/"
+        Component={Projects}
+        render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
         path="/password_change/"
