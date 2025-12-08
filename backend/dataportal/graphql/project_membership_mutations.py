@@ -2,6 +2,7 @@ import graphene
 from django.contrib.auth import get_user_model
 from dataportal.models import ProjectMembershipRequest, Project, ProjectMembership
 from graphql_relay import from_global_id
+from user_manage.graphql.decorators import login_required
 
 User = get_user_model()
 
@@ -18,6 +19,7 @@ class CreateProjectMembershipRequest(graphene.Mutation):
     ok = graphene.Boolean()
     errors = graphene.List(graphene.String)
 
+    @login_required
     def mutate(root, info, input):
         try:
             project = Project.objects.get(code=input.project_code)
@@ -47,6 +49,7 @@ class RemoveProjectMembershipRequest(graphene.Mutation):
     deleted_project_membership_request_id = graphene.ID()
     errors = graphene.List(graphene.String)
 
+    @login_required
     def mutate(root, info, input):
         model_type, request_id = from_global_id(input.request_id)
 
@@ -58,6 +61,14 @@ class RemoveProjectMembershipRequest(graphene.Mutation):
 
         try:
             request = ProjectMembershipRequest.objects.get(id=request_id)
+
+            # Check if user owns this request (only the requester can remove their own request)
+            if request.user != info.context.user:
+                return RemoveProjectMembershipRequest(
+                    deleted_project_membership_request_id=None,
+                    errors=["You do not have permission to remove this request."],
+                )
+
             request.delete()
         except ProjectMembershipRequest.DoesNotExist:
             return RemoveProjectMembershipRequest(
@@ -88,6 +99,7 @@ class ApproveProjectMembershipRequest(graphene.Mutation):
     approved_project_membership_request_id = graphene.ID()
     errors = graphene.List(graphene.String)
 
+    @login_required
     def mutate(root, info, input):
         model_type, request_id = from_global_id(input.request_id)
 
@@ -99,6 +111,14 @@ class ApproveProjectMembershipRequest(graphene.Mutation):
 
         try:
             request = ProjectMembershipRequest.objects.get(id=request_id)
+
+            # Check if user is a manager of the project (superuser check is in is_manager)
+            if not request.project.is_manager(info.context.user):
+                return ApproveProjectMembershipRequest(
+                    approved_project_membership_request_id=None,
+                    errors=["You do not have permission to approve this request."],
+                )
+
             request.approve(approver=info.context.user)
         except ProjectMembershipRequest.DoesNotExist:
             return ApproveProjectMembershipRequest(
@@ -132,6 +152,7 @@ class LeaveProject(graphene.Mutation):
     user_id = graphene.ID()
     errors = graphene.List(graphene.String)
 
+    @login_required
     def mutate(self, info, input):
         _, user_id = from_global_id(input.user_id)
         _, project_id = from_global_id(input.project_id)
@@ -149,6 +170,7 @@ class LeaveProject(graphene.Mutation):
         if project.is_owner(user):
             return LeaveProject(errors=["Project owners can't leave a project."], user_id=None, project_id=None)
 
+        # Only the user themselves or managers/owners can remove a member
         if user != requesting_user and not project.can_edit(user=requesting_user):
             return LeaveProject(errors=["You do not have permission."], user_id=None, project_id=None)
 

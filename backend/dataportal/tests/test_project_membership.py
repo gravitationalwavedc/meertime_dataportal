@@ -240,11 +240,14 @@ class ProjectMembershipRequestTest(TestCase):
 
     def test_membership_approval_requests_classmethod_as_non_manager(self):
         """Test the ProjectMembershipRequest.membership_approval_requests classmethod for non-manager"""
-        # Non-members should not see project requests
-        project_requests = ProjectMembershipRequest.membership_approval_requests(
-            self.requesting_user,
-        )
-        self.assertEqual(project_requests.count(), 0)
+        from graphql import GraphQLError
+
+        # Non-managers should get a permission error
+        with self.assertRaises(GraphQLError) as context:
+            ProjectMembershipRequest.membership_approval_requests(
+                self.requesting_user,
+            )
+        self.assertIn("You do not have permission to view approval requests", str(context.exception))
 
     def test_membership_approval_requests_ordering(self):
         """Test that membership_approval_requests returns results ordered by requested_at"""
