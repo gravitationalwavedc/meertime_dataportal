@@ -1,5 +1,6 @@
 from graphene import ObjectType, relay
 from graphene_django import DjangoObjectType
+from graphql import GraphQLError
 from user_manage.graphql.decorators import login_required
 from dataportal.models import ProjectMembershipRequest, ProjectMembership
 

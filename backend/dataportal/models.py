@@ -110,6 +110,9 @@ class Project(models.Model):
 
     def can_edit(self, user):
         """Check if a user can edit the project"""
+        if user.is_superuser:
+            return True
+
         return self.is_owner(user) or self.is_manager(user)
 
     def is_owner(self, user):
@@ -122,6 +125,9 @@ class Project(models.Model):
 
     def is_manager(self, user):
         """Check if a user is a manager of the project"""
+        if user.is_superuser:
+            return True
+
         return self.memberships.filter(
             user=user,
             project=self,
@@ -249,10 +255,21 @@ class ProjectMembershipRequest(models.Model):
     @classmethod
     def membership_approval_requests(cls, user):
         """Get all membership requests for projects the user can manage"""
+        # Superusers can see all pending requests
+        if user.is_superuser:
+            return cls.objects.filter(status=cls.StatusChoices.PENDING).order_by("requested_at")
+
+        # Get all projects where user has manager/owner role
         manageable_projects = Project.objects.filter(
             memberships__user=user,
+            memberships__is_active=True,
             memberships__role__in=[ProjectMembership.RoleChoices.MANAGER, ProjectMembership.RoleChoices.OWNER],
         )
+
+        if not manageable_projects.exists():
+            raise GraphQLError("You do not have permission to view approval requests.")
+
+        # Return requests for projects the user can manage
         return cls.objects.filter(
             project__in=manageable_projects,
             status=cls.StatusChoices.PENDING,
