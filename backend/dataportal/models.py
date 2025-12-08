@@ -498,20 +498,35 @@ class Observation(models.Model):
         """
         Check if the observation is restricted for the user.
 
-        Currently if a user has an admin or unrestricted role they can access anything.
-        Otherwise they can only access observations that are passed their embargo date.
+        Returns True if the user cannot access this observation.
+
+        Access is granted if:
+        - User is a superuser (can access everything)
+        - Observation is not embargoed (public data)
+        - User is a member of the observation's project (project-based access)
+
         :param user: Django user model instance
-        :return: bool
+        :return: bool - True if restricted (no access), False if accessible
         """
-        # If the user role isn't restricted they can access everything
-        if user.is_authenticated and user.role.upper() in [
-            UserRole.UNRESTRICTED.value,
-            UserRole.ADMIN.value,
-        ]:
+        # Superusers can access everything
+        if user.is_authenticated and user.is_superuser:
             return False
 
-        # If they aren't logged in or don't have an unrestricted account they can't see embargo data.
-        return self.is_embargoed
+        # If not embargoed, it's public - everyone can access
+        if not self.is_embargoed:
+            return False
+
+        # If embargoed, check project membership
+        if user.is_authenticated:
+            # Check if user is a member of this observation's project
+            return not ProjectMembership.objects.filter(
+                user=user,
+                project=self.project,
+                is_active=True,
+            ).exists()
+
+        # Anonymous users can't access embargoed data
+        return True
 
     def __str__(self):
         return f"{self.utc_start} {self.beam}"
