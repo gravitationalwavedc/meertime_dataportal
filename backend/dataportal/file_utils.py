@@ -75,8 +75,10 @@ def get_file_path(path: str) -> Tuple[bool, Union[Path, str]]:
             return False, f"Path is not a file: {path}"
 
         # Ensure the path is within the allowed directory by resolving symlinks
+        # Resolve both paths to handle symlinks consistently
         real_path = full_path.resolve()
-        if not str(real_path).startswith(str(base_dir)):
+        real_base_dir = base_dir.resolve()
+        if not str(real_path).startswith(str(real_base_dir)):
             return False, "Access denied: Path outside of allowed directory"
 
         return True, full_path

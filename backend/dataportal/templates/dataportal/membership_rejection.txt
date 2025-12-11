@@ -1,0 +1,16 @@
+Dear {{ name }},
+
+Thank you for your interest in joining {{ project_short }} ({{ project_code }}).
+
+After careful consideration, we regret to inform you that your request to join the project has not been approved at this time.
+{% if note %}
+Message from the reviewer:
+{{ note }}
+{% endif %}
+If you have any questions or would like further information, please don't hesitate to reach out to the project team or contact us at hpc-support@swin.edu.au.
+
+We appreciate your understanding and wish you the best in your research endeavours.
+
+Kind Regards,
+MeerTime Data Portal Team
+

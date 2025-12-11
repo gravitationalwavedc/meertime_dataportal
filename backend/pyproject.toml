@@ -61,6 +61,7 @@ xenon = "^0.9.1"
 model_bakery = "^1.2.1"
 black = "^24.8.0"
 pydotplus = "^2.0.2"
+djlint = "^1.36.4"
 
 [tool.black]
 line-length = 119
