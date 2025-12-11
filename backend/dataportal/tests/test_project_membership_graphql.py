@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from django.contrib.auth import get_user_model
 from graphene_django.utils.testing import GraphQLTestCase
 from graphql_relay import to_global_id
@@ -370,6 +372,245 @@ class ProjectMembershipGraphQLTestCase(GraphQLTestCase):
             content["data"]["approveProjectMembershipRequest"]["approvedProjectMembershipRequestId"],
             request_id,
         )
+
+    # ===== RejectProjectMembershipRequest Tests =====
+
+    def test_reject_request_requires_login(self):
+        """Unauthenticated users cannot reject membership requests"""
+        request = ProjectMembershipRequest.objects.create(
+            user=self.non_member,
+            project=self.project1,
+            message="Please let me join",
+        )
+        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
+
+        mutation = f"""
+            mutation {{
+                rejectProjectMembershipRequest(input: {{projectMembershipRequestId: "{request_id}"}}) {{
+                    rejectedProjectMembershipRequestId
+                    errors
+                }}
+            }}
+        """
+        response = self.query(mutation)
+        self.assertResponseHasErrors(response)
+        self.assertIn("must be logged in", str(response.content))
+
+    def test_member_cannot_reject_request(self):
+        """Regular members cannot reject membership requests"""
+        self._client.force_login(self.member)
+        request = ProjectMembershipRequest.objects.create(
+            user=self.non_member,
+            project=self.project1,
+            message="Please let me join",
+        )
+        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
+
+        mutation = f"""
+            mutation {{
+                rejectProjectMembershipRequest(input: {{projectMembershipRequestId: "{request_id}"}}) {{
+                    rejectedProjectMembershipRequestId
+                    errors
+                }}
+            }}
+        """
+        response = self.query(mutation)
+        content = response.json()
+        self.assertResponseNoErrors(response)
+        self.assertIsNone(content["data"]["rejectProjectMembershipRequest"]["rejectedProjectMembershipRequestId"])
+        self.assertIn(
+            "You do not have permission to reject this request.",
+            content["data"]["rejectProjectMembershipRequest"]["errors"],
+        )
+
+        # Verify database state - request should still be pending
+        request.refresh_from_db()
+        self.assertEqual(request.status, ProjectMembershipRequest.StatusChoices.PENDING)
+
+    def test_manager_can_reject_request(self):
+        """Managers can reject membership requests"""
+        self._client.force_login(self.manager)
+        request = ProjectMembershipRequest.objects.create(
+            user=self.non_member,
+            project=self.project1,
+            message="Please let me join",
+        )
+        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
+
+        mutation = f"""
+            mutation {{
+                rejectProjectMembershipRequest(input: {{projectMembershipRequestId: "{request_id}"}}) {{
+                    rejectedProjectMembershipRequestId
+                    errors
+                }}
+            }}
+        """
+        response = self.query(mutation)
+        content = response.json()
+        self.assertResponseNoErrors(response)
+        self.assertEqual(
+            content["data"]["rejectProjectMembershipRequest"]["rejectedProjectMembershipRequestId"],
+            request_id,
+        )
+        self.assertEqual(len(content["data"]["rejectProjectMembershipRequest"]["errors"]), 0)
+
+        # Verify database state
+        request.refresh_from_db()
+        self.assertEqual(request.status, ProjectMembershipRequest.StatusChoices.REJECTED)
+
+        # Verify membership was NOT created
+        self.assertFalse(
+            ProjectMembership.objects.filter(
+                user=self.non_member,
+                project=self.project1,
+            ).exists()
+        )
+
+    def test_owner_can_reject_request(self):
+        """Owners can reject membership requests"""
+        self._client.force_login(self.owner)
+        request = ProjectMembershipRequest.objects.create(
+            user=self.non_member,
+            project=self.project1,
+            message="Please let me join",
+        )
+        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
+
+        mutation = f"""
+            mutation {{
+                rejectProjectMembershipRequest(input: {{projectMembershipRequestId: "{request_id}"}}) {{
+                    rejectedProjectMembershipRequestId
+                    errors
+                }}
+            }}
+        """
+        response = self.query(mutation)
+        content = response.json()
+        self.assertResponseNoErrors(response)
+        self.assertEqual(
+            content["data"]["rejectProjectMembershipRequest"]["rejectedProjectMembershipRequestId"],
+            request_id,
+        )
+
+    def test_superuser_can_reject_request(self):
+        """Superusers can reject any membership request"""
+        self._client.force_login(self.superuser)
+        request = ProjectMembershipRequest.objects.create(
+            user=self.non_member,
+            project=self.project1,
+            message="Please let me join",
+        )
+        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
+
+        mutation = f"""
+            mutation {{
+                rejectProjectMembershipRequest(input: {{projectMembershipRequestId: "{request_id}"}}) {{
+                    rejectedProjectMembershipRequestId
+                    errors
+                }}
+            }}
+        """
+        response = self.query(mutation)
+        content = response.json()
+        self.assertResponseNoErrors(response)
+        self.assertEqual(
+            content["data"]["rejectProjectMembershipRequest"]["rejectedProjectMembershipRequestId"],
+            request_id,
+        )
+
+    def test_reject_request_saves_note(self):
+        """Rejection note is saved when provided"""
+        self._client.force_login(self.manager)
+        request = ProjectMembershipRequest.objects.create(
+            user=self.non_member,
+            project=self.project1,
+            message="Please let me join",
+        )
+        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
+        rejection_note = "Unfortunately, we are not accepting new members at this time."
+
+        mutation = f"""
+            mutation {{
+                rejectProjectMembershipRequest(input: {{
+                    projectMembershipRequestId: "{request_id}",
+                    note: "{rejection_note}"
+                }}) {{
+                    rejectedProjectMembershipRequestId
+                    errors
+                }}
+            }}
+        """
+        response = self.query(mutation)
+        content = response.json()
+        self.assertResponseNoErrors(response)
+        self.assertEqual(
+            content["data"]["rejectProjectMembershipRequest"]["rejectedProjectMembershipRequestId"],
+            request_id,
+        )
+
+        # Verify rejection note was saved
+        request.refresh_from_db()
+        self.assertEqual(request.status, ProjectMembershipRequest.StatusChoices.REJECTED)
+        self.assertEqual(request.rejection_note, rejection_note)
+
+    def test_reject_request_handles_does_not_exist(self):
+        """Test that rejecting a non-existent request returns appropriate error"""
+        self._client.force_login(self.manager)
+        # Use a valid global ID format but with a non-existent database ID
+        fake_id = 99999
+        request_id = to_global_id("ProjectMembershipRequestNode", fake_id)
+
+        mutation = f"""
+            mutation {{
+                rejectProjectMembershipRequest(input: {{projectMembershipRequestId: "{request_id}"}}) {{
+                    rejectedProjectMembershipRequestId
+                    errors
+                }}
+            }}
+        """
+        response = self.query(mutation)
+        content = response.json()
+        self.assertResponseNoErrors(response)
+        self.assertIsNone(content["data"]["rejectProjectMembershipRequest"]["rejectedProjectMembershipRequestId"])
+        self.assertIn(
+            "The membership request does not exist.",
+            content["data"]["rejectProjectMembershipRequest"]["errors"],
+        )
+
+    def test_reject_request_handles_generic_exception(self):
+        """Test that generic exceptions during rejection are handled gracefully"""
+        self._client.force_login(self.manager)
+        request = ProjectMembershipRequest.objects.create(
+            user=self.non_member,
+            project=self.project1,
+            message="Please let me join",
+        )
+        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
+
+        # Mock send_membership_rejection_email to raise an exception
+        with patch("dataportal.graphql.project_membership_mutations.send_membership_rejection_email") as mock_email:
+            mock_email.side_effect = Exception("Email service unavailable")
+
+            mutation = f"""
+                mutation {{
+                    rejectProjectMembershipRequest(input: {{projectMembershipRequestId: "{request_id}"}}) {{
+                        rejectedProjectMembershipRequestId
+                        errors
+                    }}
+                }}
+            """
+            response = self.query(mutation)
+            content = response.json()
+            self.assertResponseNoErrors(response)
+            self.assertIsNone(content["data"]["rejectProjectMembershipRequest"]["rejectedProjectMembershipRequestId"])
+            self.assertIn(
+                "Something has gone wrong. Please try again later.",
+                content["data"]["rejectProjectMembershipRequest"]["errors"],
+            )
+
+            # Verify that the request was still updated despite the email failure
+            request.refresh_from_db()
+            self.assertEqual(request.status, ProjectMembershipRequest.StatusChoices.REJECTED)
 
     # ===== LeaveProject Tests =====
 

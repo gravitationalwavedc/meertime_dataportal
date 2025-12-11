@@ -1,5 +1,6 @@
 import graphene
 from django.contrib.auth import get_user_model
+from dataportal.emails import send_membership_rejection_email
 from dataportal.models import ProjectMembershipRequest, Project, ProjectMembership
 from graphql_relay import from_global_id
 from user_manage.graphql.decorators import login_required
@@ -138,6 +139,70 @@ class ApproveProjectMembershipRequest(graphene.Mutation):
         )
 
 
+class RejectProjectMembershipRequestInput(graphene.InputObjectType):
+    project_membership_request_id = graphene.ID(required=True)
+    note = graphene.String(required=False)
+
+
+class RejectProjectMembershipRequest(graphene.Mutation):
+
+    class Arguments:
+        input = RejectProjectMembershipRequestInput(required=True)
+
+    rejected_project_membership_request_id = graphene.ID()
+    errors = graphene.List(graphene.String)
+
+    @login_required
+    def mutate(root, info, input):
+
+        model_type, membership_request_id = from_global_id(input.project_membership_request_id)
+
+        if model_type != "ProjectMembershipRequestNode":
+            return RejectProjectMembershipRequest(
+                rejected_project_membership_request_id=None,
+                errors=["Invalid membership request ID."],
+            )
+
+        try:
+            membership_request = ProjectMembershipRequest.objects.get(id=membership_request_id)
+
+            # Check if user is a manager of the project (superuser check is in is_manager)
+            if not membership_request.project.is_manager(info.context.user):
+                return RejectProjectMembershipRequest(
+                    rejected_project_membership_request_id=None,
+                    errors=["You do not have permission to reject this request."],
+                )
+
+            # Update status and save rejection note
+            membership_request.status = ProjectMembershipRequest.StatusChoices.REJECTED
+            membership_request.rejection_note = input.note or ""
+            membership_request.save()
+
+            # Send rejection email (non-blocking, log errors)
+            send_membership_rejection_email(
+                user=membership_request.user,
+                project=membership_request.project,
+                note=input.note,
+            )
+
+        except ProjectMembershipRequest.DoesNotExist:
+            return RejectProjectMembershipRequest(
+                rejected_project_membership_request_id=None,
+                errors=["The membership request does not exist."],
+            )
+        except Exception as e:
+            print(e)
+            return RejectProjectMembershipRequest(
+                rejected_project_membership_request_id=None,
+                errors=["Something has gone wrong. Please try again later."],
+            )
+
+        return RejectProjectMembershipRequest(
+            rejected_project_membership_request_id=input.project_membership_request_id,
+            errors=[],
+        )
+
+
 class LeaveProjectInput(graphene.InputObjectType):
     project_id = graphene.ID(required=True)
     user_id = graphene.ID(required=True)
@@ -184,4 +249,5 @@ class Mutation(graphene.ObjectType):
     create_project_membership_request = CreateProjectMembershipRequest.Field()
     remove_project_membership_request = RemoveProjectMembershipRequest.Field()
     approve_project_membership_request = ApproveProjectMembershipRequest.Field()
+    reject_project_membership_request = RejectProjectMembershipRequest.Field()
     leave_project = LeaveProject.Field()

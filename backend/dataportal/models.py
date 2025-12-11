@@ -183,6 +183,7 @@ class ProjectMembershipRequest(models.Model):
     requested_at = models.DateTimeField(auto_now_add=True)
     message = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=8, choices=StatusChoices.choices, default=StatusChoices.PENDING)
+    rejection_note = models.TextField(blank=True, null=True)
 
     class Meta:
         indexes = [

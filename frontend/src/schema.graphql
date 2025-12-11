@@ -1391,6 +1391,7 @@ type Mutation {
   createProjectMembershipRequest(input: CreateProjectMembershipRequestInput!): CreateProjectMembershipRequest
   removeProjectMembershipRequest(input: RemoveProjectMembershipRequestInput!): RemoveProjectMembershipRequest
   approveProjectMembershipRequest(input: ApproveProjectMembershipRequestInput!): ApproveProjectMembershipRequest
+  rejectProjectMembershipRequest(input: RejectProjectMembershipRequestInput!): RejectProjectMembershipRequest
   leaveProject(input: LeaveProjectInput!): LeaveProject
   createResidual(input: ResidualInput!): CreateResidualOutput
   createToa(input: ToaInput!): CreateToaOutput
@@ -1562,6 +1563,16 @@ type ApproveProjectMembershipRequest {
 
 input ApproveProjectMembershipRequestInput {
   requestId: ID!
+}
+
+type RejectProjectMembershipRequest {
+  rejectedProjectMembershipRequestId: ID
+  errors: [String]
+}
+
+input RejectProjectMembershipRequestInput {
+  projectMembershipRequestId: ID!
+  note: String
 }
 
 type LeaveProject {
