@@ -5,6 +5,7 @@ import * as Yup from "yup";
 
 import { commitMutation, graphql, useFragment } from "react-relay";
 import environment from "../../relayEnvironment";
+import { meertime } from "../../telescopes";
 
 const query = graphql`
   fragment JoinProjectFormFragment on Query {
@@ -49,9 +50,16 @@ const validationSchema = Yup.object().shape({
 const JoinProjectForm = ({ relayData, onRequestSubmitted }) => {
   const [errors, setErrors] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
-
+  const allowedSubprojects = new Set(
+    meertime.subprojects.map((sp) => sp.toLowerCase())
+  );
   const data = useFragment(query, relayData);
-  const groupedProjects = data.project.edges.reduce(
+  const filteredEdges = data.project.edges.filter(
+    ({ node }) =>
+      node.mainProject.name === "MeerTIME" &&
+      allowedSubprojects.has((node.short || "").toLowerCase())
+  );
+  const groupedProjects = filteredEdges.reduce(
     (acc, { node }) => ({
       ...acc,
       [node.mainProject.name]: [...(acc[node.mainProject.name] || []), node],

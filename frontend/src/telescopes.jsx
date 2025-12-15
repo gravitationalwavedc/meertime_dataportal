@@ -34,6 +34,7 @@ const meertime = {
     "PTA2",
     "GC",
     "NGC6440",
+    "MASERTEST",
   ],
   bandOptions: [
     "All",

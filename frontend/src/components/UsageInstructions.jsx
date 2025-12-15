@@ -7,7 +7,13 @@ const UsageInstructions = () => {
         <h6 className="mb-0">Usage Instructions</h6>
       </Card.Header>
       <Card.Body>
-        <p>Use your API tokens to authenticate requests to the API:</p>
+        <p>
+          To interact with the Pulsar Portal's API via a command line tool in
+          your terminal, you can use{" "}
+          <a href="https://psrdb.readthedocs.io/en/latest/index.html">PSRDB</a>{" "}
+          with a token. Otherwise, you can manually make requests to the API
+          with your token:
+        </p>
         <pre className="bg-light p-3 rounded">
           {`# Using curl
 curl -H "Authorization: Bearer YOUR_TOKEN_HERE" \\
