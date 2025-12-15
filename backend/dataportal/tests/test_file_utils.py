@@ -545,3 +545,275 @@ class DownloadViewsTestCase(TestCase):
         # content = b"".join(response.streaming_content)
         # self.assertGreater(len(content), 0)  # Zip file should not be empty
         self.assertEqual(response.status_code, 403)
+
+    def test_download_observation_files_toas_unauthorized(self):
+        """Test downloading ToAs file without authentication"""
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "toas",
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode(), "Unauthorized")
+
+    def test_download_observation_files_toas(self):
+        """Test downloading ToAs file for a specific observation"""
+        # Create the ToAs file
+        obs_dir = (
+            self.test_dir
+            / self.observation.pulsar.name
+            / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+            / str(self.observation.beam)
+            / "timing"
+        )
+        obs_dir.mkdir(parents=True)
+        toas_file = (
+            obs_dir
+            / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+        )
+        toas_file.write_text("ToAs content")
+
+        self.client.force_login(self.unrestricted_user)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "toas",
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+        # Read the file content from the response
+        expected_content = toas_file.read_text()
+        self.assertEqual(response.streaming_content.__next__().decode(), expected_content)
+
+    def test_download_observation_files_toas_not_found(self):
+        """Test downloading non-existent observation ToAs file"""
+        self.client.force_login(self.unrestricted_user)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": "NONEXISTENT",
+                    "observation_timestamp": "2023-01-01-00:00:00",
+                    "beam": 1,
+                    "file_type": "toas",
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode(), "Observation not found")
+
+    @freeze_time("1900-01-01")
+    def test_download_observation_files_toas_restricted(self):
+        """Test downloading restricted observation ToAs file"""
+        # Create the ToAs file
+        obs_dir = (
+            self.test_dir
+            / self.observation.pulsar.name
+            / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+            / str(self.observation.beam)
+            / "timing"
+        )
+        obs_dir.mkdir(parents=True)
+        toas_file = (
+            obs_dir
+            / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+        )
+        toas_file.write_text("ToAs content")
+
+        self.client.force_login(self.restricted_user)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "toas",
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.content.decode(), "Access denied - data is under embargo")
+
+    def test_download_pulsar_files_toas_unauthorized(self):
+        """Test downloading pulsar ToAs files without authentication"""
+        response = self.client.get(
+            reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "toas"})
+        )
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.content.decode(), "Unauthorized")
+
+    def test_download_pulsar_files_toas(self):
+        """Test downloading all ToAs files for a pulsar"""
+        # Create the ToAs file
+        obs_dir = (
+            self.test_dir
+            / self.observation.pulsar.name
+            / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+            / str(self.observation.beam)
+            / "timing"
+        )
+        obs_dir.mkdir(parents=True)
+        toas_file = (
+            obs_dir
+            / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+        )
+        toas_file.write_text("ToAs content")
+
+        self.client.force_login(self.unrestricted_user)
+        response = self.client.get(
+            reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "toas"})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/zip")
+        self.assertEqual(
+            response["Content-Disposition"],
+            f'attachment; filename="pulsar_{self.observation.pulsar.name}_toas_files.zip"',
+        )
+        # Check that the zip file contains our test files
+        content = b"".join(response.streaming_content)
+        self.assertGreater(len(content), 0)  # Zip file should not be empty
+
+    def test_download_pulsar_files_toas_not_found(self):
+        """Test downloading non-existent pulsar ToAs files"""
+        self.client.force_login(self.unrestricted_user)
+        response = self.client.get(
+            reverse("download_pulsar_files", kwargs={"jname": "NONEXISTENT", "file_type": "toas"})
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode(), "Pulsar not found")
+
+    @freeze_time("1900-01-01")
+    def test_download_pulsar_files_toas_restricted(self):
+        """Test downloading pulsar ToAs files with restricted observations"""
+        # Create the ToAs file
+        obs_dir = (
+            self.test_dir
+            / self.observation.pulsar.name
+            / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+            / str(self.observation.beam)
+            / "timing"
+        )
+        obs_dir.mkdir(parents=True)
+        toas_file = (
+            obs_dir
+            / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+        )
+        toas_file.write_text("ToAs content")
+
+        self.client.force_login(self.restricted_user)
+        response = self.client.get(
+            reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "toas"})
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.content.decode(), "Access denied - all data is under embargo")
+
+    @freeze_time("1900-01-01")
+    def test_download_pulsar_files_toas_mixed_access(self):
+        """Test downloading pulsar ToAs files with mixed access (restricted and unrestricted)"""
+        # Create a second observation that will be unrestricted
+        unrestricted_obs = Observation.objects.create(
+            pulsar=self.observation.pulsar,
+            telescope=self.telescope,
+            project=self.project,
+            calibration=self.cal,
+            band=self.observation.band,
+            frequency=self.observation.frequency,
+            bandwidth=self.observation.bandwidth,
+            nchan=self.observation.nchan,
+            beam=self.observation.beam,
+            nant=self.observation.nant,
+            nant_eff=self.observation.nant_eff,
+            npol=self.observation.npol,
+            obs_type="fold",  # Set to fold type
+            utc_start=self.observation.utc_start + timedelta(days=1),  # Different time
+            raj=self.observation.raj,
+            decj=self.observation.decj,
+            duration=3600.0,  # 1 hour duration
+            nbit=self.observation.nbit,
+            tsamp=self.observation.tsamp,
+            # Add fold-specific fields
+            fold_nbin=1024,
+            fold_nchan=1024,
+            fold_tsubint=10.0,  # 10 second sub-integrations
+        )
+
+        # Now set the embargo dates after creation to avoid save() method overwriting them
+        # Set the first observation to be restricted (future embargo)
+        Observation.objects.filter(id=self.observation.id).update(
+            embargo_end_date=datetime.now(tz=pytz.UTC) + timedelta(days=1)
+        )
+        # Set the second observation to be unrestricted (past embargo)
+        Observation.objects.filter(id=unrestricted_obs.id).update(
+            embargo_end_date=datetime.now(tz=pytz.UTC) - timedelta(days=1)
+        )
+
+        # Create ToAs files for both observations
+        obs_dir = (
+            self.test_dir
+            / self.observation.pulsar.name
+            / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+            / str(self.observation.beam)
+            / "timing"
+        )
+        obs_dir.mkdir(parents=True)
+        restricted_toas = (
+            obs_dir
+            / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+        )
+        restricted_toas.write_text("Restricted ToAs content")
+
+        unrestricted_obs_dir = (
+            self.test_dir
+            / unrestricted_obs.pulsar.name
+            / unrestricted_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+            / str(unrestricted_obs.beam)
+            / "timing"
+        )
+        unrestricted_obs_dir.mkdir(parents=True)
+        unrestricted_toas = (
+            unrestricted_obs_dir
+            / f"{unrestricted_obs.pulsar.name}_{unrestricted_obs.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+        )
+        unrestricted_toas.write_text("Unrestricted ToAs content")
+
+        self.client.force_login(self.restricted_user)
+        response = self.client.get(
+            reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "toas"})
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/zip")
+
+        # Create a temporary directory to extract the zip file
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Write the zip file content to a temporary file
+            zip_path = Path(temp_dir) / "test.zip"
+            with open(zip_path, "wb") as f:
+                for chunk in response.streaming_content:
+                    f.write(chunk)
+
+            # Extract the zip file
+            with zipfile.ZipFile(zip_path, "r") as zip:
+                members = zip.namelist()
+                # Should only contain files from the unrestricted observation
+                self.assertEqual(len(members), 1)  # One ToAs file
+
+                # Check for the expected structure: timing/timestamp/beam/filename
+                timestamp_dir = unrestricted_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+                beam_dir = str(unrestricted_obs.beam)
+                toas_filename = f"{unrestricted_obs.pulsar.name}_{unrestricted_obs.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+
+                expected_toas_path = f"timing/{timestamp_dir}/{beam_dir}/{toas_filename}"
+
+                self.assertIn(expected_toas_path, members)

@@ -32,6 +32,14 @@ const SingleObservationFileDownload = ({ jname, utc, beam }) => {
       >
         Download Decimated
       </Button>
+      <Button
+        size="sm"
+        variant="outline-secondary"
+        onClick={(e) => downloadFile(e, "toas")}
+        className="mr-2 mb-2"
+      >
+        Download ToAs
+      </Button>
     </>
   );
 };
