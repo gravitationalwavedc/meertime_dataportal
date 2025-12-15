@@ -90,6 +90,7 @@ describe("Single Observation Page", () => {
     // The download buttons are visible
     cy.contains("Download Full Resolution").should("be.visible");
     cy.contains("Download Decimated").should("be.visible");
+    cy.contains("Download ToAs").should("be.visible");
   });
 
   it("should download files when download buttons are clicked", () => {

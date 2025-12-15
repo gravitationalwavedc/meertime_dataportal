@@ -76,6 +76,19 @@ describe("The Fold Detail Page", () => {
     cy.contains("J0125-2327").should("be.visible");
   });
 
+  it("should download ToAs files when download button is clicked", () => {
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    
+    // Ensure the button is visible and clickable
+    cy.contains("Download ToAs").should("be.visible");
+    
+    // Click the button - this will open download in new tab
+    cy.contains("Download ToAs").click();
+    
+    // Verify the button click worked by checking that the page is still functional
+    cy.contains("J0125-2327").should("be.visible");
+  });
+
   it("should go to single observation when view button is clicked", () => {
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
     const observationTimestamp = "2023-12-13-16:07:10";

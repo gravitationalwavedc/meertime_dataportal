@@ -182,7 +182,7 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
     :param jname: Name of the pulsar (e.g., 'J1227-6208')
     :param observation_timestamp: UTC timestamp in format 'YYYY-MM-DD-HH:MM:SS'
     :param beam: Beam number
-    :param file_type: Type of file to download ('full' or 'decimated')
+    :param file_type: Type of file to download ('full', 'decimated', or 'toas')
     :return: File download response
     """
     # Check if user is authenticated
@@ -190,7 +190,7 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
         return HttpResponse("Unauthorized", status=401)
 
     # Validate file type
-    if file_type not in ["full", "decimated"]:
+    if file_type not in ["full", "decimated", "toas"]:
         return HttpResponse("Invalid file type specified", status=400)
 
     try:
@@ -225,6 +225,13 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
                 / "decimated"
                 / f"{observation.pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
             )
+        elif file_type == "toas":
+            # ToAs file
+            file_path = (
+                base_path
+                / "timing"
+                / f"{observation.pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+            )
 
         return serve_file(str(file_path))
 
@@ -241,7 +248,7 @@ def download_pulsar_files(request, jname, file_type):
 
     :param request: HTTP request
     :param jname: Name of the pulsar (e.g., 'J1227-6208')
-    :param file_type: Type of file to download ('full' or 'decimated')
+    :param file_type: Type of file to download ('full', 'decimated', or 'toas')
     :return: File download response
     """
     # Check if user is authenticated
@@ -249,7 +256,7 @@ def download_pulsar_files(request, jname, file_type):
         return HttpResponse("Unauthorized", status=401)
 
     # Validate file type
-    if file_type not in ["full", "decimated"]:
+    if file_type not in ["full", "decimated", "toas"]:
         return HttpResponse("Invalid file type specified", status=400)
 
     try:
@@ -309,6 +316,20 @@ def download_pulsar_files(request, jname, file_type):
                         beam_dir = str(observation.beam)
                         decimated_filename = f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
                         zs.add_path(str(decimated_abs_path), f"{timestamp_dir}/{beam_dir}/{decimated_filename}")
+
+                elif file_type == "toas":
+                    # Add ToAs file only
+                    toas_path = (
+                        base_path
+                        / "timing"
+                        / f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+                    )
+                    toas_abs_path = Path(settings.MEERTIME_DATA_DIR) / toas_path
+                    if toas_abs_path.exists():
+                        timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+                        beam_dir = str(observation.beam)
+                        toas_filename = f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+                        zs.add_path(str(toas_abs_path), f"timing/{timestamp_dir}/{beam_dir}/{toas_filename}")
 
             # Stream the ZIP data
             for chunk in zs:

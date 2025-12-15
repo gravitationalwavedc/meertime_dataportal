@@ -1,11 +1,10 @@
 import { useState, Suspense } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import Ephemeris, { ephemerisQuery } from "../Ephemeris";
-import { createLink } from "../../helpers";
 import { useQueryLoader } from "react-relay";
 import LoadingModal from "./LoadingModal";
 
-const HeaderButtons = ({ jname, mainProject, toasLink }) => {
+const HeaderButtons = ({ jname, mainProject }) => {
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
   const [ephemerisQueryRef, loadEphemerisQuery] =
     useQueryLoader(ephemerisQuery);
@@ -70,16 +69,14 @@ const HeaderButtons = ({ jname, mainProject, toasLink }) => {
         >
           Download Decimated Data
         </Button>
-        {toasLink && (
-          <Button
-            size="sm"
-            className="mr-2 mb-2"
-            variant="outline-secondary"
-            onClick={() => createLink(toasLink)}
-          >
-            Download TOAs
-          </Button>
-        )}
+        <Button
+          size="sm"
+          className="mr-2 mb-2"
+          variant="outline-secondary"
+          onClick={() => handleDownloadFiles("toas")}
+        >
+          Download ToAs
+        </Button>
       </Col>
     </Row>
   );
