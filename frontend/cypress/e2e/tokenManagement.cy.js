@@ -249,7 +249,7 @@ describe("Token Management Page", () => {
     
     // Check usage instructions section
     cy.contains("Usage Instructions").should("be.visible");
-    cy.contains("Use your API tokens to authenticate").should("be.visible");
+    cy.contains("To interact with the Pulsar Portal's API").should("be.visible");
     cy.contains("Authorization: Bearer YOUR_TOKEN_HERE").should("be.visible");
     
     // Check example code blocks

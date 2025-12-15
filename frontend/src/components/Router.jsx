@@ -5,6 +5,9 @@ import AccountActivation from "../pages/AccountActivation";
 import Fold from "../pages/Fold";
 import FoldDetail from "../pages/FoldDetail";
 import TokenManagement from "../pages/TokenManagement";
+import DataUsage from "../pages/DataUsage";
+import DataDisclaimer from "../pages/DataDisclaimer";
+import ContactUs from "../pages/ContactUs";
 import Login from "../pages/Login";
 import PasswordChange from "../pages/PasswordChange";
 import PasswordReset from "../pages/PasswordReset";
@@ -139,6 +142,21 @@ const routeConfig = () =>
       <Route
         path="/api-tokens/"
         Component={TokenManagement}
+        render={({ Component, props }) => renderPrivateRoute(Component, props)}
+      />
+      <Route
+        path="/data-usage/"
+        Component={DataUsage}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/data-disclaimer/"
+        Component={DataDisclaimer}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
+      />
+      <Route
+        path="/contact-us/"
+        Component={ContactUs}
         render={({ Component, props }) => renderPrivateRoute(Component, props)}
       />
       <Route
