@@ -285,9 +285,14 @@ const Register = () => {
                                   label={
                                     <span>
                                       I have read the{" "}
-                                      <Link to="/data-disclaimer/">Data Disclaimer</Link>{" "}
+                                      <Link to="/data-disclaimer/">
+                                        Data Disclaimer
+                                      </Link>{" "}
                                       and agree to the{" "}
-                                      <Link to="/data-usage/">Data Usage Policy</Link>.
+                                      <Link to="/data-usage/">
+                                        Data Usage Policy
+                                      </Link>
+                                      .
                                     </span>
                                   }
                                 />
