@@ -57,6 +57,9 @@ const validationSchema = Yup.object().shape({
       "Must have uppercase, lowercase, number and special character (one of !@#$%^&*)"
     )
     .matches(/^(?=.{8,})/, "Must Contain 8 Characters"),
+  terms_accepted: Yup.boolean()
+    .oneOf([true], "You must accept the terms and conditions to register.")
+    .required("You must accept the terms and conditions to register."),
 });
 
 const Register = () => {
@@ -166,6 +169,7 @@ const Register = () => {
                       password: "",
                       confirm_password: "",
                       email: "",
+                      terms_accepted: false,
                     }}
                     validationSchema={validationSchema}
                     onSubmit={(values) => submitRegistrationForm(values)}
@@ -258,6 +262,35 @@ const Register = () => {
                                 <Form.Control.Feedback type="invalid">
                                   {meta.error}
                                 </Form.Control.Feedback>
+                              </Form.Group>
+                            )}
+                          </Field>
+                        </Form.Row>
+                        <Form.Row>
+                          <Field name="terms_accepted">
+                            {({ field, meta }) => (
+                              <Form.Group
+                                controlId="terms_accepted"
+                                as={Col}
+                                sm={12}
+                                md={12}
+                                xl={12}
+                              >
+                                <Form.Check
+                                  type="checkbox"
+                                  {...field}
+                                  isInvalid={meta.touched && meta.error}
+                                  feedback={meta.error}
+                                  feedbackType="invalid"
+                                  label={
+                                    <span>
+                                      I have read the{" "}
+                                      <Link to="/data-disclaimer/">Data Disclaimer</Link>{" "}
+                                      and agree to the{" "}
+                                      <Link to="/data-usage/">Data Usage Policy</Link>.
+                                    </span>
+                                  }
+                                />
                               </Form.Group>
                             )}
                           </Field>
