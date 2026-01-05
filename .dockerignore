@@ -1,10 +1,63 @@
-.venv
+# Git
+.git
+.gitignore
+.gitattributes
+.github
+
+# Python cache and bytecode
 **/__pycache__
 **/*.py[cod]
-**/htmlcov
-**/test_*py
-src/setup.cfg
-src/.coverage
-src/.env.template
-src/.env.development
-src/frontend
+**/*$py.class
+**/*.so
+**/.Python
+**/*.egg-info
+**/.pytest_cache
+
+# Django specific
+backend/**/*.log
+backend/db.sqlite3
+backend/junit-reports/
+backend/htmlcov/
+backend/.coverage
+backend/coverage.xml
+
+# Media and data that shouldn't be in image
+media/
+postgres_data/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/reports/
+frontend/cypress/
+
+# IDE
+.vscode/
+.idea/
+**/*.swp
+**/*.swo
+**/*~
+
+# Documentation and context
+README.md
+LICENSE
+*.md
+context/
+docs/
+
+# CI/CD
+.gitlab-ci.yml
+.codeclimate.yml
+
+# Docker
+docker-compose.yaml
+docker-compose*.yaml
+Dockerfile
+docker/
+
+# Config files not needed in image
+postgres.conf
+.env*
+!backend/.env
+
+
