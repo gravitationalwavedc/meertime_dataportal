@@ -9,13 +9,13 @@ class RegistrationAdmin(admin.ModelAdmin):
         "first_name",
         "last_name",
         "email",
-        "password",
         "status",
         "verification_code",
         "verification_expiry",
         "created",
         "last_updated",
     ]
+    exclude = ["password"]
 
 
 @admin.register(PasswordResetRequest)
@@ -34,7 +34,6 @@ class PasswordResetRequestAdmin(admin.ModelAdmin):
 class UserAdmin(admin.ModelAdmin):
     list_display = [
         "username",
-        "password",
         "first_name",
         "last_name",
         "email",
@@ -44,6 +43,8 @@ class UserAdmin(admin.ModelAdmin):
         "role",
         "date_joined",
     ]
+    search_fields = ["username", "email", "first_name", "last_name"]
+    exclude = ["password"]
 
 
 @admin.register(ProvisionalUser)
