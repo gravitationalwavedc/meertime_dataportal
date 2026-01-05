@@ -2,6 +2,9 @@ import { aliasMutation, aliasQuery } from "../utils/graphql-test-utils";
 
 describe("Token Management Page", () => {
   beforeEach(() => {
+    // Freeze time to May 28, 2025 to ensure tests don't fail based on real calendar dates
+    cy.clock(new Date("2025-05-28T12:00:00Z").getTime(), ["Date"]);
+    
     // Mock GraphQL requests
     cy.intercept("http://localhost:5173/api/graphql/", (req) => {
       // Handle token management queries and mutations
@@ -405,6 +408,9 @@ describe("Token Management Page", () => {
   });
 
   it("should handle tokens with different expiry scenarios", () => {
+    // Ensure time is frozen for this test too
+    cy.clock(new Date("2025-05-28T12:00:00Z").getTime(), ["Date"]);
+    
     // Create a custom fixture with more expiry scenarios
     cy.intercept("http://localhost:5173/api/graphql/", (req) => {
       if (req.body.query && req.body.query.includes("TokenManagementQuery")) {

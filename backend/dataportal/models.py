@@ -380,7 +380,7 @@ class Calibration(models.Model):
     n_ant_min = models.IntegerField(null=True)
     n_ant_max = models.IntegerField(null=True)
     total_integration_time_seconds = models.FloatField(null=True)
-    badges = models.ManyToManyField(Badge)
+    badges = models.ManyToManyField(Badge, blank=True)
 
     @classmethod
     def update_observation_session(cls, calibration):
@@ -464,7 +464,7 @@ class Observation(models.Model):
     filterbank_tsamp = models.FloatField(blank=True, null=True)
     filterbank_dm = models.FloatField(blank=True, null=True)
 
-    badges = models.ManyToManyField(Badge)
+    badges = models.ManyToManyField(Badge, blank=True)
 
     def save(self, *args, **kwargs):
         Observation.clean(self)
@@ -684,7 +684,7 @@ class PipelineRun(Model):
     rm_err = models.FloatField(null=True)
     percent_rfi_zapped = models.FloatField(null=True)
 
-    badges = models.ManyToManyField(Badge)
+    badges = models.ManyToManyField(Badge, blank=True)
 
 
 class PulsarFoldResult(models.Model):
