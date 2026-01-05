@@ -82,6 +82,16 @@ USE_TZ = True
 STATIC_ROOT = "/static/"
 STATIC_URL = "/static/"
 
+# Use ManifestStaticFilesStorage for cache-busting with hashed filenames
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+}
+
 MEDIA_ROOT = "/media/"
 MEDIA_URL = "/media/"
 

@@ -23,7 +23,8 @@ services:
   django-service:
     build:
       context: .
-      dockerfile: ./docker/meertime_django.Dockerfile
+      dockerfile: ./docker/Dockerfile
+      target: django
     restart: always
     volumes:
       - ./backend:/app
@@ -44,7 +45,8 @@ services:
   react-service:
     build:
       context: .
-      dockerfile: ./docker/meertime_react.Dockerfile
+      dockerfile: ./docker/Dockerfile
+      target: react
     restart: always
     volumes:
       - ./frontend:/app
@@ -54,7 +56,8 @@ services:
   nginx:
     build:
       context: .
-      dockerfile: ./docker/meertime_nginx.Dockerfile
+      dockerfile: ./docker/Dockerfile
+      target: nginx
     restart: always
     ports:
       - "8000:8000"
