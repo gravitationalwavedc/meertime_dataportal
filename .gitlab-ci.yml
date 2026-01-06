@@ -24,11 +24,11 @@ stages:
 django-tests:
   stage: test
   image:
-    name: ubuntu:20.04
+    name: ubuntu:24.04
     entrypoint: ["/usr/bin/env"]
 
   services:
-    - postgres:12.2-alpine
+    - postgres:16-alpine
 
   cache:
     - key:
@@ -40,7 +40,7 @@ django-tests:
   before_script:
     - apt -y update
     - apt -y install apt-utils
-    - apt -y install net-tools git curl wget python3-pip python3.8-venv python3.9-dev postgresql postgresql-client libpq-dev
+    - apt -y install net-tools git curl wget python3-pip python3-venv python3-dev postgresql postgresql-client libpq-dev
     - apt -y upgrade
     - curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
     - echo $POETRY_HOME
