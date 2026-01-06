@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
@@ -194,8 +194,9 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
         return HttpResponse("Invalid file type specified", status=400)
 
     try:
-        # Parse the timestamp
-        utc_start = datetime.strptime(observation_timestamp, "%Y-%m-%d-%H:%M:%S")
+        # Parse the timestamp and make it timezone-aware (UTC)
+        naive_dt = datetime.strptime(observation_timestamp, "%Y-%m-%d-%H:%M:%S")
+        utc_start = naive_dt.replace(tzinfo=timezone.utc)
 
         # Find the observation by pulsar name, timestamp, and beam
         observation = Observation.objects.get(pulsar__name=jname, utc_start=utc_start, beam=beam)

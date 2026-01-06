@@ -963,7 +963,7 @@ class VerifyRegistrationTestCase(GraphQLTestCase):
 
     def test_already_activated(self):
         self.provisional_user.activated = True
-        self.provisional_user.activated_on = datetime.datetime.now()
+        self.provisional_user.activated_on = timezone.now()
         self.provisional_user.save()
 
         response = self.query(

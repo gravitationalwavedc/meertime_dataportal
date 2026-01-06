@@ -1,6 +1,6 @@
 import math
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone as dt_timezone
 
 import graphene
 from astropy.time import Time
@@ -1413,7 +1413,10 @@ class Query(graphene.ObjectType):
             queryset = queryset.filter(observation__project__main_project__name__iexact=main_project_name)
 
         if utc_start := kwargs.get("utcStart"):
-            queryset = queryset.filter(observation__utc_start=datetime.strptime(utc_start, "%Y-%m-%d-%H:%M:%S"))
+            # Parse the datetime and make it timezone-aware (UTC)
+            naive_dt = datetime.strptime(utc_start, "%Y-%m-%d-%H:%M:%S")
+            aware_dt = naive_dt.replace(tzinfo=dt_timezone.utc)
+            queryset = queryset.filter(observation__utc_start=aware_dt)
 
         if beam := kwargs.get("beam"):
             queryset = queryset.filter(observation__beam=beam)
@@ -1579,9 +1582,12 @@ class Query(graphene.ObjectType):
     def resolve_file_single_list(self, info, **kwargs):
         """Get files for a specific pulsar observation"""
         try:
+            # Parse the datetime and make it timezone-aware (UTC)
+            naive_dt = datetime.strptime(kwargs.get("utc"), "%Y-%m-%d-%H:%M:%S")
+            aware_dt = naive_dt.replace(tzinfo=dt_timezone.utc)
             pulsar_fold_result = PulsarFoldResult.objects.get(
                 pulsar__name=kwargs.get("jname"),
-                observation__utc_start=datetime.strptime(kwargs.get("utc"), "%Y-%m-%d-%H:%M:%S"),
+                observation__utc_start=aware_dt,
                 observation__beam=kwargs.get("beam"),
             )
 
