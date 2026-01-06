@@ -3,7 +3,7 @@
 # =============================================================================
 # Stage 1: Django base (common setup for builder and runtime)
 # =============================================================================
-FROM python:3.10-slim-bookworm AS django-base
+FROM python:3.12-slim-trixie AS django-base
 
 ENV \
   PYTHONFAULTHANDLER=1 \
@@ -85,7 +85,7 @@ RUN pnpm run build
 # =============================================================================
 # Stage 5: React runtime (nginx)
 # =============================================================================
-FROM nginx:1.17.8 AS react
+FROM nginx:1.29 AS react
 
 COPY --from=react-builder /app/dist /react_app/
 COPY ./nginx/react_app.conf /etc/nginx/conf.d/nginx.conf
@@ -93,7 +93,7 @@ COPY ./nginx/react_app.conf /etc/nginx/conf.d/nginx.conf
 # =============================================================================
 # Stage 6: Main nginx (serves static files and proxies)
 # =============================================================================
-FROM nginx:1.17.8 AS nginx
+FROM nginx:1.29 AS nginx
 
 COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
