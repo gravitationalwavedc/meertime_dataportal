@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 
 def mjd_to_datetime(mjd_string):
     mjd = float(mjd_string)
     unix_timestamp = (mjd - 40587) * 86400
-    datetime_obj = datetime.utcfromtimestamp(unix_timestamp)
+    datetime_obj = datetime.fromtimestamp(unix_timestamp, tz=timezone.utc)
     datetime_str = datetime_obj.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
     return datetime_str
 
@@ -93,10 +93,10 @@ def parse_ephemeris_file(ephemeris_data):
     if "START" in ephemeris_dict.keys():
         ephemeris_dict["START"] = mjd_to_datetime(ephemeris_dict["START"])
     else:
-        ephemeris_dict["START"] = datetime.fromtimestamp(0).isoformat()
+        ephemeris_dict["START"] = datetime.fromtimestamp(0, tz=timezone.utc).isoformat()
     if "FINISH" in ephemeris_dict.keys():
         ephemeris_dict["FINISH"] = mjd_to_datetime(ephemeris_dict["FINISH"])
     else:
-        ephemeris_dict["FINISH"] = datetime.fromtimestamp(4294967295).isoformat()
+        ephemeris_dict["FINISH"] = datetime.fromtimestamp(4294967295, tz=timezone.utc).isoformat()
 
     return ephemeris_dict

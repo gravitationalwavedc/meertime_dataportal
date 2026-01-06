@@ -1,7 +1,18 @@
 import hashlib
 import json
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+
+
+def default_ephemeris_start():
+    """Default start time for ephemeris (epoch zero)"""
+    return datetime.fromtimestamp(0, tz=timezone.utc)
+
+
+def default_ephemeris_end():
+    """Default end time for ephemeris (max 32-bit timestamp)"""
+    return datetime.fromtimestamp(4294967295, tz=timezone.utc)
+
 
 import numpy as np
 import pytz
@@ -301,8 +312,8 @@ class Ephemeris(models.Model):
     ephemeris_hash = models.CharField(max_length=32, editable=False, null=True)
     p0 = models.FloatField()
     dm = models.FloatField()
-    valid_from = models.DateTimeField(default=datetime.fromtimestamp(0))
-    valid_to = models.DateTimeField(default=datetime.fromtimestamp(4294967295))
+    valid_from = models.DateTimeField(default=default_ephemeris_start)
+    valid_to = models.DateTimeField(default=default_ephemeris_end)
     comment = models.TextField(null=True)
 
     def clean(self, *args, **kwargs):

@@ -109,7 +109,7 @@ class AccountActivation(graphene.Mutation):
             provisional_user.user.save()
 
             provisional_user.activated = True
-            provisional_user.activated_on = datetime.datetime.now()
+            provisional_user.activated_on = timezone.now()
             provisional_user.save()
 
             return AccountActivation(ok=True, provisional_user=provisional_user, errors=None)
