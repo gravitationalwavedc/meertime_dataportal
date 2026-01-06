@@ -238,7 +238,7 @@ class DownloadViewsTestCase(TestCase):
             )
         )
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.content.decode(), "Unauthorized")
+        self.assertEqual(response.content.decode(), "Unauthorized - please log in")
 
     def test_download_observation_files_full(self):
         """Test downloading full resolution observation file"""
@@ -330,7 +330,9 @@ class DownloadViewsTestCase(TestCase):
             )
         )
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.content.decode(), "Access denied - data is under embargo")
+        self.assertEqual(
+            response.content.decode(), "Access denied - data is under embargo. Please request to join project."
+        )
 
     @freeze_time("1900-01-01")
     def test_download_observation_files_project_member_access(self):
@@ -413,7 +415,9 @@ class DownloadViewsTestCase(TestCase):
             )
         )
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.content.decode(), "Access denied - data is under embargo")
+        self.assertEqual(
+            response.content.decode(), "Access denied - data is under embargo. Please request to join project."
+        )
 
     def test_download_pulsar_files_unauthorized(self):
         """Test downloading pulsar files without authentication"""
@@ -421,7 +425,7 @@ class DownloadViewsTestCase(TestCase):
             reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "full"})
         )
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.content.decode(), "Unauthorized")
+        self.assertEqual(response.content.decode(), "Unauthorized - please log in")
 
     def test_download_pulsar_files_full(self):
         """Test downloading full resolution pulsar files"""
@@ -483,7 +487,9 @@ class DownloadViewsTestCase(TestCase):
             reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "full"})
         )
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.content.decode(), "Access denied - all data is under embargo")
+        self.assertEqual(
+            response.content.decode(), "Access denied - all data is under embargo. Please request to join project(s)."
+        )
 
     @freeze_time("1900-01-01")
     def test_download_pulsar_files_mixed_access(self):
@@ -647,7 +653,9 @@ class DownloadViewsTestCase(TestCase):
             reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "full"})
         )
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.content.decode(), "Access denied - all data is under embargo")
+        self.assertEqual(
+            response.content.decode(), "Access denied - all data is under embargo. Please request to join project(s)."
+        )
 
     def test_download_observation_files_toas_unauthorized(self):
         """Test downloading ToAs file without authentication"""
@@ -663,7 +671,7 @@ class DownloadViewsTestCase(TestCase):
             )
         )
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.content.decode(), "Unauthorized")
+        self.assertEqual(response.content.decode(), "Unauthorized - please log in")
 
     def test_download_observation_files_toas(self):
         """Test downloading ToAs file for a specific observation"""
@@ -747,7 +755,9 @@ class DownloadViewsTestCase(TestCase):
             )
         )
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.content.decode(), "Access denied - data is under embargo")
+        self.assertEqual(
+            response.content.decode(), "Access denied - data is under embargo. Please request to join project."
+        )
 
     def test_download_pulsar_files_toas_unauthorized(self):
         """Test downloading pulsar ToAs files without authentication"""
@@ -755,7 +765,7 @@ class DownloadViewsTestCase(TestCase):
             reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "toas"})
         )
         self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.content.decode(), "Unauthorized")
+        self.assertEqual(response.content.decode(), "Unauthorized - please log in")
 
     def test_download_pulsar_files_toas(self):
         """Test downloading all ToAs files for a pulsar"""
@@ -820,7 +830,9 @@ class DownloadViewsTestCase(TestCase):
             reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "toas"})
         )
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(response.content.decode(), "Access denied - all data is under embargo")
+        self.assertEqual(
+            response.content.decode(), "Access denied - all data is under embargo. Please request to join project(s)."
+        )
 
     @freeze_time("1900-01-01")
     def test_download_pulsar_files_toas_mixed_access(self):
