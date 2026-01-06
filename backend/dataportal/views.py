@@ -187,7 +187,7 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
     """
     # Check if user is authenticated
     if not request.user.is_authenticated:
-        return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Unauthorized - please log in", status=401)
 
     # Validate file type
     if file_type not in ["full", "decimated", "toas"]:
@@ -203,7 +203,7 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
 
         # Check if the observation is restricted for this user
         if observation.is_restricted(request.user):
-            return HttpResponse("Access denied - data is under embargo", status=403)
+            return HttpResponse("Access denied - data is under embargo. Please request to join project.", status=403)
 
         # Construct the relative path for the observation
         base_path = Path(
@@ -250,7 +250,7 @@ def download_pulsar_files(request, jname, file_type):
     """
     # Check if user is authenticated
     if not request.user.is_authenticated:
-        return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Unauthorized - please log in", status=401)
 
     # Validate file type
     if file_type not in ["full", "decimated", "toas"]:
@@ -267,7 +267,9 @@ def download_pulsar_files(request, jname, file_type):
         # Check if all observations are restricted for this user
         all_restricted = all(obs.is_restricted(request.user) for obs in observations)
         if all_restricted:
-            return HttpResponse("Access denied - all data is under embargo", status=403)
+            return HttpResponse(
+                "Access denied - all data is under embargo. Please request to join project(s).", status=403
+            )
 
         def generate_zip():
             # Create a ZipStream for streaming
