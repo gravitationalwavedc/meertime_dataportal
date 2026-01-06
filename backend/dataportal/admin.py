@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.urls import reverse
+from django.utils.html import format_html
 
 from .models import (
     Badge,
@@ -105,6 +107,45 @@ class TemplateAdmin(admin.ModelAdmin):
     autocomplete_fields = ["pulsar", "project", "created_by"]
 
 
+class ObservationInline(admin.TabularInline):
+    model = Observation
+    extra = 0
+    can_delete = False
+    fields = [
+        "observation_link",
+        "utc_start",
+        "pulsar",
+        "project",
+        "telescope",
+        "band",
+        "obs_type",
+        "duration",
+        "beam",
+    ]
+    readonly_fields = [
+        "observation_link",
+        "utc_start",
+        "pulsar",
+        "project",
+        "telescope",
+        "band",
+        "obs_type",
+        "duration",
+        "beam",
+    ]
+
+    def observation_link(self, obj):
+        if obj.id:
+            url = reverse("admin:dataportal_observation_change", args=[obj.id])
+            return format_html('<a href="{}">Edit</a>', url)
+        return "-"
+
+    observation_link.short_description = "Edit"
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(Calibration)
 class CalibrationAdmin(admin.ModelAdmin):
     list_display = ["id", "schedule_block_id", "calibration_type", "start", "end", "n_observations", "all_projects"]
@@ -120,6 +161,7 @@ class CalibrationAdmin(admin.ModelAdmin):
         "total_integration_time_seconds",
     ]
     filter_horizontal = ["badges"]
+    inlines = [ObservationInline]
 
 
 @admin.register(Observation)
