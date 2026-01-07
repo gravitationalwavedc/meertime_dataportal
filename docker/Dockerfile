@@ -65,7 +65,28 @@ ENV GUNICORN_PARAMS="-b 0.0.0.0:8000 --workers 8 --timeout 600"
 CMD [ "sh", "-c", "python manage.py migrate --noinput && gunicorn ${GUNICORN_PARAMS} meertime.wsgi:application"]
 
 # =============================================================================
-# Stage 4: Build React frontend
+# Stage 4: Cron service for django-post-office
+# =============================================================================
+FROM django-base AS cron
+
+# Install cron
+RUN apt-get update \
+  && apt-get install --no-install-recommends -y cron \
+  && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+# Set up cron jobs for django-post-office
+RUN echo "PYTHONBUFFERED=1" >> /etc/cron.d/crontab && \
+    echo "PATH=${PATH}" >> /etc/cron.d/crontab && \
+    echo "POETRY_VIRTUALENVS_CREATE=false" >> /etc/cron.d/crontab && \
+    echo "* * * * * cd /code; python manage.py send_queued_mail > /proc/1/fd/1 2>/proc/1/fd/2" >> /etc/cron.d/crontab && \
+    echo "0 1 * * * cd /code; python manage.py cleanup_mail --days=30 --delete-attachments > /proc/1/fd/1 2>/proc/1/fd/2" >> /etc/cron.d/crontab && \
+    chmod 0644 /etc/cron.d/crontab && \
+    /usr/bin/crontab /etc/cron.d/crontab
+
+CMD ["cron", "-f"]
+
+# =============================================================================
+# Stage 6: Build React frontend
 # =============================================================================
 FROM node:18 AS react-builder
 
@@ -83,7 +104,7 @@ RUN pnpm run relay
 RUN pnpm run build
 
 # =============================================================================
-# Stage 5: React runtime (nginx)
+# Stage 7: React runtime (nginx)
 # =============================================================================
 FROM nginx:1.29 AS react
 
@@ -91,7 +112,7 @@ COPY --from=react-builder /app/dist /react_app/
 COPY ./nginx/react_app.conf /etc/nginx/conf.d/nginx.conf
 
 # =============================================================================
-# Stage 6: Main nginx (serves static files and proxies)
+# Stage 8: Main nginx (serves static files and proxies)
 # =============================================================================
 FROM nginx:1.29 AS nginx
 

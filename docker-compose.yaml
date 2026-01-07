@@ -27,7 +27,6 @@ services:
       target: django
     restart: always
     volumes:
-      - ./backend:/app
       - ./media:/media
       - /mnt/meertime_data:/mnt/meertime_data
     ports:
@@ -35,6 +34,22 @@ services:
     depends_on:
       - postgres
       - redis
+    env_file:
+      - ./backend/.env
+    environment:
+      - DB_HOST=postgres
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  cron-service:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: cron
+    restart: always
+    depends_on:
+      - postgres
+      - django-service
     env_file:
       - ./backend/.env
     environment:
