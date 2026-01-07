@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     "user_manage",
     "dataportal",
     "cachalot",
+    "post_office",
 ]
 
 AUTH_USER_MODEL = "user_manage.User"
