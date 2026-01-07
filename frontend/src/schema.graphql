@@ -1174,6 +1174,7 @@ type PulsarFoldResultConnection {
   minPlotLength: Int
   description: String
   residualEphemeris: EphemerisNode
+  residualEphemerisIsFromEmbargoedObservation: Boolean
   toasLink: String
   allProjects: [String]
   mostCommonProject: String

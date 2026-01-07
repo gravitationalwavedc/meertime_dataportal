@@ -24,6 +24,7 @@ from dataportal.models import (
     PipelineImage,
     PipelineRun,
     Project,
+    ProjectMembership,
     Pulsar,
     PulsarFoldResult,
     PulsarFoldSummary,
@@ -602,6 +603,7 @@ class PulsarFoldResultConnection(relay.Connection):
     min_plot_length = graphene.Int()
     description = graphene.String()
     residual_ephemeris = graphene.Field(EphemerisNode)
+    residual_ephemeris_is_from_embargoed_observation = graphene.Boolean()
     toas_link = graphene.String()
     all_projects = graphene.List(graphene.String)
     most_common_project = graphene.String()
@@ -721,23 +723,132 @@ class PulsarFoldResultConnection(relay.Connection):
     def resolve_toas_link(self, instance):
         return self.iterable.first().pipeline_run.toas_download_link
 
+    def _get_accessible_ephemeris_pfr(self, instance):
+        """
+        Helper method to find the PulsarFoldResult with the latest accessible ephemeris.
+
+        Returns a tuple of (ephemeris, pfr) or (None, None) if no accessible ephemeris found.
+
+        IMPORTANT: Embargo is based on EPHEMERIS creation date, not observation or pipeline run dates.
+
+        Logic Flow:
+        -----------
+        1. Filter valid PulsarFoldResults from self.iterable:
+           - Skip if observation.project is None
+           - Skip if pipeline_run.ephemeris is None
+           - Skip if ephemeris.project is "PTUSE"
+           - Skip if pipeline_run has no TOAs
+
+        2. Sort remaining PulsarFoldResults by pipeline_run.created_at (most recent first)
+
+        3. For each PulsarFoldResult (in order):
+           a. Check if ephemeris is embargoed:
+              embargo_end = ephemeris.created_at + ephemeris.project.embargo_period
+              is_embargoed = (embargo_end >= now)
+
+           b. Grant access if:
+              - Ephemeris is NOT embargoed (public), OR
+              - User is a superuser, OR
+              - User is a member of ephemeris.project
+
+           c. If access granted: RETURN (ephemeris, pfr)
+           d. If access denied: CONTINUE to next PulsarFoldResult
+
+        4. If no accessible ephemeris found: RETURN (None, None)
+
+        Key Points:
+        -----------
+        - Only one PulsarFoldResult exists for each observation, it is updated with the most recent pipeline run automatically (not here). These are the PFR's that we are iterating on
+        - We reorder the PulsarFoldResults (equivalent to observation list with processing results) on the FoldDetail page by which one has had the most recent pipeline run
+        - Embargo is based on ephemeris.created_at + ephemeris.project.embargo_period
+        - Membership is checked against ephemeris.project (NOT observation.project)
+        """
+        user = instance.context.user
+        now = timezone.now()
+
+        # Filter to valid pipeline fold results from the iterable
+        valid_pfrs = []
+        for pfr in self.iterable:
+            # Skip observations without projects
+            if pfr.observation.project is None or pfr.observation.project.short is None:
+                continue
+            # Skip pipeline runs without ephemeris
+            if pfr.pipeline_run.ephemeris is None:
+                continue
+            # Skip PTUSE project ephemerides
+            if pfr.pipeline_run.ephemeris.project.short.upper() == "PTUSE":
+                continue
+            # Skip pipeline runs without TOAs
+            if not Toa.objects.filter(pipeline_run=pfr.pipeline_run).exists():
+                continue
+            valid_pfrs.append(pfr)
+
+        if not valid_pfrs:
+            return None, None
+
+        # Sort by pipeline run created_at (most recent first)
+        valid_pfrs.sort(key=lambda x: x.pipeline_run.created_at, reverse=True)
+
+        # Find the first pipeline run the user can access
+        for pfr in valid_pfrs:
+            pipeline_run = pfr.pipeline_run
+            ephemeris = pipeline_run.ephemeris
+            ephemeris_project = ephemeris.project
+
+            # Check if the ephemeris is embargoed
+            # Embargo is based on ephemeris creation date + ephemeris project's embargo period
+            embargo_end_date = ephemeris.created_at + ephemeris_project.embargo_period
+            is_embargoed = embargo_end_date >= now
+
+            # Grant access if:
+            # 1. Ephemeris is not embargoed (public data), OR
+            # 2. User is a superuser, OR
+            # 3. User is a member of the ephemeris's project
+            if not is_embargoed:
+                return ephemeris, pfr
+
+            if user.is_authenticated and user.is_superuser:
+                return ephemeris, pfr
+
+            if user.is_authenticated:
+                if ProjectMembership.objects.filter(
+                    user=user,
+                    project=ephemeris_project,
+                    is_active=True,
+                ).exists():
+                    return ephemeris, pfr
+
+            # User doesn't have access to this embargoed ephemeris, continue to next
+
+        # No accessible ephemeris found
+        return None, None
+
     def resolve_residual_ephemeris(self, instance):
-        embargo_period = relativedelta(years=1, months=6)
-        embargo_date = timezone.now() - embargo_period
+        """Returns the ephemeris from the latest observation the user has access to."""
+        ephemeris, _ = self._get_accessible_ephemeris_pfr(instance)
+        return ephemeris
 
-        pulsar_fold_result_ids = self.iterable.values_list("id", flat=True)
+    def resolve_residual_ephemeris_is_from_embargoed_observation(self, instance):
+        """
+        Returns True if the residual ephemeris is embargoed.
 
-        return (
-            Ephemeris.objects.filter(
-                created_at__lte=embargo_date,
-                pipelinerun__pulsarfoldresult__id__in=pulsar_fold_result_ids,
-                pipelinerun__pulsarfoldresult__observation__project__short__isnull=False,  # We don't want observations without projects
-                toa__isnull=False,  # We don't want pipeline runs without TOAs
-            )
-            .exclude(toa__pipeline_run__pulsarfoldresult__observation__project__short__iexact="PTUSE")
-            .order_by("-pipelinerun__created_at")  # We want the latest pipeline run
-            .first()  # We don't want it to return None!
-        )
+        Note: This checks if the ephemeris is embargoed (based on ephemeris.created_at),
+        NOT if the observation or pipeline run is embargoed. The name is kept for backwards compatibility.
+
+        This helps the frontend display the correct message to users about what
+        ephemeris they are viewing:
+        - If True: User is viewing embargoed data (they have project membership or are superuser)
+        - If False: User is viewing public/non-embargoed data
+        - If None: No ephemeris is available
+        """
+        ephemeris, pfr = self._get_accessible_ephemeris_pfr(instance)
+        if ephemeris is None:
+            return None
+
+        # Check if the ephemeris is embargoed
+        now = timezone.now()
+        embargo_end_date = ephemeris.created_at + ephemeris.project.embargo_period
+        return embargo_end_date >= now
 
     def resolve_description(self, instance):
         return self.iterable.first().pulsar.comment

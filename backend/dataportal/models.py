@@ -338,6 +338,10 @@ class Ephemeris(models.Model):
                 name="Unique ephemeris for each project",
             )
         ]
+        indexes = [
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["pulsar", "created_at"]),
+        ]
 
 
 class Template(models.Model):
@@ -540,6 +544,14 @@ class Observation(models.Model):
         # Anonymous users can't access embargoed data
         return True
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["utc_start"]),
+            models.Index(fields=["pulsar", "utc_start"]),
+            models.Index(fields=["project", "utc_start"]),
+            models.Index(fields=["embargo_end_date"]),
+        ]
+
     def __str__(self):
         return f"{self.utc_start} {self.beam}"
 
@@ -696,6 +708,13 @@ class PipelineRun(Model):
     percent_rfi_zapped = models.FloatField(null=True)
 
     badges = models.ManyToManyField(Badge, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["created_at"]),
+            models.Index(fields=["observation", "created_at"]),
+            models.Index(fields=["ephemeris"]),
+        ]
 
 
 class PulsarFoldResult(models.Model):

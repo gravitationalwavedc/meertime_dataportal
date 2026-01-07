@@ -12,6 +12,7 @@ export const ephemerisQuery = graphql`
           short
         }
       }
+      residualEphemerisIsFromEmbargoedObservation
     }
   }
 `;

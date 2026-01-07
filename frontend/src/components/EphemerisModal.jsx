@@ -6,6 +6,8 @@ const EphemerisModal = ({ show, setShow, data }) => {
   const [updated, setUpdated] = useState("");
   const [ephemeris, setEphemeris] = useState({});
   const projectShort = data?.pulsarFoldResult?.residualEphemeris?.project.short;
+  const isFromEmbargoedObservation =
+    data?.pulsarFoldResult?.residualEphemerisIsFromEmbargoedObservation;
 
   useEffect(() => {
     const jsonData = data?.pulsarFoldResult?.residualEphemeris?.ephemerisData;
@@ -20,6 +22,14 @@ const EphemerisModal = ({ show, setShow, data }) => {
       );
     }
   }, [setUpdated, setEphemeris, data]);
+
+  // Determine the access message based on embargo status
+  const getAccessMessage = () => {
+    if (isFromEmbargoedObservation === true) {
+      return "You have access to this embargoed ephemeris as a project member. It is the ephemeris used by MeerPipe's latest run.";
+    }
+    return "This is the latest publicly available ephemeris used by MeerPipe.";
+  };
 
   if (data.pulsarFoldResult.residualEphemeris === null) {
     return (
@@ -51,12 +61,10 @@ const EphemerisModal = ({ show, setShow, data }) => {
       <Modal.Header style={{ borderBottom: "none" }} closeButton>
         <Modal.Title className="text-primary">
           MeerPipe Folding Ephemeris
-          <h6 className="text-muted">as of {updated}</h6>
-          <h6 className="text-muted">from project {projectShort}</h6>
           <h6 className="text-muted">
-            displayed ephemeris is the latest non-embargoed ephemeris used by
-            MeerPipe to fold the data.
+            Created at {updated} from project {projectShort}.
           </h6>
+          <h6 className="text-muted">{getAccessMessage()}</h6>
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
