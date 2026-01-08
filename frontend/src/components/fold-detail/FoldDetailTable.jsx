@@ -78,6 +78,7 @@ const FoldDetailTableFragment = graphql`
             rmErr
             sn
             flux
+            createdAt
             badges {
               edges {
                 node {
