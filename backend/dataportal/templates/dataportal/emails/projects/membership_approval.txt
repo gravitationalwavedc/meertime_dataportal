@@ -1,0 +1,8 @@
+Dear {{ name }},
+    Your membership request for {{ project_short }} ({{ project_code }}) has been approved by {{ approver_name }}.
+
+    Please visit https://pulsars.org.au/projects/ to view your memberships.
+
+    Kind Regards,
+    The Pulsar Portal Team
+
