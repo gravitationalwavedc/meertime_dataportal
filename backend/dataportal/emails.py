@@ -143,3 +143,38 @@ def send_membership_approval_email(user, project, approver_name):
         recipient_list=[user.email],
         html_message=html_message,
     )
+
+
+def send_contact_form_email(contact_type, message, user_email, user_name, link=None):
+    """
+    Send an email to the admin when a user submits the contact form.
+
+    :param str contact_type: Type of contact (Contact Us or Report Issue)
+    :param str message: The user's message
+    :param str user_email: Email address of the user
+    :param str user_name: Name of the user
+    :param str link: Optional link if reporting an issue
+    """
+    admin_email = settings.ADMIN_EMAIL
+    subject = f"[MeerTime Data Portal] {contact_type}: {user_name}"
+
+    email_context = {
+        "contact_type": contact_type,
+        "message": message,
+        "user_email": user_email,
+        "user_name": user_name,
+        "link": link,
+    }
+
+    text_message = render_to_string("dataportal/emails/contact/contact_form.txt", email_context)
+    html_message = render_to_string("dataportal/emails/contact/contact_form.html", email_context)
+
+    logger.info(f"emails.py : send_contact_form_email subject={subject} to={admin_email}")
+
+    send_mail(
+        subject,
+        text_message,
+        FROM_EMAIL,
+        recipient_list=[admin_email],
+        html_message=html_message,
+    )
