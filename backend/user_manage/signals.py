@@ -124,14 +124,10 @@ def handle_provisional_user_save(sender, instance, **kwargs):
         now = timezone.now()
         instance.activation_expiry = now + datetime.timedelta(days=30)
 
-        try:
-            send_activation_email(
-                to=instance.email,
-                activation_code=instance.activation_code,
-            )
-        except Exception as ex:
-            print("Email was not sent due to an error")
-            print(ex)
-        else:
-            instance.email_sent = True
-            instance.email_sent_on = now
+        send_activation_email(
+            to=instance.email,
+            activation_code=instance.activation_code,
+        )
+
+        instance.email_sent = True
+        instance.email_sent_on = now

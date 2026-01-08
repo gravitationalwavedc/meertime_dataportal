@@ -1,6 +1,10 @@
 import graphene
 from django.contrib.auth import get_user_model
-from dataportal.emails import send_membership_rejection_email
+from dataportal.emails import (
+    send_membership_rejection_email,
+    send_membership_request_email,
+    send_membership_approval_email,
+)
 from dataportal.models import ProjectMembershipRequest, Project, ProjectMembership
 from graphql_relay import from_global_id
 from user_manage.graphql.decorators import login_required
@@ -34,6 +38,16 @@ class CreateProjectMembershipRequest(graphene.Mutation):
         )
 
         if result["success"]:
+            # Send notification email to project managers/owners
+            managers = project.get_managers_and_owners()
+            if managers.exists():
+                send_membership_request_email(
+                    managers=managers,
+                    requester=info.context.user,
+                    project=project,
+                    message=input.message,
+                )
+
             return CreateProjectMembershipRequest(ok=True, errors=[])
         else:
             return CreateProjectMembershipRequest(ok=False, errors=[result["error"]])
@@ -121,6 +135,14 @@ class ApproveProjectMembershipRequest(graphene.Mutation):
                 )
 
             request.approve(approver=info.context.user)
+
+            # Send approval email to requester
+            send_membership_approval_email(
+                user=request.user,
+                project=request.project,
+                approver_name=info.context.user.get_full_name() or info.context.user.username,
+            )
+
         except ProjectMembershipRequest.DoesNotExist:
             return ApproveProjectMembershipRequest(
                 approved_project_membership_request_id=None,

@@ -1,0 +1,11 @@
+Dear {{ name }},
+You have a membership request for {{ project_short }} ({{ project_code }}) awaiting a response.
+
+The user {{ requester_name }} ({{ requester_email }}) has requested to join the project. Their request message is as follows:
+{{ message }}
+
+Please visit https://pulsars.org.au/projects/ to respond to this request.
+
+Kind Regards,
+The Pulsar Portal Team
+

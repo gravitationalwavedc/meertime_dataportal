@@ -145,6 +145,13 @@ class Project(models.Model):
             role__in=[ProjectMembership.RoleChoices.MANAGER, ProjectMembership.RoleChoices.OWNER],
         ).exists()
 
+    def get_managers_and_owners(self):
+        """Get all active managers and owners of the project"""
+        return self.memberships.filter(
+            is_active=True,
+            role__in=[ProjectMembership.RoleChoices.MANAGER, ProjectMembership.RoleChoices.OWNER],
+        )
+
 
 class ProjectMembership(models.Model):
     """Links users to projects with their role"""
@@ -195,6 +202,11 @@ class ProjectMembershipRequest(models.Model):
     message = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=8, choices=StatusChoices.choices, default=StatusChoices.PENDING)
     rejection_note = models.TextField(blank=True, null=True)
+    last_reminder_sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Timestamp of when the last reminder email was sent to project managers",
+    )
 
     class Meta:
         indexes = [

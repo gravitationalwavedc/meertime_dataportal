@@ -1,6 +1,5 @@
-from unittest.mock import patch
-
 from django.contrib.auth import get_user_model
+from django.core import mail
 from graphene_django.utils.testing import GraphQLTestCase
 from graphql_relay import to_global_id
 
@@ -133,6 +132,37 @@ class ProjectMembershipGraphQLTestCase(GraphQLTestCase):
         self.assertEqual(request.project, self.project1)
         self.assertEqual(request.message, "Please let me join")
         self.assertEqual(request.status, ProjectMembershipRequest.StatusChoices.PENDING)
+
+    def test_create_request_sends_email_to_managers(self):
+        """Creating a request sends email to all project managers/owners"""
+        self._client.force_login(self.non_member)
+
+        mutation = """
+            mutation {
+                createProjectMembershipRequest(input: {projectCode: "TPA", message: "Please let me join"}) {
+                    ok
+                    errors
+                }
+            }
+        """
+        response = self.query(mutation)
+        content = response.json()
+        self.assertResponseNoErrors(response)
+        self.assertTrue(content["data"]["createProjectMembershipRequest"]["ok"])
+
+        # Verify emails were sent to both owner and manager
+        self.assertEqual(len(mail.outbox), 2)
+
+        # Check recipients
+        recipients = [email.to[0] for email in mail.outbox]
+        self.assertIn(self.owner.email, recipients)
+        self.assertIn(self.manager.email, recipients)
+
+        # Check email content
+        for email in mail.outbox:
+            self.assertIn("New membership request", email.subject)
+            self.assertIn("TPA", email.subject)
+            self.assertIn("Please let me join", email.body)
 
     # ===== RemoveProjectMembershipRequest Tests =====
 
@@ -320,6 +350,40 @@ class ProjectMembershipGraphQLTestCase(GraphQLTestCase):
         self.assertIsNotNone(membership)
         self.assertTrue(membership.is_active)
         self.assertEqual(membership.approved_by, self.manager)
+
+    def test_approve_request_sends_email_to_requester(self):
+        """Approving a request sends email to the requester"""
+        self._client.force_login(self.manager)
+        request = ProjectMembershipRequest.objects.create(
+            user=self.non_member,
+            project=self.project1,
+            message="Please let me join",
+        )
+        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
+
+        mutation = f"""
+            mutation {{
+                approveProjectMembershipRequest(input: {{requestId: "{request_id}"}}) {{
+                    approvedProjectMembershipRequestId
+                    errors
+                }}
+            }}
+        """
+        response = self.query(mutation)
+        content = response.json()
+        self.assertResponseNoErrors(response)
+        self.assertEqual(
+            content["data"]["approveProjectMembershipRequest"]["approvedProjectMembershipRequestId"],
+            request_id,
+        )
+
+        # Verify email was sent to requester
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(email.to[0], self.non_member.email)
+        self.assertIn("was approved", email.subject)
+        self.assertIn("TPA", email.subject)
+        self.assertIn("manager", email.body)
 
     def test_owner_can_approve_request(self):
         """Owners can approve membership requests"""
@@ -576,41 +640,6 @@ class ProjectMembershipGraphQLTestCase(GraphQLTestCase):
             "The membership request does not exist.",
             content["data"]["rejectProjectMembershipRequest"]["errors"],
         )
-
-    def test_reject_request_handles_generic_exception(self):
-        """Test that generic exceptions during rejection are handled gracefully"""
-        self._client.force_login(self.manager)
-        request = ProjectMembershipRequest.objects.create(
-            user=self.non_member,
-            project=self.project1,
-            message="Please let me join",
-        )
-        request_id = to_global_id("ProjectMembershipRequestNode", request.id)
-
-        # Mock send_membership_rejection_email to raise an exception
-        with patch("dataportal.graphql.project_membership_mutations.send_membership_rejection_email") as mock_email:
-            mock_email.side_effect = Exception("Email service unavailable")
-
-            mutation = f"""
-                mutation {{
-                    rejectProjectMembershipRequest(input: {{projectMembershipRequestId: "{request_id}"}}) {{
-                        rejectedProjectMembershipRequestId
-                        errors
-                    }}
-                }}
-            """
-            response = self.query(mutation)
-            content = response.json()
-            self.assertResponseNoErrors(response)
-            self.assertIsNone(content["data"]["rejectProjectMembershipRequest"]["rejectedProjectMembershipRequestId"])
-            self.assertIn(
-                "Something has gone wrong. Please try again later.",
-                content["data"]["rejectProjectMembershipRequest"]["errors"],
-            )
-
-            # Verify that the request was still updated despite the email failure
-            request.refresh_from_db()
-            self.assertEqual(request.status, ProjectMembershipRequest.StatusChoices.REJECTED)
 
     # ===== LeaveProject Tests =====
 

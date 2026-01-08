@@ -74,11 +74,12 @@ RUN apt-get update \
   && apt-get install --no-install-recommends -y cron \
   && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
-# Set up cron jobs for django-post-office
+# Set up cron jobs for django-post-office and membership reminders
 RUN echo "PYTHONBUFFERED=1" >> /etc/cron.d/crontab && \
     echo "PATH=${PATH}" >> /etc/cron.d/crontab && \
     echo "POETRY_VIRTUALENVS_CREATE=false" >> /etc/cron.d/crontab && \
     echo "* * * * * cd /code; python manage.py send_queued_mail > /proc/1/fd/1 2>/proc/1/fd/2" >> /etc/cron.d/crontab && \
+    echo "0 * * * * cd /code; python manage.py send_membership_reminders > /proc/1/fd/1 2>/proc/1/fd/2" >> /etc/cron.d/crontab && \
     echo "0 1 * * * cd /code; python manage.py cleanup_mail --days=30 --delete-attachments > /proc/1/fd/1 2>/proc/1/fd/2" >> /etc/cron.d/crontab && \
     chmod 0644 /etc/cron.d/crontab && \
     /usr/bin/crontab /etc/cron.d/crontab
