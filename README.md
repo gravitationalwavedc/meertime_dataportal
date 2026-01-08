@@ -46,6 +46,8 @@ The last command is to be able to run `poetry run python manage.py test`. Also, 
 
 To then load a local copy of the database, ask ADACS for a copy (here named `prd.meertime.sql`) and do: `pg_restore -U meertime -d meertime -h localhost -p 5432 -v prd.meertime.sql`. You can check this step was successful using the postgreSQL shell (see 5.) by running `\du` and `\l`.
 
+5b. If you ever need to replace the database copy, run `DROP DATABASE meertime; DROP USER meertime` in the postgresQL shell and repeat step 5.
+
 6. Migrate all the changes to the database if any, so it is in the correct format: `poetry run python manage.py migrate`.
 
 7. Create Django superuser. Execute the following in the `backend` folder: `poetry run python manage.py createsuperuser` to create a Django admin that will be able to log in on the Django admin page: http://localhost:8000/admin. You will have to login using e-mail.
