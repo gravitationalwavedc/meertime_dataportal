@@ -1389,6 +1389,7 @@ type Mutation {
 
   """Delete an API token for the authenticated user"""
   deleteApiToken(input: DeleteApiTokenInput!): DeleteApiToken
+  submitContactForm(input: ContactFormInput!): SubmitContactForm
   createProjectMembershipRequest(input: CreateProjectMembershipRequestInput!): CreateProjectMembershipRequest
   removeProjectMembershipRequest(input: RemoveProjectMembershipRequestInput!): RemoveProjectMembershipRequest
   approveProjectMembershipRequest(input: ApproveProjectMembershipRequestInput!): ApproveProjectMembershipRequest
@@ -1536,6 +1537,20 @@ type DeleteApiToken {
 """Input for deleting an API token"""
 input DeleteApiTokenInput {
   tokenId: ID!
+}
+
+type SubmitContactForm {
+  ok: Boolean
+  errors: [String]
+}
+
+input ContactFormInput {
+  contactType: String!
+  message: String!
+  link: String
+  email: String
+  name: String
+  captcha: String!
 }
 
 type CreateProjectMembershipRequest {

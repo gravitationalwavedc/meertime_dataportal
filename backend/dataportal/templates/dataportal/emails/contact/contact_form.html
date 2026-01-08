@@ -1,0 +1,23 @@
+<h2>MeerTime Data Portal Contact Form Submission</h2>
+
+<p><strong>Contact Type:</strong> {{ contact_type }}</p>
+
+<p>
+    <strong>From:</strong> {{ user_name }} ({{ user_email }})
+</p>
+
+{% if link %}
+<p>
+    <strong>Link:</strong> <a href="{{ link }}" target="_blank" rel="noopener noreferrer">{{ link }}</a>
+</p>
+{% endif %}
+
+<p><strong>Message:</strong></p>
+<p style="background-color: #f5f5f5; padding: 15px; border-left: 4px solid #007bff;">
+    {{ message|linebreaks }}
+</p>
+
+<hr />
+<p style="color: #666; font-size: 12px;">
+    This email was sent via the contact form at <a href="https://pulsars.org.au/contact-us/" target="_blank" rel="noopener noreferrer">https://pulsars.org.au/contact-us/</a>
+</p>

@@ -1,0 +1,14 @@
+MeerTime Data Portal Contact Form Submission
+
+Contact Type: {{ contact_type }}
+
+From: {{ user_name }} ({{ user_email }})
+{% if link %}
+Link: {{ link }}
+{% endif %}
+
+Message:
+{{ message }}
+
+---
+This email was sent via the contact form at https://pulsars.org.au/contact-us/

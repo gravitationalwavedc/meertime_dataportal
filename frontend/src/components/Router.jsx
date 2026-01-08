@@ -157,7 +157,7 @@ const routeConfig = () =>
       <Route
         path="/contact-us/"
         Component={ContactUs}
-        render={({ Component, props }) => renderPrivateRoute(Component, props)}
+        render={({ Component, props }) => renderTrackingRoute(Component, props)}
       />
       <Route
         path="/"
