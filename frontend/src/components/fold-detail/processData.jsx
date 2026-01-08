@@ -54,6 +54,9 @@ export function getColumns() {
       cell: (info) =>
         info.getValue() === null ? "null" : `${info.getValue()} [mJy]`,
     }),
+    columnHelper.accessor("createdAt", {
+      header: "Last Processed",
+    }),
     columnHelper.display({
       id: "actions",
       header: null,
@@ -84,6 +87,7 @@ export function processData(data, mainProject, jname) {
     dmFit: formatNumber(node.pipelineRun.dm, 2),
     rm: formatNumber(node.pipelineRun.rm, 1),
     sn: formatNumber(node.pipelineRun.sn, 1),
+    createdAt: formatUTC(node.pipelineRun.createdAt),
     badges: node.pipelineRun.badges.edges
       .map(({ node }) => ({
         name: node.name,
