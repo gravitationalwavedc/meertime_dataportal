@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("dataportal", "0041_alter_ephemeris_valid_from_alter_ephemeris_valid_to"),
+        ("dataportal", "0042_add_performance_indexes"),
     ]
 
     operations = [
