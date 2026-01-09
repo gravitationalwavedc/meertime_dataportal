@@ -10,4 +10,4 @@ your new account: {{activation_link}}.
 
 If you believe this email has been incorrectly sent to you, please let us know at hpc-support@swin.edu.au . 
 
-Kind Regards, Pulsar Portal Support Team
+Kind Regards, The Pulsar Portal Support Team

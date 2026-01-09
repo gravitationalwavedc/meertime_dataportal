@@ -69,6 +69,8 @@ class ResolveResidualEphemerisTestCase(GraphQLTestCase):
                 dm
                 p0
             }}
+            residualEphemerisIsFromEmbargoedObservation
+            residualEphemerisExistsButInaccessible
         }}
     }}
     """
@@ -450,6 +452,13 @@ class ResolveResidualEphemerisTestCase(GraphQLTestCase):
             "Non-member should NOT be able to access embargoed ephemeris",
         )
 
+        # Check that existsButInaccessible is True (ephemerides exist but are inaccessible)
+        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["residualEphemerisExistsButInaccessible"]
+        self.assertTrue(
+            exists_but_inaccessible,
+            "Should indicate that embargoed ephemerides exist but are inaccessible to non-member",
+        )
+
     def test_non_member_can_access_public_ephemeris(self):
         """
         Test: Verify that non-members can access ephemeris from non-embargoed (public) observations.
@@ -575,4 +584,11 @@ class ResolveResidualEphemerisTestCase(GraphQLTestCase):
             str(self.ephemeris.id),
             decoded_eph_id,
             "Non-member should see the public ephemeris, not the embargoed one",
+        )
+
+        # Check that existsButInaccessible is None (accessible ephemeris found)
+        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["residualEphemerisExistsButInaccessible"]
+        self.assertIsNone(
+            exists_but_inaccessible,
+            "Should be None when non-member has access to public ephemeris",
         )

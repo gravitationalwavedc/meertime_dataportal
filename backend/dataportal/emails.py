@@ -17,7 +17,7 @@ def send_membership_rejection_email(user, project, note=None):
     :param project: Project object - the project they requested to join
     :param note: str or None - optional note from the reviewer explaining the rejection
     """
-    subject = f"[MeerTime Data Portal] Your request to join {project.short} ({project.code})"
+    subject = f"[The Pulsar Portal] Your request to join {project.short} ({project.code})"
 
     email_context = {
         "name": user.get_full_name() or user.username,
@@ -49,7 +49,7 @@ def send_membership_request_email(managers, requester, project, message):
     :param project: Project object - the project they want to join
     :param message: str - the message from the requester
     """
-    subject = f"[MeerTime Data Portal] New membership request for {project.short} ({project.code})"
+    subject = f"[The Pulsar Portal] New membership request for {project.short} ({project.code})"
 
     for membership in managers:
         manager = membership.user
@@ -86,7 +86,7 @@ def send_membership_request_reminder_email(managers, requester, project, message
     :param project: Project object - the project they want to join
     :param message: str - the message from the requester
     """
-    subject = f"[MeerTime Data Portal] Reminder: Membership request for {project.short} ({project.code})"
+    subject = f"[The Pulsar Portal] Reminder: Membership request for {project.short} ({project.code})"
 
     for membership in managers:
         manager = membership.user
@@ -122,7 +122,7 @@ def send_membership_approval_email(user, project, approver_name):
     :param project: Project object - the project they requested to join
     :param approver_name: str - name of the person who approved the request
     """
-    subject = f"[MeerTime Data Portal] Your request to join {project.short} ({project.code}) was approved"
+    subject = f"[The Pulsar Portal] Your request to join {project.short} ({project.code}) was approved"
 
     email_context = {
         "name": user.get_full_name() or user.username,
@@ -156,7 +156,7 @@ def send_contact_form_email(contact_type, message, user_email, user_name, link=N
     :param str link: Optional link if reporting an issue
     """
     admin_email = settings.ADMIN_EMAIL
-    subject = f"[MeerTime Data Portal] {contact_type}: {user_name}"
+    subject = f"[The Pulsar Portal] {contact_type}: {user_name}"
 
     email_context = {
         "contact_type": contact_type,
