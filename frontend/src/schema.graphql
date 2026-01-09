@@ -1175,6 +1175,7 @@ type PulsarFoldResultConnection {
   description: String
   residualEphemeris: EphemerisNode
   residualEphemerisIsFromEmbargoedObservation: Boolean
+  residualEphemerisExistsButInaccessible: Boolean
   toasLink: String
   allProjects: [String]
   mostCommonProject: String

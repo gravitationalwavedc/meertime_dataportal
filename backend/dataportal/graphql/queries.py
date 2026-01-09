@@ -604,6 +604,7 @@ class PulsarFoldResultConnection(relay.Connection):
     description = graphene.String()
     residual_ephemeris = graphene.Field(EphemerisNode)
     residual_ephemeris_is_from_embargoed_observation = graphene.Boolean()
+    residual_ephemeris_exists_but_inaccessible = graphene.Boolean()
     toas_link = graphene.String()
     all_projects = graphene.List(graphene.String)
     most_common_project = graphene.String()
@@ -727,7 +728,10 @@ class PulsarFoldResultConnection(relay.Connection):
         """
         Helper method to find the PulsarFoldResult with the latest accessible ephemeris.
 
-        Returns a tuple of (ephemeris, pfr) or (None, None) if no accessible ephemeris found.
+        Returns a tuple of (ephemeris, pfr, valid_pfrs_exist) where:
+        - ephemeris: The accessible ephemeris or None
+        - pfr: The PulsarFoldResult or None
+        - valid_pfrs_exist: Boolean indicating if any valid ephemerides exist (regardless of access)
 
         IMPORTANT: Embargo is based on EPHEMERIS creation date, not observation or pipeline run dates.
 
@@ -784,7 +788,7 @@ class PulsarFoldResultConnection(relay.Connection):
             valid_pfrs.append(pfr)
 
         if not valid_pfrs:
-            return None, None
+            return None, None, False
 
         # Sort by pipeline run created_at (most recent first)
         valid_pfrs.sort(key=lambda x: x.pipeline_run.created_at, reverse=True)
@@ -805,10 +809,10 @@ class PulsarFoldResultConnection(relay.Connection):
             # 2. User is a superuser, OR
             # 3. User is a member of the ephemeris's project
             if not is_embargoed:
-                return ephemeris, pfr
+                return ephemeris, pfr, True
 
             if user.is_authenticated and user.is_superuser:
-                return ephemeris, pfr
+                return ephemeris, pfr, True
 
             if user.is_authenticated:
                 if ProjectMembership.objects.filter(
@@ -816,16 +820,16 @@ class PulsarFoldResultConnection(relay.Connection):
                     project=ephemeris_project,
                     is_active=True,
                 ).exists():
-                    return ephemeris, pfr
+                    return ephemeris, pfr, True
 
             # User doesn't have access to this embargoed ephemeris, continue to next
 
-        # No accessible ephemeris found
-        return None, None
+        # No accessible ephemeris found, but valid ephemerides do exist
+        return None, None, True
 
     def resolve_residual_ephemeris(self, instance):
         """Returns the ephemeris from the latest observation the user has access to."""
-        ephemeris, _ = self._get_accessible_ephemeris_pfr(instance)
+        ephemeris, _, _ = self._get_accessible_ephemeris_pfr(instance)
         return ephemeris
 
     def resolve_residual_ephemeris_is_from_embargoed_observation(self, instance):
@@ -841,7 +845,7 @@ class PulsarFoldResultConnection(relay.Connection):
         - If False: User is viewing public/non-embargoed data
         - If None: No ephemeris is available
         """
-        ephemeris, pfr = self._get_accessible_ephemeris_pfr(instance)
+        ephemeris, pfr, _ = self._get_accessible_ephemeris_pfr(instance)
         if ephemeris is None:
             return None
 
@@ -849,6 +853,28 @@ class PulsarFoldResultConnection(relay.Connection):
         now = timezone.now()
         embargo_end_date = ephemeris.created_at + ephemeris.project.embargo_period
         return embargo_end_date >= now
+
+    def resolve_residual_ephemeris_exists_but_inaccessible(self, instance):
+        """
+        Returns True if valid ephemerides exist but none are accessible to the user.
+        Returns False if no valid ephemerides exist at all.
+        Returns None if an accessible ephemeris was found.
+
+        This helps the frontend differentiate between:
+        - No ephemerides exist at all (False)
+        - Ephemerides exist but are all embargoed/inaccessible (True)
+        - An accessible ephemeris is available (None)
+        """
+        ephemeris, _, valid_pfrs_exist = self._get_accessible_ephemeris_pfr(instance)
+
+        if ephemeris is not None:
+            # User has access to an ephemeris
+            return None
+
+        # No accessible ephemeris found
+        # Return True if valid ephemerides exist (but are inaccessible)
+        # Return False if no valid ephemerides exist at all
+        return valid_pfrs_exist
 
     def resolve_description(self, instance):
         return self.iterable.first().pulsar.comment

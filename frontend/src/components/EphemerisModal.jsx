@@ -8,6 +8,8 @@ const EphemerisModal = ({ show, setShow, data }) => {
   const projectShort = data?.pulsarFoldResult?.residualEphemeris?.project.short;
   const isFromEmbargoedObservation =
     data?.pulsarFoldResult?.residualEphemerisIsFromEmbargoedObservation;
+  const existsButInaccessible =
+    data?.pulsarFoldResult?.residualEphemerisExistsButInaccessible;
 
   useEffect(() => {
     const jsonData = data?.pulsarFoldResult?.residualEphemeris?.ephemerisData;
@@ -45,7 +47,27 @@ const EphemerisModal = ({ show, setShow, data }) => {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <h5>No MeerPipe folding ephemeris data available.</h5>
+          {existsButInaccessible ? (
+            <>
+              <h5>
+                No non-embargoed MeerPipe folding ephemeris data available to
+                you.
+              </h5>
+              <p>
+                Please request to join the relevant project for access at{" "}
+                <a
+                  href="https://pulsars.org.au/projects/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  https://pulsars.org.au/projects/
+                </a>
+                .
+              </p>
+            </>
+          ) : (
+            <h5>No MeerPipe folding ephemeris data available.</h5>
+          )}
         </Modal.Body>
       </Modal>
     );

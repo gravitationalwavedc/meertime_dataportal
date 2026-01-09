@@ -13,6 +13,7 @@ export const ephemerisQuery = graphql`
         }
       }
       residualEphemerisIsFromEmbargoedObservation
+      residualEphemerisExistsButInaccessible
     }
   }
 `;

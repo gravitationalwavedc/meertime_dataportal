@@ -17,7 +17,7 @@ def send_verification_email(name, to, verification_code):
     :param str to: Email address of the recipient.
     :param str verification_code: Verification code used in the email template.
     """
-    subject = "[Pulsar Portal] Please verify your email address"
+    subject = "[The Pulsar Portal] Please verify your email address"
     verification_link = f"{settings.SITE_URL}/verify/{verification_code}/"
     email_context = {"name": name, "verification_link": verification_link}
     text_message = render_to_string("user_manage/verification_link.txt", email_context)
@@ -36,7 +36,7 @@ def send_password_reset_email(name, to, verification_code):
     :param to: str
     :param verification_code: str
     """
-    subject = "[Pulsar Portal] Your password reset code."
+    subject = "[The Pulsar Portal] Your password reset code."
     email_context = {"name": name, "verification_code": verification_code}
     text_message = render_to_string("user_manage/password_reset.txt", email_context)
     html_message = render_to_string("user_manage/password_reset.html", email_context)
@@ -54,7 +54,7 @@ def send_activation_email(to, activation_code):
     :param to: str
     :param activation_code: str
     """
-    subject = "[Pulsar Portal] Please activate your account"
+    subject = "[The Pulsar Portal] Please activate your account"
     activation_link = f"{settings.SITE_URL}activate/{activation_code}/"
     email_context = {"to": to, "activation_link": activation_link}
     text_message = render_to_string("user_manage/activation_email.txt", email_context)
