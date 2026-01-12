@@ -9,7 +9,6 @@ from .models import (
     MainProject,
     Observation,
     ObservationSummary,
-    PipelineFile,
     PipelineImage,
     PipelineRun,
     Project,
@@ -268,13 +267,6 @@ class PipelineImageAdmin(admin.ModelAdmin):
     list_display = ["id", "pulsar_fold_result", "image_type", "resolution", "cleaned"]
     list_filter = ["image_type", "resolution", "cleaned"]
     readonly_fields = ["pulsar_fold_result", "url"]
-
-
-@admin.register(PipelineFile)
-class PipelineFileAdmin(admin.ModelAdmin):
-    list_display = ["id", "pulsar_fold_result", "file_type"]
-    list_filter = ["file_type"]
-    readonly_fields = ["pulsar_fold_result"]
 
 
 @admin.register(Toa)

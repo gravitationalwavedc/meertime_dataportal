@@ -36,7 +36,6 @@ type Query {
   pulsarFoldSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
   pulsarSearchSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarSearchSummaryConnection
   pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
-  pipelineFile(before: String, after: String, first: Int, last: Int): PipelineFileConnection
   toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, nsubType: String, obsNchan: Int, obsNpol: Int, excludeBadges: [String], minimumSNR: Float, utcStartGte: String, utcStartLte: String, before: String, after: String, first: Int, last: Int): ToaConnection
   badge(before: String, after: String, first: Int, last: Int): BadgeConnection
 }
@@ -1301,38 +1300,6 @@ type PipelineImageEdge {
 
   """A cursor for use in pagination"""
   cursor: String!
-}
-
-type PipelineFileConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [PipelineFileEdge]!
-}
-
-"""A Relay edge containing a `PipelineFile` and its cursor."""
-type PipelineFileEdge {
-  """The item at the end of the edge"""
-  node: PipelineFileNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type PipelineFileNode implements Node {
-  pulsarFoldResult: PulsarFoldResultNode
-  file: String
-  fileType: DataportalPipelineFileFileTypeChoices!
-
-  """The ID of the object"""
-  id: ID!
-}
-
-"""An enumeration."""
-enum DataportalPipelineFileFileTypeChoices {
-  """FTS"""
-  FTS
 }
 
 type ToaConnection {

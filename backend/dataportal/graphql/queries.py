@@ -20,7 +20,6 @@ from dataportal.models import (
     MainProject,
     Observation,
     ObservationSummary,
-    PipelineFile,
     PipelineImage,
     PipelineRun,
     Project,
@@ -1092,29 +1091,6 @@ class PipelineImageConnection(relay.Connection):
         node = PipelineImageNode
 
 
-class PipelineFileNode(DjangoObjectType):
-    class Meta:
-        model = PipelineFile
-        fields = [
-            "pulsar_fold_result",
-            "file",
-            "file_type",
-        ]
-        interfaces = (relay.Node,)
-
-    # ForeignKey fields
-    pulsar_fold_result = graphene.Field(PulsarFoldResultNode)
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class PipelineFileConnection(relay.Connection):
-    class Meta:
-        node = PipelineFileNode
-
-
 class ToaNode(DjangoObjectType):
     class Meta:
         model = Toa
@@ -1607,14 +1583,6 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_pipeline_image(self, info, **kwargs):
         return PipelineImage.objects.all()
-
-    pipeline_file = relay.ConnectionField(
-        PipelineFileConnection,
-    )
-
-    @login_required
-    def resolve_pipeline_file(self, info, **kwargs):
-        return PipelineFile.objects.all()
 
     toa = relay.ConnectionField(
         ToaConnection,

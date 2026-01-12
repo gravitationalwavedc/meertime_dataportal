@@ -31,7 +31,7 @@ class StorageTestCase(TestCase):
         """Test generation of upload location paths for template files."""
         expected = "SCI-20180516-MB-02/J0023+0923/LBAND/2020-08-24-03:14:33_J0023+0923.par"
 
-        pipelinefile = baker.prepare(
+        template = baker.prepare(
             "dataportal.Template",
             pulsar__name="J0023+0923",
             project__code="SCI-20180516-MB-02",
@@ -39,4 +39,4 @@ class StorageTestCase(TestCase):
             created_at=datetime.strptime("2020-08-24-03:14:33", "%Y-%m-%d-%H:%M:%S").replace(tzinfo=timezone.utc),
         )
 
-        self.assertEqual(get_template_upload_location(pipelinefile, "J0023+0923.par"), expected)
+        self.assertEqual(get_template_upload_location(template, "J0023+0923.par"), expected)
