@@ -44,7 +44,7 @@ const Footer = () => (
       <hr />
       <Row>
         <Col>
-          <p>&#169; 2025 The Pulsar Portal. All rights reserved.</p>
+          <p>&#169; 2026 The Pulsar Portal. All rights reserved.</p>
         </Col>
       </Row>
     </Container>
