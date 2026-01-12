@@ -28,8 +28,7 @@ const DataUsage = () => {
                       rel="noopener noreferrer"
                     >
                       MeerTime publications
-                    </a>
-                    {" "}
+                    </a>{" "}
                     (Publication numbers: all MeerTime projects: 1 and 3, TPA:
                     2, GC: 9, RelBin: 8, PTA: 54.)
                   </li>
