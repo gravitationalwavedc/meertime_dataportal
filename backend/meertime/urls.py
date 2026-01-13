@@ -28,6 +28,3 @@ if "debug_toolbar" in settings.INSTALLED_APPS:
     urlpatterns += [
         path("__debug__/", include(debug_toolbar.urls)),
     ]
-
-if settings.DEVELOPMENT_MODE:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

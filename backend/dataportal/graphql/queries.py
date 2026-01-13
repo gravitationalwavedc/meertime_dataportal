@@ -604,6 +604,9 @@ class PulsarFoldResultConnection(relay.Connection):
     residual_ephemeris = graphene.Field(EphemerisNode)
     residual_ephemeris_is_from_embargoed_observation = graphene.Boolean()
     residual_ephemeris_exists_but_inaccessible = graphene.Boolean()
+    folding_template = graphene.Field(TemplateNode)
+    folding_template_is_embargoed = graphene.Boolean()
+    folding_template_exists_but_inaccessible = graphene.Boolean()
     toas_link = graphene.String()
     all_projects = graphene.List(graphene.String)
     most_common_project = graphene.String()
@@ -826,6 +829,84 @@ class PulsarFoldResultConnection(relay.Connection):
         # No accessible ephemeris found, but valid ephemerides do exist
         return None, None, True
 
+    def _get_accessible_template_pfr(self, instance):
+        """
+        Helper method to find the PulsarFoldResult with the latest accessible template.
+
+        Returns a tuple of (template, pfr, valid_pfrs_exist) where:
+        - template: The accessible template or None
+        - pfr: The PulsarFoldResult or None
+        - valid_pfrs_exist: Boolean indicating if any valid templates exist (regardless of access)
+
+        IMPORTANT: Embargo is based on TEMPLATE creation date, not observation or pipeline run dates.
+
+        Logic Flow:
+        -----------
+        1. Filter valid PulsarFoldResults from self.iterable:
+           - Skip if observation.project is None
+           - Skip if pipeline_run.template is None
+           - Skip if template.project is "PTUSE"
+           - Skip if pipeline_run has no TOAs
+
+        2. Sort remaining PulsarFoldResults by pipeline_run.created_at (most recent first)
+
+        3. For each PulsarFoldResult (in order):
+           a. Check if template is restricted using template.is_restricted(user)
+
+           b. Grant access if not restricted (handles authentication, embargo, and membership)
+
+           c. If access granted: RETURN (template, pfr)
+           d. If access denied: CONTINUE to next PulsarFoldResult
+
+        4. If no accessible template found: RETURN (None, None)
+
+        Key Points:
+        -----------
+        - Only one PulsarFoldResult exists for each observation, it is updated with the most recent pipeline run automatically
+        - We reorder the PulsarFoldResults by which one has had the most recent pipeline run
+        - Embargo is based on template.created_at + template.project.embargo_period
+        - Membership is checked against template.project
+        """
+        user = instance.context.user
+
+        # Filter to valid pipeline fold results from the iterable
+        valid_pfrs = []
+        for pfr in self.iterable:
+            # Skip observations without projects
+            if pfr.observation.project is None or pfr.observation.project.short is None:
+                continue
+            # Skip pipeline runs without template
+            if pfr.pipeline_run.template is None:
+                continue
+            # Skip PTUSE project templates
+            if pfr.pipeline_run.template.project.short.upper() == "PTUSE":
+                continue
+            # Skip pipeline runs without TOAs
+            if not Toa.objects.filter(pipeline_run=pfr.pipeline_run).exists():
+                continue
+            valid_pfrs.append(pfr)
+
+        if not valid_pfrs:
+            return None, None, False
+
+        # Sort by pipeline run created_at (most recent first)
+        valid_pfrs.sort(key=lambda x: x.pipeline_run.created_at, reverse=True)
+
+        # Find the first pipeline run the user can access
+        for pfr in valid_pfrs:
+            pipeline_run = pfr.pipeline_run
+            template = pipeline_run.template
+
+            # Use template's is_restricted method
+            # (handles authentication, embargo checking, and project membership)
+            if not template.is_restricted(user):
+                return template, pfr, True
+
+            # User doesn't have access to this template, continue to next
+
+        # No accessible template found, but valid templates do exist
+        return None, None, True
+
     def resolve_residual_ephemeris(self, instance):
         """Returns the ephemeris from the latest observation the user has access to."""
         ephemeris, _, _ = self._get_accessible_ephemeris_pfr(instance)
@@ -873,6 +954,53 @@ class PulsarFoldResultConnection(relay.Connection):
         # No accessible ephemeris found
         # Return True if valid ephemerides exist (but are inaccessible)
         # Return False if no valid ephemerides exist at all
+        return valid_pfrs_exist
+
+    def resolve_folding_template(self, instance):
+        """Returns the template from the latest observation the user has access to."""
+        template, _, _ = self._get_accessible_template_pfr(instance)
+        return template
+
+    def resolve_folding_template_is_embargoed(self, instance):
+        """
+        Returns True if the folding template is embargoed.
+
+        Note: This checks if the template is embargoed (based on template.created_at),
+        NOT if the observation or pipeline run is embargoed.
+
+        This helps the frontend display the correct message to users about what
+        template they are viewing:
+        - If True: User is viewing embargoed data (they have project membership or are superuser)
+        - If False: User is viewing public/non-embargoed data
+        - If None: No template is available
+        """
+        template, pfr, _ = self._get_accessible_template_pfr(instance)
+        if template is None:
+            return None
+
+        # Check if the template is embargoed
+        return template.is_embargoed
+
+    def resolve_folding_template_exists_but_inaccessible(self, instance):
+        """
+        Returns True if valid templates exist but none are accessible to the user.
+        Returns False if no valid templates exist at all.
+        Returns None if an accessible template was found.
+
+        This helps the frontend differentiate between:
+        - No templates exist at all (False)
+        - Templates exist but are all embargoed/inaccessible (True)
+        - An accessible template is available (None)
+        """
+        template, _, valid_pfrs_exist = self._get_accessible_template_pfr(instance)
+
+        if template is not None:
+            # User has access to a template
+            return None
+
+        # No accessible template found
+        # Return True if valid templates exist (but are inaccessible)
+        # Return False if no valid templates exist at all
         return valid_pfrs_exist
 
     def resolve_description(self, instance):

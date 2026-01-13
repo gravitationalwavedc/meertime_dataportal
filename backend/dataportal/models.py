@@ -366,6 +366,51 @@ class Template(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    @property
+    def is_embargoed(self):
+        """
+        Check if the template is still under embargo.
+        Embargo is based on template creation date + project embargo period.
+        :return: bool
+        """
+        embargo_end_date = self.created_at + self.project.embargo_period
+        return embargo_end_date >= datetime.now(tz=pytz.UTC)
+
+    def is_restricted(self, user):
+        """
+        Check if the template is restricted for the user.
+        Templates require authentication for all downloads.
+
+        Returns True if the user cannot access this template.
+
+        Access is granted if:
+        - User is authenticated AND
+        - (User is a superuser OR
+          Template is not embargoed OR
+          User is a member of the template's project)
+
+        :param user: Django user model instance
+        :return: bool - True if restricted (no access), False if accessible
+        """
+        # Templates require authentication for all downloads
+        if not user.is_authenticated:
+            return True
+
+        # Superusers can access everything
+        if user.is_superuser:
+            return False
+
+        # If not embargoed, any authenticated user can access
+        if not self.is_embargoed:
+            return False
+
+        # If embargoed, check project membership
+        return not ProjectMembership.objects.filter(
+            user=user,
+            project=self.project,
+            is_active=True,
+        ).exists()
+
     class Meta:
         constraints = [
             UniqueConstraint(
@@ -834,6 +879,13 @@ class PulsarFoldSummary(models.Model):
         # Process observation summary
         first_observation = observations.first()
         latest_observation = observations.last()
+
+        # Early return if no fold observations exist for this pulsar/project combination.
+        # This can occur when the signal handler fires for a non-fold observation
+        # (e.g., search or cal), since this method only queries for obs_type="fold".
+        if first_observation is None or latest_observation is None:
+            return
+
         timespan = (latest_observation.utc_start - first_observation.utc_start).days + 1
         number_of_observations = observations.count()
         total_integration_hours = observations.aggregate(total=Sum("duration"))["total"] / 3600
@@ -846,7 +898,15 @@ class PulsarFoldSummary(models.Model):
             .filter(pulsar=pulsar)
             .order_by("observation__utc_start")
         )
-        last_sn = results.last().pipeline_run.sn
+
+        last_result = results.last()
+        # Early return if no PulsarFoldResults exist yet for this pulsar.
+        # This can occur when the signal handler fires before any fold results have been created,
+        # or when processing observations without associated pipeline runs.
+        if last_result is None or last_result.pipeline_run is None:
+            return
+
+        last_sn = last_result.pipeline_run.sn
         sn_list = [result.pipeline_run.sn or 0 for result in results]
         highest_sn = max(sn_list)
         lowest_sn = min(sn_list)

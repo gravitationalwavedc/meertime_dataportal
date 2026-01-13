@@ -19,4 +19,9 @@ urlpatterns = [
         views.download_pulsar_files,
         name="download_pulsar_files",
     ),
+    path(
+        "media/<path:file_path>",
+        views.serve_protected_media,
+        name="serve_protected_media",
+    ),
 ]
