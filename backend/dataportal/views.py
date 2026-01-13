@@ -3,8 +3,9 @@ from pathlib import Path
 from datetime import datetime, timezone
 
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+from django.http import FileResponse, HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
+from django.utils import timezone as django_timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET
@@ -13,11 +14,23 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from sentry_sdk import last_event_id
 from zipstream import ZipStream
+import logging
 
 from .file_utils import get_file_list, get_file_path, serve_file
-from .models import Observation, PipelineImage, PipelineRun, Project, Pulsar, PulsarFoldResult, Template
+from .models import (
+    Observation,
+    PipelineImage,
+    PipelineRun,
+    Project,
+    ProjectMembership,
+    Pulsar,
+    PulsarFoldResult,
+    Template,
+)
 from .serializers import UploadPipelineImageSerializer, UploadTemplateSerializer
 from .storage import create_file_hash
+
+logger = logging.getLogger("dataportal.media")
 
 
 class TemplateAddPermission(BasePermission):
@@ -335,3 +348,90 @@ def download_pulsar_files(request, jname, file_type):
 
     except Pulsar.DoesNotExist:
         return HttpResponse("Pulsar not found", status=404)
+
+
+@require_GET
+def serve_protected_media(request, file_path):
+    """
+    Serve media files with access control based on embargo and project membership.
+
+    Images:
+    - Anonymous users can access non-embargoed images
+    - Authenticated users can access non-embargoed images and embargoed images if they are:
+      * Superusers, OR
+      * Members of the observation's project
+
+    Templates:
+    - Require authentication for all downloads (like ephemeris)
+    - Authenticated users can access templates if they are:
+      * Superusers, OR
+      * Members of the template's project (for embargoed templates), OR
+      * Any authenticated user (for non-embargoed templates)
+
+    Looks up the file in the database to find associated observation/template,
+    then checks access permissions before serving.
+    """
+    # Validate path security
+    full_path = Path(settings.MEDIA_ROOT) / file_path
+    try:
+        full_path = full_path.resolve()
+        media_root = Path(settings.MEDIA_ROOT).resolve()
+        if not str(full_path).startswith(str(media_root)):
+            logger.warning(f"Path traversal attempt: {request.user} -> {file_path}")
+            return HttpResponse("Access denied", status=403)
+    except Exception:
+        return HttpResponse("Invalid path", status=400)
+
+    if not full_path.exists():
+        return HttpResponse("File not found", status=404)
+
+    # Normalize the file_path for database lookup
+    lookup_path = file_path.lstrip("/")
+
+    # Try to find as PipelineImage
+    try:
+        pipeline_image = PipelineImage.objects.select_related(
+            "pulsar_fold_result__observation__project", "pulsar_fold_result__observation"
+        ).get(image=lookup_path)
+
+        observation = pipeline_image.pulsar_fold_result.observation
+
+        # Use observation's is_restricted method
+        if observation.is_restricted(request.user):
+            if not request.user.is_authenticated:
+                logger.warning(f"Anonymous user denied embargoed image: {file_path}")
+                return HttpResponse("Unauthorized - please log in", status=401)
+            else:
+                logger.warning(f"Unauthorized image access request: {request.user} -> {file_path}")
+                return HttpResponse(
+                    "Access denied - data is under embargo. Please request to join project.", status=403
+                )
+
+        return FileResponse(full_path.open("rb"), as_attachment=False, filename=full_path.name)
+
+    except PipelineImage.DoesNotExist:
+        pass
+
+    # Try to find as Template
+    try:
+        template = Template.objects.select_related("project", "pulsar").get(template_file=lookup_path)
+
+        # Use template's is_restricted method
+        if template.is_restricted(request.user):
+            if not request.user.is_authenticated:
+                logger.warning(f"Anonymous user denied template download: {file_path}")
+                return HttpResponse("Unauthorized - please log in", status=401)
+            else:
+                logger.warning(f"Unauthorized template access request: {request.user} -> {file_path}")
+                return HttpResponse(
+                    "Access denied - data is under embargo. Please request to join project.", status=403
+                )
+
+        return FileResponse(full_path.open("rb"), as_attachment=False, filename=full_path.name)
+
+    except Template.DoesNotExist:
+        pass
+
+    # File exists but not in database - deny access
+    logger.warning(f"File not in database: {request.user} -> {file_path}")
+    return HttpResponse("File not found", status=404)

@@ -1,10 +1,11 @@
 from datetime import timedelta
 from io import StringIO
+import logging
 
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from dataportal.models import (
@@ -18,11 +19,32 @@ from dataportal.models import (
 User = get_user_model()
 
 
+@override_settings(
+    LOGGING={
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "null": {
+                "class": "logging.NullHandler",
+            },
+        },
+        "loggers": {
+            "dataportal.management.commands.send_membership_reminders": {
+                "handlers": ["null"],
+                "level": "CRITICAL",
+                "propagate": False,
+            },
+        },
+    }
+)
 class SendMembershipRemindersCommandTestCase(TestCase):
     """Test the send_membership_reminders management command"""
 
     def setUp(self):
         """Set up test data"""
+        # Suppress logging during tests
+        logging.getLogger("dataportal.management.commands.send_membership_reminders").setLevel(logging.CRITICAL)
+
         # Create telescope and main project
         self.telescope = Telescope.objects.create(name="MeerKAT")
         self.main_project = MainProject.objects.create(
@@ -87,7 +109,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request.save(update_fields=["requested_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # Verify emails were sent to both owner and manager
         self.assertEqual(len(mail.outbox), 2)
@@ -120,7 +142,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request.save(update_fields=["requested_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # Verify no emails were sent
         self.assertEqual(len(mail.outbox), 0)
@@ -147,7 +169,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request.save(update_fields=["requested_at", "last_reminder_sent_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # Verify emails were sent to both owner and manager
         self.assertEqual(len(mail.outbox), 2)
@@ -178,7 +200,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request.save(update_fields=["requested_at", "last_reminder_sent_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # Verify no emails were sent
         self.assertEqual(len(mail.outbox), 0)
@@ -199,7 +221,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request.save(update_fields=["requested_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # Verify no emails were sent
         self.assertEqual(len(mail.outbox), 0)
@@ -220,7 +242,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request.save(update_fields=["requested_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # Verify no emails were sent
         self.assertEqual(len(mail.outbox), 0)
@@ -241,7 +263,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request.save(update_fields=["requested_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # Verify emails were sent to both owner and manager
         self.assertEqual(len(mail.outbox), 2)
@@ -293,7 +315,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request2.save(update_fields=["requested_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # Verify emails were sent (2 managers for project1, 1 owner for project2 = 3 total)
         self.assertEqual(len(mail.outbox), 3)
@@ -310,7 +332,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
 
         # Run command
         out = StringIO()
-        call_command("send_membership_reminders", stdout=out)
+        call_command("send_membership_reminders", stdout=out, verbosity=0)
 
         # Verify no emails were sent
         self.assertEqual(len(mail.outbox), 0)
@@ -334,7 +356,7 @@ class SendMembershipRemindersCommandTestCase(TestCase):
         request.save(update_fields=["requested_at"])
 
         # Run command
-        call_command("send_membership_reminders")
+        call_command("send_membership_reminders", stdout=StringIO(), verbosity=0)
 
         # At exactly 7 days, the reminder should be sent (using <=)
         self.assertEqual(len(mail.outbox), 2)
