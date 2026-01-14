@@ -53,30 +53,34 @@ const HeaderButtons = ({ jname, mainProject }) => {
             />
           )}
         </Suspense>
-        <Button
-          size="sm"
-          className="mr-2 mb-2"
-          variant="outline-secondary"
-          onClick={() => handleDownloadFiles("full")}
-        >
-          Download Full Resolution Data
-        </Button>
-        <Button
-          size="sm"
-          className="mr-2 mb-2"
-          variant="outline-secondary"
-          onClick={() => handleDownloadFiles("decimated")}
-        >
-          Download Decimated Data
-        </Button>
-        <Button
-          size="sm"
-          className="mr-2 mb-2"
-          variant="outline-secondary"
-          onClick={() => handleDownloadFiles("toas")}
-        >
-          Download ToAs
-        </Button>
+        {mainProject !== "MONSPSR" && (
+          <>
+            <Button
+              size="sm"
+              className="mr-2 mb-2"
+              variant="outline-secondary"
+              onClick={() => handleDownloadFiles("full")}
+            >
+              Download Full Resolution Data
+            </Button>
+            <Button
+              size="sm"
+              className="mr-2 mb-2"
+              variant="outline-secondary"
+              onClick={() => handleDownloadFiles("decimated")}
+            >
+              Download Decimated Data
+            </Button>
+            <Button
+              size="sm"
+              className="mr-2 mb-2"
+              variant="outline-secondary"
+              onClick={() => handleDownloadFiles("toas")}
+            >
+              Download ToAs
+            </Button>
+          </>
+        )}
       </Col>
     </Row>
   );

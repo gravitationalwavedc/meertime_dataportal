@@ -191,6 +191,9 @@ const SingleObservationTable = ({ observationData, jname }) => {
             jname={jname}
             utc={formatUTC(relayObservationModel.observation.utcStart)}
             beam={relayObservationModel.observation.beam}
+            mainProject={
+              relayObservationModel.observation.project.mainProject.name
+            }
           />
         </Col>
       </Row>
