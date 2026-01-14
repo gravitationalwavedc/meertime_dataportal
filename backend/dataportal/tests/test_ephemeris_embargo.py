@@ -1,7 +1,7 @@
 """
 Tests for ephemeris embargo logic based on ephemeris creation date.
 
-This module contains comprehensive tests for the corrected resolve_residual_ephemeris
+This module contains comprehensive tests for the corrected resolve_folding_ephemeris
 embargo logic that checks ephemeris.created_at date (NOT pipeline run or observation dates).
 
 The ephemeris represents the scientific model/knowledge of the pulsar that the project
@@ -53,22 +53,22 @@ User = get_user_model()
 class EphemerisEmbargoTestCase(GraphQLTestCase):
     """Test cases for ephemeris embargo logic based on ephemeris creation date"""
 
-    RESIDUAL_EPHEMERIS_QUERY = """
+    FOLDING_EPHEMERIS_QUERY = """
     query {{
         pulsarFoldResult(
             pulsar: "{pulsar}",
             mainProject: "MeerTIME"
             first: 10
         ) {{
-            residualEphemeris {{
+            foldingEphemeris {{
                 id
                 ephemerisData
                 createdAt
                 dm
                 p0
             }}
-            residualEphemerisIsFromEmbargoedObservation
-            residualEphemerisExistsButInaccessible
+            foldingEphemerisIsEmbargoed
+            foldingEphemerisExistsButInaccessible
         }}
     }}
     """
@@ -263,19 +263,19 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Query as non-member
-        response = self.query(self.RESIDUAL_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
+        response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
         # Non-member should NOT see the embargoed ephemeris
         self.assertNotIn("errors", content)
-        residual_eph = content["data"]["pulsarFoldResult"]["residualEphemeris"]
+        residual_eph = content["data"]["pulsarFoldResult"]["foldingEphemeris"]
         self.assertIsNone(
             residual_eph,
             "Non-member should NOT see recently created embargoed ephemeris, " "even though observation is old",
         )
 
         # Check that existsButInaccessible is True (ephemerides exist but are inaccessible)
-        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["residualEphemerisExistsButInaccessible"]
+        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["foldingEphemerisExistsButInaccessible"]
         self.assertTrue(
             exists_but_inaccessible,
             "Should indicate that ephemerides exist but are inaccessible to non-member",
@@ -303,12 +303,12 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Query as non-member
-        response = self.query(self.RESIDUAL_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
+        response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
         # Non-member SHOULD see the public ephemeris
         self.assertNotIn("errors", content)
-        residual_eph = content["data"]["pulsarFoldResult"]["residualEphemeris"]
+        residual_eph = content["data"]["pulsarFoldResult"]["foldingEphemeris"]
         self.assertIsNotNone(
             residual_eph,
             "Non-member SHOULD see old public ephemeris, " "even though observation is recent",
@@ -319,7 +319,7 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         self.assertEqual(str(self.ephemeris.id), decoded_eph_id)
 
         # Check that existsButInaccessible is None (accessible ephemeris found)
-        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["residualEphemerisExistsButInaccessible"]
+        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["foldingEphemerisExistsButInaccessible"]
         self.assertIsNone(
             exists_but_inaccessible,
             "Should be None when an accessible ephemeris is found",
@@ -345,23 +345,23 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Query as project member (member of self.project, which is ephemeris.project)
-        response = self.query(self.RESIDUAL_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
+        response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
         # Project member SHOULD see the embargoed ephemeris
         self.assertNotIn("errors", content)
-        residual_eph = content["data"]["pulsarFoldResult"]["residualEphemeris"]
+        residual_eph = content["data"]["pulsarFoldResult"]["foldingEphemeris"]
         self.assertIsNotNone(
             residual_eph,
             "Ephemeris project member SHOULD see embargoed ephemeris from their project",
         )
 
         # Check the embargo flag is True
-        is_embargoed = content["data"]["pulsarFoldResult"]["residualEphemerisIsFromEmbargoedObservation"]
+        is_embargoed = content["data"]["pulsarFoldResult"]["foldingEphemerisIsEmbargoed"]
         self.assertTrue(is_embargoed, "Should indicate the ephemeris is embargoed")
 
         # Check that existsButInaccessible is None (accessible ephemeris found)
-        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["residualEphemerisExistsButInaccessible"]
+        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["foldingEphemerisExistsButInaccessible"]
         self.assertIsNone(
             exists_but_inaccessible,
             "Should be None when project member has access to embargoed ephemeris",
@@ -412,12 +412,12 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Query as non-member
-        response = self.query(self.RESIDUAL_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
+        response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
         # Non-member should see the older public ephemeris, not the embargoed one
         self.assertNotIn("errors", content)
-        residual_eph = content["data"]["pulsarFoldResult"]["residualEphemeris"]
+        residual_eph = content["data"]["pulsarFoldResult"]["foldingEphemeris"]
         self.assertIsNotNone(
             residual_eph,
             "Non-member should see the older public ephemeris",
@@ -432,11 +432,11 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Check the embargo flag is False
-        is_embargoed = content["data"]["pulsarFoldResult"]["residualEphemerisIsFromEmbargoedObservation"]
+        is_embargoed = content["data"]["pulsarFoldResult"]["foldingEphemerisIsEmbargoed"]
         self.assertFalse(is_embargoed, "Should indicate the ephemeris is NOT embargoed")
 
         # Check that existsButInaccessible is None (accessible ephemeris found)
-        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["residualEphemerisExistsButInaccessible"]
+        exists_but_inaccessible = content["data"]["pulsarFoldResult"]["foldingEphemerisExistsButInaccessible"]
         self.assertIsNone(
             exists_but_inaccessible,
             "Should be None when non-member falls back to older public ephemeris",
@@ -461,12 +461,12 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Query as superuser
-        response = self.query(self.RESIDUAL_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
+        response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
         # Superuser SHOULD see the embargoed ephemeris
         self.assertNotIn("errors", content)
-        residual_eph = content["data"]["pulsarFoldResult"]["residualEphemeris"]
+        residual_eph = content["data"]["pulsarFoldResult"]["foldingEphemeris"]
         self.assertIsNotNone(
             residual_eph,
             "Superuser SHOULD see embargoed ephemeris",
@@ -521,12 +521,12 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Query
-        response = self.query(self.RESIDUAL_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
+        response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
         # Should return the regular ephemeris, not PTUSE
         self.assertNotIn("errors", content)
-        residual_eph = content["data"]["pulsarFoldResult"]["residualEphemeris"]
+        residual_eph = content["data"]["pulsarFoldResult"]["foldingEphemeris"]
         self.assertIsNotNone(residual_eph)
 
         # Verify it's NOT the PTUSE ephemeris
@@ -581,12 +581,12 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Query
-        response = self.query(self.RESIDUAL_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
+        response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
         # Should return the ephemeris with TOAs, not the one without
         self.assertNotIn("errors", content)
-        residual_eph = content["data"]["pulsarFoldResult"]["residualEphemeris"]
+        residual_eph = content["data"]["pulsarFoldResult"]["foldingEphemeris"]
         self.assertIsNotNone(residual_eph, "Should return ephemeris from pipeline run with TOAs")
 
         # Verify it's the ephemeris with TOAs
@@ -599,7 +599,7 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
 
     def test_embargo_flag_reflects_ephemeris_embargo_status(self):
         """
-        Test: The residualEphemerisIsFromEmbargoedObservation flag correctly reflects
+        Test: The foldingEphemerisIsEmbargoed flag correctly reflects
         whether the ephemeris is embargoed (not the observation or pipeline run).
         """
         self.client.force_login(self.project_member)
@@ -614,10 +614,10 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
             ephemeris_created_at=now - timedelta(days=600),  # Old ephemeris
         )
 
-        response = self.query(self.RESIDUAL_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
+        response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
-        is_embargoed = content["data"]["pulsarFoldResult"]["residualEphemerisIsFromEmbargoedObservation"]
+        is_embargoed = content["data"]["pulsarFoldResult"]["foldingEphemerisIsEmbargoed"]
         self.assertFalse(
             is_embargoed,
             "Flag should be False for old ephemeris, even with recent observation",

@@ -601,9 +601,9 @@ class PulsarFoldResultConnection(relay.Connection):
     max_plot_length = graphene.Int()
     min_plot_length = graphene.Int()
     description = graphene.String()
-    residual_ephemeris = graphene.Field(EphemerisNode)
-    residual_ephemeris_is_from_embargoed_observation = graphene.Boolean()
-    residual_ephemeris_exists_but_inaccessible = graphene.Boolean()
+    folding_ephemeris = graphene.Field(EphemerisNode)
+    folding_ephemeris_is_embargoed = graphene.Boolean()
+    folding_ephemeris_exists_but_inaccessible = graphene.Boolean()
     folding_template = graphene.Field(TemplateNode)
     folding_template_is_embargoed = graphene.Boolean()
     folding_template_exists_but_inaccessible = graphene.Boolean()
@@ -907,17 +907,17 @@ class PulsarFoldResultConnection(relay.Connection):
         # No accessible template found, but valid templates do exist
         return None, None, True
 
-    def resolve_residual_ephemeris(self, instance):
+    def resolve_folding_ephemeris(self, instance):
         """Returns the ephemeris from the latest observation the user has access to."""
         ephemeris, _, _ = self._get_accessible_ephemeris_pfr(instance)
         return ephemeris
 
-    def resolve_residual_ephemeris_is_from_embargoed_observation(self, instance):
+    def resolve_folding_ephemeris_is_embargoed(self, instance):
         """
-        Returns True if the residual ephemeris is embargoed.
+        Returns True if the folding ephemeris is embargoed.
 
         Note: This checks if the ephemeris is embargoed (based on ephemeris.created_at),
-        NOT if the observation or pipeline run is embargoed. The name is kept for backwards compatibility.
+        NOT if the observation or pipeline run is embargoed.
 
         This helps the frontend display the correct message to users about what
         ephemeris they are viewing:
@@ -934,7 +934,7 @@ class PulsarFoldResultConnection(relay.Connection):
         embargo_end_date = ephemeris.created_at + ephemeris.project.embargo_period
         return embargo_end_date >= now
 
-    def resolve_residual_ephemeris_exists_but_inaccessible(self, instance):
+    def resolve_folding_ephemeris_exists_but_inaccessible(self, instance):
         """
         Returns True if valid ephemerides exist but none are accessible to the user.
         Returns False if no valid ephemerides exist at all.
