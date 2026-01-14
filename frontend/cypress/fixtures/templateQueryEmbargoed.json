@@ -1,0 +1,17 @@
+{
+  "data": {
+    "pulsarFoldResult": {
+      "foldingTemplate": {
+        "id": "VGVtcGxhdGVOb2RlOjEyMzQ2",
+        "band": "UHF",
+        "templateFile": "/media/MONSPSR_TIMING/J0125-2327/templates/J0125-2327_UHF_template.std",
+        "createdAt": "2024-06-20T14:45:00+00:00",
+        "project": {
+          "short": "GC"
+        }
+      },
+      "foldingTemplateIsEmbargoed": true,
+      "foldingTemplateExistsButInaccessible": false
+    }
+  }
+}

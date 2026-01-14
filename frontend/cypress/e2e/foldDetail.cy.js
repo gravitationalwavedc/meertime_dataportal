@@ -11,6 +11,7 @@ describe("The Fold Detail Page", () => {
         "foldDetailFileDownloadQuery.json"
       );
       aliasQuery(req, "EphemerisQuery", "ephemerisQuery.json");
+      aliasQuery(req, "TemplateQuery", "templateQuery.json");
       aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
       aliasQuery(req, "SessionQuery", "sessionQuery.json");
     });
@@ -48,6 +49,46 @@ describe("The Fold Detail Page", () => {
     cy.contains("View folding ephemeris").click();
     cy.wait("@EphemerisQuery");
     cy.contains("Folding Ephemeris").should("be.visible");
+  });
+
+  it("should toggle the template modal", () => {
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    cy.contains("J0125-2327");
+    cy.contains("Pulse Profile Template").should("not.exist");
+    cy.contains("Download template").click();
+    cy.wait("@TemplateQuery");
+    cy.contains("MeerPipe Pulse Profile Template").should("be.visible");
+  });
+
+  it("should display template information with band", () => {
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    cy.contains("Download template").click();
+    cy.wait("@TemplateQuery");
+    cy.contains("MeerPipe Pulse Profile Template").should("be.visible");
+    cy.contains("(LBAND)").should("be.visible");
+    cy.contains("project PTA").should("be.visible");
+  });
+
+  it("should display template download link", () => {
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    cy.contains("Download template").click();
+    cy.wait("@TemplateQuery");
+    cy.contains("MeerPipe Pulse Profile Template").should("be.visible");
+    cy.contains("Download Template File").should("be.visible");
+    cy.get('a[href*="J0125-2327_LBAND_template.std"]').should("exist");
+  });
+
+  it("should close template modal when clicking close button", () => {
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    cy.contains("Download template").click();
+    cy.wait("@TemplateQuery");
+    cy.contains("MeerPipe Pulse Profile Template").should("be.visible");
+    
+    // Click the close button
+    cy.get('.modal-header button.close').click();
+    
+    // Modal should be hidden
+    cy.contains("MeerPipe Pulse Profile Template").should("not.exist");
   });
 
   it("should download full resolution files when download button is clicked", () => {
@@ -113,5 +154,77 @@ describe("The Fold Detail Page", () => {
     cy.wait("@SessionQuery");
     cy.contains("Loading...").should("not.exist");
     cy.contains("JName").should("be.visible");
+  });
+});
+
+describe("The Fold Detail Page - Template Access Control", () => {
+  it("should show inaccessible template message when template is embargoed and user is not a member", () => {
+    cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
+      aliasQuery(req, "PlotlyPlotQuery", "plotlyPlotQuery.json");
+      aliasQuery(req, "TemplateQuery", "templateQueryInaccessible.json");
+    });
+
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: false,
+        user: null
+      }
+    }).as("checkSession");
+
+    cy.intercept("GET", "/api/auth/csrf/", {
+      statusCode: 200,
+      body: { csrfToken: "mock-csrf-token" }
+    }).as("getCSRF");
+
+    cy.intercept("GET", "/media/**/*.png", {
+      fixture: "example.json"
+    });
+
+    cy.visit("fold/meertime/J0125-2327/");
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    
+    cy.contains("Download template").click();
+    cy.wait("@TemplateQuery");
+    
+    cy.contains("MeerPipe Pulse Profile Template").should("be.visible");
+    cy.contains("Please log in to download files.").should("be.visible");
+  });
+
+  it("should show embargoed template with access message for project members", () => {
+    cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
+      aliasQuery(req, "PlotlyPlotQuery", "plotlyPlotQuery.json");
+      aliasQuery(req, "TemplateQuery", "templateQueryEmbargoed.json");
+    });
+
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: true,
+        user: { username: "testuser" }
+      }
+    }).as("checkSession");
+
+    cy.intercept("GET", "/api/auth/csrf/", {
+      statusCode: 200,
+      body: { csrfToken: "mock-csrf-token" }
+    }).as("getCSRF");
+
+    cy.intercept("GET", "/media/**/*.png", {
+      fixture: "example.json"
+    });
+
+    cy.visit("fold/meertime/J0125-2327/");
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+    
+    cy.contains("Download template").click();
+    cy.wait("@TemplateQuery");
+    
+    cy.contains("MeerPipe Pulse Profile Template").should("be.visible");
+    cy.contains("You have access to this embargoed template as a project member").should("be.visible");
+    cy.contains("(UHF)").should("be.visible");
+    cy.contains("Download Template File").should("be.visible");
   });
 });
