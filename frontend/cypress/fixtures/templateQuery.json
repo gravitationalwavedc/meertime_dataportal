@@ -1,0 +1,17 @@
+{
+  "data": {
+    "pulsarFoldResult": {
+      "foldingTemplate": {
+        "id": "VGVtcGxhdGVOb2RlOjEyMzQ1",
+        "band": "LBAND",
+        "templateFile": "/media/MONSPSR_TIMING/J0125-2327/templates/J0125-2327_LBAND_template.std",
+        "createdAt": "2024-01-15T10:30:00+00:00",
+        "project": {
+          "short": "PTA"
+        }
+      },
+      "foldingTemplateIsEmbargoed": false,
+      "foldingTemplateExistsButInaccessible": false
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { useState, Suspense } from "react";
 import { Button, Col, Row } from "react-bootstrap";
 import Ephemeris, { ephemerisQuery } from "../Ephemeris";
+import Template, { templateQuery } from "../Template";
 import { useQueryLoader } from "react-relay";
 import LoadingModal from "./LoadingModal";
 
@@ -8,10 +9,23 @@ const HeaderButtons = ({ jname, mainProject }) => {
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
   const [ephemerisQueryRef, loadEphemerisQuery] =
     useQueryLoader(ephemerisQuery);
+  const [templateVisible, setTemplateVisible] = useState(false);
+  const [templateQueryRef, loadTemplateQuery] = useQueryLoader(templateQuery);
 
   const handleEphemerisButton = () => {
     setEphemerisVisible(true);
-    loadEphemerisQuery({ jname: jname, mainProject: mainProject });
+    loadEphemerisQuery(
+      { jname: jname, mainProject: mainProject },
+      { fetchPolicy: "network-only" }
+    );
+  };
+
+  const handleTemplateButton = () => {
+    setTemplateVisible(true);
+    loadTemplateQuery(
+      { jname: jname, mainProject: mainProject },
+      { fetchPolicy: "network-only" }
+    );
   };
 
   const handleDownloadFiles = (fileType) => {
@@ -50,6 +64,30 @@ const HeaderButtons = ({ jname, mainProject }) => {
               show={ephemerisVisible}
               setShow={setEphemerisVisible}
               queryRef={ephemerisQueryRef}
+            />
+          )}
+        </Suspense>
+        <Button
+          size="sm"
+          variant="outline-secondary"
+          className="mr-2 mb-2"
+          onClick={handleTemplateButton}
+        >
+          Download template
+        </Button>
+        <Suspense
+          fallback={
+            <LoadingModal
+              heading="Pulse Profile Template"
+              loadingMessage="Loading template"
+            />
+          }
+        >
+          {templateQueryRef !== null && (
+            <Template
+              show={templateVisible}
+              setShow={setTemplateVisible}
+              queryRef={templateQueryRef}
             />
           )}
         </Suspense>
