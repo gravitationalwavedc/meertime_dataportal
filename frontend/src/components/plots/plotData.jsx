@@ -110,6 +110,7 @@ export const getActivePlotData = (
       (toa) => ({
         ...toa,
         utc: toa.utc * 1000,
+        timestamp: moment.unix(toa.utc).utc().format("YYYY-MM-DD HH:mm:ss"),
       })
     );
   } else if (activePlot == "S/N") {
@@ -293,25 +294,6 @@ export const rmPlotData = (data, jname, mainProject) => {
   }));
 };
 
-export const residualPlotData = (data, jname, mainProject) => {
-  return data.toa.edges
-    .filter(({ node }) => node.residualSec !== null)
-    .map(({ node }) => ({
-      id: node.id,
-      utc: moment(mjdToUnixTimestamp(node.mjd)).valueOf(),
-      day: node.dayOfYear,
-      phase: node.binaryOrbitalPhase,
-      value: node.residualSec,
-      error: node.residualSecErr,
-      size: node.observation.duration,
-      link: `/${mainProject}/${jname}/${formatUTC(node.observation.utcStart)}/${
-        node.observation.beam
-      }/`,
-      snr: node.snr,
-      band: node.observation.band,
-    }));
-};
-
 export const getPlotlyData = (plotData, xAxis, activePlot) =>
   plotData.reduce((data, dataBand) => {
     const sizes = dataBand.data.map((point) => point.size);
@@ -328,20 +310,32 @@ export const getPlotlyData = (plotData, xAxis, activePlot) =>
     let xData;
 
     if (xAxis === "utc") {
-      xData = dataBand.data.map((point) => point.utc);
+      if (activePlot === "Timing Residuals") {
+        xData = dataBand.data.map((point) => point.timestamp);
+      } else {
+        xData = dataBand.data.map((point) => point.utc);
+      }
     } else if (xAxis === "day") {
       xData = dataBand.data.map((point) => point.day);
     } else if (xAxis === "phase") {
       xData = dataBand.data.map((point) => point.phase);
     } else {
-      xData = dataBand.data.utc;
+      if (activePlot === "Timing Residuals") {
+        xData = dataBand.data.map((point) => point.timestamp);
+      } else {
+        xData = dataBand.data.map((point) => point.utc);
+      }
     }
 
     // Hover Template Vars
     const xAxisTemplateData = xAxis === "utc" ? "|%Y-%m-%d %H:%M:%S.%f" : "";
-    const yAxixTemplateData =
+    const yAxisTemplateData1 =
       activePlot === "Timing Residuals"
         ? "<br>ToA S/N: %{customdata[2]:.4f}"
+        : "";
+    const yAxisTemplateData2 =
+      activePlot !== "Timing Residuals" && activePlot !== "S/N"
+        ? "<br>S/N: %{customdata[2]:.4f}"
         : "";
 
     const row = {
@@ -364,7 +358,7 @@ export const getPlotlyData = (plotData, xAxis, activePlot) =>
         xAxis
       )}: %{x${xAxisTemplateData}}<br>${getYaxisLabel(
         activePlot
-      )}: %{y:.6f}${yAxixTemplateData}<br>Integration Time (s): %{customdata[0]:.4f}<br>S/N: %{customdata[2]:.4f}<extra></extra>`,
+      )}: %{y:.6f}${yAxisTemplateData1}<br>Integration Time (s): %{customdata[0]:.4f}${yAxisTemplateData2}<extra></extra>`,
       marker: {
         color: dataBand.colour,
         symbol: dataBand.shape,
