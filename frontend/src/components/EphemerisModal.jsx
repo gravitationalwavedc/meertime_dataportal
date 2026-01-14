@@ -5,22 +5,22 @@ import { useEffect, useState } from "react";
 const EphemerisModal = ({ show, setShow, data }) => {
   const [updated, setUpdated] = useState("");
   const [ephemeris, setEphemeris] = useState({});
-  const projectShort = data?.pulsarFoldResult?.residualEphemeris?.project.short;
+  const projectShort = data?.pulsarFoldResult?.foldingEphemeris?.project.short;
   const isFromEmbargoedObservation =
-    data?.pulsarFoldResult?.residualEphemerisIsFromEmbargoedObservation;
+    data?.pulsarFoldResult?.foldingEphemerisIsEmbargoed;
   const existsButInaccessible =
-    data?.pulsarFoldResult?.residualEphemerisExistsButInaccessible;
+    data?.pulsarFoldResult?.foldingEphemerisExistsButInaccessible;
 
   useEffect(() => {
-    const jsonData = data?.pulsarFoldResult?.residualEphemeris?.ephemerisData;
+    const jsonData = data?.pulsarFoldResult?.foldingEphemeris?.ephemerisData;
     if (jsonData !== undefined) {
       setEphemeris(
         JSON.parse(
-          JSON.parse(data?.pulsarFoldResult?.residualEphemeris?.ephemerisData)
+          JSON.parse(data?.pulsarFoldResult?.foldingEphemeris?.ephemerisData)
         )
       );
       setUpdated(
-        formatUTC(data?.pulsarFoldResult?.residualEphemeris?.createdAt)
+        formatUTC(data?.pulsarFoldResult?.foldingEphemeris?.createdAt)
       );
     }
   }, [setUpdated, setEphemeris, data]);
@@ -33,7 +33,7 @@ const EphemerisModal = ({ show, setShow, data }) => {
     return "This is the latest publicly available ephemeris used by MeerPipe.";
   };
 
-  if (data.pulsarFoldResult.residualEphemeris === null) {
+  if (data.pulsarFoldResult.foldingEphemeris === null) {
     return (
       <Modal
         className="ephemeris-table"

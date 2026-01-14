@@ -126,7 +126,7 @@ class FrontendQueriesTestCase(GraphQLTestCase):
             mainProject: "MeerTIME"
             first: 1
         ) {
-        residualEphemeris {
+        foldingEphemeris {
             ephemerisData
             createdAt
         }
@@ -643,11 +643,11 @@ class FrontendQueriesTestCase(GraphQLTestCase):
         # Remove variable parts that can change between test runs
         fold_result = content["data"]["pulsarFoldResult"]
         if (
-            "residualEphemeris" in fold_result
-            and fold_result["residualEphemeris"]
-            and "kcreatedAt" in fold_result["residualEphemeris"]
+            "foldingEphemeris" in fold_result
+            and fold_result["foldingEphemeris"]
+            and "kcreatedAt" in fold_result["foldingEphemeris"]
         ):
-            del fold_result["residualEphemeris"]["createdAt"]
+            del fold_result["foldingEphemeris"]["createdAt"]
 
         if "edges" in fold_result and len(fold_result["edges"]) > 0:
             observation = fold_result["edges"][0]["node"]["observation"]

@@ -4,7 +4,7 @@ import EphemerisModal from "./EphemerisModal";
 export const ephemerisQuery = graphql`
   query EphemerisQuery($jname: String, $mainProject: String) {
     pulsarFoldResult(pulsar: $jname, mainProject: $mainProject) {
-      residualEphemeris {
+      foldingEphemeris {
         id
         ephemerisData
         createdAt
@@ -12,8 +12,8 @@ export const ephemerisQuery = graphql`
           short
         }
       }
-      residualEphemerisIsFromEmbargoedObservation
-      residualEphemerisExistsButInaccessible
+      foldingEphemerisIsEmbargoed
+      foldingEphemerisExistsButInaccessible
     }
   }
 `;

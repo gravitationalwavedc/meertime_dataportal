@@ -1172,9 +1172,12 @@ type PulsarFoldResultConnection {
   maxPlotLength: Int
   minPlotLength: Int
   description: String
-  residualEphemeris: EphemerisNode
-  residualEphemerisIsFromEmbargoedObservation: Boolean
-  residualEphemerisExistsButInaccessible: Boolean
+  foldingEphemeris: EphemerisNode
+  foldingEphemerisIsEmbargoed: Boolean
+  foldingEphemerisExistsButInaccessible: Boolean
+  foldingTemplate: TemplateNode
+  foldingTemplateIsEmbargoed: Boolean
+  foldingTemplateExistsButInaccessible: Boolean
   toasLink: String
   allProjects: [String]
   mostCommonProject: String
