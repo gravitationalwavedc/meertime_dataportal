@@ -44,7 +44,7 @@ const observationFilters = [
   {
     id: "badOnlineFolding",
     label: "Bad Online Folding",
-    queryString: "Bad Online Folding",
+    queryString: "Bad online Folding",
     isActive: true,
     description:
       "The PTUSE online folding was drifting significantly due to an erroneous parameter file, causing the raw data to be irretrievably corrupted",
