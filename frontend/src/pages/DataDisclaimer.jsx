@@ -23,9 +23,43 @@ const DataDisclaimer = () => {
                 results, we suggest the users re-process the high-resolution
                 archives we provide or use official data releases (see below).
                 You can <a href="/contact-us/">contact us</a> for assistance in
-                this matter. We provide some helpful links which are also
+                this matter. We provide below some helpful links which are also
                 described in Bailes et al. 2026 (in prep).
               </p>
+              <div className="p-3 border rounded bg-light mb-3">
+                <p className="mb-2">Data Download Types:</p>
+                <ul className="mb-0">
+                  <li>
+                    <strong>Folding Ephemeris:</strong> Each (processed,
+                    fold-mode) observation of a pulsar has a matching PSRCHIVE
+                    archive, with a single folding ephemeris. This button
+                    displays the latest one the user has access to.
+                  </li>
+                  <li>
+                    <strong>Template:</strong> Each (processed, fold-mode)
+                    observation of a pulsar has a corresponding MeerPipe
+                    processing, which uses a single template pulse profile for
+                    tasks outside of ToA generation. This button displays the
+                    latest one the user has access to.
+                  </li>
+                  <li>
+                    <strong>Full Resolution Data:</strong> the cleaned and
+                    calibrated PSRCHIVE archive for each (processed, fold-mode)
+                    observation the user has access to.
+                  </li>
+                  <li>
+                    <strong>Decimated Data:</strong> the same as above, reduced
+                    to one time integration, one channel, and one polarisation
+                    (also called profiles).
+                  </li>
+                  <li>
+                    <strong>ToAs:</strong> for each observation of a pulsar the
+                    user has access to, all the (32 channel, 1 polarisation, 1
+                    subintegration) Times of Arrival produced by projects the
+                    user has access to for that date.
+                  </li>
+                </ul>
+              </div>
               <div className="p-3 border rounded bg-light">
                 <p className="mb-2">Links:</p>
                 <ul className="mb-0">
