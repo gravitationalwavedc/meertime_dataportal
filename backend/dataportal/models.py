@@ -567,6 +567,19 @@ class Observation(models.Model):
         """
         return self.embargo_end_date >= datetime.now(tz=pytz.UTC)
 
+    def is_embargoed_for_project(self, project):
+        """
+        Check if this observation's data is embargoed under a specific project's embargo period.
+
+        This is used for multi-project scenarios where an observation can have data products
+        (like ToAs) from multiple projects, each with their own embargo periods.
+
+        :param project: Project instance to check embargo for
+        :return: bool - True if embargoed under this project, False if public
+        """
+        project_embargo_end = self.utc_start + project.embargo_period
+        return project_embargo_end >= datetime.now(tz=pytz.UTC)
+
     def is_restricted(self, user):
         """
         Check if the observation is restricted for the user.
@@ -1195,6 +1208,18 @@ class Toa(models.Model):
     residual_sec_err = models.FloatField(null=True)
     residual_phase = models.FloatField(null=True)  # pulse period phase
     residual_phase_err = models.FloatField(null=True)
+
+    @property
+    def is_embargoed(self):
+        """
+        Check if this ToA is embargoed based on its project's embargo period.
+
+        Uses the observation's utc_start and this ToA's project's embargo_period
+        to determine if the data is still under embargo.
+
+        :return: bool - True if embargoed, False if public
+        """
+        return self.observation.is_embargoed_for_project(self.project)
 
     @classmethod
     def get_query(cls, **kwargs):
