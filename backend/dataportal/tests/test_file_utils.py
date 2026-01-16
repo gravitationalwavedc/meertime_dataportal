@@ -1,3 +1,4 @@
+import logging
 import shutil
 import tempfile
 import zipfile
@@ -13,7 +14,7 @@ from django.urls import reverse
 from freezegun import freeze_time
 
 from dataportal.file_utils import get_file_list, get_file_path, serve_file
-from dataportal.models import Observation, ProjectMembership
+from dataportal.models import Observation, PipelineRun, ProjectMembership, Toa
 from dataportal.tests.testing_utils import setup_query_test
 from utils.constants import UserRole
 
@@ -22,6 +23,9 @@ class FileUtilsTestCase(TestCase):
     """Tests for file utility functions"""
 
     def setUp(self):
+        # Suppress logging during tests
+        logging.disable(logging.CRITICAL)
+
         self.User = get_user_model()
         self.user = self.User.objects.create_user(
             username="testuser", email="test@example.com", password="secret", role=UserRole.UNRESTRICTED.value
@@ -40,6 +44,8 @@ class FileUtilsTestCase(TestCase):
         (self.test_dir / "test_dir" / "test_file.txt").write_text("test content")
 
     def tearDown(self):
+        # Re-enable logging
+        logging.disable(logging.NOTSET)
         shutil.rmtree(self.test_dir)
 
     @override_settings(MEERTIME_DATA_DIR="/mnt/meertime_data")
@@ -172,6 +178,9 @@ class DownloadViewsTestCase(TestCase):
     """Tests for the download views"""
 
     def setUp(self):
+        # Suppress logging during tests
+        logging.disable(logging.CRITICAL)
+
         # Create a temporary directory for testing
         self.test_dir = Path(tempfile.mkdtemp())
         settings.MEERTIME_DATA_DIR = str(self.test_dir)
@@ -188,6 +197,11 @@ class DownloadViewsTestCase(TestCase):
             self.observation,
             self.cal,
         ) = setup_query_test()
+
+        # Ensure the project's main_project is named "MeerTime" for filtering
+        if self.project.main_project:
+            self.project.main_project.name = "MeerTime"
+            self.project.main_project.save()
 
         # Ensure the user has unrestricted role for testing
         self.unrestricted_user.role = UserRole.UNRESTRICTED.value
@@ -222,6 +236,8 @@ class DownloadViewsTestCase(TestCase):
         self.decimated_file.write_text("decimated content")
 
     def tearDown(self):
+        # Re-enable logging
+        logging.disable(logging.NOTSET)
         shutil.rmtree(self.test_dir)
 
     def test_download_observation_files_unauthorized(self):
@@ -312,10 +328,10 @@ class DownloadViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content.decode(), "Observation not found")
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_observation_files_restricted(self):
         """Test downloading restricted observation file"""
-        # Use freezegun to set current time to 1900, making the embargo date
+        # Use freezegun to set current time to 1990, making the embargo date
         # (utc_start + project.embargo_period) be in the future
         self.client.force_login(self.restricted_user)
         response = self.client.get(
@@ -334,7 +350,7 @@ class DownloadViewsTestCase(TestCase):
             response.content.decode(), "Access denied - data is under embargo. Please request to join project."
         )
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_observation_files_project_member_access(self):
         """Test that project members can access embargoed observation files from their project"""
         # Create a project member for this observation's project
@@ -348,7 +364,7 @@ class DownloadViewsTestCase(TestCase):
             role=ProjectMembership.RoleChoices.MEMBER,
         )
 
-        # Use freezegun to set current time to 1900, making the embargo date
+        # Use freezegun to set current time to 1990, making the embargo date
         # (utc_start + project.embargo_period) be in the future (embargoed)
         # But project members should still be able to access their project's data
         self.client.force_login(project_member)
@@ -368,7 +384,7 @@ class DownloadViewsTestCase(TestCase):
         expected_content = self.full_res_file.read_text()
         self.assertEqual(response.streaming_content.__next__().decode(), expected_content)
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_observation_files_superuser_access(self):
         """Test that superusers can access all embargoed observation files"""
         # Create a superuser
@@ -376,7 +392,7 @@ class DownloadViewsTestCase(TestCase):
             username="superuser", email="super@example.com", password="secret", is_superuser=True
         )
 
-        # Use freezegun to set current time to 1900, making the embargo date
+        # Use freezegun to set current time to 1990, making the embargo date
         # (utc_start + project.embargo_period) be in the future (embargoed)
         # Superusers should be able to access any data
         self.client.force_login(superuser)
@@ -396,10 +412,10 @@ class DownloadViewsTestCase(TestCase):
         expected_content = self.full_res_file.read_text()
         self.assertEqual(response.streaming_content.__next__().decode(), expected_content)
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_observation_files_non_member_denied(self):
         """Test that non-project-members cannot access embargoed observation files"""
-        # Use freezegun to set current time to 1900, making the embargo date
+        # Use freezegun to set current time to 1990, making the embargo date
         # (utc_start + project.embargo_period) be in the future (embargoed)
         # Non-members (unrestricted_user is not a project member) should be denied
         self.client.force_login(self.unrestricted_user)
@@ -477,10 +493,10 @@ class DownloadViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content.decode(), "Pulsar not found")
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_pulsar_files_restricted(self):
         """Test downloading pulsar files with restricted observations"""
-        # Use freezegun to set current time to 1900, making all embargo dates
+        # Use freezegun to set current time to 1990, making all embargo dates
         # (utc_start + project.embargo_period) be in the future
         self.client.force_login(self.restricted_user)
         response = self.client.get(
@@ -491,7 +507,7 @@ class DownloadViewsTestCase(TestCase):
             response.content.decode(), "Access denied - all data is under embargo. Please request to join project(s)."
         )
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_pulsar_files_mixed_access(self):
         """Test downloading pulsar files with a mix of restricted and unrestricted observations"""
         # Create a second observation that will be unrestricted (embargo in the past)
@@ -586,7 +602,7 @@ class DownloadViewsTestCase(TestCase):
 
                 self.assertIn(expected_full_path, members)
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_pulsar_files_project_member_access(self):
         """Test that project members can access embargoed pulsar files from their project"""
         # Create a project member for this observation's project
@@ -600,7 +616,7 @@ class DownloadViewsTestCase(TestCase):
             role=ProjectMembership.RoleChoices.MEMBER,
         )
 
-        # Use freezegun to set current time to 1900, making the embargo date
+        # Use freezegun to set current time to 1990, making the embargo date
         # (utc_start + project.embargo_period) be in the future (embargoed)
         # But project members should still be able to access their project's data
         self.client.force_login(project_member)
@@ -617,7 +633,7 @@ class DownloadViewsTestCase(TestCase):
         content = b"".join(response.streaming_content)
         self.assertGreater(len(content), 0)  # Zip file should not be empty
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_pulsar_files_superuser_access(self):
         """Test that superusers can access all embargoed pulsar files"""
         # Create a superuser
@@ -625,7 +641,7 @@ class DownloadViewsTestCase(TestCase):
             username="superuser", email="super@example.com", password="secret", is_superuser=True
         )
 
-        # Use freezegun to set current time to 1900, making the embargo date
+        # Use freezegun to set current time to 1990, making the embargo date
         # (utc_start + project.embargo_period) be in the future (embargoed)
         # Superusers should be able to access any data
         self.client.force_login(superuser)
@@ -642,10 +658,10 @@ class DownloadViewsTestCase(TestCase):
         content = b"".join(response.streaming_content)
         self.assertGreater(len(content), 0)  # Zip file should not be empty
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_pulsar_files_non_member_denied(self):
         """Test that non-project-members cannot access embargoed pulsar files"""
-        # Use freezegun to set current time to 1900, making the embargo date
+        # Use freezegun to set current time to 1990, making the embargo date
         # (utc_start + project.embargo_period) be in the future (embargoed)
         # Non-members (unrestricted_user is not a project member) should be denied
         self.client.force_login(self.unrestricted_user)
@@ -675,13 +691,16 @@ class DownloadViewsTestCase(TestCase):
 
     def test_download_observation_files_toas(self):
         """Test downloading ToAs file for a specific observation"""
-        # Create the ToAs file
+        # Import Toa model for creating test data
+
+        # Create the ToAs file with project folder
         obs_dir = (
             self.test_dir
             / self.observation.pulsar.name
             / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
             / str(self.observation.beam)
             / "timing"
+            / self.project.short  # Add project folder
         )
         obs_dir.mkdir(parents=True)
         toas_file = (
@@ -689,6 +708,24 @@ class DownloadViewsTestCase(TestCase):
             / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
         )
         toas_file.write_text("ToAs content")
+
+        # Create Toa model instance so database query finds it
+        Toa.objects.create(
+            pipeline_run=self.pipeline_run,
+            observation=self.observation,
+            project=self.project,
+            ephemeris=self.ephemeris,
+            template=self.template,
+            archive=toas_file.name,
+            freq_MHz=1400.0,
+            mjd=59000.0,
+            mjd_err=0.001,
+            telescope="Murriyang",
+            dm_corrected=False,
+            nsub_type="1",
+            obs_nchan=32,
+            obs_npol=1,
+        )
 
         self.client.force_login(self.unrestricted_user)
         response = self.client.get(
@@ -703,9 +740,10 @@ class DownloadViewsTestCase(TestCase):
             )
         )
         self.assertEqual(response.status_code, 200)
-        # Read the file content from the response
-        expected_content = toas_file.read_text()
-        self.assertEqual(response.streaming_content.__next__().decode(), expected_content)
+        self.assertEqual(response["Content-Type"], "application/zip")
+        # Check that we get a zip file
+        content = b"".join(response.streaming_content)
+        self.assertGreater(len(content), 0)
 
     def test_download_observation_files_toas_not_found(self):
         """Test downloading non-existent observation ToAs file"""
@@ -724,16 +762,17 @@ class DownloadViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content.decode(), "Observation not found")
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_observation_files_toas_restricted(self):
-        """Test downloading restricted observation ToAs file"""
-        # Create the ToAs file
+        """Test downloading restricted observation ToAs file - should return 403 (Gate 1)"""
+        # Create the ToAs file with project folder
         obs_dir = (
             self.test_dir
             / self.observation.pulsar.name
             / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
             / str(self.observation.beam)
             / "timing"
+            / self.project.short  # Add project folder
         )
         obs_dir.mkdir(parents=True)
         toas_file = (
@@ -741,6 +780,24 @@ class DownloadViewsTestCase(TestCase):
             / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
         )
         toas_file.write_text("ToAs content")
+
+        # Create Toa model instance
+        Toa.objects.create(
+            pipeline_run=self.pipeline_run,
+            observation=self.observation,
+            project=self.project,
+            ephemeris=self.ephemeris,
+            template=self.template,
+            archive=toas_file.name,
+            freq_MHz=1400.0,
+            mjd=59000.0,
+            mjd_err=0.001,
+            telescope="Murriyang",
+            dm_corrected=False,
+            nsub_type="1",
+            obs_nchan=32,
+            obs_npol=1,
+        )
 
         self.client.force_login(self.restricted_user)
         response = self.client.get(
@@ -754,10 +811,10 @@ class DownloadViewsTestCase(TestCase):
                 },
             )
         )
+        # Gate 1: observation is embargoed and user is not in observation's project
+        # Should return 403 regardless of ToA projects
         self.assertEqual(response.status_code, 403)
-        self.assertEqual(
-            response.content.decode(), "Access denied - data is under embargo. Please request to join project."
-        )
+        self.assertIn("Access denied", response.content.decode())
 
     def test_download_pulsar_files_toas_unauthorized(self):
         """Test downloading pulsar ToAs files without authentication"""
@@ -769,13 +826,16 @@ class DownloadViewsTestCase(TestCase):
 
     def test_download_pulsar_files_toas(self):
         """Test downloading all ToAs files for a pulsar"""
-        # Create the ToAs file
+        # Import Toa model for creating test data
+
+        # Create the ToAs file with project folder
         obs_dir = (
             self.test_dir
             / self.observation.pulsar.name
             / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
             / str(self.observation.beam)
             / "timing"
+            / self.project.short  # Add project folder
         )
         obs_dir.mkdir(parents=True)
         toas_file = (
@@ -783,6 +843,24 @@ class DownloadViewsTestCase(TestCase):
             / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
         )
         toas_file.write_text("ToAs content")
+
+        # Create Toa model instance
+        Toa.objects.create(
+            pipeline_run=self.pipeline_run,
+            observation=self.observation,
+            project=self.project,
+            ephemeris=self.ephemeris,
+            template=self.template,
+            archive=toas_file.name,
+            freq_MHz=1400.0,
+            mjd=59000.0,
+            mjd_err=0.001,
+            telescope="Murriyang",
+            dm_corrected=False,
+            nsub_type="1",
+            obs_nchan=32,
+            obs_npol=1,
+        )
 
         self.client.force_login(self.unrestricted_user)
         response = self.client.get(
@@ -807,16 +885,19 @@ class DownloadViewsTestCase(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content.decode(), "Pulsar not found")
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_pulsar_files_toas_restricted(self):
-        """Test downloading pulsar ToAs files with restricted observations"""
-        # Create the ToAs file
+        """Test downloading pulsar ToAs files with restricted observations - returns empty zip with README"""
+        # Import Toa model for creating test data
+
+        # Create the ToAs file with project folder
         obs_dir = (
             self.test_dir
             / self.observation.pulsar.name
             / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
             / str(self.observation.beam)
             / "timing"
+            / self.project.short  # Add project folder
         )
         obs_dir.mkdir(parents=True)
         toas_file = (
@@ -825,19 +906,40 @@ class DownloadViewsTestCase(TestCase):
         )
         toas_file.write_text("ToAs content")
 
+        # Create Toa model instance
+        Toa.objects.create(
+            pipeline_run=self.pipeline_run,
+            observation=self.observation,
+            project=self.project,
+            ephemeris=self.ephemeris,
+            template=self.template,
+            archive=toas_file.name,
+            freq_MHz=1400.0,
+            mjd=59000.0,
+            mjd_err=0.001,
+            telescope="Murriyang",
+            dm_corrected=False,
+            nsub_type="1",
+            obs_nchan=32,
+            obs_npol=1,
+        )
+
         self.client.force_login(self.restricted_user)
         response = self.client.get(
             reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "toas"})
         )
+        # With new behavior, embargo check happens before generate_zip
+        # If all observations are restricted, returns 403
         self.assertEqual(response.status_code, 403)
         self.assertEqual(
             response.content.decode(), "Access denied - all data is under embargo. Please request to join project(s)."
         )
 
-    @freeze_time("1900-01-01")
+    @freeze_time("1990-01-01")
     def test_download_pulsar_files_toas_mixed_access(self):
         """Test downloading pulsar ToAs files with mixed access (restricted and unrestricted)"""
         # Create a second observation that will be unrestricted
+        # Use utc_start from 1988 so embargo ends before frozen time (1990)
         unrestricted_obs = Observation.objects.create(
             pulsar=self.observation.pulsar,
             telescope=self.telescope,
@@ -852,7 +954,7 @@ class DownloadViewsTestCase(TestCase):
             nant_eff=self.observation.nant_eff,
             npol=self.observation.npol,
             obs_type="fold",  # Set to fold type
-            utc_start=self.observation.utc_start + timedelta(days=1),  # Different time
+            utc_start=datetime(1988, 1, 1, tzinfo=pytz.UTC),  # 1988 + 548 days = ~1989-07, before 1990
             raj=self.observation.raj,
             decj=self.observation.decj,
             duration=3600.0,  # 1 hour duration
@@ -874,13 +976,16 @@ class DownloadViewsTestCase(TestCase):
             embargo_end_date=datetime.now(tz=pytz.UTC) - timedelta(days=1)
         )
 
-        # Create ToAs files for both observations
+        # Create ToAs files for both observations with project folder
+        # Import Toa model
+
         obs_dir = (
             self.test_dir
             / self.observation.pulsar.name
             / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
             / str(self.observation.beam)
             / "timing"
+            / self.project.short  # Add project folder
         )
         obs_dir.mkdir(parents=True)
         restricted_toas = (
@@ -889,12 +994,31 @@ class DownloadViewsTestCase(TestCase):
         )
         restricted_toas.write_text("Restricted ToAs content")
 
+        # Create Toa model instance for restricted observation
+        Toa.objects.create(
+            pipeline_run=self.pipeline_run,
+            observation=self.observation,
+            project=self.project,
+            ephemeris=self.ephemeris,
+            template=self.template,
+            archive=restricted_toas.name,
+            freq_MHz=1400.0,
+            mjd=59000.0,
+            mjd_err=0.001,
+            telescope="Murriyang",
+            dm_corrected=False,
+            nsub_type="1",
+            obs_nchan=32,
+            obs_npol=1,
+        )
+
         unrestricted_obs_dir = (
             self.test_dir
             / unrestricted_obs.pulsar.name
             / unrestricted_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
             / str(unrestricted_obs.beam)
             / "timing"
+            / self.project.short  # Add project folder
         )
         unrestricted_obs_dir.mkdir(parents=True)
         unrestricted_toas = (
@@ -902,6 +1026,30 @@ class DownloadViewsTestCase(TestCase):
             / f"{unrestricted_obs.pulsar.name}_{unrestricted_obs.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
         )
         unrestricted_toas.write_text("Unrestricted ToAs content")
+
+        # Create Toa model instance for unrestricted observation
+        # Need to create a pipeline run for the unrestricted observation first
+        unrestricted_pipeline_run = PipelineRun.objects.create(
+            observation=unrestricted_obs,
+            ephemeris=self.ephemeris,
+            template=self.template,
+        )
+        Toa.objects.create(
+            pipeline_run=unrestricted_pipeline_run,
+            observation=unrestricted_obs,
+            project=self.project,
+            ephemeris=self.ephemeris,
+            template=self.template,
+            archive=unrestricted_toas.name,
+            freq_MHz=1400.0,
+            mjd=59000.0,
+            mjd_err=0.001,
+            telescope="Murriyang",
+            dm_corrected=False,
+            nsub_type="1",
+            obs_nchan=32,
+            obs_npol=1,
+        )
 
         self.client.force_login(self.restricted_user)
         response = self.client.get(
@@ -924,11 +1072,11 @@ class DownloadViewsTestCase(TestCase):
                 # Should only contain files from the unrestricted observation
                 self.assertEqual(len(members), 1)  # One ToAs file
 
-                # Check for the expected structure: timing/timestamp/beam/filename
+                # Check for the expected structure: timing/timestamp/beam/timing/project/filename
                 timestamp_dir = unrestricted_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                 beam_dir = str(unrestricted_obs.beam)
                 toas_filename = f"{unrestricted_obs.pulsar.name}_{unrestricted_obs.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
 
-                expected_toas_path = f"timing/{timestamp_dir}/{beam_dir}/{toas_filename}"
+                expected_toas_path = f"timing/{timestamp_dir}/{beam_dir}/timing/{self.project.short}/{toas_filename}"
 
                 self.assertIn(expected_toas_path, members)

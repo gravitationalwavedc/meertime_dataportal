@@ -4,12 +4,10 @@ Tests the _get_accessible_template method and related resolvers in queries.py.
 """
 
 import json
-import tempfile
 from datetime import datetime, timedelta
 
 import pytz
 from django.contrib.auth import get_user_model
-from django.test import override_settings
 from graphene_django.utils.testing import GraphQLTestCase
 
 from dataportal.models import (

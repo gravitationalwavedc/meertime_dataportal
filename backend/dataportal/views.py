@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from datetime import datetime, timezone
+import logging
 
 from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse, StreamingHttpResponse
@@ -26,11 +27,145 @@ from .models import (
     Pulsar,
     PulsarFoldResult,
     Template,
+    Toa,
 )
 from .serializers import UploadPipelineImageSerializer, UploadTemplateSerializer
 from .storage import create_file_hash
 
 logger = logging.getLogger("dataportal.media")
+
+
+def get_accessible_toa_files(user, observations):
+    """
+    Query Toa model for all accessible 32ch_1p_1t timing files for one or more observations.
+
+    TWO-GATE ACCESS CONTROL:
+    This function implements the second gate of ToA access control. The first gate
+    (observation-level embargo) must be checked by the caller using observation.is_restricted().
+
+    Gate 1 (Caller responsibility): Observation-level embargo
+    - Checks if observation is embargoed AND user is in observation's primary project
+    - If observation is restricted, NO ToAs are accessible regardless of ToA projects
+
+    Gate 2 (This function): Per-project ToA access
+    - Each observation can have ToAs from multiple projects (TPA, TPA2, GC, etc.)
+    - Each ToA project has its own embargo period
+    - User must be member of each ToA's project to access embargoed files from that project
+
+    Example scenario:
+    - Observation taken yesterday by TPA project (accessible to TPA members)
+    - Observation has ToAs from both TPA and GC projects
+    - User is member of TPA but NOT GC
+    - Result: User gets TPA ToAs only, GC ToAs are filtered out
+
+    Another example:
+    - Observation taken yesterday by TPA project
+    - User is member of GC but NOT TPA
+    - Result: Gate 1 blocks access - user gets NO ToAs at all (observation is restricted)
+
+    Returns ToAs filtered by:
+    - dm_corrected=False (non-DM-corrected ToAs)
+    - nsub_type='1' (single time bin)
+    - obs_nchan=32 (32-channel observations)
+    - obs_npol=1 (single polarization)
+    - Per-project embargo and membership checks
+
+    Note: Multiple ToA database entries (32 for 32ch files, one per frequency channel)
+    map to a single .tim file per project per observation.
+
+    Args:
+        user: Django User instance
+        observations: List or QuerySet of Observation instances (must already pass Gate 1)
+
+    Returns:
+        Dict mapping observations to their accessible ToA files:
+        {observation: [(project, file_path), ...], ...}
+    """
+    base_path = Path(settings.MEERTIME_DATA_DIR)
+
+    # Query distinct (observation, project) combinations for ToAs matching the required pattern
+    # This groups 32 ToA database entries (one per channel) that map to a single .tim file
+    toa_groups = (
+        Toa.objects.filter(
+            observation__in=observations,
+            dm_corrected=False,
+            nsub_type="1",
+            obs_nchan=32,
+            obs_npol=1,
+        )
+        .values("observation_id", "project_id")
+        .distinct()
+    )
+
+    # Pre-fetch user's active project memberships to avoid N queries in the loop below
+    # For non-authenticated users or superusers, this remains empty (they have different access rules)
+    # Structure: {project_id1, project_id2, ...}
+    user_project_ids = set()
+    if user.is_authenticated and not user.is_superuser:
+        user_project_ids = set(
+            ProjectMembership.objects.filter(
+                user=user,
+                is_active=True,
+            ).values_list("project_id", flat=True)
+        )
+
+    # Fetch related objects for the unique (observation, project) combinations
+    # We need one representative ToA per group to access embargo status via the project relationship
+    observation_map = {obs.id: obs for obs in observations}
+    project_ids = {group["project_id"] for group in toa_groups}
+    project_map = {p.id: p for p in Project.objects.filter(id__in=project_ids)}
+
+    # Build result dictionary: for each observation, collect accessible ToA files
+    # Gate 2 logic: Filter ToAs by per-project embargo and membership
+    result = {obs: [] for obs in observations}
+
+    for group in toa_groups:
+        observation = observation_map[group["observation_id"]]
+        project = project_map[group["project_id"]]
+
+        # Gate 2: Check per-project ToA access
+        # Check if this project's ToAs are embargoed for this observation
+        is_embargoed = observation.is_embargoed_for_project(project)
+
+        if is_embargoed:
+            # ToA is embargoed - check membership
+            # Superusers bypass all embargo restrictions
+            if user.is_authenticated and user.is_superuser:
+                has_access = True
+            # Authenticated users must be active members of the ToA's project
+            elif user.is_authenticated:
+                has_access = project.id in user_project_ids
+            # Anonymous users cannot access embargoed ToAs
+            else:
+                has_access = False
+
+            if not has_access:
+                # Log denial for debugging/audit purposes
+                logger.warning(
+                    f"User {user.username if user.is_authenticated else 'anonymous'} denied access to "
+                    f"ToA files for observation {observation.pulsar.name} {observation.utc_start} beam {observation.beam} "
+                    f"project {project.short}"
+                )
+                continue
+        # If ToA is not embargoed, everyone can access (public data)
+
+        # Construct full file path with project folder in the structure
+        # Note: This represents a single .tim file that contains 32 ToA entries in the database
+        toa_file = (
+            base_path
+            / observation.pulsar.name
+            / observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+            / str(observation.beam)
+            / "timing"
+            / project.short
+            / f"{observation.pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
+        )
+
+        # Verify file exists on disk
+        if toa_file.exists():
+            result[observation].append((project, toa_file))
+
+    return result
 
 
 class TemplateAddPermission(BasePermission):
@@ -214,7 +349,8 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
         # Find the observation by pulsar name, timestamp, and beam
         observation = Observation.objects.get(pulsar__name=jname, utc_start=utc_start, beam=beam)
 
-        # Check if the observation is restricted for this user
+        # Gate 1: Check observation-level embargo for all file types
+        # This is the primary gate - if observation is restricted, NO data products are accessible
         if observation.is_restricted(request.user):
             return HttpResponse("Access denied - data is under embargo. Please request to join project.", status=403)
 
@@ -236,12 +372,32 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
                 / f"{observation.pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
             )
         elif file_type == "toas":
-            # ToAs file
-            file_path = (
-                base_path
-                / "timing"
-                / f"{observation.pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
-            )
+            # Gate 2: Get ToAs with per-project access control
+            # Gate 1 (observation embargo) was already checked above
+            # This handles filtering ToAs by individual project memberships
+            accessible_files_dict = get_accessible_toa_files(request.user, [observation])
+            accessible_files = accessible_files_dict[observation]
+
+            # If no accessible files, return message instead of empty zip
+            if not accessible_files:
+                return HttpResponse(
+                    "No ToA files are available for download. Files may be under embargo or not yet processed.",
+                    status=404,
+                )
+
+            # Generate ZIP file with accessible ToAs
+            def generate_zip():
+                zs = ZipStream()
+                for project, toa_file in accessible_files:
+                    zip_path = f"timing/{project.short}/{toa_file.name}"
+                    zs.add_path(str(toa_file), zip_path)
+                for chunk in zs:
+                    yield chunk
+
+            filename = f"{observation.pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_{observation.beam}_toas.zip"
+            response = StreamingHttpResponse(generate_zip(), content_type="application/zip")
+            response["Content-Disposition"] = f'attachment; filename="{filename}"'
+            return response
 
         return serve_file(str(file_path))
 
@@ -271,7 +427,9 @@ def download_pulsar_files(request, jname, file_type):
 
     try:
         pulsar = Pulsar.objects.get(name=jname)
-        observations = Observation.objects.filter(pulsar=pulsar).order_by("utc_start")
+        observations = Observation.objects.filter(
+            pulsar=pulsar, project__main_project__name__iexact="MeerTime", obs_type="fold"
+        ).order_by("utc_start")
 
         # If there are no observations, return 404
         if not observations.exists():
@@ -287,56 +445,71 @@ def download_pulsar_files(request, jname, file_type):
         def generate_zip():
             # Create a ZipStream for streaming
             zs = ZipStream()
+            has_files = False
 
-            for observation in observations:
-                # Check if the observation is restricted for this user
-                if observation.is_restricted(request.user):
-                    continue
+            if file_type == "toas":
+                # Gate 1: Filter observations by observation-level embargo
+                # Gate 2: get_accessible_toa_files handles per-project ToA access
+                accessible_observations = [obs for obs in observations if not obs.is_restricted(request.user)]
+                obs_toa_files = get_accessible_toa_files(request.user, accessible_observations)
 
-                # Construct the relative path for the observation
-                base_path = Path(
-                    f"{pulsar.name}/{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}/{observation.beam}"
+                for observation, toa_files in obs_toa_files.items():
+                    timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+                    beam_dir = str(observation.beam)
+
+                    for project, toa_file in toa_files:
+                        # Nested structure: timing/{timestamp}/{beam}/timing/{project}/{filename}
+                        zip_path = f"timing/{timestamp_dir}/{beam_dir}/timing/{project.short}/{toa_file.name}"
+                        zs.add_path(str(toa_file), zip_path)
+                        has_files = True
+            else:
+                # Handle full and decimated files
+                for observation in observations:
+                    # Check if the observation is restricted for this user
+                    if observation.is_restricted(request.user):
+                        continue
+
+                    # Construct the relative path for the observation
+                    base_path = Path(
+                        f"{pulsar.name}/{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}/{observation.beam}"
+                    )
+
+                    if file_type == "full":
+                        # Add full resolution file
+                        full_res_path = (
+                            base_path / f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap.ar"
+                        )
+                        full_res_abs_path = Path(settings.MEERTIME_DATA_DIR) / full_res_path
+                        if full_res_abs_path.exists():
+                            timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+                            beam_dir = str(observation.beam)
+                            full_filename = (
+                                f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap.ar"
+                            )
+                            zs.add_path(str(full_res_abs_path), f"{timestamp_dir}/{beam_dir}/{full_filename}")
+                            has_files = True
+
+                    elif file_type == "decimated":
+                        # Add decimated file
+                        decimated_path = (
+                            base_path
+                            / "decimated"
+                            / f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
+                        )
+                        decimated_abs_path = Path(settings.MEERTIME_DATA_DIR) / decimated_path
+                        if decimated_abs_path.exists():
+                            timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+                            beam_dir = str(observation.beam)
+                            decimated_filename = f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
+                            zs.add_path(str(decimated_abs_path), f"{timestamp_dir}/{beam_dir}/{decimated_filename}")
+                            has_files = True
+
+            # Add README if no files were added
+            if not has_files:
+                readme_content = (
+                    "No files are available for download. Files may be under embargo or not yet processed."
                 )
-
-                if file_type == "full":
-                    # Add full resolution file
-                    full_res_path = (
-                        base_path / f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap.ar"
-                    )
-                    full_res_abs_path = Path(settings.MEERTIME_DATA_DIR) / full_res_path
-                    if full_res_abs_path.exists():
-                        timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
-                        beam_dir = str(observation.beam)
-                        full_filename = f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap.ar"
-                        zs.add_path(str(full_res_abs_path), f"{timestamp_dir}/{beam_dir}/{full_filename}")
-
-                elif file_type == "decimated":
-                    # Add decimated file
-                    decimated_path = (
-                        base_path
-                        / "decimated"
-                        / f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
-                    )
-                    decimated_abs_path = Path(settings.MEERTIME_DATA_DIR) / decimated_path
-                    if decimated_abs_path.exists():
-                        timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
-                        beam_dir = str(observation.beam)
-                        decimated_filename = f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.1ch_1p_1t.ar"
-                        zs.add_path(str(decimated_abs_path), f"{timestamp_dir}/{beam_dir}/{decimated_filename}")
-
-                elif file_type == "toas":
-                    # Add ToAs file only
-                    toas_path = (
-                        base_path
-                        / "timing"
-                        / f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
-                    )
-                    toas_abs_path = Path(settings.MEERTIME_DATA_DIR) / toas_path
-                    if toas_abs_path.exists():
-                        timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
-                        beam_dir = str(observation.beam)
-                        toas_filename = f"{pulsar.name}_{observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
-                        zs.add_path(str(toas_abs_path), f"timing/{timestamp_dir}/{beam_dir}/{toas_filename}")
+                zs.add(readme_content.encode("utf-8"), "README.txt")
 
             # Stream the ZIP data
             for chunk in zs:
