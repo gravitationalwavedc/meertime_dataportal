@@ -17,105 +17,108 @@ from django.urls import reverse
 from freezegun import freeze_time
 
 from dataportal.models import Observation, Project, ProjectMembership, Toa
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import setup_query_test
 from utils.constants import UserRole
 
 
-class MultiProjectToaDownloadTestCase(TestCase):
+class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
     """Tests for multi-project ToA downloads"""
 
-    def setUp(self):
-        # Suppress logging during tests
-        logging.disable(logging.CRITICAL)
-
-        # Create a temporary directory for testing
-        self.test_dir = Path(tempfile.mkdtemp())
-        settings.MEERTIME_DATA_DIR = str(self.test_dir)
-
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class."""
         # Set up test data using setup_query_test
         (
             _,
-            self.unrestricted_user,
-            self.telescope,
-            self.project1,
-            self.ephemeris,
-            self.template,
-            self.pipeline_run,
-            self.observation,
-            self.cal,
+            cls.unrestricted_user,
+            cls.telescope,
+            cls.project1,
+            cls.ephemeris,
+            cls.template,
+            cls.pipeline_run,
+            cls.observation,
+            cls.cal,
         ) = setup_query_test()
 
         # Use the observation's actual project as project1
         # (setup_query_test may return different project than observation belongs to)
-        self.project1 = self.observation.project
+        cls.project1 = cls.observation.project
 
         # Ensure the main_project is named "MeerTime" for filtering tests
-        if self.project1.main_project:
-            self.project1.main_project.name = "MeerTime"
-            self.project1.main_project.save()
+        if cls.project1.main_project:
+            cls.project1.main_project.name = "MeerTime"
+            cls.project1.main_project.save()
 
         # Ensure the user has unrestricted role for testing
-        self.unrestricted_user.role = UserRole.UNRESTRICTED.value
-        self.unrestricted_user.save()
+        cls.unrestricted_user.role = UserRole.UNRESTRICTED.value
+        cls.unrestricted_user.save()
 
         # Create additional projects for multi-project testing
         # These need to have the same main_project to pass observation filtering
-        self.project2 = Project.objects.create(
-            main_project=self.project1.main_project,
+        cls.project2 = Project.objects.create(
+            main_project=cls.project1.main_project,
             code="SCI-20180516-MB-03",
             short="TPA2",
             embargo_period=timedelta(days=548),
         )
 
-        self.project3 = Project.objects.create(
-            main_project=self.project1.main_project,
+        cls.project3 = Project.objects.create(
+            main_project=cls.project1.main_project,
             code="SCI-20180516-MB-06",
             short="COWD",
             embargo_period=timedelta(days=548),
         )
 
         # Create a restricted user for testing permissions
-        self.restricted_user = get_user_model().objects.create_user(
+        cls.restricted_user = get_user_model().objects.create_user(
             username="restricted", email="restricted@example.com", password="secret", role=UserRole.RESTRICTED.value
         )
 
         # Create a user who is member of only project1
-        self.project1_member = get_user_model().objects.create_user(
+        cls.project1_member = get_user_model().objects.create_user(
             username="project1_member", email="p1@example.com", password="secret", role=UserRole.RESTRICTED.value
         )
         ProjectMembership.objects.create(
-            user=self.project1_member,
-            project=self.project1,
+            user=cls.project1_member,
+            project=cls.project1,
             role=ProjectMembership.RoleChoices.MEMBER,
             is_active=True,
         )
 
         # Create a user who is member of project1 and project2
-        self.multi_project_member = get_user_model().objects.create_user(
+        cls.multi_project_member = get_user_model().objects.create_user(
             username="multi_member", email="multi@example.com", password="secret", role=UserRole.RESTRICTED.value
         )
         ProjectMembership.objects.create(
-            user=self.multi_project_member,
-            project=self.project1,
+            user=cls.multi_project_member,
+            project=cls.project1,
             role=ProjectMembership.RoleChoices.MEMBER,
             is_active=True,
         )
         ProjectMembership.objects.create(
-            user=self.multi_project_member,
-            project=self.project2,
+            user=cls.multi_project_member,
+            project=cls.project2,
             role=ProjectMembership.RoleChoices.MEMBER,
             is_active=True,
         )
 
         # Create a superuser
-        self.superuser = get_user_model().objects.create_superuser(
+        cls.superuser = get_user_model().objects.create_superuser(
             username="admin", email="admin@example.com", password="admin"
         )
+
+    def setUp(self):
+        """Setup that runs before each test method."""
+        # Suppress logging during tests
+        logging.disable(logging.CRITICAL)
+
+        # Use the temp directory from the base class
+        self.test_dir = Path(settings.MEERTIME_DATA_DIR)
 
     def tearDown(self):
         # Re-enable logging
         logging.disable(logging.NOTSET)
-        shutil.rmtree(self.test_dir)
 
     def _create_toa_file(self, observation, project):
         """Helper to create a ToA file on disk and in database"""

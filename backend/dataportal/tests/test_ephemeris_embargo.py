@@ -44,13 +44,14 @@ from dataportal.models import (
     Template,
     Toa,
 )
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import TEST_DATA_DIR, create_basic_data
 from utils.ephemeris import parse_ephemeris_file
 
 User = get_user_model()
 
 
-class EphemerisEmbargoTestCase(GraphQLTestCase):
+class EphemerisEmbargoTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
     """Test cases for ephemeris embargo logic based on ephemeris creation date"""
 
     FOLDING_EPHEMERIS_QUERY = """
@@ -73,25 +74,26 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
     }}
     """
 
-    def setUp(self):
-        """Setup test environment with users, projects, and base data."""
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class."""
         # Create basic data
-        self.telescope, _, self.ephemeris, self.template = create_basic_data()
-        self.pulsar = Pulsar.objects.get(name="J0125-2327")
+        cls.telescope, _, cls.ephemeris, cls.template = create_basic_data()
+        cls.pulsar = Pulsar.objects.get(name="J0125-2327")
 
         # Use MeerTIME project
         main_project = MainProject.objects.get(name="MeerTIME")
-        self.project = Project.objects.get(short="PTA", main_project=main_project)
+        cls.project = Project.objects.get(short="PTA", main_project=main_project)
         # Set a specific embargo period for consistent testing (18 months)
-        self.project.embargo_period = timedelta(days=548)
-        self.project.save()
+        cls.project.embargo_period = timedelta(days=548)
+        cls.project.save()
 
         # Reassign ephemeris to the PTA project for testing
-        self.ephemeris.project = self.project
-        self.ephemeris.save()
+        cls.ephemeris.project = cls.project
+        cls.ephemeris.save()
 
         # Create a second project for cross-project testing
-        self.project2 = Project.objects.create(
+        cls.project2 = Project.objects.create(
             main_project=main_project,
             code="TEST-PROJECT-2",
             short="TP2",
@@ -99,24 +101,24 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
         )
 
         # Create calibration
-        self.calibration = Calibration.objects.create(
+        cls.calibration = Calibration.objects.create(
             schedule_block_id="test_sb_001",
             calibration_type="flux",
             location="/test/cal/location",
         )
 
         # Create users
-        self.superuser = User.objects.create_superuser(
+        cls.superuser = User.objects.create_superuser(
             username="superuser",
             email="super@test.com",
             password="testpass",
         )
-        self.project_member = User.objects.create_user(
+        cls.project_member = User.objects.create_user(
             username="project_member",
             email="member@test.com",
             password="testpass",
         )
-        self.non_member = User.objects.create_user(
+        cls.non_member = User.objects.create_user(
             username="non_member",
             email="nonmember@test.com",
             password="testpass",
@@ -124,8 +126,8 @@ class EphemerisEmbargoTestCase(GraphQLTestCase):
 
         # Create project membership
         ProjectMembership.objects.create(
-            user=self.project_member,
-            project=self.project,
+            user=cls.project_member,
+            project=cls.project,
             role=ProjectMembership.RoleChoices.MEMBER,
             is_active=True,
         )

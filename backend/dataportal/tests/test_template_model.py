@@ -7,40 +7,41 @@ from datetime import timedelta
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from django.test import TestCase
 from django.utils import timezone
 
 from dataportal.models import Project, ProjectMembership, Pulsar, Template
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import create_basic_data
 
 User = get_user_model()
 
 
-class TemplateModelTestCase(TestCase):
+class TemplateModelTestCase(BaseTestCaseWithTempMedia):
     """Test Template model access control logic"""
 
-    def setUp(self):
-        """Set up test data"""
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class"""
         # Use existing test helper to create basic fixtures
         telescope, project, ephemeris, template = create_basic_data()
-        self.telescope = telescope
-        self.pulsar = Pulsar.objects.get(name="J0125-2327")
-        self.project = Project.objects.get(code="SCI-20180516-MB-05")
+        cls.telescope = telescope
+        cls.pulsar = Pulsar.objects.get(name="J0125-2327")
+        cls.project = Project.objects.get(code="SCI-20180516-MB-05")
 
         # Create test users
-        self.superuser = User.objects.create_superuser(
+        cls.superuser = User.objects.create_superuser(
             username="admin", email="admin@test.com", password="admin123", role="ADMIN"
         )
-        self.project_member = User.objects.create_user(
+        cls.project_member = User.objects.create_user(
             username="member", email="member@test.com", password="member123", role="UNRESTRICTED"
         )
-        self.non_member = User.objects.create_user(
+        cls.non_member = User.objects.create_user(
             username="nonmember", email="nonmember@test.com", password="nonmember123", role="UNRESTRICTED"
         )
 
         # Create active membership
         ProjectMembership.objects.create(
-            user=self.project_member, project=self.project, role=ProjectMembership.RoleChoices.MEMBER
+            user=cls.project_member, project=cls.project, role=ProjectMembership.RoleChoices.MEMBER
         )
 
     # ===== is_embargoed Property Tests =====

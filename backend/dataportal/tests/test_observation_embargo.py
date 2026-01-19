@@ -4,13 +4,13 @@ import os
 import pytz
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from django.test import TestCase
 
 from dataportal.models import (
     Observation,
     Project,
     ProjectMembership,
 )
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import (
     create_basic_data,
     create_observation_pipeline_run_toa,
@@ -20,18 +20,19 @@ User = get_user_model()
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 
 
-class ObservationEmbargoTestCase(TestCase):
+class ObservationEmbargoTestCase(BaseTestCaseWithTempMedia):
     """Test observation embargo and restriction logic with project membership"""
 
-    def setUp(self):
-        """Set up test data using testing_utils helpers"""
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class"""
         # Use testing utilities to create base data
-        telescope, self.project1, ephemeris, template = create_basic_data()
-        self.pulsar = ephemeris.pulsar
+        telescope, cls.project1, ephemeris, template = create_basic_data()
+        cls.pulsar = ephemeris.pulsar
 
         # Create a second project for cross-project testing
-        self.project2 = Project.objects.create(
-            main_project=self.project1.main_project,
+        cls.project2 = Project.objects.create(
+            main_project=cls.project1.main_project,
             code="RELBIN",
             short="RELBIN",
             description="Relativistic Binaries",
@@ -39,24 +40,24 @@ class ObservationEmbargoTestCase(TestCase):
         )
 
         # Create users
-        self.superuser = User.objects.create_user(
+        cls.superuser = User.objects.create_user(
             username="superuser",
             email="superuser@test.com",
             password="testpass123",
             is_superuser=True,
             is_staff=True,
         )
-        self.project1_member = User.objects.create_user(
+        cls.project1_member = User.objects.create_user(
             username="project1_member",
             email="project1@test.com",
             password="testpass123",
         )
-        self.project2_member = User.objects.create_user(
+        cls.project2_member = User.objects.create_user(
             username="project2_member",
             email="project2@test.com",
             password="testpass123",
         )
-        self.non_member = User.objects.create_user(
+        cls.non_member = User.objects.create_user(
             username="nonmember",
             email="nonmember@test.com",
             password="testpass123",
@@ -64,13 +65,13 @@ class ObservationEmbargoTestCase(TestCase):
 
         # Create project memberships
         ProjectMembership.objects.create(
-            user=self.project1_member,
-            project=self.project1,
+            user=cls.project1_member,
+            project=cls.project1,
             role=ProjectMembership.RoleChoices.MEMBER,
         )
         ProjectMembership.objects.create(
-            user=self.project2_member,
-            project=self.project2,
+            user=cls.project2_member,
+            project=cls.project2,
             role=ProjectMembership.RoleChoices.MEMBER,
         )
 
@@ -80,26 +81,26 @@ class ObservationEmbargoTestCase(TestCase):
 
         # Create embargoed observation in project1 (use template's project, will reassign)
         obs_embargoed_p1, _, _ = create_observation_pipeline_run_toa(json_file, telescope, template, make_toas=False)
-        self.embargoed_obs_project1 = obs_embargoed_p1
+        cls.embargoed_obs_project1 = obs_embargoed_p1
         # Reassign to project1 with recent date
         now = datetime.now(tz=pytz.UTC)
-        self.embargoed_obs_project1.project = self.project1
-        self.embargoed_obs_project1.utc_start = now - timedelta(days=30)
-        self.embargoed_obs_project1.save()
+        cls.embargoed_obs_project1.project = cls.project1
+        cls.embargoed_obs_project1.utc_start = now - timedelta(days=30)
+        cls.embargoed_obs_project1.save()
 
         # Create public (non-embargoed) observation in project1
         obs_public_p1, _, _ = create_observation_pipeline_run_toa(json_file, telescope, template, make_toas=False)
-        self.public_obs_project1 = obs_public_p1
-        self.public_obs_project1.project = self.project1
-        self.public_obs_project1.utc_start = now - timedelta(days=600)  # 20 months ago
-        self.public_obs_project1.save()
+        cls.public_obs_project1 = obs_public_p1
+        cls.public_obs_project1.project = cls.project1
+        cls.public_obs_project1.utc_start = now - timedelta(days=600)  # 20 months ago
+        cls.public_obs_project1.save()
 
         # Create embargoed observation in project2
         obs_embargoed_p2, _, _ = create_observation_pipeline_run_toa(json_file, telescope, template, make_toas=False)
-        self.embargoed_obs_project2 = obs_embargoed_p2
-        self.embargoed_obs_project2.project = self.project2
-        self.embargoed_obs_project2.utc_start = now - timedelta(days=30)
-        self.embargoed_obs_project2.save()
+        cls.embargoed_obs_project2 = obs_embargoed_p2
+        cls.embargoed_obs_project2.project = cls.project2
+        cls.embargoed_obs_project2.utc_start = now - timedelta(days=30)
+        cls.embargoed_obs_project2.save()
 
     # ===== is_embargoed() Tests =====
 
