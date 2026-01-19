@@ -9,37 +9,43 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from dataportal.models import PipelineImage, Template
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import create_basic_data, create_observation_pipeline_run_toa
 from utils.constants import UserRole
 
 User = get_user_model()
 
 
-class UploadTemplateViewTestCase(TestCase):
+class UploadTemplateViewTestCase(BaseTestCaseWithTempMedia):
     """Tests for UploadTemplate ViewSet permissions"""
 
-    def setUp(self):
-        self.client = Client()
-        self.User = get_user_model()
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class."""
+        cls.User = get_user_model()
 
         # Create users with different roles
-        self.unrestricted_user = self.User.objects.create_user(
+        cls.unrestricted_user = cls.User.objects.create_user(
             username="unrestricted",
             email="unrestricted@example.com",
             password="secret",
             role=UserRole.UNRESTRICTED.value,
         )
-        self.restricted_user = self.User.objects.create_user(
+        cls.restricted_user = cls.User.objects.create_user(
             username="restricted", email="restricted@example.com", password="secret", role=UserRole.RESTRICTED.value
         )
-        self.admin_user = self.User.objects.create_user(
+        cls.admin_user = cls.User.objects.create_user(
             username="admin", email="admin@example.com", password="secret", role=UserRole.ADMIN.value
         )
 
         # Create basic test data
         telescope, project, ephemeris, template = create_basic_data()
-        self.project = project
-        self.pulsar = template.pulsar
+        cls.project = project
+        cls.pulsar = template.pulsar
+
+    def setUp(self):
+        """Setup that runs before each test method."""
+        self.client = Client()
 
         # Create a mock template file
         self.template_file = SimpleUploadedFile(
@@ -107,24 +113,25 @@ class UploadTemplateViewTestCase(TestCase):
         self.assertEqual(response.status_code, 403)
 
 
-class UploadPipelineImageViewTestCase(TestCase):
+class UploadPipelineImageViewTestCase(BaseTestCaseWithTempMedia):
     """Tests for UploadPipelineImage ViewSet permissions"""
 
-    def setUp(self):
-        self.client = Client()
-        self.User = get_user_model()
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class."""
+        cls.User = get_user_model()
 
         # Create users with different roles
-        self.unrestricted_user = self.User.objects.create_user(
+        cls.unrestricted_user = cls.User.objects.create_user(
             username="unrestricted",
             email="unrestricted@example.com",
             password="secret",
             role=UserRole.UNRESTRICTED.value,
         )
-        self.restricted_user = self.User.objects.create_user(
+        cls.restricted_user = cls.User.objects.create_user(
             username="restricted", email="restricted@example.com", password="secret", role=UserRole.RESTRICTED.value
         )
-        self.admin_user = self.User.objects.create_user(
+        cls.admin_user = cls.User.objects.create_user(
             username="admin", email="admin@example.com", password="secret", role=UserRole.ADMIN.value
         )
 
@@ -136,7 +143,11 @@ class UploadPipelineImageViewTestCase(TestCase):
             template,
             make_toas=False,
         )
-        self.pipeline_run = pipeline_run
+        cls.pipeline_run = pipeline_run
+
+    def setUp(self):
+        """Setup that runs before each test method."""
+        self.client = Client()
 
         # Create a mock image file
         self.image_file = SimpleUploadedFile("test_image.png", b"fake image content", content_type="image/png")

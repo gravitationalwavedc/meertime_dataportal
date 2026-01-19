@@ -13,58 +13,59 @@ User = get_user_model()
 
 
 class ProjectMembershipTest(TestCase):
-    def setUp(self):
-        """Set up test users and projects"""
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test users and projects once for all test methods."""
         # Create users
-        self.owner_user = User.objects.create_user(
+        cls.owner_user = User.objects.create_user(
             username="owner@test.com",
             email="owner@test.com",
             password="testpass123",
         )
-        self.manager_user = User.objects.create_user(
+        cls.manager_user = User.objects.create_user(
             username="manager@test.com",
             email="manager@test.com",
             password="testpass123",
         )
-        self.member_user = User.objects.create_user(
+        cls.member_user = User.objects.create_user(
             username="member@test.com",
             email="member@test.com",
             password="testpass123",
         )
-        self.non_member_user = User.objects.create_user(
+        cls.non_member_user = User.objects.create_user(
             username="nonmember@test.com",
             email="nonmember@test.com",
             password="testpass123",
         )
 
         # Create telescope and main project
-        self.telescope = Telescope.objects.create(name="Test Telescope")
-        self.main_project = MainProject.objects.create(
+        cls.telescope = Telescope.objects.create(name="Test Telescope")
+        cls.main_project = MainProject.objects.create(
             name="Test Main Project",
-            telescope=self.telescope,
+            telescope=cls.telescope,
         )
 
         # Create project
-        self.project = Project.objects.create(
+        cls.project = Project.objects.create(
             code="TEST-PROJECT-01",
             short="TEST",
-            main_project=self.main_project,
+            main_project=cls.main_project,
         )
 
         # Create memberships
         ProjectMembership.objects.create(
-            user=self.owner_user,
-            project=self.project,
+            user=cls.owner_user,
+            project=cls.project,
             role=ProjectMembership.RoleChoices.OWNER,
         )
         ProjectMembership.objects.create(
-            user=self.manager_user,
-            project=self.project,
+            user=cls.manager_user,
+            project=cls.project,
             role=ProjectMembership.RoleChoices.MANAGER,
         )
         ProjectMembership.objects.create(
-            user=self.member_user,
-            project=self.project,
+            user=cls.member_user,
+            project=cls.project,
             role=ProjectMembership.RoleChoices.MEMBER,
         )
 
@@ -104,71 +105,72 @@ class ProjectMembershipTest(TestCase):
 
 
 class ProjectMembershipRequestTest(TestCase):
-    def setUp(self):
-        """Set up test users, projects, and membership requests"""
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test users, projects, and membership requests once for all test methods."""
         # Create users
-        self.owner_user = User.objects.create_user(
+        cls.owner_user = User.objects.create_user(
             username="owner@test.com",
             email="owner@test.com",
             password="testpass123",
         )
-        self.manager_user = User.objects.create_user(
+        cls.manager_user = User.objects.create_user(
             username="manager@test.com",
             email="manager@test.com",
             password="testpass123",
         )
-        self.requesting_user = User.objects.create_user(
+        cls.requesting_user = User.objects.create_user(
             username="requester@test.com",
             email="requester@test.com",
             password="testpass123",
         )
-        self.another_requesting_user = User.objects.create_user(
+        cls.another_requesting_user = User.objects.create_user(
             username="requester2@test.com",
             email="requester2@test.com",
             password="testpass123",
         )
 
         # Create telescope and main project
-        self.telescope = Telescope.objects.create(name="Test Telescope")
-        self.main_project = MainProject.objects.create(
+        cls.telescope = Telescope.objects.create(name="Test Telescope")
+        cls.main_project = MainProject.objects.create(
             name="Test Main Project",
-            telescope=self.telescope,
+            telescope=cls.telescope,
         )
 
         # Create projects
-        self.project1 = Project.objects.create(
+        cls.project1 = Project.objects.create(
             code="TEST-PROJECT-01",
             short="TEST1",
-            main_project=self.main_project,
+            main_project=cls.main_project,
         )
-        self.project2 = Project.objects.create(
+        cls.project2 = Project.objects.create(
             code="TEST-PROJECT-02",
             short="TEST2",
-            main_project=self.main_project,
+            main_project=cls.main_project,
         )
 
         # Create memberships for project1
         ProjectMembership.objects.create(
-            user=self.owner_user,
-            project=self.project1,
+            user=cls.owner_user,
+            project=cls.project1,
             role=ProjectMembership.RoleChoices.OWNER,
         )
         ProjectMembership.objects.create(
-            user=self.manager_user,
-            project=self.project1,
+            user=cls.manager_user,
+            project=cls.project1,
             role=ProjectMembership.RoleChoices.MANAGER,
         )
 
         # Create pending membership requests
-        self.request1 = ProjectMembershipRequest.objects.create(
-            user=self.requesting_user,
-            project=self.project1,
+        cls.request1 = ProjectMembershipRequest.objects.create(
+            user=cls.requesting_user,
+            project=cls.project1,
             message="Please let me join project 1",
             status=ProjectMembershipRequest.StatusChoices.PENDING,
         )
-        self.request2 = ProjectMembershipRequest.objects.create(
-            user=self.another_requesting_user,
-            project=self.project1,
+        cls.request2 = ProjectMembershipRequest.objects.create(
+            user=cls.another_requesting_user,
+            project=cls.project1,
             message="I also want to join project 1",
             status=ProjectMembershipRequest.StatusChoices.PENDING,
         )

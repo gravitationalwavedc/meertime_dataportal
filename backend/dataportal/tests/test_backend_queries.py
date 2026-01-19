@@ -8,28 +8,30 @@ from graphene_django.utils.testing import GraphQLTestCase
 from graphql_relay import from_global_id
 
 from dataportal.models import Toa
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import setup_query_test
 
 User = get_user_model()
 
 
-class BackendQueriesTestCase(GraphQLTestCase):
+class BackendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
     """Test cases for backend GraphQL queries and mutations"""
 
-    def setUp(self):
-        """Setup basic test environment."""
-        # Call setup_query_test once for all tests and store results as instance attributes
+    @classmethod
+    def setUpTestData(cls):
+        """Setup basic test environment once for all test methods."""
+        # Call setup_query_test once for all tests and store results as class attributes
         # GraphQLTestCase provides self.client, so we ignore the client returned by setup_query_test
         (
             _,
-            self.user,
-            self.telescope,
-            self.project,
-            self.ephemeris,
-            self.template,
-            self.pipeline_run,
-            self.observation,
-            self.cal,
+            cls.user,
+            cls.telescope,
+            cls.project,
+            cls.ephemeris,
+            cls.template,
+            cls.pipeline_run,
+            cls.observation,
+            cls.cal,
         ) = setup_query_test()
 
         # Add the required permission to the user
@@ -38,9 +40,11 @@ class BackendQueriesTestCase(GraphQLTestCase):
             content_type=content_type,
             codename="add_toa",
         )
-        self.user.user_permissions.add(permission)
+        cls.user.user_permissions.add(permission)
 
-        # Force login with the user from setup_query_test
+    def setUp(self):
+        """Setup that runs before each test method."""
+        # Force login with the user from setUpTestData
         self.client.force_login(self.user)
 
     def _create_toa(self, variables):

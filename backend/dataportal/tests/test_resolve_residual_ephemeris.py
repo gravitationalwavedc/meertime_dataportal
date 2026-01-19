@@ -46,13 +46,14 @@ from dataportal.models import (
     Template,
     Toa,
 )
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import TEST_DATA_DIR, create_basic_data
 from utils.ephemeris import parse_ephemeris_file
 
 User = get_user_model()
 
 
-class ResolveFoldingEphemerisTestCase(GraphQLTestCase):
+class ResolveFoldingEphemerisTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
     """Test cases for the resolve_folding_ephemeris function in PulsarFoldResultConnection"""
 
     FOLDING_EPHEMERIS_QUERY = """
@@ -75,24 +76,25 @@ class ResolveFoldingEphemerisTestCase(GraphQLTestCase):
     }}
     """
 
-    def setUp(self):
-        """Setup basic test environment."""
-        self.user = User.objects.create(username="testuser", email="test@test.com")
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class."""
+        cls.user = User.objects.create(username="testuser", email="test@test.com")
 
         # Create basic data
-        self.telescope, _, self.ephemeris, self.template = create_basic_data()
-        self.pulsar = Pulsar.objects.get(name="J0125-2327")
+        cls.telescope, _, cls.ephemeris, cls.template = create_basic_data()
+        cls.pulsar = Pulsar.objects.get(name="J0125-2327")
 
         # Use a MeerTIME project instead of the MONSPSR project returned by create_basic_data
         main_project = MainProject.objects.get(name="MeerTIME")
-        self.project = Project.objects.get(short="PTA", main_project=main_project)
+        cls.project = Project.objects.get(short="PTA", main_project=main_project)
 
         # Reassign ephemeris to the PTA project for testing
-        self.ephemeris.project = self.project
-        self.ephemeris.save()
+        cls.ephemeris.project = cls.project
+        cls.ephemeris.save()
 
         # Create a calibration object
-        self.calibration = Calibration.objects.create(
+        cls.calibration = Calibration.objects.create(
             schedule_block_id="test_sb_001",
             calibration_type="flux",
             location="/test/cal/location",

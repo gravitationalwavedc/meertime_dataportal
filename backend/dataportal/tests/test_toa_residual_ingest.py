@@ -3,10 +3,11 @@ from base64 import b64decode
 
 from graphene_django.utils.testing import GraphQLTestCase
 
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import setup_timing_obs
 
 
-class ToaResidualIngestTestCase(GraphQLTestCase):
+class ToaResidualIngestTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
     def setUp(self):
         # Set up data for the tests
         # We ignore the client from setup_timing_obs and use GraphQLTestCase's client instead

@@ -1,14 +1,15 @@
 import os
 
-from django.test import TestCase, TransactionTestCase
+from django.test import TransactionTestCase
 
 from dataportal.models import Badge, Calibration, PipelineRun, Toa
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import create_basic_data, create_observation_pipeline_run_toa, setup_query_test
 
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "test_data")
 
 
-class BadgeTestCase(TestCase):
+class BadgeTestCase(BaseTestCaseWithTempMedia):
     def test_rfi_badge(self):
         client, user, telescope, project, ephemeris, template, pipeline_run, observation, cal = setup_query_test()
 
@@ -153,7 +154,7 @@ class BadgeTestCase(TestCase):
 
 
 # Using TransactionTestCase for this test as it might require transaction management
-class SessionTimingJumpBadgeTestCase(TransactionTestCase):
+class SessionTimingJumpBadgeTestCase(BaseTestCaseWithTempMedia, TransactionTestCase):
     def test_session_timing_jump_badge(self):
         telescope, project, ephemeris, template = create_basic_data()
 

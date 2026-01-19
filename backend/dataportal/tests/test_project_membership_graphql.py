@@ -17,58 +17,59 @@ User = get_user_model()
 class ProjectMembershipGraphQLTestCase(GraphQLTestCase):
     """Test GraphQL authorization for project membership operations"""
 
-    def setUp(self):
-        """Set up test data"""
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class."""
         # Create telescope and main project
-        self.telescope = Telescope.objects.create(name="MeerKAT")
-        self.main_project = MainProject.objects.create(
+        cls.telescope = Telescope.objects.create(name="MeerKAT")
+        cls.main_project = MainProject.objects.create(
             name="MeerTime",
-            telescope=self.telescope,
+            telescope=cls.telescope,
         )
 
         # Create projects
-        self.project1 = Project.objects.create(
-            main_project=self.main_project,
+        cls.project1 = Project.objects.create(
+            main_project=cls.main_project,
             code="TPA",
             short="TPA",
             description="Thousand Pulsar Array",
         )
-        self.project2 = Project.objects.create(
-            main_project=self.main_project,
+        cls.project2 = Project.objects.create(
+            main_project=cls.main_project,
             code="RELBIN",
             short="RELBIN",
             description="Relativistic Binaries",
         )
 
         # Create users
-        self.superuser = User.objects.create_user(
+        cls.superuser = User.objects.create_user(
             username="superuser",
             email="superuser@test.com",
             password="testpass123",
             is_superuser=True,
             is_staff=True,
         )
-        self.owner = User.objects.create_user(
+        cls.owner = User.objects.create_user(
             username="owner",
             email="owner@test.com",
             password="testpass123",
         )
-        self.manager = User.objects.create_user(
+        cls.manager = User.objects.create_user(
             username="manager",
             email="manager@test.com",
             password="testpass123",
         )
-        self.member = User.objects.create_user(
+        cls.member = User.objects.create_user(
             username="member",
             email="member@test.com",
             password="testpass123",
         )
-        self.non_member = User.objects.create_user(
+        cls.non_member = User.objects.create_user(
             username="nonmember",
             email="nonmember@test.com",
             password="testpass123",
         )
-        self.another_user = User.objects.create_user(
+        cls.another_user = User.objects.create_user(
             username="another",
             email="another@test.com",
             password="testpass123",
@@ -76,18 +77,18 @@ class ProjectMembershipGraphQLTestCase(GraphQLTestCase):
 
         # Create memberships for project1
         ProjectMembership.objects.create(
-            user=self.owner,
-            project=self.project1,
+            user=cls.owner,
+            project=cls.project1,
             role=ProjectMembership.RoleChoices.OWNER,
         )
         ProjectMembership.objects.create(
-            user=self.manager,
-            project=self.project1,
+            user=cls.manager,
+            project=cls.project1,
             role=ProjectMembership.RoleChoices.MANAGER,
         )
         ProjectMembership.objects.create(
-            user=self.member,
-            project=self.project1,
+            user=cls.member,
+            project=cls.project1,
             role=ProjectMembership.RoleChoices.MEMBER,
         )
 

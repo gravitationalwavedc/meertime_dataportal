@@ -15,11 +15,12 @@ from freezegun import freeze_time
 
 from dataportal.file_utils import get_file_list, get_file_path, serve_file
 from dataportal.models import Observation, PipelineRun, ProjectMembership, Toa
+from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import setup_query_test
 from utils.constants import UserRole
 
 
-class FileUtilsTestCase(TestCase):
+class FileUtilsTestCase(BaseTestCaseWithTempMedia):
     """Tests for file utility functions"""
 
     def setUp(self):
@@ -35,18 +36,16 @@ class FileUtilsTestCase(TestCase):
             username="restricted", email="restricted@example.com", password="secret", role=UserRole.RESTRICTED.value
         )
 
-        # Create a temporary directory for testing
-        self.test_dir = Path(tempfile.mkdtemp())
-        settings.MEERTIME_DATA_DIR = str(self.test_dir)
+        # Use the temp directory from the base class
+        self.test_dir = Path(settings.MEERTIME_DATA_DIR)
 
         # Create some test files and directories
-        (self.test_dir / "test_dir").mkdir()
+        (self.test_dir / "test_dir").mkdir(exist_ok=True)
         (self.test_dir / "test_dir" / "test_file.txt").write_text("test content")
 
     def tearDown(self):
         # Re-enable logging
         logging.disable(logging.NOTSET)
-        shutil.rmtree(self.test_dir)
 
     @override_settings(MEERTIME_DATA_DIR="/mnt/meertime_data")
     def test_get_file_list(self):
@@ -145,7 +144,7 @@ class FileUtilsTestCase(TestCase):
         """Test getting a recursive list of files"""
         # Create a nested directory structure
         nested_dir = self.test_dir / "test_dir" / "nested_dir"
-        nested_dir.mkdir(parents=True)
+        nested_dir.mkdir(parents=True, exist_ok=True)
         (nested_dir / "nested_file.txt").write_text("nested content")
 
         success, result = get_file_list("test_dir", recursive=True)
@@ -174,43 +173,46 @@ class FileUtilsTestCase(TestCase):
         self.assertEqual(response.content.decode(), "File not found: nonexistent.txt")
 
 
-class DownloadViewsTestCase(TestCase):
+class DownloadViewsTestCase(BaseTestCaseWithTempMedia):
     """Tests for the download views"""
 
-    def setUp(self):
-        # Suppress logging during tests
-        logging.disable(logging.CRITICAL)
-
-        # Create a temporary directory for testing
-        self.test_dir = Path(tempfile.mkdtemp())
-        settings.MEERTIME_DATA_DIR = str(self.test_dir)
-
+    @classmethod
+    def setUpTestData(cls):
+        """Set up test data once for all test methods in this class."""
         # Set up test data using setup_query_test
         (
             _,
-            self.unrestricted_user,
-            self.telescope,
-            self.project,
-            self.ephemeris,
-            self.template,
-            self.pipeline_run,
-            self.observation,
-            self.cal,
+            cls.unrestricted_user,
+            cls.telescope,
+            cls.project,
+            cls.ephemeris,
+            cls.template,
+            cls.pipeline_run,
+            cls.observation,
+            cls.cal,
         ) = setup_query_test()
 
         # Ensure the project's main_project is named "MeerTime" for filtering
-        if self.project.main_project:
-            self.project.main_project.name = "MeerTime"
-            self.project.main_project.save()
+        if cls.project.main_project:
+            cls.project.main_project.name = "MeerTime"
+            cls.project.main_project.save()
 
         # Ensure the user has unrestricted role for testing
-        self.unrestricted_user.role = UserRole.UNRESTRICTED.value
-        self.unrestricted_user.save()
+        cls.unrestricted_user.role = UserRole.UNRESTRICTED.value
+        cls.unrestricted_user.save()
 
         # Create a restricted user for testing permissions
-        self.restricted_user = get_user_model().objects.create_user(
+        cls.restricted_user = get_user_model().objects.create_user(
             username="restricted", email="restricted@example.com", password="secret", role=UserRole.RESTRICTED.value
         )
+
+    def setUp(self):
+        """Setup that runs before each test method."""
+        # Suppress logging during tests
+        logging.disable(logging.CRITICAL)
+
+        # Use the temp directory from the base class
+        self.test_dir = Path(settings.MEERTIME_DATA_DIR)
 
         # Create test files
         obs_dir = (
@@ -219,8 +221,8 @@ class DownloadViewsTestCase(TestCase):
             / self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
             / str(self.observation.beam)
         )
-        obs_dir.mkdir(parents=True)
-        (obs_dir / "decimated").mkdir()
+        obs_dir.mkdir(parents=True, exist_ok=True)
+        (obs_dir / "decimated").mkdir(exist_ok=True)
 
         self.full_res_file = (
             obs_dir
@@ -238,7 +240,6 @@ class DownloadViewsTestCase(TestCase):
     def tearDown(self):
         # Re-enable logging
         logging.disable(logging.NOTSET)
-        shutil.rmtree(self.test_dir)
 
     def test_download_observation_files_unauthorized(self):
         """Test downloading observation files without authentication"""
@@ -554,7 +555,7 @@ class DownloadViewsTestCase(TestCase):
             / unrestricted_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
             / str(unrestricted_obs.beam)
         )
-        obs_dir.mkdir(parents=True)
+        obs_dir.mkdir(parents=True, exist_ok=True)
         (obs_dir / "decimated").mkdir()
 
         unrestricted_full_res = (
@@ -702,7 +703,7 @@ class DownloadViewsTestCase(TestCase):
             / "timing"
             / self.project.short  # Add project folder
         )
-        obs_dir.mkdir(parents=True)
+        obs_dir.mkdir(parents=True, exist_ok=True)
         toas_file = (
             obs_dir
             / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
@@ -774,7 +775,7 @@ class DownloadViewsTestCase(TestCase):
             / "timing"
             / self.project.short  # Add project folder
         )
-        obs_dir.mkdir(parents=True)
+        obs_dir.mkdir(parents=True, exist_ok=True)
         toas_file = (
             obs_dir
             / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
@@ -837,7 +838,7 @@ class DownloadViewsTestCase(TestCase):
             / "timing"
             / self.project.short  # Add project folder
         )
-        obs_dir.mkdir(parents=True)
+        obs_dir.mkdir(parents=True, exist_ok=True)
         toas_file = (
             obs_dir
             / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
@@ -899,7 +900,7 @@ class DownloadViewsTestCase(TestCase):
             / "timing"
             / self.project.short  # Add project folder
         )
-        obs_dir.mkdir(parents=True)
+        obs_dir.mkdir(parents=True, exist_ok=True)
         toas_file = (
             obs_dir
             / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
@@ -987,7 +988,7 @@ class DownloadViewsTestCase(TestCase):
             / "timing"
             / self.project.short  # Add project folder
         )
-        obs_dir.mkdir(parents=True)
+        obs_dir.mkdir(parents=True, exist_ok=True)
         restricted_toas = (
             obs_dir
             / f"{self.observation.pulsar.name}_{self.observation.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
@@ -1020,7 +1021,7 @@ class DownloadViewsTestCase(TestCase):
             / "timing"
             / self.project.short  # Add project folder
         )
-        unrestricted_obs_dir.mkdir(parents=True)
+        unrestricted_obs_dir.mkdir(parents=True, exist_ok=True)
         unrestricted_toas = (
             unrestricted_obs_dir
             / f"{unrestricted_obs.pulsar.name}_{unrestricted_obs.utc_start.strftime('%Y-%m-%d-%H:%M:%S')}_zap_chopped.32ch_1p_1t.ar.tim"
