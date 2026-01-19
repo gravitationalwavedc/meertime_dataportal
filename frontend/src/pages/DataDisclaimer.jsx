@@ -154,6 +154,15 @@ const DataDisclaimer = () => {
                       MeerKAT clock correction files
                     </a>
                   </li>
+                  <li>
+                    <a
+                      href="https://github.com/Molonglo/UTMOST-NS_clock/tree/main"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Molonglo clock correction files
+                    </a>
+                  </li>
                 </ul>
               </div>
             </Card.Body>
