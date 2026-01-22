@@ -30,7 +30,7 @@ const DataUsage = () => {
                       MeerTime publications
                     </a>{" "}
                     (Publication numbers: all MeerTime projects: 1 and 3, TPA:
-                    2, GC: 9, RelBin: 8, PTA: 54.)
+                    2, GC: 9, RelBin: 8, PTA: 54, NGC1851E: 40.)
                   </li>
                   <li>
                     <a
