@@ -144,7 +144,8 @@ const DataDisclaimer = () => {
                     >
                       MeerKAT pulsar timing data processing summary
                     </a>
-                    <li>
+                  </li>
+                  <li>
                     <a
                       href="https://skaafrica.atlassian.net/wiki/spaces/ESDKB/pages/1591672833/User+Supplied+Equipment+USE#PTUSE"
                       target="_blank"
