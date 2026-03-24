@@ -1,5 +1,4 @@
 import logging
-import shutil
 import tempfile
 import zipfile
 from datetime import datetime, timedelta
@@ -9,7 +8,7 @@ from unittest import mock
 import pytz
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase, override_settings
+from django.test import override_settings
 from django.urls import reverse
 from freezegun import freeze_time
 

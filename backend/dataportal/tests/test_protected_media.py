@@ -1,20 +1,22 @@
-import tempfile
-import shutil
-import os
 import logging
-from pathlib import Path
+import os
 from datetime import timedelta
+from pathlib import Path
+
 from django.conf import settings
-from django.test import TestCase, Client, override_settings
 from django.contrib.auth import get_user_model
+from django.test import Client, override_settings
 from django.utils import timezone
+
 from dataportal.models import (
-    Pulsar,
-    Project as ProjectModel,
-    PulsarFoldResult,
     PipelineImage,
-    Template,
     ProjectMembership,
+    Pulsar,
+    PulsarFoldResult,
+    Template,
+)
+from dataportal.models import (
+    Project as ProjectModel,
 )
 from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import TEST_DATA_DIR, create_basic_data, create_observation_pipeline_run_toa
@@ -241,7 +243,7 @@ class ProtectedMediaTestCase(BaseTestCaseWithTempMedia):
     def test_high_and_low_resolution_accessible(self):
         """Test that both high and low resolution images are handled"""
         # High resolution already exists from setUp, test low resolution
-        img_path = f"MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-01-01-00:00:00/2/profile_low.png"
+        img_path = "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-01-01-00:00:00/2/profile_low.png"
         img_file = Path(settings.MEDIA_ROOT) / img_path
         img_file.write_bytes(b"fake low res data")
 
@@ -264,7 +266,7 @@ class ProtectedMediaTestCase(BaseTestCaseWithTempMedia):
     def test_cleaned_and_raw_accessible(self):
         """Test that both cleaned and raw images are handled"""
         # Cleaned=True already exists from setUp, test cleaned=False
-        img_path = f"MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-01-01-00:00:00/2/profile_raw.png"
+        img_path = "MeerKAT/SCI-20180516-MB-05/J0125-2327/2023-01-01-00:00:00/2/profile_raw.png"
         img_file = Path(settings.MEDIA_ROOT) / img_path
         img_file.write_bytes(b"fake raw data")
 
@@ -431,7 +433,7 @@ class ProtectedMediaTestCase(BaseTestCaseWithTempMedia):
     def test_multiple_projects_different_embargoes(self):
         """Test that different projects have independent embargo controls"""
         # Create another project with different embargo period
-        from dataportal.models import Project, MainProject
+        from dataportal.models import MainProject, Project
 
         main_project = MainProject.objects.first()
         project2 = Project.objects.create(

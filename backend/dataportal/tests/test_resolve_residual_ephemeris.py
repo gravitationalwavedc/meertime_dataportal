@@ -42,8 +42,6 @@ from dataportal.models import (
     ProjectMembership,
     Pulsar,
     PulsarFoldResult,
-    Telescope,
-    Template,
     Toa,
 )
 from dataportal.tests.test_base import BaseTestCaseWithTempMedia

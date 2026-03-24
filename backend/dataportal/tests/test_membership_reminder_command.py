@@ -1,6 +1,6 @@
+import logging
 from datetime import timedelta
 from io import StringIO
-import logging
 
 from django.contrib.auth import get_user_model
 from django.core import mail

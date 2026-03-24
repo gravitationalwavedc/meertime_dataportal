@@ -1,10 +1,10 @@
 import math
 from collections import Counter
-from datetime import datetime, timezone as dt_timezone
+from datetime import datetime
+from datetime import timezone as dt_timezone
 
 import graphene
 from astropy.time import Time
-from dateutil.relativedelta import relativedelta
 from django.db.models import Q, Subquery
 from django.template.defaultfilters import filesizeformat
 from django.utils import timezone

@@ -26,7 +26,6 @@ from graphql import GraphQLError
 
 from user_manage.models import User
 from utils.binary_phase import get_binary_phase, is_binary
-from utils.constants import UserRole
 from utils.ephemeris import parse_ephemeris_file
 from utils.observing_bands import get_band
 from utils.toa import toa_dict_to_line, toa_line_to_dict
@@ -265,7 +264,7 @@ class ProjectMembershipRequest(models.Model):
         try:
             request = cls.objects.create(user=user, project=project, message=message or "")
             return {"success": True, "request": request, "error": None}
-        except Exception as e:
+        except Exception:
             return {
                 "success": False,
                 "request": None,
