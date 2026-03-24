@@ -1075,7 +1075,8 @@ class DownloadViewsTestCase(BaseTestCaseWithTempMedia):
             # Extract the zip file
             with zipfile.ZipFile(zip_path, "r") as zip:
                 members = zip.namelist()
-                self.assertEqual(len(members), 2)  # One ToAs file + One .par Ephemeris file
+                # One ToAs file + One .par Ephemeris file + One .std Template file
+                self.assertEqual(len(members), 3)
 
                 # Check for the expected structure: timing/timestamp/beam/timing/project/filename
                 timestamp_dir = unrestricted_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")

@@ -31,8 +31,6 @@ class BaseTestCaseWithTempMedia(TestCase):
 
     @classmethod
     def setUpClass(cls):
-        super().setUpClass()
-
         # Create temporary directories for this test class
         cls._temp_media_dir = tempfile.TemporaryDirectory()
         cls._temp_meertime_data_dir = tempfile.TemporaryDirectory()
@@ -42,6 +40,8 @@ class BaseTestCaseWithTempMedia(TestCase):
             MEDIA_ROOT=cls._temp_media_dir.name, MEERTIME_DATA_DIR=cls._temp_meertime_data_dir.name
         )
         cls._settings_override.enable()
+
+        super().setUpClass()
 
     @classmethod
     def tearDownClass(cls):
