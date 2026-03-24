@@ -56,7 +56,8 @@ const DataDisclaimer = () => {
                     <strong>ToAs:</strong> for each observation of a pulsar the
                     user has access to, all the (32 channel, 1 polarisation, 1
                     subintegration) Times of Arrival produced by projects the
-                    user has access to for that date.
+                    user has access to for that date, along with the timing
+                    ephemeris and template used to produce them.
                   </li>
                 </ul>
               </div>
