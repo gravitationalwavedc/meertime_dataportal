@@ -1,12 +1,11 @@
 from graphene import ObjectType, relay
 from graphene_django import DjangoObjectType
-from graphql import GraphQLError
+
+from dataportal.models import ProjectMembership, ProjectMembershipRequest
 from user_manage.graphql.decorators import login_required
-from dataportal.models import ProjectMembershipRequest, ProjectMembership
 
 
 class ProjectMembershipRequestNode(DjangoObjectType):
-
     class Meta:
         model = ProjectMembershipRequest
         interfaces = (relay.Node,)
@@ -14,7 +13,6 @@ class ProjectMembershipRequestNode(DjangoObjectType):
 
 
 class ProjectMembershipNode(DjangoObjectType):
-
     class Meta:
         model = ProjectMembership
         interfaces = (relay.Node,)
@@ -22,13 +20,11 @@ class ProjectMembershipNode(DjangoObjectType):
 
 
 class ProjectMembershipRequestConnection(relay.Connection):
-
     class Meta:
         node = ProjectMembershipRequestNode
 
 
 class ProjectMembershipConnection(relay.Connection):
-
     class Meta:
         node = ProjectMembershipNode
 

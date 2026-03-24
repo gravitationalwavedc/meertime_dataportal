@@ -1,4 +1,3 @@
-import datetime
 from uuid import UUID
 
 import django.contrib.auth

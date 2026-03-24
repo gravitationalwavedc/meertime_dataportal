@@ -1,12 +1,10 @@
-import os
-from pathlib import Path
-from datetime import datetime, timezone
 import logging
+from datetime import datetime, timezone
+from pathlib import Path
 
 from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
-from django.utils import timezone as django_timezone
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET
@@ -15,9 +13,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from sentry_sdk import last_event_id
 from zipstream import ZipStream
-import logging
 
-from .file_utils import get_file_list, get_file_path, serve_file
+from .file_utils import serve_file
 from .models import (
     Observation,
     PipelineImage,

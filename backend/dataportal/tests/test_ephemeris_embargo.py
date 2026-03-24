@@ -25,7 +25,6 @@ from datetime import datetime, timedelta
 
 import pytz
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
 from django.utils import timezone
 from graphene_django.utils.testing import GraphQLTestCase
 from graphql_relay import from_global_id
@@ -40,8 +39,6 @@ from dataportal.models import (
     ProjectMembership,
     Pulsar,
     PulsarFoldResult,
-    Telescope,
-    Template,
     Toa,
 )
 from dataportal.tests.test_base import BaseTestCaseWithTempMedia

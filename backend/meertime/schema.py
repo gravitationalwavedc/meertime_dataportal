@@ -1,8 +1,8 @@
 import graphene
 
 from dataportal.graphql import mutations as dataportal_mutations
-from dataportal.graphql import queries as dataportal_queries
 from dataportal.graphql import project_membership_queries
+from dataportal.graphql import queries as dataportal_queries
 from user_manage.graphql import mutations as user_manage_mutations
 from user_manage.graphql import queries as user_manage_queries
 

@@ -1,12 +1,13 @@
 import graphene
 from django.contrib.auth import get_user_model
+from graphql_relay import from_global_id
+
 from dataportal.emails import (
+    send_membership_approval_email,
     send_membership_rejection_email,
     send_membership_request_email,
-    send_membership_approval_email,
 )
-from dataportal.models import ProjectMembershipRequest, Project, ProjectMembership
-from graphql_relay import from_global_id
+from dataportal.models import Project, ProjectMembership, ProjectMembershipRequest
 from user_manage.graphql.decorators import login_required
 
 User = get_user_model()
@@ -107,7 +108,6 @@ class ApproveProjectMembershipRequestInput(graphene.InputObjectType):
 
 
 class ApproveProjectMembershipRequest(graphene.Mutation):
-
     class Arguments:
         input = ApproveProjectMembershipRequestInput(required=True)
 
@@ -167,7 +167,6 @@ class RejectProjectMembershipRequestInput(graphene.InputObjectType):
 
 
 class RejectProjectMembershipRequest(graphene.Mutation):
-
     class Arguments:
         input = RejectProjectMembershipRequestInput(required=True)
 
@@ -176,7 +175,6 @@ class RejectProjectMembershipRequest(graphene.Mutation):
 
     @login_required
     def mutate(root, info, input):
-
         model_type, membership_request_id = from_global_id(input.project_membership_request_id)
 
         if model_type != "ProjectMembershipRequestNode":
@@ -231,7 +229,6 @@ class LeaveProjectInput(graphene.InputObjectType):
 
 
 class LeaveProject(graphene.Mutation):
-
     class Arguments:
         input = LeaveProjectInput(required=True)
 

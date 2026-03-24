@@ -1,12 +1,11 @@
-from datetime import datetime, timedelta
 import os
+from datetime import datetime, timedelta
 
 import pytz
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 
 from dataportal.models import (
-    Observation,
     Project,
     ProjectMembership,
 )
