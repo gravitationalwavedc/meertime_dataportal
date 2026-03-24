@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { graphql, useFragment } from "react-relay";
 import { columnsSizeFilter, kronosLink } from "../helpers";
 import Button from "react-bootstrap/Button";
@@ -10,16 +10,16 @@ import { useScreenSize } from "../context/screenSize-context";
 const SearchDetailTableFragment = graphql`
   fragment SearchDetailTableFragment on Query
   @argumentDefinitions(
-    jname: { type: "String", defaultValue: "All" }
+    jname: { type: "String", defaultValue: "" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
   ) {
     observationSummary(
       pulsar_Name: $jname
       obsType: "search"
-      calibration_Id: "All"
+      calibration_Id: ""
       mainProject: $mainProject
-      project_Short: "All"
-      band: "All"
+      project_Short: ""
+      band: ""
     ) {
       edges {
         node {
@@ -59,17 +59,35 @@ const SearchDetailTableFragment = graphql`
   }
 `;
 
-const SearchDetailTable = ({ data, jname, mainProject }) => {
+const formatCoordinate = (value, decimals = 2) => {
+  if (!value) return value;
+  const parts = String(value).split(":");
+  if (parts.length !== 3) return value;
+
+  const seconds = Number(parts[2]);
+  if (Number.isNaN(seconds)) return value;
+
+  return `${parts[0]}:${parts[1]}:${seconds.toFixed(decimals)}`;
+};
+
+const SearchDetailTable = ({ data, jname }) => {
   const { screenSize } = useScreenSize();
   const relayData = useFragment(SearchDetailTableFragment, data);
-  const allRows = relayData.observation.edges.reduce(
-    (result, edge) => [
+  const allRows = relayData.observation.edges.reduce((result, edge) => {
+    const formattedRa = formatCoordinate(edge.node.raj);
+    const formattedDec = formatCoordinate(edge.node.decj);
+
+    return [
       ...result,
       {
         ...edge.node,
         key: `${edge.node.utcStart}:${edge.node.beam}`,
         jname: jname,
         utc: formatUTC(edge.node.utcStart),
+        raj: formattedRa,
+        decj: formattedDec,
+        ra: formattedRa,
+        dec: formattedDec,
         action: (
           <Button
             href={kronosLink(
@@ -85,9 +103,8 @@ const SearchDetailTable = ({ data, jname, mainProject }) => {
           </Button>
         ),
       },
-    ],
-    []
-  );
+    ];
+  }, []);
 
   const [rows, setRows] = useState(allRows);
 

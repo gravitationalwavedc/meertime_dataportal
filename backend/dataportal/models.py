@@ -82,6 +82,9 @@ class Telescope(models.Model):
     def __str__(self):
         return f"{self.name}"
 
+    class Meta:
+        ordering = ["id"]
+
 
 class MainProject(Model):
     """
@@ -108,15 +111,6 @@ class Project(models.Model):
 
     def __str__(self):
         return f"{self.code}_{self.short}"
-
-    @classmethod
-    def get_query(cls, **kwargs):
-        if "code" in kwargs:
-            if kwargs["code"] == "All":
-                kwargs.pop("code")
-            else:
-                kwargs["code"] = kwargs.pop("code")
-        return cls.objects.filter(**kwargs)
 
     def can_edit(self, user):
         """Check if a user can edit the project"""
@@ -774,6 +768,9 @@ class ObservationSummary(Model):
             new_observation_summary.max_duration
             new_observation_summary.save()
         return new_observation_summary, created
+
+    class Meta:
+        ordering = ["id"]
 
 
 class PipelineRun(Model):

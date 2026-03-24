@@ -1,6 +1,8 @@
 import { aliasMutation, aliasQuery } from "../utils/graphql-test-utils";
 
 describe("Token Management Page", () => {
+  const expectedFutureExpiryDate = new Date("2025-12-31T23:59:59Z").toLocaleDateString();
+
   beforeEach(() => {
     // Freeze time to May 28, 2025 to ensure tests don't fail based on real calendar dates
     cy.clock(new Date("2025-05-28T12:00:00Z").getTime(), ["Date"]);
@@ -389,8 +391,8 @@ describe("Token Management Page", () => {
     
     // Check future expiry date (Web Interface Token - expires 2025-12-31)
     cy.get("tbody tr").contains("Web Interface Token").parent().within(() => {
-      // Should show formatted date for future expiry
-      cy.get("td").eq(4).should("contain", "12/31/2025");
+      // Should show locale/timezone formatted future expiry date
+      cy.get("td").eq(4).should("contain", expectedFutureExpiryDate);
     });
     
     // Check never expires (CLI Token - expiresAt: null)
@@ -472,7 +474,7 @@ describe("Token Management Page", () => {
     
     // Verify future expiry token shows formatted date
     cy.get("tbody tr").contains("Future Expiry Token").parent().within(() => {
-      cy.get("td").eq(4).should("contain", "12/31/2025");
+      cy.get("td").eq(4).should("contain", expectedFutureExpiryDate);
       cy.get("td").eq(4).should("not.contain", "Expired");
     });
     

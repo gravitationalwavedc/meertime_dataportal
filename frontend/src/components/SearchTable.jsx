@@ -1,6 +1,11 @@
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import { columnsSizeFilter, formatUTC, kronosLink } from "../helpers";
+import {
+  columnsSizeFilter,
+  formatUTC,
+  kronosLink,
+  toApiFilter,
+} from "../helpers";
 import { graphql, useRefetchableFragment } from "react-relay";
 import DataView from "./DataView";
 import { Link } from "found";
@@ -11,16 +16,16 @@ const searchTableQuery = graphql`
   fragment SearchTable_data on Query
   @refetchable(queryName: "SearchTableQuery")
   @argumentDefinitions(
-    pulsar: { type: "String", defaultValue: "All" }
-    mainProject: { type: "String", defaultValue: "All" }
-    project: { type: "String", defaultValue: "All" }
-    band: { type: "String", defaultValue: "All" }
+    pulsar: { type: "String", defaultValue: "" }
+    mainProject: { type: "String", defaultValue: "" }
+    project: { type: "String", defaultValue: "" }
+    band: { type: "String", defaultValue: "" }
     obsType: { type: "String", defaultValue: "search" }
   ) {
     observationSummary(
       pulsar_Name: $pulsar
       obsType: $obsType
-      calibration_Id: "All"
+      calibration_Id: ""
       mainProject: $mainProject
       project_Short: $project
       band: $band
@@ -62,12 +67,16 @@ const SearchTable = ({ data }) => {
     data
   );
   const { screenSize } = useScreenSize();
-  const [mainProject, setMainProject] = useState("All");
-  const [project, setProject] = useState("All");
-  const [band, setBand] = useState("All");
+  const [mainProject, setMainProject] = useState("");
+  const [project, setProject] = useState("");
+  const [band, setBand] = useState("");
 
   useEffect(() => {
-    refetch({ mainProject: mainProject, project: project, band: band });
+    refetch({
+      mainProject: toApiFilter(mainProject),
+      project: toApiFilter(project),
+      band: toApiFilter(band),
+    });
   }, [band, mainProject, project, refetch]);
 
   const rows = fragmentData.pulsarSearchSummary.edges.reduce((result, edge) => {
@@ -78,7 +87,7 @@ const SearchTable = ({ data }) => {
     row.action = (
       <ButtonGroup vertical>
         <Link
-          to={`/search/${mainProject}/${row.pulsar.name}/`}
+          to={`/search/${mainProject || "All"}/${row.pulsar.name}/`}
           size="sm"
           variant="outline-secondary"
           as={Button}

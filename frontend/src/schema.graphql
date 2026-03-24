@@ -22,22 +22,22 @@ type Query {
 
   """Get files for a pulsar"""
   filePulsarList(mainProject: String!, jname: String!, before: String, after: String, first: Int, last: Int): FileConnection
-  pulsar(name: String, before: String, after: String, first: Int, last: Int): PulsarConnection
-  telescope(before: String, after: String, first: Int, last: Int): TelescopeConnection
-  mainProject(name: String!, before: String, after: String, first: Int, last: Int): MainProjectConnection
-  project(code: String, before: String, after: String, first: Int, last: Int): ProjectConnection
-  ephemeris(before: String, after: String, first: Int, last: Int): EphemerisConnection
-  template(before: String, after: String, first: Int, last: Int): TemplateConnection
-  calibration(id: Int, before: String, after: String, first: Int, last: Int): CalibrationConnection
-  observation(pulsar_Name: [String], telescope_Name: String, mainProject: String, project_Id: Int, project_Short: String, utcStartGte: String, utcStartLte: String, obsType: String, unprocessed: Boolean, incomplete: Boolean, before: String, after: String, first: Int, last: Int): ObservationConnection
-  observationSummary(pulsar_Name: String, mainProject: String, project_Id: Int, project_Short: String, calibration_Id: String, calibrationInt: Int, obsType: String, band: String, before: String, after: String, first: Int, last: Int): ObservationSummaryConnection
-  pipelineRun(id: Int, before: String, after: String, first: Int, last: Int): PipelineRunConnection
-  pulsarFoldResult(pulsar: String, mainProject: String, utcStart: String, beam: Int, excludeBadges: [String], minimumSNR: Float, utcStartGte: String, utcStartLte: String, before: String, after: String, first: Int, last: Int): PulsarFoldResultConnection
-  pulsarFoldSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarFoldSummaryConnection
-  pulsarSearchSummary(mainProject: String, mostCommonProject: String, project: String, band: String, before: String, after: String, first: Int, last: Int): PulsarSearchSummaryConnection
-  pipelineImage(before: String, after: String, first: Int, last: Int): PipelineImageConnection
-  toa(pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, nsubType: String, obsNchan: Int, obsNpol: Int, excludeBadges: [String], minimumSNR: Float, utcStartGte: String, utcStartLte: String, before: String, after: String, first: Int, last: Int): ToaConnection
-  badge(before: String, after: String, first: Int, last: Int): BadgeConnection
+  pulsar(offset: Int, before: String, after: String, first: Int, last: Int, name: String): PulsarNodeConnection
+  telescope(offset: Int, before: String, after: String, first: Int, last: Int, name: String): TelescopeNodeConnection
+  mainProject(offset: Int, before: String, after: String, first: Int, last: Int, telescope: ID, name: String): MainProjectNodeConnection
+  project(offset: Int, before: String, after: String, first: Int, last: Int, mainProject: ID, code: String, short: String, embargoPeriod: Float, description: String): ProjectNodeConnection
+  ephemeris(offset: Int, before: String, after: String, first: Int, last: Int, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String): EphemerisNodeConnection
+  template(offset: Int, before: String, after: String, first: Int, last: Int, band: DataportalTemplateBandChoices, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, templateHash: String): TemplateNodeConnection
+  calibration(offset: Int, before: String, after: String, first: Int, last: Int, id: Int): CalibrationNodeConnection
+  observation(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Name: [String], telescope_Name: String, mainProject: String, project_Id: Int, project_Short: String, utcStartGte: String, utcStartLte: String, obsType: String, unprocessed: Boolean, incomplete: Boolean): ObservationNodeConnection
+  observationSummary(offset: Int, before: String, after: String, first: Int, last: Int, pulsar_Name: String, mainProject: String, project_Id: Int, project_Short: String, calibration_Id: String, calibrationInt: Int, obsType: String, band: String): ObservationSummaryNodeConnection
+  pipelineRun(offset: Int, before: String, after: String, first: Int, last: Int, id: ID, observation_Id: ID, ephemeris_Id: ID, template_Id: ID, pipelineName: String, pipelineDescription: String, pipelineVersion: String, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, jobState: DataportalPipelineRunJobStateChoices, location: String, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, dmErr: Float, dmErr_Lt: Float, dmErr_Lte: Float, dmErr_Gt: Float, dmErr_Gte: Float, dmEpoch: Float, dmEpoch_Lt: Float, dmEpoch_Lte: Float, dmEpoch_Gt: Float, dmEpoch_Gte: Float, dmChi2r: Float, dmChi2r_Lt: Float, dmChi2r_Lte: Float, dmChi2r_Gt: Float, dmChi2r_Gte: Float, dmTres: Float, dmTres_Lt: Float, dmTres_Lte: Float, dmTres_Gt: Float, dmTres_Gte: Float, sn: Float, sn_Lt: Float, sn_Lte: Float, sn_Gt: Float, sn_Gte: Float, flux: Float, flux_Lt: Float, flux_Lte: Float, flux_Gt: Float, flux_Gte: Float, rm: Float, rm_Lt: Float, rm_Lte: Float, rm_Gt: Float, rm_Gte: Float, percentRfiZapped: Float, percentRfiZapped_Lt: Float, percentRfiZapped_Lte: Float, percentRfiZapped_Gt: Float, percentRfiZapped_Gte: Float): PipelineRunNodeConnection
+  pulsarFoldResult(offset: Int, before: String, after: String, first: Int, last: Int, pulsar: String, mainProject: String, utcStart: String, beam: Int, excludeBadges: [String], minimumSNR: Float, utcStartGte: String, utcStartLte: String): PulsarFoldResultNodeConnection
+  pulsarFoldSummary(offset: Int, before: String, after: String, first: Int, last: Int, mainProject: String, mostCommonProject: String, project: String, band: String): PulsarFoldSummaryNodeConnection
+  pulsarSearchSummary(offset: Int, before: String, after: String, first: Int, last: Int, mainProject: String, mostCommonProject: String, project: String, band: String): PulsarSearchSummaryNodeConnection
+  pipelineImage(offset: Int, before: String, after: String, first: Int, last: Int, pulsarFoldResult_Id: ID, url: String, url_Icontains: String, cleaned: Boolean, imageType: DataportalPipelineImageImageTypeChoices, resolution: DataportalPipelineImageResolutionChoices): PipelineImageNodeConnection
+  toa(offset: Int, before: String, after: String, first: Int, last: Int, pipelineRunId: Int, pulsar: String, mainProject: String, projectShort: String, dmCorrected: Boolean, nsubType: String, obsNchan: Int, obsNpol: Int, excludeBadges: [String], minimumSNR: Float, utcStartGte: String, utcStartLte: String): ToaNodeConnection
+  badge(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String, description_Icontains: String): BadgeNodeConnection
 }
 
 type ProjectMembershipRequestNode implements Node {
@@ -546,16 +546,16 @@ type FileNode implements Node {
   isDirectory: Boolean
 }
 
-type PulsarConnection {
+type PulsarNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [PulsarEdge]!
+  edges: [PulsarNodeEdge]!
 }
 
-"""A Relay edge containing a `Pulsar` and its cursor."""
-type PulsarEdge {
+"""A Relay edge containing a `PulsarNode` and its cursor."""
+type PulsarNodeEdge {
   """The item at the end of the edge"""
   node: PulsarNode
 
@@ -563,16 +563,16 @@ type PulsarEdge {
   cursor: String!
 }
 
-type TelescopeConnection {
+type TelescopeNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [TelescopeEdge]!
+  edges: [TelescopeNodeEdge]!
 }
 
-"""A Relay edge containing a `Telescope` and its cursor."""
-type TelescopeEdge {
+"""A Relay edge containing a `TelescopeNode` and its cursor."""
+type TelescopeNodeEdge {
   """The item at the end of the edge"""
   node: TelescopeNode
 
@@ -580,16 +580,16 @@ type TelescopeEdge {
   cursor: String!
 }
 
-type MainProjectConnection {
+type MainProjectNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [MainProjectEdge]!
+  edges: [MainProjectNodeEdge]!
 }
 
-"""A Relay edge containing a `MainProject` and its cursor."""
-type MainProjectEdge {
+"""A Relay edge containing a `MainProjectNode` and its cursor."""
+type MainProjectNodeEdge {
   """The item at the end of the edge"""
   node: MainProjectNode
 
@@ -597,16 +597,16 @@ type MainProjectEdge {
   cursor: String!
 }
 
-type ProjectConnection {
+type ProjectNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [ProjectEdge]!
+  edges: [ProjectNodeEdge]!
 }
 
-"""A Relay edge containing a `Project` and its cursor."""
-type ProjectEdge {
+"""A Relay edge containing a `ProjectNode` and its cursor."""
+type ProjectNodeEdge {
   """The item at the end of the edge"""
   node: ProjectNode
 
@@ -614,50 +614,16 @@ type ProjectEdge {
   cursor: String!
 }
 
-type EphemerisConnection {
+type CalibrationNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [EphemerisEdge]!
+  edges: [CalibrationNodeEdge]!
 }
 
-"""A Relay edge containing a `Ephemeris` and its cursor."""
-type EphemerisEdge {
-  """The item at the end of the edge"""
-  node: EphemerisNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type TemplateConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [TemplateEdge]!
-}
-
-"""A Relay edge containing a `Template` and its cursor."""
-type TemplateEdge {
-  """The item at the end of the edge"""
-  node: TemplateNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type CalibrationConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [CalibrationEdge]!
-}
-
-"""A Relay edge containing a `Calibration` and its cursor."""
-type CalibrationEdge {
+"""A Relay edge containing a `CalibrationNode` and its cursor."""
+type CalibrationNodeEdge {
   """The item at the end of the edge"""
   node: CalibrationNode
 
@@ -676,7 +642,7 @@ type CalibrationNode implements Node {
   nAntMin: Int
   nAntMax: Int
   totalIntegrationTimeSeconds: Float
-  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
+  badges(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String, description_Icontains: String): BadgeNodeConnection!
   observations(offset: Int, before: String, after: String, first: Int, last: Int, utcStart: DateTime, utcStart_Isnull: Boolean, utcStart_Lt: DateTime, utcStart_Lte: DateTime, utcStart_Gt: DateTime, utcStart_Gte: DateTime, utcStart_Month: DateTime, utcStart_Year: DateTime, utcStart_Date: DateTime, duration: Float, duration_Lt: Float, duration_Lte: Float, duration_Gt: Float, duration_Gte: Float, telescope_Id: ID, telescope_Name: String, pulsar_Id: ID, pulsar_Name: String, project_Id: ID, project_Short: String): ObservationNodeConnection!
 
   """The ID of the object"""
@@ -727,6 +693,10 @@ type ObservationNodeConnection {
 
   """Contains the nodes in this connection."""
   edges: [ObservationNodeEdge]!
+  totalObservations: Int
+  totalObservationHours: Int
+  totalPulsars: Int
+  totalObservationsTelLt35: Int
 }
 
 """A Relay edge containing a `ObservationNode` and its cursor."""
@@ -770,7 +740,7 @@ type ObservationNode implements Node {
   filterbankNchan: Int
   filterbankTsamp: Float
   filterbankDm: Float
-  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
+  badges(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String, description_Icontains: String): BadgeNodeConnection!
   pulsarFoldResults(offset: Int, before: String, after: String, first: Int, last: Int, observation: ID, pipelineRun: ID, pulsar: ID): PulsarFoldResultNodeConnection!
   toas(offset: Int, before: String, after: String, first: Int, last: Int, dmCorrected: Boolean, nsubType: String, obsNchan: Int): ToaNodeConnection!
 
@@ -828,6 +798,26 @@ type PulsarFoldResultNodeConnection {
 
   """Contains the nodes in this connection."""
   edges: [PulsarFoldResultNodeEdge]!
+  totalObservationHours: Int
+  totalEstimatedDiskSpace: String
+  totalProjects: Int
+  totalTimespanDays: Int
+  totalObservations: Int
+  totalToa(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "", nsubType: String = "1"): Int
+  maxPlotLength: Int
+  minPlotLength: Int
+  description: String
+  foldingEphemeris: EphemerisNode
+  foldingEphemerisIsEmbargoed: Boolean
+  foldingEphemerisExistsButInaccessible: Boolean
+  foldingTemplate: TemplateNode
+  foldingTemplateIsEmbargoed: Boolean
+  foldingTemplateExistsButInaccessible: Boolean
+  toasLink: String
+  allProjects: [String]
+  mostCommonProject: String
+  allNchans: [Int]
+  timingResidualPlotData(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "", nsubType: String = "1", obsNchan: Int = 32, excludeBadges: [String] = [], minimumSNR: Float = 8, dmCorrected: Boolean = false): [TimingResidualPlotDataType]
 }
 
 """A Relay edge containing a `PulsarFoldResultNode` and its cursor."""
@@ -843,7 +833,7 @@ type PulsarFoldResultNode implements Node {
   observation: ObservationNode
   pipelineRun: PipelineRunNode
   pulsar: PulsarNode!
-  images(offset: Int, before: String, after: String, first: Int, last: Int): PipelineImageNodeConnection!
+  images(offset: Int, before: String, after: String, first: Int, last: Int, pulsarFoldResult_Id: ID, url: String, url_Icontains: String, cleaned: Boolean, imageType: DataportalPipelineImageImageTypeChoices, resolution: DataportalPipelineImageResolutionChoices): PipelineImageNodeConnection!
 
   """The ID of the object"""
   id: ID!
@@ -875,7 +865,7 @@ type PipelineRunNode implements Node {
   rm: Float
   rmErr: Float
   percentRfiZapped: Float
-  badges(offset: Int, before: String, after: String, first: Int, last: Int): BadgeNodeConnection!
+  badges(offset: Int, before: String, after: String, first: Int, last: Int, name: String, name_Icontains: String, description_Icontains: String): BadgeNodeConnection!
 
   """The ID of the object"""
   id: ID!
@@ -974,12 +964,27 @@ enum DataportalPipelineImageResolutionChoices {
   LOW
 }
 
+type TimingResidualPlotDataType {
+  day: Float
+  size: Float
+  band: String
+  error: Float
+  link: String
+  phase: Float
+  snr: Float
+  utc: Float
+  value: Float
+}
+
 type ToaNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
   edges: [ToaNodeEdge]!
+  allProjects: [String]
+  allNchans: [Int]
+  totalBadgeExcludedToas: Int
 }
 
 """A Relay edge containing a `ToaNode` and its cursor."""
@@ -1034,43 +1039,16 @@ type ToaNode implements Node {
 """The `Decimal` scalar type represents a python Decimal."""
 scalar Decimal
 
-type ObservationConnection {
+type ObservationSummaryNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [ObservationEdge]!
-  pulsar_Name: [String]
-  telescope_Name: String
-  project_Id: Int
-  project_Short: String
-  utcStartGte: DateTime
-  utcStartLte: DateTime
-  totalObservations: Int
-  totalObservationHours: Int
-  totalPulsars: Int
-  totalObservationsTelLt35: Int
+  edges: [ObservationSummaryNodeEdge]!
 }
 
-"""A Relay edge containing a `Observation` and its cursor."""
-type ObservationEdge {
-  """The item at the end of the edge"""
-  node: ObservationNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type ObservationSummaryConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [ObservationSummaryEdge]!
-}
-
-"""A Relay edge containing a `ObservationSummary` and its cursor."""
-type ObservationSummaryEdge {
+"""A Relay edge containing a `ObservationSummaryNode` and its cursor."""
+type ObservationSummaryNodeEdge {
   """The item at the end of the edge"""
   node: ObservationSummaryNode
 
@@ -1140,16 +1118,16 @@ enum DataportalObservationSummaryBandChoices {
   UHF_NS
 }
 
-type PipelineRunConnection {
+type PipelineRunNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [PipelineRunEdge]!
+  edges: [PipelineRunNodeEdge]!
 }
 
-"""A Relay edge containing a `PipelineRun` and its cursor."""
-type PipelineRunEdge {
+"""A Relay edge containing a `PipelineRunNode` and its cursor."""
+type PipelineRunNodeEdge {
   """The item at the end of the edge"""
   node: PipelineRunNode
 
@@ -1157,69 +1135,20 @@ type PipelineRunEdge {
   cursor: String!
 }
 
-type PulsarFoldResultConnection {
+type PulsarFoldSummaryNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [PulsarFoldResultEdge]!
-  totalObservationHours: Int
-  totalEstimatedDiskSpace: String
-  totalProjects: Int
-  totalTimespanDays: Int
-  totalObservations: Int
-  totalToa(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1"): Int
-  maxPlotLength: Int
-  minPlotLength: Int
-  description: String
-  foldingEphemeris: EphemerisNode
-  foldingEphemerisIsEmbargoed: Boolean
-  foldingEphemerisExistsButInaccessible: Boolean
-  foldingTemplate: TemplateNode
-  foldingTemplateIsEmbargoed: Boolean
-  foldingTemplateExistsButInaccessible: Boolean
-  toasLink: String
-  allProjects: [String]
-  mostCommonProject: String
-  allNchans: [Int]
-  timingResidualPlotData(pulsar: String!, mainProject: String = "Meertime", projectShort: String = "All", nsubType: String = "1", obsNchan: Int = 32, excludeBadges: [String] = [], minimumSNR: Float = 8, dmCorrected: Boolean = false): [TimingResidualPlotDataType]
-}
-
-"""A Relay edge containing a `PulsarFoldResult` and its cursor."""
-type PulsarFoldResultEdge {
-  """The item at the end of the edge"""
-  node: PulsarFoldResultNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type TimingResidualPlotDataType {
-  day: Float
-  size: Float
-  band: String
-  error: Float
-  link: String
-  phase: Float
-  snr: Float
-  utc: Float
-  value: Float
-}
-
-type PulsarFoldSummaryConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [PulsarFoldSummaryEdge]!
+  edges: [PulsarFoldSummaryNodeEdge]!
   totalObservations: Int
   totalPulsars: Int
   totalObservationTime: Float
   totalProjectTime: Int
 }
 
-"""A Relay edge containing a `PulsarFoldSummary` and its cursor."""
-type PulsarFoldSummaryEdge {
+"""A Relay edge containing a `PulsarFoldSummaryNode` and its cursor."""
+type PulsarFoldSummaryNodeEdge {
   """The item at the end of the edge"""
   node: PulsarFoldSummaryNode
 
@@ -1250,20 +1179,20 @@ type PulsarFoldSummaryNode implements Node {
   id: ID!
 }
 
-type PulsarSearchSummaryConnection {
+type PulsarSearchSummaryNodeConnection {
   """Pagination data for this connection."""
   pageInfo: PageInfo!
 
   """Contains the nodes in this connection."""
-  edges: [PulsarSearchSummaryEdge]!
+  edges: [PulsarSearchSummaryNodeEdge]!
   totalObservations: Int
   totalPulsars: Int
   totalObservationTime: Float
   totalProjectTime: Int
 }
 
-"""A Relay edge containing a `PulsarSearchSummary` and its cursor."""
-type PulsarSearchSummaryEdge {
+"""A Relay edge containing a `PulsarSearchSummaryNode` and its cursor."""
+type PulsarSearchSummaryNodeEdge {
   """The item at the end of the edge"""
   node: PulsarSearchSummaryNode
 
@@ -1286,60 +1215,6 @@ type PulsarSearchSummaryNode implements Node {
 
   """The ID of the object"""
   id: ID!
-}
-
-type PipelineImageConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [PipelineImageEdge]!
-}
-
-"""A Relay edge containing a `PipelineImage` and its cursor."""
-type PipelineImageEdge {
-  """The item at the end of the edge"""
-  node: PipelineImageNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type ToaConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [ToaEdge]!
-  allProjects: [String]
-  allNchans: [Int]
-  totalBadgeExcludedToas: Int
-}
-
-"""A Relay edge containing a `Toa` and its cursor."""
-type ToaEdge {
-  """The item at the end of the edge"""
-  node: ToaNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
-}
-
-type BadgeConnection {
-  """Pagination data for this connection."""
-  pageInfo: PageInfo!
-
-  """Contains the nodes in this connection."""
-  edges: [BadgeEdge]!
-}
-
-"""A Relay edge containing a `Badge` and its cursor."""
-type BadgeEdge {
-  """The item at the end of the edge"""
-  node: BadgeNode
-
-  """A cursor for use in pagination"""
-  cursor: String!
 }
 
 type Mutation {

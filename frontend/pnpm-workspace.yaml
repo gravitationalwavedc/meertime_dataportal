@@ -1,0 +1,8 @@
+packages:
+  - "."
+
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - cypress
+  - es5-ext
+  - esbuild

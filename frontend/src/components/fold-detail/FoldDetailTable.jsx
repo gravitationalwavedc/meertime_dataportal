@@ -162,7 +162,7 @@ const FoldDetailTable = ({ tableData, mainProject, jname }) => {
   };
 
   // These columns are displayed as information in the first column
-  const infoHeaders = ["timestamp", "project", "beam", "badges"];
+  const infoColumnIds = ["timestamp", "project", "beam"];
 
   return (
     <>
@@ -319,9 +319,7 @@ const FoldDetailTable = ({ tableData, mainProject, jname }) => {
               </td>
               {row
                 .getVisibleCells()
-                .filter(
-                  (cell) => !infoHeaders.includes(cell.column.columnDef.header)
-                )
+                .filter((cell) => !infoColumnIds.includes(cell.column.id))
                 .map((cell) => (
                   <td key={cell.id}>
                     <Col className="overline">
