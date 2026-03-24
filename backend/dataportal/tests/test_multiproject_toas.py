@@ -199,8 +199,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have 2 files per project (ToA, .par) - Template is skipped if missing on disk
-                self.assertEqual(len(members), 6)
+                # All 3 projects * 3 files = 9 files Total
+                self.assertEqual(len(members), 9)
                 # Check all projects are represented
                 self.assertTrue(any(self.project1.short in m for m in members))
                 self.assertTrue(any(self.project2.short in m for m in members))
@@ -241,8 +241,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have 2 projects * 2 files = 4 files
-                self.assertEqual(len(members), 4)
+                # Should have 2 projects * 3 files = 6 files
+                self.assertEqual(len(members), 6)
                 # Check correct projects are represented
                 self.assertTrue(any(self.project1.short in m for m in members))
                 self.assertTrue(any(self.project2.short in m for m in members))
@@ -331,8 +331,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # All 3 projects * 2 files = 6 files
-                self.assertEqual(len(members), 6)
+                # All 3 projects * 3 files = 9 files
+                self.assertEqual(len(members), 9)
                 # All projects should be present
                 self.assertTrue(any(self.project1.short in m for m in members))
                 self.assertTrue(any(self.project2.short in m for m in members))
@@ -510,8 +510,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have 4 ToA files * 2 = 8 files
-                self.assertEqual(len(members), 8)
+                # Should have 4 ToA files * 3 = 12 files
+                self.assertEqual(len(members), 12)
                 # Check nested structure: timing/{timestamp}/{beam}/timing/{project}/{filename}
                 obs1_timestamp = self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                 obs2_timestamp = obs2.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
@@ -617,8 +617,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have only 1 ToA * 2 files
-                self.assertEqual(len(members), 2)
+                # Should have only 1 ToA * 3 files
+                self.assertEqual(len(members), 3)
                 # Verify it's the MeerTime observation, not Molonglo
                 meertime_timestamp = self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                 molonglo_timestamp = molonglo_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
@@ -682,8 +682,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have only 1 ToA * 2 files
-                self.assertEqual(len(members), 2)
+                # Should have only 1 ToA * 3 files
+                self.assertEqual(len(members), 3)
                 # Verify it's the fold observation, not search
                 fold_timestamp = self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                 search_timestamp = search_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
@@ -755,7 +755,7 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # 1 project * 2 files = 2 files Total
-                self.assertEqual(len(members), 2)
+                # 1 project * 3 files = 3 files Total
+                self.assertEqual(len(members), 3)
         finally:
             Path(tmp_file_path).unlink()
