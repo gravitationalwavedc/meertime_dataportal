@@ -14,6 +14,8 @@ from rest_framework.viewsets import ViewSet
 from sentry_sdk import last_event_id
 from zipstream import ZipStream
 
+from utils.ephemeris import format_ephemeris_to_text
+
 from .file_utils import serve_file
 from .models import (
     Observation,
@@ -36,29 +38,39 @@ def get_accessible_toa_files(user, observations):
     """
     Query Toa model for all accessible 32ch_1p_1t timing files for one or more observations.
 
-    TWO-GATE ACCESS CONTROL:
-    This function implements the second gate of ToA access control. The first gate
+    THREE-GATE ACCESS CONTROL:
+    This function implements the second and third gates of ToA access control. The first gate
     (observation-level embargo) must be checked by the caller using observation.is_restricted().
 
     Gate 1 (Caller responsibility): Observation-level embargo
     - Checks if observation is embargoed AND user is in observation's primary project
     - If observation is restricted, NO ToAs are accessible regardless of ToA projects
 
+    Gate 1.5 (This function): Ephemeris and Template embargo
+    - ToA is blocked if the underlying Ephemeris or Template is embargoed and user isn't a member.
+
     Gate 2 (This function): Per-project ToA access
     - Each observation can have ToAs from multiple projects (TPA, TPA2, GC, etc.)
     - Each ToA project has its own embargo period
     - User must be member of each ToA's project to access embargoed files from that project
 
-    Example scenario:
+    Example scenario 1 (Gate 2 blocks per-project ToA):
     - Observation taken yesterday by TPA project (accessible to TPA members)
     - Observation has ToAs from both TPA and GC projects
     - User is member of TPA but NOT GC
-    - Result: User gets TPA ToAs only, GC ToAs are filtered out
+    - Result: Gate 2 blocks GC ToAs - user gets TPA ToAs only (assuming Ephemeris/Template are accessible)
 
-    Another example:
+    Example scenario 2 (Gate 1 blocks entire observation):
     - Observation taken yesterday by TPA project
     - User is member of GC but NOT TPA
     - Result: Gate 1 blocks access - user gets NO ToAs at all (observation is restricted)
+
+    Example scenario 3 (Gate 1.5 blocks based on Ephemeris/Template):
+    - An old observation (>1.5yrs ago) that is no longer embargoed (Gate 1 passes for all).
+    - It is a TPA observation, but GC ToAs have been created with an ephemeris and/or template created yesterday (embargoed).
+    - TPA ToAs have been created with an old ephemeris and template (unembargoed).
+    - User is member of TPA but NOT GC.
+    - Result: The TPA ToAs are accessible to the user, but the GC ToAs are blocked by Gate 1.5. (Note: A GC-only user could access both, as TPA is unembargoed and they own the GC ephemeris).
 
     Returns ToAs filtered by:
     - dm_corrected=False (non-DM-corrected ToAs)
@@ -76,15 +88,20 @@ def get_accessible_toa_files(user, observations):
 
     Returns:
         Dict mapping observations to their accessible ToA files:
-        {observation: [(project, file_path), ...], ...}
+        {observation: [(project, file_path, ephemeris, template), ...], ...}
     """
     base_path = Path(settings.MEERTIME_DATA_DIR)
 
+    # Get the latest pipeline runs for these observations
+    latest_pipeline_runs = PulsarFoldResult.objects.filter(observation__in=observations).values("pipeline_run")
+
     # Query distinct (observation, project) combinations for ToAs matching the required pattern
     # This groups 32 ToA database entries (one per channel) that map to a single .tim file
+    # We filter by the latest pipeline run to ensure we only get the most recent ToAs
     toa_groups = (
         Toa.objects.filter(
             observation__in=observations,
+            pipeline_run__in=latest_pipeline_runs,
             dm_corrected=False,
             nsub_type="1",
             obs_nchan=32,
@@ -112,6 +129,30 @@ def get_accessible_toa_files(user, observations):
     project_ids = {group["project_id"] for group in toa_groups}
     project_map = {p.id: p for p in Project.objects.filter(id__in=project_ids)}
 
+    # Get representative Ephemeris and Template for each group
+    group_details = {}
+    for group in toa_groups:
+        obs_id = group["observation_id"]
+        proj_id = group["project_id"]
+        toa = (
+            Toa.objects.filter(
+                observation_id=obs_id,
+                project_id=proj_id,
+                pipeline_run__in=latest_pipeline_runs,
+                dm_corrected=False,
+                nsub_type="1",
+                obs_nchan=32,
+                obs_npol=1,
+            )
+            .select_related("ephemeris", "template")
+            .first()
+        )
+        if toa:
+            group_details[(obs_id, proj_id)] = {
+                "ephemeris": toa.ephemeris,
+                "template": toa.template,
+            }
+
     # Build result dictionary: for each observation, collect accessible ToA files
     # Gate 2 logic: Filter ToAs by per-project embargo and membership
     result = {obs: [] for obs in observations}
@@ -119,6 +160,22 @@ def get_accessible_toa_files(user, observations):
     for group in toa_groups:
         observation = observation_map[group["observation_id"]]
         project = project_map[group["project_id"]]
+        details = group_details.get((group["observation_id"], group["project_id"]))
+        if not details:
+            continue
+        ephemeris = details["ephemeris"]
+        template = details["template"]
+
+        # Third embargo test: ToAs are restricted if their Ephemeris or Template is restricted.
+        # This overrides the older Gate 2 based only on observation date.
+        if ephemeris.is_restricted(user) or template.is_restricted(user):
+            # Log denial for debugging/audit purposes
+            logger.warning(
+                f"User {user.username if user.is_authenticated else 'anonymous'} denied access to "
+                f"ToA files for observation {observation.pulsar.name} {observation.utc_start} beam {observation.beam} "
+                f"project {project.short} due to embargoed ephemeris or template"
+            )
+            continue
 
         # Gate 2: Check per-project ToA access
         # Check if this project's ToAs are embargoed for this observation
@@ -144,7 +201,7 @@ def get_accessible_toa_files(user, observations):
                     f"project {project.short}"
                 )
                 continue
-        # If ToA is not embargoed, everyone can access (public data)
+        # If neither is restricted, everyone with sufficient access per the Ephemeris/Template rules can access
 
         # Construct full file path with project folder in the structure
         # Note: This represents a single .tim file that contains 32 ToA entries in the database
@@ -160,7 +217,7 @@ def get_accessible_toa_files(user, observations):
 
         # Verify file exists on disk
         if toa_file.exists():
-            result[observation].append((project, toa_file))
+            result[observation].append((project, toa_file, ephemeris, template))
 
     return result
 
@@ -385,9 +442,20 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
             # Generate ZIP file with accessible ToAs
             def generate_zip():
                 zs = ZipStream()
-                for project, toa_file in accessible_files:
-                    zip_path = f"timing/{project.short}/{toa_file.name}"
+                for project, toa_file, ephemeris, template in accessible_files:
+                    zip_dir = f"timing/{project.short}/"
+                    zip_path = f"{zip_dir}{toa_file.name}"
                     zs.add_path(str(toa_file), zip_path)
+
+                    if template and template.template_file:
+                        template_path = Path(settings.MEDIA_ROOT) / str(template.template_file)
+                        if template_path.exists():
+                            zs.add_path(str(template_path), f"{zip_dir}{template_path.name}")
+
+                    if ephemeris and ephemeris.ephemeris_data:
+                        ephemeris_text = format_ephemeris_to_text(ephemeris.ephemeris_data)
+                        eph_filename = f"{observation.pulsar.name}_{project.short}.par"
+                        zs.add(ephemeris_text.encode("utf-8"), f"{zip_dir}{eph_filename}")
                 for chunk in zs:
                     yield chunk
 
@@ -454,11 +522,22 @@ def download_pulsar_files(request, jname, file_type):
                     timestamp_dir = observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                     beam_dir = str(observation.beam)
 
-                    for project, toa_file in toa_files:
+                    for project, toa_file, ephemeris, template in toa_files:
+                        zip_dir = f"timing/{timestamp_dir}/{beam_dir}/timing/{project.short}/"
                         # Nested structure: timing/{timestamp}/{beam}/timing/{project}/{filename}
-                        zip_path = f"timing/{timestamp_dir}/{beam_dir}/timing/{project.short}/{toa_file.name}"
+                        zip_path = f"{zip_dir}{toa_file.name}"
                         zs.add_path(str(toa_file), zip_path)
                         has_files = True
+
+                        if template and template.template_file:
+                            template_path = Path(settings.MEDIA_ROOT) / str(template.template_file)
+                            if template_path.exists():
+                                zs.add_path(str(template_path), f"{zip_dir}{template_path.name}")
+
+                        if ephemeris and ephemeris.ephemeris_data:
+                            ephemeris_text = format_ephemeris_to_text(ephemeris.ephemeris_data)
+                            eph_filename = f"{observation.pulsar.name}_{project.short}.par"
+                            zs.add(ephemeris_text.encode("utf-8"), f"{zip_dir}{eph_filename}")
             else:
                 # Handle full and decimated files
                 for observation in observations:

@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 from decimal import Decimal
 
@@ -100,3 +101,26 @@ def parse_ephemeris_file(ephemeris_data):
         ephemeris_dict["FINISH"] = datetime.fromtimestamp(4294967295, tz=timezone.utc).isoformat()
 
     return ephemeris_dict
+
+
+def format_ephemeris_to_text(ephemeris_dict):
+    """
+    Format the ephemeris dictionary back into a text block, correctly spacing
+    properties and errors, and handling TIMEOFFSETS specially.
+    """
+    if isinstance(ephemeris_dict, str):
+        ephemeris_dict = json.loads(ephemeris_dict)
+
+    lines = []
+    for key, val in ephemeris_dict.items():
+        if key == "TIMEOFFSETS":
+            for offset in val:
+                line = f"{offset.get('type', '')} {offset.get('mjd', '')} {offset.get('display', '')} {offset.get('offset', '')} {offset.get('fit', '')}"
+                lines.append(line.strip())
+        elif not str(key).endswith("_ERR"):
+            err_key = f"{key}_ERR"
+            if err_key in ephemeris_dict and ephemeris_dict[err_key] is not None:
+                lines.append(f"{key}\t{val}\t{ephemeris_dict[err_key]}")
+            else:
+                lines.append(f"{key}\t{val}")
+    return "\n".join(lines)

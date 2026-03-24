@@ -14,7 +14,7 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from freezegun import freeze_time
 
-from dataportal.models import Observation, Project, ProjectMembership, Toa
+from dataportal.models import Ephemeris, Observation, PipelineRun, Project, ProjectMembership, Template, Toa
 from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import setup_query_test
 from utils.constants import UserRole
@@ -42,6 +42,18 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         # Use the observation's actual project as project1
         # (setup_query_test may return different project than observation belongs to)
         cls.project1 = cls.observation.project
+
+        # Align ephemeris and template projects with the observation's project to pass membership access
+        cls.ephemeris.project = cls.project1
+        cls.ephemeris.save()
+        cls.template.project = cls.project1
+        cls.template.save()
+
+        # Backdate Ephemeris and Template so they are not currently embargoed by default in non-freeze_time tests
+        Ephemeris.objects.filter(id=cls.ephemeris.id).update(created_at=datetime(2018, 1, 1, tzinfo=pytz.UTC))
+        Template.objects.filter(id=cls.template.id).update(created_at=datetime(2018, 1, 1, tzinfo=pytz.UTC))
+        cls.ephemeris.refresh_from_db()
+        cls.template.refresh_from_db()
 
         # Ensure the main_project is named "MeerTime" for filtering tests
         if cls.project1.main_project:
@@ -187,8 +199,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have 3 ToA files (one per project)
-                self.assertEqual(len(members), 3)
+                # Should have 2 files per project (ToA, .par) - Template is skipped if missing on disk
+                self.assertEqual(len(members), 6)
                 # Check all projects are represented
                 self.assertTrue(any(self.project1.short in m for m in members))
                 self.assertTrue(any(self.project2.short in m for m in members))
@@ -229,8 +241,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have 2 ToA files (member of project1 and project2)
-                self.assertEqual(len(members), 2)
+                # Should have 2 projects * 2 files = 4 files
+                self.assertEqual(len(members), 4)
                 # Check correct projects are represented
                 self.assertTrue(any(self.project1.short in m for m in members))
                 self.assertTrue(any(self.project2.short in m for m in members))
@@ -319,7 +331,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                self.assertEqual(len(members), 3)
+                # All 3 projects * 2 files = 6 files
+                self.assertEqual(len(members), 6)
                 # All projects should be present
                 self.assertTrue(any(self.project1.short in m for m in members))
                 self.assertTrue(any(self.project2.short in m for m in members))
@@ -375,6 +388,77 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         self.assertEqual(response.status_code, 403)
         self.assertIn("Access denied", response.content.decode())
 
+    def test_download_toas_blocked_by_ephemeris_embargo(self):
+        """ToA blocked if Ephemeris is embargoed, even if observation is public"""
+        # Make Ephemeris embargoed NOW (Overrides backdated class setup)
+        self.ephemeris.created_at = datetime.now(tz=pytz.UTC)
+        self.ephemeris.save()
+
+        self._create_toa_file(self.observation, self.project2)
+
+        # Test an unprivileged user
+        self.client.force_login(self.restricted_user)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "toas",
+                },
+            )
+        )
+
+        # Because Ephemeris is embargoed (Gate 1.5 failed), user receives 404 (No files accessible)
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("No ToA files are available", response.content.decode())
+
+    def test_download_toas_blocked_by_template_embargo(self):
+        """ToA blocked if Template is embargoed, even if observation is public"""
+        # Template embargoed NOW
+        self.template.created_at = datetime.now(tz=pytz.UTC)
+        self.template.save()
+
+        self._create_toa_file(self.observation, self.project2)
+
+        self.client.force_login(self.restricted_user)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "toas",
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
+    def test_download_toas_allowed_by_ephemeris_membership_when_embargoed(self):
+        """ToA allowed if Ephemeris is embargoed but user IS a member"""
+        self.ephemeris.created_at = datetime.now(tz=pytz.UTC)
+        self.ephemeris.save()
+
+        self._create_toa_file(self.observation, self.project2)
+
+        # project1_member belongs to project1 (which owns the Ephemeris!), so Gate 1.5 passes.
+        # Gate 2 (Observation Public for project2) naturally passes because observation is old (2019/2026).
+        self.client.force_login(self.project1_member)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "toas",
+                },
+            )
+        )
+        self.assertEqual(response.status_code, 200)
+
     def test_download_pulsar_toas_multi_observation_multi_project(self):
         """Pulsar-level download includes all accessible ToAs from multiple observations and projects"""
         # Create second observation
@@ -426,8 +510,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have 4 ToA files (2 observations x varying projects)
-                self.assertEqual(len(members), 4)
+                # Should have 4 ToA files * 2 = 8 files
+                self.assertEqual(len(members), 8)
                 # Check nested structure: timing/{timestamp}/{beam}/timing/{project}/{filename}
                 obs1_timestamp = self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                 obs2_timestamp = obs2.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
@@ -533,8 +617,8 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have only 1 file (MeerTime observation)
-                self.assertEqual(len(members), 1)
+                # Should have only 1 ToA * 2 files
+                self.assertEqual(len(members), 2)
                 # Verify it's the MeerTime observation, not Molonglo
                 meertime_timestamp = self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                 molonglo_timestamp = molonglo_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
@@ -598,12 +682,80 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         try:
             with zipfile.ZipFile(tmp_file_path, "r") as zf:
                 members = zf.namelist()
-                # Should have only 1 file (fold observation)
-                self.assertEqual(len(members), 1)
+                # Should have only 1 ToA * 2 files
+                self.assertEqual(len(members), 2)
                 # Verify it's the fold observation, not search
                 fold_timestamp = self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                 search_timestamp = search_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
                 self.assertTrue(any(fold_timestamp in m for m in members))
                 self.assertFalse(any(search_timestamp in m for m in members))
+        finally:
+            Path(tmp_file_path).unlink()
+
+    def test_download_toas_only_returns_latest_pipeline_run(self):
+        """Verify that when multiple pipeline runs exist, only ToAs from the run linked to PulsarFoldResult are included."""
+
+        # Create ToA for the initial (now 'old') pipeline run
+        self._create_toa_file(self.observation, self.project1)
+
+        # Create a new PipelineRun for the same observation
+        # This will trigger the post_save signal and update PulsarFoldResult to point to this run
+        new_pipeline_run = PipelineRun.objects.create(
+            observation=self.observation,
+            ephemeris=self.ephemeris,
+            template=self.template,
+            pipeline_name="meerpipe",
+            pipeline_version="3.0.1",
+            created_by="test2",
+            job_state="Completed",
+            location="/new/location",
+            percent_rfi_zapped=0.1,
+            rm=10.0,
+            rm_err=1.0,
+            dm=20.0,
+            dm_err=1.0,
+            dm_epoch=1.0,
+            dm_chi2r=1.0,
+            dm_tres=1.0,
+            sn=100.0,
+            flux=25.0,
+        )
+
+        # Temporarily set self.pipeline_run to the new one so _create_toa_file uses it
+        old_pipeline_run = self.pipeline_run
+        self.pipeline_run = new_pipeline_run
+
+        # Create ToA for the new pipeline run
+        self._create_toa_file(self.observation, self.project1)
+
+        # Restore self.pipeline_run
+        self.pipeline_run = old_pipeline_run
+
+        self.client.force_login(self.unrestricted_user)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "toas",
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        # Check zip contains only files for the latest pipeline run, meaning only 1 ToA file + 1 par file
+        content = b"".join(response.streaming_content)
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp_file:
+            tmp_file.write(content)
+            tmp_file_path = tmp_file.name
+
+        try:
+            with zipfile.ZipFile(tmp_file_path, "r") as zf:
+                members = zf.namelist()
+                # 1 project * 2 files = 2 files Total
+                self.assertEqual(len(members), 2)
         finally:
             Path(tmp_file_path).unlink()
