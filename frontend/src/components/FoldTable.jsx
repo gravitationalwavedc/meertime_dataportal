@@ -1,6 +1,6 @@
 import { Button, ButtonGroup } from "react-bootstrap";
-import { useEffect, useState } from "react";
-import { columnsSizeFilter, formatUTC } from "../helpers";
+import { useState } from "react";
+import { columnsSizeFilter, formatUTC, toApiFilter } from "../helpers";
 import { graphql, useRefetchableFragment } from "react-relay";
 import DataView from "./DataView";
 import { Link } from "found";
@@ -10,16 +10,16 @@ const FoldTableFragment = graphql`
   fragment FoldTableFragment on Query
   @refetchable(queryName: "FoldTableRefetchQuery")
   @argumentDefinitions(
-    pulsar: { type: "String", defaultValue: "All" }
+    pulsar: { type: "String", defaultValue: "" }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
-    mostCommonProject: { type: "String", defaultValue: "All" }
-    project: { type: "String", defaultValue: "All" }
-    band: { type: "String", defaultValue: "All" }
+    mostCommonProject: { type: "String", defaultValue: "" }
+    project: { type: "String", defaultValue: "" }
+    band: { type: "String", defaultValue: "" }
   ) {
     observationSummary(
       pulsar_Name: $pulsar
       obsType: "fold"
-      calibration_Id: "All"
+      calibration_Id: ""
       mainProject: $mainProject
       project_Short: $project
       band: $band
@@ -89,15 +89,18 @@ const FoldTable = ({
   } = {}) => {
     const url = new URL(window.location);
     url.searchParams.set("mainProject", newMainProject);
-    url.searchParams.set("mostCommonProject", newMostCommonProject);
-    url.searchParams.set("project", newProject);
-    url.searchParams.set("band", newBand);
+    url.searchParams.set(
+      "mostCommonProject",
+      newMostCommonProject ? newMostCommonProject : "All"
+    );
+    url.searchParams.set("project", newProject ? newProject : "All");
+    url.searchParams.set("band", newBand ? newBand : "All");
     window.history.pushState({}, "", url);
     refetch({
-      mainProject: newMainProject,
-      mostCommonProject: newMostCommonProject,
-      project: newProject,
-      band: newBand,
+      mainProject: toApiFilter(newMainProject),
+      mostCommonProject: toApiFilter(newMostCommonProject),
+      project: toApiFilter(newProject),
+      band: toApiFilter(newBand),
     });
   };
 
@@ -110,10 +113,10 @@ const FoldTable = ({
     setProject(newProject);
     setBand(newBand);
     handleRefetch({
-      newMainProject: newMainProject,
-      newMostCommonProject: newMostCommonProject,
-      newProject: newProject,
-      newBand: newBand,
+      newMainProject,
+      newMostCommonProject,
+      newProject,
+      newBand,
     });
   };
 
@@ -122,8 +125,8 @@ const FoldTable = ({
     setMostCommonProject(newMostCommonProject);
     setProject(newProject);
     handleRefetch({
-      newMostCommonProject: newMostCommonProject,
-      newProject: newProject,
+      newMostCommonProject,
+      newProject,
     });
   };
 
@@ -132,14 +135,14 @@ const FoldTable = ({
     setMostCommonProject(newMostCommonProject);
     setProject(newProject);
     handleRefetch({
-      newMostCommonProject: newMostCommonProject,
-      newProject: newProject,
+      newMostCommonProject,
+      newProject,
     });
   };
 
   const handleBandChange = (newBand) => {
     setBand(newBand);
-    handleRefetch({ newBand: newBand });
+    handleRefetch({ newBand });
   };
 
   const rows = relayData.pulsarFoldSummary.edges.reduce((result, edge) => {

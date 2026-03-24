@@ -2,9 +2,15 @@ import { graphql, useLazyLoadQuery } from "react-relay";
 import MainLayout from "../components/MainLayout";
 import SessionTable from "../components/session/SessionTable";
 
-const query = graphql`
+const sessionByIdQuery = graphql`
   query SessionQuery($id: Int) {
     ...SessionTable_data @arguments(id: $id)
+  }
+`;
+
+const lastSessionQuery = graphql`
+  query SessionLatestQuery {
+    ...SessionTableLatest_data
   }
 `;
 
@@ -15,19 +21,15 @@ const getTitle = (id) => {
 
 const Session = ({ match }) => {
   const { id } = match.params;
-
-  let params;
-  if (id) {
-    params = { id: Number(id) };
-  } else {
-    params = { id: -1 };
-  }
+  const isLatestSessionRoute = !id;
+  const query = isLatestSessionRoute ? lastSessionQuery : sessionByIdQuery;
+  const params = isLatestSessionRoute ? {} : { id: Number(id) };
 
   const data = useLazyLoadQuery(query, params);
 
   return (
     <MainLayout title={getTitle(id)}>
-      <SessionTable data={data} id={id} />
+      <SessionTable data={data} isLatestSessionRoute={isLatestSessionRoute} />
     </MainLayout>
   );
 };

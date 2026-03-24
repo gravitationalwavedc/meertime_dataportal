@@ -1,6 +1,7 @@
 import { graphql, useLazyLoadQuery } from "react-relay";
 import MainLayout from "../components/MainLayout";
 import SearchDetailTable from "../components/SearchDetailTable";
+import { toApiFilter } from "../helpers";
 
 const query = graphql`
   query SearchDetailQuery($jname: String!, $mainProject: String) {
@@ -12,8 +13,8 @@ const query = graphql`
 const SearchDetail = ({ match }) => {
   const { jname, mainProject } = match.params;
   const data = useLazyLoadQuery(query, {
-    jname: jname,
-    mainProject: mainProject,
+    jname: toApiFilter(jname),
+    mainProject: toApiFilter(mainProject),
   });
 
   return (

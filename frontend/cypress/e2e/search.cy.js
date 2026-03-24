@@ -1,8 +1,32 @@
-import { aliasQuery } from "../utils/graphql-test-utils";
+import {
+  aliasQuery,
+  assertEmptyStringOrConcrete,
+  assertNoAllValues,
+} from "../utils/graphql-test-utils";
+
+const SEARCH_TABLE_GUARDED_KEYS = ["mainProject", "project", "band"];
+const SEARCH_DETAIL_GUARDED_KEYS = ["mainProject"];
 
 describe("The Search Page", () => {
   beforeEach(() => {
     cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      if (req.body?.query?.includes("SearchTableQuery")) {
+        assertNoAllValues(req, SEARCH_TABLE_GUARDED_KEYS, "SearchTableQuery");
+        assertEmptyStringOrConcrete(
+          req,
+          SEARCH_TABLE_GUARDED_KEYS,
+          "SearchTableQuery"
+        );
+      }
+      if (req.body?.query?.includes("SearchDetailQuery")) {
+        assertNoAllValues(req, SEARCH_DETAIL_GUARDED_KEYS, "SearchDetailQuery");
+        assertEmptyStringOrConcrete(
+          req,
+          SEARCH_DETAIL_GUARDED_KEYS,
+          "SearchDetailQuery"
+        );
+      }
+
       aliasQuery(req, "SearchQuery", "searchQuery.json");
       aliasQuery(req, "SearchTableQuery", "searchQueryFewer.json");
       aliasQuery(req, "SearchDetailQuery", "searchDetailQuery.json");
@@ -39,7 +63,13 @@ describe("The Search Page", () => {
 
     cy.get("#bandSelect").select("LBAND", { force: true });
 
-    cy.wait("@SearchTableQuery");
+    cy.wait("@SearchTableQuery").then((interception) => {
+      expect(interception.request.body.variables).to.deep.include({
+        mainProject: "",
+        project: "",
+        band: "LBAND",
+      });
+    });
     cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 
@@ -49,7 +79,13 @@ describe("The Search Page", () => {
 
     cy.get("#projectSelect").select("PTA", { force: true });
 
-    cy.wait("@SearchTableQuery");
+    cy.wait("@SearchTableQuery").then((interception) => {
+      expect(interception.request.body.variables).to.deep.include({
+        mainProject: "",
+        project: "PTA",
+        band: "",
+      });
+    });
     cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 
@@ -58,7 +94,11 @@ describe("The Search Page", () => {
     cy.contains("tr", "J1614+0737").contains("View all").click();
     cy.location("pathname").should("equal", "/search/All/J1614+0737/");
 
-    cy.wait("@SearchDetailQuery");
+    cy.wait("@SearchDetailQuery").then((interception) => {
+      expect(interception.request.body.variables).to.deep.include({
+        mainProject: "",
+      });
+    });
 
     cy.contains("Loading...").should("not.exist");
     cy.contains("Timestamp").should("be.visible");

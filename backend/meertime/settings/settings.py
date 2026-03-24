@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "mathfilters",
     "graphene_django",
     "django_jenkins",
+    "django_filters",
     "rest_framework",
     "user_manage",
     "dataportal",

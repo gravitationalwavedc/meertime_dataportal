@@ -3,6 +3,7 @@ from collections import Counter
 from datetime import datetime
 from datetime import timezone as dt_timezone
 
+import django_filters
 import graphene
 from astropy.time import Time
 from django.db.models import Q, Subquery
@@ -10,6 +11,7 @@ from django.template.defaultfilters import filesizeformat
 from django.utils import timezone
 from graphene import ObjectType, relay
 from graphene_django import DjangoObjectType
+from graphene_django.filter import DjangoFilterConnectionField, TypedFilter
 from graphql import GraphQLError
 
 from dataportal.file_utils import get_file_list
@@ -34,6 +36,33 @@ from dataportal.models import (
 )
 from user_manage.graphql.decorators import login_required, user_passes_test
 
+####################################
+# Constants for shared filter fields
+
+DATETIME_FILTERS = [
+    "exact",
+    "isnull",
+    "lt",
+    "lte",
+    "gt",
+    "gte",
+    "month",
+    "year",
+    "date",
+]
+NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
+
+
+###################################
+# File queries
+
+"""
+# File actions shouldn't use Django Filter because they aren't connected to a model and we don't want to expose
+# filters. These should be the only graphql queries that don't use DjangoFilterConnectionField.
+# Don't try to migrate these to DjangoFilerConnectionField, but all other models queries should follow the standard 
+# pattern of using DjangoFilterConnectionField and defining filter_fields in the Meta class of the Node
+"""
+
 
 # FileNode and FileConnection classes for file queries
 class FileNode(graphene.ObjectType):
@@ -55,18 +84,10 @@ class FileConnection(relay.Connection):
         node = FileNode
 
 
-DATETIME_FILTERS = [
-    "exact",
-    "isnull",
-    "lt",
-    "lte",
-    "gt",
-    "gte",
-    "month",
-    "year",
-    "date",
-]
-NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
+###################################
+# Standard model queries.
+# These should all use DjanogObjectType and DjangoFilterConnectionField, and define filter_fields in the
+# Meta class of the Node
 
 
 class PulsarNode(DjangoObjectType):
@@ -76,12 +97,8 @@ class PulsarNode(DjangoObjectType):
             "name",
             "comment",
         ]
+        filter_fields = ["name"]
         interfaces = (relay.Node,)
-
-
-class PulsarConnection(relay.Connection):
-    class Meta:
-        node = PulsarNode
 
 
 class TelescopeNode(DjangoObjectType):
@@ -90,17 +107,8 @@ class TelescopeNode(DjangoObjectType):
         fields = [
             "name",
         ]
-        filter_fields = "__all__"
+        filter_fields = ["name"]
         interfaces = (relay.Node,)
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class TelescopeConnection(relay.Connection):
-    class Meta:
-        node = TelescopeNode
 
 
 class MainProjectNode(DjangoObjectType):
@@ -110,20 +118,11 @@ class MainProjectNode(DjangoObjectType):
             "telescope",
             "name",
         ]
-        filter_fields = "__all__"
+        filter_fields = ["telescope__name", "name"]
         interfaces = (relay.Node,)
 
     # ForeignKey fields
     telescope = graphene.Field(TelescopeNode)
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class MainProjectConnection(relay.Connection):
-    class Meta:
-        node = MainProjectNode
 
 
 class ProjectNode(DjangoObjectType):
@@ -136,7 +135,7 @@ class ProjectNode(DjangoObjectType):
             "embargo_period",
             "description",
         ]
-        filter_fields = "__all__"
+        filter_fields = ["main_project__name", "code", "short", "embargo_period", "description"]
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -146,15 +145,6 @@ class ProjectNode(DjangoObjectType):
 
     def resolve_embargoPeriod(self, info):
         return self.embargo_period.days
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class ProjectConnection(relay.Connection):
-    class Meta:
-        node = ProjectNode
 
 
 class EphemerisNode(DjangoObjectType):
@@ -177,6 +167,8 @@ class EphemerisNode(DjangoObjectType):
             "p0": NUMERIC_FILTERS,
             "dm": NUMERIC_FILTERS,
             "ephemeris_hash": ["exact"],
+            "pulsar__name": ["exact"],
+            "project__short": ["exact"],
         }
 
         interfaces = (relay.Node,)
@@ -189,11 +181,6 @@ class EphemerisNode(DjangoObjectType):
 
     def resolve_id_int(self, info):
         return self.id
-
-
-class EphemerisConnection(relay.Connection):
-    class Meta:
-        node = EphemerisNode
 
 
 class TemplateNode(DjangoObjectType):
@@ -212,21 +199,14 @@ class TemplateNode(DjangoObjectType):
             "band": ["exact"],
             "created_at": DATETIME_FILTERS,
             "template_hash": ["exact"],
+            "pulsar__name": ["exact"],
+            "project__short": ["exact"],
         }
         interfaces = (relay.Node,)
 
     # ForeignKey fields
     pulsar = graphene.Field(PulsarNode)
     project = graphene.Field(ProjectNode)
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class TemplateConnection(relay.Connection):
-    class Meta:
-        node = TemplateNode
 
 
 class CalibrationNode(DjangoObjectType):
@@ -246,7 +226,17 @@ class CalibrationNode(DjangoObjectType):
             "observations",
             "badges",
         ]
-        filter_fields = "__all__"
+        filter_fields = [
+            "schedule_block_id",
+            "calibration_type",
+            "location",
+            "start",
+            "end",
+            "all_projects",
+            "n_observations",
+            "n_ant_min",
+            "n_ant_max",
+        ]
         interfaces = (relay.Node,)
 
     id_int = graphene.Int()
@@ -254,31 +244,218 @@ class CalibrationNode(DjangoObjectType):
     def resolve_id_int(self, info):
         return self.id
 
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class CalibrationConnection(relay.Connection):
-    class Meta:
-        node = CalibrationNode
-
 
 class BadgeNode(DjangoObjectType):
     class Meta:
         model = Badge
         fields = ["name", "description"]
+        filter_fields = {
+            "name": ["exact", "icontains"],
+            "description": ["icontains"],
+        }
         interfaces = (relay.Node,)
 
 
-class BadgeConnection(relay.Connection):
+class ObservationFilterSet(django_filters.FilterSet):
+    pulsar__name = TypedFilter(
+        input_type=graphene.List(graphene.String),
+        field_name="pulsar__name",
+        lookup_expr="in",
+    )
+    telescope__name = django_filters.CharFilter(field_name="telescope__name", lookup_expr="exact")
+    main_project = django_filters.CharFilter(method="filter_main_project")
+    project__id = TypedFilter(input_type=graphene.Int, field_name="project__id")
+    project__short = django_filters.CharFilter(method="filter_project_short")
+    utc_start_gte = TypedFilter(
+        input_type=graphene.String,
+        field_name="utc_start",
+        lookup_expr="gte",
+    )
+    utc_start_lte = TypedFilter(
+        input_type=graphene.String,
+        field_name="utc_start",
+        lookup_expr="lte",
+    )
+    obs_type = django_filters.CharFilter(method="filter_obs_type")
+    unprocessed = django_filters.BooleanFilter(method="filter_unprocessed")
+    incomplete = django_filters.BooleanFilter(method="filter_incomplete")
+
     class Meta:
-        node = BadgeNode
+        model = Observation
+        fields = []
+
+    def filter_main_project(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(project__main_project__name__iexact=value)
+
+    def filter_project_short(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(project__short=value)
+
+    def filter_obs_type(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(obs_type=value)
+
+    def filter_unprocessed(self, queryset, name, value):
+        if not value:
+            return queryset
+        observations_with_fold_results = PulsarFoldResult.objects.values("observation")
+        return queryset.exclude(id__in=Subquery(observations_with_fold_results))
+
+    def filter_incomplete(self, queryset, name, value):
+        if not value:
+            return queryset
+        observations_failed = PulsarFoldResult.objects.exclude(pipeline_run__job_state="Completed")
+        return queryset.filter(id__in=Subquery(observations_failed.values("observation__id")))
+
+
+class ObservationSummaryFilterSet(django_filters.FilterSet):
+    pulsar__name = django_filters.CharFilter(field_name="pulsar__name", lookup_expr="exact")
+    main_project = django_filters.CharFilter(field_name="main_project__name", lookup_expr="iexact")
+    project__id = TypedFilter(input_type=graphene.Int, field_name="project__id")
+    project__short = django_filters.CharFilter(field_name="project__short", lookup_expr="exact")
+    calibration__id = TypedFilter(input_type=graphene.String, field_name="calibration__id")
+    calibration_int = TypedFilter(input_type=graphene.Int, field_name="calibration__id")
+    obs_type = django_filters.CharFilter(field_name="obs_type", lookup_expr="exact")
+    band = django_filters.CharFilter(field_name="band", lookup_expr="exact")
+
+    class Meta:
+        model = ObservationSummary
+        fields = []
+
+
+class CalibrationFilterSet(django_filters.FilterSet):
+    id = TypedFilter(input_type=graphene.Int, field_name="id")
+
+    class Meta:
+        model = Calibration
+        fields = []
+
+
+class PulsarFoldResultFilterSet(django_filters.FilterSet):
+    pulsar = django_filters.CharFilter(field_name="pulsar__name", lookup_expr="exact")
+    main_project = django_filters.CharFilter(
+        field_name="observation__project__main_project__name",
+        lookup_expr="iexact",
+    )
+    utc_start = django_filters.CharFilter(method="filter_utc_start")
+    beam = TypedFilter(input_type=graphene.Int, field_name="observation__beam")
+    exclude_badges = TypedFilter(
+        input_type=graphene.List(graphene.String),
+        method="filter_exclude_badges",
+    )
+    # using anything but camelCase for minimum snr results in minimumSnr.
+    minimumSNR = TypedFilter(input_type=graphene.Float, field_name="pipeline_run__sn", lookup_expr="gte")
+    utc_start_gte = TypedFilter(input_type=graphene.String, field_name="observation__utc_start", lookup_expr="gte")
+    utc_start_lte = TypedFilter(input_type=graphene.String, field_name="observation__utc_start", lookup_expr="lte")
+
+    def filter_utc_start(self, queryset, name, value):
+        if not value:
+            return queryset
+        naive_dt = datetime.strptime(value, "%Y-%m-%d-%H:%M:%S")
+        aware_dt = naive_dt.replace(tzinfo=dt_timezone.utc)
+        return queryset.filter(observation__utc_start=aware_dt)
+
+    def filter_exclude_badges(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.exclude(pipeline_run__badges__name__in=value).exclude(
+            pipeline_run__observation__calibration__badges__name__in=value
+        )
+
+    class Meta:
+        model = PulsarFoldResult
+        fields = []
+
+
+class PulsarFoldSummaryFilterSet(django_filters.FilterSet):
+    main_project = django_filters.CharFilter(field_name="main_project__name", lookup_expr="icontains")
+    most_common_project = django_filters.CharFilter(field_name="most_common_project", lookup_expr="icontains")
+    project = django_filters.CharFilter(field_name="all_projects", lookup_expr="icontains")
+    band = django_filters.CharFilter(field_name="all_bands", lookup_expr="icontains")
+
+    class Meta:
+        model = PulsarFoldSummary
+        fields = []
+
+
+class PulsarSearchSummaryFilterSet(django_filters.FilterSet):
+    main_project = django_filters.CharFilter(field_name="main_project__name", lookup_expr="icontains")
+    most_common_project = django_filters.CharFilter(field_name="most_common_project", lookup_expr="icontains")
+    project = django_filters.CharFilter(field_name="all_projects", lookup_expr="icontains")
+    band = django_filters.CharFilter(field_name="all_bands", lookup_expr="icontains")
+
+    class Meta:
+        model = PulsarSearchSummary
+        fields = []
+
+
+class ToaFilterSet(django_filters.FilterSet):
+    pipeline_run_id = TypedFilter(input_type=graphene.Int, field_name="pipeline_run__id")
+    pulsar = django_filters.CharFilter(field_name="observation__pulsar__name", lookup_expr="exact")
+    main_project = django_filters.CharFilter(
+        field_name="observation__project__main_project__name",
+        lookup_expr="iexact",
+    )
+    project_short = django_filters.CharFilter(field_name="project__short", lookup_expr="exact")
+    dm_corrected = django_filters.BooleanFilter(field_name="dm_corrected")
+    nsub_type = django_filters.CharFilter(field_name="nsub_type", lookup_expr="exact")
+    obs_nchan = TypedFilter(input_type=graphene.Int, field_name="obs_nchan")
+    obs_npol = TypedFilter(input_type=graphene.Int, field_name="obs_npol")
+    exclude_badges = TypedFilter(
+        input_type=graphene.List(graphene.String),
+        method="filter_exclude_badges",
+    )
+    # using anything but camelCase for minimum snr results in minimumSnr.
+    minimumSNR = TypedFilter(input_type=graphene.Float, field_name="snr", lookup_expr="gte")
+    utc_start_gte = TypedFilter(input_type=graphene.String, field_name="observation__utc_start", lookup_expr="gte")
+    utc_start_lte = TypedFilter(input_type=graphene.String, field_name="observation__utc_start", lookup_expr="lte")
+
+    def filter_exclude_badges(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.exclude(pipeline_run__badges__name__in=value).exclude(
+            pipeline_run__observation__calibration__badges__name__in=value
+        )
+
+    class Meta:
+        model = Toa
+        fields = []
+
+
+class ObservationConnection(relay.Connection):
+    class Meta:
+        abstract = True
+
+    total_observations = graphene.Int()
+    total_observation_hours = graphene.Int()
+    total_pulsars = graphene.Int()
+    total_observations_tel_lt_35 = graphene.Int()
+
+    def resolve_total_observations(self, instance):
+        return len(self.edges)
+
+    def resolve_total_observation_hours(self, instance):
+        return sum(float(result.duration) for result in self.iterable) / 3600
+
+    def resolve_total_pulsars(self, instance):
+        return len(list(set(result.pulsar.name for result in self.iterable)))
+
+    def resolve_total_observations_tel_lt_35(self, instance):
+        n_obs = 0
+        for obs in self.iterable:
+            if obs.nant < 35:
+                n_obs += 1
+        return n_obs
 
 
 class ObservationNode(DjangoObjectType):
     class Meta:
         model = Observation
+        connection_class = ObservationConnection
         fields = [
             "pulsar",
             "telescope",
@@ -366,42 +543,11 @@ class ObservationNode(DjangoObjectType):
         rounded_duration = [int(round(duration["duration"] / 32) * 32) for duration in durations]
         counter = Counter(rounded_duration)
         duration_count_pairs = [(value, count) for value, count in counter.items()]
+        if not duration_count_pairs:
+            return None
         # Sort by count and then by value to get shortest duration on draws
         duration_count_pairs = sorted(duration_count_pairs, key=lambda x: (-x[1], x[0]))
         return duration_count_pairs[0][0]
-
-
-class ObservationConnection(relay.Connection):
-    class Meta:
-        node = ObservationNode
-
-    pulsar__name = graphene.List(graphene.String)
-    telescope__name = graphene.String()
-    project__id = graphene.Int()
-    project__short = graphene.String()
-    utcStart_gte = graphene.DateTime()
-    utcStart_lte = graphene.DateTime()
-
-    total_observations = graphene.Int()
-    total_observation_hours = graphene.Int()
-    total_pulsars = graphene.Int()
-    total_observations_tel_lt_35 = graphene.Int()
-
-    def resolve_total_observations(self, instance):
-        return len(self.edges)
-
-    def resolve_total_observation_hours(self, instance):
-        return sum(float(result.duration) for result in self.iterable) / 3600
-
-    def resolve_total_pulsars(self, instance):
-        return len(list(set(result.pulsar.name for result in self.iterable)))
-
-    def resolve_total_observations_tel_lt_35(self, instance):
-        n_obs = 0
-        for obs in self.iterable:
-            if obs.nant < 35:
-                n_obs += 1
-        return n_obs
 
 
 class ObservationSummaryNode(DjangoObjectType):
@@ -423,7 +569,15 @@ class ObservationSummaryNode(DjangoObjectType):
             "min_duration",
             "max_duration",
         ]
-        filter_fields = "__all__"
+        filter_fields = [
+            "pulsar__name",
+            "main_project__name",
+            "project__id",
+            "project__short",
+            "calibration__id",
+            "obs_type",
+            "band",
+        ]
         interfaces = (relay.Node,)
 
     # ForeignKey fields
@@ -431,15 +585,6 @@ class ObservationSummaryNode(DjangoObjectType):
     main_project = graphene.Field(MainProjectNode)
     project = graphene.Field(ProjectNode)
     calibration = graphene.Field(CalibrationNode)
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class ObservationSummaryConnection(relay.Connection):
-    class Meta:
-        node = ObservationSummaryNode
 
 
 class PipelineRunNode(DjangoObjectType):
@@ -508,70 +653,6 @@ class PipelineRunNode(DjangoObjectType):
         return None if self.dm_err is None or math.isinf(self.dm_err) or math.isnan(self.dm_err) else self.dm_err
 
 
-class PipelineRunConnection(relay.Connection):
-    class Meta:
-        node = PipelineRunNode
-
-
-class PulsarFoldResultNode(DjangoObjectType):
-    class Meta:
-        model = PulsarFoldResult
-        fields = [
-            "observation",
-            "pipeline_run",
-            "pulsar",
-            "images",
-        ]
-        filter_fields = "__all__"
-        interfaces = (relay.Node,)
-
-    # ForeignKey fields
-    next_observation = graphene.Field(lambda: PulsarFoldResultNode)
-    previous_observation = graphene.Field(lambda: PulsarFoldResultNode)
-    observation = graphene.Field(ObservationNode)
-    pipeline_run = graphene.Field(PipelineRunNode)
-    project = graphene.Field(ProjectNode)
-
-    def resolve_images(self, info):
-        """
-        Check if user is allowed to access the images.
-        """
-        if self.observation.is_restricted(info.context.user):
-            return []
-
-        return self.images.all()
-
-    def resolve_next_observation(self, info):
-        """
-        Find next observation.
-        """
-        next_obs = (
-            PulsarFoldResult.objects.filter(
-                observation__project__main_project=self.observation.project.main_project,
-                pulsar__name=self.observation.pulsar.name,
-                observation__utc_start__gt=self.observation.utc_start,
-            )
-            .order_by("observation__utc_start")
-            .first()
-        )
-        return next_obs if next_obs else None
-
-    def resolve_previous_observation(self, info):
-        """
-        Find previous observation.
-        """
-        prev_obs = (
-            PulsarFoldResult.objects.filter(
-                observation__project__main_project=self.observation.project.main_project,
-                pulsar__name=self.observation.pulsar.name,
-                observation__utc_start__lt=self.observation.utc_start,
-            )
-            .order_by("-observation__utc_start")
-            .first()
-        )
-        return prev_obs if prev_obs else None
-
-
 class TimingResidualPlotDataType(ObjectType):
     day = graphene.Float()
     size = graphene.Float()
@@ -585,6 +666,15 @@ class TimingResidualPlotDataType(ObjectType):
 
 
 class PulsarFoldResultConnection(relay.Connection):
+    """
+    Handle the return of multiple observations for a pulsar fold result query, such as on the
+    FoldDetail page where we return all observations for a pulsar and then
+    determine on the frontend which one to show based on access to ephemeris and template.
+
+    A variable that is set it "" signals that all values should be returned. It used to be "All" but using an empty
+    string matches the way django-filters works.
+    """
+
     total_observations = graphene.Int()
     total_observation_hours = graphene.Int()
     total_estimated_disk_space = graphene.String()
@@ -595,7 +685,7 @@ class PulsarFoldResultConnection(relay.Connection):
         graphene.Int,
         pulsar=graphene.String(required=True),
         main_project=graphene.String(default_value="Meertime"),
-        project_short=graphene.String(default_value="All"),
+        project_short=graphene.String(default_value=""),
         nsub_type=graphene.String(default_value="1"),
     )
     max_plot_length = graphene.Int()
@@ -615,7 +705,7 @@ class PulsarFoldResultConnection(relay.Connection):
         graphene.List(TimingResidualPlotDataType),
         pulsar=graphene.String(required=True),
         main_project=graphene.String(default_value="Meertime"),
-        project_short=graphene.String(default_value="All"),
+        project_short=graphene.String(default_value=""),
         nsub_type=graphene.String(default_value="1"),
         obs_nchan=graphene.Int(default_value=32),
         exclude_badges=graphene.List(graphene.String, default_value=[]),
@@ -624,7 +714,7 @@ class PulsarFoldResultConnection(relay.Connection):
     )
 
     class Meta:
-        node = PulsarFoldResultNode
+        abstract = True
 
     def resolve_total_toa(self, instance, **kwargs):
         toas = Toa.objects.filter(
@@ -635,23 +725,30 @@ class PulsarFoldResultConnection(relay.Connection):
             nsub_type=kwargs.get("nsub_type"),
         )
 
-        if kwargs.get("project_short") != "All":
+        if kwargs.get("project_short") != "":
             toas = toas.filter(project__short=kwargs.get("project_short"))
 
         return toas.count()
 
     def resolve_most_common_project(self, instance):
-        return self.iterable.first().pulsar.pulsarfoldsummary_set.first().most_common_project
+        first = self.iterable.first() if self.iterable else None
+        if first is None:
+            return None
+        summary = first.pulsar.pulsarfoldsummary_set.first()
+        return summary.most_common_project if summary else None
 
     def resolve_timing_residual_plot_data(self, _, **kwargs):
         toas = (
             Toa.objects.select_related(
-                "pipeline_run__badges",
-                "pipeline_run__observation__calibration__badges",
-                "observation__badges",
+                "pipeline_run",
                 "observation__pulsar",
                 "observation__project__main_project",
                 "observation",
+            )
+            .prefetch_related(
+                "pipeline_run__badges",
+                "pipeline_run__observation__calibration__badges",
+                "observation__badges",
             )
             .filter(
                 observation__pulsar__name=kwargs.get("pulsar"),
@@ -666,7 +763,7 @@ class PulsarFoldResultConnection(relay.Connection):
             .exclude(pipeline_run__observation__badges__name__in=kwargs.get("exclude_badges"))
         )
 
-        if kwargs.get("project_short") != "All":
+        if kwargs.get("project_short") != "":
             toas = toas.filter(project__short=kwargs.get("project_short"))
 
         toas = toas.order_by("mjd").values(
@@ -716,15 +813,19 @@ class PulsarFoldResultConnection(relay.Connection):
         if "pulsar" not in instance.variable_values.keys():
             return []
 
-        return list(
+        values = list(
             Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
             .values_list("obs_nchan", flat=True)
             .order_by("obs_nchan")
             .distinct()
         )
+        return sorted(values)
 
     def resolve_toas_link(self, instance):
-        return self.iterable.first().pipeline_run.toas_download_link
+        first = self.iterable.first() if self.iterable else None
+        if first is None:
+            return None
+        return first.pipeline_run.toas_download_link
 
     def _get_accessible_ephemeris_pfr(self, instance):
         """
@@ -772,6 +873,14 @@ class PulsarFoldResultConnection(relay.Connection):
         user = instance.context.user
         now = timezone.now()
 
+        # Bulk-fetch which pipeline runs have TOAs to avoid N+1
+        pipeline_run_ids = {pfr.pipeline_run_id for pfr in self.iterable}
+        runs_with_toas = set(
+            Toa.objects.filter(pipeline_run_id__in=pipeline_run_ids)
+            .values_list("pipeline_run_id", flat=True)
+            .distinct()
+        )
+
         # Filter to valid pipeline fold results from the iterable
         valid_pfrs = []
         for pfr in self.iterable:
@@ -785,7 +894,7 @@ class PulsarFoldResultConnection(relay.Connection):
             if pfr.pipeline_run.ephemeris.project.short.upper() == "PTUSE":
                 continue
             # Skip pipeline runs without TOAs
-            if not Toa.objects.filter(pipeline_run=pfr.pipeline_run).exists():
+            if pfr.pipeline_run_id not in runs_with_toas:
                 continue
             valid_pfrs.append(pfr)
 
@@ -869,6 +978,14 @@ class PulsarFoldResultConnection(relay.Connection):
         """
         user = instance.context.user
 
+        # Bulk-fetch which pipeline runs have TOAs to avoid N+1
+        pipeline_run_ids = {pfr.pipeline_run_id for pfr in self.iterable}
+        runs_with_toas = set(
+            Toa.objects.filter(pipeline_run_id__in=pipeline_run_ids)
+            .values_list("pipeline_run_id", flat=True)
+            .distinct()
+        )
+
         # Filter to valid pipeline fold results from the iterable
         valid_pfrs = []
         for pfr in self.iterable:
@@ -882,7 +999,7 @@ class PulsarFoldResultConnection(relay.Connection):
             if pfr.pipeline_run.template.project.short.upper() == "PTUSE":
                 continue
             # Skip pipeline runs without TOAs
-            if not Toa.objects.filter(pipeline_run=pfr.pipeline_run).exists():
+            if pfr.pipeline_run_id not in runs_with_toas:
                 continue
             valid_pfrs.append(pfr)
 
@@ -1004,7 +1121,10 @@ class PulsarFoldResultConnection(relay.Connection):
         return valid_pfrs_exist
 
     def resolve_description(self, instance):
-        return self.iterable.first().pulsar.comment
+        first = self.iterable.first() if self.iterable else None
+        if first is None:
+            return None
+        return first.pulsar.comment
 
     def resolve_total_observations(self, instance):
         return len(self.edges)
@@ -1043,40 +1163,99 @@ class PulsarFoldResultConnection(relay.Connection):
         return filesizeformat(total_bytes)
 
     def resolve_max_plot_length(self, instance):
-        return PulsarFoldResult.objects.order_by("observation__duration").last().observation.duration
+        result = PulsarFoldResult.objects.order_by("observation__duration").last()
+        return result.observation.duration if result else None
 
     def resolve_min_plot_length(self, instance):
-        return PulsarFoldResult.objects.order_by("-observation__duration").last().observation.duration
+        result = PulsarFoldResult.objects.order_by("-observation__duration").last()
+        return result.observation.duration if result else None
 
-    def resolve_total_badge_excluded_observations(self, instance):
-        if "excludeBadges" in instance.variable_values.keys():
-            # First do all other filters
-            queryset = (
-                PulsarFoldResult.objects.select_related("pipeline_run")
-                .prefetch_related("pipeline_run__badges")
-                .select_related("pipeline_run__observation__calibration")
-                .prefetch_related("pipeline_run__observation__calibration__badges")
-                .all()
+
+class PulsarFoldResultNode(DjangoObjectType):
+    class Meta:
+        model = PulsarFoldResult
+        fields = [
+            "observation",
+            "pipeline_run",
+            "pulsar",
+            "images",
+        ]
+        filter_fields = "__all__"
+        interfaces = (relay.Node,)
+        connection_class = PulsarFoldResultConnection
+
+    # ForeignKey fields
+    next_observation = graphene.Field(lambda: PulsarFoldResultNode)
+    previous_observation = graphene.Field(lambda: PulsarFoldResultNode)
+    observation = graphene.Field(ObservationNode)
+    pipeline_run = graphene.Field(PipelineRunNode)
+    project = graphene.Field(ProjectNode)
+
+    def resolve_images(self, info):
+        """
+        Check if user is allowed to access the images.
+        """
+        if self.observation.is_restricted(info.context.user):
+            return []
+
+        return self.images.all()
+
+    def resolve_next_observation(self, info):
+        """
+        Find next observation.
+        """
+        next_obs = (
+            PulsarFoldResult.objects.filter(
+                observation__project__main_project=self.observation.project.main_project,
+                pulsar__name=self.observation.pulsar.name,
+                observation__utc_start__gt=self.observation.utc_start,
             )
-            if "pulsar" in instance.variable_values.keys():
-                queryset = queryset.filter(pulsar__name=instance.variable_values["pulsar"])
-            if "mainProject" in instance.variable_values.keys():
-                queryset = queryset.filter(
-                    observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
-                )
-            if "utcStart" in instance.variable_values.keys():
-                queryset = queryset.filter(observation__utc_start=instance.variable_values["utcStart"])
-            if "beam" in instance.variable_values.keys():
-                queryset = queryset.filter(observation__pulsar__name=instance.variable_values["beam"])
-            # Filter and observations with badges or below minimum SNR
-            badge_snr_filter = (
-                Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"])
-                | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
-                | Q(pipeline_run__sn__lt=instance.variable_values["minimumSNR"])
+            .order_by("observation__utc_start")
+            .first()
+        )
+        return next_obs if next_obs else None
+
+    def resolve_previous_observation(self, info):
+        """
+        Find previous observation.
+        """
+        prev_obs = (
+            PulsarFoldResult.objects.filter(
+                observation__project__main_project=self.observation.project.main_project,
+                pulsar__name=self.observation.pulsar.name,
+                observation__utc_start__lt=self.observation.utc_start,
             )
-            return queryset.filter(badge_snr_filter).count()
-        else:
+            .order_by("-observation__utc_start")
+            .first()
+        )
+        return prev_obs if prev_obs else None
+
+
+class PulsarFoldSummaryConnection(relay.Connection):
+    class Meta:
+        abstract = True
+
+    total_observations = graphene.Int()
+    total_pulsars = graphene.Int()
+    total_observation_time = graphene.Float()
+    total_project_time = graphene.Int()
+
+    def resolve_total_observations(self, instance):
+        return sum(edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations)
+
+    def resolve_total_pulsars(self, instance):
+        return len(self.edges)
+
+    def resolve_total_observation_time(self, instance):
+        return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
+
+    def resolve_total_project_time(self, instance):
+        if not self.edges:
             return 0
+        total_seconds = sum(
+            obs.duration for obs in Observation.objects.filter(project__short=self.edges[0].node.most_common_project)
+        )
+        return int(total_seconds / 60 / 60)
 
 
 class PulsarFoldSummaryNode(DjangoObjectType):
@@ -1101,21 +1280,18 @@ class PulsarFoldSummaryNode(DjangoObjectType):
             "most_common_project",
             "all_projects",
         ]
-        filter_fields = "__all__"
+        filter_fields = ["pulsar__name", "main_project__name"]
         interfaces = (relay.Node,)
+        connection_class = PulsarFoldSummaryConnection
 
     # ForeignKey fields
     pulsar = graphene.Field(PulsarNode)
     main_project = graphene.Field(MainProjectNode)
 
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
 
-
-class PulsarFoldSummaryConnection(relay.Connection):
+class PulsarSearchSummaryConnection(relay.Connection):
     class Meta:
-        node = PulsarFoldSummaryNode
+        abstract = True
 
     total_observations = graphene.Int()
     total_pulsars = graphene.Int()
@@ -1132,7 +1308,8 @@ class PulsarFoldSummaryConnection(relay.Connection):
         return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
 
     def resolve_total_project_time(self, instance):
-        # Too slow n(2)
+        if not self.edges:
+            return 0
         total_seconds = sum(
             obs.duration for obs in Observation.objects.filter(project__short=self.edges[0].node.most_common_project)
         )
@@ -1155,42 +1332,13 @@ class PulsarSearchSummaryNode(DjangoObjectType):
             "most_common_project",
             "all_projects",
         ]
-        filter_fields = "__all__"
+        filter_fields = ["pulsar__name", "main_project__name", "most_common_project__name"]
         interfaces = (relay.Node,)
+        connection_class = PulsarSearchSummaryConnection
 
     # ForeignKey fields
     pulsar = graphene.Field(PulsarNode)
     main_project = graphene.Field(MainProjectNode)
-
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
-
-
-class PulsarSearchSummaryConnection(relay.Connection):
-    class Meta:
-        node = PulsarSearchSummaryNode
-
-    total_observations = graphene.Int()
-    total_pulsars = graphene.Int()
-    total_observation_time = graphene.Float()
-    total_project_time = graphene.Int()
-
-    def resolve_total_observations(self, instance):
-        return sum(edge.node.number_of_observations for edge in self.edges if edge.node.number_of_observations)
-
-    def resolve_total_pulsars(self, instance):
-        return len(self.edges)
-
-    def resolve_total_observation_time(self, instance):
-        return round(sum(edge.node.total_integration_hours for edge in self.edges), 1)
-
-    def resolve_total_project_time(self, instance):
-        # Too slow n(2)
-        total_seconds = sum(
-            obs.duration for obs in Observation.objects.filter(project__short=self.edges[0].node.most_common_project)
-        )
-        return int(total_seconds / 60 / 60)
 
 
 class PipelineImageNode(DjangoObjectType):
@@ -1204,19 +1352,105 @@ class PipelineImageNode(DjangoObjectType):
             "image_type",
             "resolution",
         ]
+        # Avoid ImageField in filter generation (django-filter can't infer it by default).
+        filter_fields = {
+            "pulsar_fold_result__id": ["exact"],
+            "url": ["exact", "icontains"],
+            "cleaned": ["exact"],
+            "image_type": ["exact"],
+            "resolution": ["exact"],
+        }
         interfaces = (relay.Node,)
 
     # ForeignKey fields
     pulsar_fold_result = graphene.Field(PulsarFoldResultNode)
 
-    @classmethod
-    def get_queryset(cls, queryset, info):
-        return super().get_queryset(queryset, info)
 
-
-class PipelineImageConnection(relay.Connection):
+class ToaConnection(relay.Connection):
     class Meta:
-        node = PipelineImageNode
+        abstract = True
+
+    all_projects = graphene.List(graphene.String)
+    all_nchans = graphene.List(graphene.Int)
+    total_badge_excluded_toas = graphene.Int()
+
+    def resolve_all_projects(self, instance):
+        if "pulsar" in instance.variable_values.keys():
+            toa_project_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+            if "mainProject" in instance.variable_values.keys():
+                toa_project_query = toa_project_query.filter(
+                    project__main_project__name__icontains=instance.variable_values["mainProject"]
+                )
+            return list(toa_project_query.values_list("project__short", flat=True).distinct())
+
+        return []
+
+    def resolve_all_nchans(self, instance):
+        if "pulsar" in instance.variable_values.keys():
+            toa_nchan_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+            if "mainProject" in instance.variable_values.keys():
+                toa_nchan_query = toa_nchan_query.filter(
+                    project__main_project__name__icontains=instance.variable_values["mainProject"]
+                )
+            values = list(toa_nchan_query.values_list("obs_nchan", flat=True).distinct())
+            return sorted(values)
+
+        return []
+
+    def resolve_total_badge_excluded_toas(self, instance):
+        if "excludeBadges" not in instance.variable_values.keys():
+            return 0
+
+        queryset = (
+            Toa.objects.select_related(
+                "pipeline_run",
+                "ephemeris",
+                "template",
+                "project",
+                "pipeline_run__observation__calibration",
+                "observation__pulsar",
+                "observation__project__main_project",
+            )
+            .prefetch_related(
+                "pipeline_run__observation__calibration__badges",
+            )
+            .all()
+        )
+
+        if "pipelineRunId" in instance.variable_values.keys():
+            queryset = queryset.filter(pipeline_run__id=instance.variable_values["pipelineRunId"])
+
+        if "pulsar" in instance.variable_values.keys():
+            queryset = queryset.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+
+        if "mainProject" in instance.variable_values.keys():
+            queryset = queryset.filter(
+                observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
+            )
+
+        if "projectShort" in instance.variable_values.keys() and instance.variable_values["projectShort"] != "":
+            queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
+
+        if "dmCorrected" in instance.variable_values.keys():
+            queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
+
+        if "nsubType" in instance.variable_values.keys():
+            queryset = queryset.filter(nsub_type=instance.variable_values["nsubType"])
+
+        if "obsNchan" in instance.variable_values.keys():
+            queryset = queryset.filter(obs_nchan=instance.variable_values["obsNchan"])
+
+        if "obsNpol" in instance.variable_values.keys():
+            queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
+        #
+        # Filter and observations with badges
+        badge_filter = (
+            Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"])
+            | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
+            | Q(snr__lt=instance.variable_values["minimumSNR"])
+        )
+
+        return queryset.filter(badge_filter).count()
 
 
 class ToaNode(DjangoObjectType):
@@ -1264,6 +1498,7 @@ class ToaNode(DjangoObjectType):
             "obs_nchan": ["exact"],
         }
         interfaces = (relay.Node,)
+        connection_class = ToaConnection
 
     # ForeignKey fields
     pipeline_run = graphene.Field(PipelineRunNode)
@@ -1271,86 +1506,6 @@ class ToaNode(DjangoObjectType):
     template = graphene.Field(TemplateNode)
 
     nsub_type = graphene.String()
-
-
-class ToaConnection(relay.Connection):
-    class Meta:
-        node = ToaNode
-
-    all_projects = graphene.List(graphene.String)
-    all_nchans = graphene.List(graphene.Int)
-    total_badge_excluded_toas = graphene.Int()
-
-    def resolve_all_projects(self, instance):
-        if "pulsar" in instance.variable_values.keys():
-            toa_project_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
-            if "mainProject" in instance.variable_values.keys():
-                toa_project_query = toa_project_query.filter(
-                    project__main_project__name__icontains=instance.variable_values["mainProject"]
-                )
-            return list(toa_project_query.values_list("project__short", flat=True).distinct())
-
-        return []
-
-    def resolve_all_nchans(self, instance):
-        if "pulsar" in instance.variable_values.keys():
-            toa_nchan_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
-            if "mainProject" in instance.variable_values.keys():
-                toa_nchan_query = toa_nchan_query.filter(
-                    project__main_project__name__icontains=instance.variable_values["mainProject"]
-                )
-            return list(toa_nchan_query.values_list("obs_nchan", flat=True).distinct())
-
-        return []
-
-    def resolve_total_badge_excluded_toas(self, instance):
-        if "excludeBadges" not in instance.variable_values.keys():
-            return 0
-
-        queryset = Toa.objects.select_related(
-            "pipeline_run",
-            "ephemeris",
-            "template",
-            "project",
-            "pipeline_run__observation__calibration__badges",
-            "observation__pulsar",
-            "observation__project__main_project",
-        ).all()
-
-        if "pipelineRunId" in instance.variable_values.keys():
-            queryset = queryset.filter(pipeline_run__id=instance.variable_values["pipelineRunId"])
-
-        if "pulsar" in instance.variable_values.keys():
-            queryset = queryset.filter(observation__pulsar__name=instance.variable_values["pulsar"])
-
-        if "mainProject" in instance.variable_values.keys():
-            queryset = queryset.filter(
-                observation__project__main_project__name__iexact=instance.variable_values["mainProject"]
-            )
-
-        if "projectShort" in instance.variable_values.keys() and instance.variable_values["projectShort"] != "All":
-            queryset = queryset.filter(project__short=instance.variable_values["projectShort"])
-
-        if "dmCorrected" in instance.variable_values.keys():
-            queryset = queryset.filter(dm_corrected=bool(instance.variable_values["dmCorrected"]))
-
-        if "nsubType" in instance.variable_values.keys():
-            queryset = queryset.filter(nsub_type=instance.variable_values["nsubType"])
-
-        if "obsNchan" in instance.variable_values.keys():
-            queryset = queryset.filter(obs_nchan=instance.variable_values["obsNchan"])
-
-        if "obsNpol" in instance.variable_values.keys():
-            queryset = queryset.filter(obs_npol=instance.variable_values["obsNpol"])
-        #
-        # Filter and observations with badges
-        badge_filter = (
-            Q(pipeline_run__badges__name__in=instance.variable_values["excludeBadges"])
-            | Q(pipeline_run__observation__calibration__badges__name__in=instance.variable_values["excludeBadges"])
-            | Q(snr__lt=instance.variable_values["minimumSNR"])
-        )
-
-        return queryset.filter(badge_filter).count()
 
 
 class Query(graphene.ObjectType):
@@ -1380,25 +1535,9 @@ class Query(graphene.ObjectType):
         description="Get files for a pulsar",
     )
 
-    # Original pulsar field
-    pulsar = relay.ConnectionField(
-        PulsarConnection,
-        name=graphene.String(),
-    )
+    pulsar = DjangoFilterConnectionField(PulsarNode)
 
-    @login_required
-    def resolve_pulsar(self, info, **kwargs):
-        if name := kwargs.get("name"):
-            try:
-                return [Pulsar.objects.get(name=name)]
-            except Pulsar.DoesNotExist:
-                return GraphQLError("Pulsar doesn't exist")
-
-        return Pulsar.objects.all()
-
-    telescope = relay.ConnectionField(
-        TelescopeConnection,
-    )
+    telescope = DjangoFilterConnectionField(TelescopeNode)
 
     @login_required
     def resolve_telescope(self, info, **kwargs):
@@ -1410,200 +1549,50 @@ class Query(graphene.ObjectType):
 
         return queryset
 
-    main_project = relay.ConnectionField(
-        MainProjectConnection,
-        name=graphene.String(required=True),
-    )
+    main_project = DjangoFilterConnectionField(MainProjectNode)
 
     @login_required
     def resolve_main_project(self, info, **kwargs):
-        return MainProject.get_query(**kwargs)
+        return MainProject.objects.all()
 
-    project = relay.ConnectionField(
-        ProjectConnection,
-        code=graphene.String(),
-    )
+    project = DjangoFilterConnectionField(ProjectNode)
 
     @login_required
     def resolve_project(self, info, **kwargs):
-        return Project.get_query(**kwargs)
+        return Project.objects.all()
 
-    ephemeris = relay.ConnectionField(
-        EphemerisConnection,
-    )
+    ephemeris = DjangoFilterConnectionField(EphemerisNode)
 
     @login_required
     def resolve_ephemeris(self, info, **kwargs):
-        return Ephemeris.get_query(**kwargs)
+        return Ephemeris.objects.all()
 
-    template = relay.ConnectionField(
-        TemplateConnection,
-    )
+    template = DjangoFilterConnectionField(TemplateNode)
 
     @login_required
     def resolve_template(self, info, **kwargs):
-        return Template.get_query(**kwargs)
+        return Template.objects.all()
 
-    calibration = relay.ConnectionField(
-        CalibrationConnection,
-        id=graphene.Int(),
-    )
+    calibration = DjangoFilterConnectionField(CalibrationNode, filterset_class=CalibrationFilterSet)
 
     # This requires public access for the frontend web app to work.
     # Don't put behind a login
     def resolve_calibration(self, info, **kwargs):
-        queryset = Calibration.objects.filter(n_observations__gt=0)
+        return Calibration.objects.filter(n_observations__gt=0)
 
-        calibration_id = kwargs.get("id")
-        if calibration_id:
-            if calibration_id == -1:
-                queryset = [queryset.order_by("start").last()]
-            else:
-                queryset = queryset.filter(id=calibration_id)
-
-        return queryset
-
-    observation = relay.ConnectionField(
-        ObservationConnection,
-        pulsar__name=graphene.List(graphene.String),
-        telescope__name=graphene.String(),
-        main_project=graphene.String(),
-        project__id=graphene.Int(),
-        project__short=graphene.String(),
-        utcStart_gte=graphene.String(),
-        utcStart_lte=graphene.String(),
-        obs_type=graphene.String(),
-        unprocessed=graphene.Boolean(),
-        incomplete=graphene.Boolean(),
-    )
+    observation = DjangoFilterConnectionField(ObservationNode, filterset_class=ObservationFilterSet)
 
     # This requires public access for the frontend web app to work.
     # Don't put behind a login
     def resolve_observation(self, info, **kwargs):
-        queryset = Observation.objects.select_related(
-            "pulsar", "telescope", "project__main_project", "calibration"
-        ).all()
+        return Observation.objects.select_related("pulsar", "telescope", "project__main_project", "calibration").all()
 
-        pulsar_name = kwargs.get("pulsar__name")
-        if pulsar_name:
-            queryset = queryset.filter(pulsar__name__in=pulsar_name)
-
-        telescope_name = kwargs.get("telescope__name")
-        if telescope_name:
-            queryset = queryset.filter(telescope__name=telescope_name)
-
-        main_project = kwargs.get("main_project")
-        if main_project:
-            if main_project != "All":
-                queryset = queryset.filter(project__main_project__name__iexact=main_project)
-
-        project_id = kwargs.get("project__id")
-        if project_id:
-            queryset = queryset.filter(project__id=project_id)
-
-        project_short = kwargs.get("project__short")
-        if project_short:
-            queryset = queryset.filter(project__short=project_short)
-
-        utcStart_gte = kwargs.get("utcStart_gte")
-        if utcStart_gte:
-            queryset = queryset.filter(utc_start__gte=utcStart_gte)
-
-        utcStart_lte = kwargs.get("utcStart_lte")
-        if utcStart_lte:
-            queryset = queryset.filter(utc_start__lte=utcStart_lte)
-
-        obs_type = kwargs.get("obs_type")
-        if obs_type:
-            queryset = queryset.filter(obs_type=obs_type)
-
-        unprocessed = kwargs.get("unprocessed")
-        if unprocessed:
-            # Find all observations that have not been processed by finding observations
-            # that don't have PulsarFoldResults
-            observations_with_fold_results = PulsarFoldResult.objects.values("observation")
-            queryset = queryset.exclude(id__in=Subquery(observations_with_fold_results))
-
-        incomplete = kwargs.get("incomplete")
-        if incomplete:
-            # Find all observations that do not have "Completed" as their most recent job state
-            observations_failed = PulsarFoldResult.objects.exclude(pipeline_run__job_state="Completed")
-            queryset = queryset.filter(id__in=Subquery(observations_failed.values("observation__id")))
-
-        return queryset
-
-    observation_summary = relay.ConnectionField(
-        ObservationSummaryConnection,
-        pulsar__name=graphene.String(),
-        main_project=graphene.String(),
-        project__id=graphene.Int(),
-        project__short=graphene.String(),
-        calibration__id=graphene.String(),
-        calibration_int=graphene.Int(),
-        obs_type=graphene.String(),
-        band=graphene.String(),
+    observation_summary = DjangoFilterConnectionField(
+        ObservationSummaryNode,
+        filterset_class=ObservationSummaryFilterSet,
     )
 
-    # This requires public access for the frontend web app to work.
-    # Don't put behind a login
-    def resolve_observation_summary(self, info, **kwargs):
-        queryset = ObservationSummary.objects.all()
-
-        pulsar_name = kwargs.get("pulsar__name")
-        if pulsar_name:
-            if pulsar_name == "All":
-                pulsar_name = None
-            queryset = queryset.filter(pulsar__name=pulsar_name)
-
-        main_project = kwargs.get("main_project")
-        if main_project:
-            if main_project == "All":
-                main_project = None
-            queryset = queryset.filter(main_project__name__iexact=main_project)
-
-        project_id = kwargs.get("project__id")
-        if project_id:
-            queryset = queryset.filter(project__id=project_id)
-
-        project_short = kwargs.get("project__short")
-        if project_short:
-            if project_short == "All":
-                project_short = None
-            queryset = queryset.filter(project__short=project_short)
-
-        calibration__id = kwargs.get("calibration__id")
-        if calibration__id:
-            if calibration__id == "All":
-                calibration__id = None
-            else:
-                queryset = queryset.filter(calibration__id=calibration__id)
-
-        calibration_int = kwargs.get("calibration_int")
-        if calibration_int:
-            if calibration_int == -1:
-                last_cal_id = Calibration.objects.all().order_by("start").last().id
-                queryset = queryset.filter(calibration__id=last_cal_id)
-            else:
-                queryset = queryset.filter(calibration__id=calibration_int)
-
-        obs_type = kwargs.get("obs_type")
-        if obs_type:
-            if obs_type == "All":
-                obs_type = None
-            queryset = queryset.filter(obs_type=obs_type)
-
-        band = kwargs.get("band")
-        if band:
-            if band == "All":
-                band = None
-            queryset = queryset.filter(band=band)
-
-        return queryset
-
-    pipeline_run = relay.ConnectionField(
-        PipelineRunConnection,
-        id=graphene.Int(),
-    )
+    pipeline_run = DjangoFilterConnectionField(PipelineRunNode)
 
     @login_required
     def resolve_pipeline_run(self, info, **kwargs):
@@ -1615,16 +1604,9 @@ class Query(graphene.ObjectType):
 
         return PipelineRun.objects.all()
 
-    pulsar_fold_result = relay.ConnectionField(
-        PulsarFoldResultConnection,
-        pulsar=graphene.String(),
-        mainProject=graphene.String(),
-        utcStart=graphene.String(),
-        beam=graphene.Int(),
-        excludeBadges=graphene.List(graphene.String),
-        minimumSNR=graphene.Float(),
-        utcStartGte=graphene.String(),
-        utcStartLte=graphene.String(),
+    pulsar_fold_result = DjangoFilterConnectionField(
+        PulsarFoldResultNode,
+        filterset_class=PulsarFoldResultFilterSet,
     )
 
     # This requires public access for the frontend web app to work.
@@ -1647,85 +1629,27 @@ class Query(graphene.ObjectType):
             .all()
         )
 
-        if pulsar_name := kwargs.get("pulsar"):
-            queryset = queryset.filter(pulsar__name=pulsar_name)
-
-        if main_project_name := kwargs.get("mainProject"):
-            queryset = queryset.filter(observation__project__main_project__name__iexact=main_project_name)
-
-        if utc_start := kwargs.get("utcStart"):
-            # Parse the datetime and make it timezone-aware (UTC)
-            naive_dt = datetime.strptime(utc_start, "%Y-%m-%d-%H:%M:%S")
-            aware_dt = naive_dt.replace(tzinfo=dt_timezone.utc)
-            queryset = queryset.filter(observation__utc_start=aware_dt)
-
-        if beam := kwargs.get("beam"):
-            queryset = queryset.filter(observation__beam=beam)
-
-        if exclude_badges := kwargs.get("excludeBadges"):
-            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges).exclude(
-                pipeline_run__observation__calibration__badges__name__in=exclude_badges
-            )
-
-        if minimumSNR := kwargs.get("minimumSNR"):
-            queryset = queryset.filter(pipeline_run__sn__gte=minimumSNR)
-
-        if utc_start_gte := kwargs.get("utcStartGte"):
-            queryset = queryset.filter(observation__utc_start__gte=utc_start_gte)
-
-        if utc_start_lte := kwargs.get("utcStartLte"):
-            queryset = queryset.filter(observation__utc_start__lte=utc_start_lte)
-
         return queryset
 
-    pulsar_fold_summary = relay.ConnectionField(
-        PulsarFoldSummaryConnection,
-        main_project=graphene.String(),
-        most_common_project=graphene.String(),
-        project=graphene.String(),
-        band=graphene.String(),
+    pulsar_fold_summary = DjangoFilterConnectionField(
+        PulsarFoldSummaryNode,
+        filterset_class=PulsarFoldSummaryFilterSet,
     )
 
-    # This requires public access for the frontend web app to work.
-    # Don't put behind a login
-    def resolve_pulsar_fold_summary(self, info, **kwargs):
-        return PulsarFoldSummary.get_query(**kwargs)
-
-    pulsar_search_summary = relay.ConnectionField(
-        PulsarSearchSummaryConnection,
-        main_project=graphene.String(),
-        most_common_project=graphene.String(),
-        project=graphene.String(),
-        band=graphene.String(),
+    pulsar_search_summary = DjangoFilterConnectionField(
+        PulsarSearchSummaryNode,
+        filterset_class=PulsarSearchSummaryFilterSet,
     )
 
-    # This requires public access for the frontend web app to work.
-    # Don't put behind a login
-    def resolve_pulsar_search_summary(self, info, **kwargs):
-        return PulsarSearchSummary.get_query(**kwargs)
-
-    pipeline_image = relay.ConnectionField(
-        PipelineImageConnection,
-    )
+    pipeline_image = DjangoFilterConnectionField(PipelineImageNode)
 
     @login_required
     def resolve_pipeline_image(self, info, **kwargs):
         return PipelineImage.objects.all()
 
-    toa = relay.ConnectionField(
-        ToaConnection,
-        pipelineRunId=graphene.Int(),
-        pulsar=graphene.String(),
-        mainProject=graphene.String(),
-        projectShort=graphene.String(),
-        dmCorrected=graphene.Boolean(),
-        nsubType=graphene.String(),
-        obsNchan=graphene.Int(),
-        obsNpol=graphene.Int(),
-        excludeBadges=graphene.List(graphene.String),
-        minimumSNR=graphene.Float(),
-        utcStartGte=graphene.String(),
-        utcStartLte=graphene.String(),
+    toa = DjangoFilterConnectionField(
+        ToaNode,
+        filterset_class=ToaFilterSet,
     )
 
     @login_required
@@ -1737,54 +1661,9 @@ class Query(graphene.ObjectType):
             "project",
         ).all()
 
-        if pipelineRunId := kwargs.get("pipelineRunId"):
-            queryset = queryset.select_related("pipeline_run").filter(pipeline_run__id=pipelineRunId)
-
-        if pulsar_name := kwargs.get("pulsar"):
-            queryset = queryset.select_related("observation__pulsar").filter(observation__pulsar__name=pulsar_name)
-
-        if main_project_name := kwargs.get("mainProject"):
-            queryset = queryset.select_related("observation__project__main_project").filter(
-                observation__project__main_project__name__iexact=main_project_name
-            )
-
-        project_short = kwargs.get("projectShort")
-        if project_short and project_short != "All":
-            queryset = queryset.select_related("project").filter(project__short=project_short)
-
-        dm_corrected = kwargs.get("dmCorrected")
-        if dm_corrected is not None:
-            queryset = queryset.filter(dm_corrected=bool(dm_corrected))
-
-        nsub_type = kwargs.get("nsubType")
-        if nsub_type is not None:
-            queryset = queryset.filter(nsub_type=nsub_type)
-
-        if obs_nchan := kwargs.get("obsNchan"):
-            queryset = queryset.filter(obs_nchan=obs_nchan)
-
-        if obs_npol := kwargs.get("obsNpol"):
-            queryset = queryset.filter(obs_npol=obs_npol)
-
-        if exclude_badges := kwargs.get("excludeBadges"):
-            queryset = queryset.exclude(pipeline_run__badges__name__in=exclude_badges).exclude(
-                pipeline_run__observation__calibration__badges__name__in=exclude_badges
-            )
-
-        if minimumSNR := kwargs.get("minimumSNR"):
-            queryset = queryset.filter(snr__gte=minimumSNR)
-
-        if utc_start_gte := kwargs.get("utcStartGte"):
-            queryset = queryset.filter(observation__utc_start__gte=utc_start_gte)
-
-        if utc_start_lte := kwargs.get("utcStartLte"):
-            queryset = queryset.filter(observation__utc_start__lte=utc_start_lte)
-
         return queryset.order_by("mjd")
 
-    badge = relay.ConnectionField(
-        BadgeConnection,
-    )
+    badge = DjangoFilterConnectionField(BadgeNode)
 
     @login_required
     def resolve_badge(self, info, **kwargs):

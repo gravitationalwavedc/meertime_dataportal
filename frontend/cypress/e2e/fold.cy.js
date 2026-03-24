@@ -1,8 +1,26 @@
-import { aliasQuery } from "../utils/graphql-test-utils";
+import {
+  aliasQuery,
+  assertEmptyStringOrConcrete,
+  assertNoAllValues,
+} from "../utils/graphql-test-utils";
+
+const FOLD_GUARDED_KEYS = ["mainProject", "mostCommonProject", "project", "band"];
 
 describe("The Fold Page", () => {
   beforeEach(() => {
     cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      if (req.body?.query?.includes("FoldQuery")) {
+        assertNoAllValues(req, FOLD_GUARDED_KEYS, "FoldQuery");
+      }
+      if (req.body?.query?.includes("FoldTableRefetchQuery")) {
+        assertNoAllValues(req, FOLD_GUARDED_KEYS, "FoldTableRefetchQuery");
+        assertEmptyStringOrConcrete(
+          req,
+          FOLD_GUARDED_KEYS,
+          "FoldTableRefetchQuery"
+        );
+      }
+
       aliasQuery(req, "FoldQuery", "foldQuery.json");
       aliasQuery(req, "FoldTableRefetchQuery", "foldQueryFewer.json");
       aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
@@ -55,7 +73,14 @@ describe("The Fold Page", () => {
 
     cy.get("#bandSelect").select("LBAND", { force: true });
 
-    cy.wait("@FoldTableRefetchQuery");
+    cy.wait("@FoldTableRefetchQuery").then((interception) => {
+      expect(interception.request.body.variables).to.deep.include({
+        mainProject: "meertime",
+        mostCommonProject: "",
+        project: "",
+        band: "LBAND",
+      });
+    });
     cy.url().should(
       "eq",
       "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&project=All&band=LBAND"
@@ -69,7 +94,14 @@ describe("The Fold Page", () => {
 
     cy.get("#mainProjectSelect").select("Molonglo", { force: true });
 
-    cy.wait("@FoldTableRefetchQuery");
+    cy.wait("@FoldTableRefetchQuery").then((interception) => {
+      expect(interception.request.body.variables).to.deep.include({
+        mainProject: "MONSPSR",
+        mostCommonProject: "",
+        project: "",
+        band: "",
+      });
+    });
     cy.url().should(
       "eq",
       "http://localhost:5173/?search=&mainProject=MONSPSR&mostCommonProject=All&project=All&band=All"
@@ -83,7 +115,14 @@ describe("The Fold Page", () => {
 
     cy.get("#projectSelect").select("TPA", { force: true });
 
-    cy.wait("@FoldTableRefetchQuery");
+    cy.wait("@FoldTableRefetchQuery").then((interception) => {
+      expect(interception.request.body.variables).to.deep.include({
+        mainProject: "meertime",
+        mostCommonProject: "",
+        project: "TPA",
+        band: "",
+      });
+    });
     cy.url().should(
       "eq",
       "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&project=TPA&band=All"
@@ -97,7 +136,14 @@ describe("The Fold Page", () => {
 
     cy.get("#mostCommonProjectSelect").select("TPA", { force: true });
 
-    cy.wait("@FoldTableRefetchQuery");
+    cy.wait("@FoldTableRefetchQuery").then((interception) => {
+      expect(interception.request.body.variables).to.deep.include({
+        mainProject: "meertime",
+        mostCommonProject: "TPA",
+        project: "",
+        band: "",
+      });
+    });
     cy.url().should(
       "eq",
       "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=TPA&project=All&band=All"

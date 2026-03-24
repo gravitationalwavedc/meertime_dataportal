@@ -1,6 +1,9 @@
 import _ from "lodash";
 import moment from "moment";
 
+export const toApiFilter = (filter) =>
+  filter === "All" || !filter ? "" : filter;
+
 export const calculateMedian = (arr) => {
   if (arr[0]?.value) {
     const sorted = arr.slice().sort((a, b) => a.value - b.value);

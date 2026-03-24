@@ -33,23 +33,16 @@ class BaseTestCaseWithTempMedia(TestCase):
     def setUpClass(cls):
         # Create temporary directories for this test class
         cls._temp_media_dir = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(cls._temp_media_dir.cleanup)
         cls._temp_meertime_data_dir = tempfile.TemporaryDirectory()
+        cls.addClassCleanup(cls._temp_meertime_data_dir.cleanup)
 
         # Override settings for the entire test class
         cls._settings_override = override_settings(
-            MEDIA_ROOT=cls._temp_media_dir.name, MEERTIME_DATA_DIR=cls._temp_meertime_data_dir.name
+            MEDIA_ROOT=cls._temp_media_dir.name,
+            MEERTIME_DATA_DIR=cls._temp_meertime_data_dir.name,
         )
         cls._settings_override.enable()
+        cls.addClassCleanup(cls._settings_override.disable)
 
         super().setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        # Disable settings override
-        cls._settings_override.disable()
-
-        # Clean up temporary directories
-        cls._temp_media_dir.cleanup()
-        cls._temp_meertime_data_dir.cleanup()
-
-        super().tearDownClass()

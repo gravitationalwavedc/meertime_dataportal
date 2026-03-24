@@ -4,7 +4,7 @@ import os
 from django.contrib.auth import get_user_model
 from graphene_django.utils.testing import GraphQLTestCase
 
-from dataportal.models import Badge
+from dataportal.models import Badge, Calibration
 from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import (
     TEST_DATA_DIR,
@@ -55,9 +55,9 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         observationSummary(
             pulsar_Name: "J0125-2327"
             obsType: "fold"
-            calibration_Id: "All"
+            calibration_Id: ""
             mainProject: "MeerTIME"
-            project_Short: "All"
+            project_Short: ""
             band: "{band}"
         ) {{
             edges {{
@@ -70,7 +70,7 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         }}
         pulsarFoldSummary (
             mainProject: "MeerTIME"
-            project: "All"
+            project: ""
             band: "{band}"
             first: 1
         ) {{
@@ -104,10 +104,10 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         observationSummary (
             pulsar_Name: "J0125-2327"
             obsType: "fold"
-            calibration_Id: "All"
+            calibration_Id: ""
             mainProject: "MeerTIME"
-            project_Short: "All"
-            band: "All"
+            project_Short: ""
+            band: ""
         ) {
         edges {
             node {
@@ -280,12 +280,12 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
     SEARCH_QUERY = """
     query {
         observationSummary(
-            pulsar_Name: "All"
+            pulsar_Name: ""
             obsType: "search"
-            calibration_Id: "All"
+            calibration_Id: ""
             mainProject: "MeerTIME"
-            project_Short: "All"
-            band: "All"
+            project_Short: ""
+            band: ""
         ) {
         edges {
             node {
@@ -297,8 +297,8 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         }
     pulsarSearchSummary(
         mainProject: "MeerTIME"
-        project: "All"
-        band: "All"
+        project: ""
+        band: ""
         first: 1
     ) {
         edges {
@@ -325,10 +325,10 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         observationSummary(
             pulsar_Name: "OmegaCen1"
             obsType: "search"
-            calibration_Id: "All"
+            calibration_Id: ""
             mainProject: "MeerTIME"
-            project_Short: "All"
-            band: "All"
+            project_Short: ""
+            band: ""
         ) {
             edges {
                 node {
@@ -372,12 +372,12 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
     SESSION_QUERY = """
     query {{
         observationSummary (
-            pulsar_Name: "All",
-            obsType: "All",
+            pulsar_Name: "",
+            obsType: "",
             calibrationInt: {cal},
-            mainProject: "All",
-            project_Short: "All",
-            band: "All",
+            mainProject: "",
+            project_Short: "",
+            band: "",
         ) {{
             edges {{
                 node {{
@@ -455,6 +455,45 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
                     nAntMin
                     nAntMax
                     totalIntegrationTimeSeconds
+                }
+            }
+        }
+    }
+    """
+
+    SESSION_LATEST_QUERY = """
+    query {
+        calibration(first: 1) {
+            edges {
+                node {
+                    id
+                    idInt
+                    start
+                    end
+                    observations {
+                        edges {
+                            node {
+                                id
+                                pulsar {
+                                    name
+                                }
+                                utcStart
+                                obsType
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    """
+
+    SESSION_SENTINEL_QUERY = """
+    query {
+        calibration(id: -1) {
+            edges {
+                node {
+                    idInt
                 }
             }
         }
@@ -598,13 +637,13 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         """Test fold query with different band parameters."""
         # User is already logged in from setUp, just execute the queries
 
-        # Test with band="All"
-        response = self.query(self.FOLD_QUERY.format(band="All"))
+        # Test with band=""
+        response = self.query(self.FOLD_QUERY.format(band=""))
         content = json.loads(response.content)
         self.assertNotIn("errors", content)
 
-        # Check the response data for band="All"
-        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observations"], 3)
+        # Check the response data for band=""
+        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observations"], 2)
         self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["pulsars"], 1)
         self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observationHours"], 0)
 
@@ -638,11 +677,11 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
 
         # Check observation summary
         obs_summary = content["data"]["observationSummary"]["edges"][0]["node"]
-        self.assertEqual(obs_summary["observations"], 3)
+        self.assertEqual(obs_summary["observations"], 2)
         self.assertEqual(obs_summary["observationHours"], 0)
         self.assertEqual(obs_summary["projects"], 1)
         self.assertEqual(obs_summary["pulsars"], 1)
-        self.assertAlmostEqual(obs_summary["estimatedDiskSpaceGb"], 1.0766774425551469)
+        self.assertAlmostEqual(obs_summary["estimatedDiskSpaceGb"], 0.5770263671874999)
 
         # Remove variable parts that can change between test runs
         fold_result = content["data"]["pulsarFoldResult"]
@@ -742,9 +781,9 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
 
         # Check observation summary
         obs_summary = content["data"]["observationSummary"]["edges"][0]["node"]
-        self.assertEqual(obs_summary["observations"], 3)
-        self.assertEqual(obs_summary["pulsars"], 3)
-        self.assertEqual(obs_summary["observationHours"], 4)
+        self.assertEqual(obs_summary["observations"], 1)
+        self.assertEqual(obs_summary["pulsars"], 1)
+        self.assertEqual(obs_summary["observationHours"], 0)
 
         # Check search summary
         search_summary = content["data"]["pulsarSearchSummary"]["edges"][0]["node"]
@@ -836,6 +875,29 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         self.assertEqual(calibration["nAntMin"], 31)
         self.assertEqual(calibration["nAntMax"], 31)
         self.assertAlmostEqual(calibration["totalIntegrationTimeSeconds"], 120.26899999999999)
+
+    def test_session_latest_query_uses_first(self):
+        """Test latest session retrieval using Relay-style pagination args."""
+        response = self.query(self.SESSION_LATEST_QUERY)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        calibration_edges = content["data"]["calibration"]["edges"]
+        self.assertEqual(len(calibration_edges), 1)
+
+        latest_from_query = calibration_edges[0]["node"]
+        latest_from_db = Calibration.objects.filter(n_observations__gt=0).order_by("-start").first()
+
+        self.assertIsNotNone(latest_from_db)
+        self.assertEqual(latest_from_query["idInt"], latest_from_db.id)
+        self.assertEqual(latest_from_query["start"], latest_from_db.start.isoformat())
+
+    def test_session_query_does_not_support_sentinel_id(self):
+        """`id` should only match a real calibration PK; no sentinel semantics."""
+        response = self.query(self.SESSION_SENTINEL_QUERY)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(content["data"]["calibration"]["edges"], [])
 
     def test_toa_uploads(self):
         """Test TOA file uploads."""
