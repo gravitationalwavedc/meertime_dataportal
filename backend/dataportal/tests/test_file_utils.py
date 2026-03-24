@@ -13,7 +13,7 @@ from django.urls import reverse
 from freezegun import freeze_time
 
 from dataportal.file_utils import get_file_list, get_file_path, serve_file
-from dataportal.models import Observation, PipelineRun, ProjectMembership, Toa
+from dataportal.models import Ephemeris, Observation, PipelineRun, ProjectMembership, Template, Toa
 from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import setup_query_test
 from utils.constants import UserRole
@@ -204,6 +204,12 @@ class DownloadViewsTestCase(BaseTestCaseWithTempMedia):
         cls.restricted_user = get_user_model().objects.create_user(
             username="restricted", email="restricted@example.com", password="secret", role=UserRole.RESTRICTED.value
         )
+
+        # Backdate Ephemeris and Template to 1980 so they are public by default even in freeze_time(1990) tests
+        Ephemeris.objects.filter(id=cls.ephemeris.id).update(created_at=datetime(1980, 1, 1, tzinfo=pytz.UTC))
+        Template.objects.filter(id=cls.template.id).update(created_at=datetime(1980, 1, 1, tzinfo=pytz.UTC))
+        cls.ephemeris.refresh_from_db()
+        cls.template.refresh_from_db()
 
     def setUp(self):
         """Setup that runs before each test method."""
@@ -1069,8 +1075,7 @@ class DownloadViewsTestCase(BaseTestCaseWithTempMedia):
             # Extract the zip file
             with zipfile.ZipFile(zip_path, "r") as zip:
                 members = zip.namelist()
-                # Should only contain files from the unrestricted observation
-                self.assertEqual(len(members), 1)  # One ToAs file
+                self.assertEqual(len(members), 2)  # One ToAs file + One .par Ephemeris file
 
                 # Check for the expected structure: timing/timestamp/beam/timing/project/filename
                 timestamp_dir = unrestricted_obs.utc_start.strftime("%Y-%m-%d-%H:%M:%S")

@@ -339,6 +339,47 @@ class Ephemeris(models.Model):
         ).hexdigest()
         super(Ephemeris, self).save(*args, **kwargs)
 
+    @property
+    def is_embargoed(self):
+        """
+        Check if the ephemeris is still under embargo.
+        Embargo is based on ephemeris creation date + project embargo period.
+        :return: bool
+        """
+        embargo_end_date = self.created_at + self.project.embargo_period
+        return embargo_end_date >= datetime.now(tz=pytz.UTC)
+
+    def is_restricted(self, user):
+        """
+        Check if the ephemeris is restricted for the user.
+        Ephemeris require authentication for all downloads.
+
+        Returns True if the user cannot access this ephemeris.
+
+        Access is granted if:
+        - User is authenticated AND
+        - (User is a superuser OR
+          Ephemeris is not embargoed OR
+          User is a member of the ephemeris's project)
+
+        :param user: Django user model instance
+        :return: bool - True if restricted (no access), False if accessible
+        """
+        if not user.is_authenticated:
+            return True
+
+        if user.is_superuser:
+            return False
+
+        if not self.is_embargoed:
+            return False
+
+        return not ProjectMembership.objects.filter(
+            user=user,
+            project=self.project,
+            is_active=True,
+        ).exists()
+
     class Meta:
         constraints = [
             UniqueConstraint(
