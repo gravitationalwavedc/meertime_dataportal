@@ -55,10 +55,11 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         observationSummary(
             pulsar_Name: "J0125-2327"
             obsType: "fold"
-            calibration_Id: ""
+            calibrationIsnull: true
             mainProject: "MeerTIME"
-            project_Short: ""
+            projectIsnull: true
             band: "{band}"
+            bandIsnull: {band_isnull}
         ) {{
             edges {{
                 node {{
@@ -104,10 +105,10 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         observationSummary (
             pulsar_Name: "J0125-2327"
             obsType: "fold"
-            calibration_Id: ""
+            calibrationIsnull: true
             mainProject: "MeerTIME"
-            project_Short: ""
-            band: ""
+            projectIsnull: true
+            bandIsnull: true
         ) {
         edges {
             node {
@@ -282,10 +283,10 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         observationSummary(
             pulsar_Name: ""
             obsType: "search"
-            calibration_Id: ""
+            calibrationIsnull: true
             mainProject: "MeerTIME"
-            project_Short: ""
-            band: ""
+            projectIsnull: true
+            bandIsnull: true
         ) {
         edges {
             node {
@@ -325,10 +326,10 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         observationSummary(
             pulsar_Name: "OmegaCen1"
             obsType: "search"
-            calibration_Id: ""
+            calibrationIsnull: true
             mainProject: "MeerTIME"
-            project_Short: ""
-            band: ""
+            projectIsnull: true
+            bandIsnull: true
         ) {
             edges {
                 node {
@@ -638,12 +639,12 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         # User is already logged in from setUp, just execute the queries
 
         # Test with band=""
-        response = self.query(self.FOLD_QUERY.format(band=""))
+        response = self.query(self.FOLD_QUERY.format(band="", band_isnull="true"))
         content = json.loads(response.content)
         self.assertNotIn("errors", content)
 
         # Check the response data for band=""
-        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observations"], 2)
+        self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observations"], 3)
         self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["pulsars"], 1)
         self.assertEqual(content["data"]["observationSummary"]["edges"][0]["node"]["observationHours"], 0)
 
@@ -654,7 +655,7 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         self.assertEqual(node["latestObservationBeam"], 1)
 
         # Test with band="UHF"
-        response = self.query(self.FOLD_QUERY.format(band="UHF"))
+        response = self.query(self.FOLD_QUERY.format(band="UHF", band_isnull="false"))
         content = json.loads(response.content)
         self.assertNotIn("errors", content)
 
@@ -677,11 +678,11 @@ class FrontendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
 
         # Check observation summary
         obs_summary = content["data"]["observationSummary"]["edges"][0]["node"]
-        self.assertEqual(obs_summary["observations"], 2)
+        self.assertEqual(obs_summary["observations"], 3)
         self.assertEqual(obs_summary["observationHours"], 0)
         self.assertEqual(obs_summary["projects"], 1)
         self.assertEqual(obs_summary["pulsars"], 1)
-        self.assertAlmostEqual(obs_summary["estimatedDiskSpaceGb"], 0.5770263671874999)
+        self.assertAlmostEqual(obs_summary["estimatedDiskSpaceGb"], 1.0766774425551469)
 
         # Remove variable parts that can change between test runs
         fold_result = content["data"]["pulsarFoldResult"]

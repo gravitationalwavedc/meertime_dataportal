@@ -6,6 +6,7 @@ from datetime import timezone as dt_timezone
 import django_filters
 import graphene
 from astropy.time import Time
+from django.core.exceptions import ValidationError
 from django.db.models import Q, Subquery
 from django.template.defaultfilters import filesizeformat
 from django.utils import timezone
@@ -317,14 +318,59 @@ class ObservationSummaryFilterSet(django_filters.FilterSet):
     main_project = django_filters.CharFilter(field_name="main_project__name", lookup_expr="iexact")
     project__id = TypedFilter(input_type=graphene.Int, field_name="project__id")
     project__short = django_filters.CharFilter(field_name="project__short", lookup_expr="exact")
+    project_isnull = django_filters.BooleanFilter(field_name="project", lookup_expr="isnull")
     calibration__id = TypedFilter(input_type=graphene.String, field_name="calibration__id")
+    calibration_isnull = django_filters.BooleanFilter(field_name="calibration", lookup_expr="isnull")
     calibration_int = TypedFilter(input_type=graphene.Int, field_name="calibration__id")
     obs_type = django_filters.CharFilter(field_name="obs_type", lookup_expr="exact")
     band = django_filters.CharFilter(field_name="band", lookup_expr="exact")
+    band_isnull = django_filters.BooleanFilter(field_name="band", lookup_expr="isnull")
 
     class Meta:
         model = ObservationSummary
         fields = []
+
+    def filter_queryset(self, queryset):
+        def has_concrete_value(value):
+            # django-filter treats empty string / null-like values as "skip filter".
+            # For conflict checks we only care about values that would actively constrain
+            # the queryset (for example "PTA", "LBAND", a calibration id).
+            if value is None:
+                return False
+            if isinstance(value, str):
+                return value.strip() != ""
+            return True
+
+        cleaned_data = self.form.cleaned_data
+        # Aggregate summary rows are represented by NULL dimension fields.
+        # Exposing *Isnull lets the frontend explicitly request that aggregate grain.
+        # Passing both aggregate and concrete filters at once is contradictory, so we
+        # fail fast with a clear validation error instead of returning ambiguous results.
+        contradictions = (
+            (
+                "project_isnull",
+                "project__short",
+                "projectIsnull: true",
+                "project_Short",
+            ),
+            (
+                "band_isnull",
+                "band",
+                "bandIsnull: true",
+                "band",
+            ),
+            (
+                "calibration_isnull",
+                "calibration__id",
+                "calibrationIsnull: true",
+                "calibration_Id",
+            ),
+        )
+        for null_key, exact_key, null_arg, exact_arg in contradictions:
+            if cleaned_data.get(null_key) is True and has_concrete_value(cleaned_data.get(exact_key)):
+                raise ValidationError(f"Cannot combine `{null_arg}` with `{exact_arg}`.")
+
+        return super().filter_queryset(queryset)
 
 
 class CalibrationFilterSet(django_filters.FilterSet):

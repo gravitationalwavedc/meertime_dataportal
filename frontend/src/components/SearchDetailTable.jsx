@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { graphql, useFragment } from "react-relay";
-import { columnsSizeFilter, kronosLink } from "../helpers";
+import {
+  columnsSizeFilter,
+  kronosLink,
+  selectCanonicalObservationSummaryNode,
+} from "../helpers";
 import Button from "react-bootstrap/Button";
 import DataView from "./DataView";
 import SearchmodeDetailCard from "./SearchmodeDetailCard";
@@ -16,10 +20,10 @@ const SearchDetailTableFragment = graphql`
     observationSummary(
       pulsar_Name: $jname
       obsType: "search"
-      calibration_Id: ""
+      calibrationIsnull: true
       mainProject: $mainProject
-      project_Short: ""
-      band: ""
+      projectIsnull: true
+      bandIsnull: true
     ) {
       edges {
         node {
@@ -244,7 +248,8 @@ const SearchDetailTable = ({ data, jname }) => {
     setRows(newRows);
   };
 
-  const summaryNode = relayData.observationSummary.edges[0]?.node;
+  const summaryNode =
+    selectCanonicalObservationSummaryNode(relayData.observationSummary) || {};
   const summaryData = [
     {
       title: "Observations",

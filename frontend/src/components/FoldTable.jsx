@@ -1,6 +1,11 @@
 import { Button, ButtonGroup } from "react-bootstrap";
 import { useState } from "react";
-import { columnsSizeFilter, formatUTC, toApiFilter } from "../helpers";
+import {
+  columnsSizeFilter,
+  formatUTC,
+  selectCanonicalObservationSummaryNode,
+  toApiFilter,
+} from "../helpers";
 import { graphql, useRefetchableFragment } from "react-relay";
 import DataView from "./DataView";
 import { Link } from "found";
@@ -15,14 +20,19 @@ const FoldTableFragment = graphql`
     mostCommonProject: { type: "String", defaultValue: "" }
     project: { type: "String", defaultValue: "" }
     band: { type: "String", defaultValue: "" }
+    projectIsnull: { type: "Boolean", defaultValue: true }
+    bandIsnull: { type: "Boolean", defaultValue: true }
+    calibrationIsnull: { type: "Boolean", defaultValue: true }
   ) {
     observationSummary(
       pulsar_Name: $pulsar
       obsType: "fold"
-      calibration_Id: ""
+      calibrationIsnull: $calibrationIsnull
       mainProject: $mainProject
       project_Short: $project
       band: $band
+      projectIsnull: $projectIsnull
+      bandIsnull: $bandIsnull
     ) {
       edges {
         node {
@@ -96,11 +106,16 @@ const FoldTable = ({
     url.searchParams.set("project", newProject ? newProject : "All");
     url.searchParams.set("band", newBand ? newBand : "All");
     window.history.pushState({}, "", url);
+    const projectFilter = toApiFilter(newProject);
+    const bandFilter = toApiFilter(newBand);
     refetch({
       mainProject: toApiFilter(newMainProject),
       mostCommonProject: toApiFilter(newMostCommonProject),
-      project: toApiFilter(newProject),
-      band: toApiFilter(newBand),
+      project: projectFilter,
+      band: bandFilter,
+      projectIsnull: projectFilter === "",
+      bandIsnull: bandFilter === "",
+      calibrationIsnull: true,
     });
   };
 
@@ -276,7 +291,8 @@ const FoldTable = ({
 
   const columnsSizeFiltered = columnsSizeFilter(columns, screenSize);
 
-  const summaryNode = relayData.observationSummary.edges[0]?.node;
+  const summaryNode =
+    selectCanonicalObservationSummaryNode(relayData.observationSummary) || {};
   const summaryData = [
     { title: "Observations", value: summaryNode.observations },
     { title: "Unique Pulsars", value: summaryNode.pulsars },

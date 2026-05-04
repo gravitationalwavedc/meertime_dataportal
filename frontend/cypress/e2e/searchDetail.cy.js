@@ -47,6 +47,10 @@ describe("The Search Detail Page", () => {
     });
 
     cy.contains("Loading...").should("not.exist");
+    cy.contains("p", "Observations")
+      .parent()
+      .find("h4")
+      .should("have.text", "1");
     cy.contains("Timestamp").should("be.visible");
     cy.location("pathname").should("equal", "/search/All/J1944+1755/");
   });

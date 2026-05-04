@@ -6,7 +6,7 @@ import { graphql } from "relay-runtime";
 import { useLazyLoadQuery } from "react-relay";
 import PlotContainer from "../components/plots/PlotContainer";
 import { useState } from "react";
-import { toApiFilter } from "../helpers";
+import { selectCanonicalObservationSummaryNode, toApiFilter } from "../helpers";
 
 const foldDetailQuery = graphql`
   query FoldDetailQuery(
@@ -30,10 +30,10 @@ const foldDetailQuery = graphql`
     observationSummary(
       pulsar_Name: $pulsar
       obsType: "fold"
-      calibration_Id: ""
+      calibrationIsnull: true
       mainProject: $mainProject
-      project_Short: ""
-      band: ""
+      projectIsnull: true
+      bandIsnull: true
     ) {
       edges {
         node {
@@ -74,7 +74,8 @@ const FoldDetail = ({ match }) => {
     mainProject: toApiFilter(mainProject),
   });
 
-  const summaryNode = data.observationSummary?.edges[0]?.node;
+  const summaryNode =
+    selectCanonicalObservationSummaryNode(data.observationSummary) || {};
   const summaryData = [
     { title: "Observations", value: summaryNode.observations },
     { title: "Projects", value: summaryNode.projects },

@@ -4,6 +4,48 @@ import moment from "moment";
 export const toApiFilter = (filter) =>
   filter === "All" || !filter ? "" : filter;
 
+const asComparableNumber = (value) =>
+  typeof value === "number" && Number.isFinite(value) ? value : -1;
+
+const isBetterSummaryNode = (candidate, currentBest) => {
+  const priorities = [
+    "observations",
+    "projects",
+    "pulsars",
+    "observationHours",
+  ];
+
+  for (const key of priorities) {
+    const candidateValue = asComparableNumber(candidate?.[key]);
+    const currentValue = asComparableNumber(currentBest?.[key]);
+    if (candidateValue > currentValue) {
+      return true;
+    }
+    if (candidateValue < currentValue) {
+      return false;
+    }
+  }
+
+  return false;
+};
+
+export const selectCanonicalObservationSummaryNode = (observationSummary) => {
+  const edges = observationSummary?.edges || [];
+  let bestNode = null;
+
+  for (const edge of edges) {
+    const candidateNode = edge?.node;
+    if (!candidateNode) {
+      continue;
+    }
+    if (!bestNode || isBetterSummaryNode(candidateNode, bestNode)) {
+      bestNode = candidateNode;
+    }
+  }
+
+  return bestNode;
+};
+
 export const calculateMedian = (arr) => {
   if (arr[0]?.value) {
     const sorted = arr.slice().sort((a, b) => a.value - b.value);
