@@ -16,6 +16,7 @@ const FoldTableFragment = graphql`
   @refetchable(queryName: "FoldTableRefetchQuery")
   @argumentDefinitions(
     pulsar: { type: "String", defaultValue: "" }
+    pulsarIsnull: { type: "Boolean", defaultValue: true }
     mainProject: { type: "String", defaultValue: "MeerTIME" }
     mostCommonProject: { type: "String", defaultValue: "" }
     project: { type: "String", defaultValue: "" }
@@ -26,6 +27,7 @@ const FoldTableFragment = graphql`
   ) {
     observationSummary(
       pulsar_Name: $pulsar
+      pulsarIsnull: $pulsarIsnull
       obsType: "fold"
       calibrationIsnull: $calibrationIsnull
       mainProject: $mainProject
@@ -109,6 +111,7 @@ const FoldTable = ({
     const projectFilter = toApiFilter(newProject);
     const bandFilter = toApiFilter(newBand);
     refetch({
+      pulsarIsnull: true,
       mainProject: toApiFilter(newMainProject),
       mostCommonProject: toApiFilter(newMostCommonProject),
       project: projectFilter,

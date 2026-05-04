@@ -70,6 +70,7 @@ class GraphQLSchemaContractTestCase(GraphQLTestCase):
                 "project_Short",
                 "projectIsnull",
                 "pulsar_Name",
+                "pulsarIsnull",
             },
         )
         self.assertEqual(

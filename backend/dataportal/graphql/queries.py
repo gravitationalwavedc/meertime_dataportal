@@ -315,6 +315,7 @@ class ObservationFilterSet(django_filters.FilterSet):
 
 class ObservationSummaryFilterSet(django_filters.FilterSet):
     pulsar__name = django_filters.CharFilter(field_name="pulsar__name", lookup_expr="exact")
+    pulsar_isnull = django_filters.BooleanFilter(field_name="pulsar", lookup_expr="isnull")
     main_project = django_filters.CharFilter(field_name="main_project__name", lookup_expr="iexact")
     project__id = TypedFilter(input_type=graphene.Int, field_name="project__id")
     project__short = django_filters.CharFilter(field_name="project__short", lookup_expr="exact")
@@ -347,6 +348,12 @@ class ObservationSummaryFilterSet(django_filters.FilterSet):
         # Passing both aggregate and concrete filters at once is contradictory, so we
         # fail fast with a clear validation error instead of returning ambiguous results.
         contradictions = (
+            (
+                "pulsar_isnull",
+                "pulsar__name",
+                "pulsarIsnull: true",
+                "pulsar_Name",
+            ),
             (
                 "project_isnull",
                 "project__short",

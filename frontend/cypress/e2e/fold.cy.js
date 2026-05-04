@@ -22,7 +22,18 @@ describe("The Fold Page", () => {
       }
 
       aliasQuery(req, "FoldQuery", "foldQuery.json");
-      aliasQuery(req, "FoldTableRefetchQuery", "foldQueryFewer.json");
+      if (req.body?.query?.includes("FoldTableRefetchQuery")) {
+        req.alias = "FoldTableRefetchQuery";
+        if (req.body?.variables?.mostCommonProject === "TPA") {
+          req.reply({
+            fixture: "foldQueryMostCommon.json",
+          });
+        } else {
+          req.reply({
+            fixture: "foldQueryFewer.json",
+          });
+        }
+      }
       aliasQuery(req, "FoldDetailQuery", "foldDetailQuery.json");
       aliasQuery(req, "PlotlyPlotQuery", "plotlyPlotQuery.json");
       aliasQuery(
@@ -79,6 +90,7 @@ describe("The Fold Page", () => {
 
     cy.wait("@FoldTableRefetchQuery").then((interception) => {
       expect(interception.request.body.variables).to.deep.include({
+        pulsarIsnull: true,
         mainProject: "meertime",
         mostCommonProject: "",
         project: "",
@@ -107,6 +119,7 @@ describe("The Fold Page", () => {
 
     cy.wait("@FoldTableRefetchQuery").then((interception) => {
       expect(interception.request.body.variables).to.deep.include({
+        pulsarIsnull: true,
         mainProject: "MONSPSR",
         mostCommonProject: "",
         project: "",
@@ -131,6 +144,7 @@ describe("The Fold Page", () => {
 
     cy.wait("@FoldTableRefetchQuery").then((interception) => {
       expect(interception.request.body.variables).to.deep.include({
+        pulsarIsnull: true,
         mainProject: "meertime",
         mostCommonProject: "",
         project: "TPA",
@@ -155,6 +169,7 @@ describe("The Fold Page", () => {
 
     cy.wait("@FoldTableRefetchQuery").then((interception) => {
       expect(interception.request.body.variables).to.deep.include({
+        pulsarIsnull: true,
         mainProject: "meertime",
         mostCommonProject: "TPA",
         project: "",
@@ -168,6 +183,10 @@ describe("The Fold Page", () => {
       "eq",
       "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=TPA&project=All&band=All"
     );
+    cy.contains("p", "Observations")
+      .parent()
+      .find("h4")
+      .should("have.text", "3");
     cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });
 
