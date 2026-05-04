@@ -64,6 +64,10 @@ describe("The Fold Page", () => {
     cy.wait("@FoldQuery");
     cy.contains("Loading...").should("not.exist");
     cy.contains("Unique Pulsars").should("be.visible");
+    cy.contains("p", "Observations")
+      .parent()
+      .find("h4")
+      .should("have.text", "3");
     cy.location("pathname").should("equal", "/");
   });
 
@@ -79,12 +83,19 @@ describe("The Fold Page", () => {
         mostCommonProject: "",
         project: "",
         band: "LBAND",
+        projectIsnull: true,
+        bandIsnull: false,
+        calibrationIsnull: true,
       });
     });
     cy.url().should(
       "eq",
       "http://localhost:5173/?search=&mainProject=meertime&mostCommonProject=All&project=All&band=LBAND"
     );
+    cy.contains("p", "Observations")
+      .parent()
+      .find("h4")
+      .should("have.text", "1");
     cy.get("table").get("tbody").find("tr").should("have.length", 1);
   });
 
@@ -100,6 +111,9 @@ describe("The Fold Page", () => {
         mostCommonProject: "",
         project: "",
         band: "",
+        projectIsnull: true,
+        bandIsnull: true,
+        calibrationIsnull: true,
       });
     });
     cy.url().should(
@@ -121,6 +135,9 @@ describe("The Fold Page", () => {
         mostCommonProject: "",
         project: "TPA",
         band: "",
+        projectIsnull: false,
+        bandIsnull: true,
+        calibrationIsnull: true,
       });
     });
     cy.url().should(
@@ -142,6 +159,9 @@ describe("The Fold Page", () => {
         mostCommonProject: "TPA",
         project: "",
         band: "",
+        projectIsnull: true,
+        bandIsnull: true,
+        calibrationIsnull: true,
       });
     });
     cy.url().should(

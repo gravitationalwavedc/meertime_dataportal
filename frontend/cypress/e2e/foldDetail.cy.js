@@ -45,6 +45,10 @@ describe("The Fold Detail Page", () => {
   it("should toggle the ephemeris modal", () => {
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
     cy.contains("J0125-2327");
+    cy.contains("p", "Observations")
+      .parent()
+      .find("h4")
+      .should("have.text", "15");
     cy.contains("Folding Ephemeris").should("not.exist");
     cy.contains("View folding ephemeris").click();
     cy.wait("@EphemerisQuery");

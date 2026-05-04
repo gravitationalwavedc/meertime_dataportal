@@ -4,6 +4,13 @@
       "edges": [
         {
           "node": {
+            "observations": 2,
+            "pulsars": 1,
+            "observationHours": 1
+          }
+        },
+        {
+          "node": {
             "observations": 67,
             "pulsars": 5,
             "observationHours": 7

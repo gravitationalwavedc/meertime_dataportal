@@ -4,6 +4,7 @@ import {
   columnsSizeFilter,
   formatUTC,
   kronosLink,
+  selectCanonicalObservationSummaryNode,
   toApiFilter,
 } from "../helpers";
 import { graphql, useRefetchableFragment } from "react-relay";
@@ -21,14 +22,19 @@ const searchTableQuery = graphql`
     project: { type: "String", defaultValue: "" }
     band: { type: "String", defaultValue: "" }
     obsType: { type: "String", defaultValue: "search" }
+    projectIsnull: { type: "Boolean", defaultValue: true }
+    bandIsnull: { type: "Boolean", defaultValue: true }
+    calibrationIsnull: { type: "Boolean", defaultValue: true }
   ) {
     observationSummary(
       pulsar_Name: $pulsar
       obsType: $obsType
-      calibration_Id: ""
+      calibrationIsnull: $calibrationIsnull
       mainProject: $mainProject
       project_Short: $project
       band: $band
+      projectIsnull: $projectIsnull
+      bandIsnull: $bandIsnull
     ) {
       edges {
         node {
@@ -72,10 +78,15 @@ const SearchTable = ({ data }) => {
   const [band, setBand] = useState("");
 
   useEffect(() => {
+    const projectFilter = toApiFilter(project);
+    const bandFilter = toApiFilter(band);
     refetch({
       mainProject: toApiFilter(mainProject),
-      project: toApiFilter(project),
-      band: toApiFilter(band),
+      project: projectFilter,
+      band: bandFilter,
+      projectIsnull: projectFilter === "",
+      bandIsnull: bandFilter === "",
+      calibrationIsnull: true,
     });
   }, [band, mainProject, project, refetch]);
 
@@ -174,7 +185,9 @@ const SearchTable = ({ data }) => {
 
   const columnsForScreenSize = columnsSizeFilter(columns, screenSize);
 
-  const summaryNode = fragmentData.observationSummary.edges[0]?.node;
+  const summaryNode =
+    selectCanonicalObservationSummaryNode(fragmentData.observationSummary) ||
+    {};
   const summaryData = [
     { title: "Observations", value: summaryNode?.observations },
     { title: "Pulsars", value: summaryNode?.pulsars },

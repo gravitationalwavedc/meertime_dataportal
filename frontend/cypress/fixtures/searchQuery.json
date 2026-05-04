@@ -4,6 +4,14 @@
       "edges": [
         {
           "node": {
+            "id": "obervation0",
+            "observations": 1,
+            "pulsars": 1,
+            "observationHours": 1
+          }
+        },
+        {
+          "node": {
             "id": "obervation1",
             "observations": 3,
             "pulsars": 3,

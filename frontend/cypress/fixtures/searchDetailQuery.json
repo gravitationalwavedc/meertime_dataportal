@@ -4,6 +4,15 @@
       "edges": [
         {
           "node": {
+            "id": "observation0",
+            "observations": 0,
+            "projects": 0,
+            "observationHours": 0,
+            "timespanDays": 0
+          }
+        },
+        {
+          "node": {
             "id": "observation1",
             "observations": 1,
             "projects": 1,

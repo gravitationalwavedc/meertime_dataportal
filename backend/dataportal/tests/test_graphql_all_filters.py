@@ -185,3 +185,145 @@ class GraphQLFilterSemanticsTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase)
 
         self.assertGreater(unfiltered_total, 0)
         self.assertGreaterEqual(unfiltered_total, pta_total)
+
+    def test_observation_summary_isnull_filters_return_aggregate_rows(self):
+        query = """
+        query {
+          aggregate: observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            projectIsnull: true
+            bandIsnull: true
+            calibrationIsnull: true
+          ) {
+            edges {
+              node {
+                observations
+                projects
+                pulsars
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        edges = content["data"]["aggregate"]["edges"]
+        self.assertEqual(len(edges), 1)
+        self.assertGreater(edges[0]["node"]["observations"], 0)
+        self.assertEqual(edges[0]["node"]["projects"], 1)
+        self.assertEqual(edges[0]["node"]["pulsars"], 1)
+
+    def test_observation_summary_empty_strings_still_skip_filters(self):
+        query = """
+        query {
+          skipped: observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            project_Short: ""
+            band: ""
+            calibration_Id: ""
+            first: 100
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+          omitted: observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            first: 100
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        skipped_total = sum(edge["node"]["observations"] for edge in content["data"]["skipped"]["edges"])
+        omitted_total = sum(edge["node"]["observations"] for edge in content["data"]["omitted"]["edges"])
+        self.assertEqual(skipped_total, omitted_total)
+
+    def test_observation_summary_conflicting_project_filters_error(self):
+        query = """
+        query {
+          observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            projectIsnull: true
+            project_Short: "PTA"
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertIn("Cannot combine `projectIsnull: true` with `project_Short`.", content["errors"][0]["message"])
+
+    def test_observation_summary_conflicting_band_filters_error(self):
+        query = """
+        query {
+          observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            bandIsnull: true
+            band: "LBAND"
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertIn("Cannot combine `bandIsnull: true` with `band`.", content["errors"][0]["message"])
+
+    def test_observation_summary_conflicting_calibration_filters_error(self):
+        query = """
+        query {
+          observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            calibrationIsnull: true
+            calibration_Id: "1"
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertIn(
+            "Cannot combine `calibrationIsnull: true` with `calibration_Id`.", content["errors"][0]["message"]
+        )

@@ -1,4 +1,8 @@
-import { kronosLink, toApiFilter } from "./helpers";
+import {
+  kronosLink,
+  selectCanonicalObservationSummaryNode,
+  toApiFilter,
+} from "./helpers";
 
 describe("how we generated the kronos link", () => {
   it("should create a well formed url", () => {
@@ -27,5 +31,63 @@ describe("how we generated the kronos link", () => {
     expect.hasAssertions();
     expect(toApiFilter("")).toBe("");
     expect(toApiFilter(toApiFilter("All"))).toBe("");
+  });
+
+  it("should choose aggregate summary node when first edge is narrower", () => {
+    expect.hasAssertions();
+    const observationSummary = {
+      edges: [
+        {
+          node: {
+            observations: 2,
+            projects: 1,
+            pulsars: 1,
+            observationHours: 0,
+          },
+        },
+        {
+          node: {
+            observations: 5,
+            projects: 3,
+            pulsars: 2,
+            observationHours: 12,
+          },
+        },
+      ],
+    };
+    expect(selectCanonicalObservationSummaryNode(observationSummary)).toEqual(
+      observationSummary.edges[1].node
+    );
+  });
+
+  it("should keep first node when summary ranking is tied", () => {
+    expect.hasAssertions();
+    const firstNode = {
+      observations: 3,
+      projects: 1,
+      pulsars: 1,
+      observationHours: 4,
+    };
+    const secondNode = {
+      observations: 3,
+      projects: 1,
+      pulsars: 1,
+      observationHours: 4,
+    };
+    const observationSummary = {
+      edges: [{ node: firstNode }, { node: secondNode }],
+    };
+    expect(selectCanonicalObservationSummaryNode(observationSummary)).toBe(
+      firstNode
+    );
+  });
+
+  it("should return null for empty or malformed observation summary", () => {
+    expect.hasAssertions();
+    expect(selectCanonicalObservationSummaryNode({ edges: [] })).toBeNull();
+    expect(selectCanonicalObservationSummaryNode(null)).toBeNull();
+    expect(
+      selectCanonicalObservationSummaryNode({ edges: [{}, { node: null }] })
+    ).toBeNull();
   });
 });

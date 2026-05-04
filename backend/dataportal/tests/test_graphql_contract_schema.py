@@ -56,9 +56,11 @@ class GraphQLSchemaContractTestCase(GraphQLTestCase):
             {
                 "after",
                 "band",
+                "bandIsnull",
                 "before",
                 "calibrationInt",
                 "calibration_Id",
+                "calibrationIsnull",
                 "first",
                 "last",
                 "mainProject",
@@ -66,6 +68,7 @@ class GraphQLSchemaContractTestCase(GraphQLTestCase):
                 "obsType",
                 "project_Id",
                 "project_Short",
+                "projectIsnull",
                 "pulsar_Name",
             },
         )

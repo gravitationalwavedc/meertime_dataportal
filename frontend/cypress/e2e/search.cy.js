@@ -54,6 +54,10 @@ describe("The Search Page", () => {
     cy.wait("@SearchQuery");
     cy.contains("Loading...").should("not.exist");
     cy.contains("Pulsars").should("be.visible");
+    cy.contains("p", "Observations")
+      .parent()
+      .find("h4")
+      .should("have.text", "3");
     cy.location("pathname").should("equal", "/search/");
   });
 
@@ -68,8 +72,15 @@ describe("The Search Page", () => {
         mainProject: "",
         project: "",
         band: "LBAND",
+        projectIsnull: true,
+        bandIsnull: false,
+        calibrationIsnull: true,
       });
     });
+    cy.contains("p", "Observations")
+      .parent()
+      .find("h4")
+      .should("have.text", "67");
     cy.get("table").get("tbody").find("tr").should("have.length", 2);
   });
 
@@ -84,6 +95,9 @@ describe("The Search Page", () => {
         mainProject: "",
         project: "PTA",
         band: "",
+        projectIsnull: false,
+        bandIsnull: true,
+        calibrationIsnull: true,
       });
     });
     cy.get("table").get("tbody").find("tr").should("have.length", 2);

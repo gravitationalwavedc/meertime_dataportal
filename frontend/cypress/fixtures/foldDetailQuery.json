@@ -241,6 +241,19 @@
       "edges": [
         {
           "node": {
+            "observations": 1,
+            "observationHours": 1,
+            "projects": 1,
+            "pulsars": 1,
+            "estimatedDiskSpaceGb": 1.0,
+            "timespanDays": 1,
+            "maxDuration": 1.0,
+            "minDuration": 1.0,
+            "id": "T2JzZXJ2YXRpb25TdW1tYXJ5Tm9kZTox"
+          }
+        },
+        {
+          "node": {
             "observations": 15,
             "observationHours": 35,
             "projects": 1,
