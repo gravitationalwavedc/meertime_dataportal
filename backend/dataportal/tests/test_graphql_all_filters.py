@@ -217,6 +217,116 @@ class GraphQLFilterSemanticsTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase)
         self.assertEqual(edges[0]["node"]["projects"], 1)
         self.assertEqual(edges[0]["node"]["pulsars"], 1)
 
+    def test_observation_summary_fold_page_aggregate_requires_pulsar_isnull(self):
+        query = """
+        query {
+          aggregate: observationSummary(
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            pulsarIsnull: true
+            projectIsnull: true
+            bandIsnull: true
+            calibrationIsnull: true
+            first: 100
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        edges = content["data"]["aggregate"]["edges"]
+        self.assertEqual(len(edges), 1)
+        self.assertGreater(edges[0]["node"]["observations"], 0)
+
+    def test_observation_summary_fold_project_only_returns_single_grain_row(self):
+        query = """
+        query {
+          projectOnly: observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            project_Short: "PTA"
+            projectIsnull: false
+            bandIsnull: true
+            calibrationIsnull: true
+            first: 100
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(len(content["data"]["projectOnly"]["edges"]), 1)
+        self.assertGreater(content["data"]["projectOnly"]["edges"][0]["node"]["observations"], 0)
+
+    def test_observation_summary_fold_band_only_returns_single_grain_row(self):
+        query = """
+        query {
+          bandOnly: observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            projectIsnull: true
+            band: "LBAND"
+            bandIsnull: false
+            calibrationIsnull: true
+            first: 100
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(len(content["data"]["bandOnly"]["edges"]), 1)
+        self.assertGreater(content["data"]["bandOnly"]["edges"][0]["node"]["observations"], 0)
+
+    def test_observation_summary_fold_project_and_band_returns_single_grain_row(self):
+        query = """
+        query {
+          projectAndBand: observationSummary(
+            pulsar_Name: "J0125-2327"
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            project_Short: "PTA"
+            projectIsnull: false
+            band: "LBAND"
+            bandIsnull: false
+            calibrationIsnull: true
+            first: 100
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+        self.assertEqual(len(content["data"]["projectAndBand"]["edges"]), 1)
+        self.assertGreater(content["data"]["projectAndBand"]["edges"][0]["node"]["observations"], 0)
+
     def test_observation_summary_empty_strings_still_skip_filters(self):
         query = """
         query {
@@ -279,6 +389,28 @@ class GraphQLFilterSemanticsTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase)
         content = json.loads(response.content)
         self.assertIn("errors", content)
         self.assertIn("Cannot combine `projectIsnull: true` with `project_Short`.", content["errors"][0]["message"])
+
+    def test_observation_summary_conflicting_pulsar_filters_error(self):
+        query = """
+        query {
+          observationSummary(
+            obsType: "fold"
+            mainProject: "MeerTIME"
+            pulsarIsnull: true
+            pulsar_Name: "J0125-2327"
+          ) {
+            edges {
+              node {
+                observations
+              }
+            }
+          }
+        }
+        """
+        response = self.query(query)
+        content = json.loads(response.content)
+        self.assertIn("errors", content)
+        self.assertIn("Cannot combine `pulsarIsnull: true` with `pulsar_Name`.", content["errors"][0]["message"])
 
     def test_observation_summary_conflicting_band_filters_error(self):
         query = """
