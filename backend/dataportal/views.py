@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from django.conf import settings
+from django.db.models import OuterRef, Subquery
 from django.http import FileResponse, HttpResponse, JsonResponse, StreamingHttpResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
@@ -72,6 +73,13 @@ def get_accessible_toa_files(user, observations):
     - User is member of TPA but NOT GC.
     - Result: The TPA ToAs are accessible to the user, but the GC ToAs are blocked by Gate 1.5. (Note: A GC-only user could access both, as TPA is unembargoed and they own the GC ephemeris).
 
+    IMPORTANT: When an observation has multiple PipelineRuns (e.g., from pipeline re-runs), this function
+    uses the most recent PipelineRun that has ToAs. This handles cases where:
+    - Pipeline re-runs create a new PipelineRun without ToAs
+    - The PulsarFoldResult entry gets reassigned to the new PipelineRun (via signal handlers)
+    - The older PipelineRun still has the ToAs but is no longer referenced by PulsarFoldResult
+    In such cases, the older PipelineRun with ToAs is used for downloads.
+
     Returns ToAs filtered by:
     - dm_corrected=False (non-DM-corrected ToAs)
     - nsub_type='1' (single time bin)
@@ -92,8 +100,32 @@ def get_accessible_toa_files(user, observations):
     """
     base_path = Path(settings.MEERTIME_DATA_DIR)
 
-    # Get the latest pipeline runs for these observations
-    latest_pipeline_runs = PulsarFoldResult.objects.filter(observation__in=observations).values("pipeline_run")
+    # Get the latest PipelineRun with ToAs for each observation.
+    # Filter to PipelineRuns that have ToAs (toas__isnull=False) to handle cases where:
+    # - Pipeline was re-run, creating a new PipelineRun without ToAs
+    # - The older PipelineRun has ToAs but no PulsarFoldResult entry
+    # In such cases, we want the older PipelineRun that actually has ToA files.
+
+    # Use a subquery to get only the latest PipelineRun per observation
+    # This avoids loading hundreds of thousands of rows into memory
+    latest_pr_subquery = (
+        PipelineRun.objects.filter(
+            observation_id=OuterRef("pk"),
+            toas__isnull=False,
+        )
+        .order_by("-created_at")
+        .values("id")[:1]
+    )
+
+    # Get observation IDs with their latest PipelineRun
+    observations_with_latest = (
+        Observation.objects.filter(pk__in=[obs.pk for obs in observations])
+        .annotate(latest_pr_id=Subquery(latest_pr_subquery))
+        .values_list("latest_pr_id", flat=True)
+    )
+
+    # Filter out None values (observations without ToAs)
+    latest_pipeline_run_ids = set(pr_id for pr_id in observations_with_latest if pr_id is not None)
 
     # Query distinct (observation, project) combinations for ToAs matching the required pattern
     # This groups 32 ToA database entries (one per channel) that map to a single .tim file
@@ -101,7 +133,7 @@ def get_accessible_toa_files(user, observations):
     toa_groups = (
         Toa.objects.filter(
             observation__in=observations,
-            pipeline_run__in=latest_pipeline_runs,
+            pipeline_run_id__in=latest_pipeline_run_ids,
             dm_corrected=False,
             nsub_type="1",
             obs_nchan=32,
@@ -138,7 +170,7 @@ def get_accessible_toa_files(user, observations):
             Toa.objects.filter(
                 observation_id=obs_id,
                 project_id=proj_id,
-                pipeline_run__in=latest_pipeline_runs,
+                pipeline_run_id__in=latest_pipeline_run_ids,
                 dm_corrected=False,
                 nsub_type="1",
                 obs_nchan=32,
