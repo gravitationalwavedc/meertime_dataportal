@@ -29,12 +29,14 @@ const FoldDetailTableFragment = graphql`
     mainProject: { type: "String", defaultValue: "MeerTIME" }
     excludeBadges: { type: "[String]", defaultValue: [] }
     minimumSNR: { type: "Float", defaultValue: 8 }
+    first: { type: "Int", defaultValue: 5000 }
   ) {
     pulsarFoldResult(
       pulsar: $pulsar
       mainProject: $mainProject
       excludeBadges: $excludeBadges
       minimumSNR: $minimumSNR
+      first: $first
     ) {
       edges {
         node {

@@ -21,6 +21,7 @@ const FoldTableFragment = graphql`
     mostCommonProject: { type: "String", defaultValue: "" }
     project: { type: "String", defaultValue: "" }
     band: { type: "String", defaultValue: "" }
+    first: { type: "Int", defaultValue: 5000 }
     projectIsnull: { type: "Boolean", defaultValue: true }
     bandIsnull: { type: "Boolean", defaultValue: true }
     calibrationIsnull: { type: "Boolean", defaultValue: true }
@@ -49,6 +50,7 @@ const FoldTableFragment = graphql`
       mostCommonProject: $mostCommonProject
       project: $project
       band: $band
+      first: $first
     ) {
       edges {
         node {
@@ -111,6 +113,7 @@ const FoldTable = ({
     const projectFilter = toApiFilter(newProject);
     const bandFilter = toApiFilter(newBand);
     refetch({
+      first: 5000,
       pulsarIsnull: true,
       mainProject: toApiFilter(newMainProject),
       mostCommonProject: toApiFilter(newMostCommonProject),

@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from graphene_django.utils.testing import GraphQLTestCase
 from graphql_relay import from_global_id
 
-from dataportal.models import Toa
+from dataportal.models import ProjectMembership, Toa
 from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import setup_query_test
 
@@ -41,6 +41,12 @@ class BackendQueriesTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
             codename="add_toa",
         )
         cls.user.user_permissions.add(permission)
+        ProjectMembership.objects.create(
+            user=cls.user,
+            project=cls.project,
+            role=ProjectMembership.RoleChoices.MEMBER,
+            is_active=True,
+        )
 
     def setUp(self):
         """Setup that runs before each test method."""

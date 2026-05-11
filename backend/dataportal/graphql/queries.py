@@ -54,6 +54,41 @@ DATETIME_FILTERS = [
 NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
 
 
+def _observation_is_accessible(observation, request):
+    if hasattr(observation, "_is_accessible"):
+        return observation._is_accessible
+    if request.user.is_superuser:
+        return True
+
+    request_now = getattr(request, "_dataportal_access_check_now", None)
+    if request_now is None:
+        request_now = timezone.now()
+        request._dataportal_access_check_now = request_now
+
+    if observation.embargo_end_date is None or observation.embargo_end_date < request_now:
+        return True
+
+    # After here we need to ensure no authenticated user can access, so we can skip the database query for
+    # unauthenticated users. In short annoymous users can't have project memeberships.
+    if not request.user.is_authenticated:
+        return False
+
+    membership_project_ids = getattr(request, "_dataportal_membership_project_ids", None)
+    membership_user_id = getattr(request, "_dataportal_membership_project_user_id", None)
+    current_user_id = request.user.id
+    if membership_project_ids is None or membership_user_id != current_user_id:
+        membership_project_ids = set(
+            ProjectMembership.objects.filter(
+                user=request.user,
+                is_active=True,
+            ).values_list("project_id", flat=True)
+        )
+        request._dataportal_membership_project_ids = membership_project_ids
+        request._dataportal_membership_project_user_id = current_user_id
+
+    return observation.project_id in membership_project_ids
+
+
 ###################################
 # File queries
 
@@ -183,6 +218,13 @@ class EphemerisNode(DjangoObjectType):
     def resolve_id_int(self, info):
         return self.id
 
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return queryset.accessible_to(info.context.user)
+
+    def resolve_project(self, info):
+        return self.project
+
 
 class TemplateNode(DjangoObjectType):
     class Meta:
@@ -208,6 +250,13 @@ class TemplateNode(DjangoObjectType):
     # ForeignKey fields
     pulsar = graphene.Field(PulsarNode)
     project = graphene.Field(ProjectNode)
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return queryset.accessible_to(info.context.user)
+
+    def resolve_project(self, info):
+        return self.project
 
 
 class CalibrationNode(DjangoObjectType):
@@ -566,11 +615,32 @@ class ObservationNode(DjangoObjectType):
     restricted = graphene.Boolean()
     mode_duration = graphene.Int()
 
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return queryset.accessible_to(info.context.user)
+
     def resolve_restricted(self, info):
         return self.is_restricted(info.context.user)
 
+    def resolve_project(self, info):
+        return self.project
+
+    def resolve_telescope(self, info):
+        if not info.context.user.is_authenticated:
+            return None
+        return self.telescope
+
+    def resolve_ephemeris(self, info):
+        if self.ephemeris is None:
+            return None
+        if hasattr(self, "_ephemeris_is_accessible"):
+            return self.ephemeris if self._ephemeris_is_accessible else None
+        if self.ephemeris.is_restricted(info.context.user):
+            return None
+        return self.ephemeris
+
     def resolve_mode_duration(self, info):
-        obs = Observation.objects.all()
+        obs = Observation.objects.accessible_to(info.context.user)
         # Filter by input queries
         # Map GraphQL filter names to Django filter names
         filter_map = {
@@ -698,6 +768,31 @@ class PipelineRunNode(DjangoObjectType):
     template = graphene.Field(TemplateNode)
     observation = graphene.Field(ObservationNode)
 
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return queryset.accessible_to(info.context.user)
+
+    def resolve_observation(self, info):
+        return self.observation
+
+    def resolve_ephemeris(self, info):
+        if self.ephemeris is None:
+            return None
+        if hasattr(self, "_ephemeris_is_accessible"):
+            return self.ephemeris if self._ephemeris_is_accessible else None
+        if self.ephemeris.is_restricted(info.context.user):
+            return None
+        return self.ephemeris
+
+    def resolve_template(self, info):
+        if self.template is None:
+            return None
+        if hasattr(self, "_template_is_accessible"):
+            return self.template if self._template_is_accessible else None
+        if self.template.is_restricted(info.context.user):
+            return None
+        return self.template
+
     def resolve_dm_err(self, info):
         """
         Return None for any non-scalar dm_err values (inf, -inf, nan).
@@ -750,6 +845,62 @@ class PulsarFoldResultConnection(relay.Connection):
     folding_template = graphene.Field(TemplateNode)
     folding_template_is_embargoed = graphene.Boolean()
     folding_template_exists_but_inaccessible = graphene.Boolean()
+
+    def _get_fold_access_cache(self):
+        cache = getattr(self, "_fold_access_cache", None)
+        if cache is None:
+            cache = {}
+            self._fold_access_cache = cache
+        return cache
+
+    def _get_fold_candidate_pfrs(self, instance):
+        """
+        Build the fold-candidate PFR list from query variables, independent of
+        observation access filtering.
+        """
+        cache = PulsarFoldResultConnection._get_fold_access_cache(self)
+        cache_key = "fold_candidate_pfrs"
+        if cache_key in cache:
+            return cache[cache_key]
+
+        iterable = getattr(self, "iterable", None)
+        if iterable is not None:
+            queryset = iterable
+            if hasattr(queryset, "select_related"):
+                queryset = queryset.select_related(
+                    "observation__project",
+                    "pipeline_run__ephemeris__project",
+                    "pipeline_run__template__project",
+                    "pipeline_run",
+                )
+        else:
+            queryset = PulsarFoldResult.objects.select_related(
+                "observation__project",
+                "pipeline_run__ephemeris__project",
+                "pipeline_run__template__project",
+                "pipeline_run",
+            ).all()
+            variable_values = getattr(instance, "variable_values", {}) or {}
+            pipeline_run_id = variable_values.get("pipelineRunId")
+            if pipeline_run_id:
+                queryset = queryset.filter(pipeline_run__id=pipeline_run_id)
+
+            pulsar = variable_values.get("pulsar")
+            if pulsar:
+                queryset = queryset.filter(observation__pulsar__name=pulsar)
+
+            main_project = variable_values.get("mainProject") or variable_values.get("main_project")
+            if main_project:
+                queryset = queryset.filter(observation__project__main_project__name__iexact=main_project)
+
+            beam = variable_values.get("beam")
+            if beam is not None:
+                queryset = queryset.filter(observation__beam=beam)
+
+        candidates = list(queryset)
+        cache[cache_key] = candidates
+        return candidates
+
     toas_link = graphene.String()
     all_projects = graphene.List(graphene.String)
     most_common_project = graphene.String()
@@ -770,7 +921,7 @@ class PulsarFoldResultConnection(relay.Connection):
         abstract = True
 
     def resolve_total_toa(self, instance, **kwargs):
-        toas = Toa.objects.filter(
+        toas = Toa.objects.accessible_to(instance.context.user).filter(
             observation__pulsar__name=kwargs.get("pulsar"),
             observation__project__main_project__name__iexact=kwargs.get("main_project"),
             dm_corrected=False,
@@ -790,9 +941,10 @@ class PulsarFoldResultConnection(relay.Connection):
         summary = first.pulsar.pulsarfoldsummary_set.first()
         return summary.most_common_project if summary else None
 
-    def resolve_timing_residual_plot_data(self, _, **kwargs):
+    def resolve_timing_residual_plot_data(self, info, **kwargs):
         toas = (
-            Toa.objects.select_related(
+            Toa.objects.accessible_to(info.context.user)
+            .select_related(
                 "pipeline_run",
                 "observation__pulsar",
                 "observation__project__main_project",
@@ -855,7 +1007,8 @@ class PulsarFoldResultConnection(relay.Connection):
         # print(self.iterable.first().pulsar.pulsar_fold_summary.all_projects)
         if "pulsar" in instance.variable_values.keys():
             return list(
-                Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+                Toa.objects.accessible_to(instance.context.user)
+                .filter(observation__pulsar__name=instance.variable_values["pulsar"])
                 .values_list("project__short", flat=True)
                 .distinct()
             )
@@ -867,7 +1020,8 @@ class PulsarFoldResultConnection(relay.Connection):
             return []
 
         values = list(
-            Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+            Toa.objects.accessible_to(instance.context.user)
+            .filter(observation__pulsar__name=instance.variable_values["pulsar"])
             .values_list("obs_nchan", flat=True)
             .order_by("obs_nchan")
             .distinct()
@@ -877,6 +1031,8 @@ class PulsarFoldResultConnection(relay.Connection):
     def resolve_toas_link(self, instance):
         first = self.iterable.first() if self.iterable else None
         if first is None:
+            return None
+        if not _observation_is_accessible(first.observation, instance.context):
             return None
         return first.pipeline_run.toas_download_link
 
@@ -894,60 +1050,51 @@ class PulsarFoldResultConnection(relay.Connection):
         Logic Flow:
         -----------
         1. Filter valid PulsarFoldResults from self.iterable:
-           - Skip if observation.project is None
            - Skip if pipeline_run.ephemeris is None
            - Skip if ephemeris.project is "PTUSE"
            - Skip if pipeline_run has no TOAs
 
         2. Sort remaining PulsarFoldResults by pipeline_run.created_at (most recent first)
 
-        3. For each PulsarFoldResult (in order):
-           a. Check if ephemeris is embargoed:
-              embargo_end = ephemeris.created_at + ephemeris.project.embargo_period
-              is_embargoed = (embargo_end >= now)
-
-           b. Grant access if:
-              - Ephemeris is NOT embargoed (public), OR
-              - User is a superuser, OR
-              - User is a member of ephemeris.project
-
-           c. If access granted: RETURN (ephemeris, pfr)
-           d. If access denied: CONTINUE to next PulsarFoldResult
-
-        4. If no accessible ephemeris found: RETURN (None, None)
+        3. Bulk-evaluate ephemeris access once via `Ephemeris.objects.accessible_to(user)`.
+        4. For each PulsarFoldResult (newest first):
+           - If ephemeris id is in accessible set: RETURN (ephemeris, pfr)
+           - Otherwise continue
+        5. If no accessible ephemeris found: RETURN (None, None)
 
         Key Points:
         -----------
         - Only one PulsarFoldResult exists for each observation, it is updated with the most recent pipeline run automatically (not here). These are the PFR's that we are iterating on
         - We reorder the PulsarFoldResults (equivalent to observation list with processing results) on the FoldDetail page by which one has had the most recent pipeline run
-        - Embargo is based on ephemeris.created_at + ephemeris.project.embargo_period
-        - Membership is checked against ephemeris.project (NOT observation.project)
+        - Access policy comes from model-layer `EphemerisQuerySet.accessible_to()`
+        - Membership checks are not duplicated in resolver logic
         """
-        user = instance.context.user
-        now = timezone.now()
+        cache = PulsarFoldResultConnection._get_fold_access_cache(self)
+        cache_key = "accessible_ephemeris_pfr_result"
+        if cache_key in cache:
+            return cache[cache_key]
 
-        # Bulk-fetch which pipeline runs have TOAs to avoid N+1
-        pipeline_run_ids = {pfr.pipeline_run_id for pfr in self.iterable}
+        user = instance.context.user
+        iterable = PulsarFoldResultConnection._get_fold_candidate_pfrs(self, instance)
+        pipeline_run_ids = {pfr.pipeline_run_id for pfr in iterable}
         runs_with_toas = set(
             Toa.objects.filter(pipeline_run_id__in=pipeline_run_ids)
             .values_list("pipeline_run_id", flat=True)
             .distinct()
         )
 
-        # Filter to valid pipeline fold results from the iterable
         valid_pfrs = []
-        for pfr in self.iterable:
-            # Skip observations without projects
-            if pfr.observation.project is None or pfr.observation.project.short is None:
-                continue
+        for pfr in iterable:
             # Skip pipeline runs without ephemeris
             if pfr.pipeline_run.ephemeris is None:
                 continue
             # Skip PTUSE project ephemerides
-            if pfr.pipeline_run.ephemeris.project.short.upper() == "PTUSE":
+            ephemeris_project_short = getattr(getattr(pfr.pipeline_run.ephemeris, "project", None), "short", None)
+            if ephemeris_project_short and ephemeris_project_short.upper() == "PTUSE":
                 continue
             # Skip pipeline runs without TOAs
-            if pfr.pipeline_run_id not in runs_with_toas:
+            pipeline_run_id = getattr(pfr, "pipeline_run_id", None) or getattr(pfr.pipeline_run, "id", None)
+            if pipeline_run_id not in runs_with_toas:
                 continue
             valid_pfrs.append(pfr)
 
@@ -957,39 +1104,23 @@ class PulsarFoldResultConnection(relay.Connection):
         # Sort by pipeline run created_at (most recent first)
         valid_pfrs.sort(key=lambda x: x.pipeline_run.created_at, reverse=True)
 
+        ephemeris_ids = {pfr.pipeline_run.ephemeris_id for pfr in valid_pfrs if pfr.pipeline_run.ephemeris_id}
+        accessible_ephemeris_ids = set(
+            Ephemeris.objects.accessible_to(user).filter(id__in=ephemeris_ids).values_list("id", flat=True)
+        )
+
         # Find the first pipeline run the user can access
         for pfr in valid_pfrs:
-            pipeline_run = pfr.pipeline_run
-            ephemeris = pipeline_run.ephemeris
-            ephemeris_project = ephemeris.project
-
-            # Check if the ephemeris is embargoed
-            # Embargo is based on ephemeris creation date + ephemeris project's embargo period
-            embargo_end_date = ephemeris.created_at + ephemeris_project.embargo_period
-            is_embargoed = embargo_end_date >= now
-
-            # Grant access if:
-            # 1. Ephemeris is not embargoed (public data), OR
-            # 2. User is a superuser, OR
-            # 3. User is a member of the ephemeris's project
-            if not is_embargoed:
-                return ephemeris, pfr, True
-
-            if user.is_authenticated and user.is_superuser:
-                return ephemeris, pfr, True
-
-            if user.is_authenticated:
-                if ProjectMembership.objects.filter(
-                    user=user,
-                    project=ephemeris_project,
-                    is_active=True,
-                ).exists():
-                    return ephemeris, pfr, True
-
-            # User doesn't have access to this embargoed ephemeris, continue to next
+            ephemeris = pfr.pipeline_run.ephemeris
+            if ephemeris.id in accessible_ephemeris_ids:
+                result = (ephemeris, pfr, True)
+                cache[cache_key] = result
+                return result
 
         # No accessible ephemeris found, but valid ephemerides do exist
-        return None, None, True
+        result = (None, None, True)
+        cache[cache_key] = result
+        return result
 
     def _get_accessible_template_pfr(self, instance):
         """
@@ -1005,54 +1136,51 @@ class PulsarFoldResultConnection(relay.Connection):
         Logic Flow:
         -----------
         1. Filter valid PulsarFoldResults from self.iterable:
-           - Skip if observation.project is None
            - Skip if pipeline_run.template is None
            - Skip if template.project is "PTUSE"
            - Skip if pipeline_run has no TOAs
 
         2. Sort remaining PulsarFoldResults by pipeline_run.created_at (most recent first)
 
-        3. For each PulsarFoldResult (in order):
-           a. Check if template is restricted using template.is_restricted(user)
-
-           b. Grant access if not restricted (handles authentication, embargo, and membership)
-
-           c. If access granted: RETURN (template, pfr)
-           d. If access denied: CONTINUE to next PulsarFoldResult
-
-        4. If no accessible template found: RETURN (None, None)
+        3. Bulk-evaluate template access once via `Template.objects.accessible_to(user)`.
+        4. For each PulsarFoldResult (newest first):
+           - If template id is in accessible set: RETURN (template, pfr)
+           - Otherwise continue
+        5. If no accessible template found: RETURN (None, None)
 
         Key Points:
         -----------
         - Only one PulsarFoldResult exists for each observation, it is updated with the most recent pipeline run automatically
         - We reorder the PulsarFoldResults by which one has had the most recent pipeline run
-        - Embargo is based on template.created_at + template.project.embargo_period
-        - Membership is checked against template.project
+        - Access policy comes from model-layer `TemplateQuerySet.accessible_to()`
+        - Membership checks are not duplicated in resolver logic
         """
-        user = instance.context.user
+        cache = PulsarFoldResultConnection._get_fold_access_cache(self)
+        cache_key = "accessible_template_pfr_result"
+        if cache_key in cache:
+            return cache[cache_key]
 
-        # Bulk-fetch which pipeline runs have TOAs to avoid N+1
-        pipeline_run_ids = {pfr.pipeline_run_id for pfr in self.iterable}
-        runs_with_toas = set(
+        user = instance.context.user
+        iterable = PulsarFoldResultConnection._get_fold_candidate_pfrs(self, instance)
+        pipeline_run_ids = {pfr.pipeline_run_id for pfr in iterable}
+        runs_with_toas = (
             Toa.objects.filter(pipeline_run_id__in=pipeline_run_ids)
             .values_list("pipeline_run_id", flat=True)
             .distinct()
         )
 
-        # Filter to valid pipeline fold results from the iterable
         valid_pfrs = []
-        for pfr in self.iterable:
-            # Skip observations without projects
-            if pfr.observation.project is None or pfr.observation.project.short is None:
-                continue
+        for pfr in iterable:
             # Skip pipeline runs without template
             if pfr.pipeline_run.template is None:
                 continue
             # Skip PTUSE project templates
-            if pfr.pipeline_run.template.project.short.upper() == "PTUSE":
+            template_project_short = getattr(getattr(pfr.pipeline_run.template, "project", None), "short", None)
+            if template_project_short and template_project_short.upper() == "PTUSE":
                 continue
             # Skip pipeline runs without TOAs
-            if pfr.pipeline_run_id not in runs_with_toas:
+            pipeline_run_id = getattr(pfr, "pipeline_run_id", None) or getattr(pfr.pipeline_run, "id", None)
+            if pipeline_run_id not in runs_with_toas:
                 continue
             valid_pfrs.append(pfr)
 
@@ -1062,20 +1190,23 @@ class PulsarFoldResultConnection(relay.Connection):
         # Sort by pipeline run created_at (most recent first)
         valid_pfrs.sort(key=lambda x: x.pipeline_run.created_at, reverse=True)
 
+        template_ids = {pfr.pipeline_run.template_id for pfr in valid_pfrs if pfr.pipeline_run.template_id}
+        accessible_template_ids = set(
+            Template.objects.accessible_to(user).filter(id__in=template_ids).values_list("id", flat=True)
+        )
+
         # Find the first pipeline run the user can access
         for pfr in valid_pfrs:
-            pipeline_run = pfr.pipeline_run
-            template = pipeline_run.template
-
-            # Use template's is_restricted method
-            # (handles authentication, embargo checking, and project membership)
-            if not template.is_restricted(user):
-                return template, pfr, True
-
-            # User doesn't have access to this template, continue to next
+            template = pfr.pipeline_run.template
+            if template.id in accessible_template_ids:
+                result = (template, pfr, True)
+                cache[cache_key] = result
+                return result
 
         # No accessible template found, but valid templates do exist
-        return None, None, True
+        result = (None, None, True)
+        cache[cache_key] = result
+        return result
 
     def resolve_folding_ephemeris(self, instance):
         """Returns the ephemeris from the latest observation the user has access to."""
@@ -1216,11 +1347,13 @@ class PulsarFoldResultConnection(relay.Connection):
         return filesizeformat(total_bytes)
 
     def resolve_max_plot_length(self, instance):
-        result = PulsarFoldResult.objects.order_by("observation__duration").last()
+        result = PulsarFoldResult.objects.accessible_to(instance.context.user).order_by("observation__duration").last()
         return result.observation.duration if result else None
 
     def resolve_min_plot_length(self, instance):
-        result = PulsarFoldResult.objects.order_by("-observation__duration").last()
+        result = (
+            PulsarFoldResult.objects.accessible_to(instance.context.user).order_by("-observation__duration").last()
+        )
         return result.observation.duration if result else None
 
 
@@ -1244,14 +1377,27 @@ class PulsarFoldResultNode(DjangoObjectType):
     pipeline_run = graphene.Field(PipelineRunNode)
     project = graphene.Field(ProjectNode)
 
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return queryset
+
     def resolve_images(self, info):
         """
         Check if user is allowed to access the images.
         """
-        if self.observation.is_restricted(info.context.user):
-            return []
+        if not _observation_is_accessible(self.observation, info.context):
+            return PipelineImage.objects.none()
 
         return self.images.all()
+
+    def resolve_observation(self, info):
+        return self.observation
+
+    def resolve_pipeline_run(self, info):
+        return self.pipeline_run
+
+    def resolve_project(self, info):
+        return self.observation.project
 
     def resolve_next_observation(self, info):
         """
@@ -1306,7 +1452,10 @@ class PulsarFoldSummaryConnection(relay.Connection):
         if not self.edges:
             return 0
         total_seconds = sum(
-            obs.duration for obs in Observation.objects.filter(project__short=self.edges[0].node.most_common_project)
+            obs.duration
+            for obs in Observation.objects.accessible_to(instance.context.user).filter(
+                project__short=self.edges[0].node.most_common_project
+            )
         )
         return int(total_seconds / 60 / 60)
 
@@ -1364,7 +1513,10 @@ class PulsarSearchSummaryConnection(relay.Connection):
         if not self.edges:
             return 0
         total_seconds = sum(
-            obs.duration for obs in Observation.objects.filter(project__short=self.edges[0].node.most_common_project)
+            obs.duration
+            for obs in Observation.objects.accessible_to(instance.context.user).filter(
+                project__short=self.edges[0].node.most_common_project
+            )
         )
         return int(total_seconds / 60 / 60)
 
@@ -1418,6 +1570,15 @@ class PipelineImageNode(DjangoObjectType):
     # ForeignKey fields
     pulsar_fold_result = graphene.Field(PulsarFoldResultNode)
 
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return queryset.accessible_to(info.context.user)
+
+    def resolve_pulsar_fold_result(self, info):
+        if self.pulsar_fold_result.observation.is_restricted(info.context.user):
+            return None
+        return self.pulsar_fold_result
+
 
 class ToaConnection(relay.Connection):
     class Meta:
@@ -1429,7 +1590,9 @@ class ToaConnection(relay.Connection):
 
     def resolve_all_projects(self, instance):
         if "pulsar" in instance.variable_values.keys():
-            toa_project_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+            toa_project_query = Toa.objects.accessible_to(instance.context.user).filter(
+                observation__pulsar__name=instance.variable_values["pulsar"]
+            )
             if "mainProject" in instance.variable_values.keys():
                 toa_project_query = toa_project_query.filter(
                     project__main_project__name__icontains=instance.variable_values["mainProject"]
@@ -1440,7 +1603,9 @@ class ToaConnection(relay.Connection):
 
     def resolve_all_nchans(self, instance):
         if "pulsar" in instance.variable_values.keys():
-            toa_nchan_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+            toa_nchan_query = Toa.objects.accessible_to(instance.context.user).filter(
+                observation__pulsar__name=instance.variable_values["pulsar"]
+            )
             if "mainProject" in instance.variable_values.keys():
                 toa_nchan_query = toa_nchan_query.filter(
                     project__main_project__name__icontains=instance.variable_values["mainProject"]
@@ -1455,7 +1620,8 @@ class ToaConnection(relay.Connection):
             return 0
 
         queryset = (
-            Toa.objects.select_related(
+            Toa.objects.accessible_to(instance.context.user)
+            .select_related(
                 "pipeline_run",
                 "ephemeris",
                 "template",
@@ -1555,10 +1721,55 @@ class ToaNode(DjangoObjectType):
 
     # ForeignKey fields
     pipeline_run = graphene.Field(PipelineRunNode)
+    observation = graphene.Field(ObservationNode)
+    project = graphene.Field(ProjectNode)
     ephemeris = graphene.Field(EphemerisNode)
     template = graphene.Field(TemplateNode)
 
     nsub_type = graphene.String()
+
+    @classmethod
+    def get_queryset(cls, queryset, info):
+        return queryset.accessible_to(info.context.user)
+
+    def resolve_pipeline_run(self, info):
+        if self.pipeline_run is None:
+            return None
+        if hasattr(self, "_pipeline_run_observation_is_accessible"):
+            return self.pipeline_run if self._pipeline_run_observation_is_accessible else None
+        if self.pipeline_run.observation.is_restricted(info.context.user):
+            return None
+        return self.pipeline_run
+
+    def resolve_observation(self, info):
+        if hasattr(self, "_observation_is_accessible"):
+            return self.observation if self._observation_is_accessible else None
+        if self.observation.is_restricted(info.context.user):
+            return None
+        return self.observation
+
+    def resolve_project(self, info):
+        if self.is_restricted(info.context.user):
+            return None
+        return self.project
+
+    def resolve_ephemeris(self, info):
+        if self.ephemeris is None:
+            return None
+        if hasattr(self, "_ephemeris_is_accessible"):
+            return self.ephemeris if self._ephemeris_is_accessible else None
+        if self.ephemeris.is_restricted(info.context.user):
+            return None
+        return self.ephemeris
+
+    def resolve_template(self, info):
+        if self.template is None:
+            return None
+        if hasattr(self, "_template_is_accessible"):
+            return self.template if self._template_is_accessible else None
+        if self.template.is_restricted(info.context.user):
+            return None
+        return self.template
 
 
 class Query(graphene.ObjectType):
@@ -1618,13 +1829,13 @@ class Query(graphene.ObjectType):
 
     @login_required
     def resolve_ephemeris(self, info, **kwargs):
-        return Ephemeris.objects.all()
+        return Ephemeris.objects.accessible_to(info.context.user)
 
     template = DjangoFilterConnectionField(TemplateNode)
 
     @login_required
     def resolve_template(self, info, **kwargs):
-        return Template.objects.all()
+        return Template.objects.accessible_to(info.context.user)
 
     calibration = DjangoFilterConnectionField(CalibrationNode, filterset_class=CalibrationFilterSet)
 
@@ -1638,7 +1849,9 @@ class Query(graphene.ObjectType):
     # This requires public access for the frontend web app to work.
     # Don't put behind a login
     def resolve_observation(self, info, **kwargs):
-        return Observation.objects.select_related("pulsar", "telescope", "project__main_project", "calibration").all()
+        return Observation.objects.select_related(
+            "pulsar", "telescope", "project__main_project", "calibration", "ephemeris"
+        ).accessible_to(info.context.user)
 
     observation_summary = DjangoFilterConnectionField(
         ObservationSummaryNode,
@@ -1655,11 +1868,14 @@ class Query(graphene.ObjectType):
             except PipelineRun.DoesNotExist:
                 return GraphQLError("Pipeline run doesn't exist")
 
-        return PipelineRun.objects.all()
+        return PipelineRun.objects.select_related("observation", "ephemeris", "template").accessible_to(
+            info.context.user
+        )
 
     pulsar_fold_result = DjangoFilterConnectionField(
         PulsarFoldResultNode,
         filterset_class=PulsarFoldResultFilterSet,
+        max_limit=5000,
     )
 
     # This requires public access for the frontend web app to work.
@@ -1687,18 +1903,20 @@ class Query(graphene.ObjectType):
     pulsar_fold_summary = DjangoFilterConnectionField(
         PulsarFoldSummaryNode,
         filterset_class=PulsarFoldSummaryFilterSet,
+        max_limit=5000,
     )
 
     pulsar_search_summary = DjangoFilterConnectionField(
         PulsarSearchSummaryNode,
         filterset_class=PulsarSearchSummaryFilterSet,
+        max_limit=5000,
     )
 
     pipeline_image = DjangoFilterConnectionField(PipelineImageNode)
 
     @login_required
     def resolve_pipeline_image(self, info, **kwargs):
-        return PipelineImage.objects.all()
+        return PipelineImage.objects.accessible_to(info.context.user)
 
     toa = DjangoFilterConnectionField(
         ToaNode,
@@ -1709,12 +1927,14 @@ class Query(graphene.ObjectType):
     def resolve_toa(self, info, **kwargs):
         queryset = Toa.objects.select_related(
             "pipeline_run",
+            "pipeline_run__observation",
+            "observation",
             "ephemeris",
             "template",
             "project",
         ).all()
 
-        return queryset.order_by("mjd")
+        return queryset.accessible_to(info.context.user).order_by("mjd")
 
     badge = DjangoFilterConnectionField(BadgeNode)
 

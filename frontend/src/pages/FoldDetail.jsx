@@ -14,12 +14,14 @@ const foldDetailQuery = graphql`
     $mainProject: String
     $excludeBadges: [String]
     $minimumSNR: Float
+    $first: Int = 5000
   ) {
     pulsarFoldResult(
       pulsar: $pulsar
       mainProject: $mainProject
       excludeBadges: $excludeBadges
       minimumSNR: $minimumSNR
+      first: $first
     ) {
       description
       toasLink
@@ -55,6 +57,7 @@ const foldDetailQuery = graphql`
         mainProject: $mainProject
         excludeBadges: $excludeBadges
         minimumSNR: $minimumSNR
+        first: $first
       )
   }
 `;
@@ -72,6 +75,7 @@ const FoldDetail = ({ match }) => {
   const data = useLazyLoadQuery(foldDetailQuery, {
     pulsar: toApiFilter(jname),
     mainProject: toApiFilter(mainProject),
+    first: 5000,
   });
 
   const summaryNode =
