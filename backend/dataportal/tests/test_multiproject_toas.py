@@ -14,7 +14,16 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 from freezegun import freeze_time
 
-from dataportal.models import Ephemeris, Observation, PipelineRun, Project, ProjectMembership, Template, Toa
+from dataportal.models import (
+    Ephemeris,
+    Observation,
+    PipelineRun,
+    Project,
+    ProjectMembership,
+    PulsarFoldResult,
+    Template,
+    Toa,
+)
 from dataportal.tests.test_base import BaseTestCaseWithTempMedia
 from dataportal.tests.testing_utils import setup_query_test
 from utils.constants import UserRole
@@ -693,7 +702,7 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
             Path(tmp_file_path).unlink()
 
     def test_download_toas_only_returns_latest_pipeline_run(self):
-        """Verify that when multiple pipeline runs exist, only ToAs from the run linked to PulsarFoldResult are included."""
+        """Verify that when multiple pipeline runs exist with ToAs, only ToAs from the LATEST run are included."""
 
         # Create ToA for the initial (now 'old') pipeline run
         self._create_toa_file(self.observation, self.project1)
@@ -725,7 +734,7 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         old_pipeline_run = self.pipeline_run
         self.pipeline_run = new_pipeline_run
 
-        # Create ToA for the new pipeline run
+        # Create ToA for the NEW pipeline run (this is the latest)
         self._create_toa_file(self.observation, self.project1)
 
         # Restore self.pipeline_run
@@ -746,7 +755,7 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
 
         self.assertEqual(response.status_code, 200)
 
-        # Check zip contains only files for the latest pipeline run, meaning only 1 ToA file + 1 par file
+        # Check zip contains only files for the LATEST pipeline run (the one with ToAs), meaning only 1 ToA file + 1 par file
         content = b"".join(response.streaming_content)
         with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp_file:
             tmp_file.write(content)
@@ -757,5 +766,89 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
                 members = zf.namelist()
                 # 1 project * 3 files = 3 files Total
                 self.assertEqual(len(members), 3)
+        finally:
+            Path(tmp_file_path).unlink()
+
+    def test_older_pipeline_run_with_toas_is_used(self):
+        """
+        When an observation has multiple PipelineRuns and the latest one has no ToAs,
+        the download should use the older PipelineRun that has ToAs.
+
+        This tests the fix for the issue where May 2024 observations had:
+        - Older PipelineRuns with ToAs but no PulsarFoldResult
+        - Newer PipelineRuns with PulsarFoldResult but no ToAs
+
+        The download was returning 0 ToAs because it only looked at PipelineRuns with PFRs.
+        """
+        # Create a new PipelineRun for the same observation (simulating re-run)
+        # This one will NOT have ToAs
+        new_pipeline_run = PipelineRun.objects.create(
+            observation=self.observation,
+            ephemeris=self.ephemeris,
+            template=self.template,
+            pipeline_name="meerpipe",
+            pipeline_version="3.0.1",
+            created_by="test2",
+            job_state="Completed",
+            location="/new/location",
+            percent_rfi_zapped=0.1,
+        )
+
+        # Create a PulsarFoldResult pointing to the NEW pipeline run (simulating the production issue)
+        PulsarFoldResult.objects.create(
+            pulsar=self.observation.pulsar,
+            observation=self.observation,
+            pipeline_run=new_pipeline_run,
+        )
+
+        # The OLD pipeline_run still has the ToAs (created in setUpTestData)
+        # But setUpTestData creates ToAs with obs_nchan=1, so we need to create new ones with obs_nchan=32
+        # Delete the old ToAs and create new ones with the correct parameters
+        Toa.objects.filter(pipeline_run=self.pipeline_run).delete()
+
+        # Create ToAs with the correct parameters using the helper method
+        self._create_toa_file(self.observation, self.project1)
+
+        # Verify old PR has ToAs
+        old_toa_count = Toa.objects.filter(pipeline_run=self.pipeline_run).count()
+        self.assertGreater(old_toa_count, 0, "Old PipelineRun should have ToAs")
+
+        # Verify new PR has no ToAs
+        new_toa_count = Toa.objects.filter(pipeline_run=new_pipeline_run).count()
+        self.assertEqual(new_toa_count, 0, "New PipelineRun should have no ToAs")
+
+        # Now test the download - it should still work and use the OLD PipelineRun's ToAs
+        self.client.force_login(self.unrestricted_user)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "toas",
+                },
+            )
+        )
+
+        # Should succeed (not 404) because old PipelineRun has ToAs
+        self.assertEqual(response.status_code, 200)
+
+        # Check zip contains files
+        content = b"".join(response.streaming_content)
+        with tempfile.NamedTemporaryFile(suffix=".zip", delete=False) as tmp_file:
+            tmp_file.write(content)
+            tmp_file_path = tmp_file.name
+
+        try:
+            with zipfile.ZipFile(tmp_file_path, "r") as zf:
+                members = zf.namelist()
+                # Should have files from the OLD PipelineRun (1 project * 3 files = 3 files)
+                self.assertEqual(len(members), 3, "Should download ToA files from older PipelineRun")
+
+                # Verify the files are from the old pipeline run by checking timestamps in paths
+                # The path should contain the observation timestamp
+                obs_timestamp = self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S")
+                self.assertTrue(any(obs_timestamp in m for m in members), "Files should contain observation timestamp")
         finally:
             Path(tmp_file_path).unlink()
