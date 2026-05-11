@@ -72,46 +72,53 @@ function formatNumber(value, decimals) {
 }
 
 export function processData(data, mainProject, jname) {
-  return data.pulsarFoldResult.edges.map(({ node }) => ({
-    timestamp: formatUTC(node.observation.utcStart),
-    project: node.observation.project.short,
-    length: formatNumber(node.observation.duration, 2),
-    beam: node.observation.beam,
-    bw: node.observation.bandwidth,
-    nchan: node.observation.nchan,
-    band: node.observation.band,
-    nbin: node.observation.foldNbin,
-    flux: node.pipelineRun.flux,
-    nantEff: node.observation.nantEff,
-    dmBackend: formatNumber(node.observation.ephemeris.dm, 2),
-    dmFit: formatNumber(node.pipelineRun.dm, 2),
-    rm: formatNumber(node.pipelineRun.rm, 1),
-    sn: formatNumber(node.pipelineRun.sn, 1),
-    createdAt: formatUTC(node.pipelineRun.createdAt),
-    badges: node.pipelineRun.badges.edges
-      .map(({ node }) => ({
-        name: node.name,
-        description: node.description,
-      }))
-      .concat(
-        node.pipelineRun.observation.calibration.badges.edges.map(
-          ({ node }) => ({
-            name: node.name,
-            description: node.description,
-          })
-        )
-      )
-      .concat(
-        node.observation.badges.edges.map(({ node }) => ({
+  return data.pulsarFoldResult.edges.map(({ node }) => {
+    const projectShort = node.observation?.project?.short ?? "unknown";
+    const calibrationBadges =
+      node.pipelineRun?.observation?.calibration?.badges?.edges ?? [];
+    const observationBadges = node.observation?.badges?.edges ?? [];
+    const pipelineBadges = node.pipelineRun?.badges?.edges ?? [];
+    const calibrationId = node.observation?.calibration?.idInt;
+
+    return {
+      timestamp: formatUTC(node.observation.utcStart),
+      project: projectShort,
+      length: formatNumber(node.observation.duration, 2),
+      beam: node.observation.beam,
+      bw: node.observation.bandwidth,
+      nchan: node.observation.nchan,
+      band: node.observation.band,
+      nbin: node.observation.foldNbin,
+      flux: node.pipelineRun.flux,
+      nantEff: node.observation.nantEff,
+      dmBackend: formatNumber(node.observation.ephemeris?.dm, 2),
+      dmFit: formatNumber(node.pipelineRun.dm, 2),
+      rm: formatNumber(node.pipelineRun.rm, 1),
+      sn: formatNumber(node.pipelineRun.sn, 1),
+      createdAt: formatUTC(node.pipelineRun.createdAt),
+      badges: pipelineBadges
+        .map(({ node }) => ({
           name: node.name,
           description: node.description,
         }))
-      ),
-    viewLink: `/${mainProject}/${jname}/${formatUTC(
-      node.observation.utcStart
-    )}/${node.observation.beam}/`,
-    sessionLink: `/session/${node.observation.calibration.idInt}/`,
-    embargoEndDate: node.observation.embargoEndDate,
-    restricted: node.observation.restricted,
-  }));
+        .concat(
+          calibrationBadges.map(({ node }) => ({
+            name: node.name,
+            description: node.description,
+          }))
+        )
+        .concat(
+          observationBadges.map(({ node }) => ({
+            name: node.name,
+            description: node.description,
+          }))
+        ),
+      viewLink: `/${mainProject}/${jname}/${formatUTC(
+        node.observation.utcStart
+      )}/${node.observation.beam}/`,
+      sessionLink: calibrationId ? `/session/${calibrationId}/` : null,
+      embargoEndDate: node.observation.embargoEndDate,
+      restricted: node.observation.restricted,
+    };
+  });
 }

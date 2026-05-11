@@ -1,26 +1,26 @@
 import hashlib
 import json
 import math
-from datetime import datetime, timedelta, timezone
-
-
-def default_ephemeris_start():
-    """Default start time for ephemeris (epoch zero)"""
-    return datetime.fromtimestamp(0, tz=timezone.utc)
-
-
-def default_ephemeris_end():
-    """Default end time for ephemeris (max 32-bit timestamp)"""
-    return datetime.fromtimestamp(4294967295, tz=timezone.utc)
-
+from datetime import datetime, timedelta
+from datetime import timezone as dt_timezone
 
 import numpy as np
 import pytz
 from astropy.time import Time
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models
-from django.db.models import F, Model, Sum
+from django.db.models import (
+    DateTimeField,
+    Exists,
+    ExpressionWrapper,
+    F,
+    Model,
+    OuterRef,
+    Q,
+    Sum,
+)
 from django.db.models.constraints import UniqueConstraint
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from graphql import GraphQLError
 
@@ -55,6 +55,16 @@ OBS_TYPE_CHOICES = [
     ("fold", "fold"),
     ("search", "search"),
 ]
+
+
+def default_ephemeris_start():
+    """Default start time for ephemeris (epoch zero)"""
+    return datetime.fromtimestamp(0, tz=dt_timezone.utc)
+
+
+def default_ephemeris_end():
+    """Default end time for ephemeris (max 32-bit timestamp)"""
+    return datetime.fromtimestamp(4294967295, tz=dt_timezone.utc)
 
 
 class Pulsar(models.Model):
@@ -135,14 +145,20 @@ class Project(models.Model):
         return self.memberships.filter(
             user=user,
             project=self,
-            role__in=[ProjectMembership.RoleChoices.MANAGER, ProjectMembership.RoleChoices.OWNER],
+            role__in=[
+                ProjectMembership.RoleChoices.MANAGER,
+                ProjectMembership.RoleChoices.OWNER,
+            ],
         ).exists()
 
     def get_managers_and_owners(self):
         """Get all active managers and owners of the project"""
         return self.memberships.filter(
             is_active=True,
-            role__in=[ProjectMembership.RoleChoices.MANAGER, ProjectMembership.RoleChoices.OWNER],
+            role__in=[
+                ProjectMembership.RoleChoices.MANAGER,
+                ProjectMembership.RoleChoices.OWNER,
+            ],
         )
 
 
@@ -280,7 +296,10 @@ class ProjectMembershipRequest(models.Model):
         manageable_projects = Project.objects.filter(
             memberships__user=user,
             memberships__is_active=True,
-            memberships__role__in=[ProjectMembership.RoleChoices.MANAGER, ProjectMembership.RoleChoices.OWNER],
+            memberships__role__in=[
+                ProjectMembership.RoleChoices.MANAGER,
+                ProjectMembership.RoleChoices.OWNER,
+            ],
         )
 
         if not manageable_projects.exists():
@@ -308,6 +327,161 @@ class ProjectMembershipRequest(models.Model):
         return f"{self.user.username} - {self.project.code} (requested at {self.requested_at})"
 
 
+def _always_true_q():
+    # Primary keys are never null, so this is a stable always-true expression.
+    # We want to be able to return a truthy queryset because
+    # our methods need a consistent return type.
+    return Q(pk__isnull=False)
+
+
+def _always_false_q():
+    # This query will never return any results because primary keys are never null,
+    # so this is a stable always-false expression.
+    # This is important because we want to return a queryset but guarantee that it's empty and falsy.
+    return Q(pk__isnull=True)
+
+
+def _with_membership_flag(queryset, user, project_field):
+    # This is a False value that can be read by django as an SQL queriable False.
+    has_membership = models.Value(False, output_field=models.BooleanField())
+
+    # Update if the user has any memberships.
+    if user.is_authenticated:
+        has_membership = Exists(
+            ProjectMembership.objects.filter(
+                user=user,
+                is_active=True,
+                project_id=OuterRef(f"{project_field}_id"),
+            )
+        )
+    return queryset.annotate(_has_membership=has_membership)
+
+
+def _with_accessibility_flag(queryset, policy):
+    return queryset.annotate(
+        _is_accessible=ExpressionWrapper(
+            policy,
+            output_field=models.BooleanField(),
+        )
+    )
+
+
+def _observation_access_policy(user):
+    if user.is_superuser:
+        return _always_true_q()
+    now = timezone.now()
+    return Q(embargo_end_date__isnull=True) | Q(embargo_end_date__lt=now) | Q(_has_membership=True)
+
+
+def _ephemeris_access_policy(user):
+    if user.is_superuser:
+        return _always_true_q()
+    now = timezone.now()
+    if not user.is_authenticated:
+        return Q(_embargo_end__lt=now)
+    return Q(_embargo_end__lt=now) | Q(_has_membership=True)
+
+
+def _template_access_policy(user):
+    if not user.is_authenticated:
+        return _always_false_q()
+    if user.is_superuser:
+        return _always_true_q()
+    now = timezone.now()
+    return Q(_embargo_end__lt=now) | Q(_has_membership=True)
+
+
+def _toa_access_policy(user):
+    if user.is_superuser:
+        return _always_true_q()
+    now = timezone.now()
+    if not user.is_authenticated:
+        return Q(_embargo_end__lt=now)
+    return Q(_embargo_end__lt=now) | Q(_has_membership=True)
+
+
+class ObservationQuerySet(models.QuerySet):
+    def accessible_to(self, user):
+        qs = _with_membership_flag(self, user, "project")
+        qs = _with_accessibility_flag(qs, _observation_access_policy(user))
+        qs = qs.annotate(
+            _ephemeris_is_accessible=Exists(Ephemeris.objects.accessible_to(user).filter(pk=OuterRef("ephemeris_id")))
+        )
+        return qs.filter(_is_accessible=True)
+
+
+class TemplateQuerySet(models.QuerySet):
+    def accessible_to(self, user):
+        qs = _with_membership_flag(self, user, "project")
+        embargo_end = ExpressionWrapper(
+            F("created_at") + F("project__embargo_period"),
+            output_field=DateTimeField(),
+        )
+        qs = qs.annotate(_embargo_end=embargo_end)
+        return _with_accessibility_flag(qs, _template_access_policy(user)).filter(_is_accessible=True)
+
+
+class EphemerisQuerySet(models.QuerySet):
+    def accessible_to(self, user):
+        qs = _with_membership_flag(self, user, "project")
+        embargo_end = ExpressionWrapper(
+            F("created_at") + F("project__embargo_period"),
+            output_field=DateTimeField(),
+        )
+        qs = qs.annotate(_embargo_end=embargo_end)
+        return _with_accessibility_flag(qs, _ephemeris_access_policy(user)).filter(_is_accessible=True)
+
+
+class ToaQuerySet(models.QuerySet):
+    def accessible_to(self, user):
+        qs = _with_membership_flag(self, user, "project")
+        embargo_end = ExpressionWrapper(
+            F("observation__utc_start") + F("project__embargo_period"),
+            output_field=DateTimeField(),
+        )
+        qs = qs.annotate(_embargo_end=embargo_end)
+        qs = _with_accessibility_flag(qs, _toa_access_policy(user))
+        qs = qs.annotate(
+            _observation_is_accessible=Exists(
+                Observation.objects.accessible_to(user).filter(pk=OuterRef("observation_id"))
+            ),
+            _pipeline_run_observation_is_accessible=Exists(
+                Observation.objects.accessible_to(user).filter(pk=OuterRef("pipeline_run__observation_id"))
+            ),
+            _ephemeris_is_accessible=Exists(Ephemeris.objects.accessible_to(user).filter(pk=OuterRef("ephemeris_id"))),
+            _template_is_accessible=Exists(Template.objects.accessible_to(user).filter(pk=OuterRef("template_id"))),
+        )
+        return qs.filter(_is_accessible=True)
+
+
+class PipelineRunQuerySet(models.QuerySet):
+    def accessible_to(self, user):
+        qs = self.annotate(
+            _observation_is_accessible=Exists(
+                Observation.objects.accessible_to(user).filter(pk=OuterRef("observation_id"))
+            ),
+            _ephemeris_is_accessible=Exists(Ephemeris.objects.accessible_to(user).filter(pk=OuterRef("ephemeris_id"))),
+            _template_is_accessible=Exists(Template.objects.accessible_to(user).filter(pk=OuterRef("template_id"))),
+        )
+        return qs.filter(_observation_is_accessible=True)
+
+
+class PulsarFoldResultQuerySet(models.QuerySet):
+    def accessible_to(self, user):
+        if user.is_superuser:
+            return self
+
+        return self.filter(observation__in=Observation.objects.accessible_to(user))
+
+
+class PipelineImageQuerySet(models.QuerySet):
+    def accessible_to(self, user):
+        if user.is_superuser:
+            return self
+
+        return self.filter(pulsar_fold_result__observation__in=Observation.objects.accessible_to(user))
+
+
 class Ephemeris(models.Model):
     pulsar = models.ForeignKey(Pulsar, models.CASCADE)
     project = models.ForeignKey(Project, models.CASCADE)
@@ -333,6 +507,8 @@ class Ephemeris(models.Model):
         ).hexdigest()
         super(Ephemeris, self).save(*args, **kwargs)
 
+    objects = EphemerisQuerySet.as_manager()
+
     @property
     def is_embargoed(self):
         """
@@ -346,33 +522,13 @@ class Ephemeris(models.Model):
     def is_restricted(self, user):
         """
         Check if the ephemeris is restricted for the user.
-        Ephemeris require authentication for all downloads.
 
-        Returns True if the user cannot access this ephemeris.
-
-        Access is granted if:
-        - User is authenticated AND
-        - (User is a superuser OR
-          Ephemeris is not embargoed OR
-          User is a member of the ephemeris's project)
-
-        :param user: Django user model instance
-        :return: bool - True if restricted (no access), False if accessible
+        When the instance came from `.accessible_to()`, `_is_accessible` is
+        already annotated and this check is query-free.
         """
-        if not user.is_authenticated:
-            return True
-
-        if user.is_superuser:
-            return False
-
-        if not self.is_embargoed:
-            return False
-
-        return not ProjectMembership.objects.filter(
-            user=user,
-            project=self.project,
-            is_active=True,
-        ).exists()
+        if hasattr(self, "_is_accessible"):
+            return not self._is_accessible
+        return not type(self).objects.filter(pk=self.pk).accessible_to(user).exists()
 
     class Meta:
         constraints = [
@@ -400,6 +556,8 @@ class Template(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
 
+    objects = TemplateQuerySet.as_manager()
+
     @property
     def is_embargoed(self):
         """
@@ -413,37 +571,10 @@ class Template(models.Model):
     def is_restricted(self, user):
         """
         Check if the template is restricted for the user.
-        Templates require authentication for all downloads.
-
-        Returns True if the user cannot access this template.
-
-        Access is granted if:
-        - User is authenticated AND
-        - (User is a superuser OR
-          Template is not embargoed OR
-          User is a member of the template's project)
-
-        :param user: Django user model instance
-        :return: bool - True if restricted (no access), False if accessible
         """
-        # Templates require authentication for all downloads
-        if not user.is_authenticated:
-            return True
-
-        # Superusers can access everything
-        if user.is_superuser:
-            return False
-
-        # If not embargoed, any authenticated user can access
-        if not self.is_embargoed:
-            return False
-
-        # If embargoed, check project membership
-        return not ProjectMembership.objects.filter(
-            user=user,
-            project=self.project,
-            is_active=True,
-        ).exists()
+        if hasattr(self, "_is_accessible"):
+            return not self._is_accessible
+        return not type(self).objects.filter(pk=self.pk).accessible_to(user).exists()
 
     class Meta:
         constraints = [
@@ -572,6 +703,8 @@ class Observation(models.Model):
 
     badges = models.ManyToManyField(Badge, blank=True)
 
+    objects = ObservationQuerySet.as_manager()
+
     def save(self, *args, **kwargs):
         Observation.clean(self)
         if self.project.main_project.name == "MONSPSR":
@@ -617,36 +750,10 @@ class Observation(models.Model):
     def is_restricted(self, user):
         """
         Check if the observation is restricted for the user.
-
-        Returns True if the user cannot access this observation.
-
-        Access is granted if:
-        - User is a superuser (can access everything)
-        - Observation is not embargoed (public data)
-        - User is a member of the observation's project (project-based access)
-
-        :param user: Django user model instance
-        :return: bool - True if restricted (no access), False if accessible
         """
-        # Superusers can access everything
-        if user.is_authenticated and user.is_superuser:
-            return False
-
-        # If not embargoed, it's public - everyone can access
-        if not self.is_embargoed:
-            return False
-
-        # If embargoed, check project membership
-        if user.is_authenticated:
-            # Check if user is a member of this observation's project
-            return not ProjectMembership.objects.filter(
-                user=user,
-                project=self.project,
-                is_active=True,
-            ).exists()
-
-        # Anonymous users can't access embargoed data
-        return True
+        if hasattr(self, "_is_accessible"):
+            return not self._is_accessible
+        return not type(self).objects.filter(pk=self.pk).accessible_to(user).exists()
 
     class Meta:
         indexes = [
@@ -816,6 +923,8 @@ class PipelineRun(Model):
 
     badges = models.ManyToManyField(Badge, blank=True)
 
+    objects = PipelineRunQuerySet.as_manager()
+
     class Meta:
         indexes = [
             models.Index(fields=["created_at"]),
@@ -828,6 +937,8 @@ class PulsarFoldResult(models.Model):
     observation = models.ForeignKey(Observation, on_delete=models.CASCADE, related_name="pulsar_fold_results")
     pipeline_run = models.ForeignKey(PipelineRun, on_delete=models.CASCADE)
     pulsar = models.ForeignKey(Pulsar, models.CASCADE)
+
+    objects = PulsarFoldResultQuerySet.as_manager()
 
 
 class PulsarFoldSummary(models.Model):
@@ -1170,6 +1281,8 @@ class PipelineImage(models.Model):
     ]
     resolution = models.CharField(max_length=4, choices=RESOLUTION_CHOICES)
 
+    objects = PipelineImageQuerySet.as_manager()
+
     class Meta:
         constraints = [
             # TODO this may no longer be necessary with pipeline run
@@ -1246,6 +1359,8 @@ class Toa(models.Model):
     residual_phase = models.FloatField(null=True)  # pulse period phase
     residual_phase_err = models.FloatField(null=True)
 
+    objects = ToaQuerySet.as_manager()
+
     @property
     def is_embargoed(self):
         """
@@ -1257,6 +1372,14 @@ class Toa(models.Model):
         :return: bool - True if embargoed, False if public
         """
         return self.observation.is_embargoed_for_project(self.project)
+
+    def is_restricted(self, user):
+        """
+        Check if the ToA is restricted for the user.
+        """
+        if hasattr(self, "_is_accessible"):
+            return not self._is_accessible
+        return not type(self).objects.filter(pk=self.pk).accessible_to(user).exists()
 
     @classmethod
     def get_query(cls, **kwargs):

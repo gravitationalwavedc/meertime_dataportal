@@ -54,3 +54,39 @@ class GraphQLLoginRequiredContractTestCase(BaseTestCaseWithTempMedia, GraphQLTes
                 ("toa",),
             },
         )
+
+    def test_anonymous_cannot_access_login_required_foreign_keys(self):
+        response = self.query(
+            """
+            query {
+              observation(first: 1) {
+                edges {
+                  node {
+                    id
+                    project { id }
+                    telescope { id }
+                    ephemeris { id }
+                  }
+                }
+              }
+              pulsarFoldResult(first: 1) {
+                edges {
+                  node {
+                    id
+                    pipelineRun { id }
+                  }
+                }
+              }
+            }
+            """
+        )
+        content = json.loads(response.content)
+        self.assertNotIn("errors", content)
+
+        observation_node = content["data"]["observation"]["edges"][0]["node"]
+        self.assertIsNotNone(observation_node["project"])
+        self.assertIsNone(observation_node["telescope"])
+        self.assertIsNone(observation_node["ephemeris"])
+
+        pfr_node = content["data"]["pulsarFoldResult"]["edges"][0]["node"]
+        self.assertIsNotNone(pfr_node["pipelineRun"])

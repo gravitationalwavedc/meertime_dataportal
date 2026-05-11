@@ -998,8 +998,8 @@ type ToaNodeEdge {
 
 type ToaNode implements Node {
   pipelineRun: PipelineRunNode
-  observation: ObservationNode!
-  project: ProjectNode!
+  observation: ObservationNode
+  project: ProjectNode
   ephemeris: EphemerisNode
   template: TemplateNode
   archive: String!
