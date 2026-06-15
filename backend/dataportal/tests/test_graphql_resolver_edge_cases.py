@@ -140,7 +140,8 @@ class ResolverEdgeCaseTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
             nsub_type="1",
         )
 
-        cls.main_project_agg = MainProject.objects.create(name="MeerTIME-AGG", telescope=cls.telescope)
+        cls.telescope_agg = Telescope.objects.create(name="Aggregate Scope")
+        cls.main_project_agg = MainProject.objects.create(name="MeerTIME-AGG", telescope=cls.telescope_agg)
         cls.project_alt = Project.objects.create(
             code="SCI-TEST-002",
             short="ALT",

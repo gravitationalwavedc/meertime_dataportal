@@ -101,7 +101,7 @@ class MainProject(Model):
     E.g. Meertime , molonglo
     """
 
-    telescope = models.ForeignKey(Telescope, models.CASCADE)
+    telescope = models.OneToOneField(Telescope, models.CASCADE, related_name="main_project")
     name = models.CharField(max_length=64)
 
     def __str__(self):
@@ -113,7 +113,7 @@ class Project(models.Model):
     E.g. thousand pulsar array, RelBin
     """
 
-    main_project = models.ForeignKey(MainProject, models.CASCADE, null=True)
+    main_project = models.ForeignKey(MainProject, models.CASCADE, related_name="projects")
     code = models.CharField(max_length=255, unique=True)
     short = models.CharField(max_length=20, default="???")
     embargo_period = models.DurationField(default=timedelta(days=548))  # default 18 months default embargo
