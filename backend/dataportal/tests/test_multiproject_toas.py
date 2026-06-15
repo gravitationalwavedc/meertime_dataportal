@@ -555,7 +555,7 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
     def test_download_pulsar_toas_excludes_molonglo(self):
         """Verify Molonglo observations are excluded from pulsar-level ToA downloads"""
         # Create a Molonglo main project and telescope
-        molonglo_telescope = self.telescope  # reuse existing telescope
+        molonglo_telescope = self.telescope.__class__.objects.create(name="Molonglo Scope")
         molonglo_main_project = self.observation.project.main_project  # Get existing main_project
 
         # Change the main_project name to create distinction
