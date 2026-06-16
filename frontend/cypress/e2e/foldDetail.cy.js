@@ -95,43 +95,37 @@ describe("The Fold Detail Page", () => {
     cy.contains("MeerPipe Pulse Profile Template").should("not.exist");
   });
 
-  it("should download full resolution files when download button is clicked", () => {
+  it("should NOT show Download Full Resolution Data for anonymous users", () => {
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
-    
-    // Ensure the button is visible and clickable
-    cy.contains("Download Full Resolution Data").should("be.visible");
-    
-    // Click the button - this will open download in new tab
-    cy.contains("Download Full Resolution Data").click();
-    
-    // Verify the button click worked by checking that the page is still functional
-    cy.contains("J0125-2327").should("be.visible");
+
+    // Anonymous users should not see direct-download buttons (which would 401)
+    cy.contains("Download Full Resolution Data").should("not.exist");
   });
 
-  it("should download decimated files when download button is clicked", () => {
+  it("should NOT show Download Decimated Data for anonymous users", () => {
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
-    
-    // Ensure the button is visible and clickable
-    cy.contains("Download Decimated Data").should("be.visible");
-    
-    // Click the button - this will open download in new tab
-    cy.contains("Download Decimated Data").click();
-    
-    // Verify the button click worked by checking that the page is still functional
-    cy.contains("J0125-2327").should("be.visible");
+
+    // Anonymous users should not see direct-download buttons (which would 401)
+    cy.contains("Download Decimated Data").should("not.exist");
   });
 
-  it("should download ToAs files when download button is clicked", () => {
+  it("should NOT show Download ToAs for anonymous users", () => {
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
-    
-    // Ensure the button is visible and clickable
-    cy.contains("Download ToAs").should("be.visible");
-    
-    // Click the button - this will open download in new tab
-    cy.contains("Download ToAs").click();
-    
-    // Verify the button click worked by checking that the page is still functional
-    cy.contains("J0125-2327").should("be.visible");
+
+    // Anonymous users should not see direct-download buttons (which would 401)
+    cy.contains("Download ToAs").should("not.exist");
+  });
+
+  it("should show EmptyStateMessage with Log in action for anonymous", () => {
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+
+    // Anonymous users see an empty-state message with a "Log in" link
+    cy.get('[data-testid="empty-state-message"]').should("be.visible");
+    cy.contains("You must be logged in to download").should("be.visible");
+    cy.contains("a", "Log in")
+      .should("have.attr", "href")
+      .and("match", /\/login\/?\?next=/)
+      .and("include", "fold");
   });
 
   it("should go to single observation when view button is clicked", () => {

@@ -154,3 +154,59 @@ describe("Single Observation Page", () => {
     cy.contains("J0125-2327").should("be.visible");
   });
 });
+
+describe("Single Observation Page - Anonymous Access", () => {
+  beforeEach(() => {
+    cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
+    });
+
+    // Anonymous session
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: false,
+        user: null
+      }
+    }).as("checkSession");
+
+    cy.intercept("GET", "/api/auth/csrf/", {
+      statusCode: 200,
+      body: { csrfToken: "mock-csrf-token" }
+    }).as("getCSRF");
+
+    // Mock image requests to prevent network calls
+    cy.intercept("GET", "/media/**/*.png", {
+      fixture: "example.json"
+    }).as("plotImages");
+
+    cy.intercept("GET", "/media/**/*.jpg", {
+      fixture: "example.json"
+    }).as("plotImagesJpg");
+
+    cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
+  });
+
+  it("should NOT show the 3 direct-download buttons for anonymous users", () => {
+    cy.wait("@SingleObservationQuery");
+    cy.contains("Loading...").should("not.exist");
+
+    // Anonymous users should not see direct-download buttons (which would 401)
+    cy.contains("Download Full Resolution").should("not.exist");
+    cy.contains("Download Decimated").should("not.exist");
+    cy.contains("Download ToAs").should("not.exist");
+  });
+
+  it("should show EmptyStateMessage with Log in action for anonymous", () => {
+    cy.wait("@SingleObservationQuery");
+    cy.contains("Loading...").should("not.exist");
+
+    // Anonymous users see an empty-state message with a "Log in" link
+    cy.get('[data-testid="empty-state-message"]').should("be.visible");
+    cy.contains("You must be logged in to download").should("be.visible");
+    cy.contains("a", "Log in")
+      .should("have.attr", "href")
+      .and("match", /\/login\/?\?next=/)
+      .and("include", "meertime");
+  });
+});
