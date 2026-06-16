@@ -9,6 +9,7 @@ import {
 import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
 import SingleObservationFileDownload from "./SingleObservationFileDownload";
+import { useAuth } from "../auth/AuthContext";
 
 const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
@@ -81,6 +82,7 @@ const SingleObservationTableFragment = graphql`
 `;
 
 const SingleObservationTable = ({ observationData, jname }) => {
+  const { isAuthenticated } = useAuth();
   const relayData = useFragment(
     SingleObservationTableFragment,
     observationData
@@ -194,6 +196,7 @@ const SingleObservationTable = ({ observationData, jname }) => {
             mainProject={
               relayObservationModel.observation.project.mainProject.name
             }
+            isAuthenticated={isAuthenticated}
           />
         </Col>
       </Row>

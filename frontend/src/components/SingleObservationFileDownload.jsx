@@ -1,6 +1,18 @@
 import { Button } from "react-bootstrap";
+import { useLocation } from "found";
+import EmptyStateMessage from "./EmptyStateMessage";
 
-const SingleObservationFileDownload = ({ jname, utc, beam, mainProject }) => {
+const SingleObservationFileDownload = ({
+  jname,
+  utc,
+  beam,
+  mainProject,
+  isAuthenticated,
+}) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const loginPath = `/login/?next=${encodeURIComponent(currentPath)}`;
+
   const downloadFile = (e, fileType) => {
     e.preventDefault();
     const downloadUrl = `${
@@ -16,34 +28,42 @@ const SingleObservationFileDownload = ({ jname, utc, beam, mainProject }) => {
 
   return (
     <>
-      {mainProject !== "MONSPSR" && (
-        <>
-          <Button
-            size="sm"
-            variant="outline-secondary"
-            onClick={(e) => downloadFile(e, "full")}
-            className="mr-2 mb-2"
-          >
-            Download Full Resolution
-          </Button>
-          <Button
-            size="sm"
-            variant="outline-secondary"
-            onClick={(e) => downloadFile(e, "decimated")}
-            className="mr-2 mb-2"
-          >
-            Download Decimated
-          </Button>
-          <Button
-            size="sm"
-            variant="outline-secondary"
-            onClick={(e) => downloadFile(e, "toas")}
-            className="mr-2 mb-2"
-          >
-            Download ToAs
-          </Button>
-        </>
-      )}
+      {mainProject !== "MONSPSR" &&
+        (isAuthenticated ? (
+          <>
+            <Button
+              size="sm"
+              variant="outline-secondary"
+              onClick={(e) => downloadFile(e, "full")}
+              className="mr-2 mb-2"
+            >
+              Download Full Resolution
+            </Button>
+            <Button
+              size="sm"
+              variant="outline-secondary"
+              onClick={(e) => downloadFile(e, "decimated")}
+              className="mr-2 mb-2"
+            >
+              Download Decimated
+            </Button>
+            <Button
+              size="sm"
+              variant="outline-secondary"
+              onClick={(e) => downloadFile(e, "toas")}
+              className="mr-2 mb-2"
+            >
+              Download ToAs
+            </Button>
+          </>
+        ) : (
+          <EmptyStateMessage
+            title="You must be logged in to download"
+            body="Sign in to access full resolution, decimated, and ToA data."
+            actionLabel="Log in"
+            actionHref={loginPath}
+          />
+        ))}
     </>
   );
 };

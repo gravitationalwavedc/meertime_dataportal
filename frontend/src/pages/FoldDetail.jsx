@@ -7,6 +7,7 @@ import { useLazyLoadQuery } from "react-relay";
 import PlotContainer from "../components/plots/PlotContainer";
 import { useState } from "react";
 import { selectCanonicalObservationSummaryNode, toApiFilter } from "../helpers";
+import { useAuth } from "../auth/AuthContext";
 
 const foldDetailQuery = graphql`
   query FoldDetailQuery(
@@ -64,6 +65,7 @@ const foldDetailQuery = graphql`
 
 const FoldDetail = ({ match }) => {
   const { jname, mainProject, minSNR } = match.params;
+  const { isAuthenticated } = useAuth();
 
   const [excludeBadges, setExcludeBadges] = useState([
     "Session Timing Jump",
@@ -102,6 +104,7 @@ const FoldDetail = ({ match }) => {
         jname={jname}
         mainProject={mainProject}
         toasLink={data.pulsarFoldResult.toasLink}
+        isAuthenticated={isAuthenticated}
       />
       <SummaryDataRow dataPoints={summaryData} />
       <PlotContainer

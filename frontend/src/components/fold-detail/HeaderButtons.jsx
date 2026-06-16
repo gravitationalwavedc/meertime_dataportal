@@ -1,11 +1,16 @@
 import { useState, Suspense } from "react";
 import { Button, Col, Row } from "react-bootstrap";
+import { useLocation } from "found";
 import Ephemeris, { ephemerisQuery } from "../Ephemeris";
 import Template, { templateQuery } from "../Template";
 import { useQueryLoader } from "react-relay";
+import EmptyStateMessage from "../EmptyStateMessage";
 import LoadingModal from "./LoadingModal";
 
-const HeaderButtons = ({ jname, mainProject }) => {
+const HeaderButtons = ({ jname, mainProject, isAuthenticated }) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  const loginPath = `/login/?next=${encodeURIComponent(currentPath)}`;
   const [ephemerisVisible, setEphemerisVisible] = useState(false);
   const [ephemerisQueryRef, loadEphemerisQuery] =
     useQueryLoader(ephemerisQuery);
@@ -91,34 +96,42 @@ const HeaderButtons = ({ jname, mainProject }) => {
             />
           )}
         </Suspense>
-        {mainProject !== "MONSPSR" && (
-          <>
-            <Button
-              size="sm"
-              className="mr-2 mb-2"
-              variant="outline-secondary"
-              onClick={() => handleDownloadFiles("full")}
-            >
-              Download Full Resolution Data
-            </Button>
-            <Button
-              size="sm"
-              className="mr-2 mb-2"
-              variant="outline-secondary"
-              onClick={() => handleDownloadFiles("decimated")}
-            >
-              Download Decimated Data
-            </Button>
-            <Button
-              size="sm"
-              className="mr-2 mb-2"
-              variant="outline-secondary"
-              onClick={() => handleDownloadFiles("toas")}
-            >
-              Download ToAs
-            </Button>
-          </>
-        )}
+        {mainProject !== "MONSPSR" &&
+          (isAuthenticated ? (
+            <>
+              <Button
+                size="sm"
+                className="mr-2 mb-2"
+                variant="outline-secondary"
+                onClick={() => handleDownloadFiles("full")}
+              >
+                Download Full Resolution Data
+              </Button>
+              <Button
+                size="sm"
+                className="mr-2 mb-2"
+                variant="outline-secondary"
+                onClick={() => handleDownloadFiles("decimated")}
+              >
+                Download Decimated Data
+              </Button>
+              <Button
+                size="sm"
+                className="mr-2 mb-2"
+                variant="outline-secondary"
+                onClick={() => handleDownloadFiles("toas")}
+              >
+                Download ToAs
+              </Button>
+            </>
+          ) : (
+            <EmptyStateMessage
+              title="You must be logged in to download"
+              body="Sign in to access full resolution, decimated, and ToA data."
+              actionLabel="Log in"
+              actionHref={loginPath}
+            />
+          ))}
       </Col>
     </Row>
   );
