@@ -613,6 +613,7 @@ class ObservationNode(DjangoObjectType):
     calibration = graphene.Field(CalibrationNode)
     ephemeris = graphene.Field(EphemerisNode)
     restricted = graphene.Boolean()
+    is_embargoed = graphene.Boolean()
     mode_duration = graphene.Int()
 
     @classmethod
@@ -621,6 +622,9 @@ class ObservationNode(DjangoObjectType):
 
     def resolve_restricted(self, info):
         return self.is_restricted(info.context.user)
+
+    def resolve_is_embargoed(self, info):
+        return self.is_embargoed
 
     def resolve_project(self, info):
         return self.project
