@@ -29,6 +29,17 @@ const foldDetailQuery = graphql`
       allProjects
       mostCommonProject
       allNchans
+      edges {
+        node {
+          observation {
+            restricted
+            embargoEndDate
+            project {
+              short
+            }
+          }
+        }
+      }
     }
     observationSummary(
       pulsar_Name: $pulsar
@@ -80,6 +91,11 @@ const FoldDetail = ({ match }) => {
     first: 5000,
   });
 
+  const firstObservation = data.pulsarFoldResult?.edges?.[0]?.node?.observation;
+  const restricted = firstObservation?.restricted ?? false;
+  const embargoEndDate = firstObservation?.embargoEndDate ?? null;
+  const projectShort = firstObservation?.project?.short ?? "";
+
   const summaryNode =
     selectCanonicalObservationSummaryNode(data.observationSummary) || {};
   const summaryData = [
@@ -105,6 +121,9 @@ const FoldDetail = ({ match }) => {
         mainProject={mainProject}
         toasLink={data.pulsarFoldResult.toasLink}
         isAuthenticated={isAuthenticated}
+        restricted={restricted}
+        embargoEndDate={embargoEndDate}
+        projectShort={projectShort}
       />
       <SummaryDataRow dataPoints={summaryData} />
       <PlotContainer
