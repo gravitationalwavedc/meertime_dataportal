@@ -122,7 +122,7 @@ describe("HeaderButtons", () => {
       expect(href).toMatch(/^\/login\/?\?next=/);
     });
 
-    it("still renders the 2 modal-trigger buttons (MR-4 closes that gap)", () => {
+    it("does NOT render the 2 modal-trigger buttons", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
@@ -132,11 +132,11 @@ describe("HeaderButtons", () => {
       );
 
       expect(
-        screen.getByRole("button", { name: "View folding ephemeris" })
-      ).toBeInTheDocument();
+        screen.queryByRole("button", { name: "View folding ephemeris" })
+      ).not.toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: "Download template" })
-      ).toBeInTheDocument();
+        screen.queryByRole("button", { name: "Download template" })
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -175,7 +175,7 @@ describe("HeaderButtons", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("still renders the 2 modal-trigger buttons", () => {
+    it("does NOT render the 2 modal-trigger buttons (MONSPSR carve-out)", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
@@ -185,11 +185,11 @@ describe("HeaderButtons", () => {
       );
 
       expect(
-        screen.getByRole("button", { name: "View folding ephemeris" })
-      ).toBeInTheDocument();
+        screen.queryByRole("button", { name: "View folding ephemeris" })
+      ).not.toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: "Download template" })
-      ).toBeInTheDocument();
+        screen.queryByRole("button", { name: "Download template" })
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -228,7 +228,7 @@ describe("HeaderButtons", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("still renders the 2 modal-trigger buttons", () => {
+    it("does NOT render the 2 modal-trigger buttons (MONSPSR carve-out)", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
@@ -238,11 +238,70 @@ describe("HeaderButtons", () => {
       );
 
       expect(
-        screen.getByRole("button", { name: "View folding ephemeris" })
+        screen.queryByRole("button", { name: "View folding ephemeris" })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Download template" })
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("when authenticated, project is not MONSPSR, and observation is embargoed", () => {
+    const baseProps = {
+      jname: "J0125-2327",
+      mainProject: "meertime",
+      isAuthenticated: true,
+      restricted: true,
+      projectShort: "PTA",
+      embargoEndDate: "2025-06-13T16:07:10+00:00",
+    };
+
+    it("renders the embargo EmptyStateMessage with title and body", () => {
+      render(<HeaderButtons {...baseProps} />);
+      const emptyState = screen.getByTestId("empty-state-message");
+      expect(emptyState).toBeInTheDocument();
+      expect(
+        screen.getByText("This observation is under embargo")
       ).toBeInTheDocument();
       expect(
-        screen.getByRole("button", { name: "Download template" })
+        screen.getByText(
+          /You must be a member of PTA to download this data until 13 Jun 2025\./
+        )
       ).toBeInTheDocument();
+    });
+
+    it("does NOT render any of the 5 buttons", () => {
+      render(<HeaderButtons {...baseProps} />);
+      expect(
+        screen.queryByRole("button", { name: "Download Full Resolution Data" })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Download Decimated Data" })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Download ToAs" })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "View folding ephemeris" })
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Download template" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("does NOT render a Log in link (no action button on embargo state)", () => {
+      render(<HeaderButtons {...baseProps} />);
+      expect(
+        screen.queryByRole("link", { name: "Log in" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("handles missing embargoEndDate gracefully", () => {
+      render(<HeaderButtons {...baseProps} embargoEndDate={null} />);
+      expect(screen.getByTestId("empty-state-message")).toBeInTheDocument();
+      expect(
+        screen.queryByRole("button", { name: "Download Full Resolution Data" })
+      ).not.toBeInTheDocument();
     });
   });
 });

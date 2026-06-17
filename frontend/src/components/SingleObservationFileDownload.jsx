@@ -1,6 +1,7 @@
 import { Button } from "react-bootstrap";
 import { useLocation } from "found";
 import EmptyStateMessage from "./EmptyStateMessage";
+import { formatDDMonYYYY } from "../helpers";
 
 const SingleObservationFileDownload = ({
   jname,
@@ -8,6 +9,9 @@ const SingleObservationFileDownload = ({
   beam,
   mainProject,
   isAuthenticated,
+  restricted = false,
+  embargoEndDate = null,
+  projectShort = "",
 }) => {
   const location = useLocation();
   const currentPath = location.pathname;
@@ -26,10 +30,29 @@ const SingleObservationFileDownload = ({
     document.body.removeChild(link);
   };
 
+  const embargoBody = `You must be a member of ${
+    projectShort || "this project"
+  } to download this data until ${
+    embargoEndDate ? formatDDMonYYYY(embargoEndDate) : "the embargo is lifted"
+  }.`;
+
   return (
     <>
       {mainProject !== "MONSPSR" &&
-        (isAuthenticated ? (
+        (!isAuthenticated ? (
+          <EmptyStateMessage
+            title="You must be logged in to download"
+            body="Sign in to access full resolution, decimated, and ToA data."
+            actionLabel="Log in"
+            actionHref={loginPath}
+          />
+        ) : restricted ? (
+          <EmptyStateMessage
+            title="This observation is under embargo"
+            body={embargoBody}
+            variant="warning"
+          />
+        ) : (
           <>
             <Button
               size="sm"
@@ -56,13 +79,6 @@ const SingleObservationFileDownload = ({
               Download ToAs
             </Button>
           </>
-        ) : (
-          <EmptyStateMessage
-            title="You must be logged in to download"
-            body="Sign in to access full resolution, decimated, and ToA data."
-            actionLabel="Log in"
-            actionHref={loginPath}
-          />
         ))}
     </>
   );

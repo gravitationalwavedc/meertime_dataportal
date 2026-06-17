@@ -54,6 +54,8 @@ const SingleObservationTableFragment = graphql`
             raj
             decj
             duration
+            restricted
+            embargoEndDate
             foldNbin
             foldNchan
             foldTsubint
@@ -197,6 +199,13 @@ const SingleObservationTable = ({ observationData, jname }) => {
               relayObservationModel.observation.project.mainProject.name
             }
             isAuthenticated={isAuthenticated}
+            restricted={relayObservationModel.observation.restricted ?? false}
+            embargoEndDate={
+              relayObservationModel.observation.embargoEndDate ?? null
+            }
+            projectShort={
+              relayObservationModel.observation.project?.short ?? ""
+            }
           />
         </Col>
       </Row>

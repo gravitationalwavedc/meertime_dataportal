@@ -43,6 +43,14 @@ describe("The Fold Detail Page", () => {
   });
 
   it("should toggle the ephemeris modal", () => {
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: true,
+        user: { username: "testuser", email: "testuser@example.com" }
+      }
+    }).as("checkSession");
+    cy.visit("fold/meertime/J0125-2327/");
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
     cy.contains("J0125-2327");
     cy.contains("p", "Observations")
@@ -56,6 +64,14 @@ describe("The Fold Detail Page", () => {
   });
 
   it("should toggle the template modal", () => {
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: true,
+        user: { username: "testuser", email: "testuser@example.com" }
+      }
+    }).as("checkSession");
+    cy.visit("fold/meertime/J0125-2327/");
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
     cy.contains("J0125-2327");
     cy.contains("Pulse Profile Template").should("not.exist");
@@ -65,6 +81,14 @@ describe("The Fold Detail Page", () => {
   });
 
   it("should display template information with band", () => {
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: true,
+        user: { username: "testuser", email: "testuser@example.com" }
+      }
+    }).as("checkSession");
+    cy.visit("fold/meertime/J0125-2327/");
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
     cy.contains("Download template").click();
     cy.wait("@TemplateQuery");
@@ -74,6 +98,14 @@ describe("The Fold Detail Page", () => {
   });
 
   it("should display template download link", () => {
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: true,
+        user: { username: "testuser", email: "testuser@example.com" }
+      }
+    }).as("checkSession");
+    cy.visit("fold/meertime/J0125-2327/");
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
     cy.contains("Download template").click();
     cy.wait("@TemplateQuery");
@@ -83,15 +115,21 @@ describe("The Fold Detail Page", () => {
   });
 
   it("should close template modal when clicking close button", () => {
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: true,
+        user: { username: "testuser", email: "testuser@example.com" }
+      }
+    }).as("checkSession");
+    cy.visit("fold/meertime/J0125-2327/");
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
     cy.contains("Download template").click();
     cy.wait("@TemplateQuery");
     cy.contains("MeerPipe Pulse Profile Template").should("be.visible");
-    
-    // Click the close button
+
     cy.get('.modal-header button.close').click();
-    
-    // Modal should be hidden
+
     cy.contains("MeerPipe Pulse Profile Template").should("not.exist");
   });
 
@@ -166,8 +204,8 @@ describe("The Fold Detail Page - Template Access Control", () => {
     cy.intercept("GET", "/api/auth/session/", {
       statusCode: 200,
       body: {
-        isAuthenticated: false,
-        user: null
+        isAuthenticated: true,
+        user: { username: "nonmember", email: "nonmember@example.com" }
       }
     }).as("checkSession");
 
@@ -182,12 +220,12 @@ describe("The Fold Detail Page - Template Access Control", () => {
 
     cy.visit("fold/meertime/J0125-2327/");
     cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
-    
+
     cy.contains("Download template").click();
     cy.wait("@TemplateQuery");
-    
+
     cy.contains("MeerPipe Pulse Profile Template").should("be.visible");
-    cy.contains("Please log in to download files.").should("be.visible");
+    cy.contains("No non-embargoed MeerPipe pulse profile template available to you.").should("be.visible");
   });
 
   it("should show embargoed template with access message for project members", () => {
@@ -224,5 +262,61 @@ describe("The Fold Detail Page - Template Access Control", () => {
     cy.contains("You have access to this embargoed template as a project member").should("be.visible");
     cy.contains("(UHF)").should("be.visible");
     cy.contains("Download Template File").should("be.visible");
+  });
+});
+
+describe("The Fold Detail Page - Authenticated Non-Member Embargo Gate", () => {
+  it("should NOT show any of the 5 buttons for an authenticated non-member on an embargoed observation", () => {
+    cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      aliasQuery(req, "FoldDetailQuery", "foldDetailQueryEmbargoed.json");
+      aliasQuery(req, "PlotlyPlotQuery", "plotlyPlotQuery.json");
+      aliasQuery(
+        req,
+        "FoldDetailFileDownloadQuery",
+        "foldDetailFileDownloadQuery.json"
+      );
+      aliasQuery(req, "EphemerisQuery", "ephemerisQuery.json");
+      aliasQuery(req, "TemplateQuery", "templateQuery.json");
+      aliasQuery(req, "SingleObservationQuery", "singleObservationQuery.json");
+      aliasQuery(req, "SessionQuery", "sessionQuery.json");
+    });
+
+    cy.intercept("GET", "/api/auth/session/", {
+      statusCode: 200,
+      body: {
+        isAuthenticated: true,
+        user: { username: "nonmember", email: "nonmember@example.com" }
+      }
+    }).as("checkSession");
+
+    cy.intercept("GET", "/api/auth/csrf/", {
+      statusCode: 200,
+      body: { csrfToken: "mock-csrf-token" }
+    }).as("getCSRF");
+
+    cy.intercept("GET", "/media/**/*.png", {
+      fixture: "example.json"
+    }).as("plotImages");
+
+    cy.intercept("GET", "/media/**/*.jpg", {
+      fixture: "example.json"
+    }).as("plotImagesJpg");
+
+    cy.visit("fold/meertime/J0125-2327/");
+    cy.wait(["@FoldDetailQuery", "@PlotlyPlotQuery"]);
+
+    cy.contains("Download Full Resolution Data").should("not.exist");
+    cy.contains("Download Decimated Data").should("not.exist");
+    cy.contains("Download ToAs").should("not.exist");
+    cy.contains("View folding ephemeris").should("not.exist");
+    cy.contains("Download template").should("not.exist");
+
+    cy.get('[data-testid="empty-state-message"]').should("be.visible");
+    cy.contains("This observation is under embargo").should("be.visible");
+    cy.contains(
+      "You must be a member of GC to download this data until 13 Jun 2025."
+    ).should("be.visible");
+
+    cy.contains("a", "Log in").should("not.exist");
   });
 });

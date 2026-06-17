@@ -6,8 +6,16 @@ import Template, { templateQuery } from "../Template";
 import { useQueryLoader } from "react-relay";
 import EmptyStateMessage from "../EmptyStateMessage";
 import LoadingModal from "./LoadingModal";
+import { formatDDMonYYYY } from "../../helpers";
 
-const HeaderButtons = ({ jname, mainProject, isAuthenticated }) => {
+const HeaderButtons = ({
+  jname,
+  mainProject,
+  isAuthenticated,
+  restricted = false,
+  embargoEndDate = null,
+  projectShort = "",
+}) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const loginPath = `/login/?next=${encodeURIComponent(currentPath)}`;
@@ -45,60 +53,79 @@ const HeaderButtons = ({ jname, mainProject, isAuthenticated }) => {
     document.body.removeChild(link);
   };
 
+  const embargoBody = `You must be a member of ${
+    projectShort || "this project"
+  } to download this data until ${
+    embargoEndDate ? formatDDMonYYYY(embargoEndDate) : "the embargo is lifted"
+  }.`;
+
   return (
     <Row>
       <Col>
-        <Button
-          size="sm"
-          variant="outline-secondary"
-          className="mr-2 mb-2"
-          onClick={handleEphemerisButton}
-        >
-          View folding ephemeris
-        </Button>
-        <Suspense
-          fallback={
-            <LoadingModal
-              heading="Folding Ephemeris"
-              loadingMessage="Loading ephemeris"
-            />
-          }
-        >
-          {ephemerisQueryRef !== null && (
-            <Ephemeris
-              show={ephemerisVisible}
-              setShow={setEphemerisVisible}
-              queryRef={ephemerisQueryRef}
-            />
-          )}
-        </Suspense>
-        <Button
-          size="sm"
-          variant="outline-secondary"
-          className="mr-2 mb-2"
-          onClick={handleTemplateButton}
-        >
-          Download template
-        </Button>
-        <Suspense
-          fallback={
-            <LoadingModal
-              heading="Pulse Profile Template"
-              loadingMessage="Loading template"
-            />
-          }
-        >
-          {templateQueryRef !== null && (
-            <Template
-              show={templateVisible}
-              setShow={setTemplateVisible}
-              queryRef={templateQueryRef}
-            />
-          )}
-        </Suspense>
         {mainProject !== "MONSPSR" &&
-          (isAuthenticated ? (
+          (!isAuthenticated ? (
+            <EmptyStateMessage
+              title="You must be logged in to download"
+              body="Sign in to access full resolution, decimated, and ToA data."
+              actionLabel="Log in"
+              actionHref={loginPath}
+            />
+          ) : restricted ? (
+            <EmptyStateMessage
+              title="This observation is under embargo"
+              body={embargoBody}
+              variant="warning"
+            />
+          ) : (
             <>
+              <Button
+                size="sm"
+                variant="outline-secondary"
+                className="mr-2 mb-2"
+                onClick={handleEphemerisButton}
+              >
+                View folding ephemeris
+              </Button>
+              <Suspense
+                fallback={
+                  <LoadingModal
+                    heading="Folding Ephemeris"
+                    loadingMessage="Loading ephemeris"
+                  />
+                }
+              >
+                {ephemerisQueryRef !== null && (
+                  <Ephemeris
+                    show={ephemerisVisible}
+                    setShow={setEphemerisVisible}
+                    queryRef={ephemerisQueryRef}
+                  />
+                )}
+              </Suspense>
+              <Button
+                size="sm"
+                variant="outline-secondary"
+                className="mr-2 mb-2"
+                onClick={handleTemplateButton}
+              >
+                Download template
+              </Button>
+              <Suspense
+                fallback={
+                  <LoadingModal
+                    heading="Pulse Profile Template"
+                    loadingMessage="Loading template"
+                  />
+                }
+              >
+                {templateQueryRef !== null && (
+                  <Template
+                    show={templateVisible}
+                    setShow={setTemplateVisible}
+                    queryRef={templateQueryRef}
+                  />
+                )}
+              </Suspense>
               <Button
                 size="sm"
                 className="mr-2 mb-2"
@@ -124,13 +151,6 @@ const HeaderButtons = ({ jname, mainProject, isAuthenticated }) => {
                 Download ToAs
               </Button>
             </>
-          ) : (
-            <EmptyStateMessage
-              title="You must be logged in to download"
-              body="Sign in to access full resolution, decimated, and ToA data."
-              actionLabel="Log in"
-              actionHref={loginPath}
-            />
           ))}
       </Col>
     </Row>
