@@ -747,6 +747,7 @@ type ObservationNode implements Node {
   """The ID of the object"""
   id: ID!
   restricted: Boolean
+  isEmbargoed: Boolean
   modeDuration: Int
 }
 
