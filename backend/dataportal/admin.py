@@ -1,8 +1,13 @@
+from django import forms
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 
 from .models import (
+    BAND_CHOICES,
+    BAND_OPTIONS_HELP_TEXT,
+    PLOT_TYPE_CHOICES,
+    PLOT_TYPES_HELP_TEXT,
     Badge,
     Calibration,
     Ephemeris,
@@ -57,11 +62,41 @@ class ProjectMembershipInline(admin.TabularInline):
     autocomplete_fields = ["user", "approved_by"]
 
 
+class ProjectAdminForm(forms.ModelForm):
+    band_options = forms.MultipleChoiceField(
+        choices=BAND_CHOICES,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        help_text=BAND_OPTIONS_HELP_TEXT,
+    )
+    plot_types = forms.MultipleChoiceField(
+        choices=PLOT_TYPE_CHOICES,
+        required=False,
+        widget=forms.CheckboxSelectMultiple,
+        help_text=PLOT_TYPES_HELP_TEXT,
+    )
+
+    class Meta:
+        model = Project
+        fields = "__all__"
+
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ["code", "short", "description", "main_project", "embargo_period"]
+    form = ProjectAdminForm
+    list_display = [
+        "code",
+        "short",
+        "description",
+        "main_project",
+        "is_visible_on_frontend",
+        "display_order",
+        "band_options",
+        "plot_types",
+        "embargo_period",
+    ]
     search_fields = ["code", "short", "description"]
-    list_filter = ["main_project"]
+    list_filter = ["main_project", "is_visible_on_frontend"]
     inlines = [ProjectMembershipInline]
 
 
