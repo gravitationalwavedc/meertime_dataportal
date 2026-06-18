@@ -144,6 +144,26 @@ class Project(models.Model):
         default=list,
         help_text=PLOT_TYPES_HELP_TEXT,
     )
+    allow_downloads = models.BooleanField(default=True, help_text="Allow users to download project data products.")
+    show_extended_observation_fields = models.BooleanField(
+        default=True,
+        help_text="Show extended observation fields in the public frontend.",
+    )
+    observation_band_override = models.CharField(
+        max_length=7,
+        choices=BAND_CHOICES,
+        blank=True,
+        default="",
+        help_text="Override calculated observation bands for this project.",
+    )
+    toa_metadata_available = models.BooleanField(
+        default=True,
+        help_text="ToA files for this project include channel and receiver metadata.",
+    )
+    use_for_folding_assets = models.BooleanField(
+        default=True,
+        help_text="Allow project ephemerides and templates to be selected as folding assets.",
+    )
 
     def __str__(self):
         return f"{self.code}_{self.short}"
