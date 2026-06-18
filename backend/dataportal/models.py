@@ -7,6 +7,7 @@ from datetime import timezone as dt_timezone
 import numpy as np
 import pytz
 from astropy.time import Time
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models
 from django.db.models import (
@@ -55,6 +56,17 @@ OBS_TYPE_CHOICES = [
     ("fold", "fold"),
     ("search", "search"),
 ]
+
+PLOT_TYPE_CHOICES = [
+    ("Timing Residuals", "Timing Residuals"),
+    ("Flux Density", "Flux Density"),
+    ("S/N", "S/N"),
+    ("DM", "DM"),
+    ("RM", "RM"),
+]
+SUPPORTED_PLOT_TYPES = {value for value, _ in PLOT_TYPE_CHOICES}
+BAND_OPTIONS_HELP_TEXT = "Supported observation bands to show for this project."
+PLOT_TYPES_HELP_TEXT = f"Supported plot types: {', '.join(sorted(SUPPORTED_PLOT_TYPES))}."
 
 
 def default_ephemeris_start():
@@ -118,6 +130,20 @@ class Project(models.Model):
     short = models.CharField(max_length=20, default="???")
     embargo_period = models.DurationField(default=timedelta(days=548))  # default 18 months default embargo
     description = models.CharField(max_length=255, blank=True, null=True)
+    is_visible_on_frontend = models.BooleanField(default=True)
+    display_order = models.IntegerField(default=0)
+    band_options = ArrayField(
+        models.CharField(max_length=7, choices=BAND_CHOICES),
+        blank=True,
+        default=list,
+        help_text=BAND_OPTIONS_HELP_TEXT,
+    )
+    plot_types = ArrayField(
+        models.CharField(max_length=32, choices=PLOT_TYPE_CHOICES),
+        blank=True,
+        default=list,
+        help_text=PLOT_TYPES_HELP_TEXT,
+    )
 
     def __str__(self):
         return f"{self.code}_{self.short}"
