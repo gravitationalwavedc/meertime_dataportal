@@ -153,6 +153,47 @@ describe("Single Observation Page", () => {
 
     cy.contains("J0125-2327").should("be.visible");
   });
+
+  it("should render only raw images and no empty columns/space when cleaned images are missing", () => {
+    cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      aliasQuery(
+        req,
+        "SingleObservationQuery",
+        "singleObservationQueryOnlyRaw.json"
+      );
+    });
+
+    cy.visit("/meertime/J0125-2327/2023-04-29-06:47:34/2/");
+    cy.wait("@SingleObservationQuery");
+
+    // The page loads successfully
+    cy.contains("J0125-2327").should("be.visible");
+
+    // "Raw" header is visible, but "Cleaned" header is NOT visible
+    cy.contains("Raw").should("be.visible");
+    cy.contains("Cleaned").should("not.exist");
+
+    // Alt images for raw exist, but no cleaned images exist
+    cy.get('img[alt="Plot PROFILE raw"]').should("be.visible");
+    cy.get('img[alt="Plot PROFILE cleaned"]').should("not.exist");
+    cy.get('img[alt="Plot PROFILE_POL raw"]').should("be.visible");
+    cy.get('img[alt="Plot PROFILE_POL cleaned"]').should("not.exist");
+
+    // Verify there are no empty columns or empty space
+    // Every row within the ImageGrid should contain exactly 1 column
+    cy.get(".single-observation .row")
+      .first()
+      .next()
+      .within(() => {
+        cy.get(".col")
+          .first()
+          .within(() => {
+            cy.get(".row").each(($row) => {
+              cy.wrap($row).find(".col").should("have.length", 1);
+            });
+          });
+      });
+  });
 });
 
 describe("Single Observation Page - Anonymous Access", () => {

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import ComparisonImageGrid from "./ComparisonImageGrid";
 import LightBox from "react-image-lightbox";
-import PlotImage from "./PlotImage";
 
 const ImageGrid = ({ images }) => {
   const [isLightBoxOpen, setIsLightBoxOpen] = useState(false);
@@ -28,21 +27,11 @@ const ImageGrid = ({ images }) => {
 
   return (
     <>
-      {processedImages.length > 0 ? (
-        <ComparisonImageGrid
-          rawImages={rawImages}
-          processedImages={processedImages}
-          openLightBox={openLightBox}
-        />
-      ) : (
-        rawImages.map(({ node }) => (
-          <PlotImage
-            key={node.image}
-            imageData={node}
-            handleClick={() => openLightBox(node.url)}
-          />
-        ))
-      )}
+      <ComparisonImageGrid
+        rawImages={rawImages}
+        processedImages={processedImages}
+        openLightBox={openLightBox}
+      />
       {isLightBoxOpen && (
         <LightBox
           mainSrc={lightBoxImages.images[lightBoxImages.imagesIndex]}

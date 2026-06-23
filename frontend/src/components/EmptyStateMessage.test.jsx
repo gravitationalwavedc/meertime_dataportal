@@ -14,6 +14,24 @@ describe("EmptyStateMessage", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("renders with message prop as title when title is not given", () => {
+    render(<EmptyStateMessage message="Custom state message" />);
+
+    expect(screen.getByText("Custom state message")).toBeInTheDocument();
+  });
+
+  it("prioritizes title prop over message prop when both are given", () => {
+    render(
+      <EmptyStateMessage
+        title="Specific Title"
+        message="Custom state message"
+      />
+    );
+
+    expect(screen.getByText("Specific Title")).toBeInTheDocument();
+    expect(screen.queryByText("Custom state message")).not.toBeInTheDocument();
+  });
+
   it("renders all optional props when supplied", () => {
     render(
       <EmptyStateMessage

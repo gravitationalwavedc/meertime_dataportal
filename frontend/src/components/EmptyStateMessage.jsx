@@ -2,7 +2,8 @@ import { Button, Card } from "react-bootstrap";
 import { Link } from "found";
 
 const EmptyStateMessage = ({
-  title = "No data",
+  title,
+  message,
   body,
   variant = "info",
   actionLabel,
@@ -10,6 +11,8 @@ const EmptyStateMessage = ({
   actionHref,
   className,
 }) => {
+  const displayTitle = title || message || "No data";
+
   const borderClass =
     variant === "warning"
       ? "border-warning"
@@ -24,7 +27,7 @@ const EmptyStateMessage = ({
   return (
     <Card className={cardClassName} data-testid="empty-state-message">
       <Card.Body>
-        <Card.Title>{title}</Card.Title>
+        <Card.Title>{displayTitle}</Card.Title>
         {body && <Card.Text>{body}</Card.Text>}
         {actionLabel && actionHref && (
           <Button as={Link} to={actionHref} variant="primary">

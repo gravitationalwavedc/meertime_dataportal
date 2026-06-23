@@ -1,9 +1,10 @@
 import Image from "react-bootstrap/Image";
 import image404 from "../assets/images/image404.png";
+import EmptyStateMessage from "./EmptyStateMessage";
 
 const PlotImage = ({ imageData, handleClick }) => {
   if (!imageData) {
-    return null;
+    return <EmptyStateMessage message="No plot available" />;
   }
 
   const cleaned_str = imageData.cleaned ? "cleaned" : "raw";
