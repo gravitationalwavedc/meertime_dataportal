@@ -1,7 +1,6 @@
 import { Col, Row } from "react-bootstrap";
 import ImageComparisonRow from "./ImageComparisonRow";
 import PlotImage from "./PlotImage";
-import { formatProjectName } from "../helpers";
 
 const ComparisonImageGrid = ({ rawImages, processedImages, openLightBox }) => {
   const comparisonImageTypes = [
@@ -17,16 +16,25 @@ const ComparisonImageGrid = ({ rawImages, processedImages, openLightBox }) => {
 
   const extraImageOrder = ["toa_single", "rmfit", "dmfit"];
 
+  const hasRaw = rawImages && rawImages.length > 0;
+  const hasCleaned = processedImages && processedImages.length > 0;
+
   return (
     <>
-      <Row>
-        <Col>
-          <h5>Raw</h5>
-        </Col>
-        <Col>
-          <h5>Cleaned</h5>
-        </Col>
-      </Row>
+      {(hasRaw || hasCleaned) && (
+        <Row>
+          {hasRaw && (
+            <Col>
+              <h5>Raw</h5>
+            </Col>
+          )}
+          {hasCleaned && (
+            <Col>
+              <h5>Cleaned</h5>
+            </Col>
+          )}
+        </Row>
+      )}
       {comparisonImageTypes.map((imageType) => (
         <ImageComparisonRow
           key={`${imageType}`}
