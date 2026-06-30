@@ -27,7 +27,7 @@ const DataDisclaimer = () => {
                 described in Bailes et al. 2026 (in prep).
               </p>
               <div className="p-3 border rounded bg-light mb-3">
-                <p className="mb-2">Data Download Types:</p>
+                <p className="mb-2">Data Download Types (MeerKAT only):</p>
                 <ul className="mb-0">
                   <li>
                     <strong>Folding Ephemeris:</strong> Each (processed,
