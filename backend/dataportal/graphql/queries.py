@@ -170,17 +170,41 @@ class ProjectNode(DjangoObjectType):
             "short",
             "embargo_period",
             "description",
+            "is_visible_on_frontend",
+            "display_order",
+            "band_options",
+            "plot_types",
+            "allow_downloads",
+            "show_extended_observation_fields",
+            "observation_band_override",
+            "toa_metadata_available",
+            "use_for_folding_assets",
         ]
-        filter_fields = ["main_project__name", "code", "short", "embargo_period", "description"]
+        filter_fields = [
+            "main_project__name",
+            "code",
+            "short",
+            "embargo_period",
+            "description",
+            "display_order",
+        ]
         interfaces = (relay.Node,)
 
     # ForeignKey fields
     main_project = graphene.Field(MainProjectNode)
 
     embargoPeriod = graphene.Int()
+    band_options = graphene.NonNull(graphene.List(graphene.NonNull(graphene.String)))
+    plot_types = graphene.NonNull(graphene.List(graphene.NonNull(graphene.String)))
 
     def resolve_embargoPeriod(self, info):
         return self.embargo_period.days
+
+    def resolve_band_options(self, info):
+        return self.band_options
+
+    def resolve_plot_types(self, info):
+        return self.plot_types
 
 
 class EphemerisNode(DjangoObjectType):
@@ -1828,6 +1852,15 @@ class Query(graphene.ObjectType):
     @login_required
     def resolve_project(self, info, **kwargs):
         return Project.objects.all()
+
+    project_configuration = DjangoFilterConnectionField(ProjectNode, max_limit=None)
+
+    def resolve_project_configuration(self, info, **kwargs):
+        return (
+            Project.objects.filter(is_visible_on_frontend=True)
+            .select_related("main_project__telescope")
+            .order_by("display_order", "id")
+        )
 
     ephemeris = DjangoFilterConnectionField(EphemerisNode)
 

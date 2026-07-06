@@ -25,7 +25,8 @@ type Query {
   pulsar(offset: Int, before: String, after: String, first: Int, last: Int, name: String): PulsarNodeConnection
   telescope(offset: Int, before: String, after: String, first: Int, last: Int, name: String): TelescopeNodeConnection
   mainProject(offset: Int, before: String, after: String, first: Int, last: Int, telescope_Name: String, name: String): MainProjectNodeConnection
-  project(offset: Int, before: String, after: String, first: Int, last: Int, mainProject_Name: String, code: String, short: String, embargoPeriod: Float, description: String): ProjectNodeConnection
+  project(offset: Int, before: String, after: String, first: Int, last: Int, mainProject_Name: String, code: String, short: String, embargoPeriod: Float, description: String, displayOrder: Int): ProjectNodeConnection
+  projectConfiguration(offset: Int, before: String, after: String, first: Int, last: Int, mainProject_Name: String, code: String, short: String, embargoPeriod: Float, description: String, displayOrder: Int): ProjectNodeConnection
   ephemeris(offset: Int, before: String, after: String, first: Int, last: Int, p0: Float, p0_Lt: Float, p0_Lte: Float, p0_Gt: Float, p0_Gte: Float, dm: Float, dm_Lt: Float, dm_Lte: Float, dm_Gt: Float, dm_Gte: Float, ephemerisHash: String, pulsar_Name: String, project_Short: String): EphemerisNodeConnection
   template(offset: Int, before: String, after: String, first: Int, last: Int, band: DataportalTemplateBandChoices, createdAt: DateTime, createdAt_Isnull: Boolean, createdAt_Lt: DateTime, createdAt_Lte: DateTime, createdAt_Gt: DateTime, createdAt_Gte: DateTime, createdAt_Month: DateTime, createdAt_Year: DateTime, createdAt_Date: DateTime, templateHash: String, pulsar_Name: String, project_Short: String): TemplateNodeConnection
   calibration(offset: Int, before: String, after: String, first: Int, last: Int, id: Int): CalibrationNodeConnection
@@ -280,6 +281,27 @@ type ProjectNode implements Node {
   short: String!
   embargoPeriod: Int
   description: String
+  isVisibleOnFrontend: Boolean!
+  displayOrder: Int!
+  bandOptions: [String!]!
+  plotTypes: [String!]!
+
+  """Allow users to download project data products."""
+  allowDownloads: Boolean!
+
+  """Show extended observation fields in the public frontend."""
+  showExtendedObservationFields: Boolean!
+
+  """Override calculated observation bands for this project."""
+  observationBandOverride: DataportalProjectObservationBandOverrideChoices
+
+  """ToA files for this project include channel and receiver metadata."""
+  toaMetadataAvailable: Boolean!
+
+  """
+  Allow project ephemerides and templates to be selected as folding assets.
+  """
+  useForFoldingAssets: Boolean!
 
   """The ID of the object"""
   id: ID!
@@ -298,6 +320,36 @@ type TelescopeNode implements Node {
 
   """The ID of the object"""
   id: ID!
+}
+
+"""An enumeration."""
+enum DataportalProjectObservationBandOverrideChoices {
+  """UHF"""
+  UHF
+
+  """LBAND"""
+  LBAND
+
+  """SBAND_0"""
+  SBAND_0
+
+  """SBAND_1"""
+  SBAND_1
+
+  """SBAND_2"""
+  SBAND_2
+
+  """SBAND_3"""
+  SBAND_3
+
+  """SBAND_4"""
+  SBAND_4
+
+  """OTHER"""
+  OTHER
+
+  """UHF_NS"""
+  UHF_NS
 }
 
 """An enumeration."""
