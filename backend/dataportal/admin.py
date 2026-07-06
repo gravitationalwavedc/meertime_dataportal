@@ -91,12 +91,20 @@ class ProjectAdmin(admin.ModelAdmin):
         "main_project",
         "is_visible_on_frontend",
         "display_order",
+        "allow_downloads",
         "band_options",
         "plot_types",
         "embargo_period",
     ]
     search_fields = ["code", "short", "description"]
-    list_filter = ["main_project", "is_visible_on_frontend"]
+    list_filter = [
+        "main_project",
+        "is_visible_on_frontend",
+        "allow_downloads",
+        "show_extended_observation_fields",
+        "toa_metadata_available",
+        "use_for_folding_assets",
+    ]
     inlines = [ProjectMembershipInline]
 
 
