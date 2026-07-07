@@ -48,8 +48,25 @@ export const assertEmptyStringOrConcrete = (req, keys, operationName) => {
   });
 };
 
+const aliasProjectConfigQuery = (req) => {
+  if (req.alias === "projectConfigContextQuery") {
+    return true;
+  }
+
+  if (hasOperationName(req, "projectConfigContextQuery")) {
+    req.alias = "projectConfigContextQuery";
+    req.reply({
+      fixture: "projectConfigContextQuery.json",
+    });
+    return true;
+  }
+  return false;
+};
+
 // Alias query if operationName matches
 export const aliasQuery = (req, operationName, fixture) => {
+  if (aliasProjectConfigQuery(req)) return;
+
   if (hasOperationName(req, operationName)) {
     req.alias = operationName;
     req.reply({
@@ -60,6 +77,8 @@ export const aliasQuery = (req, operationName, fixture) => {
 
 // Alias mutation if operationName matches
 export const aliasMutation = (req, operationName, fixture) => {
+  if (aliasProjectConfigQuery(req)) return;
+
   if (hasOperationName(req, operationName)) {
     req.alias = operationName;
     req.reply({

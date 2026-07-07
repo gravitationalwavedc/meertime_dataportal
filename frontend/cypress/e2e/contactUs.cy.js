@@ -202,6 +202,7 @@ describe("Contact Us Page", () => {
   it("should handle submission errors", () => {
     // Mock error response
     cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      aliasMutation(req, "projectConfigContextQuery", "projectConfigContextQuery.json");
       if (req.body.query && req.body.query.includes("ContactUsMutation")) {
         req.reply({
           fixture: "contactFormError.json"

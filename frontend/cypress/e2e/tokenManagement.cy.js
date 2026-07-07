@@ -343,6 +343,7 @@ describe("Token Management Page", () => {
   it("should display empty state when no tokens exist", () => {
     // Mock empty token list
     cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      aliasQuery(req, "projectConfigContextQuery", "projectConfigContextQuery.json");
       if (req.body.query && req.body.query.includes("TokenManagementQuery")) {
         req.reply({
           fixture: "tokenListMutationEmpty.json"
@@ -415,6 +416,7 @@ describe("Token Management Page", () => {
     
     // Create a custom fixture with more expiry scenarios
     cy.intercept("http://localhost:5173/api/graphql/", (req) => {
+      aliasQuery(req, "projectConfigContextQuery", "projectConfigContextQuery.json");
       if (req.body.query && req.body.query.includes("TokenManagementQuery")) {
         req.reply({
           body: {

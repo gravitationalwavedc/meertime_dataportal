@@ -1,6 +1,7 @@
 import "./init.js"; // import first!
 import { RelayEnvironmentProvider } from "react-relay";
 import { ScreenSizeProvider } from "./context/screenSize-context";
+import { ProjectConfigProvider } from "./context/project-config-context";
 import { AuthProvider } from "./auth/AuthContext.jsx";
 import environment from "./relayEnvironment";
 import React from "react";
@@ -13,11 +14,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <RelayEnvironmentProvider environment={environment}>
     <ScreenSizeProvider>
       <AuthProvider>
-        <React.StrictMode>
-          <div className="App h-100" data-testid="mainApp">
-            <Router />
-          </div>
-        </React.StrictMode>
+        <ProjectConfigProvider>
+          <React.StrictMode>
+            <div className="App h-100" data-testid="mainApp">
+              <Router />
+            </div>
+          </React.StrictMode>
+        </ProjectConfigProvider>
       </AuthProvider>
     </ScreenSizeProvider>
   </RelayEnvironmentProvider>
