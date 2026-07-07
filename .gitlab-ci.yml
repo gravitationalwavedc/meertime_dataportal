@@ -86,7 +86,7 @@ react-test:
 
   before_script:
     - corepack enable
-    - corepack prepare pnpm@latest-8 --activate
+    - corepack prepare pnpm@latest-9 --activate
     - pnpm config set store-dir .pnpm-store
 
   script:
@@ -111,7 +111,7 @@ react-formatting:
 
   before_script:
     - corepack enable
-    - corepack prepare pnpm@latest-8 --activate
+    - corepack prepare pnpm@latest-9 --activate
     - pnpm config set store-dir .pnpm-store
 
   script:
