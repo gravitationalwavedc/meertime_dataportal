@@ -2,6 +2,7 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import SearchRow from "./SearchRow";
 import { useProjectConfig } from "../context/project-config-context";
+import { selectConfiguredMainProject } from "../project-config";
 
 const option = (value, label = value) => (
   <option value={value} key={value}>
@@ -67,11 +68,7 @@ const ListControls = ({
   exportCSVProps,
 }) => {
   const { projects } = useProjectConfig();
-  const activeMainProject =
-    projects.find(
-      (project) =>
-        project.mainProject?.name?.toLowerCase() === mainProject?.toLowerCase()
-    )?.mainProject?.name || mainProject;
+  const activeMainProject = selectConfiguredMainProject(projects, mainProject);
   const configuredProjectOptions = projectOptions(projects, activeMainProject);
 
   return (
