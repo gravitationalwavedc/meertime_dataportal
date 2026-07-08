@@ -130,7 +130,7 @@ class Project(models.Model):
     short = models.CharField(max_length=20, default="???")
     embargo_period = models.DurationField(default=timedelta(days=548))  # default 18 months default embargo
     description = models.CharField(max_length=255, blank=True, null=True)
-    is_visible_on_frontend = models.BooleanField(default=True)
+    is_visible_on_frontend = models.BooleanField(default=False)
     display_order = models.IntegerField(default=0)
     band_options = ArrayField(
         models.CharField(max_length=7, choices=BAND_CHOICES),

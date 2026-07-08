@@ -1,7 +1,1 @@
-{
-  "data": {
-    "projectConfiguration": {
-      "edges": []
-    }
-  }
-}
+{"data":{"projectConfiguration":{"edges":[{"node":{"short":"TPA","bandOptions":["LBAND","UHF"],"mainProject":{"name":"meertime","telescope":{"name":"MeerKAT"}}}},{"node":{"short":"PTA","bandOptions":["LBAND"],"mainProject":{"name":"meertime","telescope":{"name":"MeerKAT"}}}},{"node":{"short":"MONSPSR_TIMING","bandOptions":["UHF_NS"],"mainProject":{"name":"MONSPSR","telescope":{"name":"Molonglo"}}}}]}}}

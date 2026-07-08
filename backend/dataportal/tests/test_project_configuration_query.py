@@ -45,6 +45,7 @@ class ProjectConfigurationQueryTest(GraphQLTestCase):
             short="LATE",
             description="Visible later",
             main_project=first_main,
+            is_visible_on_frontend=True,
             display_order=20,
             band_options=["LBAND", "UHF"],
             plot_types=["Timing Residuals", "S/N"],
@@ -58,6 +59,7 @@ class ProjectConfigurationQueryTest(GraphQLTestCase):
             code="VISIBLE-FIRST",
             short="FIRST",
             main_project=second_main,
+            is_visible_on_frontend=True,
             display_order=10,
         )
         Project.objects.create(

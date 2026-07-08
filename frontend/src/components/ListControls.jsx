@@ -1,12 +1,52 @@
-import {
-  getProject,
-  getSubProjectOptions,
-  projectOptions,
-} from "../telescopes";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
-import React from "react";
 import SearchRow from "./SearchRow";
+import { useProjectConfig } from "../context/project-config-context";
+
+const option = (value, label = value) => (
+  <option value={value} key={value}>
+    {label}
+  </option>
+);
+
+const allOption = option("All");
+
+const matchesProject = (project, mainProject) =>
+  !mainProject ||
+  project.mainProject?.name?.toLowerCase() === mainProject.toLowerCase();
+
+const uniqueValues = (values) => [...new Set(values.filter(Boolean))];
+
+const mainProjectOptions = (projects) => {
+  const seen = new Set();
+  return projects
+    .filter(({ mainProject }) => {
+      if (!mainProject?.name || seen.has(mainProject.name)) {
+        return false;
+      }
+      seen.add(mainProject.name);
+      return true;
+    })
+    .map(({ mainProject }) =>
+      option(mainProject.name, mainProject.telescope?.name || mainProject.name)
+    );
+};
+
+const projectOptions = (projects, mainProject) => [
+  allOption,
+  ...projects
+    .filter((project) => matchesProject(project, mainProject))
+    .map(({ short }) => option(short)),
+];
+
+const bandOptions = (projects, mainProject) => [
+  allOption,
+  ...uniqueValues(
+    projects
+      .filter((project) => matchesProject(project, mainProject))
+      .flatMap(({ bandOptions }) => bandOptions)
+  ).map((value) => option(value)),
+];
 
 const ListControls = ({
   query,
@@ -26,8 +66,13 @@ const ListControls = ({
   rememberSearch,
   exportCSVProps,
 }) => {
-  const currentProject = getProject(mainProject);
-  const subprojectOptions = getSubProjectOptions(currentProject.subprojects);
+  const { projects } = useProjectConfig();
+  const activeMainProject =
+    projects.find(
+      (project) =>
+        project.mainProject?.name?.toLowerCase() === mainProject?.toLowerCase()
+    )?.mainProject?.name || mainProject;
+  const configuredProjectOptions = projectOptions(projects, activeMainProject);
 
   return (
     <>
@@ -40,12 +85,12 @@ const ListControls = ({
                 role="main-project-select"
                 custom
                 as="select"
-                value={mainProject}
+                value={activeMainProject}
                 onChange={(event) =>
                   handleMainProjectFilter(event.target.value)
                 }
               >
-                {projectOptions}
+                {mainProjectOptions(projects)}
               </Form.Control>
             </Form.Group>
           </Col>
@@ -63,7 +108,7 @@ const ListControls = ({
                   handleMostCommonProjectFilter(event.target.value)
                 }
               >
-                {subprojectOptions}
+                {configuredProjectOptions}
               </Form.Control>
             </Form.Group>
           </Col>
@@ -79,7 +124,7 @@ const ListControls = ({
                 value={project}
                 onChange={(event) => handleProjectFilter(event.target.value)}
               >
-                {subprojectOptions}
+                {configuredProjectOptions}
               </Form.Control>
             </Form.Group>
           </Col>
@@ -95,11 +140,7 @@ const ListControls = ({
                 value={band}
                 onChange={(event) => handleBandFilter(event.target.value)}
               >
-                {currentProject.bandOptions.map((value) => (
-                  <option value={value} key={value}>
-                    {value}
-                  </option>
-                ))}
+                {bandOptions(projects, activeMainProject)}
               </Form.Control>
             </Form.Group>
           </Col>
