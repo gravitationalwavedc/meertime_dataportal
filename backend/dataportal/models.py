@@ -113,7 +113,7 @@ class MainProject(Model):
     E.g. Meertime , molonglo
     """
 
-    telescope = models.OneToOneField(Telescope, models.CASCADE, related_name="main_project")
+    telescope = models.ForeignKey(Telescope, models.CASCADE, related_name="main_projects")
     name = models.CharField(max_length=64)
 
     def __str__(self):
