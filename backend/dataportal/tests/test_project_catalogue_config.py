@@ -15,7 +15,7 @@ class ProjectCatalogueConfigTest(TestCase):
     def test_catalogue_configuration_defaults(self):
         project = Project.objects.create(code="SYNTHETIC", main_project=self.main_project)
 
-        self.assertTrue(project.is_visible_on_frontend)
+        self.assertFalse(project.is_visible_on_frontend)
         self.assertEqual(project.display_order, 0)
         self.assertEqual(project.band_options, [])
         self.assertEqual(project.plot_types, [])

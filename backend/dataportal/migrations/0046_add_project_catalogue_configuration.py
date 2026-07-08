@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="project",
             name="is_visible_on_frontend",
-            field=models.BooleanField(default=True),
+            field=models.BooleanField(default=False),
         ),
         migrations.AddField(
             model_name="project",
