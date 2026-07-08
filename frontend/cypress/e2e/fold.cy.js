@@ -4,7 +4,28 @@ import {
   assertNoAllValues,
 } from "../utils/graphql-test-utils";
 
-const FOLD_GUARDED_KEYS = ["mainProject", "mostCommonProject", "project", "band"];
+const FOLD_GUARDED_KEYS = [
+  "mainProject",
+  "mostCommonProject",
+  "project",
+  "band",
+];
+
+const waitForConfiguredDefault = () => {
+  cy.wait("@FoldQuery");
+  cy.wait("@FoldTableRefetchQuery").then((interception) => {
+    expect(interception.request.body.variables).to.deep.include({
+      pulsarIsnull: true,
+      mainProject: "meertime",
+      mostCommonProject: "",
+      project: "",
+      band: "",
+      projectIsnull: true,
+      bandIsnull: true,
+      calibrationIsnull: true,
+    });
+  });
+};
 
 describe("The Fold Page", () => {
   beforeEach(() => {
@@ -49,22 +70,22 @@ describe("The Fold Page", () => {
       statusCode: 200,
       body: {
         isAuthenticated: false,
-        user: null
-      }
+        user: null,
+      },
     }).as("checkSession");
 
     cy.intercept("GET", "/api/auth/csrf/", {
       statusCode: 200,
-      body: { csrfToken: "mock-csrf-token" }
+      body: { csrfToken: "mock-csrf-token" },
     }).as("getCSRF");
 
     // Mock image requests to prevent network calls
     cy.intercept("GET", "/media/**/*.png", {
-      fixture: "example.json"
+      fixture: "example.json",
     }).as("plotImages");
 
     cy.intercept("GET", "/media/**/*.jpg", {
-      fixture: "example.json"
+      fixture: "example.json",
     }).as("plotImagesJpg");
 
     cy.visit("/");
@@ -72,19 +93,19 @@ describe("The Fold Page", () => {
 
   it("displays loading then the data", () => {
     cy.contains("Fold Observations").should("be.visible");
-    cy.wait("@FoldQuery");
+    waitForConfiguredDefault();
     cy.contains("Loading...").should("not.exist");
     cy.contains("Unique Pulsars").should("be.visible");
     cy.contains("p", "Observations")
       .parent()
       .find("h4")
-      .should("have.text", "3");
+      .should("have.text", "1");
     cy.location("pathname").should("equal", "/");
   });
 
   it("changes band when selected", () => {
-    cy.wait("@FoldQuery");
-    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+    waitForConfiguredDefault();
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
 
     cy.get("#bandSelect").select("LBAND", { force: true });
 
@@ -112,8 +133,8 @@ describe("The Fold Page", () => {
   });
 
   it("changes main project when selected", () => {
-    cy.wait("@FoldQuery");
-    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+    waitForConfiguredDefault();
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
 
     cy.get("#mainProjectSelect").select("Molonglo", { force: true });
 
@@ -137,8 +158,8 @@ describe("The Fold Page", () => {
   });
 
   it("changes project when selected", () => {
-    cy.wait("@FoldQuery");
-    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+    waitForConfiguredDefault();
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
 
     cy.get("#projectSelect").select("TPA", { force: true });
 
@@ -162,8 +183,8 @@ describe("The Fold Page", () => {
   });
 
   it("changes most common project when selected", () => {
-    cy.wait("@FoldQuery");
-    cy.get("table").get("tbody").find("tr").should("have.length", 2);
+    waitForConfiguredDefault();
+    cy.get("table").get("tbody").find("tr").should("have.length", 1);
 
     cy.get("#mostCommonProjectSelect").select("TPA", { force: true });
 
@@ -191,7 +212,7 @@ describe("The Fold Page", () => {
   });
 
   it("check view all button", () => {
-    cy.wait("@FoldQuery");
+    waitForConfiguredDefault();
     cy.contains("tr", "J0125-2327").contains("View all").click();
     cy.location("pathname").should("equal", "/fold/meertime/J0125-2327/");
 
@@ -202,7 +223,7 @@ describe("The Fold Page", () => {
   });
 
   it("check view last button", () => {
-    cy.wait("@FoldQuery");
+    waitForConfiguredDefault();
     cy.contains("tr", "2020-07-10-05").contains("View last").click();
     cy.location("pathname").should(
       "equal",

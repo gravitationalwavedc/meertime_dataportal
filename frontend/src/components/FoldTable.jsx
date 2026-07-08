@@ -1,5 +1,5 @@
 import { Button, ButtonGroup } from "react-bootstrap";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   columnsSizeFilter,
   formatUTC,
@@ -10,6 +10,9 @@ import { graphql, useRefetchableFragment } from "react-relay";
 import DataView from "./DataView";
 import { Link } from "found";
 import { useScreenSize } from "../context/screenSize-context";
+import { useProjectConfig } from "../context/project-config-context";
+import { selectConfiguredMainProject } from "../project-config";
+import EmptyStateMessage from "./EmptyStateMessage";
 
 const FoldTableFragment = graphql`
   fragment FoldTableFragment on Query
@@ -17,7 +20,7 @@ const FoldTableFragment = graphql`
   @argumentDefinitions(
     pulsar: { type: "String", defaultValue: "" }
     pulsarIsnull: { type: "Boolean", defaultValue: true }
-    mainProject: { type: "String", defaultValue: "MeerTIME" }
+    mainProject: { type: "String", defaultValue: "" }
     mostCommonProject: { type: "String", defaultValue: "" }
     project: { type: "String", defaultValue: "" }
     band: { type: "String", defaultValue: "" }
@@ -86,44 +89,46 @@ const FoldTable = ({
   const [relayData, refetch] = useRefetchableFragment(FoldTableFragment, data);
 
   const { screenSize } = useScreenSize();
-  const [mainProject, setMainProject] = useState(
-    query.mainProject || "meertime"
-  );
+  const { projects, isLoading: isProjectConfigLoading } = useProjectConfig();
+  const [mainProject, setMainProject] = useState(query.mainProject || "");
   const [mostCommonProject, setMostCommonProject] = useState(
     query.mostCommonProject || "All"
   );
   const [project, setProject] = useState(query.project || "All");
   const [band, setBand] = useState(query.band || "All");
 
-  const handleRefetch = ({
-    newMainProject = mainProject,
-    newProject = project,
-    newMostCommonProject = mostCommonProject,
-    newBand = band,
-  } = {}) => {
-    const url = new URL(window.location);
-    url.searchParams.set("mainProject", newMainProject);
-    url.searchParams.set(
-      "mostCommonProject",
-      newMostCommonProject ? newMostCommonProject : "All"
-    );
-    url.searchParams.set("project", newProject ? newProject : "All");
-    url.searchParams.set("band", newBand ? newBand : "All");
-    window.history.pushState({}, "", url);
-    const projectFilter = toApiFilter(newProject);
-    const bandFilter = toApiFilter(newBand);
-    refetch({
-      first: 5000,
-      pulsarIsnull: true,
-      mainProject: toApiFilter(newMainProject),
-      mostCommonProject: toApiFilter(newMostCommonProject),
-      project: projectFilter,
-      band: bandFilter,
-      projectIsnull: projectFilter === "",
-      bandIsnull: bandFilter === "",
-      calibrationIsnull: true,
-    });
-  };
+  const handleRefetch = useCallback(
+    ({
+      newMainProject = mainProject,
+      newProject = project,
+      newMostCommonProject = mostCommonProject,
+      newBand = band,
+    } = {}) => {
+      const url = new URL(window.location);
+      url.searchParams.set("mainProject", newMainProject);
+      url.searchParams.set(
+        "mostCommonProject",
+        newMostCommonProject ? newMostCommonProject : "All"
+      );
+      url.searchParams.set("project", newProject ? newProject : "All");
+      url.searchParams.set("band", newBand ? newBand : "All");
+      window.history.pushState({}, "", url);
+      const projectFilter = toApiFilter(newProject);
+      const bandFilter = toApiFilter(newBand);
+      refetch({
+        first: 5000,
+        pulsarIsnull: true,
+        mainProject: toApiFilter(newMainProject),
+        mostCommonProject: toApiFilter(newMostCommonProject),
+        project: projectFilter,
+        band: bandFilter,
+        projectIsnull: projectFilter === "",
+        bandIsnull: bandFilter === "",
+        calibrationIsnull: true,
+      });
+    },
+    [band, mainProject, mostCommonProject, project, refetch]
+  );
 
   const handleMainProjectChange = (newMainProject) => {
     const newMostCommonProject = "All";
@@ -165,6 +170,25 @@ const FoldTable = ({
     setBand(newBand);
     handleRefetch({ newBand });
   };
+
+  useEffect(() => {
+    if (isProjectConfigLoading) {
+      return;
+    }
+
+    const configuredMainProject = selectConfiguredMainProject(
+      projects,
+      mainProject
+    );
+    if (configuredMainProject !== mainProject) {
+      setMainProject(configuredMainProject);
+      handleRefetch({ newMainProject: configuredMainProject });
+    }
+  }, [handleRefetch, isProjectConfigLoading, projects, mainProject]);
+
+  if (!isProjectConfigLoading && projects.length === 0) {
+    return <EmptyStateMessage message="No projects are configured." />;
+  }
 
   const rows = relayData.pulsarFoldSummary.edges.reduce((result, edge) => {
     const row = { ...edge.node };
