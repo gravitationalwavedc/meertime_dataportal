@@ -1481,8 +1481,7 @@ class Toa(models.Model):
                 raise GraphQLError(
                     f"Assertion failed. toa_line and output_toa_line do not match.\n{toa_line}\n{output_toa_line}"
                 )
-            # Info only for Meerkat Toas
-            if project_short == "MONSPSR_TIMING":
+            if not project.toa_metadata_available:
                 nch = None
                 chan = None
                 rcvr = None
