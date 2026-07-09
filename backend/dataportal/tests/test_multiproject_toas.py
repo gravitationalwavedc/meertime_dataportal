@@ -283,7 +283,6 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         content = b"".join(response.streaming_content)
         self.assertGreater(len(content), 0)
 
-    @freeze_time("1990-01-01")
     def test_download_toas_embargoed_no_membership(self):
         """User without observation project membership gets 403 (Gate 1)"""
         # Create ToA files for all projects
@@ -291,24 +290,24 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         self._create_toa_file(self.observation, self.project2)
 
         self.client.force_login(self.restricted_user)
-        response = self.client.get(
-            reverse(
-                "download_observation_files",
-                kwargs={
-                    "jname": self.observation.pulsar.name,
-                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
-                    "beam": self.observation.beam,
-                    "file_type": "toas",
-                },
+        with freeze_time("1990-01-01"):
+            response = self.client.get(
+                reverse(
+                    "download_observation_files",
+                    kwargs={
+                        "jname": self.observation.pulsar.name,
+                        "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                        "beam": self.observation.beam,
+                        "file_type": "toas",
+                    },
+                )
             )
-        )
 
         # Gate 1: observation is embargoed and restricted_user is not in observation's project
         # Should return 403 regardless of ToA projects existing
         self.assertEqual(response.status_code, 403)
         self.assertIn("Access denied", response.content.decode())
 
-    @freeze_time("1990-01-01")
     def test_download_toas_superuser_gets_all(self):
         """Superuser gets all ToAs regardless of embargo or membership"""
         # Create ToA files for all three projects
@@ -317,17 +316,18 @@ class MultiProjectToaDownloadTestCase(BaseTestCaseWithTempMedia):
         self._create_toa_file(self.observation, self.project3)
 
         self.client.force_login(self.superuser)
-        response = self.client.get(
-            reverse(
-                "download_observation_files",
-                kwargs={
-                    "jname": self.observation.pulsar.name,
-                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
-                    "beam": self.observation.beam,
-                    "file_type": "toas",
-                },
+        with freeze_time("1990-01-01"):
+            response = self.client.get(
+                reverse(
+                    "download_observation_files",
+                    kwargs={
+                        "jname": self.observation.pulsar.name,
+                        "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                        "beam": self.observation.beam,
+                        "file_type": "toas",
+                    },
+                )
             )
-        )
 
         self.assertEqual(response.status_code, 200)
 

@@ -52,7 +52,9 @@ def create_basic_data():
     # Molonglo
     second_telescope = Telescope.objects.create(name="my second telescope")
     main_project = MainProject.objects.create(name="MONSPSR", telescope=second_telescope)
-    project = Project.objects.create(code="MONSPSR_TIMING", short="MONSPSR_TIMING", main_project=main_project)
+    project = Project.objects.create(
+        code="MONSPSR_TIMING", short="MONSPSR_TIMING", main_project=main_project, toa_metadata_available=False
+    )
 
     with open(os.path.join(TEST_DATA_DIR, "J0125-2327.par"), "r") as par_file:
         par_text = par_file.read()
