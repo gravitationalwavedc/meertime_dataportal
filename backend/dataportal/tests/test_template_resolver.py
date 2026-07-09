@@ -482,31 +482,30 @@ class TemplateResolverTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
 
     # ===== Filtering Tests (Checks that exclude invalid data) =====
 
-    def test_ptuse_template_is_skipped(self):
-        """Templates from PTUSE project should be skipped"""
+    def test_configured_internal_template_is_skipped(self):
+        """Templates from projects ineligible for folding assets should be skipped."""
         now = datetime.now(tz=pytz.UTC)
 
-        # Create PTUSE project
-        ptuse_project = Project.objects.create(
+        internal_project = Project.objects.create(
             main_project=self.project.main_project,
-            code="PTUSE",
-            short="PTUSE",
+            code="SYNTHETIC-INTERNAL-TEMPLATE",
+            short="SYN-TMPL",
             embargo_period=timedelta(days=548),
+            use_for_folding_assets=False,
         )
 
-        # Create template for PTUSE project
-        ptuse_template = Template.objects.create(
+        internal_template = Template.objects.create(
             pulsar=self.pulsar,
-            project=ptuse_project,
+            project=internal_project,
             band="LBAND",
-            template_file="ptuse_template.std",
+            template_file="internal_template.std",
         )
 
-        # Create observation with PTUSE template (public, not embargoed)
+        # Create observation with internal template (public, not embargoed)
         template_created_at = now - timedelta(days=600)
         utc_start = now - timedelta(days=600)
         self._create_observation_with_template(
-            self.pulsar, ptuse_project, ptuse_template, utc_start, template_created_at=template_created_at
+            self.pulsar, internal_project, internal_template, utc_start, template_created_at=template_created_at
         )
 
         # Query as authenticated user
@@ -514,7 +513,7 @@ class TemplateResolverTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         response = self.query(self.FOLDING_TEMPLATE_QUERY.format(pulsar="J0125-2327"))
         content = json.loads(response.content)
 
-        # PTUSE template should be skipped, so no template returned
+        # Configured-ineligible template should be skipped, so no template returned
         self.assertNotIn("errors", content)
         self.assertIsNone(content["data"]["pulsarFoldResult"]["foldingTemplate"])
         self.assertFalse(content["data"]["pulsarFoldResult"]["foldingTemplateExistsButInaccessible"])

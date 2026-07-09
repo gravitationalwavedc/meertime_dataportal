@@ -13,8 +13,8 @@ based on ProjectMembership authorization:
 Tests included:
 - test_resolve_folding_ephemeris_returns_latest_ephemeris: Verifies the function returns
   the ephemeris from the most recent accessible pipeline run
-- test_resolve_folding_ephemeris_excludes_ptuse_project: Ensures PTUSE project ephemerides
-  are properly excluded from results
+- test_resolve_folding_ephemeris_excludes_configured_internal_project: Ensures configured
+  internal project ephemerides are properly excluded from results
 - test_resolve_folding_ephemeris_requires_toa: Confirms that only ephemeris
   with TOAs are returned
 - test_project_member_can_access_embargoed_ephemeris: Project members can see their
@@ -263,27 +263,26 @@ class ResolveFoldingEphemerisTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase
             "Should return the ephemeris associated with the latest pipeline run",
         )
 
-    def test_resolve_folding_ephemeris_excludes_ptuse_project(self):
+    def test_resolve_folding_ephemeris_excludes_configured_internal_project(self):
         """
-        Test: Verify that resolve_folding_ephemeris excludes ephemerides from PTUSE project.
+        Test: Verify that resolve_folding_ephemeris excludes configured internal project ephemerides.
         """
         self.client.force_login(self.user)
 
-        # Create a PTUSE project
         main_project = MainProject.objects.get(name="MeerTIME")
-        ptuse_project = Project.objects.create(
-            code="SCI-20180516-MB-PTUSE",
-            short="PTUSE",
+        internal_project = Project.objects.create(
+            code="SYNTHETIC-INTERNAL-EPH",
+            short="SYN-EPH",
             main_project=main_project,
+            use_for_folding_assets=False,
         )
 
-        # Create a PTUSE ephemeris (should be excluded)
         with open(os.path.join(TEST_DATA_DIR, "J0125-2327.par"), "r") as par_file:
             par_text = par_file.read()
         ephemeris_dict = parse_ephemeris_file(par_text)
-        ptuse_ephemeris = Ephemeris.objects.create(
+        internal_ephemeris = Ephemeris.objects.create(
             pulsar=self.pulsar,
-            project=ptuse_project,  # PTUSE project ephemeris
+            project=internal_project,
             ephemeris_data=json.dumps(ephemeris_dict),
             p0=ephemeris_dict["P0"],
             dm=ephemeris_dict["DM"],
@@ -291,19 +290,19 @@ class ResolveFoldingEphemerisTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase
             valid_to=ephemeris_dict["FINISH"],
         )
 
-        # Create observation with PTUSE ephemeris (should be excluded) - newer, not embargoed
-        utc_start_ptuse = datetime.now(pytz.utc) - timedelta(days=3)
-        obs_ptuse, pr_ptuse = self._create_observation_with_pipeline_run(
+        # Create observation with internal ephemeris (should be excluded) - newer, not embargoed
+        utc_start_internal = datetime.now(pytz.utc) - timedelta(days=3)
+        obs_internal, pr_internal = self._create_observation_with_pipeline_run(
             self.pulsar,
-            ptuse_project,
+            internal_project,
             self.telescope,
             self.template,
-            ptuse_ephemeris,
-            utc_start_ptuse,
+            internal_ephemeris,
+            utc_start_internal,
             is_embargoed=False,
         )
 
-        # Create observation with regular (non-PTUSE) ephemeris (should be included) - older, not embargoed
+        # Create observation with eligible ephemeris (should be included) - older, not embargoed
         utc_start_regular = datetime.now(pytz.utc) - timedelta(days=10)
         obs_regular, pr_regular = self._create_observation_with_pipeline_run(
             self.pulsar,
@@ -314,6 +313,8 @@ class ResolveFoldingEphemerisTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase
             utc_start_regular,
             is_embargoed=False,
         )
+        PipelineRun.objects.filter(id=pr_internal.id).update(created_at=datetime.now(pytz.utc))
+        PipelineRun.objects.filter(id=pr_regular.id).update(created_at=datetime.now(pytz.utc) - timedelta(days=1))
 
         # Query for folding ephemeris
         response = self.query(self.FOLDING_EPHEMERIS_QUERY.format(pulsar="J0125-2327"))
@@ -323,17 +324,15 @@ class ResolveFoldingEphemerisTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase
         self.assertNotIn("errors", content, "GraphQL errors should not be present")
         self.assertIn("data", content, "Response should contain data")
 
-        # The ephemeris should be from the regular project, not PTUSE
-        # Even though PTUSE pipeline run is more recent, PTUSE ephemerides are excluded
+        # Even though the internal pipeline run is more recent, configured-ineligible ephemerides are excluded.
         residual_eph = content["data"]["pulsarFoldResult"]["foldingEphemeris"]
-        self.assertIsNotNone(residual_eph, "Should return ephemeris from non-PTUSE project")
+        self.assertIsNotNone(residual_eph, "Should return ephemeris from eligible project")
 
-        # Verify it's the correct ephemeris (the regular one, not PTUSE)
         _, decoded_eph_id = from_global_id(residual_eph["id"])
         self.assertEqual(
             str(self.ephemeris.id),
             decoded_eph_id,
-            "Should return the non-PTUSE ephemeris, not the PTUSE one",
+            "Should return the eligible ephemeris, not the configured-ineligible one",
         )
 
     def test_resolve_folding_ephemeris_requires_toa(self):
