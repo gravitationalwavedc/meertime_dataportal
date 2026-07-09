@@ -753,9 +753,8 @@ class Observation(models.Model):
 
     def save(self, *args, **kwargs):
         Observation.clean(self)
-        if self.project.main_project.name == "MONSPSR":
-            # All observations with Molonglo are currently UHF band with the NS arm
-            self.band = "UHF_NS"
+        if self.project.observation_band_override:
+            self.band = self.project.observation_band_override
         else:
             self.band = get_band(self.frequency, self.bandwidth)
         self.day_of_year = (
