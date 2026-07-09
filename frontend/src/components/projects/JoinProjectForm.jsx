@@ -5,11 +5,11 @@ import * as Yup from "yup";
 
 import { commitMutation, graphql, useFragment } from "react-relay";
 import environment from "../../relayEnvironment";
-import { meertime } from "../../telescopes";
+import { groupProjectsByMainProject } from "../../project-config";
 
 const query = graphql`
   fragment JoinProjectFormFragment on Query {
-    project {
+    projectConfiguration {
       edges {
         node {
           id
@@ -50,22 +50,11 @@ const validationSchema = Yup.object().shape({
 const JoinProjectForm = ({ relayData, onRequestSubmitted }) => {
   const [errors, setErrors] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
-  const allowedSubprojects = new Set(
-    meertime.subprojects.map((sp) => sp.toLowerCase())
-  );
   const data = useFragment(query, relayData);
-  const filteredEdges = data.project.edges.filter(
-    ({ node }) =>
-      node.mainProject.name === "MeerTIME" &&
-      allowedSubprojects.has((node.short || "").toLowerCase())
+  const configuredProjects = data.projectConfiguration.edges.map(
+    ({ node }) => node
   );
-  const groupedProjects = filteredEdges.reduce(
-    (acc, { node }) => ({
-      ...acc,
-      [node.mainProject.name]: [...(acc[node.mainProject.name] || []), node],
-    }),
-    {}
-  );
+  const groupedProjects = groupProjectsByMainProject(configuredProjects);
 
   const handleJoinProjectRequest = (projectCode, message, resetForm) => {
     commitMutation(environment, {
@@ -167,14 +156,14 @@ const JoinProjectForm = ({ relayData, onRequestSubmitted }) => {
                         {meta.error}
                       </Form.Control.Feedback>
                       {values.project &&
-                        data.project.edges.find(
-                          ({ node }) => node.code === values.project
-                        )?.node.description && (
+                        configuredProjects.find(
+                          (project) => project.code === values.project
+                        )?.description && (
                           <Form.Text className="text-muted">
                             {
-                              data.project.edges.find(
-                                ({ node }) => node.code === values.project
-                              ).node.description
+                              configuredProjects.find(
+                                (project) => project.code === values.project
+                              ).description
                             }
                           </Form.Text>
                         )}
