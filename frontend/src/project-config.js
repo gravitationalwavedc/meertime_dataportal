@@ -12,3 +12,15 @@ export const selectConfiguredMainProject = (projects, selected = "") => {
 
   return selectedName || names[0] || "";
 };
+
+export const groupProjectsByMainProject = (projects) =>
+  projects.reduce((groups, project) => {
+    const name = project.mainProject?.name;
+
+    // Build an object keyed by MainProject name, preserving the incoming
+    // project order within each group. Projects without a MainProject name
+    // cannot be shown under an optgroup, so leave the accumulator unchanged.
+    return name
+      ? { ...groups, [name]: [...(groups[name] || []), project] }
+      : groups;
+  }, {});

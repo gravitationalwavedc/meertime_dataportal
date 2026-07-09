@@ -1,4 +1,7 @@
-import { selectConfiguredMainProject } from "./project-config";
+import {
+  groupProjectsByMainProject,
+  selectConfiguredMainProject,
+} from "./project-config";
 
 const projects = [
   { mainProject: { name: "Alpha" } },
@@ -20,5 +23,12 @@ describe("project configuration selectors", () => {
 
   it("returns an empty selection when no projects are configured", () => {
     expect(selectConfiguredMainProject([], "Alpha")).toBe("");
+  });
+
+  it("groups projects by MainProject in configuration order", () => {
+    expect(groupProjectsByMainProject(projects)).toEqual({
+      Alpha: [projects[0]],
+      Beta: [projects[1]],
+    });
   });
 });
