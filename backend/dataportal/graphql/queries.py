@@ -1079,7 +1079,7 @@ class PulsarFoldResultConnection(relay.Connection):
         -----------
         1. Filter valid PulsarFoldResults from self.iterable:
            - Skip if pipeline_run.ephemeris is None
-           - Skip if ephemeris.project is "PTUSE"
+           - Skip if ephemeris.project is not eligible for folding assets
            - Skip if pipeline_run has no TOAs
 
         2. Sort remaining PulsarFoldResults by pipeline_run.created_at (most recent first)
@@ -1116,9 +1116,8 @@ class PulsarFoldResultConnection(relay.Connection):
             # Skip pipeline runs without ephemeris
             if pfr.pipeline_run.ephemeris is None:
                 continue
-            # Skip PTUSE project ephemerides
-            ephemeris_project_short = getattr(getattr(pfr.pipeline_run.ephemeris, "project", None), "short", None)
-            if ephemeris_project_short and ephemeris_project_short.upper() == "PTUSE":
+            ephemeris_project = getattr(pfr.pipeline_run.ephemeris, "project", None)
+            if ephemeris_project and not ephemeris_project.use_for_folding_assets:
                 continue
             # Skip pipeline runs without TOAs
             pipeline_run_id = getattr(pfr, "pipeline_run_id", None) or getattr(pfr.pipeline_run, "id", None)
@@ -1165,7 +1164,7 @@ class PulsarFoldResultConnection(relay.Connection):
         -----------
         1. Filter valid PulsarFoldResults from self.iterable:
            - Skip if pipeline_run.template is None
-           - Skip if template.project is "PTUSE"
+           - Skip if template.project is not eligible for folding assets
            - Skip if pipeline_run has no TOAs
 
         2. Sort remaining PulsarFoldResults by pipeline_run.created_at (most recent first)
@@ -1202,9 +1201,8 @@ class PulsarFoldResultConnection(relay.Connection):
             # Skip pipeline runs without template
             if pfr.pipeline_run.template is None:
                 continue
-            # Skip PTUSE project templates
-            template_project_short = getattr(getattr(pfr.pipeline_run.template, "project", None), "short", None)
-            if template_project_short and template_project_short.upper() == "PTUSE":
+            template_project = getattr(pfr.pipeline_run.template, "project", None)
+            if template_project and not template_project.use_for_folding_assets:
                 continue
             # Skip pipeline runs without TOAs
             pipeline_run_id = getattr(pfr, "pipeline_run_id", None) or getattr(pfr.pipeline_run, "id", None)
