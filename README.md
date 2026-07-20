@@ -54,7 +54,7 @@ To then load a local copy of the database, ask ADACS for a copy (here named `prd
 
 8. Start the development server: run `poetry run python manage.py runserver` and open the [Django development server](http://localhost:8000).
 
-9. Run tests on the backend development server to check it is all working. In the `backend` folder run: `poetry run python manage.py test`.
+9. Run tests on the backend development server to check it is all working. In the `backend` folder run: `./run_tests.sh`.
 
 ### Starting the React frontend
 The React frontend is currently only available locally (not using Docker compose) while in development.
@@ -115,7 +115,7 @@ Contributions can be made to the code base on GitLab.
 
 ### Testing
 
-To manually run tests of the backend, execute `poetry run python manage.py test` while in the `backend` directory.
+To manually run tests of the backend, execute `./run_tests.sh` while in the `backend` directory. This loads the Django testing settings used by CI. You can pass normal Django test labels through the script, for example `./run_tests.sh dataportal.tests.test_file_utils`.
 To manually run tests of the frontend, run `npm run cypress` in the `frontend` directory.
 
 ### Adding requirements

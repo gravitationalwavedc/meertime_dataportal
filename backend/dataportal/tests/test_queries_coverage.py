@@ -520,15 +520,33 @@ class QueriesCoverageTestCase(TestCase):
                 )
                 self.assertEqual(len(single), 1)
 
-        with patch("dataportal.graphql.queries.PulsarFoldResult.objects.get", return_value=self.public_fold_result):
-            monspsr = query.resolve_file_single_list(
+        disabled_main_project = MainProject.objects.create(name="MONSPSR", telescope=self.telescope)
+        disabled_project = Project.objects.create(
+            code="SCI-DISABLED-001",
+            short="DISABLED",
+            main_project=disabled_main_project,
+            embargo_period=timedelta(days=0),
+            allow_downloads=False,
+        )
+        self.public_observation.project = disabled_project
+
+        disabled_file_list = (
+            True,
+            [{"fileName": "disabled.ar", "path": "/J/disabled.ar", "fileSize": 10, "isDirectory": False}],
+        )
+        with (
+            patch("dataportal.graphql.queries.PulsarFoldResult.objects.get", return_value=self.public_fold_result),
+            patch("dataportal.graphql.queries.get_file_list", return_value=disabled_file_list),
+        ):
+            disabled_files = query.resolve_file_single_list(
                 info_unrestricted,
                 main_project="MONSPSR",
                 jname=self.pulsar.name,
                 utc=self.public_observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
                 beam=self.public_observation.beam,
             )
-            self.assertEqual(monspsr, [])
+            self.assertEqual(disabled_files, [])
+        self.public_observation.project = self.public_project
 
         with patch(
             "dataportal.graphql.queries.get_file_list",
@@ -552,12 +570,13 @@ class QueriesCoverageTestCase(TestCase):
             )
             self.assertEqual(pulsar_files, [])
 
-        with self.assertRaises(Exception):
-            query.resolve_file_pulsar_list(
+        with patch("dataportal.graphql.queries.get_file_list", return_value=disabled_file_list):
+            pulsar_files = query.resolve_file_pulsar_list(
                 info_unrestricted,
                 main_project="MONSPSR",
                 jname=self.pulsar.name,
             )
+        self.assertEqual(pulsar_files, [])
 
     def test_queryset_classmethods_in_query_nodes(self):
         info_member = make_info(self.user)

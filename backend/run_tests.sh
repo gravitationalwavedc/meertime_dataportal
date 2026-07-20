@@ -1,2 +1,4 @@
 #!/bin/bash
-poetry run python manage.py test $*
+export TESTING=True
+
+poetry run python manage.py test "$@"

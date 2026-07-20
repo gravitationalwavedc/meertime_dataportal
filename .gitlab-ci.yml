@@ -30,6 +30,9 @@ django-tests:
   services:
     - postgres:16-alpine
 
+  variables:
+    TESTING: "True"
+
   cache:
     - key:
         files:
