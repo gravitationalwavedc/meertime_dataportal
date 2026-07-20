@@ -2013,11 +2013,10 @@ class Query(graphene.ObjectType):
 
             # Only allow files if the user has access to this fold pulsar observation
             if not pulsar_fold_result.observation.is_restricted(info.context.user):
+                if not pulsar_fold_result.observation.project.allow_downloads:
+                    return []
                 # Construct path in the local file system
                 path = f"/{kwargs.get('jname')}/{kwargs.get('utc')}/{kwargs.get('beam')}/"
-                if kwargs.get("main_project") == "MONSPSR":
-                    raise Exception("MONSPSR is unusable until the file structure is fixed.")
-                    path = f"/post/{kwargs.get('jname')}/{kwargs.get('utc')}/"
 
                 success, files = get_file_list(path, True)
 
@@ -2042,11 +2041,14 @@ class Query(graphene.ObjectType):
     @user_passes_test(lambda user: user.is_unrestricted())
     def resolve_file_pulsar_list(self, info, **kwargs):
         """Get files for a pulsar"""
+        projects_for_main_project = Project.objects.filter(main_project__name__iexact=kwargs.get("main_project"))
+        has_downloadable_project = projects_for_main_project.filter(allow_downloads=True).exists()
+
+        if not has_downloadable_project:
+            return []
+
         # Construct path in the local file system
         path = f"/{kwargs.get('jname')}/"
-        if kwargs.get("main_project") == "MONSPSR":
-            raise Exception("MONSPSR is unusable until the file structure is fixed.")
-            path = f"/post/{kwargs.get('jname')}/"
 
         success, files = get_file_list(path, True)
 

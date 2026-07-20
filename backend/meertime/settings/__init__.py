@@ -16,6 +16,7 @@ environ.Env.read_env(f".env{ENV}")
 
 DEVELOPMENT_MODE = env("DEVELOPMENT_MODE", default=False)
 ENABLE_SENTRY_DSN = env("SENTRY_DSN", default=False)
+TESTING = env.bool("TESTING", default=False)
 
 base_settings = [
     "settings.py",
@@ -38,6 +39,9 @@ if DEVELOPMENT_MODE:
 
 if ENABLE_SENTRY_DSN:
     base_settings.append("sentry_sdk.py")
+
+if TESTING:
+    base_settings.append("testing.py")
 
 # Include settings:
 include(*base_settings)

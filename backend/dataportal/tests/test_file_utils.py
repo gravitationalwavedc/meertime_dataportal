@@ -281,6 +281,27 @@ class DownloadViewsTestCase(BaseTestCaseWithTempMedia):
         expected_content = self.full_res_file.read_text()
         self.assertEqual(response.streaming_content.__next__().decode(), expected_content)
 
+    def test_download_observation_files_denies_project_with_downloads_disabled(self):
+        """Observation downloads are blocked when the project's downloads are disabled."""
+        self.observation.project.allow_downloads = False
+        self.observation.project.save()
+
+        self.client.force_login(self.unrestricted_user)
+        response = self.client.get(
+            reverse(
+                "download_observation_files",
+                kwargs={
+                    "jname": self.observation.pulsar.name,
+                    "observation_timestamp": self.observation.utc_start.strftime("%Y-%m-%d-%H:%M:%S"),
+                    "beam": self.observation.beam,
+                    "file_type": "full",
+                },
+            )
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn("Downloads are disabled", response.content.decode())
+
     def test_download_observation_files_decimated(self):
         """Test downloading decimated observation file"""
         self.client.force_login(self.unrestricted_user)
@@ -464,6 +485,19 @@ class DownloadViewsTestCase(BaseTestCaseWithTempMedia):
         # Check that the zip file contains our test files
         content = b"".join(response.streaming_content)
         self.assertGreater(len(content), 0)  # Zip file should not be empty
+
+    def test_download_pulsar_files_excludes_project_with_downloads_disabled(self):
+        """Pulsar downloads ignore observations from projects with downloads disabled."""
+        self.observation.project.allow_downloads = False
+        self.observation.project.save()
+
+        self.client.force_login(self.unrestricted_user)
+        response = self.client.get(
+            reverse("download_pulsar_files", kwargs={"jname": self.observation.pulsar.name, "file_type": "full"})
+        )
+
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content.decode(), "No observations found for this pulsar")
 
     def test_download_pulsar_files_decimated(self):
         """Test downloading decimated pulsar files"""

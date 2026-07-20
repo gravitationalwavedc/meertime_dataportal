@@ -134,6 +134,7 @@ def get_accessible_toa_files(user, observations):
         Toa.objects.filter(
             observation__in=observations,
             pipeline_run_id__in=latest_pipeline_run_ids,
+            project__allow_downloads=True,
             dm_corrected=False,
             nsub_type="1",
             obs_nchan=32,
@@ -439,6 +440,8 @@ def download_observation_files(request, jname, observation_timestamp, beam, file
         # This is the primary gate - if observation is restricted, NO data products are accessible
         if observation.is_restricted(request.user):
             return HttpResponse("Access denied - data is under embargo. Please request to join project.", status=403)
+        if not observation.project.allow_downloads:
+            return HttpResponse("Downloads are disabled for this project.", status=403)
 
         # Construct the relative path for the observation
         base_path = Path(
@@ -525,7 +528,10 @@ def download_pulsar_files(request, jname, file_type):
     try:
         pulsar = Pulsar.objects.get(name=jname)
         observations = Observation.objects.filter(
-            pulsar=pulsar, project__main_project__name__iexact="MeerTime", obs_type="fold"
+            pulsar=pulsar,
+            project__main_project__name__iexact="MeerTime",
+            project__allow_downloads=True,
+            obs_type="fold",
         ).order_by("utc_start")
 
         # If there are no observations, return 404
