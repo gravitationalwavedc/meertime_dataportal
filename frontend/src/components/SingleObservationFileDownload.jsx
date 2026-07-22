@@ -12,6 +12,7 @@ const SingleObservationFileDownload = ({
   restricted = false,
   embargoEndDate = null,
   projectShort = "",
+  allowDownloads = true,
 }) => {
   const location = useLocation();
   const currentPath = location.pathname;
@@ -38,7 +39,7 @@ const SingleObservationFileDownload = ({
 
   return (
     <>
-      {mainProject !== "MONSPSR" &&
+      {allowDownloads &&
         (!isAuthenticated ? (
           <EmptyStateMessage
             title="You must be logged in to download"

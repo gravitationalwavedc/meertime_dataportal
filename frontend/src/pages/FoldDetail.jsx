@@ -8,6 +8,8 @@ import PlotContainer from "../components/plots/PlotContainer";
 import { useState } from "react";
 import { selectCanonicalObservationSummaryNode, toApiFilter } from "../helpers";
 import { useAuth } from "../auth/AuthContext";
+import { useProjectConfig } from "../context/project-config-context";
+import { mainProjectAllowsDownloads } from "../project-config";
 
 const foldDetailQuery = graphql`
   query FoldDetailQuery(
@@ -36,6 +38,10 @@ const foldDetailQuery = graphql`
             embargoEndDate
             project {
               short
+              code
+              mainProject {
+                name
+              }
             }
           }
         }
@@ -77,6 +83,7 @@ const foldDetailQuery = graphql`
 const FoldDetail = ({ match }) => {
   const { jname, mainProject, minSNR } = match.params;
   const { isAuthenticated } = useAuth();
+  const { projects } = useProjectConfig();
 
   const [excludeBadges, setExcludeBadges] = useState([
     "Session Timing Jump",
@@ -95,6 +102,12 @@ const FoldDetail = ({ match }) => {
   const restricted = firstObservation?.restricted ?? false;
   const embargoEndDate = firstObservation?.embargoEndDate ?? null;
   const projectShort = firstObservation?.project?.short ?? "";
+  const selectedMainProject =
+    firstObservation?.project?.mainProject?.name ?? mainProject;
+  const allowDownloads = mainProjectAllowsDownloads(
+    projects,
+    selectedMainProject
+  );
 
   const summaryNode =
     selectCanonicalObservationSummaryNode(data.observationSummary) || {};
@@ -124,6 +137,7 @@ const FoldDetail = ({ match }) => {
         restricted={restricted}
         embargoEndDate={embargoEndDate}
         projectShort={projectShort}
+        allowDownloads={allowDownloads}
       />
       <SummaryDataRow dataPoints={summaryData} />
       <PlotContainer

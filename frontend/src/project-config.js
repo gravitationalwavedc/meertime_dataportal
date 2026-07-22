@@ -24,3 +24,23 @@ export const groupProjectsByMainProject = (projects) =>
       ? { ...groups, [name]: [...(groups[name] || []), project] }
       : groups;
   }, {});
+
+const matchesName = (left = "", right = "") =>
+  String(left || "").toLowerCase() === String(right || "").toLowerCase();
+
+export const projectAllowsDownloads = (projects = [], project = {}) => {
+  const configuredProject = projects.find(
+    (configured) =>
+      matchesName(configured.mainProject?.name, project.mainProject?.name) &&
+      (configured.code === project.code || configured.short === project.short)
+  );
+
+  return Boolean(configuredProject?.allowDownloads);
+};
+
+export const mainProjectAllowsDownloads = (projects = [], mainProject = "") =>
+  projects.some(
+    (project) =>
+      matchesName(project.mainProject?.name, mainProject) &&
+      project.allowDownloads
+  );

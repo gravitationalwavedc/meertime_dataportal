@@ -16,6 +16,16 @@
 // Import commands.js using ES2015 syntax:
 import "./commands";
 
+beforeEach(() => {
+  cy.intercept("POST", "**/api/graphql/", (req) => {
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+
+    if (body?.query?.includes("projectConfigContextQuery")) {
+      req.reply({ fixture: "projectConfigContextQuery.json" });
+    }
+  });
+});
+
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 

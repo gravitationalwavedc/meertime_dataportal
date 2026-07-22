@@ -10,6 +10,8 @@ import DataDisplay from "./DataDisplay";
 import ImageGrid from "./ImageGrid";
 import SingleObservationFileDownload from "./SingleObservationFileDownload";
 import { useAuth } from "../auth/AuthContext";
+import { useProjectConfig } from "../context/project-config-context";
+import { projectAllowsDownloads } from "../project-config";
 
 const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
@@ -85,12 +87,15 @@ const SingleObservationTableFragment = graphql`
 
 const SingleObservationTable = ({ observationData, jname }) => {
   const { isAuthenticated } = useAuth();
+  const { projects } = useProjectConfig();
   const relayData = useFragment(
     SingleObservationTableFragment,
     observationData
   );
   const { pulsarFoldResult } = relayData;
   const relayObservationModel = pulsarFoldResult.edges[0].node;
+  const observationProject = relayObservationModel.observation.project;
+  const allowDownloads = projectAllowsDownloads(projects, observationProject);
 
   const displayDate = formatUTC(relayObservationModel.observation.utcStart);
 
@@ -195,9 +200,7 @@ const SingleObservationTable = ({ observationData, jname }) => {
             jname={jname}
             utc={formatUTC(relayObservationModel.observation.utcStart)}
             beam={relayObservationModel.observation.beam}
-            mainProject={
-              relayObservationModel.observation.project.mainProject.name
-            }
+            mainProject={observationProject.mainProject.name}
             isAuthenticated={isAuthenticated}
             restricted={relayObservationModel.observation.restricted ?? false}
             embargoEndDate={
@@ -206,6 +209,7 @@ const SingleObservationTable = ({ observationData, jname }) => {
             projectShort={
               relayObservationModel.observation.project?.short ?? ""
             }
+            allowDownloads={allowDownloads}
           />
         </Col>
       </Row>
