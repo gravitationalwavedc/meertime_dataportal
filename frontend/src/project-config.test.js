@@ -1,11 +1,23 @@
 import {
+  mainProjectAllowsDownloads,
+  projectAllowsDownloads,
   groupProjectsByMainProject,
   selectConfiguredMainProject,
 } from "./project-config";
 
 const projects = [
-  { mainProject: { name: "Alpha" } },
-  { mainProject: { name: "Beta" } },
+  {
+    code: "A-1",
+    short: "A1",
+    allowDownloads: true,
+    mainProject: { name: "Alpha" },
+  },
+  {
+    code: "B-1",
+    short: "B1",
+    allowDownloads: false,
+    mainProject: { name: "Beta" },
+  },
 ];
 
 describe("project configuration selectors", () => {
@@ -30,5 +42,20 @@ describe("project configuration selectors", () => {
       Alpha: [projects[0]],
       Beta: [projects[1]],
     });
+  });
+
+  it("checks download availability for a specific configured project", () => {
+    expect(
+      projectAllowsDownloads(projects, {
+        code: "B-1",
+        short: "B1",
+        mainProject: { name: "Beta" },
+      })
+    ).toBe(false);
+  });
+
+  it("checks download availability for any configured project in a MainProject", () => {
+    expect(mainProjectAllowsDownloads(projects, "Alpha")).toBe(true);
+    expect(mainProjectAllowsDownloads(projects, "Beta")).toBe(false);
   });
 });

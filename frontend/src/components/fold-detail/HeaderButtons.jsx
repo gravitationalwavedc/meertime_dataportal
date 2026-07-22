@@ -15,6 +15,7 @@ const HeaderButtons = ({
   restricted = false,
   embargoEndDate = null,
   projectShort = "",
+  allowDownloads = true,
 }) => {
   const location = useLocation();
   const currentPath = location.pathname;
@@ -62,7 +63,7 @@ const HeaderButtons = ({
   return (
     <Row>
       <Col>
-        {mainProject !== "MONSPSR" &&
+        {allowDownloads &&
           (!isAuthenticated ? (
             <EmptyStateMessage
               title="You must be logged in to download"

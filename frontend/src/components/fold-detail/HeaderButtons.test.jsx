@@ -140,13 +140,14 @@ describe("HeaderButtons", () => {
     });
   });
 
-  describe("when authenticated and project is MONSPSR", () => {
-    it("does NOT render any of the 3 direct-download buttons (MONSPSR carve-out)", () => {
+  describe("when authenticated and downloads are disabled", () => {
+    it("does NOT render any of the 3 direct-download buttons", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
-          mainProject="MONSPSR"
+          mainProject="Synthetic"
           isAuthenticated
+          allowDownloads={false}
         />
       );
 
@@ -165,8 +166,9 @@ describe("HeaderButtons", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
-          mainProject="MONSPSR"
+          mainProject="Synthetic"
           isAuthenticated
+          allowDownloads={false}
         />
       );
 
@@ -175,12 +177,13 @@ describe("HeaderButtons", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("does NOT render the 2 modal-trigger buttons (MONSPSR carve-out)", () => {
+    it("does NOT render the 2 modal-trigger buttons", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
-          mainProject="MONSPSR"
+          mainProject="Synthetic"
           isAuthenticated
+          allowDownloads={false}
         />
       );
 
@@ -193,13 +196,14 @@ describe("HeaderButtons", () => {
     });
   });
 
-  describe("when anonymous and project is MONSPSR", () => {
+  describe("when anonymous and downloads are disabled", () => {
     it("does NOT render any of the 3 direct-download buttons", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
-          mainProject="MONSPSR"
+          mainProject="Synthetic"
           isAuthenticated={false}
+          allowDownloads={false}
         />
       );
 
@@ -214,12 +218,13 @@ describe("HeaderButtons", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("does NOT render an EmptyStateMessage (MONSPSR carve-out)", () => {
+    it("does NOT render an EmptyStateMessage", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
-          mainProject="MONSPSR"
+          mainProject="Synthetic"
           isAuthenticated={false}
+          allowDownloads={false}
         />
       );
 
@@ -228,12 +233,13 @@ describe("HeaderButtons", () => {
       ).not.toBeInTheDocument();
     });
 
-    it("does NOT render the 2 modal-trigger buttons (MONSPSR carve-out)", () => {
+    it("does NOT render the 2 modal-trigger buttons", () => {
       render(
         <HeaderButtons
           jname="J0125-2327"
-          mainProject="MONSPSR"
+          mainProject="Synthetic"
           isAuthenticated={false}
+          allowDownloads={false}
         />
       );
 
@@ -243,6 +249,29 @@ describe("HeaderButtons", () => {
       expect(
         screen.queryByRole("button", { name: "Download template" })
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("when MONSPSR downloads are configured on", () => {
+    it("renders direct-download buttons instead of using a name carve-out", () => {
+      render(
+        <HeaderButtons
+          jname="J0125-2327"
+          mainProject="MONSPSR"
+          isAuthenticated
+          allowDownloads
+        />
+      );
+
+      expect(
+        screen.getByRole("button", { name: "Download Full Resolution Data" })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Download Decimated Data" })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: "Download ToAs" })
+      ).toBeInTheDocument();
     });
   });
 
