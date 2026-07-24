@@ -20,6 +20,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import ColumnToggle from "../form-inputs/ColumnToggle";
+import { extendedObservationColumnVisibility } from "./columnVisibility";
 
 const FoldDetailTableFragment = graphql`
   fragment FoldDetailTableFragment on Query
@@ -108,7 +109,12 @@ const FoldDetailTableFragment = graphql`
   }
 `;
 
-const FoldDetailTable = ({ tableData, mainProject, jname }) => {
+const FoldDetailTable = ({
+  tableData,
+  mainProject,
+  jname,
+  showExtendedObservationFields = true,
+}) => {
   const fragmentData = useFragment(FoldDetailTableFragment, tableData);
   const [data] = useState(processData(fragmentData, mainProject, jname));
   const [globalFilter, setGlobalFilter] = useState("");
@@ -124,14 +130,9 @@ const FoldDetailTable = ({ tableData, mainProject, jname }) => {
       sorting,
     },
     initialState: {
-      columnVisibility: {
-        dmFit: mainProject !== "MONSPSR",
-        rm: mainProject !== "MONSPSR",
-        nant: mainProject !== "MONSPSR",
-        nantEff: mainProject !== "MONSPSR",
-        band: mainProject !== "MONSPSR",
-        dmBackend: mainProject !== "MONSPSR",
-      },
+      columnVisibility: extendedObservationColumnVisibility(
+        showExtendedObservationFields
+      ),
     },
     onGlobalFilterChange: setGlobalFilter,
     onSortChange: setSorting,

@@ -44,3 +44,16 @@ export const mainProjectAllowsDownloads = (projects = [], mainProject = "") =>
       matchesName(project.mainProject?.name, mainProject) &&
       project.allowDownloads
   );
+
+export const mainProjectShowsExtendedObservationFields = (
+  projects = [],
+  mainProject = ""
+) => {
+  const matchingProjects = projects.filter((project) =>
+    matchesName(project.mainProject?.name, mainProject)
+  );
+
+  return matchingProjects.length
+    ? matchingProjects.some((project) => project.showExtendedObservationFields)
+    : true;
+};

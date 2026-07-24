@@ -1,5 +1,6 @@
 import {
   mainProjectAllowsDownloads,
+  mainProjectShowsExtendedObservationFields,
   projectAllowsDownloads,
   groupProjectsByMainProject,
   selectConfiguredMainProject,
@@ -10,12 +11,14 @@ const projects = [
     code: "A-1",
     short: "A1",
     allowDownloads: true,
+    showExtendedObservationFields: true,
     mainProject: { name: "Alpha" },
   },
   {
     code: "B-1",
     short: "B1",
     allowDownloads: false,
+    showExtendedObservationFields: false,
     mainProject: { name: "Beta" },
   },
 ];
@@ -57,5 +60,14 @@ describe("project configuration selectors", () => {
   it("checks download availability for any configured project in a MainProject", () => {
     expect(mainProjectAllowsDownloads(projects, "Alpha")).toBe(true);
     expect(mainProjectAllowsDownloads(projects, "Beta")).toBe(false);
+  });
+
+  it("checks extended observation field visibility for a configured MainProject", () => {
+    expect(mainProjectShowsExtendedObservationFields(projects, "Alpha")).toBe(
+      true
+    );
+    expect(mainProjectShowsExtendedObservationFields(projects, "Beta")).toBe(
+      false
+    );
   });
 });
