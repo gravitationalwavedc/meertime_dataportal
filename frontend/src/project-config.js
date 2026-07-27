@@ -57,3 +57,12 @@ export const mainProjectShowsExtendedObservationFields = (
     ? matchingProjects.some((project) => project.showExtendedObservationFields)
     : true;
 };
+
+export const mainProjectPlotTypes = (projects = [], mainProject = "") => [
+  ...new Set(
+    projects
+      .filter((project) => matchesName(project.mainProject?.name, mainProject))
+      .flatMap((project) => project.plotTypes ?? [])
+      .filter(Boolean)
+  ),
+];

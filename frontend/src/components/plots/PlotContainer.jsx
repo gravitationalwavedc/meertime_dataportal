@@ -1,10 +1,10 @@
-import { useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Col, Row } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import PlotlyPlot from "./PlotlyPlot";
-import { meertime, molonglo } from "../../telescopes";
 import ObservationFlags from "../fold-detail/ObservationFlags";
 import PlotLoading from "./PlotLoading";
+import EmptyStateMessage from "../EmptyStateMessage";
 
 const PlotContainer = ({
   jname,
@@ -13,17 +13,41 @@ const PlotContainer = ({
   setMinimumSNR,
   excludeBadges,
   setExcludeBadges,
-  allProjects,
+  allProjects = [],
   mostCommonProject,
-  allNchans,
+  allNchans = [],
+  plotTypes = [],
 }) => {
   const [xAxis, setXAxis] = useState("utc");
-  const [activePlot, setActivePlot] = useState("Timing Residuals");
+  const [activePlot, setActivePlot] = useState(plotTypes[0] || "");
   const [projectShort, setProjectShort] = useState(mostCommonProject);
   const [nchan, setNchan] = useState(allNchans[0] || 1);
 
-  const plotTypes =
-    mainProject === "MONSPSR" ? molonglo.plotTypes : meertime.plotTypes;
+  useEffect(() => {
+    if (!plotTypes.includes(activePlot)) {
+      setActivePlot(plotTypes[0] || "");
+    }
+  }, [activePlot, plotTypes]);
+
+  if (plotTypes.length === 0) {
+    return (
+      <>
+        <Row className="mt-5 mb-2">
+          <Col>
+            <h4 className="text-primary-600">Observation Plot</h4>
+          </Col>
+        </Row>
+        <Row className="d-none d-sm-block">
+          <Col md={10} className="pulsar-plot-display">
+            <EmptyStateMessage
+              title="No plots configured"
+              body="This project does not currently expose any observation plots."
+            />
+          </Col>
+        </Row>
+      </>
+    );
+  }
 
   return (
     <>
