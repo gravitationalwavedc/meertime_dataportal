@@ -9,7 +9,10 @@ import { useState } from "react";
 import { selectCanonicalObservationSummaryNode, toApiFilter } from "../helpers";
 import { useAuth } from "../auth/AuthContext";
 import { useProjectConfig } from "../context/project-config-context";
-import { mainProjectAllowsDownloads } from "../project-config";
+import {
+  mainProjectAllowsDownloads,
+  mainProjectShowsExtendedObservationFields,
+} from "../project-config";
 
 const foldDetailQuery = graphql`
   query FoldDetailQuery(
@@ -108,6 +111,8 @@ const FoldDetail = ({ match }) => {
     projects,
     selectedMainProject
   );
+  const showExtendedObservationFields =
+    mainProjectShowsExtendedObservationFields(projects, selectedMainProject);
 
   const summaryNode =
     selectCanonicalObservationSummaryNode(data.observationSummary) || {};
@@ -157,6 +162,7 @@ const FoldDetail = ({ match }) => {
         tableData={data}
         jname={jname}
         mainProject={mainProject}
+        showExtendedObservationFields={showExtendedObservationFields}
       />
     </MainLayout>
   );
