@@ -1,5 +1,6 @@
 import {
   mainProjectAllowsDownloads,
+  mainProjectPlotTypes,
   mainProjectShowsExtendedObservationFields,
   projectAllowsDownloads,
   groupProjectsByMainProject,
@@ -12,6 +13,7 @@ const projects = [
     short: "A1",
     allowDownloads: true,
     showExtendedObservationFields: true,
+    plotTypes: ["Timing Residuals", "S/N"],
     mainProject: { name: "Alpha" },
   },
   {
@@ -19,6 +21,7 @@ const projects = [
     short: "B1",
     allowDownloads: false,
     showExtendedObservationFields: false,
+    plotTypes: ["DM"],
     mainProject: { name: "Beta" },
   },
 ];
@@ -69,5 +72,13 @@ describe("project configuration selectors", () => {
     expect(mainProjectShowsExtendedObservationFields(projects, "Beta")).toBe(
       false
     );
+  });
+
+  it("returns configured plot types for a MainProject", () => {
+    expect(mainProjectPlotTypes(projects, "Alpha")).toEqual([
+      "Timing Residuals",
+      "S/N",
+    ]);
+    expect(mainProjectPlotTypes(projects, "Unknown")).toEqual([]);
   });
 });

@@ -11,6 +11,7 @@ import { useAuth } from "../auth/AuthContext";
 import { useProjectConfig } from "../context/project-config-context";
 import {
   mainProjectAllowsDownloads,
+  mainProjectPlotTypes,
   mainProjectShowsExtendedObservationFields,
 } from "../project-config";
 
@@ -113,6 +114,7 @@ const FoldDetail = ({ match }) => {
   );
   const showExtendedObservationFields =
     mainProjectShowsExtendedObservationFields(projects, selectedMainProject);
+  const plotTypes = mainProjectPlotTypes(projects, selectedMainProject);
 
   const summaryNode =
     selectCanonicalObservationSummaryNode(data.observationSummary) || {};
@@ -157,6 +159,7 @@ const FoldDetail = ({ match }) => {
         allProjects={data?.pulsarFoldResult?.allProjects}
         mostCommonProject={data?.pulsarFoldResult?.mostCommonProject}
         allNchans={data?.pulsarFoldResult?.allNchans}
+        plotTypes={plotTypes}
       />
       <FoldDetailTable
         tableData={data}
