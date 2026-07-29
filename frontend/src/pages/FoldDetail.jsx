@@ -138,7 +138,7 @@ const FoldDetail = ({ match }) => {
     <MainLayout title={jname} description={data.pulsarFoldResult.description}>
       <HeaderButtons
         jname={jname}
-        mainProject={mainProject}
+        mainProject={selectedMainProject}
         toasLink={data.pulsarFoldResult.toasLink}
         isAuthenticated={isAuthenticated}
         restricted={restricted}
@@ -150,7 +150,7 @@ const FoldDetail = ({ match }) => {
       <PlotContainer
         queryData={data}
         jname={jname}
-        mainProject={mainProject}
+        mainProject={selectedMainProject}
         match={match}
         minimumSNR={minimumSNR}
         setMinimumSNR={setMinimumSNR}
@@ -164,7 +164,7 @@ const FoldDetail = ({ match }) => {
       <FoldDetailTable
         tableData={data}
         jname={jname}
-        mainProject={mainProject}
+        mainProject={selectedMainProject}
         showExtendedObservationFields={showExtendedObservationFields}
       />
     </MainLayout>

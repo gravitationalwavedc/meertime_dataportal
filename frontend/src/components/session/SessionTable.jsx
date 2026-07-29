@@ -3,7 +3,12 @@ import { useState } from "react";
 import { graphql, useFragment } from "react-relay";
 import LightBox from "react-image-lightbox";
 
-import { columnsSizeFilter, formatUTC } from "../../helpers";
+import {
+  columnsSizeFilter,
+  formatUTC,
+  generateFoldUrl,
+  generateObservationUrl,
+} from "../../helpers";
 import DataView from "../DataView";
 import SessionCard from "./SessionCard";
 import SessionImage from "./SessionImage";
@@ -44,6 +49,9 @@ const sessionTableByIdQuery = graphql`
                 frequency
                 project {
                   short
+                  mainProject {
+                    name
+                  }
                 }
                 pulsarFoldResults {
                   edges {
@@ -104,6 +112,9 @@ const sessionTableLatestQuery = graphql`
                 frequency
                 project {
                   short
+                  mainProject {
+                    name
+                  }
                 }
                 pulsarFoldResults {
                   edges {
@@ -165,6 +176,7 @@ const SessionTable = ({ data, isLatestSessionRoute }) => {
     const row = { ...edge.node };
     row.utc = formatUTC(row.utcStart);
     row.projectKey = project;
+    row.mainProject = row.project?.mainProject?.name;
     const pulsarFoldResultEdges = row.pulsarFoldResults?.edges ?? [];
 
     if (pulsarFoldResultEdges.length === 0) {
@@ -225,7 +237,7 @@ const SessionTable = ({ data, isLatestSessionRoute }) => {
     row.action = (
       <ButtonGroup vertical>
         <Link
-          to={`/${row.obsType}/meertime/${row.pulsar.name}/`}
+          to={generateFoldUrl(row.obsType, row.mainProject, row.pulsar.name)}
           size="sm"
           variant="outline-secondary"
           as={Button}
@@ -234,7 +246,7 @@ const SessionTable = ({ data, isLatestSessionRoute }) => {
         </Link>
         {pulsarFoldResultEdges.length !== 0 && (
           <Link
-            to={`/meertime/${row.pulsar.name}/${row.utc}/${row.beam}/`}
+            to={generateObservationUrl(row.mainProject, row.pulsar.name, row)}
             size="sm"
             variant="outline-secondary"
             as={Button}
