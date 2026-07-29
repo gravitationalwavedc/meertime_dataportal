@@ -43,7 +43,10 @@
                     "duration": 263.99999999999994,
                     "frequency": 1283.58203125,
                     "project": {
-                      "short": "PTA"
+                      "short": "PTA",
+                      "mainProject": {
+                        "name": "meertime"
+                      }
                     },
                     "pulsarFoldResults": {
                       "edges": [

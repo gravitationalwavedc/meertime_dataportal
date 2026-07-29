@@ -111,6 +111,9 @@ export const nullCellFormatter = (cell) => cell || "-";
 
 export const sessionLink = (calid) => `/session/${calid}/`;
 
+export const generateFoldUrl = (obsType, mainProject, jname) =>
+  `/${obsType}/${mainProject}/${jname}/`;
+
 export const generateObservationUrl = (mainProject, jname, observation) => {
   if (!observation) return null;
   return `/${mainProject}/${jname}/${formatUTC(observation.utcStart)}/${

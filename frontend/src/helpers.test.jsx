@@ -1,4 +1,6 @@
 import {
+  generateFoldUrl,
+  generateObservationUrl,
   kronosLink,
   selectCanonicalObservationSummaryNode,
   toApiFilter,
@@ -89,5 +91,19 @@ describe("how we generated the kronos link", () => {
     expect(
       selectCanonicalObservationSummaryNode({ edges: [{}, { node: null }] })
     ).toBeNull();
+  });
+});
+
+describe("route helpers", () => {
+  it("should build observation links from the fetched MainProject", () => {
+    expect(generateFoldUrl("fold", "SyntheticMain", "J0125-2327")).toBe(
+      "/fold/SyntheticMain/J0125-2327/"
+    );
+    expect(
+      generateObservationUrl("SyntheticMain", "J0125-2327", {
+        utcStart: "2023-04-29T06:47:34+00:00",
+        beam: 2,
+      })
+    ).toBe("/SyntheticMain/J0125-2327/2023-04-29-06:47:34/2/");
   });
 });
