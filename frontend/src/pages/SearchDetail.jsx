@@ -4,7 +4,7 @@ import SearchDetailTable from "../components/SearchDetailTable";
 import { toApiFilter } from "../helpers";
 
 const query = graphql`
-  query SearchDetailQuery($jname: String!, $mainProject: String) {
+  query SearchDetailQuery($jname: String!, $mainProject: String!) {
     ...SearchDetailTableFragment
       @arguments(jname: $jname, mainProject: $mainProject)
   }

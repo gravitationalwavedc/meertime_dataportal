@@ -27,7 +27,7 @@ const FoldDetailTableFragment = graphql`
   @refetchable(queryName: "FoldDetailTableRefetchQuery")
   @argumentDefinitions(
     pulsar: { type: "String" }
-    mainProject: { type: "String", defaultValue: "MeerTIME" }
+    mainProject: { type: "String!" }
     excludeBadges: { type: "[String]", defaultValue: [] }
     minimumSNR: { type: "Float", defaultValue: 8 }
     first: { type: "Int", defaultValue: 5000 }

@@ -15,7 +15,7 @@ const SearchDetailTableFragment = graphql`
   fragment SearchDetailTableFragment on Query
   @argumentDefinitions(
     jname: { type: "String", defaultValue: "" }
-    mainProject: { type: "String", defaultValue: "MeerTIME" }
+    mainProject: { type: "String!" }
   ) {
     observationSummary(
       pulsar_Name: $jname
