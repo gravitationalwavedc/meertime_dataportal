@@ -121,6 +121,22 @@ export const generateObservationUrl = (mainProject, jname, observation) => {
   }/`;
 };
 
+export const selectSingleObservationMainProject = (data, fallback) =>
+  data?.pulsarFoldResult?.edges?.[0]?.node?.observation?.project?.mainProject
+    ?.name ?? fallback;
+
+export const singleObservationQueryVariables = ({
+  jname,
+  mainProject,
+  utc,
+  beam,
+}) => ({
+  pulsar: jname,
+  mainProject,
+  utc,
+  beam: parseInt(beam, 10),
+});
+
 export const columnsSizeFilter = (columns, screenSize) => {
   columns
     .filter(

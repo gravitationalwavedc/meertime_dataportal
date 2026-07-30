@@ -17,10 +17,16 @@ const SingleObservationTableFragment = graphql`
   fragment SingleObservationTableFragment on Query
   @argumentDefinitions(
     pulsar: { type: "String!" }
+    mainProject: { type: "String!" }
     utc: { type: "String!" }
     beam: { type: "Int!" }
   ) {
-    pulsarFoldResult(pulsar: $pulsar, utcStart: $utc, beam: $beam) {
+    pulsarFoldResult(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      utcStart: $utc
+      beam: $beam
+    ) {
       edges {
         node {
           nextObservation {

@@ -1,5 +1,5 @@
 import { Link } from "found";
-import { useState, Suspense } from "react";
+import { Suspense } from "react";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { Col, Container, Row } from "react-bootstrap";
 import { useScreenSize } from "../context/screenSize-context";
@@ -8,11 +8,43 @@ import GraphPattern from "../assets/images/graph-pattern.png";
 import Footer from "../components/Footer";
 import TopNav from "../components/TopNav";
 import SingleObservationTable from "../components/SingleObservationTable";
+import {
+  selectSingleObservationMainProject,
+  singleObservationQueryVariables,
+} from "../helpers";
 
 const SingleObservationQuery = graphql`
-  query SingleObservationQuery($pulsar: String!, $utc: String!, $beam: Int!) {
+  query SingleObservationQuery(
+    $pulsar: String!
+    $mainProject: String!
+    $utc: String!
+    $beam: Int!
+  ) {
+    pulsarFoldResult(
+      pulsar: $pulsar
+      mainProject: $mainProject
+      utcStart: $utc
+      beam: $beam
+    ) {
+      edges {
+        node {
+          observation {
+            project {
+              mainProject {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
     ...SingleObservationTableFragment
-      @arguments(pulsar: $pulsar, utc: $utc, beam: $beam)
+      @arguments(
+        pulsar: $pulsar
+        mainProject: $mainProject
+        utc: $utc
+        beam: $beam
+      )
   }
 `;
 
@@ -23,17 +55,17 @@ const SingleObservation = ({
 }) => {
   const { screenSize } = useScreenSize();
 
-  // Convert beam from string to integer since URL params are always strings
-  const beamInt = parseInt(beam, 10);
-
-  const observationData = useLazyLoadQuery(SingleObservationQuery, {
-    pulsar: jname,
-    utc: utc,
-    beam: beamInt,
-  });
+  const observationData = useLazyLoadQuery(
+    SingleObservationQuery,
+    singleObservationQueryVariables({ jname, mainProject, utc, beam })
+  );
+  const selectedMainProject = selectSingleObservationMainProject(
+    observationData,
+    mainProject
+  );
 
   const title = (
-    <Link size="sm" to={`/fold/${mainProject}/${jname}/`}>
+    <Link size="sm" to={`/fold/${selectedMainProject}/${jname}/`}>
       {jname}
     </Link>
   );
