@@ -18,7 +18,7 @@ import {
 const foldDetailQuery = graphql`
   query FoldDetailQuery(
     $pulsar: String!
-    $mainProject: String
+    $mainProject: String!
     $excludeBadges: [String]
     $minimumSNR: Float
     $first: Int = 5000
