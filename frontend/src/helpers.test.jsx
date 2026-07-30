@@ -2,7 +2,9 @@ import {
   generateFoldUrl,
   generateObservationUrl,
   kronosLink,
+  selectSingleObservationMainProject,
   selectCanonicalObservationSummaryNode,
+  singleObservationQueryVariables,
   toApiFilter,
 } from "./helpers";
 
@@ -105,5 +107,46 @@ describe("route helpers", () => {
         beam: 2,
       })
     ).toBe("/SyntheticMain/J0125-2327/2023-04-29-06:47:34/2/");
+  });
+
+  it("should choose the fetched observation MainProject for observation pages", () => {
+    const queryData = {
+      pulsarFoldResult: {
+        edges: [
+          {
+            node: {
+              observation: {
+                project: {
+                  mainProject: { name: "SyntheticMain" },
+                },
+              },
+            },
+          },
+        ],
+      },
+    };
+
+    expect(selectSingleObservationMainProject(queryData, "RouteMain")).toBe(
+      "SyntheticMain"
+    );
+    expect(selectSingleObservationMainProject({}, "RouteMain")).toBe(
+      "RouteMain"
+    );
+  });
+
+  it("should include MainProject in single observation query variables", () => {
+    expect(
+      singleObservationQueryVariables({
+        jname: "J0125-2327",
+        mainProject: "SyntheticMain",
+        utc: "2023-04-29-06:47:34",
+        beam: "2",
+      })
+    ).toEqual({
+      pulsar: "J0125-2327",
+      mainProject: "SyntheticMain",
+      utc: "2023-04-29-06:47:34",
+      beam: 2,
+    });
   });
 });
