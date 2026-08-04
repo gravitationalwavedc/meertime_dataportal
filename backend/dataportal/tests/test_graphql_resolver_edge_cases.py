@@ -1059,6 +1059,7 @@ class ResolverEdgeCaseTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         self.assertNotIn("errors", populated_content)
         populated_data = populated_content["data"]["pulsarFoldResult"]
         self.assertIn("ALT", populated_data["allProjects"])
+        self.assertNotIn("TEST", populated_data["allProjects"])
         self.assertIn(32, populated_data["allNchans"])
         self.assertIn(64, populated_data["allNchans"])
         self.assertIsNotNone(populated_data["toasLink"])

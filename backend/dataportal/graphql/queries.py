@@ -1032,14 +1032,15 @@ class PulsarFoldResultConnection(relay.Connection):
         ]
 
     def resolve_all_projects(self, instance):
-        # print(self.iterable.first().pulsar.pulsar_fold_summary.all_projects)
         if "pulsar" in instance.variable_values.keys():
-            return list(
-                Toa.objects.accessible_to(instance.context.user)
-                .filter(observation__pulsar__name=instance.variable_values["pulsar"])
-                .values_list("project__short", flat=True)
-                .distinct()
+            toa_project_query = Toa.objects.accessible_to(instance.context.user).filter(
+                observation__pulsar__name=instance.variable_values["pulsar"]
             )
+            if "mainProject" in instance.variable_values.keys():
+                toa_project_query = toa_project_query.filter(
+                    project__main_project__name__iexact=instance.variable_values["mainProject"]
+                )
+            return list(toa_project_query.values_list("project__short", flat=True).distinct())
         else:
             return []
 
