@@ -81,3 +81,26 @@ services:
     depends_on:
       - django-service
       - react-service
+
+  # Monitoring services
+  blackbox-exporter:
+    image: prom/blackbox-exporter:v0.27.0
+    container_name: blackbox-exporter
+    restart: unless-stopped
+    volumes:
+      - ./alloy/blackbox.yml:/config/blackbox.yml:ro
+    command:
+      - "--config.file=/config/blackbox.yml"
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro # Update the path to the Docker socket if necessary
+      - ./alloy/config.alloy:/etc/alloy/config.alloy:ro
+    command:
+      - run
+      - /etc/alloy/config.alloy
+      - "--server.http.listen-addr=0.0.0.0:12345"
+    environment:
+      - PROMETHEUS_PASSWORD=$CHANGEME

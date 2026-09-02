@@ -1,0 +1,85 @@
+discovery.docker "containers" {
+  host = "unix:///var/run/docker.sock"
+}
+
+discovery.relabel "docker_labels" {
+  targets = discovery.docker.containers.targets
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_service"]
+    target_label  = "service_name"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_label_com_docker_compose_project"]
+    target_label  = "compose_project"
+  }
+
+  rule {
+    source_labels = ["__meta_docker_container_name"]
+    target_label  = "container_name"
+  }
+}
+
+loki.source.docker "docker_logs" {
+  host       = "unix:///var/run/docker.sock"
+  targets    = discovery.relabel.docker_labels.output
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "https://loki.adacs-dev.cloud.edu.au/loki/api/v1/push"
+  }
+
+  external_labels = {
+    host = "meertime_dataportal",
+  }
+}
+
+prometheus.scrape "alloy" {
+  targets = [
+    {
+      __address__ = "alloy:12345",
+    },
+  ]
+
+  forward_to = [
+    prometheus.remote_write.default.receiver,
+  ]
+}
+
+prometheus.scrape "blackbox" {
+  targets = [
+    {
+      __address__ = "blackbox-exporter:9115",
+      instance    = "meertime_dataportal",
+      __param_target = "http://django-service:8000/",
+    },
+  ]
+
+  metrics_path = "/probe"
+
+  params = {
+    module = ["http_2xx"],
+  }
+
+  forward_to = [
+    prometheus.remote_write.default.receiver,
+  ]
+}
+
+prometheus.remote_write "default" {
+  endpoint {
+    url = "https://prometheus.adacs-dev.cloud.edu.au/api/v1/write"
+
+    basic_auth {
+      username = "prometheus"
+      password = sys.env("PROMETHEUS_PASSWORD")
+    }
+  }
+
+  external_labels = {
+    host = "meertime_dataportal",
+  }
+}
