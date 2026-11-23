@@ -7,7 +7,7 @@ import django_filters
 import graphene
 from astropy.time import Time
 from django.core.exceptions import ValidationError
-from django.db.models import Q, Subquery
+from django.db.models import F, Min, Q, Subquery
 from django.template.defaultfilters import filesizeformat
 from django.utils import timezone
 from graphene import ObjectType, relay
@@ -57,6 +57,10 @@ NUMERIC_FILTERS = ["exact", "lt", "lte", "gt", "gte"]
 def _observation_is_accessible(observation, request):
     if hasattr(observation, "_is_accessible"):
         return observation._is_accessible
+    return _project_data_is_accessible(observation.project_id, observation.embargo_end_date, request)
+
+
+def _project_data_is_accessible(project_id, embargo_end_date, request):
     if request.user.is_superuser:
         return True
 
@@ -65,18 +69,15 @@ def _observation_is_accessible(observation, request):
         request_now = timezone.now()
         request._dataportal_access_check_now = request_now
 
-    if observation.embargo_end_date is None or observation.embargo_end_date < request_now:
+    if embargo_end_date is None or embargo_end_date < request_now:
         return True
 
-    # After here we need to ensure no authenticated user can access, so we can skip the database query for
-    # unauthenticated users. In short annoymous users can't have project memeberships.
     if not request.user.is_authenticated:
         return False
 
     membership_project_ids = getattr(request, "_dataportal_membership_project_ids", None)
-    membership_user_id = getattr(request, "_dataportal_membership_project_user_id", None)
-    current_user_id = request.user.id
-    if membership_project_ids is None or membership_user_id != current_user_id:
+    current_user_id = request.user.pk
+    if membership_project_ids is None or getattr(request, "_dataportal_membership_user_id", None) != current_user_id:
         membership_project_ids = set(
             ProjectMembership.objects.filter(
                 user=request.user,
@@ -84,9 +85,27 @@ def _observation_is_accessible(observation, request):
             ).values_list("project_id", flat=True)
         )
         request._dataportal_membership_project_ids = membership_project_ids
-        request._dataportal_membership_project_user_id = current_user_id
+        request._dataportal_membership_user_id = current_user_id
 
-    return observation.project_id in membership_project_ids
+    return project_id in membership_project_ids
+
+
+def _accessible_toa_option_values(queryset, field, request):
+    # Cache the earliest expiry for each project and option. Evaluate access against
+    # the request time so a warm cache still reflects newly expired embargoes.
+    options = (
+        queryset.values("project_id", field)
+        .annotate(first_expiry=Min(F("observation__utc_start") + F("project__embargo_period")))
+        .order_by(field)
+        .values_list("project_id", field, "first_expiry")
+    )
+    return list(
+        dict.fromkeys(
+            value
+            for project_id, value, first_expiry in options
+            if _project_data_is_accessible(project_id, first_expiry, request)
+        )
+    )
 
 
 ###################################
@@ -645,7 +664,7 @@ class ObservationNode(DjangoObjectType):
         return queryset.accessible_to(info.context.user)
 
     def resolve_restricted(self, info):
-        return self.is_restricted(info.context.user)
+        return not _observation_is_accessible(self, info.context)
 
     def resolve_is_embargoed(self, info):
         return self.is_embargoed
@@ -659,13 +678,13 @@ class ObservationNode(DjangoObjectType):
         return self.telescope
 
     def resolve_ephemeris(self, info):
-        if self.ephemeris is None:
+        ephemeris = self.ephemeris
+        if ephemeris is None:
             return None
         if hasattr(self, "_ephemeris_is_accessible"):
-            return self.ephemeris if self._ephemeris_is_accessible else None
-        if self.ephemeris.is_restricted(info.context.user):
-            return None
-        return self.ephemeris
+            return ephemeris if self._ephemeris_is_accessible else None
+        embargo_end_date = ephemeris.created_at + ephemeris.project.embargo_period
+        return ephemeris if _project_data_is_accessible(ephemeris.project_id, embargo_end_date, info.context) else None
 
     def resolve_mode_duration(self, info):
         obs = Observation.objects.accessible_to(info.context.user)
@@ -1033,14 +1052,12 @@ class PulsarFoldResultConnection(relay.Connection):
 
     def resolve_all_projects(self, instance):
         if "pulsar" in instance.variable_values.keys():
-            toa_project_query = Toa.objects.accessible_to(instance.context.user).filter(
-                observation__pulsar__name=instance.variable_values["pulsar"]
-            )
+            toa_project_query = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
             if "mainProject" in instance.variable_values.keys():
                 toa_project_query = toa_project_query.filter(
                     project__main_project__name__iexact=instance.variable_values["mainProject"]
                 )
-            return list(toa_project_query.values_list("project__short", flat=True).distinct())
+            return _accessible_toa_option_values(toa_project_query, "project__short", instance.context)
         else:
             return []
 
@@ -1048,14 +1065,8 @@ class PulsarFoldResultConnection(relay.Connection):
         if "pulsar" not in instance.variable_values.keys():
             return []
 
-        values = list(
-            Toa.objects.accessible_to(instance.context.user)
-            .filter(observation__pulsar__name=instance.variable_values["pulsar"])
-            .values_list("obs_nchan", flat=True)
-            .order_by("obs_nchan")
-            .distinct()
-        )
-        return sorted(values)
+        toas = Toa.objects.filter(observation__pulsar__name=instance.variable_values["pulsar"])
+        return _accessible_toa_option_values(toas, "obs_nchan", instance.context)
 
     def resolve_toas_link(self, instance):
         first = self.iterable.first() if self.iterable else None
@@ -1919,16 +1930,17 @@ class Query(graphene.ObjectType):
     def resolve_pulsar_fold_result(self, info, **kwargs):
         queryset = (
             PulsarFoldResult.objects.prefetch_related(
+                "observation__badges",
                 "pipeline_run__badges",
                 "pipeline_run__observation__calibration__badges",
             )
             .select_related(
-                "observation__project",
-                "observation__ephemeris",
+                "observation__project__main_project",
+                "observation__ephemeris__project",
                 "observation__calibration",
                 "pipeline_run",
                 "pipeline_run__observation",
-                "pipeline_run__observation__ephemeris",
+                "pipeline_run__observation__ephemeris__project",
                 "pipeline_run__observation__calibration",
             )
             .all()
