@@ -1,10 +1,11 @@
 import json
 from datetime import timedelta
 from decimal import Decimal
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.db import connection
-from django.test.utils import CaptureQueriesContext
+from django.test.utils import CaptureQueriesContext, override_settings
 from django.utils import timezone
 from graphene.relay import Node
 from graphene_django.utils.testing import GraphQLTestCase
@@ -567,7 +568,7 @@ class GraphQLAccessControlTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
         embargoed_toa_id = Node.to_global_id("ToaNode", self.toa_embargoed.id)
         self.assertNotIn(embargoed_toa_id, ids)
 
-    def test_non_member_pfr_image_guards_query_count_stays_flat_with_more_rows(self):
+    def test_non_member_fold_detail_query_count_stays_flat_with_more_rows(self):
         self.client.force_login(self.outsider_user)
         query = """
             query {
@@ -575,6 +576,13 @@ class GraphQLAccessControlTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
                 edges {
                   node {
                     id
+                    observation {
+                      id
+                      restricted
+                      ephemeris { id }
+                      project { mainProject { name } }
+                      badges { edges { node { name } } }
+                    }
                     images {
                       edges {
                         node { id }
@@ -636,8 +644,96 @@ class GraphQLAccessControlTestCase(BaseTestCaseWithTempMedia, GraphQLTestCase):
             expanded_response = self.query(query)
         expanded_content = json.loads(expanded_response.content)
         self.assertNotIn("errors", expanded_content)
+        edges = expanded_content["data"]["pulsarFoldResult"]["edges"]
+        self.assertGreater(len(edges), len(baseline_content["data"]["pulsarFoldResult"]["edges"]))
+        observations = {edge["node"]["observation"]["id"]: edge["node"]["observation"] for edge in edges}
+        public_id = Node.to_global_id("ObservationNode", self.observation_public_ephem_embargoed.pk)
+        embargoed_id = Node.to_global_id("ObservationNode", obs.pk)
+        self.assertFalse(observations[public_id]["restricted"])
+        self.assertIsNone(observations[public_id]["ephemeris"])
+        self.assertTrue(observations[embargoed_id]["restricted"])
+        self.assertIsNone(observations[embargoed_id]["ephemeris"])
         expanded_queries = len(captured)
         self.assertLessEqual(expanded_queries, baseline_queries + 2)
+
+    @override_settings(CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}})
+    def test_cached_toa_plot_options_follow_embargo_expiry(self):
+        Toa.objects.filter(pk=self.toa_embargoed.pk).update(obs_nchan=16)
+        query = """
+            query ($pulsar: String!, $mainProject: String!) {
+                pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
+                    allProjects
+                    allNchans
+                }
+            }
+        """
+        variables = {"pulsar": self.pulsar.name, "mainProject": self.main_project.name}
+        cutoff = self.observation_embargoed.embargo_end_date
+
+        with patch("django.utils.timezone.now", return_value=cutoff):
+            first_response = self.query(query, variables=variables)
+        first = json.loads(first_response.content)
+        self.assertNotIn("errors", first)
+        self.assertEqual(first["data"]["pulsarFoldResult"], {"allProjects": ["TEST"], "allNchans": [32]})
+
+        with (
+            patch("django.utils.timezone.now", return_value=cutoff + timedelta(seconds=1)),
+            CaptureQueriesContext(connection) as captured,
+        ):
+            next_response = self.query(query, variables=variables)
+        result = json.loads(next_response.content)
+        self.assertNotIn("errors", result)
+        self.assertEqual(result["data"]["pulsarFoldResult"], {"allProjects": ["TEST"], "allNchans": [16, 32]})
+        self.assertFalse(any('FROM "dataportal_toa"' in query["sql"] for query in captured))
+
+    @override_settings(CACHES={"default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}})
+    def test_cached_fold_detail_uses_current_viewer_and_membership(self):
+        ephemeris_project = Project.objects.create(
+            code="SCI-TEST-002",
+            short="EPHEM",
+            main_project=self.main_project,
+            embargo_period=self.project.embargo_period,
+        )
+        Ephemeris.objects.filter(pk=self.ephemeris_embargoed.pk).update(project=ephemeris_project)
+        Toa.objects.filter(pk=self.toa_embargoed.pk).update(obs_nchan=16)
+        query = """
+            query ($pulsar: String!, $mainProject: String!) {
+                pulsarFoldResult(pulsar: $pulsar, mainProject: $mainProject) {
+                    allNchans
+                    edges { node { observation { id restricted ephemeris { id } } } }
+                }
+            }
+        """
+        variables = {"pulsar": self.pulsar.name, "mainProject": self.main_project.name}
+        observation_id = Node.to_global_id("ObservationNode", self.observation_embargoed.pk)
+
+        def get_fold_detail():
+            result = json.loads(self.query(query, variables=variables).content)
+            self.assertNotIn("errors", result)
+            fold = result["data"]["pulsarFoldResult"]
+            observations = {edge["node"]["observation"]["id"]: edge["node"]["observation"] for edge in fold["edges"]}
+            return observations[observation_id], fold["allNchans"]
+
+        self.client.force_login(self.member_user)
+        observation, channels = get_fold_detail()
+        self.assertFalse(observation["restricted"])
+        self.assertIsNone(observation["ephemeris"])
+        self.assertEqual(channels, [16, 32])
+
+        ProjectMembership.objects.create(
+            user=self.member_user, project=ephemeris_project, role=ProjectMembership.RoleChoices.MEMBER
+        )
+        self.assertIsNotNone(get_fold_detail()[0]["ephemeris"])
+
+        self.client.force_login(self.outsider_user)
+        restricted, channels = get_fold_detail()
+        self.assertTrue(restricted["restricted"])
+        self.assertIsNone(restricted["ephemeris"])
+        self.assertEqual(channels, [32])
+
+        self.client.force_login(self.member_user)
+        ProjectMembership.objects.filter(user=self.member_user).update(is_active=False)
+        self.assertEqual(get_fold_detail(), (restricted, [32]))
 
     def test_is_restricted_uses_annotation_without_extra_queries(self):
         observation_items = list(Observation.objects.accessible_to(self.outsider_user))
